@@ -12,7 +12,7 @@ The CCF coordinates that are returned by this tool are not identical to the targ
 
 ## Install
 
-Download the Windows executable from ![this link](https://drive.google.com/drive/folders/1QfUc2-Q9fWa_ncNJnP0fzvpdwQkYC3LF?usp=sharing)
+Download the Windows executable from https://drive.google.com/drive/folders/1QfUc2-Q9fWa_ncNJnP0fzvpdwQkYC3LF?usp=sharing
 
 Run the NPTrajectoryPlanner executable. The 25 um CCF 2017 atlas is included. Email Dan (dbirman@uw.edu) if you need a Mac executable.
 
