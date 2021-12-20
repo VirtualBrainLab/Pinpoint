@@ -2,7 +2,7 @@
 
 This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, or up to four 4-shank 2.0 probes. Based on the trajectory explorer by Andy Peters https://github.com/petersaj/neuropixels_trajectory_explorer. 
 
-![neuropixels trajectory planner](https://github.com/SteinmetzLab/NPTrajectoryPlanner/raw/main/Images/2021_12_6_v0.1.1.png)
+![neuropixels trajectory planner](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/2021_12_6_v0.1.1.png)
 
 ## Known issues
 
@@ -32,13 +32,13 @@ Once your probe is at the insertion point, adjust the rotation angles.
 
 Azimuth is the angle of the probe manipulator relative to the brain. Use [Q/E] to control azimuth.
 
-![Azimuth example](https://github.com/SteinmetzLab/NPTrajectoryPlanner/raw/main/Images/azimuth.gif)
+![Azimuth example](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/azimuth.gif)
 
 ### Elevation
 
 Elevation is the angle of the probe on the manipulator, and is restricted to the range 0 (horizontal) to 90 (vertical). Use [R/F] to control elevation.
 
-![Azimuth example](https://github.com/SteinmetzLab/NPTrajectoryPlanner/raw/main/Images/elevation.gif)
+![Azimuth example](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/elevation.gif)
 
 ### Depth
 
