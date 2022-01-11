@@ -58,16 +58,11 @@ Clicking on the coordinates shown at the bottom of the screen copies them to the
 
 Please report issues on the Github issues page.
 
-## Roadmap
-
-**[0.1]** Parity with the existing allenCCF Matlab tools (see: https://github.com/cortex-lab/allenCCF) with additional tools for multiple probes and collisions
-
-[0.2] Lock probe to area, spawn probes in default positions, add additional rig parts
-
-[0.3] Search for automated collision solutions with implant area constraints for <=4 probes
-
-Detailed development items are on the project page: https://github.com/SteinmetzLab/NPTrajectoryPlanner/projects
-
 ## References
 
 CCF Atlas downloaded from http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ 
+## Version Changes
+
+[0.1.9] Added "in-plane" slice view
+
+[0.1] Parity with the existing allenCCF Matlab tools (see: https://github.com/cortex-lab/allenCCF) with additional tools for multiple probes and collisions
