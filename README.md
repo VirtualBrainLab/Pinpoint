@@ -54,6 +54,22 @@ Once the probe is at the position and angles you want, change the recording regi
 
 Clicking on the coordinates shown at the bottom of the screen copies them to the clipboard.
 
+## Settings
+
+**Reset active probe** - Returns the active probe to the original starting position (Bregma by default)
+**Spawn IBL probes** - Places two NP1.0 probes in the configuration used by the IBL
+**Probe collisions** - Prevents probe shanks and holders from intersecting when moved
+**Set (0,0,0) to Bregma** - On: smpets the 0,0,0 coordinate to Bregma, or to the 0,0,0 CCF coordinate when unchecked (default: on)
+**Depth from brain surface** - On: measures insertion depth from the brain surface, Off: from the DV=0 plane (default: on)
+**Sagittal/Coronal slices** - On: displays slices aligned to the probe tip (default: off)
+**Display area acronyms** - On: show only acronyms for brain areas (default: off)
+**Areas include layers** - On: include the layers (e.g. in cortex) (default: on)
+**Rig** - Dropdown with options for rigs to display
+**Recording region only** - On: display only the areas within the recording region, Off: show the areas along the whole probe shank (default: on)
+**Recording region size** - Slider controls the size of the recording region. Defaults to a set of options that depend on the probe.
+**Display In-Plane Slice** - On: shows a slice of cortex that is "in-plane" with the probe, note that this uses a camera that is looking at the probe from the front of the brain towards the back (default: on)
+**Convert AP/ML to probe** - On: when the probe manipulator is off of the 0/90 axis the AP/ML positions are not useful for calculating the insertion point relative to Bregma, turn this on to display the position along the probe forward/side axes (default: off)
+
 ## Bugs
 
 Please report issues on the Github issues page.
