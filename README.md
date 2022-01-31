@@ -2,8 +2,6 @@
 
 This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, or up to four 4-shank 2.0 probes. Based on the trajectory explorer by Andy Peters https://github.com/petersaj/neuropixels_trajectory_explorer. 
 
-Download the most recent version from the releases page:
-![neuropixels trajectory planner](https://github.com/dbirman/NPTrajectoryPlanner/releases)
 
 ## Known issues
 
@@ -13,9 +11,10 @@ The CCF coordinates that are returned by this tool are not identical to the targ
 
 ## Install
 
-Download entire folder at this link: https://drive.google.com/drive/folders/1QfUc2-Q9fWa_ncNJnP0fzvpdwQkYC3LF?usp=sharing
+Download the most recent version from the releases page.
+![neuropixels trajectory planner](https://github.com/dbirman/NPTrajectoryPlanner/releases)
 
-Run NPTrajectoryPlanner.exe the 25 um CCF 2017 atlas is included. Email Dan (dbirman@uw.edu) if you need a Mac executable.
+Currently we are only building releases for Windows using the 25 um CCF 2017 atlas. If you need a Mac or Linux executable or a version using the 10um atlas please email Dan (dbirman@uw.edu).
 
 ## Setting up a probe
 
