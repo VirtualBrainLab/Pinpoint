@@ -90,9 +90,3 @@ Please report issues on the Github issues page.
 ## References
 
 CCF Atlas downloaded from http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ 
-## Version Changes
-
-[0.1.10] Added an option that lets you switch betweeen the AP/ML axes and the forward/side axes of the probe itself (easier for planning insertions when your probe is not perpendicular to the brain)
-[0.1.9] Added "in-plane" slice view
-
-[0.1] Parity with the existing allenCCF Matlab tools (see: https://github.com/cortex-lab/allenCCF) with additional tools for multiple probes and collisions
