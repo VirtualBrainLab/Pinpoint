@@ -2,7 +2,8 @@
 
 This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, or up to four 4-shank 2.0 probes. Based on the trajectory explorer by Andy Peters https://github.com/petersaj/neuropixels_trajectory_explorer. 
 
-![neuropixels trajectory planner](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/2021_12_6_v0.1.1.png)
+Download the most recent version from the releases page:
+![neuropixels trajectory planner](https://github.com/dbirman/NPTrajectoryPlanner/releases)
 
 ## Known issues
 
