@@ -12,10 +12,13 @@ The CCF coordinates that are returned by this tool are not identical to the targ
 
 ## Install
 
-Download the most recent version from the releases page.
-![neuropixels trajectory planner](https://github.com/dbirman/NPTrajectoryPlanner/releases)
+Download the most recent version from the ![releases page](https://github.com/dbirman/NPTrajectoryPlanner/releases).
 
-Currently we are only building releases for Windows using the 25 um CCF 2017 atlas. If you need a Mac or Linux executable or a version using the 10um atlas please email Dan (dbirman@uw.edu).
+Currently we are only building releases for Windows and Linux using the 25 um CCF 2017 atlas. If you need a Mac executable or a version using the 10um atlas please email Dan (dbirman@uw.edu).
+
+### Additional linux instructions
+
+To run the linux executable you need to go to the unzipped folder and run `chmod +x` on the .x86_64 file. Some users may run into permissions issues, in which case running `chown -R .` from within the folder should repair those.
 
 ## Setting up a probe
 
@@ -47,13 +50,23 @@ Use [Z/X] to insert the probe.
 
 Note that the rotation point is the insertion coordinate with depth==0 (i.e. the point the tip was at before you inserted the probe). I'll change this in a future release, but for now if you rotate the probe after inserting it will rotate around that insertion point.
 
+### Spin
+
+Use [1/3] to spin the probe along the axis of the probe shank. Note that NP2.4 probes spin around the leftmost probe shank.
+
 ### Recording region
 
 Once the probe is at the position and angles you want, change the recording region size (in the settings) and position (using [T/G]) to match what you plan to do in your recording and adjust the insertion depth accordingly.
 
 ### Export coordinates
 
-Clicking on the coordinates shown at the bottom of the screen copies them to the clipboard.
+Clicking on the coordinates shown at the bottom of the screen copies them to the clipboard. If the azimuth angle is not at 0 use the convert AP/ML to probe setting to export the position along the probe forward/side axis.
+
+### Using coordinates for surgery
+
+To use your coordinates for a surgery, rotate the manipulator to match the azimuth angle and set the probe elevation angle. Then move your probe tip (the left-most probe tip on a 2.4 when facing upwards) to Bregma and zero your manipulator. Move the probe along its forward and side axes according to the exported coordinates (or along AP/ML if you kept azimuth at 0). Assuming you exported your coordinates starting at the brain surface, drive the probe forward until the tip touches the brain, zero the depth axis, and continue forward until you reach the pre-specified depth.
+
+In v0.3 we will release tools that display what the expected channel activity should look like when you performing a live recording, to help ensure accurate targeting. Coming soon!
 
 ## Settings
 
@@ -85,7 +98,7 @@ Clicking on the coordinates shown at the bottom of the screen copies them to the
 
 ## Bugs
 
-Please report issues on the Github issues page.
+Please report issues on the [issues page](https://github.com/dbirman/NPTrajectoryPlanner/issues).
 
 ## References
 
