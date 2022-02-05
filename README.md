@@ -18,7 +18,7 @@ Currently we are only building releases for Windows and Linux using the 25 um CC
 
 ### Additional linux instructions
 
-To run the linux executable you need to go to the unzipped folder and run `chmod +x` on the .x86_64 file. Some users may run into permissions issues, in which case running `chown -R .` from within the folder should repair those.
+To run the linux executable you need to go to the unzipped folder and run `chmod +x` on the .x86_64 file. Some users may run into permissions issues, in which case running ` chown -R yourusername .` from within the folder should repair those.
 
 ## Setting up a probe
 
