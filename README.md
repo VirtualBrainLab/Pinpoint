@@ -20,6 +20,10 @@ Currently we are only building releases for Windows and Linux using the 25 um CC
 
 To run the linux executable you need to go to the unzipped folder and run `chmod +x` on the .x86_64 file. Some users may run into permissions issues, in which case running ` chown -R yourusername .` from within the folder should repair those.
 
+### Additional mac instructions
+
+To run the max executable you need to go to the unzipped folder and run `chmod +x` on the .app file. You will also probably have a security issue because the app is unsigned. Go to Systems Preferences > Security & Privacy > General and allow the file to "run anyway". 
+
 ## Setting up a probe
 
 To set up a new probe, select the button corresponding to the probe type (NP1/NP2/NP2.4). By default the probe is set to the IBL bregma coordinate (CCF: AP 5.4f, ML 5.739f, DV 0.332f) and the AP/ML distance is relative to that position.
