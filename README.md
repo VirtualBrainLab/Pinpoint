@@ -14,8 +14,6 @@ The CCF coordinates that are returned by this tool are not identical to the targ
 
 Download the most recent version from the ![releases page](https://github.com/dbirman/NPTrajectoryPlanner/releases).
 
-Currently we are only building releases for Windows and Linux using the 25 um CCF 2017 atlas. If you need a Mac executable or a version using the 10um atlas please email Dan (dbirman@uw.edu).
-
 ### Additional linux instructions
 
 To run the linux executable you need to go to the unzipped folder and run `chmod +x` on the .x86_64 file. Some users may run into permissions issues, in which case running ` chown -R yourusername .` from within the folder should repair those.
