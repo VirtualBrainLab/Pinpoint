@@ -22,7 +22,7 @@ To run the linux executable you need to go to the unzipped folder and run `chmod
 
 ### Additional mac instructions
 
-To run the max executable you need to go to the unzipped folder and run `chmod +x` on the .app file. You will also probably have a security issue because the app is unsigned. Go to Systems Preferences > Security & Privacy > General and allow the file to "run anyway". 
+The mac executable currently only runs on MacOS **Mojave** and earlier. You will probably have a security issue because the app is unsigned. Go to Systems Preferences > Security & Privacy > General and allow the file to "run anyway". 
 
 ## Setting up a probe
 
@@ -40,12 +40,14 @@ Once your probe is at the insertion point, adjust the rotation angles.
 
 Azimuth is the angle of the probe manipulator relative to the brain. Use [Q/E] to control azimuth.
 
+(note the az example is out of date, I will update soon)
 ![Azimuth example](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/azimuth.gif)
 
 ### Elevation
 
 Elevation is the angle of the probe on the manipulator, and is restricted to the range 0 (horizontal) to 90 (vertical). Use [R/F] to control elevation.
 
+(note the elevation example is out of date, I will update soon)
 ![Azimuth example](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/elevation.gif)
 
 ### Depth
@@ -64,13 +66,13 @@ Once the probe is at the position and angles you want, change the recording regi
 
 ### Export coordinates
 
-Clicking on the coordinates shown at the bottom of the screen copies them to the clipboard. If the azimuth angle is not at 0 use the convert AP/ML to probe setting to export the position along the probe forward/side axis.
+Clicking on the coordinates shown at the bottom of the screen copies them to the clipboard. If the azimuth angle is not at 0/90/180 use the convert AP/ML to probe setting to export the position along the probe forward/side axis.
 
 ### Using coordinates for surgery
 
-To use your coordinates for a surgery, rotate the manipulator to match the azimuth angle and set the probe elevation angle. Then move your probe tip (the left-most probe tip on a 2.4 when facing upwards) to Bregma and zero your manipulator. Move the probe along its forward and side axes according to the exported coordinates (or along AP/ML if you kept azimuth at 0). Assuming you exported your coordinates starting at the brain surface, drive the probe forward until the tip touches the brain, zero the depth axis, and continue forward until you reach the pre-specified depth.
+To use your coordinates for a surgery, rotate the manipulator to match the azimuth angle and set the probe elevation angle. Then move your probe tip (the left-most probe tip on a 2.4 when facing upwards) to Bregma and zero your manipulator. Move the probe along its forward and side axes according to the exported coordinates (or along AP/ML if you kept azimuth at a multiple of 90 degrees). Assuming you exported your coordinates starting at the brain surface, drive the probe forward until the tip touches the brain, zero the depth axis, and continue forward until you reach the pre-specified depth.
 
-In v0.3 we will release tools that display what the expected channel activity should look like when you performing a live recording, to help ensure accurate targeting. Coming soon!
+In v0.5 we will release tools that display what the expected channel activity should look like when you performing a live recording, to help ensure accurate targeting. Coming soon!
 
 ## Settings
 
