@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - MinPanels
+  - PanelLabels
+  - Stimulus
+  - StimWindow
+  - BrainImage
+  - SpikesPlot
+  - ElectrodeSite
+  - ProbeModel
+  - Probe
+  - Neuron
+  - BrainRoot
+  - TooltipCanvas
+  - UIDraggable
+  - BrainRegion
+  - OntologyToggle
+  - VideoWindow
+  - ProbePanel
+  - ProbeAreaText
+  - BrainRotatorMiniControls
+  - AreaPanel
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Debug
+  - Water
+  - UI
+  - Brain
+  - Rig
+  - Stimuli
+  - StimPlane
+  - Probe
+  - Neurons
+  - AnimationTargets
+  - BrainAreas
+  - BrainControls
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0

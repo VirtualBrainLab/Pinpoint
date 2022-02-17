@@ -1,0 +1,3 @@
+[submodule "Assets/vbl-core"]
+	path = Assets/vbl-core
+	url = https://github.com/dbirman/vbl-core
