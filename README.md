@@ -8,7 +8,7 @@ This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, 
 
 ### CCF -> in vivo issues
 
-The CCF coordinates that are returned by this tool are not identical to the target you will get in vivo. The CCF brain appears to be rotated slightly (tilted backward) and squashed along the DV axis (about 95% of in vivo size). Once these issues are resolved Andy and I plan to update both tools to correctly account for this error.
+The CCF coordinates returned by this tool are not identical to the in vivo mouse brain. We know for sure that the CCF atlas is stretched along the DV axis (in vivo = 0.952 * CCF) and squashed on the AP axis (in vivo 1.087 * CCF). In addition it appears the lamda-bregma angle in the CCF space is rotated by about 5 degrees. These differences are **not** currently implemented in the trajectory planner, but they will be included in the next release (v0.5). 
 
 ## Install
 
