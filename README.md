@@ -8,11 +8,13 @@ This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, 
 
 ### CCF -> in vivo issues
 
-The CCF coordinates returned by this tool are not identical to the in vivo mouse brain. We know for sure that the CCF atlas is stretched along the DV axis (in vivo = 0.952 * CCF) and squashed on the AP axis (in vivo 1.087 * CCF). In addition it appears the lamda-bregma angle in the CCF space is rotated by about 5 degrees. These differences are **not** currently implemented in the trajectory planner, but they will be included in the next release (v0.5). 
+The CCF coordinates returned by this tool are not identical to the in vivo mouse brain. We know for sure that the CCF atlas is stretched along the DV axis (in vivo = 0.952 * CCF) and squashed on the AP axis (in vivo 1.087 * CCF). In addition it appears the lamda-bregma angle in the CCF space is rotated by about 5 degrees. These differences are **not** currently implemented in the trajectory planner.
+
+In release v0.5 we will add the stAP/stDV (for **s**tereo**t**axic) coordinates as a settings option.
 
 ## Install
 
-Download the most recent version from the ![releases page](https://github.com/dbirman/NPTrajectoryPlanner/releases).
+You can use the trajectory planner ![on the web](http://nptraj.virtualbrainlab.org) or you can download the most recent version Desktop application from the ![releases page](https://github.com/dbirman/NPTrajectoryPlanner/releases).
 
 ### Additional linux instructions
 
@@ -22,17 +24,17 @@ To run the linux executable you need to go to the unzipped folder and run `chmod
 
 The mac executable currently only runs on MacOS **Mojave** and earlier. You will probably have a security issue because the app is unsigned. Go to Systems Preferences > Security & Privacy > General and allow the file to "run anyway". 
 
-## Setting up a probe
+## Instructions for use
 
-To set up a new probe, select the button corresponding to the probe type (NP1/NP2/NP2.4). By default the probe is set to the IBL bregma coordinate (CCF: AP 5.4f, ML 5.739f, DV 0.332f) and the AP/ML distance is relative to that position.
+To set up a new probe, select the button in the bottom right corresponding to the probe type (NP1/NP2/NP2.4). By default the probe's (0,0,0) coordinate is set to the IBL bregma coordinate (CCF: AP 5.4f, ML 5.739f, DV 0.332f).
 
-To target a specific brain area it's best to place your probe in that brain area by adjusting the translation first, then adjust the rotations, then drive your probe into the brain -- in the same way that you would do a rea recording. Right now, rotations go **around** the insertion position (see roadmap for details).
+Note that when targeting a brain region the rotations go **around** the insertion point on the brain surface. 
+
+At any time you can press [M] to open the manual coordinate entry window and adjust the probe position by hand. 
 
 ### Translation
 
-Use [W/A/S/D] to move the probe to the insertion point. Hold **shift** to move faster along any axis.
-
-Once your probe is at the insertion point, adjust the rotation angles.
+Use [W/A/S/D] to move the probe along the AP or ML axis. Hold **shift** to move faster along any axis.
 
 ### Azimuth
 
@@ -43,7 +45,7 @@ Azimuth is the angle of the probe manipulator relative to the brain. Use [Q/E] t
 
 ### Elevation
 
-Elevation is the angle of the probe on the manipulator, and is restricted to the range 0 (horizontal) to 90 (vertical). Use [R/F] to control elevation.
+Elevation is the angle of the probe on the manipulator, and is restricted to the range 0 (vertical) to 90 (horizontal). Use [R/F] to control elevation.
 
 (note the elevation example is out of date, I will update soon)
 ![Azimuth example](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/elevation.gif)
@@ -66,11 +68,23 @@ Once the probe is at the position and angles you want, change the recording regi
 
 Clicking on the coordinates shown at the bottom of the screen copies them to the clipboard. If the azimuth angle is not at 0/90/180 use the convert AP/ML to probe setting to export the position along the probe forward/side axis.
 
-### Using coordinates for surgery
+### Active probe
 
-To use your coordinates for a surgery, rotate the manipulator to match the azimuth angle and set the probe elevation angle. Then move your probe tip (the left-most probe tip on a 2.4 when facing upwards) to Bregma and zero your manipulator. Move the probe along its forward and side axes according to the exported coordinates (or along AP/ML if you kept azimuth at a multiple of 90 degrees). Assuming you exported your coordinates starting at the brain surface, drive the probe forward until the tip touches the brain, zero the depth axis, and continue forward until you reach the pre-specified depth.
+When setting up multi-probe insertions you can click the probe panel, the probe model, or the probe coordinate text to set that probe to active. Pressing [Backspace] removes the active probe. 
 
-In v0.5 we will release tools that display what the expected channel activity should look like when you performing a live recording, to help ensure accurate targeting. Coming soon!
+## Using coordinates for surgery
+
+To use your coordinates for a surgery, rotate the manipulator to match the azimuth angle and set the probe elevation angle. Then move your probe tip (the left-most probe tip on a 2.4 when facing upwards) to Bregma and zero your manipulator.
+
+To translate the probe you can either use the AP/ML coordinates (if you kept the azimuth angle at a multiple of 90 degrees) or you can turn on the "Convert AP/ML to probe axis" setting, which exports the translation coordinates in the probe's forward and side axes.
+
+To insert the probe, drive the probe forward until the tip touches the brain, zero the depth axis, and continue forward at a slow speed until you reach the specified depth.
+
+In a future release we will add a display of the expected channel activity for a live recording, to help ensure accurate targeting. Coming soon!
+
+## Saving and loading probes
+
+You can save the coordinates of an insertion for future use by clicking on the coordinate text. This copies the active probe coordinates to a string. This string can also be used to manually position a probe by pressing [M] and entering the string (coming soon!). 
 
 ## Settings
 
