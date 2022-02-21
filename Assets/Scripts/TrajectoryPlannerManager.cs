@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 
 public class TrajectoryPlannerManager : MonoBehaviour
@@ -49,13 +51,6 @@ public class TrajectoryPlannerManager : MonoBehaviour
     // Track when brain areas get clicked on
     private List<int> targetedBrainAreas;
 
-    // Annotations
-    // this file stores the indexes that we actually have data for
-    private string datasetIndexFile = "data_indexes";
-    // annotation files
-    private string annotationIndexFile = "ann/indexes";
-    private AnnotationDataset annotationDataset;
-
     private bool movedThisFrame;
     private bool movedThisFrameDirty;
     private bool spawnedThisFrame = false;
@@ -85,16 +80,61 @@ public class TrajectoryPlannerManager : MonoBehaviour
 
         modelControl.LateStart(true);
 
-        // First load the indexing file
-        Debug.Log("Loading the CCF index file");
-        byte[] ccfIndexMap = util.LoadBinaryByteHelper(datasetIndexFile);
-        // Load the annotation file
-        Debug.Log("Loading the CCF annotation index and map files");
-        ushort[] annData = util.LoadBinaryUShortHelper(annotationIndexFile);
-        uint[] annMap = util.LoadBinaryUInt32Helper(annotationIndexFile + "_map");
-        Debug.Log("Creating the CCF AnnotationDataset object");
-        annotationDataset = new AnnotationDataset("annotation", annData, annMap, ccfIndexMap);
+        LoadAnnotationDataset();
     }
+
+
+    // Annotations
+    [SerializeField] private AssetReference dataIndexes;
+    private byte[] datasetIndexes_bytes;
+    [SerializeField] private AssetReference annotationIndexes;
+    private ushort[] annotationIndexes_shorts;
+    [SerializeField] private AssetReference annotationMap;
+    private uint[] annotationMap_ints;
+    private int annotationDatasetWait = 0;
+    private AnnotationDataset annotationDataset;
+    private void LoadAnnotationDataset()
+    {
+        dataIndexes.LoadAssetAsync<TextAsset>().Completed += handle =>
+        {
+            datasetIndexes_bytes = handle.Result.bytes;
+            annotationDatasetWait++;
+            if (annotationDatasetWait >= 3)
+                LoadAnnotationDatasetCompleted();
+            Addressables.Release(handle);
+        };
+        annotationIndexes.LoadAssetAsync<TextAsset>().Completed += handle =>
+        {
+            annotationIndexes_shorts = new ushort[handle.Result.bytes.Length / 2];
+            Buffer.BlockCopy(handle.Result.bytes, 0, annotationIndexes_shorts, 0, handle.Result.bytes.Length);
+            annotationDatasetWait++;
+            if (annotationDatasetWait >= 3)
+                LoadAnnotationDatasetCompleted();
+            Addressables.Release(handle);
+        };
+        annotationMap.LoadAssetAsync<TextAsset>().Completed += handle =>
+        {
+            annotationMap_ints = new uint[handle.Result.bytes.Length / 4];
+            Buffer.BlockCopy(handle.Result.bytes, 0, annotationMap_ints, 0, handle.Result.bytes.Length);
+            annotationDatasetWait++;
+            if (annotationDatasetWait >= 3)
+                LoadAnnotationDatasetCompleted();
+            Addressables.Release(handle);
+        };
+
+        Debug.Log("Annotation dataset loading");
+    }
+
+    private void LoadAnnotationDatasetCompleted()
+    {
+        Debug.Log("Annotation dataset loaded");
+        annotationDataset = new AnnotationDataset(annotationIndexes_shorts, annotationMap_ints, datasetIndexes_bytes);
+        annotationIndexes_shorts = null;
+        annotationMap_ints = null;
+        datasetIndexes_bytes = null;
+        inPlaneSlice.StartAnnotationDataset();
+    }
+
 
     private void Start()
     {

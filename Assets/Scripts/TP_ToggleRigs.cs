@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class TP_ToggleRigs : MonoBehaviour
 {
@@ -14,7 +16,7 @@ public class TP_ToggleRigs : MonoBehaviour
     [SerializeField] List<Collider> wf_colliders;
 
     // Skull rig
-    [SerializeField] GameObject skullGO;
+    private GameObject skullGO;
 
     private bool wfVisible;
 
@@ -42,9 +44,31 @@ public class TP_ToggleRigs : MonoBehaviour
         }
     }
 
-    private void RigVisibility_Skull(bool v)
+    private void RigVisibility_Skull(bool state)
     {
-        skullGO.SetActive(v);
+        if (skullGO == null)
+            StartCoroutine(LoadSkull());
+        else
+            skullGO.SetActive(state);
+    }
+
+    private IEnumerator LoadSkull()
+    {
+        Debug.Log("Loading skull");
+        AsyncOperationHandle<GameObject> skullHandle = Addressables.LoadAssetAsync<GameObject>("3D/MouseSkullPrefab");
+
+        skullHandle.Completed += SkullLoaded;
+
+        yield return skullHandle;
+
+        Debug.Log("also got here");
+        skullGO = Instantiate(skullHandle.Result, transform);
+        Debug.Log(skullGO);
+    }
+
+    private void SkullLoaded(AsyncOperationHandle<GameObject> skullHandle)
+    {
+        Debug.Log("Done");
     }
 
     private void RigVisibility_WF(bool visibility) {

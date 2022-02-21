@@ -28,14 +28,14 @@ GraphicsSettings:
   m_LensFlare:
     m_Mode: 1
     m_Shader: {fileID: 102, guid: 0000000000000000f000000000000000, type: 0}
-  m_VideoShadersIncludeMode: 2
+  m_VideoShadersIncludeMode: 1
   m_AlwaysIncludedShaders:
-  - {fileID: -6465566751694194690, guid: e3af6da18d556e54eb502352603e98a4, type: 3}
-  - {fileID: -6465566751694194690, guid: c686c2a13bc712e4691f70d8051a0290, type: 3}
   - {fileID: -6465566751694194690, guid: 4ce38b5820ab35046b8d604c02ad59c5, type: 3}
-  - {fileID: -6465566751694194690, guid: d3b95234f713785479ef149239344478, type: 3}
-  - {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: -6465566751694194690, guid: c686c2a13bc712e4691f70d8051a0290, type: 3}
+  - {fileID: -6465566751694194690, guid: 6f7cb2aeba1455f4ea4e219cde9d1508, type: 3}
+  - {fileID: -6465566751694194690, guid: ca594e59a8f7aab49bb7341b18488569, type: 3}
   - {fileID: 10770, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 10782, guid: 0000000000000000f000000000000000, type: 0}
   m_PreloadedShaders: []
   m_SpritesDefaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_CustomRenderPipeline: {fileID: 11400000, guid: ff5f579df14302f47944cadeea2b4a3e, type: 2}

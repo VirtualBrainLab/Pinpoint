@@ -33,10 +33,13 @@ public class TP_InPlaneSlice : MonoBehaviour
         inPlaneSliceTex = new Texture2D(401, 401);
         inPlaneSliceTex.filterMode = FilterMode.Bilinear;
 
+        inPlaneSliceGO.GetComponent<RawImage>().texture = inPlaneSliceTex;
+    }
+
+    public void StartAnnotationDataset()
+    {
         annotationDataset = tpmanager.GetAnnotationDataset();
         annotationDataset.ComputeBorders();
-
-        inPlaneSliceGO.GetComponent<RawImage>().texture = inPlaneSliceTex;
     }
 
     // *** INPLANE SLICE CODE *** //

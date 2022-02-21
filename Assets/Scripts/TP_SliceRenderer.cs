@@ -41,8 +41,6 @@ public class TP_SliceRenderer : MonoBehaviour
         apIdx = Mathf.RoundToInt(baseSize[0] / 2);
 
         coronalSliceGO.GetComponent<Renderer>().material.mainTexture = coronalTex;
-
-        RenderAnnotationLayer();
     }
 
     private void Update()

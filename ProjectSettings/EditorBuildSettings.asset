@@ -5,19 +5,8 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/MainScene.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
-  - enabled: 0
-    path: Assets/Scenes/ECSTesting.unity
-    guid: fb11f8ccefadc4ca7bf48149bf6aeb58
   - enabled: 1
     path: Assets/Scenes/TrajectoryPlanner.unity
     guid: 01742bb73d3a1b644bfc1c77e581b6bc
-  - enabled: 0
-    path: Assets/Scenes/IBL_RendererScene.unity
-    guid: bd25d770bb1b833459c855e1d961223f
-  - enabled: 0
-    path: Assets/Scenes/IBLTest_Latency.unity
-    guid: 97e48f0112ac6c141a472c093b6d7ce1
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 7a4fe01e325f0b94f885b0111c032428, type: 2}

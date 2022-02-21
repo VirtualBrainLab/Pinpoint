@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: 
+  m_GroupName: Default Local Group
+  m_Data:
+    m_SerializedData: []
+  m_GUID: eb9eb3c822ec72b468349d4e785d6617
+  m_SerializeEntries:
+  - m_GUID: c5fddb2ea59bbc94b958519da9f977cd
+    m_Address: 3D/MouseSkullPrefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: e569275163d050c4e98a09ec5aa7502d
+    m_Address: 3D/mouseSkull_lowPoly
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: df729d60af727284aab7f4404c63d1a8, type: 2}
+    - {fileID: 11400000, guid: def0ca53aaa260c499b5675451913b0e, type: 2}
