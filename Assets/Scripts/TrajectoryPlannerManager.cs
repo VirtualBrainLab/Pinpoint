@@ -521,10 +521,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
         localPrefs.SetBregma(useBregma);
 
         foreach (ProbeController pcontroller in allProbes)
-        {
             pcontroller.SetProbePosition();
-            pcontroller.UpdateText();
-        }
     }
 
     public void SetInPlane(bool state)
@@ -536,5 +533,17 @@ public class TrajectoryPlannerManager : MonoBehaviour
     public bool GetBregma()
     {
         return localPrefs.GetBregma();
+    }
+
+    public void SetStereotaxic(bool state)
+    {
+        localPrefs.SetStereotaxic(state);
+        foreach(ProbeController pcontroller in allProbes)
+            pcontroller.UpdateText();
+    }
+
+    public bool GetStereotaxic()
+    {
+        return localPrefs.GetStereotaxic();
     }
 }

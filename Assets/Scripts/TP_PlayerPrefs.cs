@@ -14,6 +14,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     private bool convertAPML2probeAxis;
     private bool slice3d;
     private bool inplane;
+    private bool stereotaxic;
 
     [SerializeField] TrajectoryPlannerManager tpmanager;
 
@@ -25,6 +26,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle probeAxisToggle;
     [SerializeField] Toggle slice3dToggle;
     [SerializeField] Toggle inplaneToggle;
+    [SerializeField] Toggle stereotaxicToggle;
 
     // Saving probes
     // simplest solution: on exit, stringify the probes, and then recover them from the string
@@ -57,7 +59,22 @@ public class TP_PlayerPrefs : MonoBehaviour
         inplane = LoadBoolPref("inplane", true);
         tpmanager.SetInPlane(inplane);
         inplaneToggle.isOn = inplane;
+
+        stereotaxic = LoadBoolPref("stereotaxic", false);
+        stereotaxicToggle.isOn = stereotaxic;
     }
+
+    public void SetStereotaxic(bool state)
+    {
+        stereotaxic = state;
+        PlayerPrefs.SetInt("stereotaxic", stereotaxic ? 1 : 0);
+    }
+
+    public bool GetStereotaxic()
+    {
+        return stereotaxic;
+    }
+
     public void SetInplane(bool state)
     {
         inplane = state;

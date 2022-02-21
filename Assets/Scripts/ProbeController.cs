@@ -24,6 +24,8 @@ public class ProbeController : MonoBehaviour
     // in ap/ml/dv
     private Vector3 iblBregma = new Vector3(5.4f, 5.739f, 0.332f);
     private Vector2 defaultAngles = new Vector2(-90f, 0f); // 0 phi is forward, default theta is 90 degrees down from horizontal, but internally this is a value of 0f
+    private Vector3 invivoConversionAPMLDV = new Vector3(1.087f, 1f, 0.952f);
+    private Vector3 invivoConversionPhiThetaBeta = new Vector3(0f, 0f, 0f);
 
     // Text
     private int probeID;
@@ -479,7 +481,7 @@ public class ProbeController : MonoBehaviour
 
         Vector2 iblPhiTheta = tpmanager.World2IBL(new Vector2(phi, theta));
 
-        string fullStr = string.Format("Probe #{0}: " + apml_string[0] + " {1} " + apml_string[1] + " {2} Azimuth {3} Elevation {4} Depth {5} Spin {6} Record Height {7}",
+        string fullStr = string.Format("Probe #{0}: " + apml_string[0] + " {1} " + apml_string[1] + " {2} Azimuth {3} Elevation {4} "+ GetDepthStr()+" {5} Spin {6} Record Height {7}",
             probeID, apml_local.x * 1000, apml_local.y * 1000, iblPhiTheta.x, iblPhiTheta.y, localDepth, spin, minRecordHeight * 1000);
         GUIUtility.systemCopyBuffer = fullStr;
 
@@ -498,31 +500,64 @@ public class ProbeController : MonoBehaviour
     
     private string[] GetAPMLStr()
     {
-        if (tpmanager.GetConvertAPML2Probe())
+        if (tpmanager.GetStereotaxic())
         {
-            return new string[] { "Forward", "Side" };
+            if (tpmanager.GetConvertAPML2Probe())
+            {
+                return new string[] { "stForward", "stSide" };
+            }
+            else
+            {
+                return new string[] { "stAP", "stML" };
+            }
         }
         else
         {
-            return new string[] { "AP", "ML" };
+            if (tpmanager.GetConvertAPML2Probe())
+            {
+                return new string[] { "ccfForward", "ccfSide" };
+            }
+            else
+            {
+                return new string[] { "ccfAP", "ccfML" };
+            }
         }
+    }
+
+    private string GetDepthStr()
+    {
+        if (tpmanager.GetStereotaxic())
+            return "stDepth";
+        else
+            return "ccfDepth";
     }
 
     private Vector2 GetAPML()
     {
+        Vector2 localAPML;
+        // If we're in stereotaxic coordinates, apply the conversion factors first, then deal with rotating in 3D space
+        if (tpmanager.GetStereotaxic())
+        {
+            localAPML = new Vector2(apml.x * invivoConversionAPMLDV.x, apml.y * invivoConversionAPMLDV.y);
+        }
+        else
+        {
+            localAPML = apml;
+        }
+
         if (tpmanager.GetConvertAPML2Probe())
         {
             // convert to probe angle by solving 
             float localAngleRad = phi * Mathf.PI / 180f; // our phi is 0 when it we point forward, and our angles go backwards
-            Debug.Log(localAngleRad);
-            float x = apml.x * Mathf.Cos(localAngleRad) + apml.y * Mathf.Sin(localAngleRad);
-            float y = -apml.x * Mathf.Sin(localAngleRad) + apml.y * Mathf.Cos(localAngleRad);
+
+            float x = localAPML.x * Mathf.Cos(localAngleRad) + localAPML.y * Mathf.Sin(localAngleRad);
+            float y = -localAPML.x * Mathf.Sin(localAngleRad) + localAPML.y * Mathf.Cos(localAngleRad);
             return new Vector2(x, y);
         }
         else
         {
             // just return apml
-            return new Vector2(apml.x, apml.y);
+            return localAPML;
         }
     }
 
@@ -543,6 +578,10 @@ public class ProbeController : MonoBehaviour
         }
         else
             localDepth = depth;
+
+        if (tpmanager.GetStereotaxic())
+            localDepth = localDepth * invivoConversionAPMLDV.z;
+
         return localDepth;
     }
 
