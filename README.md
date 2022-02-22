@@ -14,15 +14,17 @@ In release v0.5 we will add the stAP/stDV (for **s**tereo**t**axic) coordinates 
 
 ## Install
 
-You can use the trajectory planner ![on the web](http://nptraj.virtualbrainlab.org) or you can download the most recent version Desktop application from the ![releases page](https://github.com/dbirman/NPTrajectoryPlanner/releases).
+Download the most recent version Desktop application from the ![releases page](https://github.com/dbirman/NPTrajectoryPlanner/releases).
 
-### Additional linux instructions
+While we develop this application only the Windows build is guaranteed to be stable. If you need a build for linux, mac, or web, we can build them for you on request.
 
-To run the linux executable you need to go to the unzipped folder and run `chmod +x` on the .x86_64 file. Some users may run into permissions issues, in which case running ` chown -R yourusername .` from within the folder should repair those.
+<!-- ### Additional linux instructions
 
-### Additional mac instructions
+To run the linux executable you need to go to the unzipped folder and run `chmod +x` on the .x86_64 file. Some users may run into permissions issues, in which case running ` chown -R yourusername .` from within the folder should repair those. -->
 
-The mac executable currently only runs on MacOS **Mojave** and earlier. You will probably have a security issue because the app is unsigned. Go to Systems Preferences > Security & Privacy > General and allow the file to "run anyway". 
+<!-- ### Additional mac instructions
+
+The mac executable currently only runs on MacOS **Mojave** and earlier. You will probably have a security issue because the app is unsigned. Go to Systems Preferences > Security & Privacy > General and allow the file to "run anyway".  -->
 
 ## Instructions for use
 
