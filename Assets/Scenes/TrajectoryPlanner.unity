@@ -17830,6 +17830,7 @@ MonoBehaviour:
   - toon
   - toon-outline
   modelScale: 0.001
+  addressableAssetPath: Assets/AddressableAssets/AllenCCF/
   ontologyStructureAsset:
     m_AssetGUID: 523f4b2aa92687c4ca463a70e7e8fdd2
     m_SubObjectName: 
@@ -17880,17 +17881,17 @@ MonoBehaviour:
   probePanelAreaTextFontSize: 14
   manualCoordinatePanel: {fileID: 960137803}
   dataIndexes:
-    m_AssetGUID: b33a20021d8fc0f4cbe0a9c7852ca429
+    m_AssetGUID: 9249560090138d447aa752f8616f556f
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
   annotationIndexes:
-    m_AssetGUID: eebd455733d6e214398d5c6482fff5bf
+    m_AssetGUID: e2bc09b5a10a5184c8e0a5d7e30818c0
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
   annotationMap:
-    m_AssetGUID: 3a7961a807fd6bf42adead676a80dabf
+    m_AssetGUID: 26ebb5313808c1740ad5baa52638428d
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0

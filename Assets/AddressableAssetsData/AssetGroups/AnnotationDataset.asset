@@ -17,16 +17,16 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: fafa3c67882e6ca4bb3717c9221e8de8
   m_SerializeEntries:
-  - m_GUID: b33a20021d8fc0f4cbe0a9c7852ca429
-    m_Address: Datasets/data_indexes
+  - m_GUID: 9249560090138d447aa752f8616f556f
+    m_Address: Assets/AddressableAssets/Datasets/data_indexes.bytes
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: eebd455733d6e214398d5c6482fff5bf
-    m_Address: Datasets/ann/indexes
+  - m_GUID: 26ebb5313808c1740ad5baa52638428d
+    m_Address: Assets/AddressableAssets/Datasets/ann/indexes_map.bytes
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: 3a7961a807fd6bf42adead676a80dabf
-    m_Address: Datasets/ann/indexes_map
+  - m_GUID: e2bc09b5a10a5184c8e0a5d7e30818c0
+    m_Address: Assets/AddressableAssets/Datasets/ann/indexes.bytes
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0
