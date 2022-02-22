@@ -97,16 +97,13 @@ public class TP_InPlaneSlice : MonoBehaviour
             centerValues.Add(pos);
 
         // probe width
-        int i = 1;
-        while (i * pixelWidth < (probeWidth / 2f))
+        for (int i = 1; (i * pixelWidth) < (probeWidth / 2f) ; i++)
         {
             foreach (int pos in probeStartPos)
             {
                 centerValues.Add(pos + i);
                 centerValues.Add(pos - i);
             }
-
-            i++;
         }
 
         // Figure out what chunk of the y axis will be the recording region

@@ -17,6 +17,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
     [SerializeField] private Collider ccfCollider;
     [SerializeField] private TP_InPlaneSlice inPlaneSlice;
     [SerializeField] private TP_Search searchControl;
+    [SerializeField] private TMP_InputField searchInput;
 
     [SerializeField] private TP_PlayerPrefs localPrefs;
 
@@ -133,6 +134,8 @@ public class TrajectoryPlannerManager : MonoBehaviour
         annotationMap_ints = null;
         datasetIndexes_bytes = null;
         inPlaneSlice.StartAnnotationDataset();
+
+        localPrefs.AsyncStart();
     }
 
 
@@ -200,7 +203,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
             return;
         }
 
-        if (Input.anyKey && activeProbeController != null)
+        if (Input.anyKey && activeProbeController != null && !searchInput.isFocused)
         {
             if (Input.GetKeyDown(KeyCode.Backspace) && !manualCoordinatePanel.gameObject.activeSelf)
             {
@@ -221,6 +224,11 @@ public class TrajectoryPlannerManager : MonoBehaviour
             if (movedThisFrame)
                 inPlaneSlice.UpdateInPlaneSlice();
         }
+    }
+
+    public List<ProbeController> GetAllProbes()
+    {
+        return allProbes;
     }
 
     private void DestroyActiveProbeController()
@@ -262,19 +270,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
 
     public void AddNewProbeVoid(int probeType)
     {
-        CountProbePanels();
-        if (visibleProbePanels >= 16)
-            return;
-
-        GameObject newProbe = Instantiate(probePrefabs[probePrefabIDs.FindIndex(x => x == probeType)], brainModel);
-        SetActiveProbe(newProbe.GetComponent<ProbeController>());
-        if (visibleProbePanels > 4)
-            activeProbeController.ResizeProbePanel(700);
-
-        RecalculateProbePanels();
-
-        spawnedThisFrame = true;
-        DelayedMoveAllProbes();
+        AddNewProbe(probeType);
     }
     public ProbeController AddNewProbe(int probeType)
     {
@@ -293,6 +289,13 @@ public class TrajectoryPlannerManager : MonoBehaviour
         DelayedMoveAllProbes();
 
         return newProbe.GetComponent<ProbeController>();
+    }
+    public ProbeController AddNewProbe(int probeType, float ap, float ml, float depth, float phi, float theta, float spin)
+    {
+        ProbeController probeController = AddNewProbe(probeType);
+        probeController.ManualCoordinateEntry(ap, ml, depth, phi, theta, spin);
+
+        return probeController;
     }
 
     private void CountProbePanels()
@@ -406,8 +409,8 @@ public class TrajectoryPlannerManager : MonoBehaviour
 
     private void MoveAllProbes()
     {
-        if (activeProbeController != null)
-            foreach (ProbeUIManager puimanager in activeProbeController.GetComponents<ProbeUIManager>())
+        foreach(ProbeController probeController in allProbes)
+            foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                 puimanager.ProbeMoved();
     }
 

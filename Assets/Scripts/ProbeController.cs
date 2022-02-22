@@ -467,7 +467,7 @@ public class ProbeController : MonoBehaviour
 
         Vector2 iblPhiTheta = tpmanager.World2IBL(new Vector2(phi, theta));
 
-        string updateStr = string.Format("Probe #{0}: "+apml_string[0]+" {1} "+apml_string[1]+" {2} Azimuth {3} Elevation {4} Depth {5} Spin {6}",
+        string updateStr = string.Format("Probe #{0}: "+apml_string[0]+" {1} "+apml_string[1]+" {2} Azimuth {3} Elevation {4} "+ GetDepthStr() + " {5} Spin {6}",
             probeID, round0(apml_local.x*1000), round0(apml_local.y * 1000), round2(iblPhiTheta.x), round2(iblPhiTheta.y), round0(localDepth*1000), round2(spin));
 
         textUI.text = updateStr;
@@ -564,23 +564,42 @@ public class ProbeController : MonoBehaviour
     private float GetLocalDepth()
     {
         float localDepth;
-        if (tpmanager.GetDepthFromBrain())
+        if (tpmanager.GetStereotaxic())
         {
-            if (probeInBrain)
+            if (tpmanager.GetDepthFromBrain())
             {
-                // The depth is correct, but if the tip is above the brainSurface we also need to know that...
-                localDepth = Mathf.Sign(Vector3.Dot(probeTipT.transform.position - brainSurface, -probeTipT.transform.up)) * Vector3.Distance(probeTipT.transform.position, brainSurface);
+                if (probeInBrain)
+                {
+                    float depthDir = Mathf.Sign(Vector3.Dot(probeTipT.transform.position - brainSurface, -probeTipT.transform.up));
+                    // Separately obtain the x/y/z components relative to the surface point, scale them, then get the distance
+                    Vector3 distanceToSurface = probeTipT.transform.position - brainSurface;
+                    distanceToSurface = new Vector3(distanceToSurface.x * invivoConversionAPMLDV.y, distanceToSurface.y * invivoConversionAPMLDV.z, distanceToSurface.z * invivoConversionAPMLDV.x);
+
+                    localDepth = depthDir * Vector3.Distance(distanceToSurface, Vector3.zero);
+                }
+                else
+                    localDepth = float.NaN;
             }
             else
             {
-                localDepth = float.NaN;
+                localDepth = 0f;
             }
         }
         else
-            localDepth = depth;
-
-        if (tpmanager.GetStereotaxic())
-            localDepth = localDepth * invivoConversionAPMLDV.z;
+        {
+            if (tpmanager.GetDepthFromBrain())
+            {
+                if (probeInBrain)
+                {
+                    // The depth is correct, but if the tip is above the brainSurface we also need to know that...
+                    localDepth = Mathf.Sign(Vector3.Dot(probeTipT.transform.position - brainSurface, -probeTipT.transform.up)) * Vector3.Distance(probeTipT.transform.position, brainSurface);
+                }
+                else
+                    localDepth = float.NaN;
+            }
+            else
+                localDepth = depth;
+        }
 
         return localDepth;
     }

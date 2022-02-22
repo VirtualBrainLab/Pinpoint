@@ -34,7 +34,6 @@ public class TP_PlayerPrefs : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
         collisions = LoadBoolPref("collisions", false);
         collisionsToggle.isOn = collisions;
 
@@ -60,8 +59,33 @@ public class TP_PlayerPrefs : MonoBehaviour
         tpmanager.SetInPlane(inplane);
         inplaneToggle.isOn = inplane;
 
-        stereotaxic = LoadBoolPref("stereotaxic", false);
+        stereotaxic = LoadBoolPref("stereotaxic", true);
         stereotaxicToggle.isOn = stereotaxic;
+
+    }
+    public void AsyncStart()
+    {
+        int probeCount = PlayerPrefs.GetInt("probecount", 0);
+
+        for (int i = 0; i < probeCount; i++)
+        {
+            float ap = PlayerPrefs.GetFloat("ap" + i);
+            float ml = PlayerPrefs.GetFloat("ml" + i);
+            float depth = PlayerPrefs.GetFloat("depth" + i);
+            float phi = PlayerPrefs.GetFloat("phi" + i);
+            float theta = PlayerPrefs.GetFloat("theta" + i);
+            float spin = PlayerPrefs.GetFloat("spin" + i);
+            int type = PlayerPrefs.GetInt("type" + i);
+
+            Debug.Log(ap);
+            Debug.Log(ml);
+            Debug.Log(depth);
+            Debug.Log(phi);
+            Debug.Log(theta);
+            Debug.Log(spin);
+
+            tpmanager.AddNewProbe(type, ap, ml, depth, phi, theta, spin);
+        }
     }
 
     public void SetStereotaxic(bool state)
@@ -169,6 +193,21 @@ public class TP_PlayerPrefs : MonoBehaviour
 
     private void OnApplicationQuit()
     {
+        List<ProbeController> allProbes = tpmanager.GetAllProbes();
+        for (int i = 0; i < allProbes.Count; i++)
+        {
+            ProbeController probe = allProbes[i];
+            List<float> probeCoordinates = probe.GetCoordinates();
+            PlayerPrefs.SetFloat("ap" + i, probeCoordinates[0]);
+            PlayerPrefs.SetFloat("ml" + i, probeCoordinates[1]);
+            PlayerPrefs.SetFloat("depth" + i, probeCoordinates[2]);
+            PlayerPrefs.SetFloat("phi" + i, probeCoordinates[3]);
+            PlayerPrefs.SetFloat("theta" + i, probeCoordinates[4]);
+            PlayerPrefs.SetFloat("spin" + i, probeCoordinates[5]);
+            PlayerPrefs.SetInt("type" + i, probe.GetProbeType());
+        }
+        PlayerPrefs.SetInt("probecount", allProbes.Count);
+
         PlayerPrefs.Save();
     }
 }
