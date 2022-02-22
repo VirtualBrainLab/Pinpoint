@@ -16,6 +16,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
     [SerializeField] private TP_RecRegionSlider recRegionSlider;
     [SerializeField] private Collider ccfCollider;
     [SerializeField] private TP_InPlaneSlice inPlaneSlice;
+    [SerializeField] private TP_SliceRenderer sliceRenderer;
     [SerializeField] private TP_Search searchControl;
     [SerializeField] private TMP_InputField searchInput;
 
@@ -94,6 +95,12 @@ public class TrajectoryPlannerManager : MonoBehaviour
     private uint[] annotationMap_ints;
     private int annotationDatasetWait = 0;
     private AnnotationDataset annotationDataset;
+
+    /// <summary>
+    /// Loads the annotation dataset files from their Addressable AssetReference objects
+    /// 
+    /// Asynchronous dependencies: inPlaneSlice, localPrefs
+    /// </summary>
     private void LoadAnnotationDataset()
     {
         dataIndexes.LoadAssetAsync<TextAsset>().Completed += handle =>
@@ -126,6 +133,9 @@ public class TrajectoryPlannerManager : MonoBehaviour
         Debug.Log("Annotation dataset loading");
     }
 
+    /// <summary>
+    /// Called asynchronously when LoadAnnotationDataset loads all three indexes. Builds the dataset object and calls dependencies.
+    /// </summary>
     private void LoadAnnotationDatasetCompleted()
     {
         Debug.Log("Annotation dataset loaded");
@@ -136,11 +146,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
         inPlaneSlice.StartAnnotationDataset();
 
         localPrefs.AsyncStart();
-    }
-
-
-    private void Start()
-    {
+        sliceRenderer.AsyncStart();
     }
 
     public void ClickSearchArea(GameObject target)
@@ -148,6 +154,10 @@ public class TrajectoryPlannerManager : MonoBehaviour
         searchControl.ClickArea(target);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="value"></param>
     public void ToggleBeryl(int value)
     {
         switch (value)

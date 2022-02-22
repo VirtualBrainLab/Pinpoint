@@ -28,19 +28,20 @@ public class TP_SliceRenderer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        annotationDataset = tpmanager.GetAnnotationDataset();
-
         sagittalTex = new Texture2D(baseSize[0], baseSize[1]);
         sagittalTex.filterMode = FilterMode.Point;
         mlIdx = Mathf.RoundToInt(baseSize[2] / 2);
-
         sagittalSliceGO.GetComponent<Renderer>().material.mainTexture = sagittalTex;
 
         coronalTex = new Texture2D(baseSize[2], baseSize[1]);
         coronalTex.filterMode = FilterMode.Point;
         apIdx = Mathf.RoundToInt(baseSize[0] / 2);
-
         coronalSliceGO.GetComponent<Renderer>().material.mainTexture = coronalTex;
+    }
+
+    public void AsyncStart()
+    {
+        annotationDataset = tpmanager.GetAnnotationDataset();
     }
 
     private void Update()
@@ -60,7 +61,10 @@ public class TP_SliceRenderer : MonoBehaviour
             if (needToRender) RenderAnnotationLayer();
         }
     }
-
+    
+    /// <summary>
+    /// Shift the position of the sagittal and coronal slices to match the tip of the active probe
+    /// </summary>
     private void UpdateSlicePosition()
     {
         ProbeController activeProbeController = tpmanager.GetActiveProbeController();
@@ -75,6 +79,11 @@ public class TP_SliceRenderer : MonoBehaviour
         apIdx = Mathf.RoundToInt((apPosition + 6.6f) * 40);
     }
 
+    /// <summary>
+    /// When the camera swtiches from looking from the "left" or "right" of a slice, flip the direction we are rendering
+    /// [TODO: this would be better to solve with a two-sided shader, the current approach causes a lot of lag]
+    /// </summary>
+    /// <returns></returns>
     private bool UpdateCameraPosition()
     {
         Vector3 camPosition = Camera.main.transform.position;
@@ -118,6 +127,9 @@ public class TP_SliceRenderer : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Draw onto the sagittal and coronal slices the annotations at the current slice position in the CCF
+    /// </summary>
     private void RenderAnnotationLayer()
     {
         // Render sagittal slice
