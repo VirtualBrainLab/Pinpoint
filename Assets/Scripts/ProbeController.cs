@@ -323,6 +323,7 @@ public class ProbeController : MonoBehaviour
 
     public void ManualCoordinateEntry(float ap, float ml, float depth, float phi, float theta, float spin)
     {
+        //[TODO: Add depth from brain as a parameter that can be set
         //if (tpmanager.GetDepthFromBrain())
         //{
         //    if (probeInBrain)
@@ -343,6 +344,12 @@ public class ProbeController : MonoBehaviour
         tpmanager.SetMovedThisFrame();
         foreach (ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
+    }
+
+    public IEnumerator DelayedManualCoordinateEntry(float delay, float ap, float ml, float depth, float phi, float theta, float spin)
+    {
+        yield return new WaitForSeconds(delay);
+        ManualCoordinateEntry(ap, ml, depth, phi, theta, spin);
     }
 
     public void SetProbePosition()

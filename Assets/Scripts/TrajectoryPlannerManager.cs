@@ -305,7 +305,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
     public ProbeController AddNewProbe(int probeType, float ap, float ml, float depth, float phi, float theta, float spin)
     {
         ProbeController probeController = AddNewProbe(probeType);
-        probeController.ManualCoordinateEntry(ap, ml, depth, phi, theta, spin);
+        StartCoroutine(probeController.DelayedManualCoordinateEntry(0.1f, ap, ml, depth, phi, theta, spin));
 
         return probeController;
     }

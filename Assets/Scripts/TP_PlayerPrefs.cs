@@ -28,6 +28,8 @@ public class TP_PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle inplaneToggle;
     [SerializeField] Toggle stereotaxicToggle;
 
+    [SerializeField] QuestionDialogue qDialogue;
+
     // Saving probes
     // simplest solution: on exit, stringify the probes, and then recover them from the string
 
@@ -65,27 +67,36 @@ public class TP_PlayerPrefs : MonoBehaviour
     }
     public void AsyncStart()
     {
-        //int probeCount = PlayerPrefs.GetInt("probecount", 0);
+        if (PlayerPrefs.GetInt("probecount", 0) > 0)
+        {
+            qDialogue.NewQuestion("Load previously saved probes?");
+            qDialogue.SetYesCallback(LoadSavedProbes);
+        }
+    }
 
-        //for (int i = 0; i < probeCount; i++)
-        //{
-        //    float ap = PlayerPrefs.GetFloat("ap" + i);
-        //    float ml = PlayerPrefs.GetFloat("ml" + i);
-        //    float depth = PlayerPrefs.GetFloat("depth" + i);
-        //    float phi = PlayerPrefs.GetFloat("phi" + i);
-        //    float theta = PlayerPrefs.GetFloat("theta" + i);
-        //    float spin = PlayerPrefs.GetFloat("spin" + i);
-        //    int type = PlayerPrefs.GetInt("type" + i);
+    public void LoadSavedProbes()
+    {
+        int probeCount = PlayerPrefs.GetInt("probecount", 0);
 
-        //    Debug.Log(ap);
-        //    Debug.Log(ml);
-        //    Debug.Log(depth);
-        //    Debug.Log(phi);
-        //    Debug.Log(theta);
-        //    Debug.Log(spin);
+        for (int i = 0; i < probeCount; i++)
+        {
+            float ap = PlayerPrefs.GetFloat("ap" + i);
+            float ml = PlayerPrefs.GetFloat("ml" + i);
+            float depth = PlayerPrefs.GetFloat("depth" + i);
+            float phi = PlayerPrefs.GetFloat("phi" + i);
+            float theta = PlayerPrefs.GetFloat("theta" + i);
+            float spin = PlayerPrefs.GetFloat("spin" + i);
+            int type = PlayerPrefs.GetInt("type" + i);
 
-        //    tpmanager.AddNewProbe(type, ap, ml, depth, phi, theta, spin);
-        //}
+            Debug.Log(ap);
+            Debug.Log(ml);
+            Debug.Log(depth);
+            Debug.Log(phi);
+            Debug.Log(theta);
+            Debug.Log(spin);
+
+            tpmanager.AddNewProbe(type, ap, ml, depth, phi, theta, spin);
+        }
     }
 
     public void SetStereotaxic(bool state)
