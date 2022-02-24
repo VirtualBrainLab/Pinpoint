@@ -78,10 +78,12 @@ public class TP_Search : MonoBehaviour
             else
             {
                 if (!targetNode.IsLoaded())
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     targetNode.loadNodeModel(false, handle => {
                         targetNode.SetNodeModelVisibility(true);
                         modelControl.ChangeMaterial(targetNode, "lit");
                     });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 else
                 {
                     targetNode.SetNodeModelVisibility(true);

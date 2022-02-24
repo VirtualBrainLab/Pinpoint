@@ -3084,7 +3084,7 @@ MonoBehaviour:
   sagittalSliceGO: {fileID: 1490059538}
   coronalSliceGO: {fileID: 175725874}
   tpmanager: {fileID: 2108153954}
-  ccfModelControl: {fileID: 2108153952}
+  modelControl: {fileID: 2108153952}
   localPrefs: {fileID: 2108153956}
 --- !u!1 &385182333
 GameObject:
@@ -3336,6 +3336,10 @@ PrefabInstance:
       propertyPath: m_CastShadows
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8102641116241020577, guid: 29e154cdc4333644089fccd61fe4987a, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: b8a04b95bf5e0fe4dbdfd3978413393d, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 29e154cdc4333644089fccd61fe4987a, type: 3}
 --- !u!4 &417839206 stripped

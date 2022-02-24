@@ -26,6 +26,9 @@ public class BrainCameraController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Artifically limit the framerate
+        Application.targetFrameRate = 144;
+
         initialCameraRotatorPosition = brainCameraRotator.transform.position;
         lastLeftClick = Time.realtimeSinceStartup;
         lastRightClick = Time.realtimeSinceStartup;

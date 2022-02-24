@@ -65,27 +65,27 @@ public class TP_PlayerPrefs : MonoBehaviour
     }
     public void AsyncStart()
     {
-        int probeCount = PlayerPrefs.GetInt("probecount", 0);
+        //int probeCount = PlayerPrefs.GetInt("probecount", 0);
 
-        for (int i = 0; i < probeCount; i++)
-        {
-            float ap = PlayerPrefs.GetFloat("ap" + i);
-            float ml = PlayerPrefs.GetFloat("ml" + i);
-            float depth = PlayerPrefs.GetFloat("depth" + i);
-            float phi = PlayerPrefs.GetFloat("phi" + i);
-            float theta = PlayerPrefs.GetFloat("theta" + i);
-            float spin = PlayerPrefs.GetFloat("spin" + i);
-            int type = PlayerPrefs.GetInt("type" + i);
+        //for (int i = 0; i < probeCount; i++)
+        //{
+        //    float ap = PlayerPrefs.GetFloat("ap" + i);
+        //    float ml = PlayerPrefs.GetFloat("ml" + i);
+        //    float depth = PlayerPrefs.GetFloat("depth" + i);
+        //    float phi = PlayerPrefs.GetFloat("phi" + i);
+        //    float theta = PlayerPrefs.GetFloat("theta" + i);
+        //    float spin = PlayerPrefs.GetFloat("spin" + i);
+        //    int type = PlayerPrefs.GetInt("type" + i);
 
-            Debug.Log(ap);
-            Debug.Log(ml);
-            Debug.Log(depth);
-            Debug.Log(phi);
-            Debug.Log(theta);
-            Debug.Log(spin);
+        //    Debug.Log(ap);
+        //    Debug.Log(ml);
+        //    Debug.Log(depth);
+        //    Debug.Log(phi);
+        //    Debug.Log(theta);
+        //    Debug.Log(spin);
 
-            tpmanager.AddNewProbe(type, ap, ml, depth, phi, theta, spin);
-        }
+        //    tpmanager.AddNewProbe(type, ap, ml, depth, phi, theta, spin);
+        //}
     }
 
     public void SetStereotaxic(bool state)

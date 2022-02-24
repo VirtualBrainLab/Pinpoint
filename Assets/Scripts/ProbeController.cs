@@ -340,6 +340,7 @@ public class ProbeController : MonoBehaviour
         SetProbePosition(ap/1000, ml / 1000, depth / 1000, worldPhiTheta.x, worldPhiTheta.y, spin);
         UpdateSurfacePosition();
 
+        tpmanager.SetMovedThisFrame();
         foreach (ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
     }

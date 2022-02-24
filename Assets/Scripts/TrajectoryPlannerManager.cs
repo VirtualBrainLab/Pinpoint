@@ -54,7 +54,6 @@ public class TrajectoryPlannerManager : MonoBehaviour
     private List<int> targetedBrainAreas;
 
     private bool movedThisFrame;
-    private bool movedThisFrameDirty;
     private bool spawnedThisFrame = false;
 
     private int visibleProbePanels;
@@ -145,8 +144,10 @@ public class TrajectoryPlannerManager : MonoBehaviour
         datasetIndexes_bytes = null;
         inPlaneSlice.StartAnnotationDataset();
 
-        //localPrefs.AsyncStart();
         sliceRenderer.AsyncStart();
+
+        // Re-spawn previously active probes as the *final* step in loading
+        localPrefs.AsyncStart();
     }
 
     public void ClickSearchArea(GameObject target)
@@ -275,6 +276,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
     IEnumerator DelayedMoveAllProbes()
     {
         yield return new WaitForSeconds(0.05f);
+        movedThisFrame = true;
         MoveAllProbes();
     }
 
@@ -296,7 +298,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
         RecalculateProbePanels();
 
         spawnedThisFrame = true;
-        DelayedMoveAllProbes();
+        StartCoroutine(DelayedMoveAllProbes());
 
         return newProbe.GetComponent<ProbeController>();
     }
@@ -366,7 +368,6 @@ public class TrajectoryPlannerManager : MonoBehaviour
             if (!activeProbeColliders.Contains(collider))
                 inactiveProbeColliders.Add(collider);
         UpdateNonActiveColliders();
-        movedThisFrame = true;
 
         // Also update the recording region size slider
         recRegionSlider.SliderValueChanged(activeProbeController.GetRecordingRegionSize());
@@ -390,6 +391,11 @@ public class TrajectoryPlannerManager : MonoBehaviour
     public bool MovedThisFrame()
     {
         return movedThisFrame;
+    }
+
+    public void SetMovedThisFrame()
+    {
+        movedThisFrame = true;
     }
 
     public void UpdateInPlaneView()
