@@ -145,7 +145,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
         datasetIndexes_bytes = null;
         inPlaneSlice.StartAnnotationDataset();
 
-        localPrefs.AsyncStart();
+        //localPrefs.AsyncStart();
         sliceRenderer.AsyncStart();
     }
 

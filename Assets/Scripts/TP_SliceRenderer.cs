@@ -21,6 +21,7 @@ public class TP_SliceRenderer : MonoBehaviour
     private int apIdx = 0;
 
     bool needToRender = false;
+    bool loaded = false;
 
     private bool camXLeft;
     private bool camYBack;
@@ -42,10 +43,13 @@ public class TP_SliceRenderer : MonoBehaviour
     public void AsyncStart()
     {
         annotationDataset = tpmanager.GetAnnotationDataset();
+        loaded = true;
+        ToggleSliceVisibility(localPrefs.GetSlice3D());
     }
 
     private void Update()
     {
+
         if (localPrefs.GetSlice3D())
         {
             // Check if the camera moved such that we have to flip the slice quads
@@ -68,6 +72,7 @@ public class TP_SliceRenderer : MonoBehaviour
     private void UpdateSlicePosition()
     {
         ProbeController activeProbeController = tpmanager.GetActiveProbeController();
+        if (activeProbeController == null) return;
         Transform activeProbeTipT = activeProbeController.GetTipTransform();
         Vector3 tipPosition = activeProbeTipT.position + activeProbeTipT.up * 0.2f; // add 200 um to get to the start of the recording region
 
@@ -132,6 +137,9 @@ public class TP_SliceRenderer : MonoBehaviour
     /// </summary>
     private void RenderAnnotationLayer()
     {
+        // prevent use of annotation dataset until it is loaded properly
+        if (!loaded) return;
+
         // Render sagittal slice
         for (int x = 0; x < baseSize[0]; x++)
         {
@@ -159,9 +167,12 @@ public class TP_SliceRenderer : MonoBehaviour
         localPrefs.SetSlice3D(visible);
         sagittalSliceGO.SetActive(visible);
         coronalSliceGO.SetActive(visible);
-        // Force everything to render
-        UpdateCameraPosition();
-        UpdateSlicePosition();
-        RenderAnnotationLayer();
+        if (visible)
+        {
+            // Force everything to render
+            UpdateCameraPosition();
+            UpdateSlicePosition();
+            RenderAnnotationLayer();
+        }
     }
 }

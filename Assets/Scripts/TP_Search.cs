@@ -78,10 +78,15 @@ public class TP_Search : MonoBehaviour
             else
             {
                 if (!targetNode.IsLoaded())
-                    targetNode.loadNodeModel(false);
-
-                targetNode.SetNodeModelVisibility(true);
-                modelControl.ChangeMaterial(targetNode, "lit");
+                    targetNode.loadNodeModel(false, handle => {
+                        targetNode.SetNodeModelVisibility(true);
+                        modelControl.ChangeMaterial(targetNode, "lit");
+                    });
+                else
+                {
+                    targetNode.SetNodeModelVisibility(true);
+                    modelControl.ChangeMaterial(targetNode, "lit");
+                }
             }
             activeBrainAreas.Add(targetNode);
         }
