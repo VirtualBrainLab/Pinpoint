@@ -41,7 +41,10 @@ public class TP_Search : MonoBehaviour
             if (i < matchingAreas.Count)
             {
                 CCFTreeNode areaNode = modelControl.tree.findNode(matchingAreas[i]);
-                areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.Name;
+                if (tpmanager.UseAcronyms())
+                    areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.ShortName;
+                else
+                    areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.Name;
                 areaPanel.GetComponent<TP_SearchAreaPanel>().SetNode(areaNode);
                 areaPanel.GetComponent<Image>().color = areaNode.GetColor();
                 areaPanel.SetActive(true);
