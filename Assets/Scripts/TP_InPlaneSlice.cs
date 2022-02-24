@@ -72,7 +72,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         Vector3 tipPosition = tipTransform.position + tipTransform.up * (0.2f + mmStartPos);
 
         // Setup variables for view
-        bool fourShank = activeProbeController.GetProbeType() == 2;
+        bool fourShank = activeProbeController.GetProbeType() == 3;//WAS 2!!!!!!!!!!
         float pixelWidth = inPlaneXmm * 1000 / 401f; // how wide each pixel is in um
 
         // If this is the fourShank probe, let's shift the center position to be offset so that it's at the center of the four probes
