@@ -14,9 +14,13 @@ In release v0.6 we will add the stAP/stDV (for **s**tereo**t**axic) coordinates 
 
 ## Install
 
-Download the most recent version Desktop application from the ![releases page](https://github.com/dbirman/NPTrajectoryPlanner/releases).
+The easiest way to use the trajectory planner is through our web app: http://data.virtualbrainlab.org/NPTrajectoryPlanner/
 
-While we develop this application only the Windows build is guaranteed to be stable. If you need a build for linux, mac, or web, we can build them for you on request.
+### Standalone builds
+
+You can also download a Desktop build from the ![releases page](https://github.com/dbirman/NPTrajectoryPlanner/releases).
+
+While we develop this application only the Windows build is guaranteed to be stable. If you need a build for linux, mac, we can build them for you on request.
 
 <!-- ### Additional linux instructions
 
