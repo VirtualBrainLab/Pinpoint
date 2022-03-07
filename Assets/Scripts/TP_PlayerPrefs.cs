@@ -45,7 +45,7 @@ public class TP_PlayerPrefs : MonoBehaviour
         recordingRegionOnly = LoadBoolPref("recording", true);
         recordingRegionToggle.isOn = recordingRegionOnly;
 
-        useAcronyms = LoadBoolPref("acronyms", false);
+        useAcronyms = LoadBoolPref("acronyms", true);
         acronymToggle.isOn = useAcronyms;
 
         depthFromBrain = LoadBoolPref("depth", true);
@@ -156,7 +156,7 @@ public class TP_PlayerPrefs : MonoBehaviour
 
     public void SetAcronyms(bool state)
     {
-        recordingRegionOnly = state;
+        useAcronyms = state;
         PlayerPrefs.SetInt("acronyms", recordingRegionOnly ? 1 : 0);
     }
 

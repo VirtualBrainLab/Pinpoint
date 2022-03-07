@@ -83,6 +83,8 @@ public class TP_Search : MonoBehaviour
                 if (!targetNode.IsLoaded())
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     targetNode.loadNodeModel(false, handle => {
+                        targetNode.GetNodeTransform().localPosition = Vector3.zero;
+                        targetNode.GetNodeTransform().localRotation = Quaternion.identity;
                         targetNode.SetNodeModelVisibility(true);
                         modelControl.ChangeMaterial(targetNode, "lit");
                     });

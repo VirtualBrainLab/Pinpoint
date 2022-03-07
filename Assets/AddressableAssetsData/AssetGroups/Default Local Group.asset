@@ -17,14 +17,6 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: eb9eb3c822ec72b468349d4e785d6617
   m_SerializeEntries:
-  - m_GUID: c5fddb2ea59bbc94b958519da9f977cd
-    m_Address: 3D/MouseSkullPrefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: e569275163d050c4e98a09ec5aa7502d
-    m_Address: 3D/mouseSkull_lowPoly
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: eebd455733d6e214398d5c6482fff5bf
     m_Address: Assets/AddressableAssets/Datasets/ann/indexes.bytes
     m_ReadOnly: 0
