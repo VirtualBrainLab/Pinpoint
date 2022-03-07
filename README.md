@@ -130,3 +130,4 @@ Please report issues on the [issues page](https://github.com/dbirman/NPTrajector
 
 Based on the trajectory explorer by Andy Peters https://github.com/petersaj/neuropixels_trajectory_explorer. 
 CCF Atlas downloaded from http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ 
+Mouse brain artwork from https://scidraw.io/drawing/286
