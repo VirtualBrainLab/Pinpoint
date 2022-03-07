@@ -8,9 +8,9 @@ This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, 
 
 ### CCF -> in vivo issues
 
-The CCF coordinates returned by this tool are not identical to the in vivo mouse brain. We know for sure that the CCF atlas is stretched along the DV axis (in vivo = 0.952 * CCF) and squashed on the AP axis (in vivo 1.087 * CCF). In addition it appears the lamda-bregma angle in the CCF space is rotated by about 5 degrees. These differences are **not** currently implemented in the trajectory planner.
+The CCF coordinates returned by this tool are not identical to the in vivo mouse brain. We know for sure that the CCF atlas is stretched along the DV axis (in vivo = 0.952 * CCF) and squashed on the AP axis (in vivo 1.087 * CCF). In addition it appears the lamda-bregma angle in the CCF space is rotated by about 5 degrees.
 
-In release v0.6 we will add the **s**tereo**t**axic coordinates as a settings option.
+In v0.5 we have released an initial version of these stereotaxic coordinates, which can be enabled in the settings. These adjust the AP and DV position to account for the warping, but do **not** adjust the angle. The angle adjustment will be included in v0.6.
 
 ## Install
 
@@ -119,6 +119,8 @@ You can save the coordinates of an insertion for future use by clicking on the c
 **Display In-Plane Slice** - On: shows a slice of cortex that is "in-plane" with the probe, note that this uses a camera that is looking at the probe from the front of the brain towards the back (default: on)
 
 **Convert AP/ML to probe** - On: when the probe manipulator is off of the 0/90 axis the AP/ML positions are not useful for calculating the insertion point relative to Bregma, turn this on to display the position along the probe forward/side axes (default: off)
+
+**Use stereotaxic coordinates** - On: displays the **s**tereo**t**axic stAP, stML, and stDV coordinates instead of the CCF space coordinates. (default: off)
 
 ## Bugs
 
