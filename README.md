@@ -38,31 +38,19 @@ Note that when targeting a brain region the rotations go **around** the insertio
 
 At any time you can press [M] to open the manual coordinate entry window and adjust the probe position by hand. 
 
-### Translation
+### Controls
+
+![probe controls](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/ProbeControls.png)
 
 Use [W/A/S/D] to move the probe along the AP or ML axis. Hold **shift** to move faster along any axis.
 
-### Azimuth
-
 Azimuth is the angle of the probe manipulator relative to the brain. Use [Q/E] to control azimuth.
 
-(note the az example is out of date, I will update soon)
-![Azimuth example](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/azimuth.gif)
-
-### Elevation
-
 Elevation is the angle of the probe on the manipulator, and is restricted to the range 0 (vertical) to 90 (horizontal). Use [R/F] to control elevation.
-
-(note the elevation example is out of date, I will update soon)
-![Azimuth example](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/elevation.gif)
-
-### Depth
 
 Use [Z/X] to insert the probe.
 
 Note that the rotation point is the insertion coordinate with depth==0 (i.e. the point the tip was at before you inserted the probe). I'll change this in a future release, but for now if you rotate the probe after inserting it will rotate around that insertion point.
-
-### Spin
 
 Use [1/3] to spin the probe along the axis of the probe shank. Note that NP2.4 probes spin around the leftmost probe shank.
 
