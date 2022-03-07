@@ -54,6 +54,8 @@ Note that the rotation point is the insertion coordinate with depth==0 (i.e. the
 
 Use [1/3] to spin the probe along the axis of the probe shank. Note that NP2.4 probes spin around the leftmost probe shank.
 
+Probes can be deleted with [Backspace]
+
 ### Recording region
 
 Once the probe is at the position and angles you want, change the recording region size (in the settings) and position (using [T/G]) to match what you plan to do in your recording and adjust the insertion depth accordingly.
