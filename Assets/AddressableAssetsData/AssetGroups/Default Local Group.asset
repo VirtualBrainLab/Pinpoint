@@ -25,6 +25,18 @@ MonoBehaviour:
     m_Address: 3D/mouseSkull_lowPoly
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: eebd455733d6e214398d5c6482fff5bf
+    m_Address: Assets/AddressableAssets/Datasets/ann/indexes.bytes
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3a7961a807fd6bf42adead676a80dabf
+    m_Address: Assets/AddressableAssets/Datasets/ann/indexes_map.bytes
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b33a20021d8fc0f4cbe0a9c7852ca429
+    m_Address: Assets/AddressableAssets/Datasets/data_indexes.bytes
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
   m_SchemaSet:
