@@ -10,7 +10,7 @@ This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, 
 
 The CCF coordinates returned by this tool are not identical to the in vivo mouse brain. We know for sure that the CCF atlas is stretched along the DV axis (in vivo = 0.952 * CCF) and squashed on the AP axis (in vivo 1.087 * CCF). In addition it appears the lamda-bregma angle in the CCF space is rotated by about 5 degrees. These differences are **not** currently implemented in the trajectory planner.
 
-In release v0.6 we will add the stAP/stDV (for **s**tereo**t**axic) coordinates as a settings option.
+In release v0.6 we will add the **s**tereo**t**axic coordinates as a settings option.
 
 ## Install
 
