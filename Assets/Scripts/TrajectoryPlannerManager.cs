@@ -82,6 +82,22 @@ public class TrajectoryPlannerManager : MonoBehaviour
         modelControl.LateStart(true);
 
         LoadAnnotationDataset();
+
+        DelayedModelControlStart();
+    }
+
+    private async void DelayedModelControlStart()
+    {
+        await modelControl.GetDefaultLoaded();
+
+        foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+        {
+            node.SetNodeModelVisibility(true);
+            Transform nodeT = node.GetNodeTransform();
+            // I don't know why this has to happen, somewhere these are getting set incorrectly?
+            nodeT.localPosition = Vector3.zero;
+            nodeT.localRotation = Quaternion.identity;
+        }
     }
 
 

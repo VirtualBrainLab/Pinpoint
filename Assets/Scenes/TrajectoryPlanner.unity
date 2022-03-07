@@ -16655,6 +16655,7 @@ Transform:
   - {fileID: 1445581474}
   - {fileID: 1096882502}
   - {fileID: 417839206}
+  - {fileID: 826427860414971699}
   m_Father: {fileID: 1639177355}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -18713,6 +18714,7 @@ MonoBehaviour:
   ontologyContentPanel: {fileID: 0}
   ontologyTogglePrefab: {fileID: 0}
   heightPerToggle: 20
+  loadBerylDepth: 0
   overrideNetwork: 1
   brainRegionMaterials:
   - {fileID: 2100000, guid: b8a04b95bf5e0fe4dbdfd3978413393d, type: 2}
@@ -19178,3 +19180,33 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2138009639}
   m_CullTransparentMesh: 1
+--- !u!1 &14600888261109129
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 826427860414971699}
+  m_Layer: 6
+  m_Name: BrainAreas
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &826427860414971699
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 14600888261109129}
+  m_LocalRotation: {x: -0.7071068, y: -0, z: 0.7071068, w: 0}
+  m_LocalPosition: {x: 5.7, y: 4, z: -6.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1877060505}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 180}

@@ -96,7 +96,7 @@ public class TP_SliceRenderer : MonoBehaviour
     private void UpdateNodeModelSlicing()
     {
         // Update the renderers on the node objects
-        foreach (CCFTreeNode node in modelControl.DefaultLoadedNodes())
+        foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
         {
             if (camYBack)
                 // clip from apPosition forward
@@ -115,7 +115,7 @@ public class TP_SliceRenderer : MonoBehaviour
     private void ClearNodeModelSlicing()
     {
         // Update the renderers on the node objects
-        foreach (CCFTreeNode node in modelControl.DefaultLoadedNodes())
+        foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
         {
             node.SetShaderProperty("_APClip", new Vector2(0f, 13.2f));
             node.SetShaderProperty("_MLClip", new Vector2(0f, 11.4f));
