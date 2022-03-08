@@ -123,3 +123,7 @@ Based on the trajectory explorer by Andy Peters https://github.com/petersaj/neur
 CCF Atlas downloaded from http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ 
 
 Mouse brain artwork from https://scidraw.io/drawing/286
+
+## Citing
+
+If this project becomes a substantial component of your pipeline for a research project you should cite this repository. Please email Dan and we can set up a DOI for the version you are using.
