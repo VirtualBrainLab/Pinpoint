@@ -8,7 +8,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class TP_ToggleRigs : MonoBehaviour
 {
-    [SerializeField] TrajectoryPlannerManager tpmanager;
+    [SerializeField] TP_TrajectoryPlannerManager tpmanager;
     [SerializeField] TMP_Dropdown dropdown;
 
     // Widefield rig

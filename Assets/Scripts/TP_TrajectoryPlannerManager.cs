@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 
-public class TrajectoryPlannerManager : MonoBehaviour
+public class TP_TrajectoryPlannerManager : MonoBehaviour
 {
     [SerializeField] private CCFModelControl modelControl;
     [SerializeField] private List<GameObject> probePrefabs;
@@ -25,9 +25,9 @@ public class TrajectoryPlannerManager : MonoBehaviour
     // Which acronym/area name set to use
     [SerializeField] TMP_Dropdown annotationAcronymDropdown;
 
-    private ProbeController activeProbeController;
+    private TP_ProbeController activeProbeController;
 
-    private List<ProbeController> allProbes;
+    private List<TP_ProbeController> allProbes;
     private List<Collider> inactiveProbeColliders;
     private List<Collider> allProbeColliders;
     private List<Collider> rigColliders;
@@ -66,7 +66,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
 
         visibleProbePanels = 0;
 
-        allProbes = new List<ProbeController>();
+        allProbes = new List<TP_ProbeController>();
         allProbeColliders = new List<Collider>();
         inactiveProbeColliders = new List<Collider>();
         rigColliders = new List<Collider>();
@@ -189,8 +189,8 @@ public class TrajectoryPlannerManager : MonoBehaviour
                 modelControl.SetBeryl(false);
                 break;
         }
-        foreach (ProbeController probeController in allProbes)
-            foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
+        foreach (TP_ProbeController probeController in allProbes)
+            foreach (TP_ProbeUIManager puimanager in probeController.GetComponents<TP_ProbeUIManager>())
                 puimanager.ProbeMoved();
     }
 
@@ -238,6 +238,12 @@ public class TrajectoryPlannerManager : MonoBehaviour
                 return;
             }
 
+            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.Backspace) && !manualCoordinatePanel.gameObject.activeSelf)
+            {
+                RecoverActiveProbeController();
+                return;
+            }
+
             if (Input.GetKeyDown(KeyCode.M))
             {
                 manualCoordinatePanel.gameObject.SetActive(!manualCoordinatePanel.gameObject.activeSelf);
@@ -246,14 +252,18 @@ public class TrajectoryPlannerManager : MonoBehaviour
             }
 
             if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2))
+            {
+
+                Debug.Log(Time.realtimeSinceStartup);
                 movedThisFrame = localPrefs.GetCollisions() ? activeProbeController.MoveProbe(allNonActiveColliders) : activeProbeController.MoveProbe(new List<Collider>());
+            }
 
             if (movedThisFrame)
                 inPlaneSlice.UpdateInPlaneSlice();
         }
     }
 
-    public List<ProbeController> GetAllProbes()
+    public List<TP_ProbeController> GetAllProbes()
     {
         return allProbes;
     }
@@ -267,6 +277,11 @@ public class TrajectoryPlannerManager : MonoBehaviour
             SetActiveProbe(allProbes[0]);
         else
             activeProbeController = null;
+    }
+
+    private void RecoverActiveProbeController()
+    {
+        Debug.Log("Not implemented");
     }
 
     public void ManualCoordinateEntry(float ap, float ml, float depth, float phi, float theta, float spin)
@@ -300,14 +315,14 @@ public class TrajectoryPlannerManager : MonoBehaviour
     {
         AddNewProbe(probeType);
     }
-    public ProbeController AddNewProbe(int probeType)
+    public TP_ProbeController AddNewProbe(int probeType)
     {
         CountProbePanels();
         if (visibleProbePanels >= 16)
             return null;
 
         GameObject newProbe = Instantiate(probePrefabs[probePrefabIDs.FindIndex(x => x == probeType)], brainModel);
-        SetActiveProbe(newProbe.GetComponent<ProbeController>());
+        SetActiveProbe(newProbe.GetComponent<TP_ProbeController>());
         if (visibleProbePanels > 4)
             activeProbeController.ResizeProbePanel(700);
 
@@ -316,11 +331,11 @@ public class TrajectoryPlannerManager : MonoBehaviour
         spawnedThisFrame = true;
         StartCoroutine(DelayedMoveAllProbes());
 
-        return newProbe.GetComponent<ProbeController>();
+        return newProbe.GetComponent<TP_ProbeController>();
     }
-    public ProbeController AddNewProbe(int probeType, float ap, float ml, float depth, float phi, float theta, float spin)
+    public TP_ProbeController AddNewProbe(int probeType, float ap, float ml, float depth, float phi, float theta, float spin)
     {
-        ProbeController probeController = AddNewProbe(probeType);
+        TP_ProbeController probeController = AddNewProbe(probeType);
         StartCoroutine(probeController.DelayedManualCoordinateEntry(0.1f, ap, ml, depth, phi, theta, spin));
 
         return probeController;
@@ -349,14 +364,14 @@ public class TrajectoryPlannerManager : MonoBehaviour
             probePanelParent.cellSize = cellSize;
 
             // now resize all existing probeUIs to be 700 tall
-            foreach (ProbeController probeController in allProbes)
+            foreach (TP_ProbeController probeController in allProbes)
             {
                 probeController.ResizeProbePanel(700);
             }
         }
     }
 
-    public void RegisterProbe(ProbeController probeController, List<Collider> colliders)
+    public void RegisterProbe(TP_ProbeController probeController, List<Collider> colliders)
     {
         Debug.Log("Registering probe: " + probeController.gameObject.name);
         allProbes.Add(probeController);
@@ -365,17 +380,17 @@ public class TrajectoryPlannerManager : MonoBehaviour
             allProbeColliders.Add(collider);
     }
 
-    public void SetActiveProbe(ProbeController newActiveProbeController)
+    public void SetActiveProbe(TP_ProbeController newActiveProbeController)
     {
         Debug.Log("Setting active probe to: " + newActiveProbeController.gameObject.name);
         activeProbeController = newActiveProbeController;
 
-        foreach (ProbeUIManager puimanager in activeProbeController.gameObject.GetComponents<ProbeUIManager>())
+        foreach (TP_ProbeUIManager puimanager in activeProbeController.gameObject.GetComponents<TP_ProbeUIManager>())
             puimanager.ProbeSelected(true);
 
-        foreach (ProbeController pcontroller in allProbes)
+        foreach (TP_ProbeController pcontroller in allProbes)
             if (pcontroller != activeProbeController)
-                foreach (ProbeUIManager puimanager in pcontroller.gameObject.GetComponents<ProbeUIManager>())
+                foreach (TP_ProbeUIManager puimanager in pcontroller.gameObject.GetComponents<TP_ProbeUIManager>())
                     puimanager.ProbeSelected(false);
 
         inactiveProbeColliders = new List<Collider>();
@@ -399,7 +414,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
         return probeColors[probeID];
     }
 
-    public ProbeController GetActiveProbeController()
+    public TP_ProbeController GetActiveProbeController()
     {
         return activeProbeController;
     }
@@ -441,8 +456,8 @@ public class TrajectoryPlannerManager : MonoBehaviour
 
     private void MoveAllProbes()
     {
-        foreach(ProbeController probeController in allProbes)
-            foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
+        foreach(TP_ProbeController probeController in allProbes)
+            foreach (TP_ProbeUIManager puimanager in probeController.GetComponents<TP_ProbeUIManager>())
                 puimanager.ProbeMoved();
     }
 
@@ -501,9 +516,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
     public void SetRecordingRegion(bool state)
     {
         localPrefs.SetRecordingRegionOnly(state);
-        foreach (ProbeController probeController in allProbes)
-            foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
-                puimanager.ProbeMoved();
+        MoveAllProbes();
     }
 
     public bool RecordingRegionOnly()
@@ -526,7 +539,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
     public void SetDepth(bool state)
     {
         localPrefs.SetDepthFromBrain(state);
-        foreach (ProbeController probeController in allProbes)
+        foreach (TP_ProbeController probeController in allProbes)
             probeController.UpdateText();
     }
     public bool GetDepthFromBrain()
@@ -537,7 +550,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
     public void SetConvertToProbe(bool state)
     {
         localPrefs.SetAPML2ProbeAxis(state);
-        foreach (ProbeController probeController in allProbes)
+        foreach (TP_ProbeController probeController in allProbes)
             probeController.UpdateText();
     }
 
@@ -555,7 +568,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
     {
         localPrefs.SetBregma(useBregma);
 
-        foreach (ProbeController pcontroller in allProbes)
+        foreach (TP_ProbeController pcontroller in allProbes)
             pcontroller.SetProbePosition();
     }
 
@@ -573,7 +586,7 @@ public class TrajectoryPlannerManager : MonoBehaviour
     public void SetStereotaxic(bool state)
     {
         localPrefs.SetStereotaxic(state);
-        foreach(ProbeController pcontroller in allProbes)
+        foreach(TP_ProbeController pcontroller in allProbes)
             pcontroller.UpdateText();
     }
 

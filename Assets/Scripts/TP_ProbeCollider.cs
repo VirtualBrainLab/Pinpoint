@@ -5,13 +5,13 @@ using UnityEngine.EventSystems;
 
 public class TP_ProbeCollider : MonoBehaviour
 {
-    [SerializeField] ProbeController pcontroller;
-    private TrajectoryPlannerManager tpmanager;
+    [SerializeField] TP_ProbeController pcontroller;
+    private TP_TrajectoryPlannerManager tpmanager;
     private Renderer colliderRenderer;
 
     private void Start()
     {
-        tpmanager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+        tpmanager = GameObject.Find("main").GetComponent<TP_TrajectoryPlannerManager>();
 
         colliderRenderer = GetComponent<Renderer>();
     }

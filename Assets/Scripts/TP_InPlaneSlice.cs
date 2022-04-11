@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class TP_InPlaneSlice : MonoBehaviour
 {
     // In plane slice handling
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
     [SerializeField] private GameObject inPlaneSliceUIGO;
     [SerializeField] private GameObject inPlaneSliceGO;
     [SerializeField] private CCFModelControl modelControl;
@@ -52,7 +52,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         if (!localPrefs.GetInplane()) return;
 
-        ProbeController activeProbeController = tpmanager.GetActiveProbeController();
+        TP_ProbeController activeProbeController = tpmanager.GetActiveProbeController();
 
         // Calculate the size
         float[] heightPerc = activeProbeController.GetRecordingRegionHeight();

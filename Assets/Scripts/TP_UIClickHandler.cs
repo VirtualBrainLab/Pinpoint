@@ -8,7 +8,7 @@ public class TP_UIClickHandler : MonoBehaviour
 {
     // Raycaster
     private GraphicRaycaster raycaster;
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
     [SerializeField] private TP_InPlaneSlice inPlaneSlice;
     //[SerializeField] private UM_CameraController cameraController;
 

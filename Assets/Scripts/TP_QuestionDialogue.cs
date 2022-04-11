@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class QuestionDialogue : MonoBehaviour
+public class TP_QuestionDialogue : MonoBehaviour
 {
     [SerializeField] private TMP_Text questionText;
 

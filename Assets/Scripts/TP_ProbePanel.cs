@@ -11,7 +11,7 @@ public class TP_ProbePanel : MonoBehaviour
     [SerializeField] private GameObject textPrefab;
     [SerializeField] private List<GameObject> tickMarkGOs;
     [SerializeField] private int probePanelPxHeight = 500;
-    private ProbeController probeController;
+    private TP_ProbeController _probeController;
 
     private Texture2D pixelTex;
 
@@ -31,14 +31,14 @@ public class TP_ProbePanel : MonoBehaviour
         return probePanelPxHeight;
     }
 
-    public void RegisterProbeController(ProbeController probeController)
+    public void RegisterProbeController(TP_ProbeController probeController)
     {
-        this.probeController = probeController;
+        _probeController = probeController;
     }
 
-    public ProbeController GetProbeController()
+    public TP_ProbeController GetProbeController()
     {
-        return probeController;
+        return _probeController;
     }
 
     public void SetPixel(int x, int y, Color color)

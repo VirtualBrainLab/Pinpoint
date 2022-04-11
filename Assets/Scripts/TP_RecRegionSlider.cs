@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class TP_RecRegionSlider : MonoBehaviour
 {
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
     [SerializeField] private Slider uiSlider;
     [SerializeField] private TextMeshProUGUI recRegionSizeText;
 

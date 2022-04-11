@@ -16,7 +16,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     private bool inplane;
     private bool stereotaxic;
 
-    [SerializeField] TrajectoryPlannerManager tpmanager;
+    [SerializeField] TP_TrajectoryPlannerManager tpmanager;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle bregmaToggle;
@@ -28,7 +28,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle inplaneToggle;
     [SerializeField] Toggle stereotaxicToggle;
 
-    [SerializeField] QuestionDialogue qDialogue;
+    [SerializeField] TP_QuestionDialogue qDialogue;
 
     // Saving probes
     // simplest solution: on exit, stringify the probes, and then recover them from the string
@@ -67,10 +67,13 @@ public class TP_PlayerPrefs : MonoBehaviour
     }
     public void AsyncStart()
     {
-        if (PlayerPrefs.GetInt("probecount", 0) > 0)
+        if (qDialogue)
         {
-            qDialogue.NewQuestion("Load previously saved probes?");
-            qDialogue.SetYesCallback(LoadSavedProbes);
+            if (PlayerPrefs.GetInt("probecount", 0) > 0)
+            {
+                qDialogue.NewQuestion("Load previously saved probes?");
+                qDialogue.SetYesCallback(LoadSavedProbes);
+            }
         }
     }
 
@@ -204,10 +207,10 @@ public class TP_PlayerPrefs : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        List<ProbeController> allProbes = tpmanager.GetAllProbes();
+        List<TP_ProbeController> allProbes = tpmanager.GetAllProbes();
         for (int i = 0; i < allProbes.Count; i++)
         {
-            ProbeController probe = allProbes[i];
+            TP_ProbeController probe = allProbes[i];
             List<float> probeCoordinates = probe.GetCoordinates();
             PlayerPrefs.SetFloat("ap" + i, probeCoordinates[0]);
             PlayerPrefs.SetFloat("ml" + i, probeCoordinates[1]);

@@ -4,13 +4,13 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ProbeUIManager : MonoBehaviour
+public class TP_ProbeUIManager : MonoBehaviour
 {
     [SerializeField] private GameObject probePanelPrefab;
     private GameObject probePanelGO;
     private TP_ProbePanel probePanel;
 
-    [SerializeField] private ProbeController probeController;
+    [SerializeField] private TP_ProbeController probeController;
     private CCFModelControl modelControl;
 
     [SerializeField] private GameObject probeTip;
@@ -20,7 +20,7 @@ public class ProbeUIManager : MonoBehaviour
 
     private AnnotationDataset annotationDataset;
 
-    private TrajectoryPlannerManager tpmanager;
+    private TP_TrajectoryPlannerManager tpmanager;
 
     private Color defaultColor;
     private Color selectedColor;
@@ -50,7 +50,7 @@ public class ProbeUIManager : MonoBehaviour
         utils = main.GetComponent<Utils>();
 
         // Get the annotation dataset
-        tpmanager = main.GetComponent<TrajectoryPlannerManager>();
+        tpmanager = main.GetComponent<TP_TrajectoryPlannerManager>();
         annotationDataset = tpmanager.GetAnnotationDataset();
 
         // Set color properly

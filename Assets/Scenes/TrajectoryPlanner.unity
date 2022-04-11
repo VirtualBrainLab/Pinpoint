@@ -13560,10 +13560,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "Translation [W/A/S/D]\nAzimuth [Q/E]   Elevation [R/F]\nDepth [Z/X]\t\t  
-    Spin [1/3]\nRecording region [T/G]\nDelete probe [Backspace]\n+Shift accelerates
-    movement\nClick probe or UI to select\n[M] for manual entry\nClick+drag to rotate
-    brain\nRight click + drag to translate\nDouble click left/right resets\n[H] close
-    help"
+    Spin [1/3]\nRecording region [T/G]\nHold [Shift] fast or [Ctrl] slow\nDelete
+    probe [Backspace]\nClick probe or UI to select\n[M] for manual entry\nClick+drag
+    to rotate brain\nRight click + drag to translate\nDouble click left/right resets\n[H]
+    close help"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -18779,17 +18779,17 @@ MonoBehaviour:
   probePanelAreaTextFontSize: 14
   manualCoordinatePanel: {fileID: 960137803}
   dataIndexes:
-    m_AssetGUID: b33a20021d8fc0f4cbe0a9c7852ca429
+    m_AssetGUID: 9249560090138d447aa752f8616f556f
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
   annotationIndexes:
-    m_AssetGUID: eebd455733d6e214398d5c6482fff5bf
+    m_AssetGUID: e2bc09b5a10a5184c8e0a5d7e30818c0
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
   annotationMap:
-    m_AssetGUID: 3a7961a807fd6bf42adead676a80dabf
+    m_AssetGUID: 26ebb5313808c1740ad5baa52638428d
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0

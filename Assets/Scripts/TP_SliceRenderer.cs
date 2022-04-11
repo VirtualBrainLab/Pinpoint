@@ -6,7 +6,7 @@ public class TP_SliceRenderer : MonoBehaviour
 {
     [SerializeField] private GameObject sagittalSliceGO;
     [SerializeField] private GameObject coronalSliceGO;
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
     [SerializeField] private CCFModelControl modelControl;
     [SerializeField] private TP_PlayerPrefs localPrefs;
 
@@ -78,7 +78,7 @@ public class TP_SliceRenderer : MonoBehaviour
     /// </summary>
     private void UpdateSlicePosition()
     {
-        ProbeController activeProbeController = tpmanager.GetActiveProbeController();
+        TP_ProbeController activeProbeController = tpmanager.GetActiveProbeController();
         if (activeProbeController == null) return;
         Transform activeProbeTipT = activeProbeController.GetTipTransform();
         Vector3 tipPosition = activeProbeTipT.position + activeProbeTipT.up * 0.2f; // add 200 um to get to the start of the recording region

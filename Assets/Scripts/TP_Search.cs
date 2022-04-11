@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class TP_Search : MonoBehaviour
 {
-    [SerializeField] TrajectoryPlannerManager tpmanager;
+    [SerializeField] TP_TrajectoryPlannerManager tpmanager;
     [SerializeField] CCFModelControl modelControl;
 
     [SerializeField] GameObject areaPanelsParentGO;

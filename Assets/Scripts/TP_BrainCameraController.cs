@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class BrainCameraController : MonoBehaviour
+public class TP_BrainCameraController : MonoBehaviour
 {
     [SerializeField] private Camera brainCamera;
     [SerializeField] private GameObject brainCameraRotator;
     [SerializeField] private GameObject brain;
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
 
     private Vector3 initialCameraRotatorPosition;
 

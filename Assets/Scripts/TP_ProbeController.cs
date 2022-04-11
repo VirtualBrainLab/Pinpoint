@@ -4,13 +4,32 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ProbeController : MonoBehaviour
+public class TP_ProbeController : MonoBehaviour
 {
+    // MOVEMENT CONTROLS
     [SerializeField] private float recordHeightSpeed = 0.1f;
-    [SerializeField] private float moveSpeed = 1f;
-    [SerializeField] private float rotSpeed = 5f;
+    private const float MOVE_INCREMENT_TAP = 0.010f; // move 1 um per tap
+    private const float MOVE_INCREMENT_TAP_FAST = 0.100f;
+    private const float MOVE_INCREMENT_TAP_SLOW = 0.001f;
+    private const float MOVE_INCREMENT_HOLD = 0.100f; // move 50 um per second when holding
+    private const float MOVE_INCREMENT_HOLD_FAST = 1.000f;
+    private const float MOVE_INCREMENT_HOLD_SLOW = 0.010f;
+    private const float ROT_INCREMENT_TAP = 1f;
+    private const float ROT_INCREMENT_TAP_FAST = 10f;
+    private const float ROT_INCREMENT_TAP_SLOW = 0.1f;
+    private const float ROT_INCREMENT_HOLD = 5f;
+    private const float ROT_INCREMENT_HOLD_FAST = 50f;
+    private const float ROT_INCREMENT_HOLD_SLOW = 0.5f;
+
+    private bool keyFast = false;
+    private bool keySlow = false;
+    private bool keyHeld = false; // If a key is held, we will skip re-checking the key hold delay for any other keys that are added
+    private float keyPressTime = 0f;
+    [SerializeField] private float keyHoldDelay = 0.300f;
+
+
     [SerializeField] private List<Collider> probeColliders;
-    [SerializeField] private List<ProbeUIManager> probeUIManagers;
+    [SerializeField] private List<TP_ProbeUIManager> probeUIManagers;
     [SerializeField] private Transform rotateAround;
     [SerializeField] private GameObject textPrefab;
     [SerializeField] private Renderer probeRenderer;
@@ -18,7 +37,7 @@ public class ProbeController : MonoBehaviour
     [SerializeField] private int probeType;
     [SerializeField] private Transform probeTipT;
 
-    private TrajectoryPlannerManager tpmanager;
+    private TP_TrajectoryPlannerManager tpmanager;
     private Utils util;
 
     // in ap/ml/dv
@@ -79,7 +98,7 @@ public class ProbeController : MonoBehaviour
         textUI = textGO.GetComponent<TextMeshProUGUI>();
 
         GameObject main = GameObject.Find("main");
-        tpmanager = main.GetComponent<TrajectoryPlannerManager>();
+        tpmanager = main.GetComponent<TP_TrajectoryPlannerManager>();
         tpmanager.RegisterProbe(this, probeColliders);
 
         annotationDataset = tpmanager.GetAnnotationDataset();
@@ -100,7 +119,7 @@ public class ProbeController : MonoBehaviour
         ResetPositionTracking();
         SetProbePosition();
 
-        foreach (ProbeUIManager puimanager in probeUIManagers)
+        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
     }
 
@@ -117,7 +136,7 @@ public class ProbeController : MonoBehaviour
     public void Destroy()
     {
         // Delete this gameObject
-        foreach (ProbeUIManager puimanager in probeUIManagers)
+        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.Destroy();
         Destroy(textGO);
     }
@@ -139,7 +158,7 @@ public class ProbeController : MonoBehaviour
             go.transform.localPosition = pos;
         }
         UpdateRecordingRegionVars();
-        foreach (ProbeUIManager puimanager in probeUIManagers)
+        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
     }
 
@@ -162,7 +181,10 @@ public class ProbeController : MonoBehaviour
 
     public bool MoveProbe(List<Collider> otherColliders)
     {
-        bool keyDown = false; // set to true if a key is actually down to move
+        bool moved = false;
+
+        keyFast = Input.GetKey(KeyCode.LeftShift);
+        keySlow = Input.GetKey(KeyCode.LeftControl);
 
         // Save the current position information
         Vector3 originalPosition = transform.position;
@@ -174,78 +196,131 @@ public class ProbeController : MonoBehaviour
         float prespin = spin;
 
         // Handle click inputs
-        if (Input.GetKey(KeyCode.W))
+
+        // A note about key presses. In Unity on most computers with high frame rates pressing a key *once* will trigger:
+        // Frame 0: KeyDown and Key
+        // Frame 1: Key
+        // Frame 2...N-1 : Key
+        // Frame N: Key and KeyUp
+        // On *really* fast computers you might get multiple frames with Key before you see the KeyUp event. This is... a pain, if we want to be able to do both smooth motion and single key taps.
+        // We handle this by having a minimum "hold" time of say 50 ms before we start paying attention to the Key events
+
+        // APML movements
+        if (Input.GetKeyDown(KeyCode.W))
         {
-            keyDown = true;
-            MoveProbeAPML(1f, 0f);
+            moved = true;
+            keyPressTime = Time.realtimeSinceStartup;
+            MoveProbeAPML(1f, 0f, true);
         }
-        if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.W) && (keyHeld || (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay))
         {
-            keyDown = true;
-            MoveProbeAPML(-1f, 0f);
+            keyHeld = true;
+            moved = true;
+            MoveProbeAPML(1f, 0f, false);
         }
-        if (Input.GetKey(KeyCode.D))
+        if (Input.GetKeyUp(KeyCode.W))
+            keyHeld = false;
+
+        if (Input.GetKeyDown(KeyCode.S))
         {
-            keyDown = true;
-            MoveProbeAPML(0f, 1f);
+            moved = true;
+            keyPressTime = Time.realtimeSinceStartup;
+            MoveProbeAPML(-1f, 0f, true);
         }
-        if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.S) && (keyHeld || (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay))
         {
-            keyDown = true;
-            MoveProbeAPML(0f, -1f);
+            keyHeld = true;
+            moved = true;
+            MoveProbeAPML(-1f, 0f, false);
         }
+        if (Input.GetKeyUp(KeyCode.S))
+            keyHeld = false;
+
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            moved = true;
+            keyPressTime = Time.realtimeSinceStartup;
+            MoveProbeAPML(0f, 1f, true);
+        }
+        else if (Input.GetKey(KeyCode.D) && (keyHeld || (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay))
+        {
+            keyHeld = true;
+            moved = true;
+            MoveProbeAPML(0f, 1f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.D))
+            keyHeld = false;
+
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            moved = true;
+            keyPressTime = Time.realtimeSinceStartup;
+            MoveProbeAPML(0f, -1f, true);
+        }
+        else if (Input.GetKey(KeyCode.A) && (keyHeld || (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay))
+        {
+            keyHeld = true;
+            moved = true;
+            MoveProbeAPML(0f, -1f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.A))
+            keyHeld = false;
+
+        // Depth movement
         if (Input.GetKey(KeyCode.Z))
         {
-            keyDown = true;
+            moved = true;
             MoveProbeDepth(1f);
         }
         if (Input.GetKey(KeyCode.X))
         {
-            keyDown = true;
+            moved = true;
             MoveProbeDepth(-1f);
         }
+
+        // Rotations
         if (Input.GetKey(KeyCode.Q))
         {
-            keyDown = true;
+            moved = true;
             RotateProbe(-1f, 0f);
         }
         if (Input.GetKey(KeyCode.E))
         {
-            keyDown = true;
+            moved = true;
             RotateProbe(1f, 0f);
         }
         if (Input.GetKey(KeyCode.R))
         {
-            keyDown = true;
+            moved = true;
             RotateProbe(0f, 1f);
         }
         if (Input.GetKey(KeyCode.F))
         {
-            keyDown = true;
+            moved = true;
             RotateProbe(0f, -1f);
         }
         if (Input.GetKey(KeyCode.T))
         {
-            keyDown = true;
+            moved = true;
             ShiftRecordingRegion(1f);
         }
         if (Input.GetKey(KeyCode.G))
         {
-            keyDown = true;
+            moved = true;
             ShiftRecordingRegion(-1f);
         }
         if (Input.GetKey(KeyCode.Alpha1))
         {
-            keyDown = true;
+            moved = true;
             SpinProbe(-1f);
         }
         if (Input.GetKey(KeyCode.Alpha3))
         {
-            keyDown = true;
+            moved = true;
             SpinProbe(1f);
         }
 
-        if (keyDown)
+        if (moved)
         {
             SetProbePosition(apml.x, apml.y, depth, phi, theta, spin);
 
@@ -266,7 +341,7 @@ public class ProbeController : MonoBehaviour
                     ClearCollisionMesh();
                 UpdateSurfacePosition();
 
-                foreach (ProbeUIManager puimanager in probeUIManagers)
+                foreach (TP_ProbeUIManager puimanager in probeUIManagers)
                     puimanager.ProbeMoved();
             }
 
@@ -342,7 +417,7 @@ public class ProbeController : MonoBehaviour
         UpdateSurfacePosition();
 
         tpmanager.SetMovedThisFrame();
-        foreach (ProbeUIManager puimanager in probeUIManagers)
+        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
     }
 
@@ -441,31 +516,38 @@ public class ProbeController : MonoBehaviour
         visibleColliders.Clear();
     }
 
-    public void MoveProbeAPML(float ap, float ml)
+    // MOVEMENT
+
+    public void MoveProbeAPML(float ap, float ml, bool pressed)
     {
-        Vector2 delta = Input.GetKey(KeyCode.LeftShift) ? new Vector2(ap, ml) * moveSpeed * Time.deltaTime * 5 : new Vector2(ap, ml) * moveSpeed * Time.deltaTime;
+        float speed = pressed ? 
+            keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP : 
+            keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
+        Vector2 delta = new Vector2(ap, ml) * speed;
         apml += delta;
     }
 
     public void MoveProbeDepth(float depth)
     {
-        float depthDelta = Input.GetKey(KeyCode.LeftShift) ? depth * Time.deltaTime * moveSpeed * 5 : depth * Time.deltaTime * moveSpeed;
-        this.depth += depthDelta;
+        //float depthDelta = Input.GetKey(KeyCode.LeftShift) ? depth * Time.deltaTime * moveSpeed * 5 : depth * Time.deltaTime * moveSpeed;
+        //this.depth += depthDelta;
     }
 
     public void RotateProbe(float phi, float theta)
     {
-        float phiDelta = Input.GetKey(KeyCode.LeftShift) ? phi * Time.deltaTime * rotSpeed * 10 : phi * Time.deltaTime * rotSpeed;
-        float thetaDelta = Input.GetKey(KeyCode.LeftShift) ? theta * Time.deltaTime * rotSpeed * 10 : theta * Time.deltaTime * rotSpeed;
-        this.phi = Mathf.Clamp(this.phi + phiDelta, minPhi, maxPhi);
-        this.theta = Mathf.Clamp(this.theta + thetaDelta, minTheta, maxTheta);
+        //float phiDelta = Input.GetKey(KeyCode.LeftShift) ? phi * Time.deltaTime * rotSpeed * 10 : phi * Time.deltaTime * rotSpeed;
+        //float thetaDelta = Input.GetKey(KeyCode.LeftShift) ? theta * Time.deltaTime * rotSpeed * 10 : theta * Time.deltaTime * rotSpeed;
+        //this.phi = Mathf.Clamp(this.phi + phiDelta, minPhi, maxPhi);
+        //this.theta = Mathf.Clamp(this.theta + thetaDelta, minTheta, maxTheta);
     }
 
     public void SpinProbe(float spin)
     {
-        float spinDelta = Input.GetKey(KeyCode.LeftShift) ? spin * Time.deltaTime * rotSpeed * 10 : spin * Time.deltaTime * rotSpeed;
-        this.spin = Mathf.Clamp(this.spin + spinDelta, minSpin, maxSpin);
+        //float spinDelta = Input.GetKey(KeyCode.LeftShift) ? spin * Time.deltaTime * rotSpeed * 10 : spin * Time.deltaTime * rotSpeed;
+        //this.spin = Mathf.Clamp(this.spin + spinDelta, minSpin, maxSpin);
     }
+
+    // TEXT UPDATES
 
     public void UpdateText()
     {
@@ -678,7 +760,7 @@ public class ProbeController : MonoBehaviour
 
     public void ResizeProbePanel(int newPxHeight)
     {
-        foreach (ProbeUIManager puimanager in probeUIManagers)
+        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
         {
             puimanager.ResizeProbePanel(newPxHeight);
             puimanager.ProbeMoved();

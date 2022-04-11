@@ -13,7 +13,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     [SerializeField] private TMP_InputField thetaField;
     [SerializeField] private TMP_InputField spinField;
 
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
 
     private void Start()
     {
@@ -35,7 +35,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         }
     }
 
-    public void SetTextValues(ProbeController probeController)
+    public void SetTextValues(TP_ProbeController probeController)
     {
         List<float> coords = probeController.GetCoordinates();
         apField.text = coords[0].ToString();
