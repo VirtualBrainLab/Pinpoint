@@ -527,6 +527,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public void SetAcronyms(bool state)
     {
         localPrefs.SetAcronyms(state);
+        searchControl.RefreshSearchWindow();
         // move probes to update state
         MoveAllProbes();
     }

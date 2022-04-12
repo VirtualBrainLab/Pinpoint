@@ -27,6 +27,9 @@ public class TP_ProbeController : MonoBehaviour
     private float keyPressTime = 0f;
     [SerializeField] private float keyHoldDelay = 0.300f;
 
+    // DRAG MOVEMENT CONTROLS
+    private bool draggingMovement = false;
+
 
     [SerializeField] private List<Collider> probeColliders;
     [SerializeField] private List<TP_ProbeUIManager> probeUIManagers;
@@ -57,8 +60,8 @@ public class TP_ProbeController : MonoBehaviour
     private Vector2 apml;
     private float depth;
     private float phi; // rotation around the up axis (z)
-    private float minPhi = -270f;
-    private float maxPhi = 90f;
+    private float minPhi = -180;
+    private float maxPhi = 180f;
     private float theta; // rotation around the right axis (x)
     private float minTheta = -90f;
     private float maxTheta = 0f;
@@ -181,7 +184,11 @@ public class TP_ProbeController : MonoBehaviour
 
     public bool MoveProbe(List<Collider> otherColliders)
     {
+        if (draggingMovement)
+            return false;
+
         bool moved = false;
+        bool keyHoldDelayPassed = (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay;
 
         keyFast = Input.GetKey(KeyCode.LeftShift);
         keySlow = Input.GetKey(KeyCode.LeftControl);
@@ -205,6 +212,9 @@ public class TP_ProbeController : MonoBehaviour
         // On *really* fast computers you might get multiple frames with Key before you see the KeyUp event. This is... a pain, if we want to be able to do both smooth motion and single key taps.
         // We handle this by having a minimum "hold" time of say 50 ms before we start paying attention to the Key events
 
+        // [TODO] There's probably a smart refactor to be done here so that key press/hold is functionally separate from calling the Move() functions
+        // probably need to store the held KeyCodes in a list or something? 
+
         // APML movements
         if (Input.GetKeyDown(KeyCode.W))
         {
@@ -212,7 +222,7 @@ public class TP_ProbeController : MonoBehaviour
             keyPressTime = Time.realtimeSinceStartup;
             MoveProbeAPML(1f, 0f, true);
         }
-        else if (Input.GetKey(KeyCode.W) && (keyHeld || (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay))
+        else if (Input.GetKey(KeyCode.W) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
@@ -227,7 +237,7 @@ public class TP_ProbeController : MonoBehaviour
             keyPressTime = Time.realtimeSinceStartup;
             MoveProbeAPML(-1f, 0f, true);
         }
-        else if (Input.GetKey(KeyCode.S) && (keyHeld || (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay))
+        else if (Input.GetKey(KeyCode.S) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
@@ -242,7 +252,7 @@ public class TP_ProbeController : MonoBehaviour
             keyPressTime = Time.realtimeSinceStartup;
             MoveProbeAPML(0f, 1f, true);
         }
-        else if (Input.GetKey(KeyCode.D) && (keyHeld || (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay))
+        else if (Input.GetKey(KeyCode.D) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
@@ -257,7 +267,7 @@ public class TP_ProbeController : MonoBehaviour
             keyPressTime = Time.realtimeSinceStartup;
             MoveProbeAPML(0f, -1f, true);
         }
-        else if (Input.GetKey(KeyCode.A) && (keyHeld || (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay))
+        else if (Input.GetKey(KeyCode.A) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
@@ -267,38 +277,131 @@ public class TP_ProbeController : MonoBehaviour
             keyHeld = false;
 
         // Depth movement
-        if (Input.GetKey(KeyCode.Z))
+
+        if (Input.GetKeyDown(KeyCode.Z))
         {
             moved = true;
-            MoveProbeDepth(1f);
+            keyPressTime = Time.realtimeSinceStartup;
+            MoveProbeDepth(1f, true);
         }
-        if (Input.GetKey(KeyCode.X))
+        else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            MoveProbeDepth(1f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.Z))
+            keyHeld = false;
+
+        if (Input.GetKeyDown(KeyCode.X))
         {
             moved = true;
-            MoveProbeDepth(-1f);
+            keyPressTime = Time.realtimeSinceStartup;
+            MoveProbeDepth(-1f, true);
         }
+        else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            MoveProbeDepth(-1f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.X))
+            keyHeld = false;
 
         // Rotations
-        if (Input.GetKey(KeyCode.Q))
+
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             moved = true;
-            RotateProbe(-1f, 0f);
+            keyPressTime = Time.realtimeSinceStartup;
+            RotateProbe(-1f, 0f, true);
         }
-        if (Input.GetKey(KeyCode.E))
+        else if (Input.GetKey(KeyCode.Q) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            RotateProbe(-1f, 0f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.Q))
+            keyHeld = false;
+
+        if (Input.GetKeyDown(KeyCode.E))
         {
             moved = true;
-            RotateProbe(1f, 0f);
+            keyPressTime = Time.realtimeSinceStartup;
+            RotateProbe(1f, 0f, true);
         }
-        if (Input.GetKey(KeyCode.R))
+        else if (Input.GetKey(KeyCode.E) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            RotateProbe(1f, 0f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.E))
+            keyHeld = false;
+
+        if (Input.GetKeyDown(KeyCode.R))
         {
             moved = true;
-            RotateProbe(0f, 1f);
+            keyPressTime = Time.realtimeSinceStartup;
+            RotateProbe(0f, 1f, true);
         }
-        if (Input.GetKey(KeyCode.F))
+        else if (Input.GetKey(KeyCode.R) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            RotateProbe(0f, 1f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.R))
+            keyHeld = false;
+
+        if (Input.GetKeyDown(KeyCode.R))
         {
             moved = true;
-            RotateProbe(0f, -1f);
+            keyPressTime = Time.realtimeSinceStartup;
+            RotateProbe(0f, -1f, true);
         }
+        else if (Input.GetKey(KeyCode.R) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            RotateProbe(0f, -1f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.R))
+            keyHeld = false;
+
+        // Spin controls
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            moved = true;
+            keyPressTime = Time.realtimeSinceStartup;
+            SpinProbe(-1f, true);
+        }
+        else if (Input.GetKey(KeyCode.Alpha1) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            SpinProbe(-1f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha1))
+            keyHeld = false;
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            moved = true;
+            keyPressTime = Time.realtimeSinceStartup;
+            SpinProbe(1f, true);
+        }
+        else if (Input.GetKey(KeyCode.Alpha3) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            SpinProbe(1f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha3))
+            keyHeld = false;
+
+        // Recording region controls
         if (Input.GetKey(KeyCode.T))
         {
             moved = true;
@@ -309,16 +412,7 @@ public class TP_ProbeController : MonoBehaviour
             moved = true;
             ShiftRecordingRegion(-1f);
         }
-        if (Input.GetKey(KeyCode.Alpha1))
-        {
-            moved = true;
-            SpinProbe(-1f);
-        }
-        if (Input.GetKey(KeyCode.Alpha3))
-        {
-            moved = true;
-            SpinProbe(1f);
-        }
+
 
         if (moved)
         {
@@ -527,24 +621,36 @@ public class TP_ProbeController : MonoBehaviour
         apml += delta;
     }
 
-    public void MoveProbeDepth(float depth)
+    public void MoveProbeDepth(float depth, bool pressed)
     {
-        //float depthDelta = Input.GetKey(KeyCode.LeftShift) ? depth * Time.deltaTime * moveSpeed * 5 : depth * Time.deltaTime * moveSpeed;
-        //this.depth += depthDelta;
+        float speed = pressed ?
+            keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
+            keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
+
+        float depthDelta = depth * speed;
+        this.depth += depthDelta;
     }
 
-    public void RotateProbe(float phi, float theta)
+    public void RotateProbe(float phi, float theta, bool pressed)
     {
-        //float phiDelta = Input.GetKey(KeyCode.LeftShift) ? phi * Time.deltaTime * rotSpeed * 10 : phi * Time.deltaTime * rotSpeed;
-        //float thetaDelta = Input.GetKey(KeyCode.LeftShift) ? theta * Time.deltaTime * rotSpeed * 10 : theta * Time.deltaTime * rotSpeed;
-        //this.phi = Mathf.Clamp(this.phi + phiDelta, minPhi, maxPhi);
-        //this.theta = Mathf.Clamp(this.theta + thetaDelta, minTheta, maxTheta);
+        float speed = pressed ?
+            keyFast ? ROT_INCREMENT_TAP_FAST : keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
+            keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
+
+        float phiDelta = phi * speed;
+        float thetaDelta = theta * speed;
+        this.phi += phiDelta;
+        this.theta = Mathf.Clamp(this.theta + thetaDelta, minTheta, maxTheta);
     }
 
-    public void SpinProbe(float spin)
+    public void SpinProbe(float spin, bool pressed)
     {
-        //float spinDelta = Input.GetKey(KeyCode.LeftShift) ? spin * Time.deltaTime * rotSpeed * 10 : spin * Time.deltaTime * rotSpeed;
-        //this.spin = Mathf.Clamp(this.spin + spinDelta, minSpin, maxSpin);
+        float speed = pressed ?
+            keyFast ? ROT_INCREMENT_TAP_FAST : keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
+            keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
+
+        float spinDelta = spin * speed;
+        this.spin += spinDelta;
     }
 
     // TEXT UPDATES
@@ -558,7 +664,7 @@ public class TP_ProbeController : MonoBehaviour
         Vector2 iblPhiTheta = tpmanager.World2IBL(new Vector2(phi, theta));
 
         string updateStr = string.Format("Probe #{0}: "+apml_string[0]+" {1} "+apml_string[1]+" {2} Azimuth {3} Elevation {4} "+ GetDepthStr() + " {5} Spin {6}",
-            probeID, round0(apml_local.x*1000), round0(apml_local.y * 1000), round2(iblPhiTheta.x), round2(iblPhiTheta.y), round0(localDepth*1000), round2(spin));
+            probeID, round0(apml_local.x*1000), round0(apml_local.y * 1000), round2(CircDeg(iblPhiTheta.x,minPhi, maxPhi)), round2(iblPhiTheta.y), round0(localDepth*1000), round2(CircDeg(spin,minSpin, maxSpin)));;
 
         textUI.text = updateStr;
     }
@@ -572,11 +678,21 @@ public class TP_ProbeController : MonoBehaviour
         Vector2 iblPhiTheta = tpmanager.World2IBL(new Vector2(phi, theta));
 
         string fullStr = string.Format("Probe #{0}: " + apml_string[0] + " {1} " + apml_string[1] + " {2} Azimuth {3} Elevation {4} "+ GetDepthStr()+" {5} Spin {6} Record Height {7}",
-            probeID, apml_local.x * 1000, apml_local.y * 1000, iblPhiTheta.x, iblPhiTheta.y, localDepth, spin, minRecordHeight * 1000);
+            probeID, apml_local.x * 1000, apml_local.y * 1000, CircDeg(iblPhiTheta.x,minPhi, maxPhi), iblPhiTheta.y, localDepth, CircDeg(spin,minSpin,maxSpin), minRecordHeight * 1000);
         GUIUtility.systemCopyBuffer = fullStr;
 
         // When you copy text, also set this probe to be active
         tpmanager.SetActiveProbe(this);
+    }
+
+    public float CircDeg(float deg, float minDeg, float maxDeg)
+    {
+        float diff = Mathf.Abs(maxDeg - minDeg);
+
+        if (deg < minDeg) deg += diff;
+        if (deg > maxDeg) deg -= diff;
+
+        return deg;
     }
 
     public float[] Text2Probe()
@@ -734,6 +850,7 @@ public class TP_ProbeController : MonoBehaviour
 
     public void DragMovementClick()
     {
+        Debug.Log("Not implemented");
         tpmanager.ProbeControl = true;
 
         // Track the screenPoint that was initially clicked

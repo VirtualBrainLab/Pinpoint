@@ -30,6 +30,14 @@ public class TP_Search : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Called when updating acronyms <-> area names
+    /// </summary>
+    public void RefreshSearchWindow()
+    {
+        ChangeSearch(GetComponentInChildren<TMP_InputField>().text);
+    }
+
     public void ChangeSearch(string searchString)
     {
 

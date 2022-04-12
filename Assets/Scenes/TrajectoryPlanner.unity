@@ -6464,7 +6464,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -14695,7 +14695,6 @@ GameObject:
   - component: {fileID: 1650319387}
   - component: {fileID: 1650319390}
   - component: {fileID: 1650319389}
-  - component: {fileID: 1650319388}
   m_Layer: 5
   m_Name: ControlsChild
   m_TagString: Untagged
@@ -14723,19 +14722,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0.000061035156, y: -0}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 1, y: 0}
---- !u!114 &1650319388
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1650319386}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5396d73d06119c4b8526b81a70ebed0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  childGO: {fileID: 0}
 --- !u!114 &1650319389
 MonoBehaviour:
   m_ObjectHideFlags: 0
