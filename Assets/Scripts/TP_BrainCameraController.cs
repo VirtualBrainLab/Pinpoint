@@ -50,7 +50,7 @@ public class TP_BrainCameraController : MonoBehaviour
             brainCamera.fieldOfView = fov;
 
         // Now check if the mouse wheel is being held down
-        if (Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject())
+        if (Input.GetMouseButton(1) && !tpmanager.ProbeControl && !EventSystem.current.IsPointerOverGameObject())
         {
             mouseDownOverBrain = true;
             mouseButtonDown = 1;
@@ -58,7 +58,7 @@ public class TP_BrainCameraController : MonoBehaviour
         }
 
         // Now deal with dragging
-        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+        if (Input.GetMouseButtonDown(0) && !tpmanager.ProbeControl && !EventSystem.current.IsPointerOverGameObject())
         {
             //BrainCameraDetectTargets();
             mouseDownOverBrain = true;
@@ -81,72 +81,74 @@ public class TP_BrainCameraController : MonoBehaviour
 
     void BrainCameraControl_noTarget()
     {
-
-        // Deal with releasing the mouse (anywhere)
-        if (mouseDownOverBrain && mouseButtonDown == 0 && Input.GetMouseButtonUp(0))
+        if (mouseDownOverBrain)
         {
-            if (!brainTransformChanged)
+            // Deal with releasing the mouse (anywhere)
+            if (mouseButtonDown == 0 && Input.GetMouseButtonUp(0))
             {
-                // All we did was click through the brain window 
-                //if (brainCameraClickthroughTarget)
-                //{
-                //    BrainCameraClickthrough();
-                //}
-                if ((Time.realtimeSinceStartup - lastLeftClick) < doubleClickTime)
+                if (!brainTransformChanged)
                 {
-                    totalYaw = 0f;
-                    totalPitch = 0f;
+                    // All we did was click through the brain window 
+                    //if (brainCameraClickthroughTarget)
+                    //{
+                    //    BrainCameraClickthrough();
+                    //}
+                    if ((Time.realtimeSinceStartup - lastLeftClick) < doubleClickTime)
+                    {
+                        totalYaw = 0f;
+                        totalPitch = 0f;
+                        ApplyBrainCameraRotatorRotation();
+                    }
+                }
+
+                lastLeftClick = Time.realtimeSinceStartup;
+                ClearMouseDown(); return;
+            }
+            if (mouseButtonDown == 1 && Input.GetMouseButtonUp(1))
+            {
+                if (!brainTransformChanged)
+                {
+                    // Check for double click
+                    if ((Time.realtimeSinceStartup - lastRightClick) < doubleClickTime)
+                    {
+                        // Reset the brainCamera transform position
+                        brainCamera.transform.localPosition = Vector3.zero;
+                    }
+                }
+
+                lastRightClick = Time.realtimeSinceStartup;
+                ClearMouseDown(); return;
+            }
+
+            if (mouseButtonDown == 1)
+            {
+                // While right-click is held down 
+                float xMove = -Input.GetAxis("Mouse X") * moveSpeed * Time.deltaTime;
+                float yMove = -Input.GetAxis("Mouse Y") * moveSpeed * Time.deltaTime;
+
+                if (xMove != 0 || yMove != 0)
+                {
+                    brainTransformChanged = true;
+                    brainCamera.transform.Translate(xMove, yMove, 0, Space.Self);
+                }
+            }
+
+            // If the mouse is down, even if we are far way now we should drag the brain
+            if (mouseButtonDown == 0)
+            {
+                float xRot = -Input.GetAxis("Mouse X") * rotSpeed * Time.deltaTime;
+                float yRot = Input.GetAxis("Mouse Y") * rotSpeed * Time.deltaTime;
+
+                if (xRot != 0 || yRot != 0)
+                {
+                    brainTransformChanged = true;
+
+                    // Pitch Locally, Yaw Globally. See: https://gamedev.stackexchange.com/questions/136174/im-rotating-an-object-on-two-axes-so-why-does-it-keep-twisting-around-the-thir
+                    totalYaw = Mathf.Clamp(totalYaw + yRot, minXRotation, maxXRotation);
+                    totalPitch = Mathf.Clamp(totalPitch + xRot, minZRotation, maxZRotation);
+
                     ApplyBrainCameraRotatorRotation();
                 }
-            }
-
-            lastLeftClick = Time.realtimeSinceStartup;
-            ClearMouseDown(); return;
-        }
-        if (mouseDownOverBrain && mouseButtonDown == 1 && Input.GetMouseButtonUp(1))
-        {
-            if (!brainTransformChanged)
-            {
-                // Check for double click
-                if ((Time.realtimeSinceStartup - lastRightClick) < doubleClickTime)
-                {
-                    // Reset the brainCamera transform position
-                    brainCamera.transform.localPosition = Vector3.zero;
-                }
-            }
-
-            lastRightClick = Time.realtimeSinceStartup;
-            ClearMouseDown(); return;
-        }
-
-        if (mouseDownOverBrain && mouseButtonDown == 1)
-        {
-            // While right-click is held down 
-            float xMove = -Input.GetAxis("Mouse X") * moveSpeed * Time.deltaTime;
-            float yMove = -Input.GetAxis("Mouse Y") * moveSpeed * Time.deltaTime;
-
-            if (xMove != 0 || yMove != 0)
-            {
-                brainTransformChanged = true;
-                brainCamera.transform.Translate(xMove, yMove, 0, Space.Self);
-            }
-        }
-
-        // If the mouse is down, even if we are far way now we should drag the brain
-        if (mouseDownOverBrain && mouseButtonDown == 0)
-        {
-            float xRot = -Input.GetAxis("Mouse X") * rotSpeed * Time.deltaTime;
-            float yRot = Input.GetAxis("Mouse Y") * rotSpeed * Time.deltaTime;
-
-            if (xRot != 0 || yRot != 0)
-            {
-                brainTransformChanged = true;
-
-                // Pitch Locally, Yaw Globally. See: https://gamedev.stackexchange.com/questions/136174/im-rotating-an-object-on-two-axes-so-why-does-it-keep-twisting-around-the-thir
-                totalYaw = Mathf.Clamp(totalYaw + yRot, minXRotation, maxXRotation);
-                totalPitch = Mathf.Clamp(totalPitch + xRot, minZRotation, maxZRotation);
-
-                ApplyBrainCameraRotatorRotation();
             }
         }
     }

@@ -18,8 +18,8 @@ public class TP_ProbeController : MonoBehaviour
     private const float ROT_INCREMENT_TAP_FAST = 10f;
     private const float ROT_INCREMENT_TAP_SLOW = 0.1f;
     private const float ROT_INCREMENT_HOLD = 5f;
-    private const float ROT_INCREMENT_HOLD_FAST = 50f;
-    private const float ROT_INCREMENT_HOLD_SLOW = 0.5f;
+    private const float ROT_INCREMENT_HOLD_FAST = 25;
+    private const float ROT_INCREMENT_HOLD_SLOW = 2.5f;
 
     private bool keyFast = false;
     private bool keySlow = false;
@@ -69,14 +69,13 @@ public class TP_ProbeController : MonoBehaviour
     private float minSpin = -180f;
     private float maxSpin = 180f;
 
+    // Coordinate system information
+    private CCFCoordinateSystem ccfPosition;
+
     // recording region
     private float minRecordHeight;
     private float maxRecordHeight; // get this by measuring the height of the recording rectangle and subtracting from 10
     private float recordingRegionSizeY;
-
-    // Drag movement variables
-    private Vector3 screenPoint;
-    private Vector3 offset;
 
     // Brain surface position
     private Collider ccfBounds;
@@ -184,8 +183,6 @@ public class TP_ProbeController : MonoBehaviour
 
     public bool MoveProbe(List<Collider> otherColliders)
     {
-        if (draggingMovement)
-            return false;
 
         bool moved = false;
         bool keyHoldDelayPassed = (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay;
@@ -355,19 +352,19 @@ public class TP_ProbeController : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.R))
             keyHeld = false;
 
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
             RotateProbe(0f, -1f, true);
         }
-        else if (Input.GetKey(KeyCode.R) && (keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.F) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
             RotateProbe(0f, -1f, false);
         }
-        if (Input.GetKeyUp(KeyCode.R))
+        if (Input.GetKeyUp(KeyCode.F))
             keyHeld = false;
 
         // Spin controls
@@ -848,23 +845,97 @@ public class TP_ProbeController : MonoBehaviour
         return probeColliders;
     }
 
+    // DRAGGING MOVEMENT
+    
+    // Drag movement variables
+    private bool axisLockAP;
+    private bool axisLockML;
+    private bool axisLockDV;
+
+    private Vector2 origAPML;
+    private float origDepth;
+    private Vector3 originalClickPositionWorld;
+    private float cameraDistance;
+
     public void DragMovementClick()
     {
-        Debug.Log("Not implemented");
         tpmanager.ProbeControl = true;
 
+        axisLockAP = false;
+        axisLockDV = false;
+        axisLockML = false;
+
+        origAPML = apml;
+        origDepth = depth;
+
         // Track the screenPoint that was initially clicked
-        screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
-
-        offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
-
+        cameraDistance = Vector3.Distance(Camera.main.transform.position, gameObject.transform.position);
+        originalClickPositionWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
     }
     public void DragMovementDrag()
     {
-        // Only handle mouse drags if probe control is turned on
-        if (tpmanager.ProbeControl)
+        Vector3 curScreenPointWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
+
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S))
         {
-            Vector3 curScreenPoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
+            axisLockAP = true;
+            axisLockML = false;
+            axisLockDV = false;
+            // To make it more smooth, reset the z axis to zero when you lock the axis
+            originalClickPositionWorld.z = curScreenPointWorld.z;
+            origAPML = apml;
+            origDepth = depth;
+        }
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+        {
+            axisLockAP = false;
+            axisLockML = true;
+            axisLockDV = false;
+            originalClickPositionWorld.x = curScreenPointWorld.x;
+            origAPML = apml;
+            origDepth = depth;
+        }
+        if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.X))
+        {
+            axisLockAP = false;
+            axisLockML = false;
+            axisLockDV = true;
+            originalClickPositionWorld.y = curScreenPointWorld.y;
+            origAPML = apml;
+            origDepth = depth;
+        }
+
+        Vector3 worldOffset = curScreenPointWorld - originalClickPositionWorld;
+
+        // debug call:
+        //GameObject.Find("world_space_probe_hit").transform.position = curScreenPointWorld;
+
+        if (axisLockAP)
+        {
+            apml.x = origAPML.x;
+            apml.x += -worldOffset.z;
+        }
+        if (axisLockML)
+        {
+            apml.y = origAPML.y;
+            apml.y += -worldOffset.x;
+        }
+        if (axisLockDV)
+        {
+            depth = origDepth;
+            depth += -worldOffset.y;
+        }
+
+        if (apml.x != origAPML.x || apml.y != origAPML.y || depth != origDepth)
+        {
+            tpmanager.UpdateInPlaneView();
+            SetProbePosition(apml.x, apml.y, depth, phi, theta, spin);
+            UpdateSurfacePosition();
+
+            foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+                puimanager.ProbeMoved();
+
+            tpmanager.SetMovedThisFrame();
         }
 
     }

@@ -160,7 +160,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         datasetIndexes_bytes = null;
         inPlaneSlice.StartAnnotationDataset();
 
-        sliceRenderer.AsyncStart();
+        //sliceRenderer.AsyncStart();
 
         // Re-spawn previously active probes as the *final* step in loading
         localPrefs.AsyncStart();
@@ -253,8 +253,6 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
             if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2))
             {
-
-                Debug.Log(Time.realtimeSinceStartup);
                 movedThisFrame = localPrefs.GetCollisions() ? activeProbeController.MoveProbe(allNonActiveColliders) : activeProbeController.MoveProbe(new List<Collider>());
             }
 
@@ -512,6 +510,14 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     ///
     /// SETTINGS
     /// 
+
+    public void SetBackgroundWhite(bool state)
+    {
+        if (state)
+            Camera.main.backgroundColor = Color.white;
+        else
+            Camera.main.backgroundColor = Color.black;
+    }
 
     public void SetRecordingRegion(bool state)
     {

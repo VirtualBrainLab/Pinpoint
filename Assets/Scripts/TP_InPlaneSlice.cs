@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,8 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI areaText;
 
+    [SerializeField] private RawImage newInPlaneSliceTex;
+
     private AnnotationDataset annotationDataset;
     private int[,] annotationValues = new int[401, 401];
 
@@ -25,6 +28,28 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     private RectTransform rect;
 
+    private Texture3D annotationDatasetGPUTexture;
+    private TaskCompletionSource<bool> gpuTextureLoadedSource;
+    private Task gpuTextureLoadedTask;
+
+    private bool useCPUFallback = true;
+
+    private void Awake()
+    {
+        gpuTextureLoadedSource = new TaskCompletionSource<bool>();
+        gpuTextureLoadedTask = gpuTextureLoadedSource.Task;
+
+        if (useCPUFallback)
+        {
+            inPlaneSliceGO.SetActive(true);
+            newInPlaneSliceTex.gameObject.SetActive(false);
+        }
+        else
+        {
+            inPlaneSliceGO.SetActive(false);
+            newInPlaneSliceTex.gameObject.SetActive(true);
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -36,10 +61,57 @@ public class TP_InPlaneSlice : MonoBehaviour
         inPlaneSliceGO.GetComponent<RawImage>().texture = inPlaneSliceTex;
     }
 
+    public Texture3D GetAnnotationDatasetGPUTexture()
+    {
+        return annotationDatasetGPUTexture;
+    }
+
     public void StartAnnotationDataset()
     {
         annotationDataset = tpmanager.GetAnnotationDataset();
         annotationDataset.ComputeBorders();
+
+        DelayedStartAnnotationDataset();
+    }
+
+    public Task GetGPUTextureTask()
+    {
+        return gpuTextureLoadedTask;
+    }
+
+    public async void DelayedStartAnnotationDataset()
+    {
+        await modelControl.GetDefaultLoaded();
+
+        // Build the 3D annotation dataset texture
+        annotationDatasetGPUTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
+        annotationDatasetGPUTexture.filterMode = FilterMode.Point;
+        annotationDatasetGPUTexture.wrapMode = TextureWrapMode.Clamp;
+
+        StartCoroutine(DelayedStartBuildGPUTexture());
+    }
+
+    private IEnumerator DelayedStartBuildGPUTexture()
+    {
+        Debug.Log("Converting annotation dataset to texture format");
+        for (int ap = 0; ap < 528; ap++)
+        {
+            for (int dv = 0; dv < 320; dv++)
+                for (int ml = 0; ml < 456; ml++)
+                    annotationDatasetGPUTexture.SetPixel(ap, dv, ml, modelControl.GetCCFAreaColor(annotationDataset.ValueAtIndex(ap, dv, ml)));
+            // Running this as a coroutine just allows the user to interact with things while waiting for this to load fully
+            // It takes at minimum 100 frames to run this code because of how we structured it here
+            if (ap % 5 == 0)
+                yield return null;
+        }
+        annotationDatasetGPUTexture.Apply();
+
+        // Assign 3D texture to the material
+        Debug.Log("Assigning texture to material");
+        newInPlaneSliceTex.material.SetTexture("_Volume", annotationDatasetGPUTexture);
+        newInPlaneSliceTex.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
+
+        gpuTextureLoadedSource.SetResult(true);
     }
 
     // *** INPLANE SLICE CODE *** //
@@ -70,6 +142,17 @@ public class TP_InPlaneSlice : MonoBehaviour
 
 
         Vector3 tipPosition = tipTransform.position + tipTransform.up * (0.2f + mmStartPos);
+        Vector3 tipPositionAPDVLR = util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
+
+        if (!useCPUFallback)
+        {
+            newInPlaneSliceTex.material.SetVector("_TipPosition", tipPositionAPDVLR);
+            newInPlaneSliceTex.material.SetVector("_ForwardDirection", tipTransform.forward);
+            newInPlaneSliceTex.material.SetVector("_UpDirection", tipTransform.up);
+            newInPlaneSliceTex.material.SetFloat("_RecordingRegionSize", mmRecordingSize);
+            newInPlaneSliceTex.material.SetFloat("_Scale", mmRecordingSize * 1.5f * 1000f / 25f);
+            return;
+        }
 
         // Setup variables for view
         bool fourShank = activeProbeController.GetProbeType() == 4;
@@ -144,6 +227,8 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     public void InPlaneSliceHover(Vector2 pointerData)
     {
+        if (!useCPUFallback) return;
+
         Vector2 inPlanePos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, pointerData, null, out inPlanePos);
         inPlanePos += new Vector2(rect.rect.width, rect.rect.height / 2);
@@ -159,6 +244,8 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     public void TargetBrainArea(Vector2 pointerData)
     {
+        if (!useCPUFallback) return;
+
         Vector2 inPlanePos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, pointerData, null, out inPlanePos);
         inPlanePos += new Vector2(rect.rect.width, rect.rect.height / 2);
