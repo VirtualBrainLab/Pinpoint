@@ -36,7 +36,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        collisions = LoadBoolPref("collisions", false);
+        collisions = LoadBoolPref("collisions", true);
         collisionsToggle.isOn = collisions;
 
         useIblBregma = LoadBoolPref("bregma", true);

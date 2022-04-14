@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +20,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     [SerializeField] private TextMeshProUGUI areaText;
 
     [SerializeField] private RawImage newInPlaneSliceTex;
+    [SerializeField] private Texture3D preLoadedGPUTexture;
 
     private AnnotationDataset annotationDataset;
     private int[,] annotationValues = new int[401, 401];
@@ -83,16 +85,24 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         await modelControl.GetDefaultLoaded();
 
-        // Build the 3D annotation dataset texture
-        annotationDatasetGPUTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
-        annotationDatasetGPUTexture.filterMode = FilterMode.Point;
-        annotationDatasetGPUTexture.wrapMode = TextureWrapMode.Clamp;
-
-        StartCoroutine(DelayedStartBuildGPUTexture());
+        if (preLoadedGPUTexture != null)
+        {
+            annotationDatasetGPUTexture = preLoadedGPUTexture;
+            gpuTextureLoadedSource.SetResult(true);
+        }
+        else
+        {
+            StartCoroutine(DelayedStartBuildGPUTexture());
+        }
     }
 
     private IEnumerator DelayedStartBuildGPUTexture()
     {
+        // Build the 3D annotation dataset texture
+        annotationDatasetGPUTexture = new Texture3D(528, 320, 456, TextureFormat.DXT1, false);
+        annotationDatasetGPUTexture.filterMode = FilterMode.Point;
+        annotationDatasetGPUTexture.wrapMode = TextureWrapMode.Clamp;
+
         Debug.Log("Converting annotation dataset to texture format");
         for (int ap = 0; ap < 528; ap++)
         {
@@ -110,6 +120,9 @@ public class TP_InPlaneSlice : MonoBehaviour
         Debug.Log("Assigning texture to material");
         newInPlaneSliceTex.material.SetTexture("_Volume", annotationDatasetGPUTexture);
         newInPlaneSliceTex.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
+
+        if (Application.isEditor)
+            AssetDatabase.CreateAsset(annotationDatasetGPUTexture, "Assets/AddressableAssets/Textures/AnnotationDatasetTexture3D.asset");
 
         gpuTextureLoadedSource.SetResult(true);
     }

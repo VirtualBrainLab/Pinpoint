@@ -19,6 +19,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     [SerializeField] private TP_SliceRenderer sliceRenderer;
     [SerializeField] private TP_Search searchControl;
     [SerializeField] private TMP_InputField searchInput;
+    [SerializeField] private GameObject CollisionPanelGO;
 
     [SerializeField] private TP_PlayerPrefs localPrefs;
 
@@ -569,6 +570,11 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public void SetCollisions(bool toggleCollisions)
     {
         localPrefs.SetCollisions(toggleCollisions);
+    }
+
+    public void SetCollisionPanelVisibility(bool visibility)
+    {
+        CollisionPanelGO.SetActive(visibility);
     }
 
     public void SetBregma(bool useBregma)

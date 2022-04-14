@@ -55,12 +55,11 @@ public class TP_SliceRenderer : MonoBehaviour
         if (localPrefs.GetSlice3D() && loaded)
         {
             // Check if the camera moved such that we have to flip the slice quads
-            //UpdateCameraPosition();
+            UpdateCameraPosition();
 
             if (tpmanager.MovedThisFrame())
             {
                 UpdateSlicePosition();
-                UpdateCameraPosition();
             }
         }
     }
@@ -78,7 +77,7 @@ public class TP_SliceRenderer : MonoBehaviour
         Transform activeProbeTipT = activeProbeController.GetTipTransform();
         Vector3 tipPosition = activeProbeTipT.position + activeProbeTipT.up * 0.2f; // add 200 um to get to the start of the recording region
 
-        Vector3 tipPositionAPDVLR = util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
+        //Vector3 tipPositionAPDVLR = util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
 
         apWorldmm = tipPosition.z + 6.6f;
         coronalSliceGO.transform.position = new Vector3(0f, 0f, tipPosition.z);
@@ -87,6 +86,8 @@ public class TP_SliceRenderer : MonoBehaviour
         mlWorldmm = -(tipPosition.x - 5.7f);
         sagittalSliceGO.transform.position = new Vector3(tipPosition.x, 0f, 0f);
         saggitalSliceMaterial.SetFloat("_SlicePosition", mlWorldmm / 11.4f);
+
+        UpdateNodeModelSlicing();
     }
 
     private void UpdateCameraPosition()

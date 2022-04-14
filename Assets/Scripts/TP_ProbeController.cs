@@ -418,16 +418,19 @@ public class TP_ProbeController : MonoBehaviour
             bool collided = CheckCollisions(otherColliders);
             if (collided)
             {
-                transform.position = originalPosition;
-                transform.rotation = originalRotation;
-                apml = preapml;
-                depth = predepth;
-                phi = prephi;
-                theta = pretheta;
-                spin = prespin;
+                // When colliding we no longer reset the position back to where it was before, we just warn the user.
+                //transform.position = originalPosition;
+                //transform.rotation = originalRotation;
+                //apml = preapml;
+                //depth = predepth;
+                //phi = prephi;
+                //theta = pretheta;
+                //spin = prespin;
+                tpmanager.SetCollisionPanelVisibility(true);
             }
             else
             {
+                tpmanager.SetCollisionPanelVisibility(false);
                 if (visibleColliders.Count > 0)
                     ClearCollisionMesh();
                 UpdateSurfacePosition();
