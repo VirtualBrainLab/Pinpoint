@@ -116,6 +116,10 @@ You can save the coordinates of an insertion for future use by clicking on the c
 
 Please report issues on the [issues page](https://github.com/dbirman/NPTrajectoryPlanner/issues).
 
+## Electrophysiology atlas
+
+The ephys atlas functionality is provided by a server running out of this repository: https://github.com/dbirman/nptraj-ephys-server
+
 ## References
 
 Based on the trajectory explorer by Andy Peters https://github.com/petersaj/neuropixels_trajectory_explorer. 
