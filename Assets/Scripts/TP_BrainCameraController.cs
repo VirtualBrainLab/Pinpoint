@@ -154,7 +154,6 @@ public class TP_BrainCameraController : MonoBehaviour
     }
     void ApplyBrainCameraRotatorRotation()
     {
-        Debug.Log(new Vector2(totalPitch, totalYaw));
         Quaternion curRotation = Quaternion.Euler(totalYaw, 0, totalPitch);
 
         // Move the camera back to zero, perform rotation, then offset back
