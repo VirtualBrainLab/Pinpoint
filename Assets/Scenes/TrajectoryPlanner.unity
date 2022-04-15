@@ -6057,7 +6057,7 @@ MonoBehaviour:
   localPrefs: {fileID: 2108153956}
   areaText: {fileID: 500828953}
   newInPlaneSliceTex: {fileID: 705541814}
-  preLoadedGPUTexture: {fileID: 11700000, guid: 4bf3c561065f1ee48ab5437aee93d1ee, type: 2}
+  preLoadedGPUTexture: {fileID: 0}
 --- !u!1 &674648663
 GameObject:
   m_ObjectHideFlags: 0

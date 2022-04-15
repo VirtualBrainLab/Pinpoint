@@ -254,7 +254,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
             if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2))
             {
-                movedThisFrame = localPrefs.GetCollisions() ? activeProbeController.MoveProbe(allNonActiveColliders) : activeProbeController.MoveProbe(new List<Collider>());
+                movedThisFrame = localPrefs.GetCollisions() ? activeProbeController.MoveProbe(true) : activeProbeController.MoveProbe(false);
             }
 
             if (movedThisFrame)
@@ -265,6 +265,16 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public List<TP_ProbeController> GetAllProbes()
     {
         return allProbes;
+    }
+
+    public List<Collider> GetAllNonActiveColliders()
+    {
+        return allNonActiveColliders;
+    }
+
+    public bool GetCollisions()
+    {
+        return localPrefs.GetCollisions();
     }
 
     private void DestroyActiveProbeController()

@@ -99,7 +99,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     private IEnumerator DelayedStartBuildGPUTexture()
     {
         // Build the 3D annotation dataset texture
-        annotationDatasetGPUTexture = new Texture3D(528, 320, 456, TextureFormat.DXT1, false);
+        annotationDatasetGPUTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
         annotationDatasetGPUTexture.filterMode = FilterMode.Point;
         annotationDatasetGPUTexture.wrapMode = TextureWrapMode.Clamp;
 

@@ -181,7 +181,7 @@ public class TP_ProbeController : MonoBehaviour
         spin = 0;
     }
 
-    public bool MoveProbe(List<Collider> otherColliders)
+    public bool MoveProbe(bool checkForCollisions)
     {
 
         bool moved = false;
@@ -415,31 +415,15 @@ public class TP_ProbeController : MonoBehaviour
         {
             SetProbePosition(apml.x, apml.y, depth, phi, theta, spin);
 
-            bool collided = CheckCollisions(otherColliders);
-            if (collided)
-            {
-                // When colliding we no longer reset the position back to where it was before, we just warn the user.
-                //transform.position = originalPosition;
-                //transform.rotation = originalRotation;
-                //apml = preapml;
-                //depth = predepth;
-                //phi = prephi;
-                //theta = pretheta;
-                //spin = prespin;
-                tpmanager.SetCollisionPanelVisibility(true);
-            }
-            else
-            {
-                tpmanager.SetCollisionPanelVisibility(false);
-                if (visibleColliders.Count > 0)
-                    ClearCollisionMesh();
-                UpdateSurfacePosition();
+            if (checkForCollisions)
+                CheckCollisions(tpmanager.GetAllNonActiveColliders());
 
-                foreach (TP_ProbeUIManager puimanager in probeUIManagers)
-                    puimanager.ProbeMoved();
-            }
+            UpdateSurfacePosition();
 
-            return !collided;
+            foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+                puimanager.ProbeMoved();
+
+            return true;
         }
         else
         {
@@ -569,7 +553,22 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     /// <param name="otherColliders"></param>
     /// <returns></returns>
-    private bool CheckCollisions(List<Collider> otherColliders)
+    private void CheckCollisions(List<Collider> otherColliders)
+    {
+        bool collided = CheckCollisionsHelper(otherColliders);
+
+        if (collided)
+            tpmanager.SetCollisionPanelVisibility(true);
+        else
+        {
+            tpmanager.SetCollisionPanelVisibility(false);
+            if (visibleColliders.Count > 0)
+                ClearCollisionMesh();
+        }
+
+    }
+
+    private bool CheckCollisionsHelper(List<Collider> otherColliders)
     {
         foreach (Collider activeCollider in probeColliders)
         {
@@ -584,6 +583,7 @@ public class TP_ProbeController : MonoBehaviour
                 }
             }
         }
+
         return false;
     }
 
@@ -929,8 +929,12 @@ public class TP_ProbeController : MonoBehaviour
             depth += -worldOffset.y;
         }
 
+
         if (apml.x != origAPML.x || apml.y != origAPML.y || depth != origDepth)
         {
+            if (tpmanager.GetCollisions())
+                CheckCollisions(tpmanager.GetAllNonActiveColliders());
+
             tpmanager.UpdateInPlaneView();
             SetProbePosition(apml.x, apml.y, depth, phi, theta, spin);
             UpdateSurfacePosition();
