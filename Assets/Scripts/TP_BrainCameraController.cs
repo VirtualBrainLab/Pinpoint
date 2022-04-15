@@ -154,6 +154,7 @@ public class TP_BrainCameraController : MonoBehaviour
     }
     void ApplyBrainCameraRotatorRotation()
     {
+        Debug.Log(new Vector2(totalPitch, totalYaw));
         Quaternion curRotation = Quaternion.Euler(totalYaw, 0, totalPitch);
 
         // Move the camera back to zero, perform rotation, then offset back
@@ -167,5 +168,17 @@ public class TP_BrainCameraController : MonoBehaviour
         mouseDownOverBrain = false;
         //brainCameraClickthroughTarget = null;
         brainTransformChanged = false;
+    }
+
+    public Vector2 GetPitchYaw()
+    {
+        return new Vector2(totalPitch, totalYaw);
+    }
+
+    public void SetBrainAxisAngles(Vector2 newPitchYaw)
+    {
+        totalPitch = newPitchYaw.x;
+        totalYaw = newPitchYaw.y;
+        ApplyBrainCameraRotatorRotation();
     }
 }

@@ -4,17 +4,19 @@ using UnityEngine;
 
 public class TP_CameraMiniControllerHandle : MonoBehaviour
 {
-    [SerializeField] Quaternion handleRotation;
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] TP_BrainCameraController cameraController;
+    [SerializeField] Vector3 eulerAngles;
+    private float doubleClickTime = 0.2f;
+    private float lastClick = 0f;
 
-    // Update is called once per frame
-    void Update()
+    private void OnMouseOver()
     {
-        
+        if (Input.GetMouseButtonDown(0))
+        {
+            if ((Time.realtimeSinceStartup - lastClick) < doubleClickTime)
+                cameraController.SetBrainAxisAngles(eulerAngles);
+            else
+                lastClick = Time.realtimeSinceStartup;
+        }
     }
 }

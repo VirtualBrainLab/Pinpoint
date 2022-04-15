@@ -4,17 +4,12 @@ using UnityEngine;
 
 public class TP_CameraMiniController : MonoBehaviour
 {
-    [SerializeField] Transform brainCameraT;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] TP_BrainCameraController brainCameraController;
 
     // Update is called once per frame
     void Update()
     {
-        transform.localRotation = brainCameraT.localRotation;
+        Vector2 cameraPitchYaw = brainCameraController.GetPitchYaw();
+        transform.localRotation = Quaternion.Euler(cameraPitchYaw.y, cameraPitchYaw.x, 0);
     }
 }
