@@ -93,12 +93,12 @@ public class TP_BrainCameraController : MonoBehaviour
                     //{
                     //    BrainCameraClickthrough();
                     //}
-                    if ((Time.realtimeSinceStartup - lastLeftClick) < doubleClickTime)
-                    {
-                        totalYaw = 0f;
-                        totalPitch = 0f;
-                        ApplyBrainCameraRotatorRotation();
-                    }
+                    //if ((Time.realtimeSinceStartup - lastLeftClick) < doubleClickTime)
+                    //{
+                    //    totalYaw = 0f;
+                    //    totalPitch = 0f;
+                    //    ApplyBrainCameraRotatorRotation();
+                    //}
                 }
 
                 lastLeftClick = Time.realtimeSinceStartup;
