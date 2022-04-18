@@ -231,17 +231,17 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
             return;
         }
 
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.C)) && Input.GetKeyDown(KeyCode.Backspace) && !manualCoordinatePanel.gameObject.activeSelf)
+        {
+            RecoverActiveProbeController();
+            return;
+        }
+
         if (Input.anyKey && activeProbeController != null && !searchInput.isFocused)
         {
             if (Input.GetKeyDown(KeyCode.Backspace) && !manualCoordinatePanel.gameObject.activeSelf)
             {
                 DestroyActiveProbeController();
-                return;
-            }
-
-            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.Backspace) && !manualCoordinatePanel.gameObject.activeSelf)
-            {
-                RecoverActiveProbeController();
                 return;
             }
 
@@ -277,8 +277,22 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         return localPrefs.GetCollisions();
     }
 
+    // DESTROY AND REPLACE PROBES
+
+    //[TODO] Replace this with some system that handles recovering probes by tracking their coordinate system or something?
+    // Or maybe the probe coordinates should be an object that can be serialized?
+    private List<float> prevCoordinates;
+    private int prevProbeType;
+
     private void DestroyActiveProbeController()
     {
+        prevProbeType = activeProbeController.GetProbeType();
+        prevCoordinates = activeProbeController.GetCoordinates();
+
+        Debug.Log("Destroying probe type " + prevProbeType + " with coordinates");
+        foreach (float val in prevCoordinates)
+            Debug.Log(val);
+
         activeProbeController.Destroy();
         Destroy(activeProbeController.gameObject);
         allProbes.Remove(activeProbeController);
@@ -290,7 +304,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     private void RecoverActiveProbeController()
     {
-        Debug.Log("Not implemented");
+        AddNewProbe(prevProbeType, prevCoordinates[0], prevCoordinates[1], prevCoordinates[2], prevCoordinates[3], prevCoordinates[4], prevCoordinates[5]);
     }
 
     public void ManualCoordinateEntry(float ap, float ml, float depth, float phi, float theta, float spin)
