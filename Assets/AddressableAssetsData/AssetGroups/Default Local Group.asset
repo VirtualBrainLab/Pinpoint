@@ -17,24 +17,12 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: eb9eb3c822ec72b468349d4e785d6617
   m_SerializeEntries:
-  - m_GUID: 9249560090138d447aa752f8616f556f
-    m_Address: Assets/AddressableAssets/Datasets/data_indexes.bytes
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 26ebb5313808c1740ad5baa52638428d
-    m_Address: Assets/AddressableAssets/Datasets/ann/indexes_map.bytes
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: e2bc09b5a10a5184c8e0a5d7e30818c0
-    m_Address: Assets/AddressableAssets/Datasets/ann/indexes.bytes
+  - m_GUID: eb737450d42017848a7fc57cf086d3dd
+    m_Address: Assets/AddressableAssets/Datasets/volume_indexes.bytes
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 2124a773640cd7a4ab491730a80306a1
     m_Address: Assets/AddressableAssets/IBL/coverage_indexes.bytes
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 4bf3c561065f1ee48ab5437aee93d1ee
-    m_Address: Assets/AddressableAssets/Textures/AnnotationDatasetTexture3D.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0

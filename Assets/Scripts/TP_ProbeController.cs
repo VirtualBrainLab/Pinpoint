@@ -553,7 +553,7 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     /// <param name="otherColliders"></param>
     /// <returns></returns>
-    private void CheckCollisions(List<Collider> otherColliders)
+    public void CheckCollisions(List<Collider> otherColliders)
     {
         bool collided = CheckCollisionsHelper(otherColliders);
 

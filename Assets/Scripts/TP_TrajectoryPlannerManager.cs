@@ -164,6 +164,16 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         return vdmanager.GetAnnotationDataset();
     }
 
+    public Task<bool> LoadIBLCoverageDataset()
+    {
+        return vdmanager.LoadIBLCoverage();
+    }
+
+    public VolumetricDataset GetIBLCoverageDataset()
+    {
+        return vdmanager.GetIBLCoverageDataset();
+    }
+
     public int GetActiveProbeType()
     {
         return activeProbeController.GetProbeType();
@@ -543,6 +553,9 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public void SetCollisions(bool toggleCollisions)
     {
         localPrefs.SetCollisions(toggleCollisions);
+        SetCollisionPanelVisibility(toggleCollisions);
+        if (activeProbeController!=null)
+            activeProbeController.CheckCollisions(GetAllNonActiveColliders());
     }
 
     public void SetCollisionPanelVisibility(bool visibility)

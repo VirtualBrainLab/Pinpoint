@@ -3371,7 +3371,7 @@ MonoBehaviour:
   util: {fileID: 2108153955}
   dropdownMenu: {fileID: 1317876523}
   coverageData:
-    m_AssetGUID: 4bf3c561065f1ee48ab5437aee93d1ee
+    m_AssetGUID: 
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
@@ -19968,6 +19968,7 @@ GameObject:
   - component: {fileID: 2108153954}
   - component: {fileID: 2108153955}
   - component: {fileID: 2108153956}
+  - component: {fileID: 2108153957}
   m_Layer: 0
   m_Name: main
   m_TagString: Untagged
@@ -20051,7 +20052,7 @@ MonoBehaviour:
   searchInput: {fileID: 1047957689}
   CollisionPanelGO: {fileID: 2085964517}
   localPrefs: {fileID: 2108153956}
-  vdmanager: {fileID: 0}
+  vdmanager: {fileID: 2108153957}
   annotationAcronymDropdown: {fileID: 1834052539}
   probePanelAcronymTextFontSize: 24
   probePanelAreaTextFontSize: 14
@@ -20087,10 +20088,42 @@ MonoBehaviour:
   acronymToggle: {fileID: 1064390512}
   depthToggle: {fileID: 510370716}
   probeAxisToggle: {fileID: 834825933}
-  slice3dToggle: {fileID: 0}
+  slice3dDropdown: {fileID: 1317876523}
   inplaneToggle: {fileID: 701524084}
   stereotaxicToggle: {fileID: 2094889467}
   qDialogue: {fileID: 1550119012}
+--- !u!114 &2108153957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2108153951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e87526a9529a5046892704c80bce5ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dataIndexes:
+    m_AssetGUID: eb737450d42017848a7fc57cf086d3dd
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  annotationIndexes:
+    m_AssetGUID: 43cce19ffbc67024fae366af9eae882c
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  annotationMap:
+    m_AssetGUID: ee6251661fa79af469df6e1cdc5f64b8
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  coverageIndexes:
+    m_AssetGUID: 2124a773640cd7a4ab491730a80306a1
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
 --- !u!1 &2115159642
 GameObject:
   m_ObjectHideFlags: 0
@@ -20240,7 +20273,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: -100
+  near clip plane: -120
   far clip plane: 50
   field of view: 60
   orthographic: 1

@@ -42,22 +42,57 @@ public class TP_SliceRenderer : MonoBehaviour
 
     public async void AsyncStart()
     {
-        Debug.Log("Waiting for inplane slice to complete");
+        Debug.Log("(SliceRenderer) Waiting for inplane slice to complete");
         await inPlaneSlice.GetGPUTextureTask();
 
+        Debug.Log("(SliceRenderer) Loading 3D texture");
         ToggleSliceVisibility(localPrefs.GetSlice3D());
 
         if (dropdownMenu.value == 1)
             SetActiveTextureAnnotation();
         else if (dropdownMenu.value == 2)
             SetActiveTextureIBLCoverage();
-        Debug.Log("Loading 3d texture");
         loaded = true;
     }
 
-    public void LoadCoverageTexture()
-    {
 
+    private Texture3D iblCoverageTexture;
+    private bool coverageLoaded;
+    private bool coverageLoading;
+
+    public async void LoadCoverageTexture()
+    {
+        coverageLoading = true;
+
+        VolumetricDataset coverageDataset = tpmanager.GetIBLCoverageDataset();
+        if (coverageDataset == null)
+        {
+            await tpmanager.LoadIBLCoverageDataset();
+            coverageDataset = tpmanager.GetIBLCoverageDataset();
+        }
+        AnnotationDataset annotationDataset = tpmanager.GetAnnotationDataset();
+
+        Color[] colors = new Color[] {Color.grey, Color.yellow, Color.green };
+
+        iblCoverageTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
+        iblCoverageTexture.filterMode = FilterMode.Point;
+        iblCoverageTexture.wrapMode = TextureWrapMode.Clamp;
+
+        Debug.Log("Converting annotation dataset to texture format");
+        for (int ap = 0; ap < 528; ap++)
+        {
+            for (int dv = 0; dv < 320; dv++)
+                for (int ml = 0; ml < 456; ml++)
+                    if (annotationDataset.ValueAtIndex(ap, dv, ml) > 0)
+                        iblCoverageTexture.SetPixel(ap, dv, ml, colors[coverageDataset.ValueAtIndex(ap, dv, ml)]);
+                    else
+                        iblCoverageTexture.SetPixel(ap, dv, ml, Color.black);
+        }
+        iblCoverageTexture.Apply();
+
+        coverageLoaded = true;
+
+        SetActiveTextureIBLCoverage();
     }
 
     private void SetActiveTextureAnnotation()
@@ -68,12 +103,18 @@ public class TP_SliceRenderer : MonoBehaviour
 
     private void SetActiveTextureIBLCoverage()
     {
-
+        if (!coverageLoaded && !coverageLoading)
+        {
+            LoadCoverageTexture();
+            return;
+        }
+        saggitalSliceMaterial.SetTexture("_Volume", iblCoverageTexture);
+        coronalSliceMaterial.SetTexture("_Volume", iblCoverageTexture);
     }
 
     private void Update()
     {
-        if (localPrefs.GetSlice3D()==1 && loaded)
+        if (localPrefs.GetSlice3D()>0 && loaded)
         {
             // Check if the camera moved such that we have to flip the slice quads
             UpdateCameraPosition();
