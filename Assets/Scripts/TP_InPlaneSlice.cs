@@ -19,8 +19,9 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI areaText;
 
-    [SerializeField] private RawImage newInPlaneSliceTex;
+    [SerializeField] private GameObject gpuInPlaneSliceGO;
     [SerializeField] private Texture3D preLoadedGPUTexture;
+    private Renderer gpuSliceRenderer;
 
     private AnnotationDataset annotationDataset;
     private int[,] annotationValues = new int[401, 401];
@@ -41,15 +42,18 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuTextureLoadedSource = new TaskCompletionSource<bool>();
         gpuTextureLoadedTask = gpuTextureLoadedSource.Task;
 
+        if (gpuInPlaneSliceGO)
+            gpuSliceRenderer = gpuInPlaneSliceGO.GetComponent<Renderer>();
+
         if (useCPUFallback)
         {
             inPlaneSliceGO.SetActive(true);
-            newInPlaneSliceTex.gameObject.SetActive(false);
+            gpuInPlaneSliceGO.gameObject.SetActive(false);
         }
         else
         {
             inPlaneSliceGO.SetActive(false);
-            newInPlaneSliceTex.gameObject.SetActive(true);
+            gpuInPlaneSliceGO.gameObject.SetActive(true);
         }
     }
     // Start is called before the first frame update
@@ -118,8 +122,8 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         // Assign 3D texture to the material
         Debug.Log("Assigning texture to material");
-        newInPlaneSliceTex.material.SetTexture("_Volume", annotationDatasetGPUTexture);
-        newInPlaneSliceTex.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
+        gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
+        gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
 
         if (Application.isEditor)
             AssetDatabase.CreateAsset(annotationDatasetGPUTexture, "Assets/AddressableAssets/Textures/AnnotationDatasetTexture3D.asset");
@@ -159,11 +163,11 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         if (!useCPUFallback)
         {
-            newInPlaneSliceTex.material.SetVector("_TipPosition", tipPositionAPDVLR);
-            newInPlaneSliceTex.material.SetVector("_ForwardDirection", tipTransform.forward);
-            newInPlaneSliceTex.material.SetVector("_UpDirection", tipTransform.up);
-            newInPlaneSliceTex.material.SetFloat("_RecordingRegionSize", mmRecordingSize);
-            newInPlaneSliceTex.material.SetFloat("_Scale", mmRecordingSize * 1.5f * 1000f / 25f);
+            gpuSliceRenderer.material.SetVector("_TipPosition", tipPositionAPDVLR);
+            gpuSliceRenderer.material.SetVector("_ForwardDirection", tipTransform.forward);
+            gpuSliceRenderer.material.SetVector("_UpDirection", tipTransform.up);
+            gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize);
+            gpuSliceRenderer.material.SetFloat("_Scale", mmRecordingSize * 1.5f * 1000f / 25f);
             return;
         }
 

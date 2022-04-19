@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     private bool useAcronyms;
     private bool depthFromBrain;
     private bool convertAPML2probeAxis;
-    private bool slice3d;
+    private int slice3d;
     private bool inplane;
     private bool stereotaxic;
 
@@ -24,7 +25,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle acronymToggle;
     [SerializeField] Toggle depthToggle;
     [SerializeField] Toggle probeAxisToggle;
-    [SerializeField] Toggle slice3dToggle;
+    [SerializeField] TMP_Dropdown slice3dDropdown;
     [SerializeField] Toggle inplaneToggle;
     [SerializeField] Toggle stereotaxicToggle;
 
@@ -54,8 +55,8 @@ public class TP_PlayerPrefs : MonoBehaviour
         convertAPML2probeAxis = LoadBoolPref("probeaxis", false);
         probeAxisToggle.isOn = convertAPML2probeAxis;
 
-        slice3d = LoadBoolPref("slice3d", false);
-        slice3dToggle.isOn = slice3d;
+        slice3d = LoadIntPref("slice3d", 0);
+        slice3dDropdown.SetValueWithoutNotify(slice3d);
 
         inplane = LoadBoolPref("inplane", true);
         tpmanager.SetInPlane(inplane);
@@ -124,13 +125,13 @@ public class TP_PlayerPrefs : MonoBehaviour
         return inplane;
     }
 
-    public void SetSlice3D(bool state)
+    public void SetSlice3D(int state)
     {
         slice3d = state;
-        PlayerPrefs.SetInt("slice3d", slice3d ? 1 : 0);
+        PlayerPrefs.SetInt("slice3d", slice3d);
     }
 
-    public bool GetSlice3D()
+    public int GetSlice3D()
     {
         return slice3d;
     }
@@ -203,6 +204,11 @@ public class TP_PlayerPrefs : MonoBehaviour
     private bool LoadBoolPref(string prefStr, bool defaultValue)
     {
         return PlayerPrefs.HasKey(prefStr) ? PlayerPrefs.GetInt(prefStr) == 1 : defaultValue;
+    }
+
+    private int LoadIntPref(string prefStr, int defaultValue)
+    {
+        return PlayerPrefs.HasKey(prefStr) ? PlayerPrefs.GetInt(prefStr) : defaultValue;
     }
 
     private void OnApplicationQuit()

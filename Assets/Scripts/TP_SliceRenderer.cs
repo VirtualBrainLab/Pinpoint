@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 public class TP_SliceRenderer : MonoBehaviour
 {
@@ -11,6 +13,8 @@ public class TP_SliceRenderer : MonoBehaviour
     [SerializeField] private TP_PlayerPrefs localPrefs;
     [SerializeField] private TP_InPlaneSlice inPlaneSlice;
     [SerializeField] private Utils util;
+    [SerializeField] private TMP_Dropdown dropdownMenu;
+    [SerializeField] private AssetReference coverageData;
 
     private int[] baseSize = { 528, 320, 456 };
 
@@ -43,16 +47,33 @@ public class TP_SliceRenderer : MonoBehaviour
 
         ToggleSliceVisibility(localPrefs.GetSlice3D());
 
-        saggitalSliceMaterial.SetTexture("_Volume", inPlaneSlice.GetAnnotationDatasetGPUTexture());
-        coronalSliceMaterial.SetTexture("_Volume", inPlaneSlice.GetAnnotationDatasetGPUTexture());
-
+        if (dropdownMenu.value == 1)
+            SetActiveTextureAnnotation();
+        else if (dropdownMenu.value == 2)
+            SetActiveTextureIBLCoverage();
         Debug.Log("Loading 3d texture");
         loaded = true;
     }
 
+    public void LoadCoverageTexture()
+    {
+
+    }
+
+    private void SetActiveTextureAnnotation()
+    {
+        saggitalSliceMaterial.SetTexture("_Volume", inPlaneSlice.GetAnnotationDatasetGPUTexture());
+        coronalSliceMaterial.SetTexture("_Volume", inPlaneSlice.GetAnnotationDatasetGPUTexture());
+    }
+
+    private void SetActiveTextureIBLCoverage()
+    {
+
+    }
+
     private void Update()
     {
-        if (localPrefs.GetSlice3D() && loaded)
+        if (localPrefs.GetSlice3D()==1 && loaded)
         {
             // Check if the camera moved such that we have to flip the slice quads
             UpdateCameraPosition();
@@ -147,20 +168,31 @@ public class TP_SliceRenderer : MonoBehaviour
         }
     }
 
-    public void ToggleSliceVisibility(bool visible)
+    public void ToggleSliceVisibility(int sliceType)
     {
-        localPrefs.SetSlice3D(visible);
-        sagittalSliceGO.SetActive(visible);
-        coronalSliceGO.SetActive(visible);
-        if (visible)
+        localPrefs.SetSlice3D(sliceType);
+
+        if (sliceType==0)
         {
-            // Force everything to render
-            UpdateSlicePosition();
-            UpdateCameraPosition();
+            // make slices invisible
+            sagittalSliceGO.SetActive(false);
+            coronalSliceGO.SetActive(false);
+            ClearNodeModelSlicing();
         }
         else
         {
-            ClearNodeModelSlicing();
+            // Standard sagittal/coronal slices
+            localPrefs.SetSlice3D(sliceType);
+            sagittalSliceGO.SetActive(true);
+            coronalSliceGO.SetActive(true);
+
+            if (sliceType == 1)
+                SetActiveTextureAnnotation();
+            else if (sliceType == 2)
+                SetActiveTextureIBLCoverage();
+
+            UpdateSlicePosition();
+            UpdateCameraPosition();
         }
     }
 }

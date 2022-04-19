@@ -33,8 +33,10 @@ public class TP_ToggleRigs : MonoBehaviour
         {
             case 1:
                 RigVisibility_WF(true);
+                RigVisibility_Skull(false);
                 break;
             case 2:
+                RigVisibility_WF(false);
                 RigVisibility_Skull(true);
                 break;
             default:

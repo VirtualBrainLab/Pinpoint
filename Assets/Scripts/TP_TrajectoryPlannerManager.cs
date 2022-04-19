@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 
 public class TP_TrajectoryPlannerManager : MonoBehaviour
@@ -22,6 +22,8 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     [SerializeField] private GameObject CollisionPanelGO;
 
     [SerializeField] private TP_PlayerPrefs localPrefs;
+
+    [SerializeField] private VolumeDatasetManager vdmanager;
 
     // Which acronym/area name set to use
     [SerializeField] TMP_Dropdown annotationAcronymDropdown;
@@ -59,6 +61,8 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     private int visibleProbePanels;
 
+    Task annotationDatasetLoadTask;
+
     private void Awake()
     {
         ProbeControl = false;
@@ -82,9 +86,19 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
         modelControl.LateStart(true);
 
-        LoadAnnotationDataset();
-
         DelayedModelControlStart();
+
+        List<Action> callbacks = new List<Action>();
+        callbacks.Add(inPlaneSlice.StartAnnotationDataset);
+        annotationDatasetLoadTask = vdmanager.LoadAnnotationDataset(callbacks);
+
+        DelayedLocalPrefsStart(annotationDatasetLoadTask);
+    }
+
+    private async void DelayedLocalPrefsStart(Task annotationDatasetLoadTask)
+    {
+        await annotationDatasetLoadTask;
+        localPrefs.AsyncStart();
     }
 
     private async void DelayedModelControlStart()
@@ -101,71 +115,6 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         }
     }
 
-
-    // Annotations
-    [SerializeField] private AssetReference dataIndexes;
-    private byte[] datasetIndexes_bytes;
-    [SerializeField] private AssetReference annotationIndexes;
-    private ushort[] annotationIndexes_shorts;
-    [SerializeField] private AssetReference annotationMap;
-    private uint[] annotationMap_ints;
-    private int annotationDatasetWait = 0;
-    private AnnotationDataset annotationDataset;
-
-    /// <summary>
-    /// Loads the annotation dataset files from their Addressable AssetReference objects
-    /// 
-    /// Asynchronous dependencies: inPlaneSlice, localPrefs
-    /// </summary>
-    private void LoadAnnotationDataset()
-    {
-        dataIndexes.LoadAssetAsync<TextAsset>().Completed += handle =>
-        {
-            datasetIndexes_bytes = handle.Result.bytes;
-            annotationDatasetWait++;
-            if (annotationDatasetWait >= 3)
-                LoadAnnotationDatasetCompleted();
-            Addressables.Release(handle);
-        };
-        annotationIndexes.LoadAssetAsync<TextAsset>().Completed += handle =>
-        {
-            annotationIndexes_shorts = new ushort[handle.Result.bytes.Length / 2];
-            Buffer.BlockCopy(handle.Result.bytes, 0, annotationIndexes_shorts, 0, handle.Result.bytes.Length);
-            annotationDatasetWait++;
-            if (annotationDatasetWait >= 3)
-                LoadAnnotationDatasetCompleted();
-            Addressables.Release(handle);
-        };
-        annotationMap.LoadAssetAsync<TextAsset>().Completed += handle =>
-        {
-            annotationMap_ints = new uint[handle.Result.bytes.Length / 4];
-            Buffer.BlockCopy(handle.Result.bytes, 0, annotationMap_ints, 0, handle.Result.bytes.Length);
-            annotationDatasetWait++;
-            if (annotationDatasetWait >= 3)
-                LoadAnnotationDatasetCompleted();
-            Addressables.Release(handle);
-        };
-
-        Debug.Log("Annotation dataset loading");
-    }
-
-    /// <summary>
-    /// Called asynchronously when LoadAnnotationDataset loads all three indexes. Builds the dataset object and calls dependencies.
-    /// </summary>
-    private void LoadAnnotationDatasetCompleted()
-    {
-        Debug.Log("Annotation dataset loaded");
-        annotationDataset = new AnnotationDataset(annotationIndexes_shorts, annotationMap_ints, datasetIndexes_bytes);
-        annotationIndexes_shorts = null;
-        annotationMap_ints = null;
-        datasetIndexes_bytes = null;
-        inPlaneSlice.StartAnnotationDataset();
-
-        //sliceRenderer.AsyncStart();
-
-        // Re-spawn previously active probes as the *final* step in loading
-        localPrefs.AsyncStart();
-    }
 
     public void ClickSearchArea(GameObject target)
     {
@@ -212,7 +161,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     public AnnotationDataset GetAnnotationDataset()
     {
-        return annotationDataset;
+        return vdmanager.GetAnnotationDataset();
     }
 
     public int GetActiveProbeType()
