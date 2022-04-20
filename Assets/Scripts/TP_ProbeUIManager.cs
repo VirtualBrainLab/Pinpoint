@@ -154,8 +154,9 @@ public class TP_ProbeUIManager : MonoBehaviour
         }
 
         // Interpolate from the tip to the top, putting this data into the probe panel texture
-        (Color[] interpolatedColors, List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(tip_apdvlr, top_apdvlr);
+        (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(tip_apdvlr, top_apdvlr);
 
+        probePanel.SetTipData(tip_apdvlr, top_apdvlr, heightPerc[1], tpmanager.RecordingRegionOnly());
 
         if (tpmanager.RecordingRegionOnly())
         {
@@ -172,18 +173,18 @@ public class TP_ProbeUIManager : MonoBehaviour
                     tickHeights.Add(y);
                 }
 
-                for (int x = 0; x < 25; x++)
-                {
-                    // First check for the height line, draw that in black
-                    // then check the depth line
-                    // then finally do the color
-                    if (heightLine && x > 15)
-                        probePanel.SetPixel(x, y, Color.black);
-                    else if (depthLine)
-                        probePanel.SetPixel(x, y, Color.gray);
-                    else
-                        probePanel.SetPixel(x, y, interpolatedColors[y]);
-                }
+                //for (int x = 0; x < 25; x++)
+                //{
+                //    // First check for the height line, draw that in black
+                //    // then check the depth line
+                //    // then finally do the color
+                //    if (heightLine && x > 15)
+                //        probePanel.SetPixel(x, y, Color.black);
+                //    else if (depthLine)
+                //        probePanel.SetPixel(x, y, Color.gray);
+                //    else
+                //        probePanel.SetPixel(x, y, interpolatedColors[y]);
+                //}
             }
         }
         else
@@ -202,32 +203,32 @@ public class TP_ProbeUIManager : MonoBehaviour
                     tickIdxs.Add(9 - y / (int)pxStep);
                 }
 
-                for (int x = 0; x < 5; x++)
-                    if (y >= bottomRecord && y <= topRecord)
-                        probePanel.SetPixel(x, y, Color.red);
-                    else
-                        probePanel.SetPixel(x, y, Color.black);
+                //for (int x = 0; x < 5; x++)
+                //    if (y >= bottomRecord && y <= topRecord)
+                //        probePanel.SetPixel(x, y, Color.red);
+                //    else
+                //        probePanel.SetPixel(x, y, Color.black);
 
-                for (int x = 5; x < 25; x++)
-                    // if we are at a 1000 um depth line color it gray
-                    if (depthLine)
-                    {
-                        probePanel.SetPixel(x, y, Color.gray);
-                    }
-                    else
-                    // otherwise give it a real color
-                        probePanel.SetPixel(x, y, interpolatedColors[y]);
+                //for (int x = 5; x < 25; x++)
+                //    // if we are at a 1000 um depth line color it gray
+                //    if (depthLine)
+                //    {
+                //        probePanel.SetPixel(x, y, Color.gray);
+                //    }
+                //    else
+                //    // otherwise give it a real color
+                //        probePanel.SetPixel(x, y, interpolatedColors[y]);
             }
         }
-        probePanel.ApplyTex();
+        //probePanel.ApplyTex();
 
         probePanel.UpdateTicks(tickHeights, tickIdxs);
         probePanel.UpdateText(centerHeights, names, tpmanager.ProbePanelTextFS(tpmanager.UseAcronyms()));
     }
 
-    private (Color[], List<int>, List<int>, List<string>)  InterpolateAnnotationIDs(Vector3 tipPosition, Vector3 topPosition)
+    private (List<int>, List<int>, List<string>)  InterpolateAnnotationIDs(Vector3 tipPosition, Vector3 topPosition)
     {
-        Color[] interpolated = new Color[(int)probePanelPxHeight];
+        //Color[] interpolated = new Color[(int)probePanelPxHeight];
         List<int> heights = new List<int>();
         List<string> areaNames = new List<string>();
 
@@ -240,7 +241,7 @@ public class TP_ProbeUIManager : MonoBehaviour
             int ID = annotationDataset.ValueAtIndex(Mathf.RoundToInt(interpolatedPosition.x), Mathf.RoundToInt(interpolatedPosition.y), Mathf.RoundToInt(interpolatedPosition.z));
             // convert to Beryl ID (if modelControl is set to do that)
             ID = modelControl.GetCurrentID(ID);
-            interpolated[i] = modelControl.GetCCFAreaColor(ID);
+            //interpolated[i] = modelControl.GetCCFAreaColor(ID);
 
             if (ID != prevID)
             {
@@ -267,7 +268,7 @@ public class TP_ProbeUIManager : MonoBehaviour
             centerHeights.Add(Mathf.RoundToInt((heights[heights.Count - 1] + probePanelPxHeight) / 2f));
         }
 
-        return (interpolated, heights, centerHeights, areaNames);
+        return (heights, centerHeights, areaNames);
     }
 
     public void ProbeSelected(bool selected)

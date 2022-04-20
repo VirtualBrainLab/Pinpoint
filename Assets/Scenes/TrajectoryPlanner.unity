@@ -3371,7 +3371,7 @@ MonoBehaviour:
   util: {fileID: 2108153955}
   dropdownMenu: {fileID: 1317876523}
   coverageData:
-    m_AssetGUID: 
+    m_AssetGUID: 4bf3c561065f1ee48ab5437aee93d1ee
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
@@ -15879,8 +15879,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -400, y: 0}
-  m_SizeDelta: {x: -800, y: 0}
+  m_AnchoredPosition: {x: -392.5, y: 0}
+  m_SizeDelta: {x: -815, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1669998833
 MonoBehaviour:
