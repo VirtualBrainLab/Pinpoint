@@ -574,7 +574,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public void SetInPlane(bool state)
     {
         localPrefs.SetInplane(state);
-        inPlaneSlice.UpdateInPlane();
+        inPlaneSlice.UpdateInPlaneVisibility();
     }
 
     public bool GetBregma()

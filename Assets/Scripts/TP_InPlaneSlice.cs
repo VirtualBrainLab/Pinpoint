@@ -35,7 +35,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     private TaskCompletionSource<bool> gpuTextureLoadedSource;
     private Task gpuTextureLoadedTask;
 
-    private bool useCPUFallback = true;
+    private bool useCPUFallback = false;
 
     private void Awake()
     {
@@ -54,6 +54,13 @@ public class TP_InPlaneSlice : MonoBehaviour
         {
             inPlaneSliceGO.SetActive(false);
             gpuInPlaneSliceGO.gameObject.SetActive(true);
+
+            gpuSliceRenderer.material.SetFloat("_FourShankProbe", 0f);
+            gpuSliceRenderer.material.SetVector("_TipPosition", Vector4.zero);
+            gpuSliceRenderer.material.SetVector("_ForwardDirection", Vector4.zero);
+            gpuSliceRenderer.material.SetVector("_UpDirection", Vector4.zero);
+            gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", 1f);
+            gpuSliceRenderer.material.SetFloat("_Scale", 1f);
         }
     }
     // Start is called before the first frame update
@@ -92,6 +99,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         if (preLoadedGPUTexture != null)
         {
             annotationDatasetGPUTexture = preLoadedGPUTexture;
+            gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
+            gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
             gpuTextureLoadedSource.SetResult(true);
         }
         else
@@ -125,14 +134,14 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
         gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
 
-        if (Application.isEditor)
-            AssetDatabase.CreateAsset(annotationDatasetGPUTexture, "Assets/AddressableAssets/Textures/AnnotationDatasetTexture3D.asset");
+        //if (Application.isEditor)
+        //    AssetDatabase.CreateAsset(annotationDatasetGPUTexture, "Assets/AddressableAssets/Textures/AnnotationDatasetTexture3D.asset");
 
         gpuTextureLoadedSource.SetResult(true);
     }
 
     // *** INPLANE SLICE CODE *** //
-    public void UpdateInPlane()
+    public void UpdateInPlaneVisibility()
     {
         inPlaneSliceUIGO.SetActive(localPrefs.GetInplane());
     }
@@ -148,12 +157,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         float mmStartPos = heightPerc[0] * (10 - heightPerc[1]);
         float mmRecordingSize = heightPerc[1];
 
-        float inPlaneYmm = mmRecordingSize * 1.5f;
-        float inPlaneXmm = inPlaneYmm;
-
-        GameObject.Find("SliceTextX").GetComponent<TextMeshProUGUI>().text = "<- " + inPlaneXmm + "mm ->";
-        GameObject.Find("SliceTextY").GetComponent<TextMeshProUGUI>().text = "<- " + inPlaneYmm + "mm ->";
-
         // Take the active probe, find the position and rotation, and interpolate across the annotation dataset to render a 400x400 image of the brain at that slice
         Transform tipTransform = activeProbeController.GetTipTransform();
 
@@ -161,18 +164,37 @@ public class TP_InPlaneSlice : MonoBehaviour
         Vector3 tipPosition = tipTransform.position + tipTransform.up * (0.2f + mmStartPos);
         Vector3 tipPositionAPDVLR = util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
 
+        bool fourShank = activeProbeController.GetProbeType() == 4;
+
         if (!useCPUFallback)
         {
+            if (fourShank)
+            {
+                gpuSliceRenderer.material.SetVector("_CenterOffset", new Vector4(-0.25f, 0.33f, 0f, 0f));
+                gpuSliceRenderer.material.SetFloat("_FourShankProbe", 1f);
+            }
+            else
+            {
+                gpuSliceRenderer.material.SetVector("_CenterOffset", new Vector4(0f, 0.33f, 0f, 0f));
+                gpuSliceRenderer.material.SetFloat("_FourShankProbe", 0f);
+            }
             gpuSliceRenderer.material.SetVector("_TipPosition", tipPositionAPDVLR);
             gpuSliceRenderer.material.SetVector("_ForwardDirection", tipTransform.forward);
             gpuSliceRenderer.material.SetVector("_UpDirection", tipTransform.up);
             gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize);
             gpuSliceRenderer.material.SetFloat("_Scale", mmRecordingSize * 1.5f * 1000f / 25f);
+            GameObject.Find("SliceTextX").GetComponent<TextMeshProUGUI>().text = "<- " + mmRecordingSize * 1.5f + "mm ->";
+            GameObject.Find("SliceTextY").GetComponent<TextMeshProUGUI>().text = "<- " + mmRecordingSize * 1.5f + "mm ->";
             return;
         }
 
+        float inPlaneYmm = mmRecordingSize * 1.5f;
+        float inPlaneXmm = inPlaneYmm;
+
+        GameObject.Find("SliceTextX").GetComponent<TextMeshProUGUI>().text = "<- " + inPlaneXmm + "mm ->";
+        GameObject.Find("SliceTextY").GetComponent<TextMeshProUGUI>().text = "<- " + inPlaneYmm + "mm ->";
+
         // Setup variables for view
-        bool fourShank = activeProbeController.GetProbeType() == 4;
         float pixelWidth = inPlaneXmm * 1000 / 401f; // how wide each pixel is in um
 
         // If this is the fourShank probe, let's shift the center position to be offset so that it's at the center of the four probes
