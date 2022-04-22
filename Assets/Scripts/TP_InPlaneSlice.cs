@@ -59,7 +59,7 @@ public class TP_InPlaneSlice : MonoBehaviour
             gpuSliceRenderer.material.SetVector("_TipPosition", Vector4.zero);
             gpuSliceRenderer.material.SetVector("_ForwardDirection", Vector4.zero);
             gpuSliceRenderer.material.SetVector("_UpDirection", Vector4.zero);
-            gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", 1f);
+            gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", 0f);
             gpuSliceRenderer.material.SetFloat("_Scale", 1f);
         }
     }
@@ -181,7 +181,7 @@ public class TP_InPlaneSlice : MonoBehaviour
             gpuSliceRenderer.material.SetVector("_TipPosition", tipPositionAPDVLR);
             gpuSliceRenderer.material.SetVector("_ForwardDirection", tipTransform.forward);
             gpuSliceRenderer.material.SetVector("_UpDirection", tipTransform.up);
-            gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize);
+            gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize * 1000f / 25f / 2f);
             gpuSliceRenderer.material.SetFloat("_Scale", mmRecordingSize * 1.5f * 1000f / 25f);
             GameObject.Find("SliceTextX").GetComponent<TextMeshProUGUI>().text = "<- " + mmRecordingSize * 1.5f + "mm ->";
             GameObject.Find("SliceTextY").GetComponent<TextMeshProUGUI>().text = "<- " + mmRecordingSize * 1.5f + "mm ->";

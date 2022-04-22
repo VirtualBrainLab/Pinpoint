@@ -497,6 +497,7 @@ public class TP_ProbeController : MonoBehaviour
         tpmanager.SetMovedThisFrame();
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
+        tpmanager.UpdateInPlaneView();
     }
 
     public IEnumerator DelayedManualCoordinateEntry(float delay, float ap, float ml, float depth, float phi, float theta, float spin)
