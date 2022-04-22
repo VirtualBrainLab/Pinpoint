@@ -2,7 +2,7 @@
 
 This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, or up to four 4-shank 2.0 probes.
 
-![Azimuth example](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/2021_12_6_v0.1.1.png)
+![Azimuth example](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/2022_04_21.png)
 
 ## Known issues
 
