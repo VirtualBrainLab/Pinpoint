@@ -464,6 +464,10 @@ public class TP_ProbeController : MonoBehaviour
         return heightPercs;
     }
 
+    public Vector2 GetRecordingRegionTip()
+    {
+        return probeTipT.transform.position + probeTipT.transform.up * 0.2f;
+    }
     /// <summary>
     /// ANGLE CONVERSION FUNCTIONS
     /// Because the IBL coordinate system is different from Unity's, we need to be able to convert back and forth

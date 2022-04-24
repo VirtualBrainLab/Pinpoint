@@ -25,10 +25,6 @@ MonoBehaviour:
     m_Address: Assets/AddressableAssets/Textures/AnnotationDatasetTexture3D.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: 1a67ff4d65b807141bbbf000c98ca6b4
-    m_Address: Assets/AddressableAssets/Datasets/volume_indexes.bytes
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
   m_SchemaSet:
