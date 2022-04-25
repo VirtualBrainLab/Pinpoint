@@ -88,7 +88,7 @@ You can save the coordinates of an insertion for future use by clicking on the c
 
 **Spawn IBL probes** - Places two NP1.0 probes in the configuration used by the IBL
 
-**Probe collisions** - Prevents probe shanks and holders from intersecting when moved
+**Probe collisions** - Warns the user when two probes are colliding on their shank or on their probe holders
 
 **Set (0,0,0) to Bregma** - On: smpets the 0,0,0 coordinate to Bregma, or to the 0,0,0 CCF coordinate when unchecked (default: on)
 
@@ -111,6 +111,10 @@ You can save the coordinates of an insertion for future use by clicking on the c
 **Convert AP/ML to probe** - On: when the probe manipulator is off of the 0/90 axis the AP/ML positions are not useful for calculating the insertion point relative to Bregma, turn this on to display the position along the probe forward/side axes (default: off)
 
 **Use stereotaxic coordinates** - On: displays the **s**tereo**t**axic stAP, stML, and stDV coordinates instead of the CCF space coordinates. (default: off)
+
+**Craniotomy** - On: opens a window that allows the user to control the skull craniotomy window, use with the Rig: Skull dropdown option (default: off)
+
+**IBL tools** - On: displays a sphere at the location of each remaining second pass map location, clicking on a sphere moves the active probe controller to that location. You must set the depth value by hand (click probe, press [Z/X], then drag down; or just press [Z/X])
 
 ## Bugs
 
