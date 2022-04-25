@@ -10,7 +10,7 @@ This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, 
 
 The CCF coordinates returned by this tool are not identical to the in vivo mouse brain. We know for sure that the CCF atlas is stretched along the DV axis (in vivo = 0.952 * CCF) and squashed on the AP axis (in vivo 1.087 * CCF). In addition it appears the lamda-bregma angle in the CCF space is rotated by about 5 degrees.
 
-In v0.5 we have released an initial version of these stereotaxic coordinates, which can be enabled in the settings. These adjust the AP and DV position to account for the warping, but do **not** adjust the angle. The angle adjustment will be included in v0.6.
+In v0.5 we have released an initial version of these stereotaxic coordinates, which can be enabled in the settings. These adjust the AP and DV position to account for the warping, but do **not** adjust the angle. The angle adjustment will be included in v0.7.
 
 ## Install
 
@@ -34,15 +34,15 @@ The mac executable currently only runs on MacOS **Mojave** and earlier. You will
 
 To set up a new probe, select the button in the bottom right corresponding to the probe type (NP1/NP2/NP2.4). By default the probe's (0,0,0) coordinate is set to the IBL bregma coordinate (CCF: AP 5.4f, ML 5.739f, DV 0.332f).
 
-Note that when targeting a brain region the rotations go **around** the insertion point on the brain surface. 
-
 At any time you can press [M] to open the manual coordinate entry window and adjust the probe position by hand. 
 
 ### Controls
 
+The easiest way to control your probe is to click on the probe, press one of the axis keys [W/S], [A/D], or [Z/X] and then drag. This will move the probe along the corresponding axis. You can also click the keys to move probes:
+
 ![probe controls](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/ProbeControls.png)
 
-Use [W/A/S/D] to move the probe along the AP or ML axis. Hold **shift** to move faster along any axis.
+Use [W/A/S/D] to move the probe along the AP or ML axis. Hold **shift** to move faster along any axis. Hold **CTRL** to move slower.
 
 Azimuth is the angle of the probe manipulator relative to the brain. Use [Q/E] to control azimuth.
 
@@ -54,11 +54,11 @@ Note that the rotation point is the insertion coordinate with depth==0 (i.e. the
 
 Use [1/3] to spin the probe along the axis of the probe shank. Note that NP2.4 probes spin around the leftmost probe shank.
 
-Probes can be deleted with [Backspace]
+Probes can be deleted with [Backspace] if you didn't mean to delete that probe you just deleted press [CTRL] + [Backspace].
 
 ### Recording region
 
-Once the probe is at the position and angles you want, change the recording region size (in the settings) and position (using [T/G]) to match what you plan to do in your recording and adjust the insertion depth accordingly.
+Once the probe is at the position and angles you want, you can adjust the recording region size (in the settings) and position (using [T/G]) to match what you plan to do in your recording and adjust the insertion depth accordingly.
 
 ### Export coordinates
 
@@ -118,7 +118,7 @@ Please report issues on the [issues page](https://github.com/dbirman/NPTrajector
 
 ## Electrophysiology atlas
 
-The ephys atlas functionality is provided by a server running out of this repository: https://github.com/dbirman/nptraj-ephys-server
+The ephys atlas functionality is provided by a server running this repository: https://github.com/dbirman/nptraj-ephys-server
 
 ## References
 
@@ -130,4 +130,4 @@ Mouse brain artwork from https://scidraw.io/drawing/286
 
 ## Citing
 
-If this project becomes a substantial component of your pipeline for a research project you should cite this repository. Please email Dan and we can set up a DOI for the version you are using.
+If this project is used as part of a research project you should cite this repository. Please email Dan (dbirman@uw.edu) and we can set up a DOI for the version you are using.
