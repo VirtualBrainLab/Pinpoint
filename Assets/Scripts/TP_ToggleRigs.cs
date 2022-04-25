@@ -16,7 +16,7 @@ public class TP_ToggleRigs : MonoBehaviour
     [SerializeField] List<Collider> wf_colliders;
 
     // Skull rig
-    private GameObject skullGO;
+    [SerializeField] private GameObject skullGO;
 
     private bool wfVisible;
 
@@ -48,29 +48,7 @@ public class TP_ToggleRigs : MonoBehaviour
 
     private void RigVisibility_Skull(bool state)
     {
-        if (skullGO == null)
-            StartCoroutine(LoadSkull());
-        else
-            skullGO.SetActive(state);
-    }
-
-    private IEnumerator LoadSkull()
-    {
-        Debug.Log("Loading skull");
-        AsyncOperationHandle<GameObject> skullHandle = Addressables.LoadAssetAsync<GameObject>("3D/MouseSkullPrefab");
-
-        skullHandle.Completed += SkullLoaded;
-
-        yield return skullHandle;
-
-        Debug.Log("also got here");
-        skullGO = Instantiate(skullHandle.Result, transform);
-        Debug.Log(skullGO);
-    }
-
-    private void SkullLoaded(AsyncOperationHandle<GameObject> skullHandle)
-    {
-        Debug.Log("Done");
+        skullGO.SetActive(state);
     }
 
     private void RigVisibility_WF(bool visibility) {

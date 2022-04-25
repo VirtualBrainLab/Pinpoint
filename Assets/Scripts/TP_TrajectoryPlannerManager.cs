@@ -21,6 +21,8 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     [SerializeField] private TMP_InputField searchInput;
     [SerializeField] private GameObject CollisionPanelGO;
     [SerializeField] private GameObject ProbePanelParentGO;
+    [SerializeField] private GameObject IBLToolsGO;
+    [SerializeField] private GameObject IBLTrajectoryGO;
 
     [SerializeField] private TP_PlayerPrefs localPrefs;
 
@@ -656,5 +658,17 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
             GameObject probePanel = sorted[keys[i]].GetProbePanel().gameObject;
             probePanel.transform.SetAsLastSibling();
         }
+    }
+
+    public void SetIBLTools(bool state)
+    {
+        IBLToolsGO.SetActive(state);
+    }
+
+    public void SetIBLTrajectory(bool state)
+    {
+        IBLTrajectoryGO.SetActive(state);
+        if (state)
+            IBLTrajectoryGO.GetComponent<TP_IBLTrajectories>().Load();
     }
 }
