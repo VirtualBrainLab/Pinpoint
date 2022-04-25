@@ -14,7 +14,7 @@ In v0.5 we have released an initial version of these stereotaxic coordinates, wh
 
 ## Install
 
-The easiest way to use the trajectory planner is through our web app: http://data.virtualbrainlab.org/NPTrajectoryPlanner/. If you encounter issues please disable any plugins that might be interfering with javascript (e.g. ad blockers), we don't have any tracking in the app but it requires javascript to run.
+The easiest way to use the trajectory planner is through our web app: http://data.virtualbrainlab.org/NPTrajectoryPlanner/. If you encounter issues please try refreshing the page first (sometimes the mesh files don't download on the first load). If the fails, disable any plugins that might be interfering with javascript (e.g. ad blockers).
 
 ### Standalone builds
 
