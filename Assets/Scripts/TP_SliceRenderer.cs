@@ -94,8 +94,8 @@ public class TP_SliceRenderer : MonoBehaviour
             }
             iblCoverageTexture.Apply();
 
-            if (Application.isEditor)
-                AssetDatabase.CreateAsset(iblCoverageTexture, "Assets/AddressableAssets/Textures/IBLCoverageTexture3D.asset");
+            //if (Application.isEditor)
+            //    AssetDatabase.CreateAsset(iblCoverageTexture, "Assets/AddressableAssets/Textures/IBLCoverageTexture3D.asset");
         }
         else
         {

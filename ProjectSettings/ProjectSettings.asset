@@ -643,7 +643,7 @@ PlayerSettings:
   webGLWasmArithmeticExceptions: 0
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
-  webGLDecompressionFallback: 1
+  webGLDecompressionFallback: 0
   scriptingDefineSymbols:
     1: ENABLE_HYBRID_RENDERER_V2
   additionalCompilerArguments: {}

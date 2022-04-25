@@ -16,19 +16,7 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: eb9eb3c822ec72b468349d4e785d6617
-  m_SerializeEntries:
-  - m_GUID: eb737450d42017848a7fc57cf086d3dd
-    m_Address: Assets/AddressableAssets/Datasets/volume_indexes.bytes
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 4bf3c561065f1ee48ab5437aee93d1ee
-    m_Address: Assets/AddressableAssets/Textures/AnnotationDatasetTexture3D.asset
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 427a7049607f12f4594cc689244380f8
-    m_Address: Assets/AddressableAssets/Textures/IBLCoverageTexture3D.asset
-    m_ReadOnly: 0
-    m_SerializedLabels: []
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
   m_SchemaSet:

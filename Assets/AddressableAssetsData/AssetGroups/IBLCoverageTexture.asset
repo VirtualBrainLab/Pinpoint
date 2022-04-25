@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: IBLCoverage
+  m_Name: IBLCoverageTexture
   m_EditorClassIdentifier: 
-  m_GroupName: IBLCoverage
+  m_GroupName: IBLCoverageTexture
   m_Data:
     m_SerializedData: []
-  m_GUID: 60e030281a7a04e4da761d562ee4a9a1
+  m_GUID: c38eba58b74b0484d949bd1e7a528748
   m_SerializeEntries:
-  - m_GUID: 16bae61a87830c14c8d9ab99e3c8f004
-    m_Address: Assets/AddressableAssets/Datasets/ibl/coverage_indexes.bytes
+  - m_GUID: 427a7049607f12f4594cc689244380f8
+    m_Address: Assets/AddressableAssets/Textures/IBLCoverageTexture3D.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: bb644523d10dba24bb40faac6a0eba77, type: 2}
-    - {fileID: 11400000, guid: 30b9892c8dce80e4691c195b1304e853, type: 2}
+    - {fileID: 11400000, guid: 34b32dbf252e2564686973640eda5d15, type: 2}
+    - {fileID: 11400000, guid: e03be423721c7ea4b87117b9cfe33769, type: 2}
