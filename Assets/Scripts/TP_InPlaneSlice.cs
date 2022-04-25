@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
 public class TP_InPlaneSlice : MonoBehaviour
@@ -19,7 +21,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     [SerializeField] private TextMeshProUGUI areaText;
 
     [SerializeField] private GameObject gpuInPlaneSliceGO;
-    [SerializeField] private Texture3D preLoadedGPUTexture;
+    [SerializeField] private AssetReference preLoadedGPUTextureAssetRef;
     private Renderer gpuSliceRenderer;
 
     private AnnotationDataset annotationDataset;
@@ -75,9 +77,11 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         await modelControl.GetDefaultLoaded();
 
-        if (preLoadedGPUTexture != null)
+        if (preLoadedGPUTextureAssetRef != null)
         {
-            annotationDatasetGPUTexture = preLoadedGPUTexture;
+            AsyncOperationHandle<Texture3D> dataLoader = preLoadedGPUTextureAssetRef.LoadAssetAsync<Texture3D>();
+            await dataLoader.Task;
+            annotationDatasetGPUTexture = dataLoader.Result;
             gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
             gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
             gpuTextureLoadedSource.SetResult(true);

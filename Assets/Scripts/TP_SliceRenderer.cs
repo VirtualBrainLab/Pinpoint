@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class TP_SliceRenderer : MonoBehaviour
 {
@@ -14,7 +16,7 @@ public class TP_SliceRenderer : MonoBehaviour
     [SerializeField] private TP_InPlaneSlice inPlaneSlice;
     [SerializeField] private Utils util;
     [SerializeField] private TMP_Dropdown dropdownMenu;
-    [SerializeField] private AssetReference coverageData;
+    [SerializeField] private AssetReference iblCoverageTextureAssetRef;
 
     private int[] baseSize = { 528, 320, 456 };
 
@@ -64,31 +66,43 @@ public class TP_SliceRenderer : MonoBehaviour
     {
         coverageLoading = true;
 
-        VolumetricDataset coverageDataset = tpmanager.GetIBLCoverageDataset();
-        if (coverageDataset == null)
+        if (iblCoverageTextureAssetRef == null)
         {
-            await tpmanager.LoadIBLCoverageDataset();
-            coverageDataset = tpmanager.GetIBLCoverageDataset();
+            VolumetricDataset coverageDataset = tpmanager.GetIBLCoverageDataset();
+            if (coverageDataset == null)
+            {
+                await tpmanager.LoadIBLCoverageDataset();
+                coverageDataset = tpmanager.GetIBLCoverageDataset();
+            }
+            AnnotationDataset annotationDataset = tpmanager.GetAnnotationDataset();
+
+            Color[] colors = new Color[] { Color.grey, Color.yellow, Color.green };
+
+            iblCoverageTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
+            iblCoverageTexture.filterMode = FilterMode.Point;
+            iblCoverageTexture.wrapMode = TextureWrapMode.Clamp;
+
+            Debug.Log("Converting annotation dataset to texture format");
+            for (int ap = 0; ap < 528; ap++)
+            {
+                for (int dv = 0; dv < 320; dv++)
+                    for (int ml = 0; ml < 456; ml++)
+                        if (annotationDataset.ValueAtIndex(ap, dv, ml) > 0)
+                            iblCoverageTexture.SetPixel(ap, dv, ml, colors[coverageDataset.ValueAtIndex(ap, dv, ml)]);
+                        else
+                            iblCoverageTexture.SetPixel(ap, dv, ml, Color.black);
+            }
+            iblCoverageTexture.Apply();
+
+            if (Application.isEditor)
+                AssetDatabase.CreateAsset(iblCoverageTexture, "Assets/AddressableAssets/Textures/IBLCoverageTexture3D.asset");
         }
-        AnnotationDataset annotationDataset = tpmanager.GetAnnotationDataset();
-
-        Color[] colors = new Color[] {Color.grey, Color.yellow, Color.green };
-
-        iblCoverageTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
-        iblCoverageTexture.filterMode = FilterMode.Point;
-        iblCoverageTexture.wrapMode = TextureWrapMode.Clamp;
-
-        Debug.Log("Converting annotation dataset to texture format");
-        for (int ap = 0; ap < 528; ap++)
+        else
         {
-            for (int dv = 0; dv < 320; dv++)
-                for (int ml = 0; ml < 456; ml++)
-                    if (annotationDataset.ValueAtIndex(ap, dv, ml) > 0)
-                        iblCoverageTexture.SetPixel(ap, dv, ml, colors[coverageDataset.ValueAtIndex(ap, dv, ml)]);
-                    else
-                        iblCoverageTexture.SetPixel(ap, dv, ml, Color.black);
+            AsyncOperationHandle<Texture3D> dataLoader = iblCoverageTextureAssetRef.LoadAssetAsync<Texture3D>();
+            await dataLoader.Task;
+            iblCoverageTexture = dataLoader.Result;
         }
-        iblCoverageTexture.Apply();
 
         coverageLoaded = true;
 
