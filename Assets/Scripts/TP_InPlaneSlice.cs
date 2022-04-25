@@ -25,6 +25,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     private AnnotationDataset annotationDataset;
 
     private float probeWidth = 70; // probes are 70um wide
+    private float zoomFactor = 1f;
 
     private RectTransform rect;
 
@@ -126,7 +127,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     private float inPlaneScale;
     private Vector3 centerOffset;
-    private Vector3 tipPositionAPDVLR;
+    private Vector3 recordingRegionCenterPosition;
     private Transform tipTransform;
 
     public void UpdateInPlaneSlice()
@@ -145,26 +146,18 @@ public class TP_InPlaneSlice : MonoBehaviour
 
 
         Vector3 tipPosition = tipTransform.position + tipTransform.up * (0.2f + mmStartPos);
-        tipPositionAPDVLR = util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
-
+        //tipPositionAPDVLR = util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
         bool fourShank = activeProbeController.GetProbeType() == 4;
 
-        if (fourShank)
-        {
-            centerOffset = new Vector4(-0.25f, 0.33f, 0f, 0f);
-            gpuSliceRenderer.material.SetVector("_CenterOffset", centerOffset);
-            gpuSliceRenderer.material.SetFloat("_FourShankProbe", 1f);
-        }
-        else
-        {
-            centerOffset = new Vector4(0f, 0.33f, 0f, 0f);
-            gpuSliceRenderer.material.SetVector("_CenterOffset", centerOffset);
-            gpuSliceRenderer.material.SetFloat("_FourShankProbe", 0f);
-        }
+        recordingRegionCenterPosition = fourShank ? 
+            util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset() + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
+            util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset() + tipTransform.up * mmRecordingSize / 2); ;
 
-        inPlaneScale = mmRecordingSize * 1.5f * 1000f / 25f;
+        gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 
-        gpuSliceRenderer.material.SetVector("_TipPosition", tipPositionAPDVLR);
+        inPlaneScale = mmRecordingSize * 1.5f * 1000f / 25f * zoomFactor;
+
+        gpuSliceRenderer.material.SetVector("_RecordingRegionCenterPosition", recordingRegionCenterPosition);
         gpuSliceRenderer.material.SetVector("_ForwardDirection", tipTransform.forward);
         gpuSliceRenderer.material.SetVector("_UpDirection", tipTransform.up);
         gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize * 1000f / 25f);
@@ -180,31 +173,24 @@ public class TP_InPlaneSlice : MonoBehaviour
         int annotation = annotationDataset.ValueAtIndex(Mathf.RoundToInt(inPlanePosition.x), Mathf.RoundToInt(inPlanePosition.y), Mathf.RoundToInt(inPlanePosition.z));
         annotation = modelControl.GetCurrentID(annotation);
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (annotation > 0)
+                tpmanager.SelectBrainArea(annotation);
+        }
+
         if (tpmanager.UseAcronyms())
             areaText.text = modelControl.GetCCFAreaAcronym(annotation);
         else
             areaText.text = modelControl.GetCCFAreaName(annotation);
     }
 
-    public void TargetBrainArea(Vector2 pointerData)
-    {
-        Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
-
-        int annotation = annotationDataset.ValueAtIndex(Mathf.RoundToInt(inPlanePosition.x), Mathf.RoundToInt(inPlanePosition.y), Mathf.RoundToInt(inPlanePosition.z));
-        annotation = modelControl.GetCurrentID(annotation);
-
-        if (annotation > 0)
-            tpmanager.SelectBrainArea(annotation);
-    }
-
     private Vector3 CalculateInPlanePosition(Vector2 pointerData)
     {
         Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData);
-        inPlanePosNorm.x += centerOffset.x;
-        inPlanePosNorm.y += centerOffset.y;
 
         // Take the tip transform and go out according to the in plane percentage 
-        Vector3 inPlanePosition = tipPositionAPDVLR + (RotateWorld2APDVLR(tipTransform.forward) * -inPlanePosNorm.x + RotateWorld2APDVLR(tipTransform.up) * inPlanePosNorm.y) * inPlaneScale;
+        Vector3 inPlanePosition = recordingRegionCenterPosition + (RotateWorld2APDVLR(tipTransform.forward) * -inPlanePosNorm.x + RotateWorld2APDVLR(tipTransform.up) * inPlanePosNorm.y) * inPlaneScale;
 
         return inPlanePosition;
     }
@@ -224,5 +210,29 @@ public class TP_InPlaneSlice : MonoBehaviour
     private Vector3 RotateWorld2APDVLR(Vector3 world)
     {
         return new Vector3(world.z, -world.y, -world.x);
+    }
+
+    public void ZoomIn()
+    {
+        zoomFactor = zoomFactor * 0.75f;
+        UpdateInPlaneSlice();
+    }
+
+    public void ZoomOut()
+    {
+        zoomFactor = zoomFactor * 1.5f;
+        UpdateInPlaneSlice();
+    }
+
+    public void ResetZoom()
+    {
+        zoomFactor = 1f;
+        UpdateInPlaneSlice();
+    }
+
+    public void SetZoomFactor(float newZoomFactor)
+    {
+        zoomFactor = newZoomFactor;
+        UpdateInPlaneSlice();
     }
 }

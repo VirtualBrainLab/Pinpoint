@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TP_ProbePanel : MonoBehaviour
 {
@@ -16,18 +14,12 @@ public class TP_ProbePanel : MonoBehaviour
     TP_InPlaneSlice inPlaneSlice;
 
     private TP_ProbeController _probeController;
-
-    //private Texture2D pixelTex;
+    private TP_ProbeUIManager _probeUIManager;
 
     private List<GameObject> textGOs;
 
     private void Awake()
     {
-        //pixelTex = new Texture2D(25, probePanelPxHeight);
-        //pixelTex.filterMode = FilterMode.Point;
-        //pixelsGO.GetComponent<RawImage>().texture = pixelTex;
-
-
         textGOs = new List<GameObject>();
     }
 
@@ -51,6 +43,12 @@ public class TP_ProbePanel : MonoBehaviour
         return probePanelPxHeight;
     }
 
+    public void RegisterProbeUIManager(TP_ProbeUIManager probeUImanager)
+    {
+        _probeUIManager = probeUImanager;
+        gameObject.name = _probeController.name + "_panel_" + probeUImanager.GetOrder();
+    }
+
     public void RegisterProbeController(TP_ProbeController probeController)
     {
         _probeController = probeController;
@@ -59,15 +57,6 @@ public class TP_ProbePanel : MonoBehaviour
     public TP_ProbeController GetProbeController()
     {
         return _probeController;
-    }
-
-    public void SetPixel(int x, int y, Color color)
-    {
-        //pixelTex.SetPixel(x, y, color);
-    }
-    public void ApplyTex()
-    {
-        //pixelTex.Apply();
     }
 
     public void UpdateText(List<int> heights, List<string> areaNames, int fontSize)
@@ -107,9 +96,5 @@ public class TP_ProbePanel : MonoBehaviour
     {
         probePanelPxHeight = newPxHeight;
         pixelsGPURenderer.gameObject.transform.localScale = new Vector3(25, newPxHeight);
-
-        //pixelTex = new Texture2D(25, probePanelPxHeight);
-        //pixelTex.filterMode = FilterMode.Point;
-        //pixelsGO.GetComponent<RawImage>().texture = pixelTex;
     }
 }

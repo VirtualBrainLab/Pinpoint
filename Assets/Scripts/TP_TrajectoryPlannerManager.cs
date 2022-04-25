@@ -20,6 +20,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     [SerializeField] private TP_Search searchControl;
     [SerializeField] private TMP_InputField searchInput;
     [SerializeField] private GameObject CollisionPanelGO;
+    [SerializeField] private GameObject ProbePanelParentGO;
 
     [SerializeField] private TP_PlayerPrefs localPrefs;
 
@@ -351,6 +352,9 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
                 probeController.ResizeProbePanel(700);
             }
         }
+
+        // Finally, re-order panels if needed to put 2.4 probes first followed by 1.0 / 2.0
+        ReOrderProbePanels();
     }
 
     public void RegisterProbe(TP_ProbeController probeController, List<Collider> colliders)
@@ -384,6 +388,9 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
         // Also update the recording region size slider
         recRegionSlider.SliderValueChanged(activeProbeController.GetRecordingRegionSize());
+
+        // Reset the inplane slice zoom factor
+        inPlaneSlice.ResetZoom();
     }
 
     public void ResetActiveProbe()
@@ -458,14 +465,28 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         }
     }
 
-    private void TargetBrainArea(int id)
+    private async void TargetBrainArea(int id)
     {
-        modelControl.ChangeMaterial(id, "lit");
+        CCFTreeNode node = modelControl.GetNode(id);
+        if (!node.IsLoaded()) {
+            await node.loadNodeModel(false);
+            node.GetNodeTransform().localPosition = Vector3.zero;
+            node.GetNodeTransform().localRotation = Quaternion.identity;
+            modelControl.ChangeMaterial(id, "lit");
+        }
+
+        if (modelControl.InDefaults(id))
+            modelControl.ChangeMaterial(id, "lit");
+        else
+            node.SetNodeModelVisibility(true);
     }
 
     private void ClearTargetedBrainArea(int id)
     {
-        modelControl.ChangeMaterial(id, "default");
+        if (modelControl.InDefaults(id))
+            modelControl.ChangeMaterial(id, "default");
+        else
+            modelControl.GetNode(id).SetNodeModelVisibility(false);
     }
 
 
@@ -592,5 +613,48 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public bool GetStereotaxic()
     {
         return localPrefs.GetStereotaxic();
+    }
+
+    public void ReOrderProbePanels()
+    {
+        Debug.Log("Re-ordering probe panels");
+        Dictionary<float, TP_ProbeUIManager> sorted = new Dictionary<float, TP_ProbeUIManager>();
+
+        int probeIndex = 0;
+        // first, sort probes so that np2.4 probes go first
+        List<TP_ProbeController> np24Probes = new List<TP_ProbeController>();
+        List<TP_ProbeController> otherProbes = new List<TP_ProbeController>();
+        foreach (TP_ProbeController pcontroller in allProbes)
+            if (pcontroller.GetProbeType() == 4)
+                np24Probes.Add(pcontroller);
+            else
+                otherProbes.Add(pcontroller);
+        // now sort by order within each puimanager
+        foreach (TP_ProbeController pcontroller in np24Probes)
+        {
+            List<TP_ProbeUIManager> puimanagers = pcontroller.GetProbeUIManagers();
+            foreach (TP_ProbeUIManager puimanager in pcontroller.GetProbeUIManagers())
+                sorted.Add(probeIndex + puimanager.GetOrder() / 10f, puimanager);
+            probeIndex++;
+        }
+        foreach (TP_ProbeController pcontroller in otherProbes)
+        {
+            List<TP_ProbeUIManager> puimanagers = pcontroller.GetProbeUIManagers();
+            foreach (TP_ProbeUIManager puimanager in pcontroller.GetProbeUIManagers())
+                sorted.Add(probeIndex + puimanager.GetOrder() / 10f, puimanager);
+            probeIndex++;
+        }
+
+        // now sort the list according to the keys
+        float[] keys = new float[sorted.Count];
+        sorted.Keys.CopyTo(keys,0);
+        Array.Sort(keys);
+
+        // and finally, now put the probe panel game objects in order
+        for (int i = 0; i < keys.Length; i++)
+        {
+            GameObject probePanel = sorted[keys[i]].GetProbePanel().gameObject;
+            probePanel.transform.SetAsLastSibling();
+        }
     }
 }

@@ -33,26 +33,16 @@ public class TP_UIClickHandler : MonoBehaviour
             {
                 //cameraController.BlockDragging();
 
-                bool leftMouseClick = Input.GetMouseButtonDown(0);
-
                 // check if this is the in-plane slice panel
                 if (uiTarget.name == "InPlaneSlicePanel")
                 {
-                    if (leftMouseClick)
-                    {
-                        // If a click happened, then target this brain region
-                        inPlaneSlice.TargetBrainArea(pointerData.position);
-                    }
-                    else
-                    {
-                        // If just hovering, set the slice name
+                    if (tpmanager.GetActiveProbeController() != null)
                         inPlaneSlice.InPlaneSliceHover(pointerData.position);
-                    }
                 }
                 else
                 {
                     // If the user clicks while over a UI element, check to see if it's a probe panel and activate that probe
-                    if (leftMouseClick)
+                    if (Input.GetMouseButtonDown(0))
                     {
                         switch (uiTarget.tag)
                         {

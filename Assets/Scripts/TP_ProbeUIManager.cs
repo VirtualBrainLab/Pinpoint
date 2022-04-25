@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,6 +39,7 @@ public class TP_ProbeUIManager : MonoBehaviour
         probePanelGO = Instantiate(probePanelPrefab, probePanelParentT);
         probePanel = probePanelGO.GetComponent<TP_ProbePanel>();
         probePanel.RegisterProbeController(probeController);
+        probePanel.RegisterProbeUIManager(this);
 
         probePanelPxHeight = probePanel.GetPanelHeight();
         pxStep = probePanelPxHeight / 10;
@@ -80,6 +79,11 @@ public class TP_ProbeUIManager : MonoBehaviour
         }
     }
 
+    public int GetOrder()
+    {
+        return order;
+    }
+
     public void Destroy()
     {
         Destroy(probePanelGO);
@@ -93,6 +97,11 @@ public class TP_ProbeUIManager : MonoBehaviour
     public void UpdateName(string newName)
     {
         probePanelGO.name = newName;
+    }
+
+    public TP_ProbePanel GetProbePanel()
+    {
+        return probePanel;
     }
 
     private void ProbedMovedHelper()
@@ -116,7 +125,7 @@ public class TP_ProbeUIManager : MonoBehaviour
             float mmRecordingSize = heightPerc[1];
             float mmEndPos = mmStartPos + mmRecordingSize;
             // shift the starting tipPos up by the mmStartPos
-            Vector3 tipPos = probeTipOffset.transform.position + probeTipOffset.transform.up * (0.2f + mmStartPos);
+            Vector3 tipPos = probeTipOffset.transform.position + probeTipOffset.transform.up * mmStartPos;
             // shift the tipPos again to get the endPos
             Vector3 endPos = tipPos + probeTipOffset.transform.up * mmRecordingSize;
             //GameObject.Find("recording_bot").transform.position = tipPos;
@@ -147,7 +156,7 @@ public class TP_ProbeUIManager : MonoBehaviour
         }
         else
         {
-            tip_apdvlr = utils.WorldSpace2apdvlr(probeTipOffset.transform.position + probeTipOffset.transform.up * 0.2f + tpmanager.GetCenterOffset());
+            tip_apdvlr = utils.WorldSpace2apdvlr(probeTipOffset.transform.position + probeTipOffset.transform.up + tpmanager.GetCenterOffset());
             top_apdvlr = utils.WorldSpace2apdvlr(probeEndOffset.transform.position + tpmanager.GetCenterOffset());
             //GameObject.Find("recording_bot").transform.position = probeTipOffset.transform.position;
             //GameObject.Find("recording_top").transform.position = probeEndOffset.transform.position;

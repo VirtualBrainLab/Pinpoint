@@ -94,6 +94,7 @@ public class TP_ProbeController : MonoBehaviour
 
     private void Awake()
     {
+
         textGO = Instantiate(textPrefab, GameObject.Find("CoordinatePanel").transform);
         textButton = textGO.GetComponent<Button>();
         textButton.onClick.AddListener(Probe2Text);
@@ -818,6 +819,7 @@ public class TP_ProbeController : MonoBehaviour
     public void RegisterProbeCallback(int ID, Color probeColor)
     {
         probeID = ID;
+        name = "PROBE_" + probeID;
         probeRenderer.material.color = probeColor;
 
         var colors = textButton.colors;
@@ -1017,5 +1019,11 @@ public class TP_ProbeController : MonoBehaviour
             // If we get here we failed to find a point
             Debug.LogWarning("There is an entry and exit but we couldn't find the brain edge");
         }
+    }
+
+
+    public List<TP_ProbeUIManager> GetProbeUIManagers()
+    {
+        return probeUIManagers;
     }
 }

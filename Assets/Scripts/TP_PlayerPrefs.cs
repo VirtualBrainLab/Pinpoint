@@ -41,7 +41,7 @@ public class TP_PlayerPrefs : MonoBehaviour
         collisionsToggle.isOn = collisions;
 
         useIblBregma = LoadBoolPref("bregma", true);
-        bregmaToggle.isOn = useIblBregma;
+        //bregmaToggle.isOn = useIblBregma;
 
         recordingRegionOnly = LoadBoolPref("recording", true);
         recordingRegionToggle.isOn = recordingRegionOnly;
