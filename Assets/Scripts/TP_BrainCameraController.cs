@@ -27,8 +27,9 @@ public class TP_BrainCameraController : MonoBehaviour
     void Start()
     {
         // Artifically limit the framerate
+#if !UNITY_WEBGL
         Application.targetFrameRate = 144;
-
+#endif
         initialCameraRotatorPosition = brainCameraRotator.transform.position;
         lastLeftClick = Time.realtimeSinceStartup;
         lastRightClick = Time.realtimeSinceStartup;

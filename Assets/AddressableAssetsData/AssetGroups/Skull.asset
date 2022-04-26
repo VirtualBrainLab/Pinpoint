@@ -10,20 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Default Local Group
+  m_Name: Skull
   m_EditorClassIdentifier: 
-  m_GroupName: Default Local Group
+  m_GroupName: Skull
   m_Data:
     m_SerializedData: []
-  m_GUID: eb9eb3c822ec72b468349d4e785d6617
+  m_GUID: aa120eec9de0cf94e95f6071b46259fe
   m_SerializeEntries:
-  - m_GUID: 951b10c85b0298c429254ea51d1814c7
-    m_Address: Assets/Data/second_pass.csv
+  - m_GUID: 604a5f8d7d36f4c4c972a69cda8175bc
+    m_Address: Assets/AddressableAssets/3D/skull.obj
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 7b59397650a2ef247959f166f102568c
+    m_Address: Assets/AddressableAssets/3D/skull.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: df729d60af727284aab7f4404c63d1a8, type: 2}
-    - {fileID: 11400000, guid: def0ca53aaa260c499b5675451913b0e, type: 2}
+    - {fileID: 11400000, guid: 8a98f1182612be043bce2d226ed0f800, type: 2}
+    - {fileID: 11400000, guid: a385cb9b53a313b4eb01e17f31fad4dd, type: 2}
