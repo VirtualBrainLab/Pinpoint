@@ -39,7 +39,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     private List<Collider> rigColliders;
     private List<Collider> allNonActiveColliders;
 
-    Color[] probeColors;
+    List<Color> probeColors;
 
     // Values
     [SerializeField] private int probePanelAcronymTextFontSize = 14;
@@ -82,7 +82,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         targetedBrainAreas = new List<int>();
         //Physics.autoSyncTransforms = true;
 
-        probeColors = new Color[20] { ColorFromRGB(114, 87, 242), ColorFromRGB(240, 144, 96), ColorFromRGB(71, 147, 240), ColorFromRGB(240, 217, 48), ColorFromRGB(60, 240, 227),
+        probeColors = new List<Color> { ColorFromRGB(114, 87, 242), ColorFromRGB(240, 144, 96), ColorFromRGB(71, 147, 240), ColorFromRGB(240, 217, 48), ColorFromRGB(60, 240, 227),
                                     ColorFromRGB(180, 0, 0), ColorFromRGB(0, 180, 0), ColorFromRGB(0, 0, 180), ColorFromRGB(180, 180, 0), ColorFromRGB(0, 180, 180),
                                     ColorFromRGB(180, 0, 180), ColorFromRGB(240, 144, 96), ColorFromRGB(71, 147, 240), ColorFromRGB(240, 217, 48), ColorFromRGB(60, 240, 227),
                                     ColorFromRGB(114, 87, 242), ColorFromRGB(255, 255, 255), ColorFromRGB(0, 125, 125), ColorFromRGB(125, 0, 125), ColorFromRGB(125, 125, 0)};
@@ -255,6 +255,8 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         foreach (float val in prevCoordinates)
             Debug.Log(val);
 
+        Color returnColor = activeProbeController.GetColor();
+
         activeProbeController.Destroy();
         Destroy(activeProbeController.gameObject);
         allProbes.Remove(activeProbeController);
@@ -262,6 +264,8 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
             SetActiveProbe(allProbes[0]);
         else
             activeProbeController = null;
+
+        ReturnProbeColor(returnColor);
     }
 
     private void RecoverActiveProbeController()
@@ -277,8 +281,8 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public void AddIBLProbes()
     {
         // Add two probes to the scene, one coming from the left and one coming from the right
-        StartCoroutine(DelayedIBLProbeAdd(0, 45, 0f));
-        StartCoroutine(DelayedIBLProbeAdd(180, 45, 0.2f));
+        StartCoroutine(DelayedIBLProbeAdd(-90, -45, 0f));
+        StartCoroutine(DelayedIBLProbeAdd(90, -45, 0.2f));
     }
 
     IEnumerator DelayedIBLProbeAdd(float phi, float theta, float delay)
@@ -363,9 +367,21 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     {
         Debug.Log("Registering probe: " + probeController.gameObject.name);
         allProbes.Add(probeController);
-        probeController.RegisterProbeCallback(allProbes.Count, probeColors[allProbes.Count-1]);
+        probeController.RegisterProbeCallback(allProbes.Count, NextProbeColor());
         foreach (Collider collider in colliders)
             allProbeColliders.Add(collider);
+    }
+
+    private Color NextProbeColor()
+    {
+        Color next = probeColors[0];
+        probeColors.RemoveAt(0);
+        return next;
+    }
+
+    public void ReturnProbeColor(Color returnColor)
+    {
+        probeColors.Insert(0,returnColor);
     }
 
     public void SetActiveProbe(TP_ProbeController newActiveProbeController)
