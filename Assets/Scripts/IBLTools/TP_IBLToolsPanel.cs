@@ -11,31 +11,48 @@ public class TP_IBLToolsPanel : MonoBehaviour
 
     private Vector3 position = new Vector3(216, 0, 229);
     private float size = 1f;
+    private float disabledSize = -1f;
 
     [SerializeField] TP_CraniotomySkull craniotomySkull;
 
-    private void Start()
+    public void OnDisable()
     {
-        UpdateCraniotomy();
+        disabledSize = size;
+        UpdateSize(0);
+    }
+
+    public void OnEnable()
+    {
+        if (disabledSize >= 0f)
+            UpdateSize(disabledSize);
+        else
+            UpdateSize(size);
     }
 
     public void UpdateAP(float ap)
     {
-        apText.text = "AP: " + Mathf.RoundToInt(ap);
         position.x = ap;
         UpdateCraniotomy();
+        UpdateText();
     }
     public void UpdateML(float ml)
     {
-        mlText.text = "ML: " + Mathf.RoundToInt(ml);
         position.z = ml;
         UpdateCraniotomy();
+        UpdateText();
     }
     public void UpdateSize(float newSize)
     {
-        dvText.text = "r: " + Mathf.RoundToInt(newSize*100)/100;
         size = newSize;
         UpdateCraniotomy();
+        UpdateText();
+    }
+
+    private void UpdateText()
+    {
+        apText.text = "AP: " + Mathf.RoundToInt(position.x);
+        mlText.text = "ML: " + Mathf.RoundToInt(position.z);
+        dvText.text = "r: " + Mathf.Round(size * 100f) / 100f;
     }
 
     private void UpdateCraniotomy()

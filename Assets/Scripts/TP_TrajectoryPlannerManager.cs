@@ -252,8 +252,6 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         prevCoordinates = activeProbeController.GetCoordinates();
 
         Debug.Log("Destroying probe type " + prevProbeType + " with coordinates");
-        foreach (float val in prevCoordinates)
-            Debug.Log(val);
 
         Color returnColor = activeProbeController.GetColor();
 

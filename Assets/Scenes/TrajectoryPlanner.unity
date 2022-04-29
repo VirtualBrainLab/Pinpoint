@@ -1562,7 +1562,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &150226575
 Transform:
   m_ObjectHideFlags: 0
@@ -2098,8 +2098,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Note 2: these coordinates are in CCF space even when you have the stereotaxic
-    setting on, sorry, will fix soon'
+  m_text: 'Note 2: entering coordinates here sets the probe position in *CCF* space,
+    if you have the stereotax setting on the output (stAP) will differ from the input
+    (ccfAP)'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -11300,7 +11301,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 250}
+  m_SizeDelta: {x: 517.7, y: 285.77}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &960137800
 MonoBehaviour:
@@ -13496,8 +13497,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Note: manually setting depth from brain surface is not yet supported,
-    use [Z/X] to set'
+  m_text: 'Note: you cannot set depth manually if you have the "brain surface" setting
+    on, use [Z/X] to set'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
