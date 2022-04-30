@@ -10,10 +10,14 @@ public class TP_EphysAtlas : MonoBehaviour
     [SerializeField] TP_TrajectoryPlannerManager tpmanager;
     [SerializeField] Material lineMaterial;
 
-    TP_ProbeController activeProbeController;
+    private AnnotationDataset annotationDataset;
+
     SocketManager manager;
 
+    private const int CHAN_COUNT = 20;
     List<Channel> allChannels;
+
+    private float lastRequest;
 
     // Start is called before the first frame update
     void Start()
@@ -25,16 +29,22 @@ public class TP_EphysAtlas : MonoBehaviour
         allChannels = new List<Channel>();
 
         // build 10 base channels for now
-        for (int ci = 0; ci < 10; ci++)
+        for (int ci = 0; ci < CHAN_COUNT; ci++)
         {
             LineRenderer chanLine = transform.GetChild(ci).GetComponent<LineRenderer>();
-            chanLine.startWidth = 0.05f;
-            chanLine.endWidth = 0.05f;
+            chanLine.startWidth = 0.02f;
+            chanLine.endWidth = 0.02f;
             Channel chan = new Channel(370, chanLine);
             allChannels.Add(chan);
-
-            RequestData(ci, new Vector3(100, 100 + 10 * ci, 150));
         }
+
+        GetAnnotationDataset();
+    }
+
+    private async void GetAnnotationDataset()
+    {
+        await tpmanager.GetAnnotationDatasetLoadedTask();
+        annotationDataset = tpmanager.GetAnnotationDataset();
     }
 
     private void OnDestroy()
@@ -57,11 +67,24 @@ public class TP_EphysAtlas : MonoBehaviour
 
     private void UpdateProbePosition()
     {
+        if ((Time.realtimeSinceStartup - lastRequest) < 1f)
+        {
+            //Debug.Log("(EphysAtlas) Too many requests -- ignoring");
+            return;
+        }
+        lastRequest = Time.realtimeSinceStartup;
+
         (Vector3 tip_apdvlr, Vector3 top_apdvlr) = tpmanager.GetActiveProbeController().GetRecordingRegionCoordinatesAPDVLR();
 
-        for (int ci = 0; ci < 10; ci++)
+        for (int ci = 0; ci <= (CHAN_COUNT-1); ci++)
         {
-            RequestData(0, NearestInt(Vector3.Lerp(tip_apdvlr, top_apdvlr, ci / 10f)));
+            Vector3 coords = NearestInt(Vector3.Lerp(top_apdvlr, tip_apdvlr, ci / (float)(CHAN_COUNT - 1f)));
+            if (annotationDataset != null)
+            {
+                // check whether the coords are within the annotation dataset
+                if (annotationDataset.ValueAtIndex(coords) > 0)
+                    RequestData(ci, coords);
+            }
         }
     }
 
@@ -70,11 +93,11 @@ public class TP_EphysAtlas : MonoBehaviour
         return new Vector3(Mathf.RoundToInt(input.x), Mathf.RoundToInt(input.y), Mathf.RoundToInt(input.z));
     }
 
-    private void RequestData(int channel, Vector3 coord)
+    private void RequestData(int chan, Vector3 coord)
     {
-        allChannels[channel].RequestingData();
-        Debug.Log("Requesting data for channel " + channel + ": " + coord.ToString());
-        manager.Socket.Emit("data", new float[] { channel, coord.x, coord.y, coord.z });
+        allChannels[chan].RequestingData();
+        Debug.Log("Requesting data for channel " + chan + ": " + coord.ToString());
+        manager.Socket.Emit("data", new float[] { chan, coord.x, coord.y, coord.z });
     }
 
     // data ['row','index','area','clu_count','amp_min','amp_max','i0','i1','i2','i3','i4','i5','i6','i7','i8','i9']
@@ -111,6 +134,7 @@ public class Channel
     ChannelData data;
 
     // Line data
+    private static float YSCALE = 0.5f;
     Vector3[] positionData;
 
     private bool enabled;
@@ -179,7 +203,7 @@ public class Channel
     {
         for (int i = 1; i < positionData.Length; i++)
             positionData[i - 1].y = positionData[i].y;
-        positionData[positionData.Length - 1].y = newVal;
+        positionData[positionData.Length - 1].y = newVal * YSCALE;
         line.SetPositions(positionData);
     }
 

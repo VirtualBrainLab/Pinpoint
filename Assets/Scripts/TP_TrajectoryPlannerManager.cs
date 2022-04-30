@@ -104,6 +104,11 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         localPrefs.AsyncStart();
     }
 
+    public Task GetAnnotationDatasetLoadedTask()
+    {
+        return annotationDatasetLoadTask;
+    }
+
     private async void DelayedModelControlStart()
     {
         await modelControl.GetDefaultLoaded();
