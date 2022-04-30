@@ -572,17 +572,25 @@ public class TP_ProbeController : MonoBehaviour
     /// <returns></returns>
     public void CheckCollisions(List<Collider> otherColliders)
     {
-        bool collided = CheckCollisionsHelper(otherColliders);
+        if (tpmanager.GetCollisions())
+        {
+            bool collided = CheckCollisionsHelper(otherColliders);
 
-        if (collided)
-            tpmanager.SetCollisionPanelVisibility(true);
+            if (collided)
+                tpmanager.SetCollisionPanelVisibility(true);
+            else
+            {
+                tpmanager.SetCollisionPanelVisibility(false);
+                if (visibleColliders.Count > 0)
+                    ClearCollisionMesh();
+            }
+        }
         else
         {
             tpmanager.SetCollisionPanelVisibility(false);
             if (visibleColliders.Count > 0)
                 ClearCollisionMesh();
         }
-
     }
 
     private bool CheckCollisionsHelper(List<Collider> otherColliders)

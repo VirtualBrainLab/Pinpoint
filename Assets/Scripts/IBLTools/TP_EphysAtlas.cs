@@ -14,7 +14,7 @@ public class TP_EphysAtlas : MonoBehaviour
 
     SocketManager manager;
 
-    private const int CHAN_COUNT = 20;
+    private const int CHAN_COUNT = 40;
     List<Channel> allChannels;
 
     private float lastRequest;

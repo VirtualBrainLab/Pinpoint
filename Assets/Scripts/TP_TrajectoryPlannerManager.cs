@@ -595,7 +595,6 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public void SetCollisions(bool toggleCollisions)
     {
         localPrefs.SetCollisions(toggleCollisions);
-        SetCollisionPanelVisibility(toggleCollisions);
         if (activeProbeController!=null)
             activeProbeController.CheckCollisions(GetAllNonActiveColliders());
     }
