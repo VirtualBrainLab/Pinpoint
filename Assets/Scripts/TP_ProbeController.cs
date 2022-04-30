@@ -69,6 +69,10 @@ public class TP_ProbeController : MonoBehaviour
     private float minSpin = -180f;
     private float maxSpin = 180f;
 
+    // Offset vectors
+    private GameObject probeTipOffset;
+    private GameObject probeEndOffset;
+
     // Coordinate system information
     private CCFCoordinateSystem ccfPosition;
 
@@ -112,6 +116,13 @@ public class TP_ProbeController : MonoBehaviour
         visibleColliders = new List<TP_ProbeCollider>();
 
         UpdateRecordingRegionVars();
+
+        probeTipOffset = new GameObject(name + "TipOffset");
+        probeTipOffset.transform.position = probeTipT.position + probeTipT.up * 0.2f;
+        probeTipOffset.transform.parent = probeTipT;
+        probeEndOffset = new GameObject(name + "EndOffset");
+        probeEndOffset.transform.position = probeTipT.position + probeTipT.up * 10.2f;
+        probeEndOffset.transform.parent = probeTipT;
     }
 
     private void Start()
@@ -952,6 +963,41 @@ public class TP_ProbeController : MonoBehaviour
             tpmanager.SetMovedThisFrame();
         }
 
+    }
+
+    /// <summary>
+    /// Compute the position of the bottom and top of the recording region in AP/DV/LR coordinates
+    /// </summary>
+    /// <returns></returns>
+    public (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR()
+    {
+        float[] heightPerc = GetRecordingRegionHeight();
+        //Debug.Log(heightPerc[0] + " " + heightPerc[1]);
+
+        Vector3 tip_apdvlr;
+        Vector3 top_apdvlr;
+
+        if (tpmanager.RecordingRegionOnly())
+        {
+            float mmStartPos = heightPerc[0] * (10 - heightPerc[1]);
+            float mmRecordingSize = heightPerc[1];
+            float mmEndPos = mmStartPos + mmRecordingSize;
+            // shift the starting tipPos up by the mmStartPos
+            Vector3 tipPos = probeTipOffset.transform.position + probeTipOffset.transform.up * mmStartPos;
+            // shift the tipPos again to get the endPos
+            Vector3 endPos = tipPos + probeTipOffset.transform.up * mmRecordingSize;
+            //GameObject.Find("recording_bot").transform.position = tipPos;
+            //GameObject.Find("recording_top").transform.position = endPos;
+            tip_apdvlr = util.WorldSpace2apdvlr(tipPos + tpmanager.GetCenterOffset());
+            top_apdvlr = util.WorldSpace2apdvlr(endPos + tpmanager.GetCenterOffset());
+        }
+        else
+        {
+            tip_apdvlr = util.WorldSpace2apdvlr(probeTipOffset.transform.position + probeTipOffset.transform.up + tpmanager.GetCenterOffset());
+            top_apdvlr = util.WorldSpace2apdvlr(probeEndOffset.transform.position + tpmanager.GetCenterOffset());
+        }
+
+        return (tip_apdvlr, top_apdvlr);
     }
 
     public void DragMovementRelease()

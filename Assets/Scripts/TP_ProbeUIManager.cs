@@ -13,8 +13,6 @@ public class TP_ProbeUIManager : MonoBehaviour
 
     [SerializeField] private GameObject probeTip;
     [SerializeField] private int order;
-    private GameObject probeTipOffset;
-    private GameObject probeEndOffset;
 
     private AnnotationDataset annotationDataset;
 
@@ -61,13 +59,6 @@ public class TP_ProbeUIManager : MonoBehaviour
 
         // Set probe to be un-selected
         ProbeSelected(false);
-
-        probeTipOffset = new GameObject("TipOffset");
-        probeTipOffset.transform.position = probeTip.transform.position + probeTip.transform.up * 0.2f;
-        probeTipOffset.transform.parent = probeTip.transform;
-        probeEndOffset = new GameObject("EndOffset");
-        probeEndOffset.transform.position = probeTip.transform.position + probeTip.transform.up * 10.2f;
-        probeEndOffset.transform.parent = probeTip.transform;
     }
 
     private void Update()
@@ -108,11 +99,10 @@ public class TP_ProbeUIManager : MonoBehaviour
     {
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
         float[] heightPerc = probeController.GetRecordingRegionHeight();
-        //Debug.Log(heightPerc[0] + " " + heightPerc[1]);
 
         // (1) Get the position of the probe tip and interpolate through the annotation dataset to the top of the probe
-        Vector3 tip_apdvlr;
-        Vector3 top_apdvlr;
+        (Vector3 tip_apdvlr, Vector3 top_apdvlr) = probeController.GetRecordingRegionCoordinatesAPDVLR();
+
         List<int> mmTickPositions = new List<int>();
         List<int> tickIdxs = new List<int>();
         List<int> tickHeights = new List<int>(); // this will be calculated in the second step
@@ -121,17 +111,10 @@ public class TP_ProbeUIManager : MonoBehaviour
         {
             // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
             // we also want to save the mm tick positions
+
             float mmStartPos = heightPerc[0] * (10 - heightPerc[1]);
             float mmRecordingSize = heightPerc[1];
             float mmEndPos = mmStartPos + mmRecordingSize;
-            // shift the starting tipPos up by the mmStartPos
-            Vector3 tipPos = probeTipOffset.transform.position + probeTipOffset.transform.up * mmStartPos;
-            // shift the tipPos again to get the endPos
-            Vector3 endPos = tipPos + probeTipOffset.transform.up * mmRecordingSize;
-            //GameObject.Find("recording_bot").transform.position = tipPos;
-            //GameObject.Find("recording_top").transform.position = endPos;
-            tip_apdvlr = utils.WorldSpace2apdvlr(tipPos + tpmanager.GetCenterOffset());
-            top_apdvlr = utils.WorldSpace2apdvlr(endPos + tpmanager.GetCenterOffset());
             List<int> mmPos = new List<int>();
             for (int i = Mathf.Max(1,Mathf.CeilToInt(mmStartPos)); i <= Mathf.Min(9,Mathf.FloorToInt(mmEndPos)); i++)
                 mmPos.Add(i); // this is the list of values we are going to have to assign a position to
@@ -156,10 +139,7 @@ public class TP_ProbeUIManager : MonoBehaviour
         }
         else
         {
-            tip_apdvlr = utils.WorldSpace2apdvlr(probeTipOffset.transform.position + probeTipOffset.transform.up + tpmanager.GetCenterOffset());
-            top_apdvlr = utils.WorldSpace2apdvlr(probeEndOffset.transform.position + tpmanager.GetCenterOffset());
-            //GameObject.Find("recording_bot").transform.position = probeTipOffset.transform.position;
-            //GameObject.Find("recording_top").transform.position = probeEndOffset.transform.position;
+            // apparently we don't save tick positions if we aren't in the reocrding region? This doesn't seem right
         }
 
         // Interpolate from the tip to the top, putting this data into the probe panel texture

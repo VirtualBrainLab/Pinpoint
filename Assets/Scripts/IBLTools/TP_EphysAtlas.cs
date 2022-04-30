@@ -8,35 +8,33 @@ using Random = UnityEngine.Random;
 public class TP_EphysAtlas : MonoBehaviour
 {
     [SerializeField] TP_TrajectoryPlannerManager tpmanager;
-    [SerializeField] LineRenderer line;
-
-    // Line data
-    Vector3[] positionData;
+    [SerializeField] Material lineMaterial;
 
     TP_ProbeController activeProbeController;
     SocketManager manager;
 
-    private bool loaded = false;
-    ChannelData curChan;
-
-    private bool prevSpike;
-    private float nextSpike = 0f;
-    private float nextAmp = 0f;
+    List<Channel> allChannels;
 
     // Start is called before the first frame update
     void Start()
     {
         manager = new SocketManager(new Uri("http://128.95.53.25:5000"));
         manager.Socket.On("connect", () => Debug.Log(manager.Handshake.Sid));
-        manager.Socket.On<List<float>>("data", ParseData);
-        manager.Socket.Emit("data", new float[] { 100, 100, 150 });
+        manager.Socket.On<List<float>>("data", ReceiveData);
 
-        line.positionCount = 370;
+        allChannels = new List<Channel>();
 
-        // Setup line renderer
-        positionData = new Vector3[370];
-        for (int i = 0; i < 370; i++)
-            positionData[i] = Vector3.right * i;
+        // build 10 base channels for now
+        for (int ci = 0; ci < 10; ci++)
+        {
+            LineRenderer chanLine = transform.GetChild(ci).GetComponent<LineRenderer>();
+            chanLine.startWidth = 0.05f;
+            chanLine.endWidth = 0.05f;
+            Channel chan = new Channel(370, chanLine);
+            allChannels.Add(chan);
+
+            RequestData(ci, new Vector3(100, 100 + 10 * ci, 150));
+        }
     }
 
     private void OnDestroy()
@@ -47,20 +45,134 @@ public class TP_EphysAtlas : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (loaded)
+        if (tpmanager.GetActiveProbeController() != null)
         {
-            if (prevSpike)
-                positionData[positionData.Length - 1].y = 0f;
-
-            if (Time.realtimeSinceStartup > nextSpike)
-            {
-                Debug.Log("Spike w/ amp: " + nextAmp);
-                UpdateLine(nextAmp * 1000000);
-                GetNextSpike();
-            }
+            if (tpmanager.MovedThisFrame())
+                UpdateProbePosition();
             else
-                UpdateLine(0f);
+                foreach (Channel chan in allChannels)
+                    chan.UpdateChannel();
         }
+    }
+
+    private void UpdateProbePosition()
+    {
+        (Vector3 tip_apdvlr, Vector3 top_apdvlr) = tpmanager.GetActiveProbeController().GetRecordingRegionCoordinatesAPDVLR();
+
+        for (int ci = 0; ci < 10; ci++)
+        {
+            RequestData(0, NearestInt(Vector3.Lerp(tip_apdvlr, top_apdvlr, ci / 10f)));
+        }
+    }
+
+    private Vector3 NearestInt(Vector3 input)
+    {
+        return new Vector3(Mathf.RoundToInt(input.x), Mathf.RoundToInt(input.y), Mathf.RoundToInt(input.z));
+    }
+
+    private void RequestData(int channel, Vector3 coord)
+    {
+        allChannels[channel].RequestingData();
+        Debug.Log("Requesting data for channel " + channel + ": " + coord.ToString());
+        manager.Socket.Emit("data", new float[] { channel, coord.x, coord.y, coord.z });
+    }
+
+    // data ['row','index','area','clu_count','amp_min','amp_max','i0','i1','i2','i3','i4','i5','i6','i7','i8','i9']
+
+    private void ReceiveData(List<float> data)
+    {
+        var (chan, chanData) = ParseData(data);
+        Debug.Log("Received data for channel " + chan);
+        allChannels[chan].AddData(chanData);
+    }
+
+    private (int, ChannelData) ParseData(List<float> data)
+    {
+        int channel = (int)data[0];
+
+        float[] cumISIprob = new float[10];
+
+        float sum = 0;
+        for (int i = 7; i < 17; i++)
+        {
+            sum += data[i];
+            cumISIprob[i - 7] = sum;
+        }
+
+        ChannelData chanData = new ChannelData(data[3], data[4], data[5], data[6], cumISIprob);
+
+        return (channel, chanData);
+    }
+}
+
+public class Channel
+{
+    LineRenderer line;
+    ChannelData data;
+
+    // Line data
+    Vector3[] positionData;
+
+    private bool enabled;
+
+    public Channel(int lineWidth, LineRenderer line)
+    {
+        this.line = line;
+        line.positionCount = lineWidth;
+
+        ChannelSetup();
+    }
+    public Channel(int lineWidth, LineRenderer line, ChannelData data)
+    {
+        this.line = line;
+        line.positionCount = lineWidth;
+        this.data = data;
+
+        ChannelSetup();
+
+        enabled = true;
+        GetNextSpike();
+    }
+
+    private void ChannelSetup()
+    {
+        // Setup line renderer
+        positionData = new Vector3[line.positionCount];
+        for (int i = 0; i < line.positionCount; i++)
+            positionData[i] = new Vector3(i, 0f, 0f);
+    }
+
+    private bool prevSpike;
+    private float nextSpike = 0f;
+    private float nextAmp = 0f;
+
+    public void UpdateChannel()
+    {
+        if (!enabled)
+            return;
+
+        if (prevSpike)
+            positionData[positionData.Length - 1].y = 0f;
+
+        if (Time.realtimeSinceStartup > nextSpike)
+        {
+            UpdateLine(nextAmp * 1000000);
+            GetNextSpike();
+        }
+        else
+            UpdateLine(0f);
+    }
+
+    public void RequestingData()
+    {
+        enabled = false;
+    }
+
+    public void AddData(ChannelData data)
+    {
+        this.data = data;
+        enabled = true;
+        GetNextSpike();
     }
 
     private void UpdateLine(float newVal)
@@ -73,30 +185,9 @@ public class TP_EphysAtlas : MonoBehaviour
 
     private void GetNextSpike()
     {
-        var (t, a) = curChan.NextSpike();
+        var (t, a) = data.NextSpike();
         nextSpike = Time.realtimeSinceStartup + t;
         nextAmp = a;
-    }
-
-    // data ['row','index','area','clu_count','amp_min','amp_max','i0','i1','i2','i3','i4','i5','i6','i7','i8','i9']
-
-    private void ParseData(List<float> data)
-    {
-        float[] isiDist = new float[10];
-
-        float sum = 0;
-        for (int i = 6; i < 16; i++)
-        {
-            sum += data[i];
-            isiDist[i - 6] = sum;
-            Debug.Log(sum);
-        }
-
-        curChan = new ChannelData(data[2], data[3], data[4], data[5], isiDist);
-
-
-        GetNextSpike();
-        loaded = true;
     }
 }
 
@@ -107,35 +198,37 @@ public class ChannelData
     float ampMin;
     float ampMax;
     float ampDelta;
-    float[] isiDist;
+    float[] cumISIprob;
 
     float[] timeValues = new float[]{0f, 0.0027825594022071257f,
        0.007742636826811269f, 0.021544346900318832f, 0.05994842503189409f,
        0.1668100537200059f, 0.46415888336127775f, 1.2915496650148828f,
-       3.593813663804626f, 10.0f };
+       3.593813663804626f, 10.0f , 20f};
 
-    public ChannelData(float area, float cluCount, float ampMin, float ampMax, float[] isiDist)
+    public ChannelData(float area, float cluCount, float ampMin, float ampMax, float[] cumISIprob)
     {
         this.area = area;
         this.cluCount = cluCount;
         this.ampMin = ampMin;
         this.ampMax = ampMax;
         ampDelta = ampMax - ampMin;
-        this.isiDist = isiDist;
+        this.cumISIprob = cumISIprob;
     }
 
     public (float, float) NextSpike()
     {
         float next = Random.value;
-        for (int i = 0; i < isiDist.Length; i++)
+        float amp = NextAmplitude();
+
+        for (int i = 0; i < cumISIprob.Length; i++)
         {
-            if (next < isiDist[i])
+            if (next < cumISIprob[i])
             {
                 float spikeTime = timeValues[i] + Random.value * (timeValues[i + 1] - timeValues[i]);
-                return (spikeTime, NextAmplitude());
+                return (spikeTime, amp);
             }
         }
-        return (0, 0);
+        return (40f, amp);
     }
 
     public float NextAmplitude()
