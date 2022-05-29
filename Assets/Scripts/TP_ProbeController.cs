@@ -888,7 +888,7 @@ public class TP_ProbeController : MonoBehaviour
 
     public void DragMovementClick()
     {
-        tpmanager.ProbeControl = true;
+        tpmanager.SetProbeControl(true);
 
         axisLockAP = false;
         axisLockDV = false;
@@ -1011,7 +1011,7 @@ public class TP_ProbeController : MonoBehaviour
     public void DragMovementRelease()
     {
         // release probe control
-        tpmanager.ProbeControl = false;
+        tpmanager.SetProbeControl(false);
     }
 
     public void ResizeProbePanel(int newPxHeight)

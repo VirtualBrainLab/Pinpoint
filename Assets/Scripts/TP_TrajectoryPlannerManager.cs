@@ -23,6 +23,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     [SerializeField] private GameObject ProbePanelParentGO;
     [SerializeField] private GameObject IBLToolsGO;
     [SerializeField] private GameObject IBLTrajectoryGO;
+    [SerializeField] private BrainCameraController brainCamController;
 
     [SerializeField] private TP_PlayerPrefs localPrefs;
 
@@ -52,9 +53,13 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     [SerializeField] private TP_CoordinateEntryPanel manualCoordinatePanel;
 
     // Track who got clicked on, probe, camera, or brain
-    public bool ProbeControl { get; set; }
-    public bool CameraControl { get; set; }
-    public bool BrainControl { get; set; }
+    private bool probeControl;
+
+    public void SetProbeControl(bool state)
+    {
+        probeControl = state;
+        brainCamController.SetControlBlock(state);
+    }
 
     // Track when brain areas get clicked on
     private List<int> targetedBrainAreas;
@@ -68,9 +73,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     private void Awake()
     {
-        ProbeControl = false;
-        CameraControl = false;
-        BrainControl = false;
+        SetProbeControl(false);
 
         visibleProbePanels = 0;
 
