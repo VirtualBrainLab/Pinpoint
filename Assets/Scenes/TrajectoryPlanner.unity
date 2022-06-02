@@ -1978,9 +1978,9 @@ RectTransform:
   m_Father: {fileID: 1210481390}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 354.84, y: -15}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &167749849
@@ -6400,9 +6400,9 @@ RectTransform:
   m_Father: {fileID: 1210481390}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 169.88, y: 0}
   m_SizeDelta: {x: 339.76, y: 10}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &500828953
@@ -7588,9 +7588,9 @@ RectTransform:
   m_Father: {fileID: 1210481390}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 384.91998, y: -15}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &537324944
@@ -19636,7 +19636,6 @@ MonoBehaviour:
   brainCamera: {fileID: 2118380573}
   brainCameraRotator: {fileID: 1445581473}
   brain: {fileID: 1877060504}
-  tpmanager: {fileID: 2108153954}
   minFoV: 1
   maxFoV: 120
   fovDelta: 15
@@ -28565,6 +28564,7 @@ GameObject:
   - component: {fileID: 2108153953}
   - component: {fileID: 2108153952}
   - component: {fileID: 2108153954}
+  - component: {fileID: 2108153958}
   - component: {fileID: 2108153955}
   - component: {fileID: 2108153956}
   - component: {fileID: 2108153957}
@@ -28732,6 +28732,20 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
+--- !u!114 &2108153958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2108153951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de7e19699c62fef4d8e2f16cfb5e8b22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  addressablesStorageRemotePath: http://data.virtualbrainlab.org/AddressablesStorage
+  buildVersion: 0.1.0
 --- !u!1 &2115159642
 GameObject:
   m_ObjectHideFlags: 0
