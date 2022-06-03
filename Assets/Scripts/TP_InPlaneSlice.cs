@@ -21,7 +21,6 @@ public class TP_InPlaneSlice : MonoBehaviour
     [SerializeField] private TextMeshProUGUI areaText;
 
     [SerializeField] private GameObject gpuInPlaneSliceGO;
-    [SerializeField] private AssetReference preLoadedGPUTextureAssetRef;
     private Renderer gpuSliceRenderer;
 
     private AnnotationDataset annotationDataset;
@@ -31,7 +30,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     private RectTransform rect;
 
-    private Texture3D annotationDatasetGPUTexture;
+    public Texture3D annotationDatasetGPUTexture;
     private TaskCompletionSource<bool> gpuTextureLoadedSource;
     private Task gpuTextureLoadedTask;
 
@@ -54,10 +53,31 @@ public class TP_InPlaneSlice : MonoBehaviour
     void Start()
     {
         rect = GetComponent<RectTransform>();
+
+        AsyncStart();
     }
 
-    public Texture3D GetAnnotationDatasetGPUTexture()
+    public async void AsyncStart()
     {
+        Task<Texture3D> textureTask = AddressablesRemoteLoader.LoadAnnotationTexture();
+        await textureTask;
+
+        Debug.Log(textureTask.IsCompleted);
+        Debug.Log(textureTask.IsCanceled);
+        Debug.Log(textureTask.IsFaulted);
+
+        annotationDatasetGPUTexture = textureTask.Result;
+        gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
+        gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
+        gpuTextureLoadedSource.SetResult(true);
+
+        Debug.Log("(InPlaneSlice) Annotation dataset texture loaded");
+    }
+
+    public async Task<Texture3D> GetAnnotationDatasetGPUTexture()
+    {
+        await gpuTextureLoadedTask;
+
         return annotationDatasetGPUTexture;
     }
 
@@ -65,7 +85,6 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         annotationDataset = tpmanager.GetAnnotationDataset();
 
-        DelayedStartAnnotationDataset();
     }
 
     public Task GetGPUTextureTask()
@@ -73,55 +92,36 @@ public class TP_InPlaneSlice : MonoBehaviour
         return gpuTextureLoadedTask;
     }
 
-    public async void DelayedStartAnnotationDataset()
-    {
-        await modelControl.GetDefaultLoaded();
+    //private IEnumerator DelayedStartBuildGPUTexture()
+    //{
+    //    // Build the 3D annotation dataset texture
+    //    annotationDatasetGPUTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
+    //    annotationDatasetGPUTexture.filterMode = FilterMode.Point;
+    //    annotationDatasetGPUTexture.wrapMode = TextureWrapMode.Clamp;
 
-        if (preLoadedGPUTextureAssetRef != null)
-        {
-            AsyncOperationHandle<Texture3D> dataLoader = preLoadedGPUTextureAssetRef.LoadAssetAsync<Texture3D>();
-            await dataLoader.Task;
-            annotationDatasetGPUTexture = dataLoader.Result;
-            gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
-            gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
-            gpuTextureLoadedSource.SetResult(true);
-        }
-        else
-        {
-            StartCoroutine(DelayedStartBuildGPUTexture());
-        }
-    }
+    //    Debug.Log("Converting annotation dataset to texture format");
+    //    for (int ap = 0; ap < 528; ap++)
+    //    {
+    //        for (int dv = 0; dv < 320; dv++)
+    //            for (int ml = 0; ml < 456; ml++)
+    //                annotationDatasetGPUTexture.SetPixel(ap, dv, ml, modelControl.GetCCFAreaColor(annotationDataset.ValueAtIndex(ap, dv, ml)));
+    //        // Running this as a coroutine just allows the user to interact with things while waiting for this to load fully
+    //        // It takes at minimum 100 frames to run this code because of how we structured it here
+    //        if (ap % 5 == 0)
+    //            yield return null;
+    //    }
+    //    annotationDatasetGPUTexture.Apply();
 
-    private IEnumerator DelayedStartBuildGPUTexture()
-    {
-        // Build the 3D annotation dataset texture
-        annotationDatasetGPUTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
-        annotationDatasetGPUTexture.filterMode = FilterMode.Point;
-        annotationDatasetGPUTexture.wrapMode = TextureWrapMode.Clamp;
+    //    // Assign 3D texture to the material
+    //    Debug.Log("Assigning texture to material");
+    //    gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
+    //    gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
 
-        Debug.Log("Converting annotation dataset to texture format");
-        for (int ap = 0; ap < 528; ap++)
-        {
-            for (int dv = 0; dv < 320; dv++)
-                for (int ml = 0; ml < 456; ml++)
-                    annotationDatasetGPUTexture.SetPixel(ap, dv, ml, modelControl.GetCCFAreaColor(annotationDataset.ValueAtIndex(ap, dv, ml)));
-            // Running this as a coroutine just allows the user to interact with things while waiting for this to load fully
-            // It takes at minimum 100 frames to run this code because of how we structured it here
-            if (ap % 5 == 0)
-                yield return null;
-        }
-        annotationDatasetGPUTexture.Apply();
+    //    //if (Application.isEditor)
+    //    //    AssetDatabase.CreateAsset(annotationDatasetGPUTexture, "Assets/AddressableAssets/Textures/AnnotationDatasetTexture3D.asset");
 
-        // Assign 3D texture to the material
-        Debug.Log("Assigning texture to material");
-        gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
-        gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
-
-        //if (Application.isEditor)
-        //    AssetDatabase.CreateAsset(annotationDatasetGPUTexture, "Assets/AddressableAssets/Textures/AnnotationDatasetTexture3D.asset");
-
-        gpuTextureLoadedSource.SetResult(true);
-    }
+    //    gpuTextureLoadedSource.SetResult(true);
+    //}
 
     // *** INPLANE SLICE CODE *** //
     public void UpdateInPlaneVisibility()

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -103,16 +104,18 @@ public class TP_SliceRenderer : MonoBehaviour
             await dataLoader.Task;
             iblCoverageTexture = dataLoader.Result;
         }
-
         coverageLoaded = true;
 
         SetActiveTextureIBLCoverage();
     }
 
-    private void SetActiveTextureAnnotation()
+    private async void SetActiveTextureAnnotation()
     {
-        saggitalSliceMaterial.SetTexture("_Volume", inPlaneSlice.GetAnnotationDatasetGPUTexture());
-        coronalSliceMaterial.SetTexture("_Volume", inPlaneSlice.GetAnnotationDatasetGPUTexture());
+        Task<Texture3D> textureTask = inPlaneSlice.GetAnnotationDatasetGPUTexture();
+        await textureTask;
+
+        saggitalSliceMaterial.SetTexture("_Volume", textureTask.Result);
+        coronalSliceMaterial.SetTexture("_Volume", textureTask.Result);
     }
 
     private void SetActiveTextureIBLCoverage()

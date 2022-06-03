@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -27,7 +28,15 @@ public class TP_ProbePanel : MonoBehaviour
     {
         // Because probe panels are never created early it is safe to wait to get the annotation dataset until this point
         inPlaneSlice = GameObject.Find("InPlaneSlicePanel").GetComponent<TP_InPlaneSlice>();
-        pixelsGPURenderer.material.SetTexture("_AnnotationTexture",inPlaneSlice.GetAnnotationDatasetGPUTexture());
+        AsyncStart();
+    }
+
+    private async void AsyncStart()
+    {
+        Task<Texture3D> textureTask = inPlaneSlice.GetAnnotationDatasetGPUTexture();
+        await textureTask;
+
+        pixelsGPURenderer.material.SetTexture("_AnnotationTexture", textureTask.Result);
     }
 
     public void SetTipData(Vector3 tipPosition, Vector3 endPosition, float recordingHeight, bool recordingRegionOnly)
