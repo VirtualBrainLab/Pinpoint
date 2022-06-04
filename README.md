@@ -8,7 +8,7 @@ This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, 
 
 ### CCF -> in vivo issues
 
-The CCF coordinates returned by this tool are not identical to the in vivo mouse brain. We know for sure that the CCF atlas is stretched along the DV axis (in vivo = 0.952 * CCF) and squashed on the AP axis (in vivo 1.087 * CCF). In addition it appears the lamda-bregma angle in the CCF space is rotated by about 5 degrees.
+The CCF coordinates returned by this tool are not identical to the in vivo mouse brain. We know for sure that the CCF atlas is stretched along the DV axis (in vivo = 0.952 * CCF) and squashed on the AP axis (in vivo 1.087 * CCF). You can use the **Stereotaxic coordinates** setting to output coordinates that have been corrected for these differences. Note that there also appears to be a rotation in the lamda-bregma angle of about 5 degrees, we are not yet accounting for this.
 
 ## Install
 
@@ -34,7 +34,7 @@ At any time you can press [M] to open the manual coordinate entry window and ent
 
 ### Controls
 
-The easiest way to control your probe is to click on the probe, press one of the axis keys [W/S], [A/D], or [Z/X] and then drag. This will move the probe along the corresponding axis. You can also press any of the keyboard keys in the diagram below to move along that axis. Hold **shift** as you click to move in larger increments along any axis. Hold **CTRL** to move slower. Pressing and holding a key will move continuously.
+The easiest way to control your probe is to click on the probe, press one of the axis keys [W/S], [A/D], or [Z/X] and then drag. This will move the probe along the corresponding axis. You can also press any of the keyboard keys in the diagram below to move along that axis. Hold **SHIFT** as you to move faster along any axis. Hold **CTRL** to move slower. Pressing and holding a key will move continuously.
 
 ![probe controls](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/ProbeControls.png)
 
