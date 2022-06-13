@@ -6,7 +6,7 @@ This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, 
 
 # Usage & Documentation
 
-[Launch the web app](http://data.virtualbrainlab.org/NPTrajectoryPlanner/) for more instructions see the [documentation](https://virtualbrainlab.org/build/html/01_traj_planner.html).
+[Launch the web app](http://data.virtualbrainlab.org/NPTrajectoryPlanner/) for more instructions see the [documentation](https://virtualbrainlab.org/build/html/02_traj_planner/01_tp_intro.html).
 
 # References
 
