@@ -4,9 +4,9 @@ This is a tool for planning Neuropixels recordings with up to sixteen 1.0, 2.0, 
 
 ![Azimuth example](https://github.com/dbirman/NPTrajectoryPlanner/raw/main/Images/2022_04_21.png)
 
-# Documentation
+# Usage & Documentation
 
-For installation instructions and usage please see the [documentation](https://docs.virtualbrainlab.org/build/html/01_traj_planner.html) 
+[Launch the web app](http://data.virtualbrainlab.org/NPTrajectoryPlanner/) for more instructions see the [documentation](https://virtualbrainlab.org/build/html/01_traj_planner.html).
 
 # References
 
