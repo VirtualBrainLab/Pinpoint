@@ -14,6 +14,8 @@ Based on the trajectory explorer by Andy Peters https://github.com/petersaj/neur
 
 CCF Atlas downloaded from http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ 
 
+Rat Atlas downloaded from https://www.nitrc.org/projects/whs-sd-atlas/
+
 Mouse brain artwork from https://scidraw.io/drawing/286
 
 # Citing
