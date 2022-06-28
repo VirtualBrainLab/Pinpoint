@@ -90,6 +90,7 @@
             fullscreenButton.onclick = () => {
               unityInstance.SetFullscreen(1);
             };
+            myGameInstance = unityInstance;
           }
         }).catch((message) => {
           alert(message);

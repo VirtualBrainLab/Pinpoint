@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class TP_CraniotomySkull : MonoBehaviour
 {
-    [SerializeField] private Utils util;
     [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
     [SerializeField] private GameObject skullMeshGO;
     [SerializeField] private GameObject craniotomyGO;
@@ -28,7 +27,7 @@ public class TP_CraniotomySkull : MonoBehaviour
 
     public void SetCraniotomyPosition(Vector3 apdvlr)
     {
-        Vector3 newPos = util.apdvlr2World(apdvlr) - tpmanager.GetCenterOffset();
+        Vector3 newPos = Utils.apdvlr2World(apdvlr) - tpmanager.GetCenterOffset();
         newPos.y = 3.18f;
         craniotomyGO.transform.position = newPos;
         UpdateVisibility();

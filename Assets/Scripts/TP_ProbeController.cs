@@ -4,10 +4,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 3D space control for Neuropixels probes in the Trajectory Planner scene
+/// </summary>
 public class TP_ProbeController : MonoBehaviour
 {
-    // MOVEMENT CONTROLS
-    [SerializeField] private float recordHeightSpeed = 0.1f;
+
+    // MOVEMENT CONTROL SPEEDS
+    private const float REC_HEIGHT_SPEED = 0.1f;
     private const float MOVE_INCREMENT_TAP = 0.010f; // move 1 um per tap
     private const float MOVE_INCREMENT_TAP_FAST = 0.100f;
     private const float MOVE_INCREMENT_TAP_SLOW = 0.001f;
@@ -21,16 +25,18 @@ public class TP_ProbeController : MonoBehaviour
     private const float ROT_INCREMENT_HOLD_FAST = 25;
     private const float ROT_INCREMENT_HOLD_SLOW = 2.5f;
 
+    // Internal flags that track when keys are held down
     private bool keyFast = false;
     private bool keySlow = false;
     private bool keyHeld = false; // If a key is held, we will skip re-checking the key hold delay for any other keys that are added
     private float keyPressTime = 0f;
     [SerializeField] private float keyHoldDelay = 0.300f;
 
-    // DRAG MOVEMENT CONTROLS
+    // Internal flags that track whether we are in manual control or drag/link control mode
     private bool draggingMovement = false;
+    private bool sensapexLinkMovement = false;
 
-
+    // Exposed fields to collect links to other components inside of the Probe prefab
     [SerializeField] private List<Collider> probeColliders;
     [SerializeField] private List<TP_ProbeUIManager> probeUIManagers;
     [SerializeField] private Transform rotateAround;
@@ -41,13 +47,10 @@ public class TP_ProbeController : MonoBehaviour
     [SerializeField] private Transform probeTipT;
 
     private TP_TrajectoryPlannerManager tpmanager;
-    private Utils util;
 
     // in ap/ml/dv
     private Vector3 iblBregma = new Vector3(5.4f, 5.739f, 0.332f);
     private Vector2 defaultAngles = new Vector2(-90f, 0f); // 0 phi is forward, default theta is 90 degrees down from horizontal, but internally this is a value of 0f
-    private Vector3 invivoConversionAPMLDV = new Vector3(1.087f, 1f, 0.952f);
-    private Vector3 invivoConversionPhiThetaBeta = new Vector3(0f, 0f, 0f);
 
     // Text
     private int probeID;
@@ -72,9 +75,6 @@ public class TP_ProbeController : MonoBehaviour
     // Offset vectors
     private GameObject probeTipOffset;
     private GameObject probeEndOffset;
-
-    // Coordinate system information
-    private CCFCoordinateSystem ccfPosition;
 
     // recording region
     private float minRecordHeight;
@@ -110,8 +110,6 @@ public class TP_ProbeController : MonoBehaviour
 
         annotationDataset = tpmanager.GetAnnotationDataset();
         ccfBounds = tpmanager.CCFCollider();
-
-        util = main.GetComponent<Utils>();
 
         visibleColliders = new List<TP_ProbeCollider>();
 
@@ -178,9 +176,11 @@ public class TP_ProbeController : MonoBehaviour
 
     public void ResetPosition()
     {
+
         transform.position = initialPosition;
         transform.rotation = initialRotation;
         ResetPositionTracking();
+        SetProbePosition();
         UpdateText();
     }
 
@@ -462,7 +462,7 @@ public class TP_ProbeController : MonoBehaviour
         foreach (GameObject recordingRegion in recordingRegionGOs)
         {
             Vector3 localPosition = recordingRegion.transform.localPosition;
-            float localRecordHeightSpeed = Input.GetKey(KeyCode.LeftShift) ? recordHeightSpeed * 2 : recordHeightSpeed;
+            float localRecordHeightSpeed = Input.GetKey(KeyCode.LeftShift) ? REC_HEIGHT_SPEED * 2 : REC_HEIGHT_SPEED;
             localPosition.y = Mathf.Clamp(localPosition.y + dir * localRecordHeightSpeed, minRecordHeight, maxRecordHeight);
             recordingRegion.transform.localPosition = localPosition;
         }
@@ -769,7 +769,9 @@ public class TP_ProbeController : MonoBehaviour
         // If we're in stereotaxic coordinates, apply the conversion factors first, then deal with rotating in 3D space
         if (tpmanager.GetStereotaxic())
         {
-            localAPML = new Vector2(apml.x * invivoConversionAPMLDV.x, apml.y * invivoConversionAPMLDV.y);
+            Debug.LogError("IN VIVO CONVERSION IS BROKEN!!!");
+            localAPML = apml;
+            //localAPML = new Vector2(apml.x * invivoConversionAPMLDV.x, apml.y * invivoConversionAPMLDV.y);
         }
         else
         {
@@ -804,7 +806,9 @@ public class TP_ProbeController : MonoBehaviour
                     float depthDir = Mathf.Sign(Vector3.Dot(probeTipT.transform.position - brainSurface, -probeTipT.transform.up));
                     // Separately obtain the x/y/z components relative to the surface point, scale them, then get the distance
                     Vector3 distanceToSurface = probeTipT.transform.position - brainSurface;
-                    distanceToSurface = new Vector3(distanceToSurface.x * invivoConversionAPMLDV.y, distanceToSurface.y * invivoConversionAPMLDV.z, distanceToSurface.z * invivoConversionAPMLDV.x);
+                    Debug.LogError("IN VIVO CONVERSION IS BROKEN!!!");
+
+                    //distanceToSurface = new Vector3(distanceToSurface.x * invivoConversionAPMLDV.y, distanceToSurface.y * invivoConversionAPMLDV.z, distanceToSurface.z * invivoConversionAPMLDV.x);
 
                     localDepth = depthDir * Vector3.Distance(distanceToSurface, Vector3.zero);
                 }
@@ -996,13 +1000,13 @@ public class TP_ProbeController : MonoBehaviour
             Vector3 endPos = tipPos + probeTipOffset.transform.up * mmRecordingSize;
             //GameObject.Find("recording_bot").transform.position = tipPos;
             //GameObject.Find("recording_top").transform.position = endPos;
-            tip_apdvlr = util.WorldSpace2apdvlr(tipPos + tpmanager.GetCenterOffset());
-            top_apdvlr = util.WorldSpace2apdvlr(endPos + tpmanager.GetCenterOffset());
+            tip_apdvlr = Utils.WorldSpace2apdvlr(tipPos + tpmanager.GetCenterOffset());
+            top_apdvlr = Utils.WorldSpace2apdvlr(endPos + tpmanager.GetCenterOffset());
         }
         else
         {
-            tip_apdvlr = util.WorldSpace2apdvlr(probeTipOffset.transform.position + probeTipOffset.transform.up + tpmanager.GetCenterOffset());
-            top_apdvlr = util.WorldSpace2apdvlr(probeEndOffset.transform.position + tpmanager.GetCenterOffset());
+            tip_apdvlr = Utils.WorldSpace2apdvlr(probeTipOffset.transform.position + probeTipOffset.transform.up + tpmanager.GetCenterOffset());
+            top_apdvlr = Utils.WorldSpace2apdvlr(probeEndOffset.transform.position + tpmanager.GetCenterOffset());
         }
 
         return (tip_apdvlr, top_apdvlr);
@@ -1053,8 +1057,8 @@ public class TP_ProbeController : MonoBehaviour
         if (entry && exit)
         {
 
-            Vector3 entry_apdvlr = util.WorldSpace2apdvlr(entryPoint + tpmanager.GetCenterOffset());
-            Vector3 exit_apdvlr = util.WorldSpace2apdvlr(exitPoint + tpmanager.GetCenterOffset());
+            Vector3 entry_apdvlr = Utils.WorldSpace2apdvlr(entryPoint + tpmanager.GetCenterOffset());
+            Vector3 exit_apdvlr = Utils.WorldSpace2apdvlr(exitPoint + tpmanager.GetCenterOffset());
             //GameObject.Find("entry").transform.position = util.apdvlr2World(entry_apdvlr) - tpmanager.GetCenterOffset();
             //GameObject.Find("exit").transform.position = util.apdvlr2World(exit_apdvlr) - tpmanager.GetCenterOffset();
 
@@ -1064,7 +1068,7 @@ public class TP_ProbeController : MonoBehaviour
                 Vector3 point = Vector3.Lerp(entry_apdvlr, exit_apdvlr, perc);
                 if (annotationDataset.ValueAtIndex(Mathf.RoundToInt(point.x), Mathf.RoundToInt(point.y), Mathf.RoundToInt(point.z)) > 0)
                 {
-                    brainSurface = util.apdvlr2World(point) - tpmanager.GetCenterOffset();
+                    brainSurface = Utils.apdvlr2World(point) - tpmanager.GetCenterOffset();
                     probeInBrain = true;
                     //GameObject.Find("surface").transform.position = brainSurface;
                     return;

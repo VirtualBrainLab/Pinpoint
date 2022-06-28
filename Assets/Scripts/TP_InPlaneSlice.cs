@@ -15,7 +15,6 @@ public class TP_InPlaneSlice : MonoBehaviour
     [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
     [SerializeField] private GameObject inPlaneSliceUIGO;
     [SerializeField] private CCFModelControl modelControl;
-    [SerializeField] private Utils util;
     [SerializeField] private TP_PlayerPrefs localPrefs;
 
     [SerializeField] private TextMeshProUGUI areaText;
@@ -119,12 +118,12 @@ public class TP_InPlaneSlice : MonoBehaviour
 
 
         Vector3 tipPosition = tipTransform.position + tipTransform.up * (0.2f + mmStartPos);
-        //tipPositionAPDVLR = util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
+        //tipPositionAPDVLR = Utils.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
         bool fourShank = activeProbeController.GetProbeType() == 4;
 
         recordingRegionCenterPosition = fourShank ? 
-            util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset() + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
-            util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset() + tipTransform.up * mmRecordingSize / 2); ;
+            Utils.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset() + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
+            Utils.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset() + tipTransform.up * mmRecordingSize / 2); ;
 
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 

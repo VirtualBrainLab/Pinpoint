@@ -32,6 +32,10 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     // Which acronym/area name set to use
     [SerializeField] TMP_Dropdown annotationAcronymDropdown;
 
+    // Coordinate system information
+    private CoordinateSystem activeCoordinateSystem;
+    //private List<CoordinateSystem> availableCoordinateSystems = {};
+
     private TP_ProbeController activeProbeController;
 
     private List<TP_ProbeController> allProbes;
@@ -422,7 +426,8 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     public void ResetActiveProbe()
     {
-        activeProbeController.ResetPosition();
+        if (activeProbeController != null)
+            activeProbeController.ResetPosition();
     }
 
     public Color GetProbeColor(int probeID)
@@ -450,7 +455,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         inPlaneSlice.UpdateInPlaneSlice();
     }
 
-    public void UpdateRigColliders(List<Collider> newRigColliders, bool keep)
+    public void UpdateRigColliders(IEnumerable<Collider> newRigColliders, bool keep)
     {
         if (keep)
             foreach (Collider collider in newRigColliders)
@@ -460,6 +465,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
                 rigColliders.Remove(collider);
         UpdateNonActiveColliders();
     }
+
 
     private void UpdateNonActiveColliders()
     {

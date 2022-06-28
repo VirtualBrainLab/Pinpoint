@@ -89,14 +89,7 @@ public class TP_Search : MonoBehaviour
             else
             {
                 if (!targetNode.IsLoaded())
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    targetNode.loadNodeModel(false, handle => {
-                        targetNode.GetNodeTransform().localPosition = Vector3.zero;
-                        targetNode.GetNodeTransform().localRotation = Quaternion.identity;
-                        targetNode.SetNodeModelVisibility(true);
-                        modelControl.ChangeMaterial(targetNode, "lit");
-                    });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    LoadSearchNode(targetNode);
                 else
                 {
                     targetNode.SetNodeModelVisibility(true);
@@ -105,6 +98,15 @@ public class TP_Search : MonoBehaviour
             }
             activeBrainAreas.Add(targetNode);
         }
+    }
+
+    private async void LoadSearchNode(CCFTreeNode node)
+    {
+        await node.loadNodeModel(false);
+        node.GetNodeTransform().localPosition = Vector3.zero;
+        node.GetNodeTransform().localRotation = Quaternion.identity;
+        node.SetNodeModelVisibility(true);
+        modelControl.ChangeMaterial(node, "lit");
     }
 
     public void ClearAllAreas()

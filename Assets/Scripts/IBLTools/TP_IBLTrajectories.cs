@@ -6,7 +6,6 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class TP_IBLTrajectories : MonoBehaviour
 {
-    [SerializeField] Utils util;
     [SerializeField] TP_TrajectoryPlannerManager tpmanager;
     [SerializeField] AssetReference iblTrajectoryCSV;
     private bool loaded = false;
@@ -48,7 +47,7 @@ public class TP_IBLTrajectories : MonoBehaviour
             GameObject newProbe = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             newProbe.transform.SetParent(transform);
             newProbe.transform.localScale = Vector3.one * 0.2f;
-            newProbe.transform.position = util.apdvlr2World(apdvlr25) - tpmanager.GetCenterOffset();
+            newProbe.transform.position = Utils.apdvlr2World(apdvlr25) - tpmanager.GetCenterOffset();
             newProbe.GetComponent<Renderer>().material.color = Color.red;
             newProbe.layer = LayerMask.NameToLayer("Brain");
             TP_IBLPlannedTrajectory planned = newProbe.AddComponent<TP_IBLPlannedTrajectory>() as TP_IBLPlannedTrajectory;
