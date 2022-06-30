@@ -61,10 +61,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         Task<Texture3D> textureTask = AddressablesRemoteLoader.LoadAnnotationTexture();
         await textureTask;
 
-        Debug.Log(textureTask.IsCompleted);
-        Debug.Log(textureTask.IsCanceled);
-        Debug.Log(textureTask.IsFaulted);
-
         annotationDatasetGPUTexture = textureTask.Result;
         gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
         gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));

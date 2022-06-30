@@ -59,6 +59,7 @@ public class TP_ProbeController : MonoBehaviour
     // Probe positioning information
     private Vector3 initialPosition;
     private Quaternion initialRotation;
+
     // total position data (for dealing with coordinates)
     private Vector2 apml;
     private float depth;
@@ -90,7 +91,8 @@ public class TP_ProbeController : MonoBehaviour
     private Vector3 brainSurface;
 
     // Colliders
-    private List<TP_ProbeCollider> visibleColliders;
+    private List<GameObject> visibleProbeColliders;
+    private Dictionary<GameObject, Material> visibleOtherColliders;
 
     // Text button
     GameObject textGO;
@@ -98,23 +100,28 @@ public class TP_ProbeController : MonoBehaviour
 
     private void Awake()
     {
-
+        // Setup some basic variables
         textGO = Instantiate(textPrefab, GameObject.Find("CoordinatePanel").transform);
         textButton = textGO.GetComponent<Button>();
         textButton.onClick.AddListener(Probe2Text);
         textUI = textGO.GetComponent<TextMeshProUGUI>();
 
+        // Pull the tpmanager object and register this probe
         GameObject main = GameObject.Find("main");
         tpmanager = main.GetComponent<TP_TrajectoryPlannerManager>();
         tpmanager.RegisterProbe(this, probeColliders);
 
+        // Get access to the annotation dataset and world-space boundaries
         annotationDataset = tpmanager.GetAnnotationDataset();
         ccfBounds = tpmanager.CCFCollider();
 
-        visibleColliders = new List<TP_ProbeCollider>();
+        visibleProbeColliders = new List<GameObject>();
+        visibleOtherColliders = new Dictionary<GameObject, Material>();
 
+        // Move the recording region to the base of the probe
         UpdateRecordingRegionVars();
 
+        // Create two points offset from the tip that we'll use to interpolate where we are on the probe
         probeTipOffset = new GameObject(name + "TipOffset");
         probeTipOffset.transform.position = probeTipT.position + probeTipT.up * 0.2f;
         probeTipOffset.transform.parent = probeTipT;
@@ -125,26 +132,40 @@ public class TP_ProbeController : MonoBehaviour
 
     private void Start()
     {
+        // Save where we are in space (at bregma)
         initialPosition = transform.position;
         initialRotation = transform.rotation;
 
+        // Reset all the tracking variables
         ResetPositionTracking();
         SetProbePosition();
 
+        // Reset our probe UI panels
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
     }
 
+    /// <summary>
+    /// Get the probe-type of this probe
+    /// </summary>
+    /// <returns>probe type</returns>
     public int GetProbeType()
     {
         return probeType;
     }
 
+    /// <summary>
+    /// Get the tip transform
+    /// </summary>
+    /// <returns>tip transform</returns>
     public Transform GetTipTransform()
     {
         return probeTipT;
     }
 
+    /// <summary>
+    /// Called by Unity when this object is destroyed. Removes the probe panels and the position text.
+    /// </summary>
     public void Destroy()
     {
         // Delete this gameObject
@@ -153,6 +174,10 @@ public class TP_ProbeController : MonoBehaviour
         Destroy(textGO);
     }
 
+    /// <summary>
+    /// Update the size of the recording region.
+    /// </summary>
+    /// <param name="newSize">New size of recording region in mm</param>
     public void ChangeRecordingRegionSize(float newSize)
     {
         recordingRegionSizeY = newSize;
@@ -161,7 +186,6 @@ public class TP_ProbeController : MonoBehaviour
         {
             // This is a little complicated if we want to do it right (since you can accidentally scale the recording region off the probe.
             // For now, we will just reset the y position to be back at the bottom of the probe.
-
             Vector3 scale = go.transform.localScale;
             scale.y = newSize;
             go.transform.localScale = scale;
@@ -169,22 +193,29 @@ public class TP_ProbeController : MonoBehaviour
             pos.y = newSize / 2f + 0.2f;
             go.transform.localPosition = pos;
         }
+        // Update all the UI panels
         UpdateRecordingRegionVars();
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
     }
 
+    /// <summary>
+    /// Put this probe back at Bregma
+    /// </summary>
     public void ResetPosition()
     {
-
         transform.position = initialPosition;
         transform.rotation = initialRotation;
+        // reset UI as well
         ResetPositionTracking();
         SetProbePosition();
         UpdateText();
     }
 
-    public void ResetPositionTracking()
+    /// <summary>
+    /// Helper function to reset all of the position data, without updating any UI elements
+    /// </summary>
+    private void ResetPositionTracking()
     {
         apml = new Vector2();
         depth = 0;
@@ -193,23 +224,18 @@ public class TP_ProbeController : MonoBehaviour
         spin = 0;
     }
 
-    public bool MoveProbe(bool checkForCollisions)
+    /// <summary>
+    /// Move the probe with the option to check for collisions
+    /// </summary>
+    /// <param name="checkForCollisions">Set to true to check for collisions with rig colliders and other probes</param>
+    /// <returns>Whether or not the probe moved on this frame</returns>
+    public bool MoveProbe(bool checkForCollisions = false)
     {
-
         bool moved = false;
         bool keyHoldDelayPassed = (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay;
 
         keyFast = Input.GetKey(KeyCode.LeftShift);
         keySlow = Input.GetKey(KeyCode.LeftControl);
-
-        // Save the current position information
-        Vector3 originalPosition = transform.position;
-        Quaternion originalRotation = transform.rotation;
-        Vector2 preapml = apml;
-        float prephi = phi;
-        float predepth = depth;
-        float pretheta = theta;
-        float prespin = spin;
 
         // Handle click inputs
 
@@ -425,13 +451,17 @@ public class TP_ProbeController : MonoBehaviour
 
         if (moved)
         {
+            // If the probe was moved, set the new position
             SetProbePosition(apml.x, apml.y, depth, phi, theta, spin);
 
+            // Check collisions if we need to
             if (checkForCollisions)
                 CheckCollisions(tpmanager.GetAllNonActiveColliders());
 
+            // Check where we are relative to the surface of the brain
             UpdateSurfacePosition();
 
+            // Update all the UI panels
             foreach (TP_ProbeUIManager puimanager in probeUIManagers)
                 puimanager.ProbeMoved();
 
@@ -443,8 +473,10 @@ public class TP_ProbeController : MonoBehaviour
         }
     }
 
+    // Recording region controls
+
     /// <summary>
-    /// RECORDING REGION CONTROLS
+    /// Update the position of the bottom and top of the recording region
     /// </summary>
     private void UpdateRecordingRegionVars()
     {
@@ -452,13 +484,22 @@ public class TP_ProbeController : MonoBehaviour
         maxRecordHeight = minRecordHeight + (10 - recordingRegionGOs[0].transform.localScale.y);
     }
 
+    /// <summary>
+    /// Return the current size of the recording region
+    /// </summary>
+    /// <returns>size of the recording region</returns>
     public float GetRecordingRegionSize()
     {
         return recordingRegionSizeY;
     }
 
+    /// <summary>
+    /// Move the recording region up or down
+    /// </summary>
+    /// <param name="dir">-1 or 1 to indicate direction</param>
     private void ShiftRecordingRegion(float dir)
     {
+        // Loop over recording regions to handle 4-shank (and 8-shank) probes
         foreach (GameObject recordingRegion in recordingRegionGOs)
         {
             Vector3 localPosition = recordingRegion.transform.localPosition;
@@ -468,6 +509,10 @@ public class TP_ProbeController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Return the mm position of the bottom of the recording region and the height
+    /// </summary>
+    /// <returns>float array [0]=bottom, [1]=height</returns>
     public float[] GetRecordingRegionHeight()
     {
         float[] heightPercs = new float[2];
@@ -476,20 +521,17 @@ public class TP_ProbeController : MonoBehaviour
         return heightPercs;
     }
 
-    public Vector2 GetRecordingRegionTip()
-    {
-        return probeTipT.transform.position + probeTipT.transform.up * 0.2f;
-    }
-    /// <summary>
-    /// ANGLE CONVERSION FUNCTIONS
-    /// Because the IBL coordinate system is different from Unity's, we need to be able to convert back and forth
-    /// </summary>
-    
+    // MANUAL COORDINATE ENTRY + PROBE POSITION CONTROLS
 
     /// <summary>
-    /// MANUAL COORDINATE ENTRY + PROBE POSITION CONTROLS
+    /// Set the coordinates of the probe by hand. Can't set depth relative to the brain surface (yet)
     /// </summary>
-
+    /// <param name="ap"></param>
+    /// <param name="ml"></param>
+    /// <param name="depth"></param>
+    /// <param name="phi"></param>
+    /// <param name="theta"></param>
+    /// <param name="spin"></param>
     public void ManualCoordinateEntry(float ap, float ml, float depth, float phi, float theta, float spin)
     {
         //[TODO: Add depth from brain as a parameter that can be set
@@ -505,11 +547,16 @@ public class TP_ProbeController : MonoBehaviour
         //        depth = 0f;
         //}
 
+        // Convert the IBL phi/theta angles to world space
         Vector2 worldPhiTheta = tpmanager.IBL2World(new Vector2(phi, theta));
 
+        // Set the probe position, switching from um to mm
         SetProbePosition(ap/1000, ml / 1000, depth / 1000, worldPhiTheta.x, worldPhiTheta.y, spin);
+
+        // Update where we are relative to the surface
         UpdateSurfacePosition();
 
+        // Tell the tpmanager we moved and update the UI elements
         tpmanager.SetMovedThisFrame();
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
@@ -522,11 +569,23 @@ public class TP_ProbeController : MonoBehaviour
         ManualCoordinateEntry(ap, ml, depth, phi, theta, spin);
     }
 
+    /// <summary>
+    /// Set the probe position to the current apml/depth/phi/theta/spin values
+    /// </summary>
     public void SetProbePosition()
     {
         SetProbePosition(apml.x, apml.y, depth, phi, theta, spin);
     }
 
+    /// <summary>
+    /// Set the probe position to a set of passed in values
+    /// </summary>
+    /// <param name="ap">position on the ap axis in mm</param>
+    /// <param name="ml">position on the ml axis in mm</param>
+    /// <param name="depth">depth relative to bregma (or CCF 0 if bregma is disabled)</param>
+    /// <param name="phi"></param>
+    /// <param name="theta"></param>
+    /// <param name="spin"></param>
     public void SetProbePosition(float ap, float ml, float depth, float phi, float theta, float spin)
     {
         // Reset everything
@@ -552,6 +611,10 @@ public class TP_ProbeController : MonoBehaviour
         UpdateText();
     }
 
+    /// <summary>
+    /// Get the coordinates of the current probe in um
+    /// </summary>
+    /// <returns>List of ap in um, ml in um, depth in um, phi, theta, spin</returns>
     public List<float> GetCoordinates()
     {
         List<float> ret = new List<float>();
@@ -566,9 +629,9 @@ public class TP_ProbeController : MonoBehaviour
     }
 
     /// <summary>
-    /// CHECK FOR COLLISIONS
+    /// Check for collisions between the probe colliders and a list of other colliders
     /// </summary>
-    /// <param name="otherColliders"></param>
+    /// <param name="otherColliders">colliders to check against</param>
     /// <returns></returns>
     public void CheckCollisions(List<Collider> otherColliders)
     {
@@ -581,18 +644,21 @@ public class TP_ProbeController : MonoBehaviour
             else
             {
                 tpmanager.SetCollisionPanelVisibility(false);
-                if (visibleColliders.Count > 0)
-                    ClearCollisionMesh();
+                ClearCollisionMesh();
             }
         }
         else
         {
             tpmanager.SetCollisionPanelVisibility(false);
-            if (visibleColliders.Count > 0)
-                ClearCollisionMesh();
+            ClearCollisionMesh();
         }
     }
 
+    /// <summary>
+    /// Internal function to perform collision checks between Collider components
+    /// </summary>
+    /// <param name="otherColliders"></param>
+    /// <returns></returns>
     private bool CheckCollisionsHelper(List<Collider> otherColliders)
     {
         foreach (Collider activeCollider in probeColliders)
@@ -612,27 +678,40 @@ public class TP_ProbeController : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// When collisions occur we want to make the colliders we hit change material, but we might need to later swap them back
+    /// </summary>
+    /// <param name="activeCollider"></param>
+    /// <param name="otherCollider"></param>
     private void CreateCollisionMesh(Collider activeCollider, Collider otherCollider)
     {
-        TP_ProbeCollider activeProbCollider = activeCollider.gameObject.GetComponent<TP_ProbeCollider>();
-        if (activeProbCollider != null)
+        if (!visibleProbeColliders.Contains(activeCollider.gameObject))
         {
-            visibleColliders.Add(activeProbCollider);
-            activeProbCollider.SetVisibility(true);
+            visibleProbeColliders.Add(activeCollider.gameObject);
+            activeCollider.gameObject.GetComponent<Renderer>().enabled = true;
         }
-        TP_ProbeCollider otherProbeCollider = otherCollider.gameObject.GetComponent<TP_ProbeCollider>();
-        if (otherProbeCollider != null)
+
+        GameObject otherColliderGO = otherCollider.gameObject;
+        if (!visibleOtherColliders.ContainsKey(otherColliderGO))
         {
-            otherProbeCollider.SetVisibility(true);
-            visibleColliders.Add(otherProbeCollider);
+            visibleOtherColliders.Add(otherColliderGO, otherColliderGO.GetComponent<Renderer>().material);
+            otherColliderGO.GetComponent<Renderer>().material = tpmanager.GetCollisionMaterial();
         }
     }
 
+    // Clear probe colliders by disabling the renderers and then clear the other colliders by swapping back their materials
     private void ClearCollisionMesh()
     {
-        foreach (TP_ProbeCollider probeCollider in visibleColliders)
-            probeCollider.SetVisibility(false);
-        visibleColliders.Clear();
+        if (visibleProbeColliders.Count > 0 || visibleOtherColliders.Count > 0)
+        {
+            foreach (GameObject probeColliderGO in visibleProbeColliders)
+                probeColliderGO.GetComponent<Renderer>().enabled = false;
+            foreach (KeyValuePair<GameObject, Material> kvp in visibleOtherColliders)
+                kvp.Key.GetComponent<Renderer>().material = kvp.Value;
+
+            visibleProbeColliders.Clear();
+            visibleOtherColliders.Clear();
+        }
     }
 
     // MOVEMENT
@@ -731,7 +810,7 @@ public class TP_ProbeController : MonoBehaviour
     
     private string[] GetAPMLStr()
     {
-        if (tpmanager.GetStereotaxic())
+        if (tpmanager.GetInVivoTransformState())
         {
             if (tpmanager.GetConvertAPML2Probe())
             {
@@ -757,7 +836,7 @@ public class TP_ProbeController : MonoBehaviour
 
     private string GetDepthStr()
     {
-        if (tpmanager.GetStereotaxic())
+        if (tpmanager.GetInVivoTransformState())
             return "stDepth";
         else
             return "ccfDepth";
@@ -767,11 +846,11 @@ public class TP_ProbeController : MonoBehaviour
     {
         Vector2 localAPML;
         // If we're in stereotaxic coordinates, apply the conversion factors first, then deal with rotating in 3D space
-        if (tpmanager.GetStereotaxic())
+        if (tpmanager.GetInVivoTransformState())
         {
-            Debug.LogError("IN VIVO CONVERSION IS BROKEN!!!");
-            localAPML = apml;
-            //localAPML = new Vector2(apml.x * invivoConversionAPMLDV.x, apml.y * invivoConversionAPMLDV.y);
+            Debug.Log(apml);
+            localAPML = tpmanager.CoordinateTransformFromCCF(new Vector3(apml.x, apml.y));
+            Debug.Log(localAPML);
         }
         else
         {
@@ -797,7 +876,7 @@ public class TP_ProbeController : MonoBehaviour
     private float GetLocalDepth()
     {
         float localDepth;
-        if (tpmanager.GetStereotaxic())
+        if (tpmanager.GetInVivoTransformState())
         {
             if (tpmanager.GetDepthFromBrain())
             {
@@ -884,12 +963,21 @@ public class TP_ProbeController : MonoBehaviour
     private bool axisLockAP;
     private bool axisLockML;
     private bool axisLockDV;
+    private bool axisLockRF;
+    private bool axisLockQE;
 
     private Vector2 origAPML;
     private float origDepth;
+    private float origPhi;
+    private float origTheta;
+
+    // Camera variables
     private Vector3 originalClickPositionWorld;
     private float cameraDistance;
 
+    /// <summary>
+    /// Handle setting up drag movement after a user clicks on the probe
+    /// </summary>
     public void DragMovementClick()
     {
         tpmanager.SetProbeControl(true);
@@ -897,70 +985,103 @@ public class TP_ProbeController : MonoBehaviour
         axisLockAP = false;
         axisLockDV = false;
         axisLockML = false;
+        axisLockRF = false;
+        axisLockQE = false;
 
         origAPML = apml;
         origDepth = depth;
+        origPhi = phi;
+        origTheta = theta;
 
         // Track the screenPoint that was initially clicked
         cameraDistance = Vector3.Distance(Camera.main.transform.position, gameObject.transform.position);
         originalClickPositionWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
     }
+
+    /// <summary>
+    /// Handle probe movements when a user is dragging while keeping the mouse pressed
+    /// </summary>
     public void DragMovementDrag()
     {
         Vector3 curScreenPointWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
+
+        origAPML = apml;
+        origDepth = depth;
+        origPhi = phi;
+        origTheta = theta;
 
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S))
         {
             axisLockAP = true;
             axisLockML = false;
             axisLockDV = false;
+            axisLockQE = false;
+            axisLockRF = false;
             // To make it more smooth, reset the z axis to zero when you lock the axis
             originalClickPositionWorld.z = curScreenPointWorld.z;
-            origAPML = apml;
-            origDepth = depth;
         }
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
         {
             axisLockAP = false;
             axisLockML = true;
             axisLockDV = false;
+            axisLockQE = false;
+            axisLockRF = false;
             originalClickPositionWorld.x = curScreenPointWorld.x;
-            origAPML = apml;
-            origDepth = depth;
         }
         if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.X))
         {
             axisLockAP = false;
             axisLockML = false;
             axisLockDV = true;
+            axisLockQE = false;
+            axisLockRF = false;
             originalClickPositionWorld.y = curScreenPointWorld.y;
-            origAPML = apml;
-            origDepth = depth;
+        }
+        if (Input.GetKey(KeyCode.R) || Input.GetKey(KeyCode.F))
+        {
+            axisLockAP = false;
+            axisLockML = false;
+            axisLockDV = false;
+            axisLockQE = false;
+            axisLockRF = true;
+            originalClickPositionWorld.y = curScreenPointWorld.y;
+        }
+        if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.E))
+        {
+            axisLockAP = false;
+            axisLockML = false;
+            axisLockDV = false;
+            axisLockQE = true;
+            axisLockRF = false;
+            originalClickPositionWorld.x = curScreenPointWorld.x;
         }
 
         Vector3 worldOffset = curScreenPointWorld - originalClickPositionWorld;
 
-        // debug call:
-        //GameObject.Find("world_space_probe_hit").transform.position = curScreenPointWorld;
-
         if (axisLockAP)
         {
-            apml.x = origAPML.x;
-            apml.x += -worldOffset.z;
+            apml.x = origAPML.x - worldOffset.z;
         }
         if (axisLockML)
         {
-            apml.y = origAPML.y;
-            apml.y += -worldOffset.x;
+            apml.y = origAPML.y - worldOffset.x;
         }
         if (axisLockDV)
         {
-            depth = origDepth;
-            depth += -worldOffset.y;
+            depth = origDepth - worldOffset.y;
+        }
+        if (axisLockRF)
+        {
+            theta = origTheta - worldOffset.y;
+        }
+        if (axisLockQE)
+        {
+            phi = origPhi - worldOffset.x;
         }
 
 
-        if (apml.x != origAPML.x || apml.y != origAPML.y || depth != origDepth)
+        if (apml.x != origAPML.x || apml.y != origAPML.y || depth != origDepth || theta != origTheta || phi != origPhi)
         {
             if (tpmanager.GetCollisions())
                 CheckCollisions(tpmanager.GetAllNonActiveColliders());
@@ -1012,12 +1133,19 @@ public class TP_ProbeController : MonoBehaviour
         return (tip_apdvlr, top_apdvlr);
     }
 
+    /// <summary>
+    /// Release control of mouse movements after the user releases the mouse button from a probe
+    /// </summary>
     public void DragMovementRelease()
     {
         // release probe control
         tpmanager.SetProbeControl(false);
     }
 
+    /// <summary>
+    /// Re-scale probe panels 
+    /// </summary>
+    /// <param name="newPxHeight">Set the probe panels of this probe to a new height</param>
     public void ResizeProbePanel(int newPxHeight)
     {
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
@@ -1027,6 +1155,9 @@ public class TP_ProbeController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Do some raycasting to figure out whether the probe is inside the brain and if it is where the surface coordinate is
+    /// </summary>
     private void UpdateSurfacePosition()
     {
         probeInBrain = false;
@@ -1056,13 +1187,15 @@ public class TP_ProbeController : MonoBehaviour
         // Using the entry and exit point, find the brain surface
         if (entry && exit)
         {
-
+            // [TODO: I'm pretty sure we can just raycast onto the mesh model for "root" to do this? not sure why I over-complicated this code
             Vector3 entry_apdvlr = Utils.WorldSpace2apdvlr(entryPoint + tpmanager.GetCenterOffset());
             Vector3 exit_apdvlr = Utils.WorldSpace2apdvlr(exitPoint + tpmanager.GetCenterOffset());
+            // use this code for debugging:
             //GameObject.Find("entry").transform.position = util.apdvlr2World(entry_apdvlr) - tpmanager.GetCenterOffset();
             //GameObject.Find("exit").transform.position = util.apdvlr2World(exit_apdvlr) - tpmanager.GetCenterOffset();
 
             // This sort of has to work, but it isn't super efficient, might be ways to speed this up?
+            // Step through the raycast until we find a point that has a non-zero annotation value. This is the entry coordinate
             for (float perc = 0; perc <= 1; perc += 0.002f)
             {
                 Vector3 point = Vector3.Lerp(entry_apdvlr, exit_apdvlr, perc);
@@ -1070,6 +1203,7 @@ public class TP_ProbeController : MonoBehaviour
                 {
                     brainSurface = Utils.apdvlr2World(point) - tpmanager.GetCenterOffset();
                     probeInBrain = true;
+                    // debug code
                     //GameObject.Find("surface").transform.position = brainSurface;
                     return;
                 }
@@ -1079,7 +1213,10 @@ public class TP_ProbeController : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Return the probe panel UI managers
+    /// </summary>
+    /// <returns>list of probe panel UI managers</returns>
     public List<TP_ProbeUIManager> GetProbeUIManagers()
     {
         return probeUIManagers;

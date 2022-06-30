@@ -8,26 +8,26 @@ public class TP_PlayerPrefs : MonoBehaviour
 {
     // Settings
     private bool collisions;
-    private bool useIblBregma;
+    //private bool useIblBregma;
     private bool recordingRegionOnly;
     private bool useAcronyms;
     private bool depthFromBrain;
     private bool convertAPML2probeAxis;
     private int slice3d;
     private bool inplane;
-    private bool stereotaxic;
+    private int stereotaxic;
 
     [SerializeField] TP_TrajectoryPlannerManager tpmanager;
 
     [SerializeField] Toggle collisionsToggle;
-    [SerializeField] Toggle bregmaToggle;
+    //[SerializeField] Toggle bregmaToggle;
     [SerializeField] Toggle recordingRegionToggle;
     [SerializeField] Toggle acronymToggle;
     [SerializeField] Toggle depthToggle;
     [SerializeField] Toggle probeAxisToggle;
     [SerializeField] TMP_Dropdown slice3dDropdown;
     [SerializeField] Toggle inplaneToggle;
-    [SerializeField] Toggle stereotaxicToggle;
+    [SerializeField] TMP_Dropdown invivoDropdown;
 
     [SerializeField] TP_QuestionDialogue qDialogue;
 
@@ -40,8 +40,8 @@ public class TP_PlayerPrefs : MonoBehaviour
         collisions = LoadBoolPref("collisions", true);
         collisionsToggle.isOn = collisions;
 
-        useIblBregma = LoadBoolPref("bregma", true);
-        //bregmaToggle.isOn = useIblBregma;
+        //useIblBregma = LoadBoolPref("bregma", true);
+        ////bregmaToggle.isOn = useIblBregma;
 
         recordingRegionOnly = LoadBoolPref("recording", true);
         recordingRegionToggle.isOn = recordingRegionOnly;
@@ -62,8 +62,8 @@ public class TP_PlayerPrefs : MonoBehaviour
         tpmanager.SetInPlane(inplane);
         inplaneToggle.isOn = inplane;
 
-        stereotaxic = LoadBoolPref("stereotaxic", true);
-        stereotaxicToggle.isOn = stereotaxic;
+        stereotaxic = LoadIntPref("stereotaxic", 0);
+        invivoDropdown.SetValueWithoutNotify(stereotaxic + 1);
 
     }
     public void AsyncStart()
@@ -103,13 +103,13 @@ public class TP_PlayerPrefs : MonoBehaviour
         }
     }
 
-    public void SetStereotaxic(bool state)
+    public void SetStereotaxic(int state)
     {
         stereotaxic = state;
-        PlayerPrefs.SetInt("stereotaxic", stereotaxic ? 1 : 0);
+        PlayerPrefs.SetInt("stereotaxic", stereotaxic);
     }
 
-    public bool GetStereotaxic()
+    public int GetStereotaxic()
     {
         return stereotaxic;
     }
@@ -191,15 +191,16 @@ public class TP_PlayerPrefs : MonoBehaviour
         return collisions;
     }
 
-    public void SetBregma(bool useBregma)
-    {
-        useIblBregma = useBregma;
-        PlayerPrefs.SetInt("bregma", useIblBregma ? 1 : 0);
-    }
+    //public void SetBregma(bool useBregma)
+    //{
+    //    useIblBregma = useBregma;
+    //    PlayerPrefs.SetInt("bregma", useIblBregma ? 1 : 0);
+    //}
 
     public bool GetBregma()
     {
-        return useIblBregma;
+        return true;
+        //return useIblBregma;
     }
     private bool LoadBoolPref(string prefStr, bool defaultValue)
     {

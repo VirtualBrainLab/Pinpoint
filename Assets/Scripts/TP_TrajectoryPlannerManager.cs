@@ -19,7 +19,10 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     [SerializeField] private TP_SliceRenderer sliceRenderer;
     [SerializeField] private TP_Search searchControl;
     [SerializeField] private TMP_InputField searchInput;
+
     [SerializeField] private GameObject CollisionPanelGO;
+    [SerializeField] private Material collisionMaterial;
+
     [SerializeField] private GameObject ProbePanelParentGO;
     [SerializeField] private GameObject IBLToolsGO;
     [SerializeField] private GameObject IBLTrajectoryGO;
@@ -33,8 +36,8 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     [SerializeField] TMP_Dropdown annotationAcronymDropdown;
 
     // Coordinate system information
-    private CoordinateSystem activeCoordinateSystem;
-    //private List<CoordinateSystem> availableCoordinateSystems = {};
+    private CoordinateTransform activeCoordinateTransform;
+    private List<CoordinateTransform> availableCoordinateTransforms;
 
     private TP_ProbeController activeProbeController;
 
@@ -78,6 +81,11 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     private void Awake()
     {
         SetProbeControl(false);
+
+        availableCoordinateTransforms = new List<CoordinateTransform>();
+        availableCoordinateTransforms.Add(new NeedlesTransform());
+        availableCoordinateTransforms.Add(new MRILinearTransform());
+        activeCoordinateTransform = null;
 
         visibleProbePanels = 0;
 
@@ -133,6 +141,31 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Transform a coordinate from the active transform space back to CCF space
+    /// </summary>
+    /// <param name="fromCoord"></param>
+    /// <returns></returns>
+    public Vector3 CoordinateTransformToCCF(Vector3 fromCoord)
+    {
+        if (activeCoordinateTransform != null)
+            return activeCoordinateTransform.ToCCF(fromCoord);
+        else
+            return fromCoord;
+    }
+
+    /// <summary>
+    /// Transform a coordinate from CCF space into the active transform space
+    /// </summary>
+    /// <param name="ccfCoord"></param>
+    /// <returns></returns>
+    public Vector3 CoordinateTransformFromCCF(Vector3 ccfCoord)
+    {
+        if (activeCoordinateTransform != null)
+            return activeCoordinateTransform.FromCCF(ccfCoord);
+        else
+            return ccfCoord;
+    }
 
     public void ClickSearchArea(GameObject target)
     {
@@ -392,6 +425,11 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         return next;
     }
 
+    public Material GetCollisionMaterial()
+    {
+        return collisionMaterial;
+    }
+
     public void ReturnProbeColor(Color returnColor)
     {
         probeColors.Insert(0,returnColor);
@@ -616,13 +654,13 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         CollisionPanelGO.SetActive(visibility);
     }
 
-    public void SetBregma(bool useBregma)
-    {
-        localPrefs.SetBregma(useBregma);
+    //public void SetBregma(bool useBregma)
+    //{
+    //    localPrefs.SetBregma(useBregma);
 
-        foreach (TP_ProbeController pcontroller in allProbes)
-            pcontroller.SetProbePosition();
-    }
+    //    foreach (TP_ProbeController pcontroller in allProbes)
+    //        pcontroller.SetProbePosition();
+    //}
 
     public void SetInPlane(bool state)
     {
@@ -635,16 +673,35 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         return localPrefs.GetBregma();
     }
 
-    public void SetStereotaxic(bool state)
+    public void SetInVivoMeshMorphState(bool state)
     {
-        localPrefs.SetStereotaxic(state);
+        if (state)
+        {
+            Debug.LogWarning("not implemented");
+        }
+        else
+        {
+            Debug.LogWarning("not implemented");
+        }
+    }
+
+    public void SetInVivoTransformState(int invivoOption)
+    {
+        invivoOption -= 1;
+        localPrefs.SetStereotaxic(invivoOption);
+
+        if (invivoOption >= 0)
+            activeCoordinateTransform = availableCoordinateTransforms[invivoOption];
+        else
+            activeCoordinateTransform = null;
+
         foreach(TP_ProbeController pcontroller in allProbes)
             pcontroller.UpdateText();
     }
 
-    public bool GetStereotaxic()
+    public bool GetInVivoTransformState()
     {
-        return localPrefs.GetStereotaxic();
+        return localPrefs.GetStereotaxic() > 0;
     }
 
     public void ReOrderProbePanels()

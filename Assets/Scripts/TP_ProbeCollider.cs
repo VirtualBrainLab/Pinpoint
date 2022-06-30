@@ -7,13 +7,10 @@ public class TP_ProbeCollider : MonoBehaviour
 {
     [SerializeField] TP_ProbeController pcontroller;
     private TP_TrajectoryPlannerManager tpmanager;
-    private Renderer colliderRenderer;
 
     private void Start()
     {
         tpmanager = GameObject.Find("main").GetComponent<TP_TrajectoryPlannerManager>();
-
-        colliderRenderer = GetComponent<Renderer>();
     }
 
     private void OnMouseDown()
@@ -34,10 +31,5 @@ public class TP_ProbeCollider : MonoBehaviour
     private void OnMouseUp()
     {
         pcontroller.DragMovementRelease();
-    }
-
-    public void SetVisibility(bool enabled)
-    {
-        colliderRenderer.enabled = enabled;
     }
 }

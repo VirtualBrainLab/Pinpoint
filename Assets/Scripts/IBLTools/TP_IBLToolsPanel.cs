@@ -7,13 +7,23 @@ public class TP_IBLToolsPanel : MonoBehaviour
 {
     [SerializeField] TMP_Text apText;
     [SerializeField] TMP_Text mlText;
-    [SerializeField] TMP_Text dvText;
+    [SerializeField] TMP_Text rText;
 
-    private Vector3 position = new Vector3(216, 0, 229);
+    //5.4f, 5.739f, 0.332f
+    // start the craniotomy at bregma
+    private Vector3 position = Vector3.zero;
+
     private float size = 1f;
     private float disabledSize = -1f;
 
     [SerializeField] TP_CraniotomySkull craniotomySkull;
+
+    private void Start()
+    {
+        // Start with craniotomy disabled
+        UpdateSize(0);
+        UpdateCraniotomy();
+    }
 
     public void OnDisable()
     {
@@ -52,7 +62,7 @@ public class TP_IBLToolsPanel : MonoBehaviour
     {
         apText.text = "AP: " + Mathf.RoundToInt(position.x);
         mlText.text = "ML: " + Mathf.RoundToInt(position.z);
-        dvText.text = "r: " + Mathf.Round(size * 100f) / 100f;
+        rText.text = "r: " + Mathf.RoundToInt(size);
     }
 
     private void UpdateCraniotomy()
