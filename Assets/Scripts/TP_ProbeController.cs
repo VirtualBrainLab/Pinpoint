@@ -224,6 +224,12 @@ public class TP_ProbeController : MonoBehaviour
         spin = 0;
     }
 
+    private void CheckForSpeedKeys()
+    {
+        keyFast = Input.GetKey(KeyCode.LeftShift);
+        keySlow = Input.GetKey(KeyCode.LeftControl);
+    }
+
     /// <summary>
     /// Move the probe with the option to check for collisions
     /// </summary>
@@ -234,9 +240,7 @@ public class TP_ProbeController : MonoBehaviour
         bool moved = false;
         bool keyHoldDelayPassed = (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay;
 
-        keyFast = Input.GetKey(KeyCode.LeftShift);
-        keySlow = Input.GetKey(KeyCode.LeftControl);
-
+        CheckForSpeedKeys();
         // Handle click inputs
 
         // A note about key presses. In Unity on most computers with high frame rates pressing a key *once* will trigger:
@@ -999,62 +1003,68 @@ public class TP_ProbeController : MonoBehaviour
     }
 
     /// <summary>
+    /// Helper function: if the user was already moving on some other axis and then we *switch* axis, or
+    /// if they repeatedly tap the same axis key we shouldn't jump back to the original position the
+    /// probe was in.
+    /// </summary>
+    private void CheckForPreviousDragClick()
+    {
+        if (axisLockAP || axisLockDV || axisLockML || axisLockQE || axisLockRF)
+            DragMovementClick();
+    }
+
+    /// <summary>
     /// Handle probe movements when a user is dragging while keeping the mouse pressed
     /// </summary>
     public void DragMovementDrag()
     {
         Vector3 curScreenPointWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
 
-        origAPML = apml;
-        origDepth = depth;
-        origPhi = phi;
-        origTheta = theta;
-
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S))
         {
+            // If the user was previously moving on a different axis we shouldn't accidentally reset their previous motion data
+            CheckForPreviousDragClick();
             axisLockAP = true;
             axisLockML = false;
             axisLockDV = false;
             axisLockQE = false;
             axisLockRF = false;
-            // To make it more smooth, reset the z axis to zero when you lock the axis
-            originalClickPositionWorld.z = curScreenPointWorld.z;
         }
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
         {
+            CheckForPreviousDragClick();
             axisLockAP = false;
             axisLockML = true;
             axisLockDV = false;
             axisLockQE = false;
             axisLockRF = false;
-            originalClickPositionWorld.x = curScreenPointWorld.x;
         }
-        if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
         {
+            CheckForPreviousDragClick();
             axisLockAP = false;
             axisLockML = false;
             axisLockDV = true;
             axisLockQE = false;
             axisLockRF = false;
-            originalClickPositionWorld.y = curScreenPointWorld.y;
         }
-        if (Input.GetKey(KeyCode.R) || Input.GetKey(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.F))
         {
+            CheckForPreviousDragClick();
             axisLockAP = false;
             axisLockML = false;
             axisLockDV = false;
             axisLockQE = false;
             axisLockRF = true;
-            originalClickPositionWorld.y = curScreenPointWorld.y;
         }
-        if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
         {
+            CheckForPreviousDragClick();
             axisLockAP = false;
             axisLockML = false;
             axisLockDV = false;
             axisLockQE = true;
             axisLockRF = false;
-            originalClickPositionWorld.x = curScreenPointWorld.x;
         }
 
         Vector3 worldOffset = curScreenPointWorld - originalClickPositionWorld;
@@ -1069,15 +1079,15 @@ public class TP_ProbeController : MonoBehaviour
         }
         if (axisLockDV)
         {
-            depth = origDepth - worldOffset.y;
+            depth = origDepth - 1.5f * worldOffset.y;
         }
         if (axisLockRF)
         {
-            theta = origTheta - worldOffset.y;
+            theta = Mathf.Clamp(origTheta - 2f * worldOffset.y, minTheta, maxTheta);
         }
         if (axisLockQE)
         {
-            phi = origPhi - worldOffset.x;
+            phi = origPhi - 2f * worldOffset.x;
         }
 
 

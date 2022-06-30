@@ -262,7 +262,8 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
                     manualCoordinatePanel.SetTextValues(activeProbeController);
             }
 
-            if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2))
+            // Check if mouse buttons are down, or if probe is under manual control
+            if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
             {
                 movedThisFrame = localPrefs.GetCollisions() ? activeProbeController.MoveProbe(true) : activeProbeController.MoveProbe(false);
             }

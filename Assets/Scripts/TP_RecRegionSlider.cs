@@ -16,7 +16,7 @@ public class TP_RecRegionSlider : MonoBehaviour
     private List<float[]> ranges;
     private int[] type2index = { -1, 0, 1, -1, 2 };
 
-    private void Start()
+    public TP_RecRegionSlider()
     {
         ranges = new List<float[]>();
         ranges.Add(np1Range);
@@ -26,7 +26,7 @@ public class TP_RecRegionSlider : MonoBehaviour
 
     public void SliderValueChanged(float value)
     {
-        if (tpmanager.GetActiveProbeController()!=null)
+        if (tpmanager.GetActiveProbeController() != null)
         {
             // Get active probe type from tpmanager
             float[] range = ranges[type2index[tpmanager.GetActiveProbeType()]];
