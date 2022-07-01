@@ -15,7 +15,8 @@ public class TP_PlayerPrefs : MonoBehaviour
     private bool convertAPML2probeAxis;
     private int slice3d;
     private bool inplane;
-    private int stereotaxic;
+    private int invivoTransform;
+    private bool useIBLAngles;
 
     [SerializeField] TP_TrajectoryPlannerManager tpmanager;
 
@@ -28,6 +29,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     [SerializeField] TMP_Dropdown slice3dDropdown;
     [SerializeField] Toggle inplaneToggle;
     [SerializeField] TMP_Dropdown invivoDropdown;
+    [SerializeField] Toggle iblAngleToggle;
 
     [SerializeField] TP_QuestionDialogue qDialogue;
 
@@ -62,9 +64,13 @@ public class TP_PlayerPrefs : MonoBehaviour
         tpmanager.SetInPlane(inplane);
         inplaneToggle.isOn = inplane;
 
-        stereotaxic = LoadIntPref("stereotaxic", 0);
-        invivoDropdown.SetValueWithoutNotify(stereotaxic + 1);
+        invivoTransform = LoadIntPref("stereotaxic", 1);
+        tpmanager.SetInVivoTransformState(invivoTransform);
+        invivoDropdown.SetValueWithoutNotify(invivoTransform);
 
+        useIBLAngles = LoadBoolPref("iblangle", true);
+        tpmanager.SetUseIBLAngles(useIBLAngles);
+        iblAngleToggle.isOn = useIBLAngles;
     }
     public void AsyncStart()
     {
@@ -103,15 +109,26 @@ public class TP_PlayerPrefs : MonoBehaviour
         }
     }
 
+    public void SetUseIBLAngles(bool state)
+    {
+        useIBLAngles = state;
+        PlayerPrefs.SetInt("iblangle", useIBLAngles ? 1 : 0);
+    }
+
+    public bool GetUseIBLAngles()
+    {
+        return useIBLAngles;
+    }
+
     public void SetStereotaxic(int state)
     {
-        stereotaxic = state;
-        PlayerPrefs.SetInt("stereotaxic", stereotaxic);
+        invivoTransform = state;
+        PlayerPrefs.SetInt("stereotaxic", invivoTransform);
     }
 
     public int GetStereotaxic()
     {
-        return stereotaxic;
+        return invivoTransform;
     }
 
     public void SetInplane(bool state)
@@ -218,13 +235,13 @@ public class TP_PlayerPrefs : MonoBehaviour
         for (int i = 0; i < allProbes.Count; i++)
         {
             TP_ProbeController probe = allProbes[i];
-            List<float> probeCoordinates = probe.GetCoordinates();
-            PlayerPrefs.SetFloat("ap" + i, probeCoordinates[0]);
-            PlayerPrefs.SetFloat("ml" + i, probeCoordinates[1]);
-            PlayerPrefs.SetFloat("depth" + i, probeCoordinates[2]);
-            PlayerPrefs.SetFloat("phi" + i, probeCoordinates[3]);
-            PlayerPrefs.SetFloat("theta" + i, probeCoordinates[4]);
-            PlayerPrefs.SetFloat("spin" + i, probeCoordinates[5]);
+            (float ap, float ml, float depth, float phi, float theta, float spin) = probe.GetCoordinates();
+            PlayerPrefs.SetFloat("ap" + i, ap);
+            PlayerPrefs.SetFloat("ml" + i, ml);
+            PlayerPrefs.SetFloat("depth" + i, depth);
+            PlayerPrefs.SetFloat("phi" + i, phi);
+            PlayerPrefs.SetFloat("theta" + i, theta);
+            PlayerPrefs.SetFloat("spin" + i, spin);
             PlayerPrefs.SetInt("type" + i, probe.GetProbeType());
         }
         PlayerPrefs.SetInt("probecount", allProbes.Count);

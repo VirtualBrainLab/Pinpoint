@@ -13,6 +13,11 @@ public class TP_ProbeCollider : MonoBehaviour
         tpmanager = GameObject.Find("main").GetComponent<TP_TrajectoryPlannerManager>();
     }
 
+    private void OnDestroy()
+    {
+        //tpmanager.
+    }
+
     private void OnMouseDown()
     {
         // ignore mouse clicks if we're over a UI element

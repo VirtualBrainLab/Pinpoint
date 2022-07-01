@@ -1,10 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class TP_ToggleRigs : MonoBehaviour
 {

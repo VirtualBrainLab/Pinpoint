@@ -49,7 +49,7 @@ public class TP_ProbeController : MonoBehaviour
     private TP_TrajectoryPlannerManager tpmanager;
 
     // in ap/ml/dv
-    private Vector3 iblBregma = new Vector3(5.4f, 5.739f, 0.332f);
+    private Vector3 defaultStart = new Vector3(5.4f, 5.7f, 0.332f);
     private Vector2 defaultAngles = new Vector2(-90f, 0f); // 0 phi is forward, default theta is 90 degrees down from horizontal, but internally this is a value of 0f
 
     // Text
@@ -61,15 +61,11 @@ public class TP_ProbeController : MonoBehaviour
     private Quaternion initialRotation;
 
     // total position data (for dealing with coordinates)
-    private Vector2 apml;
-    private float depth;
-    private float phi; // rotation around the up axis (z)
+    private ProbeInsertion insertion;
     private float minPhi = -180;
     private float maxPhi = 180f;
-    private float theta; // rotation around the right axis (x)
     private float minTheta = -90f;
     private float maxTheta = 0f;
-    private float spin; // rotation around the probe's own vertical axis (equivalent to phi until the probe is off angle)
     private float minSpin = -180f;
     private float maxSpin = 180f;
 
@@ -132,13 +128,10 @@ public class TP_ProbeController : MonoBehaviour
 
     private void Start()
     {
-        // Save where we are in space (at bregma)
         initialPosition = transform.position;
         initialRotation = transform.rotation;
 
-        // Reset all the tracking variables
-        ResetPositionTracking();
-        SetProbePosition();
+        ResetPosition();
 
         // Reset our probe UI panels
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
@@ -164,7 +157,9 @@ public class TP_ProbeController : MonoBehaviour
     }
 
     /// <summary>
-    /// Called by Unity when this object is destroyed. Removes the probe panels and the position text.
+    /// Called by Unity when this object is destroyed. 
+    /// Unregisters the probe from tpmanager
+    /// Removes the probe panels and the position text.
     /// </summary>
     public void Destroy()
     {
@@ -206,6 +201,7 @@ public class TP_ProbeController : MonoBehaviour
     {
         transform.position = initialPosition;
         transform.rotation = initialRotation;
+
         // reset UI as well
         ResetPositionTracking();
         SetProbePosition();
@@ -217,11 +213,7 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     private void ResetPositionTracking()
     {
-        apml = new Vector2();
-        depth = 0;
-        phi = defaultAngles.x;
-        theta = defaultAngles.y;
-        spin = 0;
+        insertion = new ProbeInsertion(defaultStart, defaultAngles, "ccf");
     }
 
     private void CheckForSpeedKeys()
@@ -259,13 +251,13 @@ public class TP_ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            MoveProbeAPML(1f, 0f, true);
+            MoveProbeAPML(-1f, 0f, true);
         }
         else if (Input.GetKey(KeyCode.W) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
-            MoveProbeAPML(1f, 0f, false);
+            MoveProbeAPML(-1f, 0f, false);
         }
         if (Input.GetKeyUp(KeyCode.W))
             keyHeld = false;
@@ -274,13 +266,13 @@ public class TP_ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            MoveProbeAPML(-1f, 0f, true);
+            MoveProbeAPML(1f, 0f, true);
         }
         else if (Input.GetKey(KeyCode.S) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
-            MoveProbeAPML(-1f, 0f, false);
+            MoveProbeAPML(1f, 0f, false);
         }
         if (Input.GetKeyUp(KeyCode.S))
             keyHeld = false;
@@ -456,7 +448,7 @@ public class TP_ProbeController : MonoBehaviour
         if (moved)
         {
             // If the probe was moved, set the new position
-            SetProbePosition(apml.x, apml.y, depth, phi, theta, spin);
+            SetProbePosition(insertion);
 
             // Check collisions if we need to
             if (checkForCollisions)
@@ -538,6 +530,8 @@ public class TP_ProbeController : MonoBehaviour
     /// <param name="spin"></param>
     public void ManualCoordinateEntry(float ap, float ml, float depth, float phi, float theta, float spin)
     {
+        Debug.LogError("Manual coordinate entry does no take into account the current coordinate transform or depth from brain");
+
         //[TODO: Add depth from brain as a parameter that can be set
         //if (tpmanager.GetDepthFromBrain())
         //{
@@ -551,20 +545,17 @@ public class TP_ProbeController : MonoBehaviour
         //        depth = 0f;
         //}
 
-        // Convert the IBL phi/theta angles to world space
-        Vector2 worldPhiTheta = tpmanager.IBL2World(new Vector2(phi, theta));
+        //// Set the probe position, switching from um to mm
+        //insertion.SetCoordinates_IBL(ap, ml , depth, phi, theta, spin);
 
-        // Set the probe position, switching from um to mm
-        SetProbePosition(ap/1000, ml / 1000, depth / 1000, worldPhiTheta.x, worldPhiTheta.y, spin);
+        //// Update where we are relative to the surface
+        //UpdateSurfacePosition();
 
-        // Update where we are relative to the surface
-        UpdateSurfacePosition();
-
-        // Tell the tpmanager we moved and update the UI elements
-        tpmanager.SetMovedThisFrame();
-        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
-            puimanager.ProbeMoved();
-        tpmanager.UpdateInPlaneView();
+        //// Tell the tpmanager we moved and update the UI elements
+        //tpmanager.SetMovedThisFrame();
+        //foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+        //    puimanager.ProbeMoved();
+        //tpmanager.UpdateInPlaneView();
     }
 
     public IEnumerator DelayedManualCoordinateEntry(float delay, float ap, float ml, float depth, float phi, float theta, float spin)
@@ -578,7 +569,7 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     public void SetProbePosition()
     {
-        SetProbePosition(apml.x, apml.y, depth, phi, theta, spin);
+        SetProbePosition(insertion);
     }
 
     /// <summary>
@@ -590,7 +581,7 @@ public class TP_ProbeController : MonoBehaviour
     /// <param name="phi"></param>
     /// <param name="theta"></param>
     /// <param name="spin"></param>
-    public void SetProbePosition(float ap, float ml, float depth, float phi, float theta, float spin)
+    public void SetProbePosition(ProbeInsertion localInsertion)
     {
         // Reset everything
         transform.position = initialPosition;
@@ -598,38 +589,30 @@ public class TP_ProbeController : MonoBehaviour
         ResetPositionTracking();
 
         // Manually adjust the coordinates and rotation
-        transform.RotateAround(rotateAround.position, transform.up, phi);
-        this.phi = phi;
-        transform.RotateAround(rotateAround.position, transform.forward, theta);
-        this.theta = theta;
-        transform.RotateAround(rotateAround.position, rotateAround.up, spin);
-        this.spin = spin;
-        transform.position += tpmanager.GetBregma() ? new Vector3(-ml-iblBregma.y, 0f, -ap+iblBregma.x) : new Vector3(-ml, 0f, -ap);
-        apml = new Vector2(ap, ml);
-        if (tpmanager.GetBregma())
-            transform.Translate(0f, -depth -iblBregma.z, 0f);
-        else
-            transform.Translate(0f, -depth, 0f);
-        this.depth = depth;
+        transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
+        transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
+        transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
+        transform.position += new Vector3(-localInsertion.ml, 0f, localInsertion.ap);
+        transform.Translate(0f, -localInsertion.depth, 0f);
+
+        // save the data
+        insertion.SetCoordinates(localInsertion);
 
         UpdateText();
     }
 
     /// <summary>
-    /// Get the coordinates of the current probe in um
+    /// Get the coordinates of the current probe in mm or um, depending on the current IBL state
     /// </summary>
     /// <returns>List of ap in um, ml in um, depth in um, phi, theta, spin</returns>
-    public List<float> GetCoordinates()
+    public (float, float, float, float, float, float) GetCoordinates()
     {
-        List<float> ret = new List<float>();
-        ret.Add(apml.x*1000);
-        ret.Add(apml.y*1000);
-        ret.Add(depth*1000);
-        Vector2 iblPhiTheta = tpmanager.World2IBL(new Vector2(phi, theta));
-        ret.Add(iblPhiTheta.x);
-        ret.Add(iblPhiTheta.y);
-        ret.Add(spin);
-        return ret;
+        return (tpmanager.UseIBLAngles()) ? insertion.GetCoordinatesFloat_IBL() : insertion.GetCoordinatesFloat();
+    }
+
+    public ProbeInsertion GetInsertion()
+    {
+        return insertion;
     }
 
     /// <summary>
@@ -725,8 +708,9 @@ public class TP_ProbeController : MonoBehaviour
         float speed = pressed ? 
             keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP : 
             keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
-        Vector2 delta = new Vector2(ap, ml) * speed;
-        apml += delta;
+
+        insertion.ap += ap * speed;
+        insertion.ml += ml * speed;
     }
 
     public void MoveProbeDepth(float depth, bool pressed)
@@ -735,8 +719,7 @@ public class TP_ProbeController : MonoBehaviour
             keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
             keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
-        float depthDelta = depth * speed;
-        this.depth += depthDelta;
+        insertion.depth += depth * speed;
     }
 
     public void RotateProbe(float phi, float theta, bool pressed)
@@ -745,10 +728,8 @@ public class TP_ProbeController : MonoBehaviour
             keyFast ? ROT_INCREMENT_TAP_FAST : keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
             keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
 
-        float phiDelta = phi * speed;
-        float thetaDelta = theta * speed;
-        this.phi += phiDelta;
-        this.theta = Mathf.Clamp(this.theta + thetaDelta, minTheta, maxTheta);
+        insertion.phi += phi * speed;
+        insertion.theta = Mathf.Clamp(insertion.theta + theta * speed, minTheta, maxTheta);
     }
 
     public void SpinProbe(float spin, bool pressed)
@@ -757,8 +738,7 @@ public class TP_ProbeController : MonoBehaviour
             keyFast ? ROT_INCREMENT_TAP_FAST : keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
             keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
 
-        float spinDelta = spin * speed;
-        this.spin += spinDelta;
+        insertion.spin += spin * speed;
     }
 
     // TEXT UPDATES
@@ -766,13 +746,15 @@ public class TP_ProbeController : MonoBehaviour
     public void UpdateText()
     {
         float localDepth = GetLocalDepth();
-        Vector2 apml_local = GetAPML();
+        Vector2 apml_local = GetTransformedTipCoord();
         string[] apml_string = GetAPMLStr();
 
-        Vector2 iblPhiTheta = tpmanager.World2IBL(new Vector2(phi, theta));
+        (float ap, float ml, float depth, float phi, float theta, float spin) = tpmanager.UseIBLAngles() ?
+            insertion.GetCoordinatesFloat_IBL() :
+            insertion.GetCoordinatesFloat();
 
         string updateStr = string.Format("Probe #{0}: "+apml_string[0]+" {1} "+apml_string[1]+" {2} Azimuth {3} Elevation {4} "+ GetDepthStr() + " {5} Spin {6}",
-            probeID, round0(apml_local.x*1000), round0(apml_local.y * 1000), round2(CircDeg(iblPhiTheta.x,minPhi, maxPhi)), round2(iblPhiTheta.y), round0(localDepth*1000), round2(CircDeg(spin,minSpin, maxSpin)));;
+            probeID, round0(apml_local.x*1000), round0(apml_local.y * 1000), round2(Utils.CircDeg(phi,minPhi, maxPhi)), round2(theta), round0(localDepth*1000), round2(Utils.CircDeg(spin,minSpin, maxSpin)));;
 
         textUI.text = updateStr;
     }
@@ -780,27 +762,19 @@ public class TP_ProbeController : MonoBehaviour
     private void Probe2Text()
     {
         float localDepth = GetLocalDepth();
-        Vector2 apml_local = GetAPML();
+        Vector2 apml_local = GetTransformedTipCoord();
         string[] apml_string = GetAPMLStr();
 
-        Vector2 iblPhiTheta = tpmanager.World2IBL(new Vector2(phi, theta));
+        (float ap, float ml, float depth, float phi, float theta, float spin) = tpmanager.UseIBLAngles() ?
+            insertion.GetCoordinatesFloat_IBL() :
+            insertion.GetCoordinatesFloat();
 
         string fullStr = string.Format("Probe #{0}: " + apml_string[0] + " {1} " + apml_string[1] + " {2} Azimuth {3} Elevation {4} "+ GetDepthStr()+" {5} Spin {6} Record Height {7}",
-            probeID, apml_local.x * 1000, apml_local.y * 1000, CircDeg(iblPhiTheta.x,minPhi, maxPhi), iblPhiTheta.y, localDepth, CircDeg(spin,minSpin,maxSpin), minRecordHeight * 1000);
+            probeID, apml_local.x * 1000, apml_local.y * 1000, Utils.CircDeg(phi,minPhi, maxPhi), theta, localDepth, Utils.CircDeg(spin,minSpin,maxSpin), minRecordHeight * 1000);
         GUIUtility.systemCopyBuffer = fullStr;
 
         // When you copy text, also set this probe to be active
         tpmanager.SetActiveProbe(this);
-    }
-
-    public float CircDeg(float deg, float minDeg, float maxDeg)
-    {
-        float diff = Mathf.Abs(maxDeg - minDeg);
-
-        if (deg < minDeg) deg += diff;
-        if (deg > maxDeg) deg -= diff;
-
-        return deg;
     }
 
     public float[] Text2Probe()
@@ -816,13 +790,14 @@ public class TP_ProbeController : MonoBehaviour
     {
         if (tpmanager.GetInVivoTransformState())
         {
+            string prefix = tpmanager.GetInVivoPrefix();
             if (tpmanager.GetConvertAPML2Probe())
             {
-                return new string[] { "stForward", "stSide" };
+                return new string[] { prefix + "Forward", prefix + "Side" };
             }
             else
             {
-                return new string[] { "stAP", "stML" };
+                return new string[] { prefix + "AP", prefix + "ML" };
             }
         }
         else
@@ -841,30 +816,34 @@ public class TP_ProbeController : MonoBehaviour
     private string GetDepthStr()
     {
         if (tpmanager.GetInVivoTransformState())
-            return "stDepth";
+            return tpmanager.GetInVivoPrefix() + "Depth";
         else
             return "ccfDepth";
     }
 
-    private Vector2 GetAPML()
+    private Vector2 GetTransformedTipCoord()
     {
+        Debug.Log(tpmanager.GetInVivoTransformState());
+
         Vector2 localAPML;
-        // If we're in stereotaxic coordinates, apply the conversion factors first, then deal with rotating in 3D space
+        // If we're in a transformed space we need to transform the coordinates
+        // before we do anything else.
+        // Note that we don't handle depth here -- because depth can be in CCF or relative to the surface
+        // we'll deal with that in its own function
         if (tpmanager.GetInVivoTransformState())
         {
-            Debug.Log(apml);
-            localAPML = tpmanager.CoordinateTransformFromCCF(new Vector3(apml.x, apml.y));
-            Debug.Log(localAPML);
+            localAPML = tpmanager.CoordinateTransformFromCCF(new Vector3(insertion.ap, insertion.ml));
         }
         else
         {
-            localAPML = apml;
+            localAPML = new Vector2(insertion.ap, insertion.ml);
         }
 
+        // We can rotate the ap/ml position now to account for off-coronal/sagittal manipulator angles
         if (tpmanager.GetConvertAPML2Probe())
         {
             // convert to probe angle by solving 
-            float localAngleRad = phi * Mathf.PI / 180f; // our phi is 0 when it we point forward, and our angles go backwards
+            float localAngleRad = insertion.phi * Mathf.PI / 180f; // our phi is 0 when it we point forward, and our angles go backwards
 
             float x = localAPML.x * Mathf.Cos(localAngleRad) + localAPML.y * Mathf.Sin(localAngleRad);
             float y = -localAPML.x * Mathf.Sin(localAngleRad) + localAPML.y * Mathf.Cos(localAngleRad);
@@ -887,13 +866,11 @@ public class TP_ProbeController : MonoBehaviour
                 if (probeInBrain)
                 {
                     float depthDir = Mathf.Sign(Vector3.Dot(probeTipT.transform.position - brainSurface, -probeTipT.transform.up));
-                    // Separately obtain the x/y/z components relative to the surface point, scale them, then get the distance
-                    Vector3 distanceToSurface = probeTipT.transform.position - brainSurface;
-                    Debug.LogError("IN VIVO CONVERSION IS BROKEN!!!");
+                    // Transform the surface coordinate and the tip coordinate
+                    Vector3 transTip = tpmanager.CoordinateTransformFromCCF(probeTipT.transform.position);
+                    Vector3 transSurface = tpmanager.CoordinateTransformFromCCF(brainSurface);
 
-                    //distanceToSurface = new Vector3(distanceToSurface.x * invivoConversionAPMLDV.y, distanceToSurface.y * invivoConversionAPMLDV.z, distanceToSurface.z * invivoConversionAPMLDV.x);
-
-                    localDepth = depthDir * Vector3.Distance(distanceToSurface, Vector3.zero);
+                    localDepth = depthDir * Vector3.Distance(transTip, transSurface);
                 }
                 else
                     localDepth = float.NaN;
@@ -916,7 +893,7 @@ public class TP_ProbeController : MonoBehaviour
                     localDepth = float.NaN;
             }
             else
-                localDepth = depth;
+                localDepth = insertion.depth;
         }
 
         return localDepth;
@@ -992,10 +969,10 @@ public class TP_ProbeController : MonoBehaviour
         axisLockRF = false;
         axisLockQE = false;
 
-        origAPML = apml;
-        origDepth = depth;
-        origPhi = phi;
-        origTheta = theta;
+        origAPML = new Vector2(insertion.ap, insertion.ml);
+        origDepth = insertion.depth;
+        origPhi = insertion.phi;
+        origTheta = insertion.theta;
 
         // Track the screenPoint that was initially clicked
         cameraDistance = Vector3.Distance(Camera.main.transform.position, gameObject.transform.position);
@@ -1071,33 +1048,33 @@ public class TP_ProbeController : MonoBehaviour
 
         if (axisLockAP)
         {
-            apml.x = origAPML.x - worldOffset.z;
+            insertion.ap = origAPML.x + worldOffset.z;
         }
         if (axisLockML)
         {
-            apml.y = origAPML.y - worldOffset.x;
+            insertion.ml = origAPML.y - worldOffset.x;
         }
         if (axisLockDV)
         {
-            depth = origDepth - 1.5f * worldOffset.y;
+            insertion.depth = origDepth - 1.5f * worldOffset.y;
         }
         if (axisLockRF)
         {
-            theta = Mathf.Clamp(origTheta - 2f * worldOffset.y, minTheta, maxTheta);
+            insertion.theta = Mathf.Clamp(origTheta + 2f * worldOffset.y, minTheta, maxTheta);
         }
         if (axisLockQE)
         {
-            phi = origPhi - 2f * worldOffset.x;
+            insertion.phi = origPhi - 2f * worldOffset.x;
         }
 
 
-        if (apml.x != origAPML.x || apml.y != origAPML.y || depth != origDepth || theta != origTheta || phi != origPhi)
+        if (insertion.ap != origAPML.x || insertion.ml != origAPML.y || insertion.depth != origDepth || insertion.theta != origTheta || insertion.phi != origPhi)
         {
             if (tpmanager.GetCollisions())
                 CheckCollisions(tpmanager.GetAllNonActiveColliders());
 
             tpmanager.UpdateInPlaneView();
-            SetProbePosition(apml.x, apml.y, depth, phi, theta, spin);
+            SetProbePosition(insertion);
             UpdateSurfacePosition();
 
             foreach (TP_ProbeUIManager puimanager in probeUIManagers)

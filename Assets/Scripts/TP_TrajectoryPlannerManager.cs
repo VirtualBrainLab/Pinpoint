@@ -32,6 +32,9 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     [SerializeField] private VolumeDatasetManager vdmanager;
 
+    // Text objects that need to stay visible when the background changes
+    [SerializeField] private List<TMP_Text> whiteUIText;
+
     // Which acronym/area name set to use
     [SerializeField] TMP_Dropdown annotationAcronymDropdown;
 
@@ -292,13 +295,14 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     //[TODO] Replace this with some system that handles recovering probes by tracking their coordinate system or something?
     // Or maybe the probe coordinates should be an object that can be serialized?
-    private List<float> prevCoordinates;
+    private ProbeInsertion prevInsertion;
     private int prevProbeType;
 
     private void DestroyActiveProbeController()
     {
         prevProbeType = activeProbeController.GetProbeType();
-        prevCoordinates = activeProbeController.GetCoordinates();
+        prevInsertion = activeProbeController.GetInsertion();
+        List<Collider> probeColliders = activeProbeController.GetProbeColliders();
 
         Debug.Log("Destroying probe type " + prevProbeType + " with coordinates");
 
@@ -312,12 +316,19 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         else
             activeProbeController = null;
 
+        // remove colliders
+        foreach (Collider collider in probeColliders)
+        {
+            inactiveProbeColliders.Remove(collider);
+            allProbeColliders.Remove(collider);
+        }
+
         ReturnProbeColor(returnColor);
     }
 
     private void RecoverActiveProbeController()
     {
-        AddNewProbe(prevProbeType, prevCoordinates[0], prevCoordinates[1], prevCoordinates[2], prevCoordinates[3], prevCoordinates[4], prevCoordinates[5]);
+        AddNewProbe(prevProbeType, prevInsertion);
     }
 
     public void ManualCoordinateEntry(float ap, float ml, float depth, float phi, float theta, float spin)
@@ -337,7 +348,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         AddNewProbe(1);
         yield return new WaitForSeconds(0.05f);
-        activeProbeController.SetProbePosition(0, 0, 0, phi, theta, 0);
+        activeProbeController.SetProbePosition(new ProbeInsertion(0, 0, 0, phi, theta, 0));
     }
 
     IEnumerator DelayedMoveAllProbes()
@@ -373,6 +384,13 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     {
         TP_ProbeController probeController = AddNewProbe(probeType);
         StartCoroutine(probeController.DelayedManualCoordinateEntry(0.1f, ap, ml, depth, phi, theta, spin));
+
+        return probeController;
+    }
+    public TP_ProbeController AddNewProbe(int probeType, ProbeInsertion localInsertion)
+    {
+        TP_ProbeController probeController = AddNewProbe(probeType);
+        StartCoroutine(probeController.DelayedManualCoordinateEntry(0.1f, localInsertion.ap, localInsertion.ml, localInsertion.depth, localInsertion.phi, localInsertion.theta, localInsertion.spin));
 
         return probeController;
     }
@@ -570,20 +588,6 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         return new Color(r / 255f, g / 255f, b / 255f, 1f);
     }
 
-    public Vector2 World2IBL(Vector2 phiTheta)
-    {
-        float iblPhi = -phiTheta.x - 90f;
-        float iblTheta = -phiTheta.y;
-        return new Vector2(iblPhi, iblTheta);
-    }
-
-    public Vector2 IBL2World(Vector2 iblPhiTheta)
-    {
-        float worldPhi = -iblPhiTheta.x - 90f;
-        float worldTheta = -iblPhiTheta.y;
-        return new Vector2(worldPhi, worldTheta);
-    }
-
     ///
     /// SETTINGS
     /// 
@@ -591,9 +595,17 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public void SetBackgroundWhite(bool state)
     {
         if (state)
+        {
+            foreach (TMP_Text textC in whiteUIText)
+                textC.color = Color.black;
             Camera.main.backgroundColor = Color.white;
+        }
         else
+        {
+            foreach (TMP_Text textC in whiteUIText)
+                textC.color = Color.white;
             Camera.main.backgroundColor = Color.black;
+        }
     }
 
     public void SetRecordingRegion(bool state)
@@ -618,6 +630,18 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public bool UseAcronyms()
     {
         return localPrefs.GetAcronyms();
+    }
+
+    public void SetUseIBLAngles(bool state)
+    {
+        localPrefs.SetUseIBLAngles(state);
+        foreach (TP_ProbeController probeController in allProbes)
+            probeController.UpdateText();
+    }
+
+    public bool UseIBLAngles()
+    {
+        return localPrefs.GetUseIBLAngles();
     }
 
     public void SetDepth(bool state)
@@ -655,23 +679,10 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         CollisionPanelGO.SetActive(visibility);
     }
 
-    //public void SetBregma(bool useBregma)
-    //{
-    //    localPrefs.SetBregma(useBregma);
-
-    //    foreach (TP_ProbeController pcontroller in allProbes)
-    //        pcontroller.SetProbePosition();
-    //}
-
     public void SetInPlane(bool state)
     {
         localPrefs.SetInplane(state);
         inPlaneSlice.UpdateInPlaneVisibility();
-    }
-
-    public bool GetBregma()
-    {
-        return localPrefs.GetBregma();
     }
 
     public void SetInVivoMeshMorphState(bool state)
@@ -688,11 +699,14 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     public void SetInVivoTransformState(int invivoOption)
     {
-        invivoOption -= 1;
         localPrefs.SetStereotaxic(invivoOption);
+        invivoOption -= 1;
 
         if (invivoOption >= 0)
+        {
+            Debug.Log("(tpmanager) Attempting to set transform to: " + availableCoordinateTransforms[invivoOption].Name);
             activeCoordinateTransform = availableCoordinateTransforms[invivoOption];
+        }
         else
             activeCoordinateTransform = null;
 
@@ -703,6 +717,10 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     public bool GetInVivoTransformState()
     {
         return localPrefs.GetStereotaxic() > 0;
+    }
+    public string GetInVivoPrefix()
+    {
+        return activeCoordinateTransform.Prefix;
     }
 
     public void ReOrderProbePanels()

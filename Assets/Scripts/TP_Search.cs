@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -42,7 +43,12 @@ public class TP_Search : MonoBehaviour
     {
 
         // Find all areas in the CCF that match this search string
-        List<int> matchingAreas = tpmanager.UseAcronyms() ? modelControl.AreasMatchingAcronym(searchString) : modelControl.AreasMatchingName(searchString); 
+        List<int> areasMatchingAcronym = modelControl.AreasMatchingAcronym(searchString);
+        List<int> areasMatchingName = modelControl.AreasMatchingName(searchString);
+
+        List<int> matchingAreas = areasMatchingAcronym.Union(areasMatchingName).ToList<int>();
+        
+
         for (int i = 0; i < maxAreaPanels; i++)
         {
             GameObject areaPanel = localAreaPanels[i];

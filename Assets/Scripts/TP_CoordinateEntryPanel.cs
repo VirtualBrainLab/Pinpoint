@@ -37,15 +37,15 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
 
     public void SetTextValues(TP_ProbeController probeController)
     {
-        List<float> coords = probeController.GetCoordinates();
-        apField.text = coords[0].ToString();
-        mlField.text = coords[1].ToString();
-        depthField.text = coords[2].ToString();
+        (float ap, float ml, float depth, float phi, float theta, float spin) = probeController.GetCoordinates();
+        apField.text = ap.ToString();
+        mlField.text = ml.ToString();
+        depthField.text = depth.ToString();
 
         // convert phi/theta to 
-        phiField.text = coords[3].ToString();
-        thetaField.text = coords[4].ToString();
-        spinField.text = coords[5].ToString();
+        phiField.text = phi.ToString();
+        thetaField.text = theta.ToString();
+        spinField.text = spin.ToString();
     }
 
     public void Apply()
