@@ -50,6 +50,7 @@ public class TP_ProbeController : MonoBehaviour
 
     // in ap/ml/dv
     private Vector3 defaultStart = new Vector3(5.4f, 5.7f, 0.332f);
+    private float defaultDepth = 0f;
     private Vector2 defaultAngles = new Vector2(-90f, 0f); // 0 phi is forward, default theta is 90 degrees down from horizontal, but internally this is a value of 0f
 
     // Text
@@ -84,7 +85,7 @@ public class TP_ProbeController : MonoBehaviour
     private bool probeInBrain;
     private Vector3 entryPoint;
     private Vector3 exitPoint;
-    private Vector3 brainSurface;
+    private Vector3 brainSurfaceWorld;
 
     // Colliders
     private List<GameObject> visibleProbeColliders;
@@ -213,7 +214,7 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     private void ResetPositionTracking()
     {
-        insertion = new ProbeInsertion(defaultStart, defaultAngles, "ccf");
+        insertion = new ProbeInsertion(defaultStart, defaultDepth, defaultAngles, "ccf");
     }
 
     private void CheckForSpeedKeys()
@@ -307,19 +308,19 @@ public class TP_ProbeController : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.A))
             keyHeld = false;
 
-        // Depth movement
+        // DV movement
 
         if (Input.GetKeyDown(KeyCode.Z))
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            MoveProbeDepth(1f, true);
+            MoveProbeDV(1f, true);
         }
         else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
-            MoveProbeDepth(1f, false);
+            MoveProbeDV(1f, false);
         }
         if (Input.GetKeyUp(KeyCode.Z))
             keyHeld = false;
@@ -328,16 +329,48 @@ public class TP_ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            MoveProbeDepth(-1f, true);
+            MoveProbeDV(-1f, true);
         }
         else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
-            MoveProbeDepth(-1f, false);
+            MoveProbeDV(-1f, false);
         }
         if (Input.GetKeyUp(KeyCode.X))
             keyHeld = false;
+
+        // Depth movement
+
+        //if (Input.GetKeyDown(KeyCode.Z))
+        //{
+        //    moved = true;
+        //    keyPressTime = Time.realtimeSinceStartup;
+        //    MoveProbeDepth(1f, true);
+        //}
+        //else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
+        //{
+        //    keyHeld = true;
+        //    moved = true;
+        //    MoveProbeDepth(1f, false);
+        //}
+        //if (Input.GetKeyUp(KeyCode.Z))
+        //    keyHeld = false;
+
+        //if (Input.GetKeyDown(KeyCode.X))
+        //{
+        //    moved = true;
+        //    keyPressTime = Time.realtimeSinceStartup;
+        //    MoveProbeDepth(-1f, true);
+        //}
+        //else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))
+        //{
+        //    keyHeld = true;
+        //    moved = true;
+        //    MoveProbeDepth(-1f, false);
+        //}
+        //if (Input.GetKeyUp(KeyCode.X))
+        //    keyHeld = false;
 
         // Rotations
 
@@ -454,9 +487,6 @@ public class TP_ProbeController : MonoBehaviour
             if (checkForCollisions)
                 CheckCollisions(tpmanager.GetAllNonActiveColliders());
 
-            // Check where we are relative to the surface of the brain
-            UpdateSurfacePosition();
-
             // Update all the UI panels
             foreach (TP_ProbeUIManager puimanager in probeUIManagers)
                 puimanager.ProbeMoved();
@@ -528,40 +558,34 @@ public class TP_ProbeController : MonoBehaviour
     /// <param name="phi"></param>
     /// <param name="theta"></param>
     /// <param name="spin"></param>
-    public void ManualCoordinateEntry(float ap, float ml, float depth, float phi, float theta, float spin)
+    public void ManualCoordinateEntry(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
     {
-        Debug.LogError("Manual coordinate entry does no take into account the current coordinate transform or depth from brain");
+        // Unconvert back to CCF space
 
-        //[TODO: Add depth from brain as a parameter that can be set
-        //if (tpmanager.GetDepthFromBrain())
-        //{
-        //    if (probeInBrain)
-        //    {
-        //        float angleRelDown = Vector3.Angle(-probeTipT.up, Vector3.down);
-        //        float extraDepth = (iblBregma.y - brainSurface.y) / Mathf.Cos(angleRelDown);
-        //        depth += extraDepth;
-        //    }
-        //    else
-        //        depth = 0f;
-        //}
+        if (tpmanager.UseIBLAngles())
+            if (tpmanager.GetInVivoTransformState())
+                insertion.SetCoordinates_IBL(ap, ml, dv, depth, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
+            else
+                insertion.SetCoordinates_IBL(ap, ml, dv, depth, phi, theta, spin);
+        else
+            if (tpmanager.GetInVivoTransformState())
+                insertion.SetCoordinates(ap, ml, dv, depth, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
+            else
+                insertion.SetCoordinates(ap, ml, dv, depth, phi, theta, spin);
 
-        //// Set the probe position, switching from um to mm
-        //insertion.SetCoordinates_IBL(ap, ml , depth, phi, theta, spin);
+        SetProbePosition();
 
-        //// Update where we are relative to the surface
-        //UpdateSurfacePosition();
-
-        //// Tell the tpmanager we moved and update the UI elements
-        //tpmanager.SetMovedThisFrame();
-        //foreach (TP_ProbeUIManager puimanager in probeUIManagers)
-        //    puimanager.ProbeMoved();
-        //tpmanager.UpdateInPlaneView();
+        // Tell the tpmanager we moved and update the UI elements
+        tpmanager.SetMovedThisFrame();
+        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+            puimanager.ProbeMoved();
+        tpmanager.UpdateInPlaneView();
     }
 
-    public IEnumerator DelayedManualCoordinateEntry(float delay, float ap, float ml, float depth, float phi, float theta, float spin)
+    public IEnumerator DelayedManualCoordinateEntry(float delay, float ap, float ml, float dv, float depth, float phi, float theta, float spin)
     {
         yield return new WaitForSeconds(delay);
-        ManualCoordinateEntry(ap, ml, depth, phi, theta, spin);
+        ManualCoordinateEntry(ap, ml, dv, depth, phi, theta, spin);
     }
 
     /// <summary>
@@ -589,24 +613,33 @@ public class TP_ProbeController : MonoBehaviour
         ResetPositionTracking();
 
         // Manually adjust the coordinates and rotation
+        transform.position += Utils.apmldv2world(localInsertion.apmldv);
         transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
         transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
         transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
-        transform.position += new Vector3(-localInsertion.ml, 0f, localInsertion.ap);
-        transform.Translate(0f, -localInsertion.depth, 0f);
+
+        // not currently using depth information at all
+        //transform.Translate(0f, -localInsertion.depth, 0f);
 
         // save the data
         insertion.SetCoordinates(localInsertion);
 
+        // Check where we are relative to the surface of the brain
+        UpdateSurfacePosition();
+        // Update probe text
         UpdateText();
     }
+
 
     /// <summary>
     /// Get the coordinates of the current probe in mm or um, depending on the current IBL state
     /// </summary>
     /// <returns>List of ap in um, ml in um, depth in um, phi, theta, spin</returns>
-    public (float, float, float, float, float, float) GetCoordinates()
+    public (float, float, float, float, float, float, float) GetCoordinates()
     {
+        if (tpmanager.GetInVivoTransformState())
+            return (tpmanager.UseIBLAngles()) ? insertion.GetCoordinatesFloat_IBL(tpmanager.GetActiveCoordinateTransform()) : insertion.GetCoordinatesFloat(tpmanager.GetActiveCoordinateTransform());
+        
         return (tpmanager.UseIBLAngles()) ? insertion.GetCoordinatesFloat_IBL() : insertion.GetCoordinatesFloat();
     }
 
@@ -713,6 +746,15 @@ public class TP_ProbeController : MonoBehaviour
         insertion.ml += ml * speed;
     }
 
+    public void MoveProbeDV(float dv, bool pressed)
+    {
+        float speed = pressed ?
+            keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
+            keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
+
+        insertion.dv += dv * speed;
+    }
+
     public void MoveProbeDepth(float depth, bool pressed)
     {
         float speed = pressed ?
@@ -746,32 +788,35 @@ public class TP_ProbeController : MonoBehaviour
     public void UpdateText()
     {
         float localDepth = GetLocalDepth();
-        Vector2 apml_local = GetTransformedTipCoord();
+        Vector3 apmldv = GetInsertionCoordinateTransformed();
         string[] apml_string = GetAPMLStr();
 
-        (float ap, float ml, float depth, float phi, float theta, float spin) = tpmanager.UseIBLAngles() ?
+        (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = tpmanager.UseIBLAngles() ?
             insertion.GetCoordinatesFloat_IBL() :
             insertion.GetCoordinatesFloat();
 
-        string updateStr = string.Format("Probe #{0}: "+apml_string[0]+" {1} "+apml_string[1]+" {2} Azimuth {3} Elevation {4} "+ GetDepthStr() + " {5} Spin {6}",
-            probeID, round0(apml_local.x*1000), round0(apml_local.y * 1000), round2(Utils.CircDeg(phi,minPhi, maxPhi)), round2(theta), round0(localDepth*1000), round2(Utils.CircDeg(spin,minSpin, maxSpin)));;
+        string updateStr = string.Format("Probe #{0}: " + apml_string[0] + " {1} " + 
+            apml_string[1] + " {2} " +
+            apml_string[2] + " {3} Azimuth {4} Elevation {5} " + GetDepthStr() + " {6} Spin {7}",
+            probeID, round0(apmldv.x * 1000), round0(apmldv.y * 1000), round0(apmldv.z * 1000), round2(Utils.CircDeg(phi, minPhi, maxPhi)), round2(theta), round0(localDepth * 1000), round2(Utils.CircDeg(spin, minSpin, maxSpin))); ;
 
         textUI.text = updateStr;
     }
 
     private void Probe2Text()
     {
-        float localDepth = GetLocalDepth();
-        Vector2 apml_local = GetTransformedTipCoord();
-        string[] apml_string = GetAPMLStr();
+        Debug.LogWarning("Text not setup right now");
+        //float localDepth = GetLocalDepth();
+        //Vector2 apml_local = GetTransformedTipCoord();
+        //string[] apml_string = GetAPMLStr();
 
-        (float ap, float ml, float depth, float phi, float theta, float spin) = tpmanager.UseIBLAngles() ?
-            insertion.GetCoordinatesFloat_IBL() :
-            insertion.GetCoordinatesFloat();
+        //(float ap, float ml, float dv, float depth, float phi, float theta, float spin) = tpmanager.UseIBLAngles() ?
+        //    insertion.GetCoordinatesFloat_IBL() :
+        //    insertion.GetCoordinatesFloat();
 
-        string fullStr = string.Format("Probe #{0}: " + apml_string[0] + " {1} " + apml_string[1] + " {2} Azimuth {3} Elevation {4} "+ GetDepthStr()+" {5} Spin {6} Record Height {7}",
-            probeID, apml_local.x * 1000, apml_local.y * 1000, Utils.CircDeg(phi,minPhi, maxPhi), theta, localDepth, Utils.CircDeg(spin,minSpin,maxSpin), minRecordHeight * 1000);
-        GUIUtility.systemCopyBuffer = fullStr;
+        //string fullStr = string.Format("Probe #{0}: " + apml_string[0] + " {1} " + apml_string[1] + " {2} Azimuth {3} Elevation {4} "+ GetDepthStr()+" {5} Spin {6} Record Height {7}",
+        //    probeID, apml_local.x * 1000, apml_local.y * 1000, Utils.CircDeg(phi,minPhi, maxPhi), theta, localDepth, Utils.CircDeg(spin,minSpin,maxSpin), minRecordHeight * 1000);
+        //GUIUtility.systemCopyBuffer = fullStr;
 
         // When you copy text, also set this probe to be active
         tpmanager.SetActiveProbe(this);
@@ -793,22 +838,22 @@ public class TP_ProbeController : MonoBehaviour
             string prefix = tpmanager.GetInVivoPrefix();
             if (tpmanager.GetConvertAPML2Probe())
             {
-                return new string[] { prefix + "Forward", prefix + "Side" };
+                return new string[] { prefix + "Forward", prefix + "Side", prefix + "DV" };
             }
             else
             {
-                return new string[] { prefix + "AP", prefix + "ML" };
+                return new string[] { prefix + "AP", prefix + "ML", prefix + "DV" };
             }
         }
         else
         {
             if (tpmanager.GetConvertAPML2Probe())
             {
-                return new string[] { "ccfForward", "ccfSide" };
+                return new string[] { "ccfForward", "ccfSide", "ccfDV" };
             }
             else
             {
-                return new string[] { "ccfAP", "ccfML" };
+                return new string[] { "ccfAP", "ccfML", "ccfDV" };
             }
         }
     }
@@ -821,23 +866,20 @@ public class TP_ProbeController : MonoBehaviour
             return "ccfDepth";
     }
 
-    private Vector2 GetTransformedTipCoord()
+    /// <summary>
+    /// Returns the coordinate that a user should target to insert a probe into the brain.
+    /// If the probe is outside the brain we return the tip position
+    /// Once the probe is in the brain we return the brain surface position
+    /// </summary>
+    /// <returns></returns>
+    private Vector3 GetInsertionCoordinateTransformed()
     {
-        Debug.Log(tpmanager.GetInVivoTransformState());
-
-        Vector2 localAPML;
+        Vector3 insertionCoord = probeInBrain ? Utils.world2apmldv(brainSurfaceWorld + tpmanager.GetCenterOffset()) : insertion.apmldv;
+        
         // If we're in a transformed space we need to transform the coordinates
         // before we do anything else.
-        // Note that we don't handle depth here -- because depth can be in CCF or relative to the surface
-        // we'll deal with that in its own function
         if (tpmanager.GetInVivoTransformState())
-        {
-            localAPML = tpmanager.CoordinateTransformFromCCF(new Vector3(insertion.ap, insertion.ml));
-        }
-        else
-        {
-            localAPML = new Vector2(insertion.ap, insertion.ml);
-        }
+            insertionCoord = tpmanager.CoordinateTransformFromCCF(insertionCoord);
 
         // We can rotate the ap/ml position now to account for off-coronal/sagittal manipulator angles
         if (tpmanager.GetConvertAPML2Probe())
@@ -845,58 +887,32 @@ public class TP_ProbeController : MonoBehaviour
             // convert to probe angle by solving 
             float localAngleRad = insertion.phi * Mathf.PI / 180f; // our phi is 0 when it we point forward, and our angles go backwards
 
-            float x = localAPML.x * Mathf.Cos(localAngleRad) + localAPML.y * Mathf.Sin(localAngleRad);
-            float y = -localAPML.x * Mathf.Sin(localAngleRad) + localAPML.y * Mathf.Cos(localAngleRad);
-            return new Vector2(x, y);
+            float x = insertionCoord.x * Mathf.Cos(localAngleRad) + insertionCoord.y * Mathf.Sin(localAngleRad);
+            float y = -insertionCoord.x * Mathf.Sin(localAngleRad) + insertionCoord.y * Mathf.Cos(localAngleRad);
+            return new Vector3(x, y, insertionCoord.z);
         }
         else
         {
             // just return apml
-            return localAPML;
+            return insertionCoord;
         }
     }
 
     private float GetLocalDepth()
     {
-        float localDepth;
-        if (tpmanager.GetInVivoTransformState())
+        if (probeInBrain)
         {
-            if (tpmanager.GetDepthFromBrain())
-            {
-                if (probeInBrain)
-                {
-                    float depthDir = Mathf.Sign(Vector3.Dot(probeTipT.transform.position - brainSurface, -probeTipT.transform.up));
-                    // Transform the surface coordinate and the tip coordinate
-                    Vector3 transTip = tpmanager.CoordinateTransformFromCCF(probeTipT.transform.position);
-                    Vector3 transSurface = tpmanager.CoordinateTransformFromCCF(brainSurface);
+            // Get the direction
+            float dir = Mathf.Sign(Vector3.Dot(probeTipT.transform.position - brainSurfaceWorld, -probeTipT.transform.up));
+            // Get the distance
+            float distance = (tpmanager.GetInVivoTransformState()) ?
+                Vector3.Distance(tpmanager.CoordinateTransformFromCCF(probeTipT.transform.position), tpmanager.CoordinateTransformFromCCF(brainSurfaceWorld)) :
+                Vector3.Distance(probeTipT.transform.position, brainSurfaceWorld);
 
-                    localDepth = depthDir * Vector3.Distance(transTip, transSurface);
-                }
-                else
-                    localDepth = float.NaN;
-            }
-            else
-            {
-                localDepth = 0f;
-            }
+            return dir * distance;
         }
-        else
-        {
-            if (tpmanager.GetDepthFromBrain())
-            {
-                if (probeInBrain)
-                {
-                    // The depth is correct, but if the tip is above the brainSurface we also need to know that...
-                    localDepth = Mathf.Sign(Vector3.Dot(probeTipT.transform.position - brainSurface, -probeTipT.transform.up)) * Vector3.Distance(probeTipT.transform.position, brainSurface);
-                }
-                else
-                    localDepth = float.NaN;
-            }
-            else
-                localDepth = insertion.depth;
-        }
-
-        return localDepth;
+        // If the probe is not in the brain, return NaN
+        return float.NaN;
     }
 
     public void RegisterProbeCallback(int ID, Color probeColor)
@@ -944,10 +960,11 @@ public class TP_ProbeController : MonoBehaviour
     private bool axisLockAP;
     private bool axisLockML;
     private bool axisLockDV;
+    private bool axisLockDepth;
     private bool axisLockRF;
     private bool axisLockQE;
 
-    private Vector2 origAPML;
+    private Vector3 origAPMLDV;
     private float origDepth;
     private float origPhi;
     private float origTheta;
@@ -966,10 +983,11 @@ public class TP_ProbeController : MonoBehaviour
         axisLockAP = false;
         axisLockDV = false;
         axisLockML = false;
+        axisLockDepth = false;
         axisLockRF = false;
         axisLockQE = false;
 
-        origAPML = new Vector2(insertion.ap, insertion.ml);
+        origAPMLDV = new Vector3(insertion.ap, insertion.ml, insertion.dv);
         origDepth = insertion.depth;
         origPhi = insertion.phi;
         origTheta = insertion.theta;
@@ -986,7 +1004,7 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     private void CheckForPreviousDragClick()
     {
-        if (axisLockAP || axisLockDV || axisLockML || axisLockQE || axisLockRF)
+        if (axisLockAP || axisLockDV || axisLockML || axisLockDepth || axisLockQE || axisLockRF)
             DragMovementClick();
     }
 
@@ -995,6 +1013,7 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     public void DragMovementDrag()
     {
+        CheckForSpeedKeys();
         Vector3 curScreenPointWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
 
         if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S))
@@ -1004,6 +1023,7 @@ public class TP_ProbeController : MonoBehaviour
             axisLockAP = true;
             axisLockML = false;
             axisLockDV = false;
+            axisLockDepth = false;
             axisLockQE = false;
             axisLockRF = false;
         }
@@ -1013,6 +1033,7 @@ public class TP_ProbeController : MonoBehaviour
             axisLockAP = false;
             axisLockML = true;
             axisLockDV = false;
+            axisLockDepth = false;
             axisLockQE = false;
             axisLockRF = false;
         }
@@ -1022,15 +1043,27 @@ public class TP_ProbeController : MonoBehaviour
             axisLockAP = false;
             axisLockML = false;
             axisLockDV = true;
+            axisLockDepth = false;
             axisLockQE = false;
             axisLockRF = false;
         }
+        //if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
+        //{
+        //    CheckForPreviousDragClick();
+        //    axisLockAP = false;
+        //    axisLockML = false;
+        //    axisLockDV = false;
+        //    axisLockDepth = true;
+        //    axisLockQE = false;
+        //    axisLockRF = false;
+        //}
         if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.F))
         {
             CheckForPreviousDragClick();
             axisLockAP = false;
             axisLockML = false;
             axisLockDV = false;
+            axisLockDepth = false;
             axisLockQE = false;
             axisLockRF = true;
         }
@@ -1040,35 +1073,47 @@ public class TP_ProbeController : MonoBehaviour
             axisLockAP = false;
             axisLockML = false;
             axisLockDV = false;
+            axisLockDepth = false;
             axisLockQE = true;
             axisLockRF = false;
         }
 
         Vector3 worldOffset = curScreenPointWorld - originalClickPositionWorld;
 
+        bool moved = false;
         if (axisLockAP)
         {
-            insertion.ap = origAPML.x + worldOffset.z;
+            insertion.ap = origAPMLDV.x + worldOffset.z;
+            moved = true;
         }
         if (axisLockML)
         {
-            insertion.ml = origAPML.y - worldOffset.x;
+            insertion.ml = origAPMLDV.y - worldOffset.x;
+            moved = true;
         }
         if (axisLockDV)
         {
-            insertion.depth = origDepth - 1.5f * worldOffset.y;
+            insertion.dv = origAPMLDV.z - worldOffset.y;
+            moved = true;
         }
+        //if (axisLockDepth)
+        //{
+        //    insertion.depth = origDepth - 1.5f * worldOffset.y;
+        //    moved = true;
+        //}
         if (axisLockRF)
         {
             insertion.theta = Mathf.Clamp(origTheta + 2f * worldOffset.y, minTheta, maxTheta);
+            moved = true;
         }
         if (axisLockQE)
         {
             insertion.phi = origPhi - 2f * worldOffset.x;
+            moved = true;
         }
 
 
-        if (insertion.ap != origAPML.x || insertion.ml != origAPML.y || insertion.depth != origDepth || insertion.theta != origTheta || insertion.phi != origPhi)
+        if (moved)
         {
             if (tpmanager.GetCollisions())
                 CheckCollisions(tpmanager.GetAllNonActiveColliders());
@@ -1108,13 +1153,13 @@ public class TP_ProbeController : MonoBehaviour
             Vector3 endPos = tipPos + probeTipOffset.transform.up * mmRecordingSize;
             //GameObject.Find("recording_bot").transform.position = tipPos;
             //GameObject.Find("recording_top").transform.position = endPos;
-            tip_apdvlr = Utils.WorldSpace2apdvlr(tipPos + tpmanager.GetCenterOffset());
-            top_apdvlr = Utils.WorldSpace2apdvlr(endPos + tpmanager.GetCenterOffset());
+            tip_apdvlr = Utils.WorldSpace2apdvlr25(tipPos + tpmanager.GetCenterOffset());
+            top_apdvlr = Utils.WorldSpace2apdvlr25(endPos + tpmanager.GetCenterOffset());
         }
         else
         {
-            tip_apdvlr = Utils.WorldSpace2apdvlr(probeTipOffset.transform.position + probeTipOffset.transform.up + tpmanager.GetCenterOffset());
-            top_apdvlr = Utils.WorldSpace2apdvlr(probeEndOffset.transform.position + tpmanager.GetCenterOffset());
+            tip_apdvlr = Utils.WorldSpace2apdvlr25(probeTipOffset.transform.position + probeTipOffset.transform.up + tpmanager.GetCenterOffset());
+            top_apdvlr = Utils.WorldSpace2apdvlr25(probeEndOffset.transform.position + tpmanager.GetCenterOffset());
         }
 
         return (tip_apdvlr, top_apdvlr);
@@ -1143,60 +1188,40 @@ public class TP_ProbeController : MonoBehaviour
     }
 
     /// <summary>
-    /// Do some raycasting to figure out whether the probe is inside the brain and if it is where the surface coordinate is
+    /// Check whether the probe is in the brain.
+    /// If it is, calculate the brain surface coordinate by iterating up the probe until you leave the brain.
     /// </summary>
     private void UpdateSurfacePosition()
     {
         probeInBrain = false;
-        bool exit = false; bool entry = false;
 
-        // At least one point is in the brain. Using two rays from the tip and top find our entry and exit points into the CCF box
-        RaycastHit hit;
-        if (ccfBounds.Raycast(new Ray(probeTipT.position + probeTipT.up * 0.2f + -probeTipT.up * 20f, probeTipT.up), out hit, 40f))
-        {
-            exitPoint = hit.point;
-            exit = true;
-        }
-        else
-        {
-            Debug.LogWarning("Exit point failed to be discovered");
-        }
-        if (ccfBounds.Raycast(new Ray(probeTipT.position + probeTipT.up * 10.2f + probeTipT.up * 20f, -probeTipT.up), out hit, 40f))
-        {
-            entryPoint = hit.point;
-            entry = true;
-        }
-        else
-        {
-            Debug.LogWarning("Entry point failed to be discovered");
-        }
+        Vector3 tip_apdvlr25 = Utils.WorldSpace2apdvlr25(probeTipT.position + tpmanager.GetCenterOffset());
 
-        // Using the entry and exit point, find the brain surface
-        if (entry && exit)
+        if (annotationDataset.ValueAtIndex(Mathf.RoundToInt(tip_apdvlr25.x), 
+            Mathf.RoundToInt(tip_apdvlr25.y), 
+            Mathf.RoundToInt(tip_apdvlr25.z)) > 0)
         {
-            // [TODO: I'm pretty sure we can just raycast onto the mesh model for "root" to do this? not sure why I over-complicated this code
-            Vector3 entry_apdvlr = Utils.WorldSpace2apdvlr(entryPoint + tpmanager.GetCenterOffset());
-            Vector3 exit_apdvlr = Utils.WorldSpace2apdvlr(exitPoint + tpmanager.GetCenterOffset());
-            // use this code for debugging:
-            //GameObject.Find("entry").transform.position = util.apdvlr2World(entry_apdvlr) - tpmanager.GetCenterOffset();
-            //GameObject.Find("exit").transform.position = util.apdvlr2World(exit_apdvlr) - tpmanager.GetCenterOffset();
-
-            // This sort of has to work, but it isn't super efficient, might be ways to speed this up?
-            // Step through the raycast until we find a point that has a non-zero annotation value. This is the entry coordinate
-            for (float perc = 0; perc <= 1; perc += 0.002f)
+            // The tip is in the brain, iterate up until you exit the brain
+            Vector3 top = Utils.WorldSpace2apdvlr25(probeTipT.position + probeTipT.up * 10f + tpmanager.GetCenterOffset());
+            for (float perc = 0; perc <= 1f; perc += 0.0005f)
             {
-                Vector3 point = Vector3.Lerp(entry_apdvlr, exit_apdvlr, perc);
-                if (annotationDataset.ValueAtIndex(Mathf.RoundToInt(point.x), Mathf.RoundToInt(point.y), Mathf.RoundToInt(point.z)) > 0)
+                Vector3 point = Vector3.Lerp(tip_apdvlr25, top, perc);
+                if (annotationDataset.ValueAtIndex(Mathf.RoundToInt(point.x),
+                    Mathf.RoundToInt(point.y),
+                    Mathf.RoundToInt(point.z)) > 0)
                 {
-                    brainSurface = Utils.apdvlr2World(point) - tpmanager.GetCenterOffset();
+                    brainSurfaceWorld = Utils.apdvlr25_2World(point) - tpmanager.GetCenterOffset();
                     probeInBrain = true;
                     // debug code
-                    //GameObject.Find("surface").transform.position = brainSurface;
-                    return;
+                    tpmanager.SetSurfaceDebugActive(true);
+                    tpmanager.SetSurfaceDebugPosition(brainSurfaceWorld);
                 }
             }
-            // If we get here we failed to find a point
-            Debug.LogWarning("There is an entry and exit but we couldn't find the brain edge");
+        }
+        else
+        {
+            // Probe outside the brain 
+            tpmanager.SetSurfaceDebugActive(false);
         }
     }
 
@@ -1207,5 +1232,13 @@ public class TP_ProbeController : MonoBehaviour
     public List<TP_ProbeUIManager> GetProbeUIManagers()
     {
         return probeUIManagers;
+    }
+
+    /// <summary>
+    /// This is currently the only way to set the DV control on a probe to anything other than zero 
+    /// </summary>
+    public void LockProbeToArea()
+    {
+
     }
 }

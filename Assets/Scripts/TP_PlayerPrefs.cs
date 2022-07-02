@@ -17,6 +17,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     private bool inplane;
     private int invivoTransform;
     private bool useIBLAngles;
+    private bool showSurfaceCoord;
 
     [SerializeField] TP_TrajectoryPlannerManager tpmanager;
 
@@ -30,6 +31,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle inplaneToggle;
     [SerializeField] TMP_Dropdown invivoDropdown;
     [SerializeField] Toggle iblAngleToggle;
+    [SerializeField] Toggle surfaceToggle;
 
     [SerializeField] TP_QuestionDialogue qDialogue;
 
@@ -71,6 +73,10 @@ public class TP_PlayerPrefs : MonoBehaviour
         useIBLAngles = LoadBoolPref("iblangle", true);
         tpmanager.SetUseIBLAngles(useIBLAngles);
         iblAngleToggle.isOn = useIBLAngles;
+
+        showSurfaceCoord = LoadBoolPref("surface", true);
+        tpmanager.SetSurfaceDebugVisibility(showSurfaceCoord);
+        surfaceToggle.isOn = showSurfaceCoord;
     }
     public void AsyncStart()
     {
@@ -92,21 +98,26 @@ public class TP_PlayerPrefs : MonoBehaviour
         {
             float ap = PlayerPrefs.GetFloat("ap" + i);
             float ml = PlayerPrefs.GetFloat("ml" + i);
+            float dv = PlayerPrefs.GetFloat("dv" + i);
             float depth = PlayerPrefs.GetFloat("depth" + i);
             float phi = PlayerPrefs.GetFloat("phi" + i);
             float theta = PlayerPrefs.GetFloat("theta" + i);
             float spin = PlayerPrefs.GetFloat("spin" + i);
             int type = PlayerPrefs.GetInt("type" + i);
 
-            Debug.Log(ap);
-            Debug.Log(ml);
-            Debug.Log(depth);
-            Debug.Log(phi);
-            Debug.Log(theta);
-            Debug.Log(spin);
-
-            tpmanager.AddNewProbe(type, ap, ml, depth, phi, theta, spin);
+            tpmanager.AddNewProbe(type, ap, ml, dv, depth, phi, theta, spin);
         }
+    }
+
+    public void SetSurfaceCoord(bool state)
+    {
+        showSurfaceCoord = state;
+        PlayerPrefs.SetInt("surface", showSurfaceCoord ? 1 : 0);
+    }
+
+    public bool GetSurfaceCoord()
+    {
+        return showSurfaceCoord;
     }
 
     public void SetUseIBLAngles(bool state)
@@ -235,9 +246,10 @@ public class TP_PlayerPrefs : MonoBehaviour
         for (int i = 0; i < allProbes.Count; i++)
         {
             TP_ProbeController probe = allProbes[i];
-            (float ap, float ml, float depth, float phi, float theta, float spin) = probe.GetCoordinates();
+            (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = probe.GetCoordinates();
             PlayerPrefs.SetFloat("ap" + i, ap);
             PlayerPrefs.SetFloat("ml" + i, ml);
+            PlayerPrefs.SetFloat("dv" + i, dv);
             PlayerPrefs.SetFloat("depth" + i, depth);
             PlayerPrefs.SetFloat("phi" + i, phi);
             PlayerPrefs.SetFloat("theta" + i, theta);

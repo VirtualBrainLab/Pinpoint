@@ -161,19 +161,6 @@ public class TP_ProbeUIManager : MonoBehaviour
                 {
                     tickHeights.Add(y);
                 }
-
-                //for (int x = 0; x < 25; x++)
-                //{
-                //    // First check for the height line, draw that in black
-                //    // then check the depth line
-                //    // then finally do the color
-                //    if (heightLine && x > 15)
-                //        probePanel.SetPixel(x, y, Color.black);
-                //    else if (depthLine)
-                //        probePanel.SetPixel(x, y, Color.gray);
-                //    else
-                //        probePanel.SetPixel(x, y, interpolatedColors[y]);
-                //}
             }
         }
         else
@@ -191,25 +178,8 @@ public class TP_ProbeUIManager : MonoBehaviour
                     tickHeights.Add(y);
                     tickIdxs.Add(9 - y / (int)pxStep);
                 }
-
-                //for (int x = 0; x < 5; x++)
-                //    if (y >= bottomRecord && y <= topRecord)
-                //        probePanel.SetPixel(x, y, Color.red);
-                //    else
-                //        probePanel.SetPixel(x, y, Color.black);
-
-                //for (int x = 5; x < 25; x++)
-                //    // if we are at a 1000 um depth line color it gray
-                //    if (depthLine)
-                //    {
-                //        probePanel.SetPixel(x, y, Color.gray);
-                //    }
-                //    else
-                //    // otherwise give it a real color
-                //        probePanel.SetPixel(x, y, interpolatedColors[y]);
             }
         }
-        //probePanel.ApplyTex();
 
         probePanel.UpdateTicks(tickHeights, tickIdxs);
         probePanel.UpdateText(centerHeights, names, tpmanager.ProbePanelTextFS(tpmanager.UseAcronyms()));

@@ -32,6 +32,9 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     [SerializeField] private VolumeDatasetManager vdmanager;
 
+    // Debug graphics
+    [SerializeField] private GameObject surfaceDebugGO;
+
     // Text objects that need to stay visible when the background changes
     [SerializeField] private List<TMP_Text> whiteUIText;
 
@@ -170,6 +173,11 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
             return ccfCoord;
     }
 
+    public CoordinateTransform GetActiveCoordinateTransform()
+    {
+        return activeCoordinateTransform;
+    }
+
     public void ClickSearchArea(GameObject target)
     {
         searchControl.ClickArea(target);
@@ -261,8 +269,6 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.M))
             {
                 manualCoordinatePanel.gameObject.SetActive(!manualCoordinatePanel.gameObject.activeSelf);
-                if (manualCoordinatePanel.gameObject.activeSelf)
-                    manualCoordinatePanel.SetTextValues(activeProbeController);
             }
 
             // Check if mouse buttons are down, or if probe is under manual control
@@ -331,9 +337,9 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         AddNewProbe(prevProbeType, prevInsertion);
     }
 
-    public void ManualCoordinateEntry(float ap, float ml, float depth, float phi, float theta, float spin)
+    public void ManualCoordinateEntry(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
     {
-        activeProbeController.ManualCoordinateEntry(ap, ml, depth, phi, theta, spin);
+        activeProbeController.ManualCoordinateEntry(ap, ml, dv, depth, phi, theta, spin);
     }
 
     public void AddIBLProbes()
@@ -348,7 +354,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         AddNewProbe(1);
         yield return new WaitForSeconds(0.05f);
-        activeProbeController.SetProbePosition(new ProbeInsertion(0, 0, 0, phi, theta, 0));
+        activeProbeController.SetProbePosition(new ProbeInsertion(5.4f, 5.7f, 0.332f, 0f, phi, theta, 0));
     }
 
     IEnumerator DelayedMoveAllProbes()
@@ -380,17 +386,17 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
         return newProbe.GetComponent<TP_ProbeController>();
     }
-    public TP_ProbeController AddNewProbe(int probeType, float ap, float ml, float depth, float phi, float theta, float spin)
+    public TP_ProbeController AddNewProbe(int probeType, float ap, float ml, float dv, float depth, float phi, float theta, float spin)
     {
         TP_ProbeController probeController = AddNewProbe(probeType);
-        StartCoroutine(probeController.DelayedManualCoordinateEntry(0.1f, ap, ml, depth, phi, theta, spin));
+        StartCoroutine(probeController.DelayedManualCoordinateEntry(0.1f, ap, ml, dv, depth, phi, theta, spin));
 
         return probeController;
     }
     public TP_ProbeController AddNewProbe(int probeType, ProbeInsertion localInsertion)
     {
         TP_ProbeController probeController = AddNewProbe(probeType);
-        StartCoroutine(probeController.DelayedManualCoordinateEntry(0.1f, localInsertion.ap, localInsertion.ml, localInsertion.depth, localInsertion.phi, localInsertion.theta, localInsertion.spin));
+        StartCoroutine(probeController.DelayedManualCoordinateEntry(0.1f, localInsertion.ap, localInsertion.ml, localInsertion.dv, localInsertion.depth, localInsertion.phi, localInsertion.theta, localInsertion.spin));
 
         return probeController;
     }
@@ -776,5 +782,24 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
         IBLTrajectoryGO.SetActive(state);
         if (state)
             IBLTrajectoryGO.GetComponent<TP_IBLTrajectories>().Load();
+    }
+
+    public void SetSurfaceDebugPosition(Vector3 worldPosition)
+    {
+        surfaceDebugGO.transform.position = worldPosition;
+    }
+
+    public void SetSurfaceDebugActive(bool active)
+    {
+        if (localPrefs.GetSurfaceCoord())
+            surfaceDebugGO.SetActive(active);
+        else
+            surfaceDebugGO.SetActive(false);
+    }
+
+    public void SetSurfaceDebugVisibility(bool state)
+    {
+        localPrefs.SetSurfaceCoord(state);
+        SetSurfaceDebugActive(state);
     }
 }

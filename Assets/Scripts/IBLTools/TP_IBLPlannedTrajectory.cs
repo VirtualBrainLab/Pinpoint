@@ -15,9 +15,9 @@ public class TP_IBLPlannedTrajectory : MonoBehaviour
         tpmanager = GameObject.Find("main").GetComponent<TP_TrajectoryPlannerManager>();
     }
 
-    private void OnMouseDown()
-    {
-        if (tpmanager.GetActiveProbeController() != null)
-            tpmanager.ManualCoordinateEntry(coords.x, coords.y, coords.z, angles.x, angles.y, 0f);
-    }
+    //private void OnMouseDown()
+    //{
+    //    //if (tpmanager.GetActiveProbeController() != null)
+    //    //    tpmanager.ManualCoordinateEntry(coords.x, coords.y, coords.z, angles.x, angles.y, 0f);
+    //}
 }
