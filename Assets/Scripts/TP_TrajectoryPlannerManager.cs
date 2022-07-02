@@ -791,7 +791,7 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     public void SetSurfaceDebugActive(bool active)
     {
-        if (localPrefs.GetSurfaceCoord())
+        if (localPrefs.GetSurfaceCoord() && activeProbeController != null)
             surfaceDebugGO.SetActive(active);
         else
             surfaceDebugGO.SetActive(false);

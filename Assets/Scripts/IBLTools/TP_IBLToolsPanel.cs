@@ -9,6 +9,8 @@ public class TP_IBLToolsPanel : MonoBehaviour
     [SerializeField] TMP_Text mlText;
     [SerializeField] TMP_Text rText;
 
+    [SerializeField] TP_TrajectoryPlannerManager tpmanager;
+
     //5.4f, 5.739f, 0.332f
     // start the craniotomy at bregma
     private Vector3 position = Vector3.zero;
@@ -47,7 +49,7 @@ public class TP_IBLToolsPanel : MonoBehaviour
     }
     public void UpdateML(float ml)
     {
-        position.z = ml;
+        position.y = ml;
         UpdateCraniotomy();
         UpdateText();
     }
@@ -60,9 +62,11 @@ public class TP_IBLToolsPanel : MonoBehaviour
 
     private void UpdateText()
     {
-        apText.text = "AP: " + Mathf.RoundToInt(position.x);
-        mlText.text = "ML: " + Mathf.RoundToInt(position.z);
-        rText.text = "r: " + Mathf.RoundToInt(size);
+        Vector3 pos = tpmanager.GetInVivoTransformState() ? tpmanager.CoordinateTransformFromCCF(position) : position;
+
+        apText.text = "AP: " + Mathf.RoundToInt(pos.x * 1000f);
+        mlText.text = "ML: " + Mathf.RoundToInt(pos.y * 1000f);
+        rText.text = "r: " + Mathf.RoundToInt(size * 1000f);
     }
 
     private void UpdateCraniotomy()
