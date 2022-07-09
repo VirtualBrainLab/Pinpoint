@@ -2608,9 +2608,9 @@ RectTransform:
   m_Father: {fileID: 1210481390}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 354.84, y: -15}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &167749849
@@ -10267,9 +10267,9 @@ RectTransform:
   m_Father: {fileID: 1210481390}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 169.88, y: 0}
   m_SizeDelta: {x: 339.76, y: 10}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &500828953
@@ -11231,9 +11231,9 @@ RectTransform:
   m_Father: {fileID: 1210481390}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 384.91998, y: -15}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &537324944
@@ -32790,7 +32790,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2108153954}
         m_TargetAssemblyTypeName: TP_TrajectoryPlannerManager, Assembly-CSharp
-        m_MethodName: SetBackgroundWhite
+        m_MethodName: SetSurfaceDebugVisibility
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

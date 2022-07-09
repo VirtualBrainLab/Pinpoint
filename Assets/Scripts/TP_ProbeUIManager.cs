@@ -12,6 +12,8 @@ public class TP_ProbeUIManager : MonoBehaviour
     private CCFModelControl modelControl;
 
     [SerializeField] private GameObject probeTip;
+    private GameObject probeTipOffset;
+    private GameObject probeEndOffset;
     [SerializeField] private int order;
 
     private AnnotationDataset annotationDataset;
@@ -59,6 +61,14 @@ public class TP_ProbeUIManager : MonoBehaviour
 
         // Set probe to be un-selected
         ProbeSelected(false);
+
+        probeTipOffset = new GameObject(name + "TipOffset");
+        probeTipOffset.transform.position = probeTip.transform.position + probeTip.transform.up * 0.2f;
+        probeTipOffset.transform.parent = probeTip.transform;
+        probeEndOffset = new GameObject(name + "EndOffset");
+        probeEndOffset.transform.position = probeTip.transform.position + probeTip.transform.up * 10.2f;
+        probeEndOffset.transform.parent = probeTip.transform;
+
     }
 
     private void Update()
@@ -100,8 +110,7 @@ public class TP_ProbeUIManager : MonoBehaviour
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
         float[] heightPerc = probeController.GetRecordingRegionHeight();
 
-        // (1) Get the position of the probe tip and interpolate through the annotation dataset to the top of the probe
-        (Vector3 tip_apdvlr, Vector3 top_apdvlr) = probeController.GetRecordingRegionCoordinatesAPDVLR();
+        (Vector3 tip_apdvlr, Vector3 top_apdvlr) = probeController.GetRecordingRegionCoordinatesAPDVLR(probeTipOffset.transform, probeEndOffset.transform);
 
         List<int> mmTickPositions = new List<int>();
         List<int> tickIdxs = new List<int>();

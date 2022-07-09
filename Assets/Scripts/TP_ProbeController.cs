@@ -80,11 +80,8 @@ public class TP_ProbeController : MonoBehaviour
     private float recordingRegionSizeY;
 
     // Brain surface position
-    private Collider ccfBounds;
     private AnnotationDataset annotationDataset;
     private bool probeInBrain;
-    private Vector3 entryPoint;
-    private Vector3 exitPoint;
     private Vector3 brainSurfaceWorld;
 
     // Colliders
@@ -110,7 +107,6 @@ public class TP_ProbeController : MonoBehaviour
 
         // Get access to the annotation dataset and world-space boundaries
         annotationDataset = tpmanager.GetAnnotationDataset();
-        ccfBounds = tpmanager.CCFCollider();
 
         visibleProbeColliders = new List<GameObject>();
         visibleOtherColliders = new Dictionary<GameObject, Material>();
@@ -1103,12 +1099,12 @@ public class TP_ProbeController : MonoBehaviour
         //}
         if (axisLockRF)
         {
-            insertion.theta = Mathf.Clamp(origTheta + 2f * worldOffset.y, minTheta, maxTheta);
+            insertion.theta = Mathf.Clamp(origTheta + 3f * worldOffset.y, minTheta, maxTheta);
             moved = true;
         }
         if (axisLockQE)
         {
-            insertion.phi = origPhi - 2f * worldOffset.x;
+            insertion.phi = origPhi - 3f * worldOffset.x;
             moved = true;
         }
 
@@ -1130,11 +1126,16 @@ public class TP_ProbeController : MonoBehaviour
 
     }
 
+    public (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR()
+    {
+        return GetRecordingRegionCoordinatesAPDVLR(probeTipOffset.transform, probeEndOffset.transform);
+    }
+
     /// <summary>
     /// Compute the position of the bottom and top of the recording region in AP/DV/LR coordinates
     /// </summary>
     /// <returns></returns>
-    public (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR()
+    public (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR(Transform probeTipOffsetT, Transform probeEndOffsetT)
     {
         float[] heightPerc = GetRecordingRegionHeight();
         //Debug.Log(heightPerc[0] + " " + heightPerc[1]);
@@ -1148,9 +1149,9 @@ public class TP_ProbeController : MonoBehaviour
             float mmRecordingSize = heightPerc[1];
             float mmEndPos = mmStartPos + mmRecordingSize;
             // shift the starting tipPos up by the mmStartPos
-            Vector3 tipPos = probeTipOffset.transform.position + probeTipOffset.transform.up * mmStartPos;
+            Vector3 tipPos = probeTipOffsetT.position + probeTipOffsetT.up * mmStartPos;
             // shift the tipPos again to get the endPos
-            Vector3 endPos = tipPos + probeTipOffset.transform.up * mmRecordingSize;
+            Vector3 endPos = tipPos + probeTipOffsetT.up * mmRecordingSize;
             //GameObject.Find("recording_bot").transform.position = tipPos;
             //GameObject.Find("recording_top").transform.position = endPos;
             tip_apdvlr = Utils.WorldSpace2apdvlr25(tipPos + tpmanager.GetCenterOffset());
@@ -1158,8 +1159,8 @@ public class TP_ProbeController : MonoBehaviour
         }
         else
         {
-            tip_apdvlr = Utils.WorldSpace2apdvlr25(probeTipOffset.transform.position + probeTipOffset.transform.up + tpmanager.GetCenterOffset());
-            top_apdvlr = Utils.WorldSpace2apdvlr25(probeEndOffset.transform.position + tpmanager.GetCenterOffset());
+            tip_apdvlr = Utils.WorldSpace2apdvlr25(probeTipOffsetT.position + tpmanager.GetCenterOffset());
+            top_apdvlr = Utils.WorldSpace2apdvlr25(probeEndOffsetT.position + tpmanager.GetCenterOffset());
         }
 
         return (tip_apdvlr, top_apdvlr);

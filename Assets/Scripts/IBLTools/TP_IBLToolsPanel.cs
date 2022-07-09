@@ -71,7 +71,10 @@ public class TP_IBLToolsPanel : MonoBehaviour
 
     private void UpdateCraniotomy()
     {
-        craniotomySkull.SetCraniotomyPosition(position);
-        craniotomySkull.SetCraniotomySize(size);
+        if (craniotomySkull != null)
+        {
+            craniotomySkull.SetCraniotomyPosition(position);
+            craniotomySkull.SetCraniotomySize(size);
+        }
     }
 }

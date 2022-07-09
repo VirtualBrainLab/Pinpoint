@@ -462,6 +462,9 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
 
     public void SetActiveProbe(TP_ProbeController newActiveProbeController)
     {
+        if (activeProbeController == newActiveProbeController)
+            return;
+
         Debug.Log("Setting active probe to: " + newActiveProbeController.gameObject.name);
         activeProbeController = newActiveProbeController;
 
@@ -801,5 +804,12 @@ public class TP_TrajectoryPlannerManager : MonoBehaviour
     {
         localPrefs.SetSurfaceCoord(state);
         SetSurfaceDebugActive(state);
+    }
+
+    public void SetProbeTipPositionToCCFNode(CCFTreeNode targetNode)
+    {
+        // Not implemented yet
+        //Vector3 meshCenterWorld = targetNode.GetMeshCenter();
+        //activeProbeController.SetProbePosition()
     }
 }
