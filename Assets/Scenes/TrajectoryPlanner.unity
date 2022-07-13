@@ -38588,6 +38588,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   addressablesStorageRemotePath: http://data.virtualbrainlab.org/AddressablesStorage
   buildVersion: 0.1.1
+  delayCatalogLoad: 0
 --- !u!1 &2114062482
 GameObject:
   m_ObjectHideFlags: 0
@@ -39211,6 +39212,10 @@ PrefabInstance:
     - target: {fileID: 7852855776637929136, guid: 3d86af372ed9f2e41b42b525846d962f, type: 3}
       propertyPath: m_Name
       value: SensapexLink
+      objectReference: {fileID: 0}
+    - target: {fileID: 9045126198136274274, guid: 3d86af372ed9f2e41b42b525846d962f, type: 3}
+      propertyPath: _serverIp
+      value: 10.18.251.95
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3d86af372ed9f2e41b42b525846d962f, type: 3}
