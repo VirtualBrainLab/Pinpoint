@@ -40,7 +40,8 @@ public class SensapexLinkManager : MonoBehaviour
         // Register manipulators
         _connectionManager.Socket.Emit("register_manipulator", 1);
         _connectionManager.Socket.Emit("set_can_write", new CanWriteInputDataFormat(1, true, 1));
-        _connectionManager.Socket.Emit(calibrateOnConnect ? "calibrate" : "bypass_calibration", 1);
+        _connectionManager.Socket.ExpectAcknowledgement<IdCallbackParameters>(_HandleCalibration)
+            .Emit(calibrateOnConnect ? "calibrate" : "bypass_calibration", 1);
     }
 
     /// <summary>
@@ -124,9 +125,9 @@ public class SensapexLinkManager : MonoBehaviour
     /// <summary>
     /// Enable/Disable write access to the server event argument format
     /// </summary>
-    // [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
+    [SuppressMessage("ReSharper", "NotAccessedField.Local")]
     private struct CanWriteInputDataFormat
     {
         public int manipulator_id;
