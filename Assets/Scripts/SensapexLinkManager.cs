@@ -17,7 +17,7 @@ public class SensapexLinkManager : MonoBehaviour
     private NeedlesTransform _neTransform;
 
     // Manipulator things
-    private Vector3 _zeroPosition;
+    private float[] _zeroPosition;
 
     private void Awake()
     {
@@ -51,7 +51,7 @@ public class SensapexLinkManager : MonoBehaviour
     {
         if (data.error == "")
         {
-            _zeroPosition = new Vector3(data.position[0], data.position[1], data.position[2]);
+            _zeroPosition = data.position;
         }
         else
         {
@@ -74,15 +74,21 @@ public class SensapexLinkManager : MonoBehaviour
         if (data.error == "")
         {
             // Convert to CCF
-            var positionVector = new Vector3(data.position[0], data.position[1], data.position[2]);
-            var ccf = _neTransform.ToCCF(positionVector - _zeroPosition);
+            Debug.Log(data.position[0] + " " + data.position[1] + " " + data.position[2] + " " + data.position[3]);
+
+            var ccf = _neTransform.ToCCF(new Vector3(data.position[0] - _zeroPosition[0],
+                data.position[1] - _zeroPosition[1],
+                data.position[2] - _zeroPosition[2]));
+
             try
             {
                 // Get current coordinates
                 var curCoordinates = _trajectoryPlannerManager.GetActiveProbeController().GetCoordinates();
 
+                // Manually set probe coordinates
                 _trajectoryPlannerManager.GetActiveProbeController().ManualCoordinateEntry(ccf.x, ccf.y, ccf.z,
-                    curCoordinates.Item4, curCoordinates.Item5, curCoordinates.Item6, curCoordinates.Item7);
+                    data.position[3] - _zeroPosition[3], curCoordinates.Item5, curCoordinates.Item6,
+                    curCoordinates.Item7);
             }
             catch
             {
