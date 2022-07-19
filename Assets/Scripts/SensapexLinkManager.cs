@@ -17,6 +17,10 @@ public class SensapexLinkManager : MonoBehaviour
     private TP_TrajectoryPlannerManager tpmanager;
     private NeedlesTransform neTransform;
 
+    // Manipulator things
+    private Vector3 _zeroPosition;
+    private (float, float, float, float, float, float, float) _startCoordinates;
+
     private void Awake()
     {
         // Get access to everything else
@@ -36,6 +40,24 @@ public class SensapexLinkManager : MonoBehaviour
         // Register manipulators
         connectionManager.Socket.Emit("register_manipulator", 1);
         connectionManager.Socket.Emit("bypass_calibration", 1);
+        connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_SetZeroPosition).Emit("get_pos", 1);
+    }
+
+    /// <summary>
+    /// Record needle coordinates for bregma
+    /// </summary>
+    /// <param name="data">Formatted callback parameters for getting position</param>
+    private void _SetZeroPosition(GetPositionCallbackParameters data)
+    {
+        if (data.error == "")
+        {
+            _zeroPosition = new Vector3(data.position[0], data.position[1], data.position[2]);
+        }
+        else
+        {
+            Debug.LogError(data.error);
+        }
+
         connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_GetPosCallbackHandler).Emit("get_pos", 1);
     }
 
@@ -52,9 +74,22 @@ public class SensapexLinkManager : MonoBehaviour
         {
             // Convert to CCF
             var positionVector = new Vector3(data.position[0], data.position[1], data.position[2]);
-            var ccf = neTransform.ToCCF(positionVector);
+            var ccf = neTransform.ToCCF(positionVector - _zeroPosition);
             Debug.Log(ccf);
-            // tpmanager.GetActiveProbeController().SetProbePosition(new ProbeInsertion(ccf.x, ccf.y, ccf.z, data.position[3], 0, 0, 0));
+            try
+            {
+                // Get start coordinates if needed
+                if (_startCoordinates == (0,0,0,0,0,0,0))
+                {
+                    _startCoordinates = tpmanager.GetActiveProbeController().GetCoordinates();
+                }
+                tpmanager.GetActiveProbeController().SetProbePosition(new ProbeInsertion(ccf.x, ccf.y, ccf.z, _startCoordinates.Item4, _startCoordinates.Item5, _startCoordinates.Item6, _startCoordinates.Item7));
+                //Debug.Log(tpmanager.GetActiveProbeController().GetTipTransform().rotation);
+            }
+            catch
+            {
+                Debug.Log("No active probe yet");
+            }
         }
         else
         {
