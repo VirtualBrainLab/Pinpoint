@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using BestHTTP.SocketIO3;
 
@@ -9,38 +8,39 @@ using BestHTTP.SocketIO3;
 public class SensapexLinkManager : MonoBehaviour
 {
     // Connection details
-    [SerializeField] private string _serverIp = "10.18.251.95";
-    [SerializeField] private ushort _serverPort = 8080;
+    [SerializeField] private string serverIp = "10.18.251.95";
+    [SerializeField] private ushort serverPort = 8080;
 
     // Components
-    private SocketManager connectionManager;
-    private TP_TrajectoryPlannerManager tpmanager;
-    private NeedlesTransform neTransform;
+    private SocketManager _connectionManager;
+    private TP_TrajectoryPlannerManager _trajectoryPlannerManager;
+    private NeedlesTransform _neTransform;
 
     // Manipulator things
     private Vector3 _zeroPosition;
-    private (float, float, float, float, float, float, float) _startCoordinates;
 
     private void Awake()
     {
         // Get access to everything else
         GameObject main = GameObject.Find("main");
-        tpmanager = main.GetComponent<TP_TrajectoryPlannerManager>();
+        _trajectoryPlannerManager = main.GetComponent<TP_TrajectoryPlannerManager>();
     }
+
     // Start is called before the first frame update
     void Start()
     {
         // Create connection to server
-        connectionManager = new SocketManager(new System.Uri("http://" + _serverIp + ":" + _serverPort));
-        connectionManager.Socket.On("connect", () => Debug.Log(connectionManager.Handshake.Sid));
+        _connectionManager = new SocketManager(new System.Uri("http://" + serverIp + ":" + serverPort));
+        _connectionManager.Socket.On("connect", () => Debug.Log(_connectionManager.Handshake.Sid));
 
         // Instantiate components
-        neTransform = new NeedlesTransform();
+        _neTransform = new NeedlesTransform();
 
         // Register manipulators
-        connectionManager.Socket.Emit("register_manipulator", 1);
-        connectionManager.Socket.Emit("bypass_calibration", 1);
-        connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_SetZeroPosition).Emit("get_pos", 1);
+        _connectionManager.Socket.Emit("register_manipulator", 1);
+        _connectionManager.Socket.Emit("bypass_calibration", 1);
+        _connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_SetZeroPosition)
+            .Emit("get_pos", 1);
     }
 
     /// <summary>
@@ -58,7 +58,8 @@ public class SensapexLinkManager : MonoBehaviour
             Debug.LogError(data.error);
         }
 
-        connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_GetPosCallbackHandler).Emit("get_pos", 1);
+        _connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_GetPosCallbackHandler)
+            .Emit("get_pos", 1);
     }
 
     /// <summary>
@@ -74,17 +75,14 @@ public class SensapexLinkManager : MonoBehaviour
         {
             // Convert to CCF
             var positionVector = new Vector3(data.position[0], data.position[1], data.position[2]);
-            var ccf = neTransform.ToCCF(positionVector - _zeroPosition);
-            Debug.Log(ccf);
+            var ccf = _neTransform.ToCCF(positionVector - _zeroPosition);
             try
             {
-                // Get start coordinates if needed
-                if (_startCoordinates == (0,0,0,0,0,0,0))
-                {
-                    _startCoordinates = tpmanager.GetActiveProbeController().GetCoordinates();
-                }
-                tpmanager.GetActiveProbeController().SetProbePosition(new ProbeInsertion(ccf.x, ccf.y, ccf.z, _startCoordinates.Item4, _startCoordinates.Item5, _startCoordinates.Item6, _startCoordinates.Item7));
-                //Debug.Log(tpmanager.GetActiveProbeController().GetTipTransform().rotation);
+                // Get current coordinates
+                var curCoordinates = _trajectoryPlannerManager.GetActiveProbeController().GetCoordinates();
+
+                _trajectoryPlannerManager.GetActiveProbeController().ManualCoordinateEntry(ccf.x, ccf.y, ccf.z,
+                    curCoordinates.Item4, curCoordinates.Item5, curCoordinates.Item6, curCoordinates.Item7);
             }
             catch
             {
@@ -96,16 +94,20 @@ public class SensapexLinkManager : MonoBehaviour
             Debug.LogError(data.error);
         }
 
-        connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_GetPosCallbackHandler).Emit("get_pos", 1);
+        _connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_GetPosCallbackHandler)
+            .Emit("get_pos", 1);
     }
 
     /// <summary>
     /// Returned callback data format from get_pos
     /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     private struct GetPositionCallbackParameters
     {
+#pragma warning disable CS0649
         public int manipulator_id;
         public float[] position;
         public string error;
+#pragma warning restore CS0649
     }
 }
