@@ -10,6 +10,7 @@ public class SensapexLinkManager : MonoBehaviour
     // Connection details
     [SerializeField] private string serverIp = "10.18.251.95";
     [SerializeField] private ushort serverPort = 8080;
+    [SerializeField] private bool calibrateOnConnect = false;
 
     // Components
     private SocketManager _connectionManager;
@@ -38,16 +39,32 @@ public class SensapexLinkManager : MonoBehaviour
 
         // Register manipulators
         _connectionManager.Socket.Emit("register_manipulator", 1);
-        _connectionManager.Socket.Emit("bypass_calibration", 1);
-        _connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_SetZeroPosition)
-            .Emit("get_pos", 1);
+        _connectionManager.Socket.Emit("set_can_write", new CanWriteInputDataFormat(1, true, 1));
+        _connectionManager.Socket.Emit(calibrateOnConnect ? "calibrate" : "bypass_calibration", 1);
+    }
+
+    /// <summary>
+    /// Handle post-calibration state
+    /// </summary>
+    /// <param name="data">Formatted callback parameter from calibration</param>
+    private void _HandleCalibration(IdCallbackParameters data)
+    {
+        if (data.error == "")
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(_SetZeroPosition)
+                .Emit("get_pos", 1);
+        }
+        else
+        {
+            Debug.LogError(data.error);
+        }
     }
 
     /// <summary>
     /// Record needle coordinates for bregma
     /// </summary>
-    /// <param name="data">Formatted callback parameters for getting position</param>
-    private void _SetZeroPosition(GetPositionCallbackParameters data)
+    /// <param name="data">Formatted callback parameters from getting position</param>
+    private void _SetZeroPosition(PositionalCallbackParameters data)
     {
         if (data.error == "")
         {
@@ -58,7 +75,7 @@ public class SensapexLinkManager : MonoBehaviour
             Debug.LogError(data.error);
         }
 
-        _connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_GetPosCallbackHandler)
+        _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(_GetPosCallbackHandler)
             .Emit("get_pos", 1);
     }
 
@@ -69,12 +86,12 @@ public class SensapexLinkManager : MonoBehaviour
     /// Reads the returned data for errors and then prints it back out. Calls another get_pos event at the end.
     /// </para>
     /// <param name="data">Formatted callback parameters for getting position</param>
-    private void _GetPosCallbackHandler(GetPositionCallbackParameters data)
+    private void _GetPosCallbackHandler(PositionalCallbackParameters data)
     {
         if (data.error == "")
         {
             // Convert to CCF
-            Debug.Log(data.position[0] + " " + data.position[1] + " " + data.position[2] + " " + data.position[3]);
+            Debug.Log(data.position[0] + "\t" + data.position[1] + "\t" + data.position[2] + "\t" + data.position[3]);
 
             var ccf = _neTransform.ToCCF(new Vector3(data.position[0] - _zeroPosition[0],
                 data.position[1] - _zeroPosition[1],
@@ -100,15 +117,47 @@ public class SensapexLinkManager : MonoBehaviour
             Debug.LogError(data.error);
         }
 
-        _connectionManager.Socket.ExpectAcknowledgement<GetPositionCallbackParameters>(_GetPosCallbackHandler)
+        _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(_GetPosCallbackHandler)
             .Emit("get_pos", 1);
     }
 
     /// <summary>
-    /// Returned callback data format from get_pos
+    /// Enable/Disable write access to the server event argument format
+    /// </summary>
+    // [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
+    private struct CanWriteInputDataFormat
+    {
+        public int manipulator_id;
+        public bool can_write;
+        public float hours;
+
+        public CanWriteInputDataFormat(int manipulatorID, bool canWrite, float hours)
+        {
+            manipulator_id = manipulatorID;
+            can_write = canWrite;
+            this.hours = hours;
+        }
+    }
+
+    /// <summary>
+    /// Returned callback data format containing ID and error message
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    private struct GetPositionCallbackParameters
+    private struct IdCallbackParameters
+    {
+#pragma warning disable CS0649
+        public int manipulator_id;
+        public string error;
+#pragma warning restore CS0649
+    }
+
+    /// <summary>
+    /// Returned callback data format from positional data
+    /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    private struct PositionalCallbackParameters
     {
 #pragma warning disable CS0649
         public int manipulator_id;
