@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using SensapexLink;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,7 +35,13 @@ public class TP_ProbeController : MonoBehaviour
 
     // Internal flags that track whether we are in manual control or drag/link control mode
     private bool draggingMovement = false;
-    private bool sensapexLinkMovement = false;
+    private bool _sensapexLinkMovement = false;
+    
+    // Sensapex link control
+    private CommunicationManager _sensapexLinkCommunicationManager;
+    private int _manipulatorId;
+    private Vector4 _zeroPosition;
+    private NeedlesTransform _neTransform = new NeedlesTransform();
 
     // Exposed fields to collect links to other components inside of the Probe prefab
     [SerializeField] private List<Collider> probeColliders;
@@ -104,6 +111,9 @@ public class TP_ProbeController : MonoBehaviour
         GameObject main = GameObject.Find("main");
         tpmanager = main.GetComponent<TP_TrajectoryPlannerManager>();
         tpmanager.RegisterProbe(this, probeColliders);
+        
+        // Pull sensapex link communication manager
+        _sensapexLinkCommunicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
 
         // Get access to the annotation dataset and world-space boundaries
         annotationDataset = tpmanager.GetAnnotationDataset();
@@ -1241,5 +1251,40 @@ public class TP_ProbeController : MonoBehaviour
     public void LockProbeToArea()
     {
 
+    }
+    
+    /// <summary>
+    /// Return if this probe is being controlled by the Sensapex Link
+    /// </summary>
+    /// <returns>True if movement is controlled by Sensapex Link, False otherwise</returns>
+    public bool GetSensapexLinkMovement()
+    {
+        return _sensapexLinkMovement;
+    }
+
+    public void SetSensapexLinkMovement(bool state, int manipulatorId)
+    { 
+        _sensapexLinkMovement = true;
+        if (state)
+        {
+            // Set state
+            
+            // Lock manual control
+                    
+            // Start reading position from controller
+        }
+        
+    }
+
+    public void MoveFromSensapexLink(Vector4 pos)
+    {
+        // Convert position to CCF
+        var ccf = _neTransform.ToCCF((pos - _zeroPosition));
+        var currentCoordinates = GetCoordinates();
+
+        ManualCoordinateEntry(ccf.x, ccf.y, ccf.z, pos.w - _zeroPosition.w, currentCoordinates.Item5,
+            currentCoordinates.Item6, currentCoordinates.Item7);
+        
+        // _sensapexLinkCommunicationManager.GetPos();
     }
 }
