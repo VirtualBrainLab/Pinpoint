@@ -2,6 +2,8 @@
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnassignedField.Global
 
+using UnityEngine;
+
 namespace SensapexLink
 {
 #pragma warning disable CS0649
@@ -17,6 +19,12 @@ namespace SensapexLink
         public bool can_write;
         public float hours;
 
+        /// <summary>
+        /// Construct a new can_write event argument
+        /// </summary>
+        /// <param name="manipulatorID">ID of the manipulator to set the state on</param>
+        /// <param name="canWrite">Write state to set</param>
+        /// <param name="hours">Write lease duration</param>
         public CanWriteInputDataFormat(int manipulatorID, bool canWrite, float hours)
         {
             manipulator_id = manipulatorID;
@@ -25,9 +33,55 @@ namespace SensapexLink
         }
     }
 
+    /// <summary>
+    /// Passing movement data to the server event argument format
+    /// </summary>
+    public struct GotoPositionInputDataFormat
+    {
+        public int manipulator_id;
+        public float[] pos;
+        public int speed;
+        
+        /// <summary>
+        /// Construct a new goto_pos event argument
+        /// </summary>
+        /// <param name="manipulatorID">ID of the manipulator to move</param>
+        /// <param name="pos">Position in μm of the manipulator (in needle coordinates)</param>
+        /// <param name="speed">How fast to move the manipulator (in μm/s)</param>
+        public GotoPositionInputDataFormat(int manipulatorID, Vector4 pos, int speed)
+        {
+            manipulator_id = manipulatorID;
+            this.pos = new[] { pos.x, pos.y, pos.z, pos.w };
+            this.speed = speed;
+        }
+    }
+
+    /// <summary>
+    /// Passing depth driving data to the server event argument format
+    /// </summary>
+    public struct DriveToDepthInputDataFormat
+    {
+        public int manipulator_id;
+        public float depth;
+        public int speed;
+        
+        /// <summary>
+        /// Construct a new drive_to_depth event argument
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to move</param>
+        /// <param name="depth">Depth in μm of the manipulator (in needle coordinates)</param>
+        /// <param name="speed">How fast to drive the manipulator (in μm/s)</param>
+        public DriveToDepthInputDataFormat(int manipulatorId, float depth, int speed)
+        {
+            manipulator_id = manipulatorId;
+            this.depth = depth;
+            this.speed = speed;
+        }
+    }
+
     #endregion
 
-    #region Callback Data Format
+    #region Callback Parameters Data Format (Output)
 
     /// <summary>
     /// Returned callback data format containing available manipulator IDs and error message
@@ -54,6 +108,16 @@ namespace SensapexLink
     {
         public int manipulator_id;
         public float[] position;
+        public string error;
+    }
+
+    /// <summary>
+    /// Returned callback data format from driving to depth
+    /// </summary>
+    public struct DriveToDepthCallbackParameters
+    {
+        public int manipulator_id;
+        public float depth;
         public string error;
     }
 

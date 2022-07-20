@@ -44,6 +44,7 @@ namespace SensapexLink
             // Instantiate components
             _neTransform = new NeedlesTransform();
 
+            RegisterManipulator(1, () => GetPos(1, pos => Debug.Log(pos)));
 
             // Register manipulators
             // _connectionManager.Socket.Emit("register_manipulator", 1);
@@ -97,6 +98,98 @@ namespace SensapexLink
                     Debug.LogError(data.error);
                 }
             }).Emit("register_manipulator", manipulatorId);
+        }
+
+        /// <summary>
+        /// Request the current position of a manipulator
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
+        /// <param name="callback">Callback function to handle receiving the position</param>
+        /// <param name="error">Callback function to handle error getting the position</param>
+        public void GetPos(int manipulatorId, Action<Vector4> callback, Action<string> error = null)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(data =>
+            {
+                if (data.error == "")
+                {
+                    callback(new Vector4(data.position[0], data.position[1], data.position[2], data.position[3]));
+                }
+                else
+                {
+                    error?.Invoke(data.error);
+                    Debug.LogError(data.error);
+                }
+            }).Emit("get_pos", manipulatorId);
+        }
+
+        /// <summary>
+        /// Request a manipulator be moved to a specific position defined by a vector4
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to be moved</param>
+        /// <param name="pos">Position in μm of the manipulator (in needle coordinates)</param>
+        /// <param name="speed">How fast to move the manipulator (in μm/s)</param>
+        /// <param name="callback">Callback function to handle a successful move</param>
+        /// <param name="error">Callback function to handle an unsuccessful move</param>
+        public void GotoPos(int manipulatorId, Vector4 pos, int speed, Action<Vector4> callback,
+            Action<string> error = null)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(data =>
+            {
+                if (data.error == "")
+                {
+                    callback(new Vector4(data.position[0], data.position[1], data.position[2], data.position[3]));
+                }
+                else
+                {
+                    error?.Invoke(data.error);
+                    Debug.LogError(data.error);
+                }
+            }).Emit("goto_pos", new GotoPositionInputDataFormat(manipulatorId, pos, speed));
+        }
+
+        /// <summary>
+        /// Request a manipulator be moved to a specific position defined by an array of 4 floats
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to be moved</param>
+        /// <param name="pos">Position in μm of the manipulator (in needle coordinates)</param>
+        /// <param name="speed">How fast to move the manipulator (in μm/s)</param>
+        /// <param name="callback">Callback function to handle a successful move</param>
+        /// <param name="error">Callback function to handle an unsuccessful move</param>
+        /// <exception cref="ArgumentException">If the given position is not in an array of 4 floats</exception>
+        public void GotoPos(int manipulatorId, float[] pos, int speed, Action<Vector4> callback,
+            Action<string> error = null)
+        {
+            if (pos.Length != 4)
+            {
+                throw new ArgumentException("Position array must be of length 4");
+            }
+
+            GotoPos(manipulatorId, new Vector4(pos[0], pos[1], pos[2], pos[3]), speed, callback, error);
+        }
+
+        /// <summary>
+        /// Request a manipulator drive down to a specific depth
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to move</param>
+        /// <param name="depth">Depth in μm of the manipulator (in needle coordinates)</param>
+        /// <param name="speed">How fast to drive the manipulator (in μm/s)</param>
+        /// <param name="callback">Callback function to handle a successful move</param>
+        /// <param name="error">Callback function to handle an unsuccessful move</param>
+        public void DriveToDepth(int manipulatorId, float depth, int speed, Action<float> callback,
+            Action<string> error)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<DriveToDepthCallbackParameters>(data =>
+            {
+                if (data.error == "")
+                {
+                    callback(data.depth);
+                }
+                else
+                {
+                    error?.Invoke(data.error);
+                    Debug.LogError(data.error);
+                }
+            }).Emit("drive_to_depth", new DriveToDepthInputDataFormat(manipulatorId, depth, speed));
         }
 
         #endregion
