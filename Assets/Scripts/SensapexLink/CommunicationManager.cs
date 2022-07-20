@@ -169,7 +169,7 @@ namespace SensapexLink
                 }
             }).Emit("drive_to_depth", new DriveToDepthInputDataFormat(manipulatorId, depth, speed));
         }
-        
+
         /// <summary>
         /// Set the inside brain state of a manipulator
         /// </summary>
@@ -192,7 +192,7 @@ namespace SensapexLink
                 }
             }).Emit("set_inside_brain", new InsideBrainInputDataFormat(manipulatorId, inside));
         }
-        
+
         /// <summary>
         /// Request a manipulator to be calibrated
         /// </summary>
@@ -214,14 +214,14 @@ namespace SensapexLink
                 }
             }).Emit("calibrate", manipulatorId);
         }
-        
+
         /// <summary>
         /// Bypass calibration requirement of a manipulator
         /// </summary>
         /// <remarks>This method should only be used for testing and NEVER in production</remarks>
-        /// <param name="manipulatorId"></param>
-        /// <param name="callback"></param>
-        /// <param name="error"></param>
+        /// <param name="manipulatorId">ID of the manipulator to bypass calibration</param>
+        /// <param name="callback">Callback function to handle a successful calibration bypass</param>
+        /// <param name="error">Callback function to handle an unsuccessful calibration bypass</param>
         public void BypassCalibration(int manipulatorId, Action callback, Action<string> error = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<IdCallbackParameters>(data =>
@@ -236,6 +236,40 @@ namespace SensapexLink
                     Debug.LogError(data.error);
                 }
             }).Emit("bypass_calibration", manipulatorId);
+        }
+
+        /// <summary>
+        /// Request a write lease for a manipulator
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to allow writing</param>
+        /// <param name="canWrite">Write state to set the manipulator to</param>
+        /// <param name="hours">How many hours a manipulator may have a write lease</param>
+        /// <param name="callback">Callback function to handle a successful write lease request</param>
+        /// <param name="error">Callback function to handle an unsuccessful write lease request</param>
+        public void SetCanWrite(int manipulatorId, bool canWrite, float hours, Action<bool> callback,
+            Action<string> error = null)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<StateCallbackParameters>(data =>
+            {
+                if (data.error == "")
+                {
+                    callback(data.state);
+                }
+                else
+                {
+                    error?.Invoke(data.error);
+                    Debug.LogError(data.error);
+                }
+            }).Emit("set_can_write", new CanWriteInputDataFormat(manipulatorId, canWrite, hours));
+        }
+
+        /// <summary>
+        /// Request all movement to stop
+        /// </summary>
+        /// <param name="callback">Callback function to handle stop result</param>
+        public void Stop(Action<bool> callback)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement(callback).Emit("stop");
         }
 
         #endregion
