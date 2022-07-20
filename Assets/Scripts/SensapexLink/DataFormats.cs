@@ -34,7 +34,7 @@ namespace SensapexLink
     }
 
     /// <summary>
-    /// Passing movement data to the server event argument format
+    /// Movement argument format
     /// </summary>
     public struct GotoPositionInputDataFormat
     {
@@ -57,7 +57,7 @@ namespace SensapexLink
     }
 
     /// <summary>
-    /// Passing depth driving data to the server event argument format
+    /// Depth driving argument format
     /// </summary>
     public struct DriveToDepthInputDataFormat
     {
@@ -76,6 +76,26 @@ namespace SensapexLink
             manipulator_id = manipulatorId;
             this.depth = depth;
             this.speed = speed;
+        }
+    }
+
+    /// <summary>
+    /// Inside brain state argument format
+    /// </summary>
+    public struct InsideBrainInputDataFormat
+    {
+        public int manipulator_id;
+        public bool inside;
+        
+        /// <summary>
+        /// Construct a new inside_brain event argument
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to set the state of</param>
+        /// <param name="inside">State to set to</param>
+        public InsideBrainInputDataFormat(int manipulatorId, bool inside)
+        {
+            manipulator_id = manipulatorId;
+            this.inside = inside;
         }
     }
 
@@ -118,6 +138,16 @@ namespace SensapexLink
     {
         public int manipulator_id;
         public float depth;
+        public string error;
+    }
+    
+    /// <summary>
+    /// Returned callback data for a state-based event
+    /// </summary>
+    public struct StateCallbackParameters
+    {
+        public int manipulator_id;
+        public bool state;
         public string error;
     }
 
