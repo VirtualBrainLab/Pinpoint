@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using BestHTTP.SocketIO3;
@@ -7,10 +8,12 @@ using BestHTTP.SocketIO3;
 /// </summary>
 public class SensapexLinkManager : MonoBehaviour
 {
+    #region Variables
+
     // Connection details
     [SerializeField] private string serverIp = "10.18.251.95";
     [SerializeField] private ushort serverPort = 8080;
-    [SerializeField] private bool calibrateOnConnect = false;
+    [SerializeField] private bool calibrateOnConnect;
 
     // Components
     private SocketManager _connectionManager;
@@ -20,29 +23,59 @@ public class SensapexLinkManager : MonoBehaviour
     // Manipulator things
     private float[] _zeroPosition;
 
+    #endregion
+
+    #region Setup
+
     private void Awake()
     {
         // Get access to everything else
-        GameObject main = GameObject.Find("main");
+        var main = GameObject.Find("main");
         _trajectoryPlannerManager = main.GetComponent<TP_TrajectoryPlannerManager>();
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         // Create connection to server
-        _connectionManager = new SocketManager(new System.Uri("http://" + serverIp + ":" + serverPort));
+        _connectionManager = new SocketManager(new Uri("http://" + serverIp + ":" + serverPort));
         _connectionManager.Socket.On("connect", () => Debug.Log(_connectionManager.Handshake.Sid));
 
         // Instantiate components
         _neTransform = new NeedlesTransform();
 
         // Register manipulators
-        _connectionManager.Socket.Emit("register_manipulator", 1);
-        _connectionManager.Socket.Emit("set_can_write", new CanWriteInputDataFormat(1, true, 1));
-        _connectionManager.Socket.ExpectAcknowledgement<IdCallbackParameters>(_HandleCalibration)
-            .Emit(calibrateOnConnect ? "calibrate" : "bypass_calibration", 1);
+        // _connectionManager.Socket.Emit("register_manipulator", 1);
+        // _connectionManager.Socket.Emit("set_can_write", new CanWriteInputDataFormat(1, true, 1));
+        // _connectionManager.Socket.ExpectAcknowledgement<IdCallbackParameters>(_HandleCalibration)
+        //     .Emit(calibrateOnConnect ? "calibrate" : "bypass_calibration", 1);
     }
+
+    #endregion
+
+    #region Event senders
+
+    /// <summary>
+    /// Get manipulators event sender
+    /// </summary>
+    /// <param name="manipulators">Callback function to handle incoming manipulator ID's</param>
+    public void GetManipulators(Action<int[]> manipulators)
+    {
+        _connectionManager.Socket.ExpectAcknowledgement<GetManipulatorsCallbackParameters>(data =>
+        {
+            if (data.error == "")
+            {
+                manipulators(data.manipulators);
+            }
+            else
+            {
+                Debug.LogError(data.error);
+            }
+        }).Emit("get_manipulators");
+    }
+
+    #endregion
+
+    #region Event Handlers
 
     /// <summary>
     /// Handle post-calibration state
@@ -122,6 +155,11 @@ public class SensapexLinkManager : MonoBehaviour
             .Emit("get_pos", 1);
     }
 
+    #endregion
+
+
+    #region Input Data Format
+
     /// <summary>
     /// Enable/Disable write access to the server event argument format
     /// </summary>
@@ -142,16 +180,29 @@ public class SensapexLinkManager : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Event Callback Data Format
+#pragma warning disable CS0649
+
+    /// <summary>
+    /// Returned callback data format containing available manipulator IDs and error message
+    /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    private struct GetManipulatorsCallbackParameters
+    {
+        public int[] manipulators;
+        public string error;
+    }
+
     /// <summary>
     /// Returned callback data format containing ID and error message
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     private struct IdCallbackParameters
     {
-#pragma warning disable CS0649
         public int manipulator_id;
         public string error;
-#pragma warning restore CS0649
     }
 
     /// <summary>
@@ -160,10 +211,11 @@ public class SensapexLinkManager : MonoBehaviour
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     private struct PositionalCallbackParameters
     {
-#pragma warning disable CS0649
         public int manipulator_id;
         public float[] position;
         public string error;
-#pragma warning restore CS0649
     }
+
+#pragma warning restore CS0649
+    #endregion
 }
