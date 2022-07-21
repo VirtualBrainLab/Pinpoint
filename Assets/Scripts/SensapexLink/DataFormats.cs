@@ -113,20 +113,10 @@ namespace SensapexLink
     }
 
     /// <summary>
-    /// Returned callback data format containing ID and error message
-    /// </summary>
-    public struct IdCallbackParameters
-    {
-        public int manipulator_id;
-        public string error;
-    }
-
-    /// <summary>
     /// Returned callback data format from positional data
     /// </summary>
     public struct PositionalCallbackParameters
     {
-        public int manipulator_id;
         public float[] position;
         public string error;
     }
@@ -136,7 +126,6 @@ namespace SensapexLink
     /// </summary>
     public struct DriveToDepthCallbackParameters
     {
-        public int manipulator_id;
         public float depth;
         public string error;
     }
@@ -146,7 +135,6 @@ namespace SensapexLink
     /// </summary>
     public struct StateCallbackParameters
     {
-        public int manipulator_id;
         public bool state;
         public string error;
     }
