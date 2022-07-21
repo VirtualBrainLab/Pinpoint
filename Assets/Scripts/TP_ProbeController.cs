@@ -1262,33 +1262,61 @@ public class TP_ProbeController : MonoBehaviour
         return _sensapexLinkMovement;
     }
 
-    public void SetSensapexLinkMovement(bool state, int manipulatorId)
+    /// <summary>
+    ///     (un)Register a probe and begin echoing position
+    /// </summary>
+    /// <param name="register">To register or deregister this probe</param>
+    /// <param name="manipulatorId">ID of the manipulator in real life to connect to</param>
+    /// <param name="calibrated">Is the manipulator in real life calibrated</param>
+    public void SetSensapexLinkMovement(bool register, int manipulatorId, bool calibrated = false)
     {
         // Set states
-        _sensapexLinkMovement = state;
+        _sensapexLinkMovement = register;
         _manipulatorId = manipulatorId;
-        
-        if (state)
+
+        if (register)
         {
             // TODO: Lock manual control
 
             // Register
             _sensapexLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
             {
-                // Calibrate
-                _sensapexLinkCommunicationManager.BypassCalibration(manipulatorId, () =>
-                {
-                    // Read and start echoing position
-                    _sensapexLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
-                    {
-                        if (_zeroPosition.Equals(Vector4.negativeInfinity)) _zeroPosition = vector4;
-                        EchoPositionFromSensapexLink(vector4);
-                    });
-                });
+                if (calibrated)
+                    // Bypass calibration and start echoing
+                    _sensapexLinkCommunicationManager.BypassCalibration(manipulatorId, StartEchoing);
+                else
+                    // Enable write
+                    _sensapexLinkCommunicationManager.SetCanWrite(manipulatorId, true, 1,
+                        _ =>
+                        {
+                            // Calibrate
+                            _sensapexLinkCommunicationManager.Calibrate(manipulatorId,
+                                () =>
+                                {
+                                    // Disable write and start echoing
+                                    _sensapexLinkCommunicationManager.SetCanWrite(manipulatorId, false, 0,
+                                        _ => { StartEchoing(); });
+                                });
+                        });
+            });
+        }
+
+        // Start echoing process
+        void StartEchoing()
+        {
+            // Read and start echoing position
+            _sensapexLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
+            {
+                if (_zeroPosition.Equals(Vector4.negativeInfinity)) _zeroPosition = vector4;
+                EchoPositionFromSensapexLink(vector4);
             });
         }
     }
 
+    /// <summary>
+    ///     Echo given position in needles transform space to the probe
+    /// </summary>
+    /// <param name="pos">Position of manipulator in needles transform</param>
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         // Convert position to CCF
