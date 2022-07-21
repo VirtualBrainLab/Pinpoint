@@ -143,6 +143,8 @@ public class TP_ProbeController : MonoBehaviour
         // Reset our probe UI panels
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
+        
+        SetSensapexLinkMovement(true, 2);
     }
 
     /// <summary>
