@@ -236,6 +236,10 @@ public class TP_ProbeController : MonoBehaviour
     /// <returns>Whether or not the probe moved on this frame</returns>
     public bool MoveProbe(bool checkForCollisions = false)
     {
+        // Cancel movement if being controlled by SensapexLink
+        if (_sensapexLinkMovement)
+            return false;
+        
         bool moved = false;
         bool keyHoldDelayPassed = (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay;
 
@@ -984,6 +988,10 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     public void DragMovementClick()
     {
+        // Cancel movement if being controlled by SensapexLink
+        if (_sensapexLinkMovement)
+            return;
+        
         tpmanager.SetProbeControl(true);
 
         axisLockAP = false;
@@ -1019,6 +1027,10 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     public void DragMovementDrag()
     {
+        // Cancel movement if being controlled by SensapexLink
+        if (_sensapexLinkMovement)
+            return;
+        
         CheckForSpeedKeys();
         Vector3 curScreenPointWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
 
@@ -1252,7 +1264,9 @@ public class TP_ProbeController : MonoBehaviour
     {
 
     }
-    
+
+    #region Sensapex Link and Control
+
     /// <summary>
     /// Return if this probe is being controlled by the Sensapex Link
     /// </summary>
@@ -1263,21 +1277,18 @@ public class TP_ProbeController : MonoBehaviour
     }
 
     /// <summary>
-    ///     (un)Register a probe and begin echoing position
+    /// (un)Register a probe and begin echoing position
     /// </summary>
     /// <param name="register">To register or deregister this probe</param>
     /// <param name="manipulatorId">ID of the manipulator in real life to connect to</param>
     /// <param name="calibrated">Is the manipulator in real life calibrated</param>
-    public void SetSensapexLinkMovement(bool register, int manipulatorId, bool calibrated = false)
+    public void SetSensapexLinkMovement(bool register, int manipulatorId, bool calibrated = true)
     {
         // Set states
         _sensapexLinkMovement = register;
         _manipulatorId = manipulatorId;
 
         if (register)
-        {
-            // TODO: Lock manual control
-
             // Register
             _sensapexLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
             {
@@ -1299,7 +1310,6 @@ public class TP_ProbeController : MonoBehaviour
                                 });
                         });
             });
-        }
 
         // Start echoing process
         void StartEchoing()
@@ -1320,7 +1330,7 @@ public class TP_ProbeController : MonoBehaviour
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         // Convert position to CCF
-        var ccf = _neTransform.ToCCF((pos - _zeroPosition));
+        var ccf = _neTransform.ToCCF(pos - _zeroPosition);
         var currentCoordinates = GetCoordinates();
 
         ManualCoordinateEntry(ccf.x, ccf.y, ccf.z, pos.w - _zeroPosition.w, currentCoordinates.Item5,
@@ -1329,4 +1339,7 @@ public class TP_ProbeController : MonoBehaviour
         if (_sensapexLinkMovement)
             _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);
     }
+
+    #endregion
+    
 }
