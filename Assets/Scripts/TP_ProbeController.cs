@@ -40,8 +40,8 @@ public class TP_ProbeController : MonoBehaviour
     // Sensapex link control
     private CommunicationManager _sensapexLinkCommunicationManager;
     private int _manipulatorId;
-    private Vector4 _zeroPosition;
-    private NeedlesTransform _neTransform = new NeedlesTransform();
+    private Vector4 _zeroPosition = Vector4.negativeInfinity;
+    private readonly NeedlesTransform _neTransform = new NeedlesTransform();
 
     // Exposed fields to collect links to other components inside of the Probe prefab
     [SerializeField] private List<Collider> probeColliders;
@@ -1263,20 +1263,33 @@ public class TP_ProbeController : MonoBehaviour
     }
 
     public void SetSensapexLinkMovement(bool state, int manipulatorId)
-    { 
-        _sensapexLinkMovement = true;
+    {
+        // Set states
+        _sensapexLinkMovement = state;
+        _manipulatorId = manipulatorId;
+        
         if (state)
         {
-            // Set state
-            
-            // Lock manual control
-                    
-            // Start reading position from controller
+            // TODO: Lock manual control
+
+            // Register
+            _sensapexLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
+            {
+                // Calibrate
+                _sensapexLinkCommunicationManager.BypassCalibration(manipulatorId, () =>
+                {
+                    // Read and start echoing position
+                    _sensapexLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
+                    {
+                        if (_zeroPosition.Equals(Vector4.negativeInfinity)) _zeroPosition = vector4;
+                        EchoPositionFromSensapexLink(vector4);
+                    });
+                });
+            });
         }
-        
     }
 
-    public void MoveFromSensapexLink(Vector4 pos)
+    public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         // Convert position to CCF
         var ccf = _neTransform.ToCCF((pos - _zeroPosition));
@@ -1284,7 +1297,8 @@ public class TP_ProbeController : MonoBehaviour
 
         ManualCoordinateEntry(ccf.x, ccf.y, ccf.z, pos.w - _zeroPosition.w, currentCoordinates.Item5,
             currentCoordinates.Item6, currentCoordinates.Item7);
-        
-        // _sensapexLinkCommunicationManager.GetPos();
+
+        if (_sensapexLinkMovement)
+            _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);
     }
 }
