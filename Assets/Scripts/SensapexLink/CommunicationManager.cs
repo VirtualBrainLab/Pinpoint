@@ -12,21 +12,80 @@ namespace SensapexLink
         #region Variables
 
         // Connection details
-        [SerializeField] private string serverIp = "10.18.251.95";
-        [SerializeField] private ushort serverPort = 8080;
+        private string _serverIp = "localhost";
+        private ushort _serverPort = 8080;
+        private bool _isConnected = false;
 
         // Components
         private SocketManager _connectionManager;
+        private Socket _socket;
 
         #endregion
 
         #region Setup
 
-        void Start()
+        private void Start()
         {
-            // Create connection to server
-            _connectionManager = new SocketManager(new Uri("http://" + serverIp + ":" + serverPort));
-            _connectionManager.Socket.On("connect", () => Debug.Log(_connectionManager.Handshake.Sid));
+            // Try connecting to localhost:8080 as a convenience
+            ConnectToServer();
+        }
+
+        #endregion
+
+        #region Connection Handler
+
+        /// <summary>
+        /// Create a connection to the server
+        /// </summary>
+        /// <param name="ip">IP address of the server</param>
+        /// <param name="port">Port of the server</param>
+        /// <param name="onConnected">Callback function to handle a successful connection</param>
+        public void ConnectToServer(string ip = "localhost", ushort port = 8080, Action onConnected = null)
+        {
+            // Disconnect the old connection if needed
+            if (_connectionManager != null && _connectionManager.Socket.IsOpen)
+            {
+                _connectionManager.Close();
+            }
+
+            // Create new connection
+            _connectionManager = new SocketManager(new Uri("http://" + ip + ":" + port));
+            _socket = _connectionManager.Socket;
+            _socket.Once("connect", () =>
+            {
+                Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
+                _serverIp = ip;
+                _serverPort = port;
+                _isConnected = true;
+                onConnected?.Invoke();
+            });
+        }
+        
+        /// <summary>
+        /// Return the stored server IP address
+        /// </summary>
+        /// <returns>Stored server IP address (can be an empty string)</returns>
+        public string GetServerIp()
+        {
+            return _serverIp;
+        }
+        
+        /// <summary>
+        /// Return the stored server port
+        /// </summary>
+        /// <returns>Stored server port (can be 0)</returns>
+        public ushort GetServerPort()
+        {
+            return _serverPort;
+        }
+        
+        /// <summary>
+        /// Return if the server is connected
+        /// </summary>
+        /// <returns>True if the server is connected, false otherwise</returns>
+        public bool IsConnected()
+        {
+            return _isConnected;
         }
 
         #endregion
@@ -60,7 +119,8 @@ namespace SensapexLink
         /// <param name="manipulatorId">The ID of the manipulator to register</param>
         /// <param name="onSuccessCallback">Callback function to handle a successful registration</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void RegisterManipulator(int manipulatorId, Action onSuccessCallback = null, Action<string> onErrorCallback = null)
+        public void RegisterManipulator(int manipulatorId, Action onSuccessCallback = null,
+            Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
@@ -88,7 +148,8 @@ namespace SensapexLink
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback(new Vector4(data.position[0], data.position[1], data.position[2], data.position[3]));
+                    onSuccessCallback(new Vector4(data.position[0], data.position[1], data.position[2],
+                        data.position[3]));
                 }
                 else
                 {
@@ -114,7 +175,8 @@ namespace SensapexLink
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback(new Vector4(data.position[0], data.position[1], data.position[2], data.position[3]));
+                    onSuccessCallback(new Vector4(data.position[0], data.position[1], data.position[2],
+                        data.position[3]));
                 }
                 else
                 {
@@ -142,7 +204,8 @@ namespace SensapexLink
                 throw new ArgumentException("Position array must be of length 4");
             }
 
-            GotoPos(manipulatorId, new Vector4(pos[0], pos[1], pos[2], pos[3]), speed, onSuccessCallback, onErrorCallback);
+            GotoPos(manipulatorId, new Vector4(pos[0], pos[1], pos[2], pos[3]), speed, onSuccessCallback,
+                onErrorCallback);
         }
 
         /// <summary>
