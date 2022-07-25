@@ -1,0 +1,16 @@
+{
+    "name": "trajectoryplanner.insertion",
+    "rootNamespace": "",
+    "references": [
+        "GUID:025d8743921d928489cc31aa3f24d884"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

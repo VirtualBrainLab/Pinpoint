@@ -51,7 +51,7 @@ namespace IBLTools
                 GameObject newProbe = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 newProbe.transform.SetParent(transform);
                 newProbe.transform.localScale = Vector3.one * 0.2f;
-                newProbe.transform.position = Utils.apdvlr25_2World(apdvlr25) - tpmanager.GetCenterOffset();
+                newProbe.transform.position = Utils.apdvlr25_2World(apdvlr25);
                 newProbe.GetComponent<Renderer>().material.color = Color.red;
                 newProbe.layer = LayerMask.NameToLayer("Brain");
                 TP_IBLPlannedTrajectory planned = newProbe.AddComponent<TP_IBLPlannedTrajectory>() as TP_IBLPlannedTrajectory;

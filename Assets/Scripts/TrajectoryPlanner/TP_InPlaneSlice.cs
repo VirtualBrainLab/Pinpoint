@@ -119,8 +119,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         bool fourShank = activeProbeController.GetProbeType() == 4;
 
         recordingRegionCenterPosition = fourShank ? 
-            Utils.WorldSpace2apdvlr25(tipPosition + tpmanager.GetCenterOffset() + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
-            Utils.WorldSpace2apdvlr25(tipPosition + tpmanager.GetCenterOffset() + tipTransform.up * mmRecordingSize / 2); ;
+            Utils.WorldSpace2apdvlr25(tipPosition + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
+            Utils.WorldSpace2apdvlr25(tipPosition + tipTransform.up * mmRecordingSize / 2); ;
 
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 

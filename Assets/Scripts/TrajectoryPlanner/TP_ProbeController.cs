@@ -100,6 +100,52 @@ public class TP_ProbeController : MonoBehaviour
     GameObject textGO;
     Button textButton;
 
+    #region Accessors
+
+    /// <summary>
+    /// Get the probe-type of this probe
+    /// </summary>
+    /// <returns>probe type</returns>
+    public int GetProbeType()
+    {
+        return probeType;
+    }
+
+    /// <summary>
+    /// Get the tip transform
+    /// </summary>
+    /// <returns>tip transform</returns>
+    public Transform GetTipTransform()
+    {
+        return probeTipT;
+    }
+    public int GetID()
+    {
+        return probeID;
+    }
+
+    public Color GetColor()
+    {
+        return probeRenderer.material.color;
+    }
+    public List<Collider> GetProbeColliders()
+    {
+        return probeColliders;
+    }
+
+    /// <summary>
+    /// Return the probe panel UI managers
+    /// </summary>
+    /// <returns>list of probe panel UI managers</returns>
+    public List<TP_ProbeUIManager> GetProbeUIManagers()
+    {
+        return probeUIManagers;
+    }
+
+    #endregion
+
+    #region Unity
+
     private void Awake()
     {
         // Setup some basic variables
@@ -145,25 +191,6 @@ public class TP_ProbeController : MonoBehaviour
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
     }
-
-    /// <summary>
-    /// Get the probe-type of this probe
-    /// </summary>
-    /// <returns>probe type</returns>
-    public int GetProbeType()
-    {
-        return probeType;
-    }
-
-    /// <summary>
-    /// Get the tip transform
-    /// </summary>
-    /// <returns>tip transform</returns>
-    public Transform GetTipTransform()
-    {
-        return probeTipT;
-    }
-
     /// <summary>
     /// Called by Unity when this object is destroyed. 
     /// Unregisters the probe from tpmanager
@@ -176,6 +203,10 @@ public class TP_ProbeController : MonoBehaviour
             puimanager.Destroy();
         Destroy(textGO);
     }
+
+    #endregion
+
+
 
     /// <summary>
     /// Update the size of the recording region.
@@ -608,14 +639,9 @@ public class TP_ProbeController : MonoBehaviour
     }
 
     /// <summary>
-    /// Set the probe position to a set of passed in values
+    /// Set the position of the probe to match a ProbeInsertion object
     /// </summary>
-    /// <param name="ap">position on the ap axis in mm</param>
-    /// <param name="ml">position on the ml axis in mm</param>
-    /// <param name="depth">depth relative to bregma (or CCF 0 if bregma is disabled)</param>
-    /// <param name="phi"></param>
-    /// <param name="theta"></param>
-    /// <param name="spin"></param>
+    /// <param name="localInsertion">new insertion position</param>
     public void SetProbePosition(ProbeInsertion localInsertion)
     {
         // Reset everything
@@ -745,7 +771,7 @@ public class TP_ProbeController : MonoBehaviour
         }
     }
 
-    // MOVEMENT
+    #region Movement Controls
 
     public void MoveProbeAPML(float ap, float ml, bool pressed)
     {
@@ -794,7 +820,191 @@ public class TP_ProbeController : MonoBehaviour
         insertion.spin += spin * speed;
     }
 
-    // TEXT UPDATES
+    // Drag movement variables
+    private bool axisLockAP;
+    private bool axisLockML;
+    private bool axisLockDV;
+    private bool axisLockDepth;
+    private bool axisLockRF;
+    private bool axisLockQE;
+
+    private Vector3 origAPMLDV;
+    private float origDepth;
+    private float origPhi;
+    private float origTheta;
+
+    // Camera variables
+    private Vector3 originalClickPositionWorld;
+    private float cameraDistance;
+
+    /// <summary>
+    /// Handle setting up drag movement after a user clicks on the probe
+    /// </summary>
+    public void DragMovementClick()
+    {
+        // Cancel movement if being controlled by SensapexLink
+        if (_sensapexLinkMovement)
+            return;
+
+        tpmanager.SetProbeControl(true);
+
+        axisLockAP = false;
+        axisLockDV = false;
+        axisLockML = false;
+        axisLockDepth = false;
+        axisLockRF = false;
+        axisLockQE = false;
+
+        origAPMLDV = new Vector3(insertion.ap, insertion.ml, insertion.dv);
+        origDepth = insertion.depth;
+        origPhi = insertion.phi;
+        origTheta = insertion.theta;
+
+        // Track the screenPoint that was initially clicked
+        cameraDistance = Vector3.Distance(Camera.main.transform.position, gameObject.transform.position);
+        originalClickPositionWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
+    }
+
+    /// <summary>
+    /// Helper function: if the user was already moving on some other axis and then we *switch* axis, or
+    /// if they repeatedly tap the same axis key we shouldn't jump back to the original position the
+    /// probe was in.
+    /// </summary>
+    private void CheckForPreviousDragClick()
+    {
+        if (axisLockAP || axisLockDV || axisLockML || axisLockDepth || axisLockQE || axisLockRF)
+            DragMovementClick();
+    }
+
+    /// <summary>
+    /// Handle probe movements when a user is dragging while keeping the mouse pressed
+    /// </summary>
+    public void DragMovementDrag()
+    {
+        // Cancel movement if being controlled by SensapexLink
+        if (_sensapexLinkMovement)
+            return;
+
+        CheckForSpeedKeys();
+        Vector3 curScreenPointWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
+
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S))
+        {
+            // If the user was previously moving on a different axis we shouldn't accidentally reset their previous motion data
+            CheckForPreviousDragClick();
+            axisLockAP = true;
+            axisLockML = false;
+            axisLockDV = false;
+            axisLockDepth = false;
+            axisLockQE = false;
+            axisLockRF = false;
+        }
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
+        {
+            CheckForPreviousDragClick();
+            axisLockAP = false;
+            axisLockML = true;
+            axisLockDV = false;
+            axisLockDepth = false;
+            axisLockQE = false;
+            axisLockRF = false;
+        }
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
+        {
+            CheckForPreviousDragClick();
+            axisLockAP = false;
+            axisLockML = false;
+            axisLockDV = true;
+            axisLockDepth = false;
+            axisLockQE = false;
+            axisLockRF = false;
+        }
+        if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.F))
+        {
+            CheckForPreviousDragClick();
+            axisLockAP = false;
+            axisLockML = false;
+            axisLockDV = false;
+            axisLockDepth = false;
+            axisLockQE = false;
+            axisLockRF = true;
+        }
+        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
+        {
+            CheckForPreviousDragClick();
+            axisLockAP = false;
+            axisLockML = false;
+            axisLockDV = false;
+            axisLockDepth = false;
+            axisLockQE = true;
+            axisLockRF = false;
+        }
+
+        Vector3 worldOffset = curScreenPointWorld - originalClickPositionWorld;
+
+        bool moved = false;
+        if (axisLockAP)
+        {
+            insertion.ap = origAPMLDV.x + worldOffset.z;
+            moved = true;
+        }
+        if (axisLockML)
+        {
+            insertion.ml = origAPMLDV.y - worldOffset.x;
+            moved = true;
+        }
+        if (axisLockDV)
+        {
+            insertion.dv = origAPMLDV.z - worldOffset.y;
+            moved = true;
+        }
+        //if (axisLockDepth)
+        //{
+        //    insertion.depth = origDepth - 1.5f * worldOffset.y;
+        //    moved = true;
+        //}
+        if (axisLockRF)
+        {
+            insertion.theta = Mathf.Clamp(origTheta + 3f * worldOffset.y, minTheta, maxTheta);
+            moved = true;
+        }
+        if (axisLockQE)
+        {
+            insertion.phi = origPhi - 3f * worldOffset.x;
+            moved = true;
+        }
+
+
+        if (moved)
+        {
+            if (tpmanager.GetCollisions())
+                CheckCollisions(tpmanager.GetAllNonActiveColliders());
+
+            tpmanager.UpdateInPlaneView();
+            SetProbePosition(insertion);
+
+            foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+                puimanager.ProbeMoved();
+
+            tpmanager.SetMovedThisFrame();
+        }
+
+    }
+
+
+    /// <summary>
+    /// Release control of mouse movements after the user releases the mouse button from a probe
+    /// </summary>
+    public void DragMovementRelease()
+    {
+        // release probe control
+        tpmanager.SetProbeControl(false);
+    }
+
+
+    #endregion
+
+    #region Text
 
     public void UpdateText()
     {
@@ -841,7 +1051,7 @@ public class TP_ProbeController : MonoBehaviour
 
         return output;
     }
-    
+
     private string[] GetAPMLStr()
     {
         if (tpmanager.GetInVivoTransformState())
@@ -876,6 +1086,8 @@ public class TP_ProbeController : MonoBehaviour
         else
             return "ccfDepth";
     }
+
+    #endregion
 
     /// <summary>
     /// Returns the coordinate that a user should target to insert a probe into the brain.
@@ -941,15 +1153,6 @@ public class TP_ProbeController : MonoBehaviour
         textButton.colors = colors;
     }
 
-    public int GetID()
-    {
-        return probeID;
-    }
-
-    public Color GetColor()
-    {
-        return probeRenderer.material.color;
-    }
 
     private float round0(float input)
     {
@@ -960,194 +1163,7 @@ public class TP_ProbeController : MonoBehaviour
         return Mathf.Round(input * 100) / 100;
     }
 
-    public List<Collider> GetProbeColliders()
-    {
-        return probeColliders;
-    }
 
-    // DRAGGING MOVEMENT
-    
-    // Drag movement variables
-    private bool axisLockAP;
-    private bool axisLockML;
-    private bool axisLockDV;
-    private bool axisLockDepth;
-    private bool axisLockRF;
-    private bool axisLockQE;
-
-    private Vector3 origAPMLDV;
-    private float origDepth;
-    private float origPhi;
-    private float origTheta;
-
-    // Camera variables
-    private Vector3 originalClickPositionWorld;
-    private float cameraDistance;
-
-    /// <summary>
-    /// Handle setting up drag movement after a user clicks on the probe
-    /// </summary>
-    public void DragMovementClick()
-    {
-        // Cancel movement if being controlled by SensapexLink
-        if (_sensapexLinkMovement)
-            return;
-        
-        tpmanager.SetProbeControl(true);
-
-        axisLockAP = false;
-        axisLockDV = false;
-        axisLockML = false;
-        axisLockDepth = false;
-        axisLockRF = false;
-        axisLockQE = false;
-
-        origAPMLDV = new Vector3(insertion.ap, insertion.ml, insertion.dv);
-        origDepth = insertion.depth;
-        origPhi = insertion.phi;
-        origTheta = insertion.theta;
-
-        // Track the screenPoint that was initially clicked
-        cameraDistance = Vector3.Distance(Camera.main.transform.position, gameObject.transform.position);
-        originalClickPositionWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
-    }
-
-    /// <summary>
-    /// Helper function: if the user was already moving on some other axis and then we *switch* axis, or
-    /// if they repeatedly tap the same axis key we shouldn't jump back to the original position the
-    /// probe was in.
-    /// </summary>
-    private void CheckForPreviousDragClick()
-    {
-        if (axisLockAP || axisLockDV || axisLockML || axisLockDepth || axisLockQE || axisLockRF)
-            DragMovementClick();
-    }
-
-    /// <summary>
-    /// Handle probe movements when a user is dragging while keeping the mouse pressed
-    /// </summary>
-    public void DragMovementDrag()
-    {
-        // Cancel movement if being controlled by SensapexLink
-        if (_sensapexLinkMovement)
-            return;
-        
-        CheckForSpeedKeys();
-        Vector3 curScreenPointWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
-
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S))
-        {
-            // If the user was previously moving on a different axis we shouldn't accidentally reset their previous motion data
-            CheckForPreviousDragClick();
-            axisLockAP = true;
-            axisLockML = false;
-            axisLockDV = false;
-            axisLockDepth = false;
-            axisLockQE = false;
-            axisLockRF = false;
-        }
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
-        {
-            CheckForPreviousDragClick();
-            axisLockAP = false;
-            axisLockML = true;
-            axisLockDV = false;
-            axisLockDepth = false;
-            axisLockQE = false;
-            axisLockRF = false;
-        }
-        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
-        {
-            CheckForPreviousDragClick();
-            axisLockAP = false;
-            axisLockML = false;
-            axisLockDV = true;
-            axisLockDepth = false;
-            axisLockQE = false;
-            axisLockRF = false;
-        }
-        //if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
-        //{
-        //    CheckForPreviousDragClick();
-        //    axisLockAP = false;
-        //    axisLockML = false;
-        //    axisLockDV = false;
-        //    axisLockDepth = true;
-        //    axisLockQE = false;
-        //    axisLockRF = false;
-        //}
-        if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.F))
-        {
-            CheckForPreviousDragClick();
-            axisLockAP = false;
-            axisLockML = false;
-            axisLockDV = false;
-            axisLockDepth = false;
-            axisLockQE = false;
-            axisLockRF = true;
-        }
-        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
-        {
-            CheckForPreviousDragClick();
-            axisLockAP = false;
-            axisLockML = false;
-            axisLockDV = false;
-            axisLockDepth = false;
-            axisLockQE = true;
-            axisLockRF = false;
-        }
-
-        Vector3 worldOffset = curScreenPointWorld - originalClickPositionWorld;
-
-        bool moved = false;
-        if (axisLockAP)
-        {
-            insertion.ap = origAPMLDV.x + worldOffset.z;
-            moved = true;
-        }
-        if (axisLockML)
-        {
-            insertion.ml = origAPMLDV.y - worldOffset.x;
-            moved = true;
-        }
-        if (axisLockDV)
-        {
-            insertion.dv = origAPMLDV.z - worldOffset.y;
-            moved = true;
-        }
-        //if (axisLockDepth)
-        //{
-        //    insertion.depth = origDepth - 1.5f * worldOffset.y;
-        //    moved = true;
-        //}
-        if (axisLockRF)
-        {
-            insertion.theta = Mathf.Clamp(origTheta + 3f * worldOffset.y, minTheta, maxTheta);
-            moved = true;
-        }
-        if (axisLockQE)
-        {
-            insertion.phi = origPhi - 3f * worldOffset.x;
-            moved = true;
-        }
-
-
-        if (moved)
-        {
-            if (tpmanager.GetCollisions())
-                CheckCollisions(tpmanager.GetAllNonActiveColliders());
-
-            tpmanager.UpdateInPlaneView();
-            SetProbePosition(insertion);
-            UpdateSurfacePosition();
-
-            foreach (TP_ProbeUIManager puimanager in probeUIManagers)
-                puimanager.ProbeMoved();
-
-            tpmanager.SetMovedThisFrame();
-        }
-
-    }
 
     public (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR()
     {
@@ -1177,25 +1193,16 @@ public class TP_ProbeController : MonoBehaviour
             Vector3 endPos = tipPos + probeTipOffsetT.up * mmRecordingSize;
             //GameObject.Find("recording_bot").transform.position = tipPos;
             //GameObject.Find("recording_top").transform.position = endPos;
-            tip_apdvlr = Utils.WorldSpace2apdvlr25(tipPos + tpmanager.GetCenterOffset());
-            top_apdvlr = Utils.WorldSpace2apdvlr25(endPos + tpmanager.GetCenterOffset());
+            tip_apdvlr = Utils.WorldSpace2apdvlr25(tipPos);
+            top_apdvlr = Utils.WorldSpace2apdvlr25(endPos);
         }
         else
         {
-            tip_apdvlr = Utils.WorldSpace2apdvlr25(probeTipOffsetT.position + tpmanager.GetCenterOffset());
-            top_apdvlr = Utils.WorldSpace2apdvlr25(probeEndOffsetT.position + tpmanager.GetCenterOffset());
+            tip_apdvlr = Utils.WorldSpace2apdvlr25(probeTipOffsetT.position);
+            top_apdvlr = Utils.WorldSpace2apdvlr25(probeEndOffsetT.position);
         }
 
         return (tip_apdvlr, top_apdvlr);
-    }
-
-    /// <summary>
-    /// Release control of mouse movements after the user releases the mouse button from a probe
-    /// </summary>
-    public void DragMovementRelease()
-    {
-        // release probe control
-        tpmanager.SetProbeControl(false);
     }
 
     /// <summary>
@@ -1217,54 +1224,96 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     private void UpdateSurfacePosition()
     {
-        probeInBrain = false;
+        (Vector3 surfacePosition, float depth, Vector3 angles) = CCF2Surface(probeTipT.position, insertion.angles);
 
-        Vector3 tip_apdvlr25 = Utils.WorldSpace2apdvlr25(probeTipT.position + tpmanager.GetCenterOffset());
+        brainSurfaceWorld = surfacePosition;
 
-        if (annotationDataset.ValueAtIndex(Mathf.RoundToInt(tip_apdvlr25.x), 
-            Mathf.RoundToInt(tip_apdvlr25.y), 
-            Mathf.RoundToInt(tip_apdvlr25.z)) > 0)
+        if (float.IsNaN(depth))
         {
-            // The tip is in the brain, iterate up until you exit the brain
-            Vector3 top = Utils.WorldSpace2apdvlr25(probeTipT.position + probeTipT.up * 10f + tpmanager.GetCenterOffset());
-            for (float perc = 0; perc <= 1f; perc += 0.0005f)
-            {
-                Vector3 point = Vector3.Lerp(tip_apdvlr25, top, perc);
-                if (annotationDataset.ValueAtIndex(Mathf.RoundToInt(point.x),
-                    Mathf.RoundToInt(point.y),
-                    Mathf.RoundToInt(point.z)) > 0)
-                {
-                    brainSurfaceWorld = Utils.apdvlr25_2World(point) - tpmanager.GetCenterOffset();
-                    probeInBrain = true;
-                    // debug code
-                    tpmanager.SetSurfaceDebugActive(true);
-                    tpmanager.SetSurfaceDebugPosition(brainSurfaceWorld);
-                }
-            }
+            // not in the brain
+            probeInBrain = false;
+            // these debugs are really bad coding style -- tpmanager should *get* the position and set these, it shouldn't be called from here
+            tpmanager.SetSurfaceDebugActive(false);
         }
         else
         {
-            // Probe outside the brain 
-            tpmanager.SetSurfaceDebugActive(false);
+            // in the brain
+            probeInBrain = true;
+            // these debugs are really bad coding style -- tpmanager should *get* the position and set these, it shouldn't be called from here
+            tpmanager.SetSurfaceDebugActive(true);
+            tpmanager.SetSurfaceDebugPosition(brainSurfaceWorld);
         }
     }
 
     /// <summary>
-    /// Return the probe panel UI managers
-    /// </summary>
-    /// <returns>list of probe panel UI managers</returns>
-    public List<TP_ProbeUIManager> GetProbeUIManagers()
-    {
-        return probeUIManagers;
-    }
-
-    /// <summary>
-    /// This is currently the only way to set the DV control on a probe to anything other than zero 
+    /// to implement 
     /// </summary>
     public void LockProbeToArea()
     {
 
     }
+
+    #region Transforms
+
+    /// <summary>
+    /// Convert from CCF insertion coordinates to brain surface/depth/angles coordinates
+    /// 
+    /// If the tip coordinate is outside the brain this function returns the tip coordinate as the surface, a depth of NaN, and identical angles
+    /// 
+    /// This function is quite expensive to run!
+    /// </summary>
+    /// <param name="tipPosition"></param>
+    /// <param name="angles"></param>
+    /// <returns></returns>
+    public (Vector3, float, Vector3) CCF2Surface(Vector3 tipPosition, Vector3 angles)
+    {
+        Vector3 tip_apdvlr25 = Utils.WorldSpace2apdvlr25(tipPosition);
+
+        if (annotationDataset.ValueAtIndex(tip_apdvlr25) > 0)
+        {
+            // The tip is in the brain, iterate up until you exit the brain
+            Vector3 top = Utils.WorldSpace2apdvlr25(probeTipT.position + probeTipT.up * 10f);
+            for (float perc = 0; perc <= 1f; perc += 0.0005f)
+            {
+                Vector3 point = Vector3.Lerp(tip_apdvlr25, top, perc);
+                if (annotationDataset.ValueAtIndex(point) <= 0)
+                {
+                    Vector3 surfacePosition = Utils.apdvlr25_2World(point);
+                    return (surfacePosition, Vector3.Distance(tipPosition, brainSurfaceWorld), angles);
+                }
+            }
+        }
+
+        return (tipPosition, float.NaN, angles);
+    }
+
+    /// <summary>
+    /// Running this function assumes you've set the probe position to match the angles
+    /// </summary>
+    /// <param name="surfacePosition"></param>
+    /// <param name="depth"></param>
+    /// <param name="angles"></param>
+    /// <returns></returns>
+    public (Vector3, Vector3) Surface2CCF(Vector3 surfacePosition, float depth, Vector3 angles)
+    {
+        // For now we'll just compute this using the tip transform rotation
+        Vector3 tipPosition = surfacePosition + -probeTipT.up * depth;
+        return (tipPosition, angles);
+
+        //transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
+        //transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
+        //transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
+
+        // I'm confused about why this doesn't work...
+        //Vector3 tipPosition = surfacePosition + Quaternion.Euler(new Vector3(-angles.y, 0f, -angles.x)) * Vector3.down * depth;
+        //GameObject.Find("recovered_tip_down").transform.position = surfacePosition + Vector3.down * depth;
+        //GameObject.Find("recovered_tip_phi").transform.position = surfacePosition + Quaternion.Euler(new Vector3(0f, 0f, -angles.x)) * Vector3.up * depth;
+        //GameObject.Find("recovered_tip_theta").transform.position = surfacePosition + Quaternion.Euler(new Vector3(-angles.y, 0f, -angles.x)) * Vector3.up * depth;
+        //return (tipPosition, angles);
+    }
+
+
+    #endregion
 
     #region Sensapex Link and Control
 
