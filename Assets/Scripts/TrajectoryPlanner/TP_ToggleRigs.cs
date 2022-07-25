@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TrajectoryPlanner;
 
 public class TP_ToggleRigs : MonoBehaviour
 {
-    [SerializeField] TP_TrajectoryPlannerManager tpmanager;
+    [SerializeField] TrajectoryPlannerManager tpmanager;
 
     // Exposed the list of rigs
     [SerializeField] List<GameObject> rigGOs;

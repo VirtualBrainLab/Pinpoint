@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using TrajectoryPlanner;
 
 public class TP_RecRegionSlider : MonoBehaviour
 {
-    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TrajectoryPlannerManager tpmanager;
     [SerializeField] private Slider uiSlider;
     [SerializeField] private TextMeshProUGUI recRegionSizeText;
 

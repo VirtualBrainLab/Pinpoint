@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using TrajectoryPlanner;
 
 public class TP_PlayerPrefs : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     private bool useIBLAngles;
     private bool showSurfaceCoord;
 
-    [SerializeField] TP_TrajectoryPlannerManager tpmanager;
+    [SerializeField] TrajectoryPlannerManager tpmanager;
 
     [SerializeField] Toggle collisionsToggle;
     //[SerializeField] Toggle bregmaToggle;

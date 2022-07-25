@@ -8,11 +8,12 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
+using TrajectoryPlanner;
 
 public class TP_InPlaneSlice : MonoBehaviour
 {
     // In plane slice handling
-    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TrajectoryPlannerManager tpmanager;
     [SerializeField] private GameObject inPlaneSliceUIGO;
     [SerializeField] private CCFModelControl modelControl;
     [SerializeField] private TP_PlayerPrefs localPrefs;

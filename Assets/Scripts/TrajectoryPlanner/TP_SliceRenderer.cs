@@ -6,12 +6,13 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using TrajectoryPlanner;
 
 public class TP_SliceRenderer : MonoBehaviour
 {
     [SerializeField] private GameObject sagittalSliceGO;
     [SerializeField] private GameObject coronalSliceGO;
-    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TrajectoryPlannerManager tpmanager;
     [SerializeField] private CCFModelControl modelControl;
     [SerializeField] private TP_PlayerPrefs localPrefs;
     [SerializeField] private TP_InPlaneSlice inPlaneSlice;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using TrajectoryPlanner;
 
 public class TP_CoordinateEntryPanel : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     [SerializeField] private TMP_InputField thetaField;
     [SerializeField] private TMP_InputField spinField;
 
-    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TrajectoryPlannerManager tpmanager;
 
     private void Start()
     {

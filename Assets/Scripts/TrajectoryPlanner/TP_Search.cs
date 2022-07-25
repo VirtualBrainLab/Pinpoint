@@ -4,10 +4,11 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using TrajectoryPlanner;
 
 public class TP_Search : MonoBehaviour
 {
-    [SerializeField] TP_TrajectoryPlannerManager tpmanager;
+    [SerializeField] TrajectoryPlannerManager tpmanager;
     [SerializeField] CCFModelControl modelControl;
 
     [SerializeField] GameObject areaPanelsParentGO;

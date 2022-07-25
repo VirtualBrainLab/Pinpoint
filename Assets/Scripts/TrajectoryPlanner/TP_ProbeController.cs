@@ -4,6 +4,7 @@ using SensapexLink;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using TrajectoryPlanner;
 
 /// <summary>
 /// 3D space control for Neuropixels probes in the Trajectory Planner scene
@@ -53,7 +54,7 @@ public class TP_ProbeController : MonoBehaviour
     [SerializeField] private int probeType;
     [SerializeField] private Transform probeTipT;
 
-    private TP_TrajectoryPlannerManager tpmanager;
+    private TrajectoryPlannerManager tpmanager;
 
     // in ap/ml/dv
     private Vector3 defaultStart = new Vector3(5.4f, 5.7f, 0.332f);
@@ -109,7 +110,7 @@ public class TP_ProbeController : MonoBehaviour
 
         // Pull the tpmanager object and register this probe
         GameObject main = GameObject.Find("main");
-        tpmanager = main.GetComponent<TP_TrajectoryPlannerManager>();
+        tpmanager = main.GetComponent<TrajectoryPlannerManager>();
         tpmanager.RegisterProbe(this, probeColliders);
         
         // Pull sensapex link communication manager
