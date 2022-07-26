@@ -41,23 +41,19 @@ namespace TP_Settings
         {
             UpdateUI();
         }
+
         #endregion
 
         #region Helper Functions
 
         private void UpdateUI()
         {
-            if (_communicationManager.IsConnected())
-            {
-                ipAddressInputField.text = _communicationManager.GetServerIp();
-                portInputField.text = _communicationManager.GetServerPort().ToString();
-                connectionErrorText.text = "";
-                connectButtonText.text = "Disconnect";
-            }
-            else
-            {
-                connectButtonText.text = "Connect";
-            }
+            ipAddressInputField.text = _communicationManager.GetServerIp();
+            portInputField.text = _communicationManager.GetServerPort() == 0
+                ? ""
+                : _communicationManager.GetServerPort().ToString();
+            connectionErrorText.text = "";
+            connectButtonText.text = _communicationManager.IsConnected() ? "Disconnect" : "Connect";
         }
 
         #endregion
@@ -66,13 +62,27 @@ namespace TP_Settings
 
         public void OnConnectDisconnectPressed()
         {
-            if (connectButtonText.text == "Connect")
+            try
             {
-                _communicationManager.ConnectToServer(ipAddressInputField.text, ushort.Parse(portInputField.text));
+                if (_communicationManager.IsConnected())
+                {
+                    _communicationManager.DisconnectFromServer(UpdateUI);
+                }
+                else
+                {
+                    connectButtonText.text = "Connecting...";
+                    _communicationManager.ConnectToServer(ipAddressInputField.text, ushort.Parse(portInputField.text),
+                        UpdateUI, err =>
+                        {
+                            connectionErrorText.text = err;
+                            connectButtonText.text = "Connect";
+                        }
+                    );
+                }
             }
-            else
+            catch (Exception e)
             {
-                // TODO: Call disconnect
+                connectionErrorText.text = e.Message;
             }
         }
 

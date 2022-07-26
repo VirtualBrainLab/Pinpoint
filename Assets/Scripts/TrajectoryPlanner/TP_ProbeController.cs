@@ -191,6 +191,7 @@ public class TP_ProbeController : MonoBehaviour
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
         
+        // Test code
         SetSensapexLinkMovement(true, 2);
     }
     /// <summary>

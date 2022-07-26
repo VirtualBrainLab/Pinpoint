@@ -40,7 +40,9 @@ namespace SensapexLink
         /// <param name="ip">IP address of the server</param>
         /// <param name="port">Port of the server</param>
         /// <param name="onConnected">Callback function to handle a successful connection</param>
-        public void ConnectToServer(string ip = "localhost", ushort port = 8080, Action onConnected = null)
+        /// <param name="onError"></param>
+        public void ConnectToServer(string ip = "localhost", ushort port = 8080, Action onConnected = null,
+            Action<string> onError = null)
         {
             // Disconnect the old connection if needed
             if (_connectionManager != null && _connectionManager.Socket.IsOpen)
@@ -49,8 +51,14 @@ namespace SensapexLink
             }
 
             // Create new connection
-            _connectionManager = new SocketManager(new Uri("http://" + ip + ":" + port));
+            var options = new SocketOptions
+            {
+                Timeout = new TimeSpan(0, 0, 2)
+            };
+            _connectionManager = new SocketManager(new Uri("http://" + ip + ":" + port), options);
             _socket = _connectionManager.Socket;
+
+            // Callback success on connection
             _socket.Once("connect", () =>
             {
                 Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
@@ -59,8 +67,31 @@ namespace SensapexLink
                 _isConnected = true;
                 onConnected?.Invoke();
             });
+
+            // Callback error on connection
+            _socket.Once("connect_error", () =>
+            {
+                var connectionErrorMessage = "Error connecting to WebSocket server at " + ip + ":" + port;
+                Debug.LogError(connectionErrorMessage);
+                _isConnected = false;
+                onError?.Invoke(connectionErrorMessage);
+            });
+            _socket.Once("connect_timeout", () =>
+            {
+                var connectionTimeoutMessage = "Connection to WebSocket server at " + ip + ":" + port + " timed out";
+                Debug.LogError(connectionTimeoutMessage);
+                _isConnected = false;
+                onError?.Invoke(connectionTimeoutMessage);
+            });
         }
-        
+
+        public void DisconnectFromServer(Action onDisconnected = null)
+        {
+            _connectionManager.Close();
+            _isConnected = false;
+            onDisconnected?.Invoke();
+        }
+
         /// <summary>
         /// Return the stored server IP address
         /// </summary>
@@ -69,7 +100,7 @@ namespace SensapexLink
         {
             return _serverIp;
         }
-        
+
         /// <summary>
         /// Return the stored server port
         /// </summary>
@@ -78,7 +109,7 @@ namespace SensapexLink
         {
             return _serverPort;
         }
-        
+
         /// <summary>
         /// Return if the server is connected
         /// </summary>
