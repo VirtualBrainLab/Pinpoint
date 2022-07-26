@@ -19,10 +19,16 @@ namespace SensapexLink
         // Components
         private SocketManager _connectionManager;
         private Socket _socket;
+        private TP_PlayerPrefs _playerPrefs;
 
         #endregion
 
         #region Setup
+
+        private void Awake()
+        {
+            throw new NotImplementedException();
+        }
 
         private void Start()
         {

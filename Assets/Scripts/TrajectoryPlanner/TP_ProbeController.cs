@@ -1383,10 +1383,10 @@ public class TP_ProbeController : MonoBehaviour
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         // Convert position to CCF
-        var ccf = _neTransform.ToCCF(pos - _zeroPosition);
+        var stereotaxic = pos - _zeroPosition;
         var currentCoordinates = GetCoordinates();
 
-        ManualCoordinateEntry(ccf.x, ccf.y, ccf.z, pos.w - _zeroPosition.w, currentCoordinates.Item5,
+        ManualCoordinateEntry(stereotaxic.x, stereotaxic.y, stereotaxic.z, stereotaxic.w, currentCoordinates.Item5,
             currentCoordinates.Item6, currentCoordinates.Item7);
 
         if (_sensapexLinkMovement)

@@ -1,6 +1,7 @@
 using System;
 using SensapexLink;
 using TMPro;
+using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,12 +18,17 @@ namespace TP_Settings
         [SerializeField] private TMP_InputField portInputField;
         [SerializeField] private TMP_Text connectionErrorText;
         [SerializeField] private TMP_Text connectButtonText;
+        
+        // Probes in scene
+        [SerializeField] private GameObject probeConnectionUIPrefab;
 
         #endregion
 
         #region Components
 
         private CommunicationManager _communicationManager;
+        private TrajectoryPlannerManager _trajectoryPlannerManager;
+        private TP_PlayerPrefs _playerPrefs;
 
         #endregion
 
@@ -32,21 +38,24 @@ namespace TP_Settings
 
         private void Awake()
         {
+            // Get Components
             _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
+            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+            _playerPrefs = GameObject.Find("main").GetComponent<TP_PlayerPrefs>();
         }
 
 
         // Start is called before the first frame update
         private void Start()
         {
-            UpdateUI();
+            UpdateConnectionUI();
         }
 
         #endregion
 
         #region Helper Functions
 
-        private void UpdateUI()
+        private void UpdateConnectionUI()
         {
             ipAddressInputField.text = _communicationManager.GetServerIp();
             portInputField.text = _communicationManager.GetServerPort() == 0
@@ -66,13 +75,13 @@ namespace TP_Settings
             {
                 if (_communicationManager.IsConnected())
                 {
-                    _communicationManager.DisconnectFromServer(UpdateUI);
+                    _communicationManager.DisconnectFromServer(UpdateConnectionUI);
                 }
                 else
                 {
                     connectButtonText.text = "Connecting...";
                     _communicationManager.ConnectToServer(ipAddressInputField.text, ushort.Parse(portInputField.text),
-                        UpdateUI, err =>
+                        UpdateConnectionUI, err =>
                         {
                             connectionErrorText.text = err;
                             connectButtonText.text = "Connect";
