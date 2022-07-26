@@ -23,6 +23,14 @@ public class ProbeInsertion
         }
     }
 
+    public Vector3 angles
+    {
+        get
+        {
+            return new Vector3(phi, theta, spin);
+        }
+    }
+
     public ProbeInsertion(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
     {
         SetCoordinates(ap, ml, dv, depth, phi, theta, spin);

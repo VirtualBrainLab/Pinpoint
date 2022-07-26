@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TrajectoryPlanner;
 
 public class TP_CraniotomySkull : MonoBehaviour
 {
-    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TrajectoryPlannerManager tpmanager;
     [SerializeField] private GameObject skullMeshGO;
     [SerializeField] private GameObject craniotomyGO;
     private Renderer skullRenderer;
@@ -13,7 +14,7 @@ public class TP_CraniotomySkull : MonoBehaviour
     private void Awake()
     {
         skullRenderer = skullMeshGO.GetComponent<Renderer>();
-        tpmanager = GameObject.Find("main").GetComponent<TP_TrajectoryPlannerManager>();
+        tpmanager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
     }
 
     public void UpdateVisibility()

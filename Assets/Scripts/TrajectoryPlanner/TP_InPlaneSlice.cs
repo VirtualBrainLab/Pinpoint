@@ -8,11 +8,12 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
+using TrajectoryPlanner;
 
 public class TP_InPlaneSlice : MonoBehaviour
 {
     // In plane slice handling
-    [SerializeField] private TP_TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TrajectoryPlannerManager tpmanager;
     [SerializeField] private GameObject inPlaneSliceUIGO;
     [SerializeField] private CCFModelControl modelControl;
     [SerializeField] private TP_PlayerPrefs localPrefs;
@@ -118,8 +119,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         bool fourShank = activeProbeController.GetProbeType() == 4;
 
         recordingRegionCenterPosition = fourShank ? 
-            Utils.WorldSpace2apdvlr25(tipPosition + tpmanager.GetCenterOffset() + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
-            Utils.WorldSpace2apdvlr25(tipPosition + tpmanager.GetCenterOffset() + tipTransform.up * mmRecordingSize / 2); ;
+            Utils.WorldSpace2apdvlr25(tipPosition + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
+            Utils.WorldSpace2apdvlr25(tipPosition + tipTransform.up * mmRecordingSize / 2); ;
 
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 

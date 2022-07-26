@@ -2,15 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using TrajectoryPlanner;
 
 public class TP_ProbeCollider : MonoBehaviour
 {
     [SerializeField] TP_ProbeController pcontroller;
-    private TP_TrajectoryPlannerManager tpmanager;
+    private TrajectoryPlannerManager tpmanager;
 
     private void Start()
     {
-        tpmanager = GameObject.Find("main").GetComponent<TP_TrajectoryPlannerManager>();
+        tpmanager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
     }
 
     private void OnDestroy()

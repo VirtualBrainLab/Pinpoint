@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class TP_CoenToolsPanel : MonoBehaviour
+public class CoenToolsPanel : MonoBehaviour
 {
     [SerializeField] TMP_Text distanceText;
     private List<GameObject> tipAndModelGOs;

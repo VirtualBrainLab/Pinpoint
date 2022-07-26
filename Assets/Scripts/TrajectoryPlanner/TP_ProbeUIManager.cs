@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TrajectoryPlanner;
 
 public class TP_ProbeUIManager : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class TP_ProbeUIManager : MonoBehaviour
 
     private AnnotationDataset annotationDataset;
 
-    private TP_TrajectoryPlannerManager tpmanager;
+    private TrajectoryPlannerManager tpmanager;
 
     private Color defaultColor;
     private Color selectedColor;
@@ -49,7 +50,7 @@ public class TP_ProbeUIManager : MonoBehaviour
         utils = main.GetComponent<Utils>();
 
         // Get the annotation dataset
-        tpmanager = main.GetComponent<TP_TrajectoryPlannerManager>();
+        tpmanager = main.GetComponent<TrajectoryPlannerManager>();
         annotationDataset = tpmanager.GetAnnotationDataset();
 
         // Set color properly
