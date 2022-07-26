@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SensapexLink;
 using TMPro;
 using TrajectoryPlanner;
@@ -18,9 +19,10 @@ namespace TP_Settings
         [SerializeField] private TMP_InputField portInputField;
         [SerializeField] private TMP_Text connectionErrorText;
         [SerializeField] private TMP_Text connectButtonText;
-        
+
         // Probes in scene
-        [SerializeField] private GameObject probeConnectionUIPrefab;
+        [SerializeField] private GameObject probeList;
+        [SerializeField] private GameObject probeConnectionPanelPrefab;
 
         #endregion
 
@@ -29,6 +31,13 @@ namespace TP_Settings
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
         private TP_PlayerPrefs _playerPrefs;
+
+        #endregion
+
+        #region Session variables
+
+        private Dictionary<int, int> _proveIdToManipulatorId;
+        private int[] _availableManipulatorIds;
 
         #endregion
 
@@ -44,11 +53,24 @@ namespace TP_Settings
             _playerPrefs = GameObject.Find("main").GetComponent<TP_PlayerPrefs>();
         }
 
+        private void OnEnable()
+        {
+            // Get available probes
+            if (probeList.transform.childCount == _trajectoryPlannerManager.GetAllProbes().Count) return;
+            foreach (var tpProbeController in _trajectoryPlannerManager.GetAllProbes())
+            {
+                Instantiate(probeConnectionPanelPrefab, probeList.transform);
+            }
+        }
+
 
         // Start is called before the first frame update
         private void Start()
         {
             UpdateConnectionUI();
+
+            // Get available manipulator ids
+            _communicationManager.GetManipulators(ids => _availableManipulatorIds = ids);
         }
 
         #endregion

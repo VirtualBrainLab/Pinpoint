@@ -1413,7 +1413,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_Spacing: 10
   m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
+  m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
@@ -2466,6 +2466,8 @@ MonoBehaviour:
   portInputField: {fileID: 1996066765123078317}
   connectionErrorText: {fileID: 642282321731354649}
   connectButtonText: {fileID: 4853871370759422342}
+  probeList: {fileID: 5170893513559919013}
+  probeConnectionPanelPrefab: {fileID: 8493186209703212129, guid: 4bda5f4e2e3ca69458cb983da56cf603, type: 3}
 --- !u!1 &6723891402287778861
 GameObject:
   m_ObjectHideFlags: 0

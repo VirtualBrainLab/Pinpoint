@@ -14,21 +14,15 @@ namespace SensapexLink
         // Connection details
         private string _serverIp = "localhost";
         private ushort _serverPort = 8080;
-        private bool _isConnected = false;
+        private bool _isConnected;
 
         // Components
         private SocketManager _connectionManager;
         private Socket _socket;
-        private TP_PlayerPrefs _playerPrefs;
 
         #endregion
 
         #region Setup
-
-        private void Awake()
-        {
-            throw new NotImplementedException();
-        }
 
         private void Start()
         {
