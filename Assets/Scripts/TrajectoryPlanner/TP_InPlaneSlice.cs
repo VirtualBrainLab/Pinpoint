@@ -103,7 +103,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         if (!localPrefs.GetInplane()) return;
 
-        TP_ProbeController activeProbeController = tpmanager.GetActiveProbeController();
+        ProbeManager activeProbeController = tpmanager.GetActiveProbeController();
 
         // Calculate the size
         float[] heightPerc = activeProbeController.GetRecordingRegionHeight();

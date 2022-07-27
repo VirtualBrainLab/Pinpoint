@@ -43,7 +43,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         SetTextValues(tpmanager.GetActiveProbeController());
     }
 
-    public void SetTextValues(TP_ProbeController probeController)
+    public void SetTextValues(ProbeManager probeController)
     {
         (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = probeController.GetCoordinates();
         apField.text = ap.ToString();

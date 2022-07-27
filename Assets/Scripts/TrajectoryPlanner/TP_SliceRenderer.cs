@@ -152,7 +152,7 @@ public class TP_SliceRenderer : MonoBehaviour
     /// </summary>
     private void UpdateSlicePosition()
     {
-        TP_ProbeController activeProbeController = tpmanager.GetActiveProbeController();
+        ProbeManager activeProbeController = tpmanager.GetActiveProbeController();
         if (activeProbeController == null) return;
         Transform activeProbeTipT = activeProbeController.GetTipTransform();
         Vector3 tipPosition = activeProbeTipT.position + activeProbeTipT.up * 0.2f; // add 200 um to get to the start of the recording region

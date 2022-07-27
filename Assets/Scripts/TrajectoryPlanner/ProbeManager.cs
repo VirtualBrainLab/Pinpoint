@@ -9,7 +9,7 @@ using TrajectoryPlanner;
 /// <summary>
 /// 3D space control for Neuropixels probes in the Trajectory Planner scene
 /// </summary>
-public class TP_ProbeController : MonoBehaviour
+public class ProbeManager : MonoBehaviour
 {
 
     // MOVEMENT CONTROL SPEEDS

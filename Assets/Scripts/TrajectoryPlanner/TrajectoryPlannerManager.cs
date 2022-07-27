@@ -52,8 +52,8 @@ namespace TrajectoryPlanner
         private List<CoordinateTransform> availableCoordinateTransforms;
 
         // Local tracking variables
-        private TP_ProbeController activeProbeController;
-        private List<TP_ProbeController> allProbes;
+        private ProbeManager activeProbeController;
+        private List<ProbeManager> allProbes;
         private List<Collider> inactiveProbeColliders;
         private List<Collider> allProbeColliders;
         private List<Collider> rigColliders;
@@ -104,7 +104,7 @@ namespace TrajectoryPlanner
 
             visibleProbePanels = 0;
 
-            allProbes = new List<TP_ProbeController>();
+            allProbes = new List<ProbeManager>();
             allProbeColliders = new List<Collider>();
             inactiveProbeColliders = new List<Collider>();
             rigColliders = new List<Collider>();
@@ -243,7 +243,7 @@ namespace TrajectoryPlanner
                     modelControl.SetBeryl(false);
                     break;
             }
-            foreach (TP_ProbeController probeController in allProbes)
+            foreach (ProbeManager probeController in allProbes)
                 foreach (TP_ProbeUIManager puimanager in probeController.GetComponents<TP_ProbeUIManager>())
                     puimanager.ProbeMoved();
         }
@@ -324,7 +324,7 @@ namespace TrajectoryPlanner
             }
         }
 
-        public List<TP_ProbeController> GetAllProbes()
+        public List<ProbeManager> GetAllProbes()
         {
             return allProbes;
         }
@@ -410,14 +410,14 @@ namespace TrajectoryPlanner
         {
             AddNewProbe(probeType);
         }
-        public TP_ProbeController AddNewProbe(int probeType)
+        public ProbeManager AddNewProbe(int probeType)
         {
             CountProbePanels();
             if (visibleProbePanels >= 16)
                 return null;
 
             GameObject newProbe = Instantiate(probePrefabs[probePrefabIDs.FindIndex(x => x == probeType)], brainModel);
-            SetActiveProbe(newProbe.GetComponent<TP_ProbeController>());
+            SetActiveProbe(newProbe.GetComponent<ProbeManager>());
             if (visibleProbePanels > 4)
                 activeProbeController.ResizeProbePanel(700);
 
@@ -426,18 +426,18 @@ namespace TrajectoryPlanner
             spawnedThisFrame = true;
             StartCoroutine(DelayedMoveAllProbes());
 
-            return newProbe.GetComponent<TP_ProbeController>();
+            return newProbe.GetComponent<ProbeManager>();
         }
-        public TP_ProbeController AddNewProbe(int probeType, float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+        public ProbeManager AddNewProbe(int probeType, float ap, float ml, float dv, float depth, float phi, float theta, float spin)
         {
-            TP_ProbeController probeController = AddNewProbe(probeType);
+            ProbeManager probeController = AddNewProbe(probeType);
             StartCoroutine(probeController.DelayedManualCoordinateEntryTransformed(0.1f, ap, ml, dv, depth, phi, theta, spin));
 
             return probeController;
         }
-        public TP_ProbeController AddNewProbe(int probeType, ProbeInsertion localInsertion)
+        public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion)
         {
-            TP_ProbeController probeController = AddNewProbe(probeType);
+            ProbeManager probeController = AddNewProbe(probeType);
             StartCoroutine(probeController.DelayedManualCoordinateEntryTransformed(0.1f, localInsertion.ap, localInsertion.ml, localInsertion.dv, localInsertion.depth, localInsertion.phi, localInsertion.theta, localInsertion.spin));
 
             return probeController;
@@ -466,7 +466,7 @@ namespace TrajectoryPlanner
                 probePanelParent.cellSize = cellSize;
 
                 // now resize all existing probeUIs to be 700 tall
-                foreach (TP_ProbeController probeController in allProbes)
+                foreach (ProbeManager probeController in allProbes)
                 {
                     probeController.ResizeProbePanel(700);
                 }
@@ -476,7 +476,7 @@ namespace TrajectoryPlanner
             ReOrderProbePanels();
         }
 
-        public void RegisterProbe(TP_ProbeController probeController, List<Collider> colliders)
+        public void RegisterProbe(ProbeManager probeController, List<Collider> colliders)
         {
             Debug.Log("Registering probe: " + probeController.gameObject.name);
             allProbes.Add(probeController);
@@ -502,7 +502,7 @@ namespace TrajectoryPlanner
             probeColors.Insert(0, returnColor);
         }
 
-        public void SetActiveProbe(TP_ProbeController newActiveProbeController)
+        public void SetActiveProbe(ProbeManager newActiveProbeController)
         {
             if (activeProbeController == newActiveProbeController)
                 return;
@@ -513,7 +513,7 @@ namespace TrajectoryPlanner
             foreach (TP_ProbeUIManager puimanager in activeProbeController.gameObject.GetComponents<TP_ProbeUIManager>())
                 puimanager.ProbeSelected(true);
 
-            foreach (TP_ProbeController pcontroller in allProbes)
+            foreach (ProbeManager pcontroller in allProbes)
                 if (pcontroller != activeProbeController)
                     foreach (TP_ProbeUIManager puimanager in pcontroller.gameObject.GetComponents<TP_ProbeUIManager>())
                         puimanager.ProbeSelected(false);
@@ -543,7 +543,7 @@ namespace TrajectoryPlanner
             return probeColors[probeID];
         }
 
-        public TP_ProbeController GetActiveProbeController()
+        public ProbeManager GetActiveProbeController()
         {
             return activeProbeController;
         }
@@ -586,7 +586,7 @@ namespace TrajectoryPlanner
 
         private void MoveAllProbes()
         {
-            foreach (TP_ProbeController probeController in allProbes)
+            foreach (ProbeManager probeController in allProbes)
                 foreach (TP_ProbeUIManager puimanager in probeController.GetComponents<TP_ProbeUIManager>())
                     puimanager.ProbeMoved();
         }
@@ -687,7 +687,7 @@ namespace TrajectoryPlanner
         public void SetUseIBLAngles(bool state)
         {
             localPrefs.SetUseIBLAngles(state);
-            foreach (TP_ProbeController probeController in allProbes)
+            foreach (ProbeManager probeController in allProbes)
                 probeController.UpdateText();
         }
 
@@ -699,7 +699,7 @@ namespace TrajectoryPlanner
         public void SetDepth(bool state)
         {
             localPrefs.SetDepthFromBrain(state);
-            foreach (TP_ProbeController probeController in allProbes)
+            foreach (ProbeManager probeController in allProbes)
                 probeController.UpdateText();
         }
         public bool GetDepthFromBrain()
@@ -710,7 +710,7 @@ namespace TrajectoryPlanner
         public void SetConvertToProbe(bool state)
         {
             localPrefs.SetAPML2ProbeAxis(state);
-            foreach (TP_ProbeController probeController in allProbes)
+            foreach (ProbeManager probeController in allProbes)
                 probeController.UpdateText();
         }
 
@@ -762,7 +762,7 @@ namespace TrajectoryPlanner
             else
                 activeCoordinateTransform = null;
 
-            foreach (TP_ProbeController pcontroller in allProbes)
+            foreach (ProbeManager pcontroller in allProbes)
                 pcontroller.UpdateText();
         }
 
@@ -782,22 +782,22 @@ namespace TrajectoryPlanner
 
             int probeIndex = 0;
             // first, sort probes so that np2.4 probes go first
-            List<TP_ProbeController> np24Probes = new List<TP_ProbeController>();
-            List<TP_ProbeController> otherProbes = new List<TP_ProbeController>();
-            foreach (TP_ProbeController pcontroller in allProbes)
+            List<ProbeManager> np24Probes = new List<ProbeManager>();
+            List<ProbeManager> otherProbes = new List<ProbeManager>();
+            foreach (ProbeManager pcontroller in allProbes)
                 if (pcontroller.GetProbeType() == 4)
                     np24Probes.Add(pcontroller);
                 else
                     otherProbes.Add(pcontroller);
             // now sort by order within each puimanager
-            foreach (TP_ProbeController pcontroller in np24Probes)
+            foreach (ProbeManager pcontroller in np24Probes)
             {
                 List<TP_ProbeUIManager> puimanagers = pcontroller.GetProbeUIManagers();
                 foreach (TP_ProbeUIManager puimanager in pcontroller.GetProbeUIManagers())
                     sorted.Add(probeIndex + puimanager.GetOrder() / 10f, puimanager);
                 probeIndex++;
             }
-            foreach (TP_ProbeController pcontroller in otherProbes)
+            foreach (ProbeManager pcontroller in otherProbes)
             {
                 List<TP_ProbeUIManager> puimanagers = pcontroller.GetProbeUIManagers();
                 foreach (TP_ProbeUIManager puimanager in pcontroller.GetProbeUIManagers())
@@ -863,7 +863,7 @@ namespace TrajectoryPlanner
 
             for (int i =0; i< allProbes.Count; i++)
             {
-                TP_ProbeController probe = allProbes[i];
+                ProbeManager probe = allProbes[i];
                 (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = probe.GetCoordinates();
                 probeCoordinates[i] = (ap, ml, dv, depth, phi, theta, spin, probe.GetProbeType());
             }
