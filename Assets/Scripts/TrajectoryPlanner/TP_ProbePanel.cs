@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using TrajectoryPlanner;
 
 public class TP_ProbePanel : MonoBehaviour
 {
@@ -27,7 +28,7 @@ public class TP_ProbePanel : MonoBehaviour
     private void Start()
     {
         // Because probe panels are never created early it is safe to wait to get the annotation dataset until this point
-        inPlaneSlice = GameObject.Find("InPlaneSlicePanel").GetComponent<TP_InPlaneSlice>();
+        inPlaneSlice = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>().GetInPlaneSlice();
         AsyncStart();
     }
 

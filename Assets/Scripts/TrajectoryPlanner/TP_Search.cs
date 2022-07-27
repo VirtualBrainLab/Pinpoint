@@ -18,8 +18,7 @@ public class TP_Search : MonoBehaviour
     private List<GameObject> localAreaPanels;
     private List<CCFTreeNode> activeBrainAreas;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         localAreaPanels = new List<GameObject>();
         activeBrainAreas = new List<CCFTreeNode>();

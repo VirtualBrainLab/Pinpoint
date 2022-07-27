@@ -14,7 +14,7 @@ public class TP_SliceRenderer : MonoBehaviour
     [SerializeField] private GameObject coronalSliceGO;
     [SerializeField] private TrajectoryPlannerManager tpmanager;
     [SerializeField] private CCFModelControl modelControl;
-    [SerializeField] private TP_PlayerPrefs localPrefs;
+    [SerializeField] private PlayerPrefs localPrefs;
     [SerializeField] private TP_InPlaneSlice inPlaneSlice;
     [SerializeField] private Utils util;
     [SerializeField] private TMP_Dropdown dropdownMenu;

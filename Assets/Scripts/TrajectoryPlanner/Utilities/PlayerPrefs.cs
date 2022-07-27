@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TrajectoryPlanner;
 
-public class TP_PlayerPrefs : MonoBehaviour
+public class PlayerPrefs : MonoBehaviour
 {
     // Settings
     private bool collisions;
@@ -20,8 +19,6 @@ public class TP_PlayerPrefs : MonoBehaviour
     private bool useIBLAngles;
     private bool showSurfaceCoord;
 
-    [SerializeField] TrajectoryPlannerManager tpmanager;
-
     [SerializeField] Toggle collisionsToggle;
     //[SerializeField] Toggle bregmaToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -34,13 +31,11 @@ public class TP_PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle iblAngleToggle;
     [SerializeField] Toggle surfaceToggle;
 
-    [SerializeField] TP_QuestionDialogue qDialogue;
-
     // Saving probes
     // simplest solution: on exit, stringify the probes, and then recover them from the string
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         collisions = LoadBoolPref("collisions", true);
         collisionsToggle.isOn = collisions;
@@ -64,56 +59,45 @@ public class TP_PlayerPrefs : MonoBehaviour
         slice3dDropdown.SetValueWithoutNotify(slice3d);
 
         inplane = LoadBoolPref("inplane", true);
-        tpmanager.SetInPlane(inplane);
         inplaneToggle.isOn = inplane;
 
         invivoTransform = LoadIntPref("stereotaxic", 1);
-        tpmanager.SetInVivoTransformState(invivoTransform);
         invivoDropdown.SetValueWithoutNotify(invivoTransform);
 
         useIBLAngles = LoadBoolPref("iblangle", true);
-        tpmanager.SetUseIBLAngles(useIBLAngles);
         iblAngleToggle.isOn = useIBLAngles;
 
         showSurfaceCoord = LoadBoolPref("surface", true);
-        tpmanager.SetSurfaceDebugVisibility(showSurfaceCoord);
         surfaceToggle.isOn = showSurfaceCoord;
     }
-    public void AsyncStart()
-    {
-        if (qDialogue)
-        {
-            if (PlayerPrefs.GetInt("probecount", 0) > 0)
-            {
-                qDialogue.NewQuestion("Load previously saved probes?");
-                qDialogue.SetYesCallback(LoadSavedProbes);
-            }
-        }
-    }
 
-    public void LoadSavedProbes()
+    public (Vector3 tipPos, float depth, Vector3 angles, int type)[] LoadSavedProbes()
     {
-        int probeCount = PlayerPrefs.GetInt("probecount", 0);
+        int probeCount = UnityEngine.PlayerPrefs.GetInt("probecount", 0);
+
+        var savedProbes = new (Vector3 tipPos, float depth, Vector3 angles, int type)[probeCount];
 
         for (int i = 0; i < probeCount; i++)
         {
-            float ap = PlayerPrefs.GetFloat("ap" + i);
-            float ml = PlayerPrefs.GetFloat("ml" + i);
-            float dv = PlayerPrefs.GetFloat("dv" + i);
-            float depth = PlayerPrefs.GetFloat("depth" + i);
-            float phi = PlayerPrefs.GetFloat("phi" + i);
-            float theta = PlayerPrefs.GetFloat("theta" + i);
-            float spin = PlayerPrefs.GetFloat("spin" + i);
-            int type = PlayerPrefs.GetInt("type" + i);
+            float ap = UnityEngine.PlayerPrefs.GetFloat("ap" + i);
+            float ml = UnityEngine.PlayerPrefs.GetFloat("ml" + i);
+            float dv = UnityEngine.PlayerPrefs.GetFloat("dv" + i);
+            float depth = UnityEngine.PlayerPrefs.GetFloat("depth" + i);
+            float phi = UnityEngine.PlayerPrefs.GetFloat("phi" + i);
+            float theta = UnityEngine.PlayerPrefs.GetFloat("theta" + i);
+            float spin = UnityEngine.PlayerPrefs.GetFloat("spin" + i);
+            int type = UnityEngine.PlayerPrefs.GetInt("type" + i);
 
-            tpmanager.AddNewProbe(type, ap, ml, dv, depth, phi, theta, spin);
+            savedProbes[i] = (new Vector3(ap, ml, dv), depth, new Vector3(phi, theta, spin), type);
         }
+
+        return savedProbes;
     }
 
     public void SetSurfaceCoord(bool state)
     {
         showSurfaceCoord = state;
-        PlayerPrefs.SetInt("surface", showSurfaceCoord ? 1 : 0);
+        UnityEngine.PlayerPrefs.SetInt("surface", showSurfaceCoord ? 1 : 0);
     }
 
     public bool GetSurfaceCoord()
@@ -124,7 +108,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     public void SetUseIBLAngles(bool state)
     {
         useIBLAngles = state;
-        PlayerPrefs.SetInt("iblangle", useIBLAngles ? 1 : 0);
+        UnityEngine.PlayerPrefs.SetInt("iblangle", useIBLAngles ? 1 : 0);
     }
 
     public bool GetUseIBLAngles()
@@ -135,7 +119,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     public void SetStereotaxic(int state)
     {
         invivoTransform = state;
-        PlayerPrefs.SetInt("stereotaxic", invivoTransform);
+        UnityEngine.PlayerPrefs.SetInt("stereotaxic", invivoTransform);
     }
 
     public int GetStereotaxic()
@@ -146,7 +130,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     public void SetInplane(bool state)
     {
         inplane = state;
-        PlayerPrefs.SetInt("inplane", inplane ? 1 : 0);
+        UnityEngine.PlayerPrefs.SetInt("inplane", inplane ? 1 : 0);
     }
 
     public bool GetInplane()
@@ -157,7 +141,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     public void SetSlice3D(int state)
     {
         slice3d = state;
-        PlayerPrefs.SetInt("slice3d", slice3d);
+        UnityEngine.PlayerPrefs.SetInt("slice3d", slice3d);
     }
 
     public int GetSlice3D()
@@ -168,7 +152,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     public void SetAPML2ProbeAxis(bool state)
     {
         convertAPML2probeAxis = state;
-        PlayerPrefs.SetInt("probeaxis", convertAPML2probeAxis ? 1 : 0);
+        UnityEngine.PlayerPrefs.SetInt("probeaxis", convertAPML2probeAxis ? 1 : 0);
     }
 
     public bool GetAPML2ProbeAxis()
@@ -179,7 +163,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     public void SetDepthFromBrain(bool state)
     {
         depthFromBrain = state;
-        PlayerPrefs.SetInt("depth", depthFromBrain ? 1 : 0);
+        UnityEngine.PlayerPrefs.SetInt("depth", depthFromBrain ? 1 : 0);
     }
 
     public bool GetDepthFromBrain()
@@ -190,7 +174,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     public void SetAcronyms(bool state)
     {
         useAcronyms = state;
-        PlayerPrefs.SetInt("acronyms", recordingRegionOnly ? 1 : 0);
+        UnityEngine.PlayerPrefs.SetInt("acronyms", recordingRegionOnly ? 1 : 0);
     }
 
     public bool GetAcronyms()
@@ -201,7 +185,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     public void SetRecordingRegionOnly(bool state)
     {
         recordingRegionOnly = state;
-        PlayerPrefs.SetInt("recording", recordingRegionOnly ? 1 : 0);
+        UnityEngine.PlayerPrefs.SetInt("recording", recordingRegionOnly ? 1 : 0);
     }
 
     public bool GetRecordingRegionOnly()
@@ -212,7 +196,7 @@ public class TP_PlayerPrefs : MonoBehaviour
     public void SetCollisions(bool toggleCollisions)
     {
         collisions = toggleCollisions;
-        PlayerPrefs.SetInt("collisions", collisions ? 1 : 0);
+        UnityEngine.PlayerPrefs.SetInt("collisions", collisions ? 1 : 0);
     }
 
     public bool GetCollisions()
@@ -233,32 +217,30 @@ public class TP_PlayerPrefs : MonoBehaviour
     }
     private bool LoadBoolPref(string prefStr, bool defaultValue)
     {
-        return PlayerPrefs.HasKey(prefStr) ? PlayerPrefs.GetInt(prefStr) == 1 : defaultValue;
+        return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetInt(prefStr) == 1 : defaultValue;
     }
 
     private int LoadIntPref(string prefStr, int defaultValue)
     {
-        return PlayerPrefs.HasKey(prefStr) ? PlayerPrefs.GetInt(prefStr) : defaultValue;
+        return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetInt(prefStr) : defaultValue;
     }
 
-    private void OnApplicationQuit()
+    public void ApplicationQuit((float ap, float ml, float dv, float depth, float phi, float theta, float spin, int type)[] allProbeData)
     {
-        List<TP_ProbeController> allProbes = tpmanager.GetAllProbes();
-        for (int i = 0; i < allProbes.Count; i++)
+        for (int i = 0; i < allProbeData.Length; i++)
         {
-            TP_ProbeController probe = allProbes[i];
-            (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = probe.GetCoordinates();
-            PlayerPrefs.SetFloat("ap" + i, ap);
-            PlayerPrefs.SetFloat("ml" + i, ml);
-            PlayerPrefs.SetFloat("dv" + i, dv);
-            PlayerPrefs.SetFloat("depth" + i, depth);
-            PlayerPrefs.SetFloat("phi" + i, phi);
-            PlayerPrefs.SetFloat("theta" + i, theta);
-            PlayerPrefs.SetFloat("spin" + i, spin);
-            PlayerPrefs.SetInt("type" + i, probe.GetProbeType());
-        }
-        PlayerPrefs.SetInt("probecount", allProbes.Count);
 
-        PlayerPrefs.Save();
+            UnityEngine.PlayerPrefs.SetFloat("ap" + i, allProbeData[i].ap);
+            UnityEngine.PlayerPrefs.SetFloat("ml" + i, allProbeData[i].ml);
+            UnityEngine.PlayerPrefs.SetFloat("dv" + i, allProbeData[i].dv);
+            UnityEngine.PlayerPrefs.SetFloat("depth" + i, allProbeData[i].depth);
+            UnityEngine.PlayerPrefs.SetFloat("phi" + i, allProbeData[i].phi);
+            UnityEngine.PlayerPrefs.SetFloat("theta" + i, allProbeData[i].theta);
+            UnityEngine.PlayerPrefs.SetFloat("spin" + i, allProbeData[i].spin);
+            UnityEngine.PlayerPrefs.SetInt("type" + i, allProbeData[i].type);
+        }
+        UnityEngine.PlayerPrefs.SetInt("probecount", allProbeData.Length);
+
+        UnityEngine.PlayerPrefs.Save();
     }
 }

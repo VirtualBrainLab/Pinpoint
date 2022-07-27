@@ -10,11 +10,16 @@ namespace TrajectoryPlanner
 {
     public class TrajectoryPlannerManager : MonoBehaviour
     {
+        // Managers and accessors
         [SerializeField] private CCFModelControl modelControl;
-        [SerializeField] private List<GameObject> probePrefabs;
-        [SerializeField] private List<int> probePrefabIDs;
+        [SerializeField] private VolumeDatasetManager vdmanager;
+        [SerializeField] private PlayerPrefs localPrefs;
         [SerializeField] private Transform brainModel;
         [SerializeField] private Utils util;
+
+        // Settings
+        [SerializeField] private List<GameObject> probePrefabs;
+        [SerializeField] private List<int> probePrefabIDs;
         [SerializeField] private TP_RecRegionSlider recRegionSlider;
         [SerializeField] private Collider ccfCollider;
         [SerializeField] private TP_InPlaneSlice inPlaneSlice;
@@ -30,9 +35,8 @@ namespace TrajectoryPlanner
         [SerializeField] private GameObject IBLTrajectoryGO;
         [SerializeField] private BrainCameraController brainCamController;
 
-        [SerializeField] private TP_PlayerPrefs localPrefs;
-
-        [SerializeField] private VolumeDatasetManager vdmanager;
+        // UI 
+        [SerializeField] TP_QuestionDialogue qDialogue;
 
         // Debug graphics
         [SerializeField] private GameObject surfaceDebugGO;
@@ -47,15 +51,18 @@ namespace TrajectoryPlanner
         private CoordinateTransform activeCoordinateTransform;
         private List<CoordinateTransform> availableCoordinateTransforms;
 
+        // Local tracking variables
         private TP_ProbeController activeProbeController;
-
         private List<TP_ProbeController> allProbes;
         private List<Collider> inactiveProbeColliders;
         private List<Collider> allProbeColliders;
         private List<Collider> rigColliders;
         private List<Collider> allNonActiveColliders;
 
-        List<Color> probeColors;
+        private static List<Color> probeColors = new List<Color> { ColorFromRGB(114, 87, 242), ColorFromRGB(240, 144, 96), ColorFromRGB(71, 147, 240), ColorFromRGB(240, 217, 48), ColorFromRGB(60, 240, 227),
+                                    ColorFromRGB(180, 0, 0), ColorFromRGB(0, 180, 0), ColorFromRGB(0, 0, 180), ColorFromRGB(180, 180, 0), ColorFromRGB(0, 180, 180),
+                                    ColorFromRGB(180, 0, 180), ColorFromRGB(240, 144, 96), ColorFromRGB(71, 147, 240), ColorFromRGB(240, 217, 48), ColorFromRGB(60, 240, 227),
+                                    ColorFromRGB(114, 87, 242), ColorFromRGB(255, 255, 255), ColorFromRGB(0, 125, 125), ColorFromRGB(125, 0, 125), ColorFromRGB(125, 125, 0)};
 
         // Values
         [SerializeField] private int probePanelAcronymTextFontSize = 14;
@@ -105,29 +112,57 @@ namespace TrajectoryPlanner
             targetedBrainAreas = new List<int>();
             //Physics.autoSyncTransforms = true;
 
-            probeColors = new List<Color> { ColorFromRGB(114, 87, 242), ColorFromRGB(240, 144, 96), ColorFromRGB(71, 147, 240), ColorFromRGB(240, 217, 48), ColorFromRGB(60, 240, 227),
-                                    ColorFromRGB(180, 0, 0), ColorFromRGB(0, 180, 0), ColorFromRGB(0, 0, 180), ColorFromRGB(180, 180, 0), ColorFromRGB(0, 180, 180),
-                                    ColorFromRGB(180, 0, 180), ColorFromRGB(240, 144, 96), ColorFromRGB(71, 147, 240), ColorFromRGB(240, 217, 48), ColorFromRGB(60, 240, 227),
-                                    ColorFromRGB(114, 87, 242), ColorFromRGB(255, 255, 255), ColorFromRGB(0, 125, 125), ColorFromRGB(125, 0, 125), ColorFromRGB(125, 125, 0)};
         }
 
         private void Start()
         {
+
+            // Startup CCF
             modelControl.LateStart(true);
 
+            // Set callback
             DelayedModelControlStart();
 
+            // Startup the volume textures
             List<Action> callbacks = new List<Action>();
             callbacks.Add(inPlaneSlice.StartAnnotationDataset);
             annotationDatasetLoadTask = vdmanager.LoadAnnotationDataset(callbacks);
 
-            DelayedLocalPrefsStart(annotationDatasetLoadTask);
-        }
+            // After annotation loads, check if the user wants to load previously used probes
+            CheckForSavedProbes(annotationDatasetLoadTask);
 
-        private async void DelayedLocalPrefsStart(Task annotationDatasetLoadTask)
+            // Pull settings from PlayerPrefs
+            Debug.Log(localPrefs.GetInplane());
+            SetAcronyms(localPrefs.GetAcronyms());
+            SetInPlane(localPrefs.GetInplane());
+            SetInVivoTransformState(localPrefs.GetStereotaxic());
+            SetUseIBLAngles(localPrefs.GetUseIBLAngles());
+            SetSurfaceDebugVisibility(localPrefs.GetSurfaceCoord());
+        }
+        public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
         {
             await annotationDatasetLoadTask;
-            localPrefs.AsyncStart();
+
+            if (qDialogue)
+            {
+                if (UnityEngine.PlayerPrefs.GetInt("probecount", 0) > 0)
+                {
+                    qDialogue.NewQuestion("Load previously saved probes?");
+                    qDialogue.SetYesCallback(this.LoadSavedProbes);
+                }
+            }
+        }
+
+        private void LoadSavedProbes()
+        {
+            (Vector3 tipPos, float depth, Vector3 angles, int type)[] savedProbes = localPrefs.LoadSavedProbes();
+
+            foreach (var savedProbe in savedProbes)
+            {
+                Vector3 tipPos = savedProbe.tipPos;
+                Vector3 angles = savedProbe.angles;
+                AddNewProbe(savedProbe.type, tipPos.x, tipPos.y, tipPos.z, savedProbe.depth, angles.x, angles.y, angles.z);
+            }
         }
 
         public Task GetAnnotationDatasetLoadedTask()
@@ -183,6 +218,11 @@ namespace TrajectoryPlanner
         public void ClickSearchArea(GameObject target)
         {
             searchControl.ClickArea(target);
+        }
+
+        public TP_InPlaneSlice GetInPlaneSlice()
+        {
+            return inPlaneSlice;
         }
 
         /// <summary>
@@ -595,7 +635,7 @@ namespace TrajectoryPlanner
         ///
         /// HELPER FUNCTIONS
         /// 
-        public Color ColorFromRGB(int r, int g, int b)
+        public static Color ColorFromRGB(int r, int g, int b)
         {
             return new Color(r / 255f, g / 255f, b / 255f, 1f);
         }
@@ -815,6 +855,19 @@ namespace TrajectoryPlanner
             // Not implemented yet
             //Vector3 meshCenterWorld = targetNode.GetMeshCenter();
             //activeProbeController.SetProbePosition()
+        }
+
+        private void OnApplicationQuit()
+        {
+            (float ap, float ml, float dv, float depth, float phi, float theta, float spin, int type)[] probeCoordinates = new (float ap, float ml, float dv, float depth, float phi, float theta, float spin, int type)[allProbes.Count];
+
+            for (int i =0; i< allProbes.Count; i++)
+            {
+                TP_ProbeController probe = allProbes[i];
+                (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = probe.GetCoordinates();
+                probeCoordinates[i] = (ap, ml, dv, depth, phi, theta, spin, probe.GetProbeType());
+            }
+            localPrefs.ApplicationQuit(probeCoordinates);
         }
     }
 
