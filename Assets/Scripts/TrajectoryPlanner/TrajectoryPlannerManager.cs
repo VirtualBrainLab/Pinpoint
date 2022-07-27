@@ -867,7 +867,7 @@ namespace TrajectoryPlanner
                 (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = probe.GetCoordinates();
                 probeCoordinates[i] = (ap, ml, dv, depth, phi, theta, spin, probe.GetProbeType());
             }
-            localPrefs.ApplicationQuit(probeCoordinates);
+            localPrefs.SaveCurrentProbeData(probeCoordinates);
         }
     }
 

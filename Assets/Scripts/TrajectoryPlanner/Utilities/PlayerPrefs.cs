@@ -4,11 +4,22 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Trajectory Planner PlayerPreferences saving/loading
+/// 
+/// To use this class:
+/// 1. define a new float/bool/int/string in the settings
+/// 2. link the UI element that this corresponds to
+/// 3. add corresponding getter/setter functions
+/// 4. in Awake() load the setting and set the ui element
+/// 5. if needed, in tpmanager Start() or any other Start() function, call the getter on your setting and do something with that
+/// 
+/// Note that PlayerPrefs data is not available in Awake() calls in other components!!
+/// </summary>
 public class PlayerPrefs : MonoBehaviour
 {
     // Settings
     private bool collisions;
-    //private bool useIblBregma;
     private bool recordingRegionOnly;
     private bool useAcronyms;
     private bool depthFromBrain;
@@ -18,9 +29,9 @@ public class PlayerPrefs : MonoBehaviour
     private int invivoTransform;
     private bool useIBLAngles;
     private bool showSurfaceCoord;
+    //private bool useIblBregma;
 
     [SerializeField] Toggle collisionsToggle;
-    //[SerializeField] Toggle bregmaToggle;
     [SerializeField] Toggle recordingRegionToggle;
     [SerializeField] Toggle acronymToggle;
     [SerializeField] Toggle depthToggle;
@@ -30,11 +41,12 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] TMP_Dropdown invivoDropdown;
     [SerializeField] Toggle iblAngleToggle;
     [SerializeField] Toggle surfaceToggle;
+    //[SerializeField] Toggle bregmaToggle;
 
-    // Saving probes
-    // simplest solution: on exit, stringify the probes, and then recover them from the string
 
-    // Start is called before the first frame update
+    /// <summary>
+    /// On Awake() load the preferences and toggle the corresponding UI elements
+    /// </summary>
     void Awake()
     {
         collisions = LoadBoolPref("collisions", true);
@@ -71,6 +83,10 @@ public class PlayerPrefs : MonoBehaviour
         surfaceToggle.isOn = showSurfaceCoord;
     }
 
+    /// <summary>
+    /// Return an array with information about the positions (in CCF) of probes that were saved from the last session
+    /// </summary>
+    /// <returns></returns>
     public (Vector3 tipPos, float depth, Vector3 angles, int type)[] LoadSavedProbes()
     {
         int probeCount = UnityEngine.PlayerPrefs.GetInt("probecount", 0);
@@ -93,6 +109,8 @@ public class PlayerPrefs : MonoBehaviour
 
         return savedProbes;
     }
+
+    #region Getters/Setters
 
     public void SetSurfaceCoord(bool state)
     {
@@ -215,6 +233,10 @@ public class PlayerPrefs : MonoBehaviour
         return true;
         //return useIblBregma;
     }
+
+    #endregion
+
+    #region Helper functions for booleans/integers
     private bool LoadBoolPref(string prefStr, bool defaultValue)
     {
         return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetInt(prefStr) == 1 : defaultValue;
@@ -225,7 +247,13 @@ public class PlayerPrefs : MonoBehaviour
         return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetInt(prefStr) : defaultValue;
     }
 
-    public void ApplicationQuit((float ap, float ml, float dv, float depth, float phi, float theta, float spin, int type)[] allProbeData)
+    #endregion
+
+    /// <summary>
+    /// Save the data about all of the probes passed in through allProbeData in CCF coordinates, note that depth is ignored 
+    /// </summary>
+    /// <param name="allProbeData">tip position, angles, and type for probes in CCF coordinates</param>
+    public void SaveCurrentProbeData((float ap, float ml, float dv, float depth, float phi, float theta, float spin, int type)[] allProbeData)
     {
         for (int i = 0; i < allProbeData.Length; i++)
         {
