@@ -36,21 +36,36 @@ namespace TP_Settings
 
         #region Property Getters and Setters
 
+        /// <summary>
+        /// Set probe manager reference attached to this panel.
+        /// </summary>
+        /// <param name="probeManager">This panel's probe's corresponding probe manager</param>
         public void SetProbeManager(ProbeManager probeManager)
         {
             _probeManager = probeManager;
         }
 
+        /// <summary>
+        /// Get probe's manipulator registration state
+        /// </summary>
+        /// <returns>True if the manipulator is registered, false otherwise</returns>
         public bool GetRegistered()
         {
             return _registered;
         }
 
+        /// <summary>
+        /// Set probe's manipulator registration state
+        /// </summary>
+        /// <param name="registered">Manipulator registration state</param>
         public void SetRegistered(bool registered)
         {
             _registered = registered;
         }
 
+        /// <summary>
+        /// Set probe angles by using the values in the input fields.
+        /// </summary>
         public void SetAngles()
         {
             _probeManager.SetProbeAngles(new Vector3(
@@ -60,6 +75,9 @@ namespace TP_Settings
             ));
         }
         
+        /// <summary>
+        /// Set probe bregma offset by using the values in the input fields.
+        /// </summary>
         public void SetBregmaOffset()
         {
             _probeManager.SetBregmaOffset(new Vector4(
@@ -74,6 +92,10 @@ namespace TP_Settings
 
         #region Component Methods
 
+        /// <summary>
+        /// Set manipulator id dropdown options.
+        /// </summary>
+        /// <param name="idOptions">Available manipulators to pick from</param>
         public void SetManipulatorIdDropdownOptions(List<string> idOptions)
         {
             manipulatorIdDropdown.ClearOptions();

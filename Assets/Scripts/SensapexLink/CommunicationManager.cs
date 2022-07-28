@@ -85,6 +85,10 @@ namespace SensapexLink
             });
         }
 
+        /// <summary>
+        /// Disconnect client from WebSocket server
+        /// </summary>
+        /// <param name="onDisconnected">Callback function to handle post disconnection behavior</param>
         public void DisconnectFromServer(Action onDisconnected = null)
         {
             _connectionManager.Close();

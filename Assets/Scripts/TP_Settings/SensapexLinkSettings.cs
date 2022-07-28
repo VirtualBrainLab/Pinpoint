@@ -124,6 +124,9 @@ namespace TP_Settings
 
         #region Helper Functions
 
+        /// <summary>
+        /// Populate UI elements with current connection settings
+        /// </summary>
         private void UpdateConnectionUI()
         {
             ipAddressInputField.text = _communicationManager.GetServerIp();
@@ -138,6 +141,9 @@ namespace TP_Settings
 
         #region UI Functions
 
+        /// <summary>
+        /// Handle when connect/disconnect button is pressed
+        /// </summary>
         public void OnConnectDisconnectPressed()
         {
             try
