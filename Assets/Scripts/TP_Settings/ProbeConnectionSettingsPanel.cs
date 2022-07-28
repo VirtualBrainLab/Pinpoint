@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TP_Settings
 {
@@ -21,6 +21,7 @@ namespace TP_Settings
 
         [SerializeField] private TMP_Text probeIdText;
         [SerializeField] private TMP_Dropdown manipulatorIdDropdown;
+        [SerializeField] private Button connectButton;
         [SerializeField] private TMP_Text connectButtonText;
         [SerializeField] private TMP_InputField phiInputField;
         [SerializeField] private TMP_InputField thetaInputField;
@@ -74,7 +75,7 @@ namespace TP_Settings
                 float.Parse(spinInputField.text == "" ? "0" : spinInputField.text)
             ));
         }
-        
+
         /// <summary>
         /// Set probe bregma offset by using the values in the input fields.
         /// </summary>
@@ -106,6 +107,22 @@ namespace TP_Settings
                 ? 0
                 : Math.Max(0, idOptions.IndexOf(_probeManager.GetManipulatorId().ToString()));
             manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
+            connectButton.interactable = indexOfId != 0;
+        }
+
+        public void OnManipulatorDropdownValueChanged(int value)
+        {
+            connectButton.interactable = value != 0;
+        }
+
+        /// <summary>
+        /// Connect and register the selected manipulator.
+        /// </summary>
+        public void ConnectProbeToManipulator()
+        {
+            var manipulatorId = int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text);
+            Debug.Log("Connect to manipulator " + manipulatorId);
+            _probeManager.SetSensapexLinkMovement(true, manipulatorId);
         }
 
         #endregion

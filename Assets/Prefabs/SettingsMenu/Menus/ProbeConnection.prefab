@@ -842,7 +842,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1414700230373600218}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 839153354918620974}
+        m_TargetAssemblyTypeName: TP_Settings.ProbeConnectionSettingsPanel, Assembly-CSharp
+        m_MethodName: ConnectProbeToManipulator
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &810469755338087971
 GameObject:
   m_ObjectHideFlags: 0
@@ -5300,6 +5312,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   probeIdText: {fileID: 1028707171613902379}
   manipulatorIdDropdown: {fileID: 4707109006791072113}
+  connectButton: {fileID: 8505982364122598531}
   connectButtonText: {fileID: 7882659572430576693}
   phiInputField: {fileID: 7675920397701253991}
   thetaInputField: {fileID: 2080433697904012661}
@@ -6369,7 +6382,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 839153354918620974}
         m_TargetAssemblyTypeName: TP_Settings.ProbeConnectionSettingsPanel, Assembly-CSharp
-        m_MethodName: SetManipulatorId
+        m_MethodName: OnManipulatorDropdownValueChanged
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
