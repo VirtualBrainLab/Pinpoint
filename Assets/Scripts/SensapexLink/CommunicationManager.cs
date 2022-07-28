@@ -19,15 +19,23 @@ namespace SensapexLink
         // Components
         private SocketManager _connectionManager;
         private Socket _socket;
+        private PlayerPrefs _playerPrefs;
 
         #endregion
 
         #region Setup
 
+        private void Awake()
+        {
+            _playerPrefs = GameObject.Find("main").GetComponent<PlayerPrefs>();
+        }
+
         private void Start()
         {
-            // Try connecting to localhost:8080 as a convenience
-            ConnectToServer();
+            // Grab the connection details from the player prefs
+            
+            // Connect to last known server
+            ConnectToServer(_serverIp, _serverPort);
         }
 
         #endregion
@@ -41,7 +49,7 @@ namespace SensapexLink
         /// <param name="port">Port of the server</param>
         /// <param name="onConnected">Callback function to handle a successful connection</param>
         /// <param name="onError"></param>
-        public void ConnectToServer(string ip = "localhost", ushort port = 8080, Action onConnected = null,
+        public void ConnectToServer(string ip, ushort port, Action onConnected = null,
             Action<string> onError = null)
         {
             // Disconnect the old connection if needed
