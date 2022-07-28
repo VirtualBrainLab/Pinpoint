@@ -990,7 +990,8 @@ MonoBehaviour:
   rotateAround: {fileID: 7313519670166122196}
   textPrefab: {fileID: 8313610428545859077, guid: 999717cdb0927ad46ae876c2cb398778, type: 3}
   probeRenderer: {fileID: 2762817814583501863}
-  recordingRegionGOs: []
+  recordingRegionGOs:
+  - {fileID: 2248518515669906170}
   probeType: 1
   probeTipT: {fileID: 3485671869318689184}
 --- !u!114 &4368194536080577050
