@@ -9,7 +9,7 @@ public class TP_ProbeUIManager : MonoBehaviour
     private GameObject probePanelGO;
     private TP_ProbePanel probePanel;
 
-    [SerializeField] private TP_ProbeController probeController;
+    [SerializeField] private ProbeManager probeController;
     private CCFModelControl modelControl;
 
     [SerializeField] private GameObject probeTip;

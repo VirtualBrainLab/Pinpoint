@@ -2275,14 +2275,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 8943063119080654577}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d404c533324f5944da00d74499849506, type: 3}
+  m_Script: {fileID: 11500000, guid: ad1015086aede554a95357c03335db5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recordHeightSpeed: 0.01
   keyHoldDelay: 0.3
   probeColliders:
-  - {fileID: 6896843787741631715}
   - {fileID: 6896843786921319317}
+  - {fileID: 6896843787741631715}
   - {fileID: 5634047100200080073}
   - {fileID: 4947281544112344572}
   probeUIManagers:

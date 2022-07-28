@@ -6,7 +6,7 @@ using TrajectoryPlanner;
 
 public class TP_ProbeCollider : MonoBehaviour
 {
-    [SerializeField] TP_ProbeController pcontroller;
+    [SerializeField] ProbeManager pcontroller;
     private TrajectoryPlannerManager tpmanager;
 
     private void Start()

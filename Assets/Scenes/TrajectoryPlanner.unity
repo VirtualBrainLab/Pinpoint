@@ -865,7 +865,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &43504706
 Transform:
   m_ObjectHideFlags: 0
@@ -912,7 +912,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 0c293f080f6c91d4489c6ddc14f326ec, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1880,9 +1880,9 @@ RectTransform:
   m_Father: {fileID: 1210481390}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 354.84, y: -15}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &167749849
@@ -6420,9 +6420,9 @@ RectTransform:
   m_Father: {fileID: 1210481390}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 169.88, y: 0}
   m_SizeDelta: {x: 339.76, y: 10}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &500828953
@@ -7067,9 +7067,9 @@ RectTransform:
   m_Father: {fileID: 1210481390}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 384.91998, y: -15}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &537324944
@@ -13290,7 +13290,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1064045075
 Transform:
   m_ObjectHideFlags: 0
@@ -13337,7 +13337,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: d16b087493fc3054891d5a789139d28d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -18240,7 +18240,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1619794957
 Transform:
   m_ObjectHideFlags: 0
@@ -18287,7 +18287,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 9e04d79f7c3c3534a9031f28643d20c1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -23443,14 +23443,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   modelControl: {fileID: 2108153952}
+  vdmanager: {fileID: 2108153957}
+  localPrefs: {fileID: 2108153956}
+  brainModel: {fileID: 1877060505}
+  util: {fileID: 2108153955}
   probePrefabs:
   - {fileID: 4368194536080577051, guid: 61b9881781d2c0844a324a8271642e17, type: 3}
   - {fileID: 4456597164778458636, guid: 5a989b1f005f06940b1c2a2cdfbfd705, type: 3}
   - {fileID: 8943063119080654577, guid: c6cbe13bba479184aa05bff7d11023f5, type: 3}
   - {fileID: 8943063119080654577, guid: ff3683f32bd116e439d7151532626d56, type: 3}
   probePrefabIDs: 01000000020000000400000008000000
-  brainModel: {fileID: 1877060505}
-  util: {fileID: 2108153955}
   recRegionSlider: {fileID: 1509006805}
   ccfCollider: {fileID: 1859818792}
   inPlaneSlice: {fileID: 672548778}
@@ -23463,8 +23465,7 @@ MonoBehaviour:
   IBLToolsGO: {fileID: 1687814895}
   IBLTrajectoryGO: {fileID: 1210448977}
   brainCamController: {fileID: 1445581475}
-  localPrefs: {fileID: 2108153956}
-  vdmanager: {fileID: 2108153957}
+  qDialogue: {fileID: 1550119012}
   surfaceDebugGO: {fileID: 1537967822}
   whiteUIText:
   - {fileID: 1757943462}
@@ -23500,10 +23501,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2108153951}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71781b79b7e71dc47a9b2396ff49f81f, type: 3}
+  m_Script: {fileID: 11500000, guid: e3be5cd9dbb4d7c4db370319d9dc170a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tpmanager: {fileID: 2108153954}
   collisionsToggle: {fileID: 1377288554}
   recordingRegionToggle: {fileID: 1307773803}
   acronymToggle: {fileID: 1234619114}
@@ -23514,7 +23514,6 @@ MonoBehaviour:
   invivoDropdown: {fileID: 611159662}
   iblAngleToggle: {fileID: 499537228}
   surfaceToggle: {fileID: 1766544453}
-  qDialogue: {fileID: 1550119012}
 --- !u!114 &2108153957
 MonoBehaviour:
   m_ObjectHideFlags: 0

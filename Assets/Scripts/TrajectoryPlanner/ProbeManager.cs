@@ -9,7 +9,7 @@ using TrajectoryPlanner;
 /// <summary>
 /// 3D space control for Neuropixels probes in the Trajectory Planner scene
 /// </summary>
-public class TP_ProbeController : MonoBehaviour
+public class ProbeManager : MonoBehaviour
 {
 
     // MOVEMENT CONTROL SPEEDS
@@ -190,9 +190,6 @@ public class TP_ProbeController : MonoBehaviour
         // Reset our probe UI panels
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
-        
-        // Test code
-        SetSensapexLinkMovement(true, 2);
     }
     /// <summary>
     /// Called by Unity when this object is destroyed. 
@@ -526,7 +523,7 @@ public class TP_ProbeController : MonoBehaviour
         if (moved)
         {
             // If the probe was moved, set the new position
-            SetProbePosition(insertion);
+            SetProbePositionCCF(insertion);
 
             // Check collisions if we need to
             if (checkForCollisions)
@@ -595,30 +592,14 @@ public class TP_ProbeController : MonoBehaviour
     // MANUAL COORDINATE ENTRY + PROBE POSITION CONTROLS
 
     /// <summary>
-    /// Set the coordinates of the probe by hand. Can't set depth relative to the brain surface (yet)
+    /// Set the coordinates of the probe by hand, this function assumes the input is in the current transformation and uses the IBL-relative setting
+    /// 
+    /// In other words: you have to input coordinates that are *matched* to the current output coordinates. Note that depth is currently ignored.
     /// </summary>
-    /// <param name="ap"></param>
-    /// <param name="ml"></param>
-    /// <param name="depth"></param>
-    /// <param name="phi"></param>
-    /// <param name="theta"></param>
-    /// <param name="spin"></param>
-    public void ManualCoordinateEntry(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
     {
         // Unconvert back to CCF space
-
-        if (tpmanager.UseIBLAngles())
-            if (tpmanager.GetInVivoTransformState())
-                insertion.SetCoordinates_IBL(ap, ml, dv, depth, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
-            else
-                insertion.SetCoordinates_IBL(ap, ml, dv, depth, phi, theta, spin);
-        else
-            if (tpmanager.GetInVivoTransformState())
-                insertion.SetCoordinates(ap, ml, dv, depth, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
-            else
-                insertion.SetCoordinates(ap, ml, dv, depth, phi, theta, spin);
-
-        SetProbePosition();
+        SetProbePositionTransformed(ap, ml, dv, depth, phi, theta, spin);
 
         // Tell the tpmanager we moved and update the UI elements
         tpmanager.SetMovedThisFrame();
@@ -627,10 +608,15 @@ public class TP_ProbeController : MonoBehaviour
         tpmanager.UpdateInPlaneView();
     }
 
-    public IEnumerator DelayedManualCoordinateEntry(float delay, float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    public void ManualCoordinateEntrySurfaceTransformed(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    {
+        Debug.LogError("Not implemented");
+    }
+
+    public IEnumerator DelayedManualCoordinateEntryTransformed(float delay, float ap, float ml, float dv, float depth, float phi, float theta, float spin)
     {
         yield return new WaitForSeconds(delay);
-        ManualCoordinateEntry(ap, ml, dv, depth, phi, theta, spin);
+        ManualCoordinateEntryTransformed(ap, ml, dv, depth, phi, theta, spin);
     }
 
     /// <summary>
@@ -638,14 +624,14 @@ public class TP_ProbeController : MonoBehaviour
     /// </summary>
     public void SetProbePosition()
     {
-        SetProbePosition(insertion);
+        SetProbePositionCCF(insertion);
     }
 
     /// <summary>
-    /// Set the position of the probe to match a ProbeInsertion object
+    /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
     /// </summary>
     /// <param name="localInsertion">new insertion position</param>
-    public void SetProbePosition(ProbeInsertion localInsertion)
+    public void SetProbePositionCCF(ProbeInsertion localInsertion)
     {
         // Reset everything
         transform.position = initialPosition;
@@ -658,9 +644,6 @@ public class TP_ProbeController : MonoBehaviour
         transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
         transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
 
-        // not currently using depth information at all
-        //transform.Translate(0f, -localInsertion.depth, 0f);
-
         // save the data
         insertion.SetCoordinates(localInsertion);
 
@@ -668,6 +651,27 @@ public class TP_ProbeController : MonoBehaviour
         UpdateSurfacePosition();
         // Update probe text
         UpdateText();
+    }
+
+    /// <summary>
+    /// Set the probe position to match a tip position and angles in the current TRANSFORMED space, this will reverse both the bregma and CoordinateTransform settings
+    /// 
+    /// Note that the depth is ignored
+    /// </summary>
+    public void SetProbePositionTransformed(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    {
+        if (tpmanager.UseIBLAngles())
+            if (tpmanager.GetInVivoTransformState())
+                insertion.SetCoordinates_IBL(ap, ml, dv, depth, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
+            else
+                insertion.SetCoordinates_IBL(ap, ml, dv, depth, phi, theta, spin);
+        else
+            if (tpmanager.GetInVivoTransformState())
+                insertion.SetCoordinates(ap, ml, dv, depth, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
+            else
+                insertion.SetCoordinates(ap, ml, dv, depth, phi, theta, spin);
+
+        SetProbePosition();
     }
 
 
@@ -984,7 +988,7 @@ public class TP_ProbeController : MonoBehaviour
                 CheckCollisions(tpmanager.GetAllNonActiveColliders());
 
             tpmanager.UpdateInPlaneView();
-            SetProbePosition(insertion);
+            SetProbePositionCCF(insertion);
 
             foreach (TP_ProbeUIManager puimanager in probeUIManagers)
                 puimanager.ProbeMoved();
@@ -1231,6 +1235,8 @@ public class TP_ProbeController : MonoBehaviour
 
         brainSurfaceWorld = surfacePosition;
 
+        //Surface2CCF(brainSurfaceWorld, depth, insertion.angles);
+
         if (float.IsNaN(depth))
         {
             // not in the brain
@@ -1300,19 +1306,20 @@ public class TP_ProbeController : MonoBehaviour
     public (Vector3, Vector3) Surface2CCF(Vector3 surfacePosition, float depth, Vector3 angles)
     {
         // For now we'll just compute this using the tip transform rotation
-        Vector3 tipPosition = surfacePosition + -probeTipT.up * depth;
-        return (tipPosition, angles);
+        //Vector3 tipPosition = surfacePosition + -probeTipT.up * depth;
+        //return (tipPosition, angles);
 
         //transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
         //transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
         //transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
 
         // I'm confused about why this doesn't work...
-        //Vector3 tipPosition = surfacePosition + Quaternion.Euler(new Vector3(-angles.y, 0f, -angles.x)) * Vector3.down * depth;
-        //GameObject.Find("recovered_tip_down").transform.position = surfacePosition + Vector3.down * depth;
-        //GameObject.Find("recovered_tip_phi").transform.position = surfacePosition + Quaternion.Euler(new Vector3(0f, 0f, -angles.x)) * Vector3.up * depth;
-        //GameObject.Find("recovered_tip_theta").transform.position = surfacePosition + Quaternion.Euler(new Vector3(-angles.y, 0f, -angles.x)) * Vector3.up * depth;
-        //return (tipPosition, angles);
+        Debug.Log(angles);
+        Vector3 tipPosition = surfacePosition + Quaternion.Euler(new Vector3(angles.y, 0f, angles.x)) * Vector3.down * depth;
+        GameObject.Find("recovered_tip_down").transform.position = surfacePosition + Vector3.down * depth;
+        GameObject.Find("recovered_tip_phi").transform.position = surfacePosition + Quaternion.Euler(new Vector3(0f, 0f, angles.x)) * Vector3.up * depth;
+        GameObject.Find("recovered_tip_theta").transform.position = surfacePosition + Quaternion.Euler(new Vector3(0f, angles.y, angles.x)) * Vector3.up * depth;
+        return (tipPosition, angles);
     }
 
 
@@ -1383,10 +1390,10 @@ public class TP_ProbeController : MonoBehaviour
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         // Convert position to CCF
-        var stereotaxic = pos - _zeroPosition;
+        var ccf = _neTransform.ToCCF(pos - _zeroPosition);
         var currentCoordinates = GetCoordinates();
 
-        ManualCoordinateEntry(stereotaxic.x, stereotaxic.y, stereotaxic.z, stereotaxic.w, currentCoordinates.Item5,
+        ManualCoordinateEntryTransformed(ccf.x, ccf.y, ccf.z, pos.w - _zeroPosition.w, currentCoordinates.Item5,
             currentCoordinates.Item6, currentCoordinates.Item7);
 
         if (_sensapexLinkMovement)

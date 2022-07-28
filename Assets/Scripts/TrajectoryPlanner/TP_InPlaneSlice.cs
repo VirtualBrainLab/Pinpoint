@@ -16,7 +16,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     [SerializeField] private TrajectoryPlannerManager tpmanager;
     [SerializeField] private GameObject inPlaneSliceUIGO;
     [SerializeField] private CCFModelControl modelControl;
-    [SerializeField] private TP_PlayerPrefs localPrefs;
+    [SerializeField] private PlayerPrefs localPrefs;
 
     [SerializeField] private TextMeshProUGUI areaText;
 
@@ -30,7 +30,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     private RectTransform rect;
 
-    public Texture3D annotationDatasetGPUTexture;
+    private Texture3D annotationDatasetGPUTexture;
     private TaskCompletionSource<bool> gpuTextureLoadedSource;
     private Task gpuTextureLoadedTask;
 
@@ -103,7 +103,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         if (!localPrefs.GetInplane()) return;
 
-        TP_ProbeController activeProbeController = tpmanager.GetActiveProbeController();
+        ProbeManager activeProbeController = tpmanager.GetActiveProbeController();
 
         // Calculate the size
         float[] heightPerc = activeProbeController.GetRecordingRegionHeight();
