@@ -173,6 +173,23 @@ namespace SensapexLink
             }).Emit("register_manipulator", manipulatorId);
         }
 
+        public void UnregisterManipulator(int manipulatorId, Action onSuccessCallback = null,
+            Action<string> onErrorCallback = null)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
+            {
+                if (error == "")
+                {
+                    onSuccessCallback?.Invoke();
+                }
+                else
+                {
+                    onErrorCallback?.Invoke(error);
+                    Debug.LogError(error);
+                }
+            }).Emit("unregister_manipulator", manipulatorId);
+        }
+
         /// <summary>
         /// Request the current position of a manipulator
         /// </summary>

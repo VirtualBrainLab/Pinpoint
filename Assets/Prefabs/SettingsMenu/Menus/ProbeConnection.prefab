@@ -845,7 +845,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 839153354918620974}
         m_TargetAssemblyTypeName: TP_Settings.ProbeConnectionSettingsPanel, Assembly-CSharp
-        m_MethodName: ConnectProbeToManipulator
+        m_MethodName: ConnectDisconnectProbeToManipulator
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

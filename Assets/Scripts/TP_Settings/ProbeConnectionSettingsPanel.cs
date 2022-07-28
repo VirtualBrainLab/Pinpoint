@@ -12,7 +12,7 @@ namespace TP_Settings
 
         #region Properties
 
-        private bool _registered;
+        private int _manipulatorId;
         private ProbeManager _probeManager;
 
         #endregion
@@ -52,18 +52,18 @@ namespace TP_Settings
         /// Get probe's manipulator registration state
         /// </summary>
         /// <returns>True if the manipulator is registered, false otherwise</returns>
-        public bool GetRegistered()
+        public bool IsRegistered()
         {
-            return _registered;
+            return _manipulatorId != 0;
         }
 
         /// <summary>
-        /// Set probe's manipulator registration state
+        /// Get probe's manipulator ID
         /// </summary>
-        /// <param name="registered">Manipulator registration state</param>
-        public void SetRegistered(bool registered)
+        /// <returns>ID of the manipulator this probe is registered with</returns>
+        public int GetManipulatorId()
         {
-            _registered = registered;
+            return _manipulatorId;
         }
 
         /// <summary>
@@ -120,21 +120,20 @@ namespace TP_Settings
         /// <summary>
         /// Connect and register the selected manipulator.
         /// </summary>
-        public void ConnectProbeToManipulator()
+        public void ConnectDisconnectProbeToManipulator()
         {
-            if (!_registered)
+            if (_manipulatorId == 0)
             {
-                var manipulatorId = int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text);
+                _manipulatorId = int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text);
                 // TODO: Put alert here to make sure manipulators are set to Bregma
-                _probeManager.SetSensapexLinkMovement(true, manipulatorId, true, () =>
-                {
-                    _registered = true;
-                    connectButtonText.text = "Disconnect";
-                });
+                _probeManager.SetSensapexLinkMovement(true, _manipulatorId, true,
+                    () => { connectButtonText.text = "Disconnect"; });
             }
             else
             {
                 connectButtonText.text = "Connect";
+                _manipulatorId = 0;
+                _probeManager.SetSensapexLinkMovement(false, _manipulatorId);
             }
         }
 

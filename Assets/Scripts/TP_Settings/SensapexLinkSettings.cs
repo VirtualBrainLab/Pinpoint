@@ -87,9 +87,10 @@ namespace TP_Settings
                          !handledProbeIds.Contains(key)))
             {
                 // Cleanup
-                if (_probeIdToProbeConnectionSettingsPanels[removedProbeId].Item1.GetRegistered())
+                var probeConnectionSettingsPanel = _probeIdToProbeConnectionSettingsPanels[removedProbeId].Item1;
+                if (probeConnectionSettingsPanel.IsRegistered())
                 {
-                    // TODO: Unregister device
+                    _communicationManager.UnregisterManipulator(probeConnectionSettingsPanel.GetManipulatorId());
                 }
 
                 // Remove
