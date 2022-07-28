@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SensapexLink;
 using TMPro;
 using TrajectoryPlanner;
@@ -30,14 +31,14 @@ namespace TP_Settings
 
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
-        private TP_PlayerPrefs _playerPrefs;
+        private PlayerPrefs _playerPrefs;
 
         #endregion
 
         #region Session variables
 
-        private Dictionary<int, int> _proveIdToManipulatorId;
-        private int[] _availableManipulatorIds;
+        private Dictionary<int, Tuple<ProbeConnectionSettingsPanel, GameObject>>
+            _probeIdToProbeConnectionSettingsPanels;
 
         #endregion
 
@@ -50,17 +51,61 @@ namespace TP_Settings
             // Get Components
             _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
             _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
-            _playerPrefs = GameObject.Find("main").GetComponent<TP_PlayerPrefs>();
+            _playerPrefs = GameObject.Find("main").GetComponent<PlayerPrefs>();
         }
 
         private void OnEnable()
         {
-            // Get available probes
-            if (probeList.transform.childCount == _trajectoryPlannerManager.GetAllProbes().Count) return;
-            foreach (var tpProbeController in _trajectoryPlannerManager.GetAllProbes())
+            // Get probes in scene
+            var probeIds = new HashSet<int>();
+            foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes())
             {
-                Instantiate(probeConnectionPanelPrefab, probeList.transform);
+                probeIds.Add(probeManager.GetID());
             }
+
+            // Instantiate probe panel records if necessary
+            _probeIdToProbeConnectionSettingsPanels ??=
+                new Dictionary<int, Tuple<ProbeConnectionSettingsPanel, GameObject>>();
+
+            // Remove probe connections if probe is not in scene anymore
+            if (_probeIdToProbeConnectionSettingsPanels.Count > probeIds.Count)
+            {
+                foreach (var key in _probeIdToProbeConnectionSettingsPanels.Keys.Where(key => !probeIds.Contains(key)))
+                {
+                    Destroy(_probeIdToProbeConnectionSettingsPanels[key].Item2);
+                    _probeIdToProbeConnectionSettingsPanels.Remove(key);
+                }
+            }
+            // Add in new probe settings panels if there are new probes in the scene
+            else if (_probeIdToProbeConnectionSettingsPanels.Count < probeIds.Count)
+            {
+                foreach (var probeId in probeIds.Where(probeId =>
+                             !_probeIdToProbeConnectionSettingsPanels.ContainsKey(probeId)))
+                {
+                    var probeConnectionSettingsPanelGameObject =
+                        Instantiate(probeConnectionPanelPrefab, probeList.transform);
+                    var probeConnectionSettingsPanel =
+                        probeConnectionSettingsPanelGameObject.GetComponent<ProbeConnectionSettingsPanel>();
+
+                    probeConnectionSettingsPanel.SetProbeId(probeId);
+
+                    _probeIdToProbeConnectionSettingsPanels.Add(probeId,
+                        new Tuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
+                            probeConnectionSettingsPanelGameObject));
+                }
+            }
+            
+            // Update available manipulators
+            _communicationManager.GetManipulators(availableIds =>
+            {
+                var manipulatorDropdownOptions = new List<string> { "-" };
+                manipulatorDropdownOptions.AddRange(availableIds.Select(id => id.ToString()));
+                
+                foreach (var value in _probeIdToProbeConnectionSettingsPanels.Values)
+                {
+                    value.Item1.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
+                }
+            });
         }
 
 
@@ -68,9 +113,6 @@ namespace TP_Settings
         private void Start()
         {
             UpdateConnectionUI();
-
-            // Get available manipulator ids
-            _communicationManager.GetManipulators(ids => _availableManipulatorIds = ids);
         }
 
         #endregion
