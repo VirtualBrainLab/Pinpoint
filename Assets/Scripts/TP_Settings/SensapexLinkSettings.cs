@@ -30,7 +30,6 @@ namespace TP_Settings
 
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
-        private PlayerPrefs _playerPrefs;
 
         #endregion
 
@@ -50,7 +49,6 @@ namespace TP_Settings
             // Get Components
             _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
             _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
-            _playerPrefs = GameObject.Find("main").GetComponent<PlayerPrefs>();
 
             // Initialize session variables
             _probeIdToProbeConnectionSettingsPanels =
@@ -128,10 +126,6 @@ namespace TP_Settings
         /// </summary>
         private void UpdateConnectionUI()
         {
-            ipAddressInputField.text = _communicationManager.GetServerIp();
-            portInputField.text = _communicationManager.GetServerPort() == 0
-                ? ""
-                : _communicationManager.GetServerPort().ToString();
             connectionErrorText.text = "";
             connectButtonText.text = _communicationManager.IsConnected() ? "Disconnect" : "Connect";
         }
