@@ -44,6 +44,8 @@ namespace TP_Settings
         public void SetProbeManager(ProbeManager probeManager)
         {
             _probeManager = probeManager;
+
+            probeIdText.text = "Connect Probe #" + probeManager.GetID() + " to Manipulator";
         }
 
         /// <summary>
@@ -120,9 +122,20 @@ namespace TP_Settings
         /// </summary>
         public void ConnectProbeToManipulator()
         {
-            var manipulatorId = int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text);
-            Debug.Log("Connect to manipulator " + manipulatorId);
-            _probeManager.SetSensapexLinkMovement(true, manipulatorId);
+            if (!_registered)
+            {
+                var manipulatorId = int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text);
+                // TODO: Put alert here to make sure manipulators are set to Bregma
+                _probeManager.SetSensapexLinkMovement(true, manipulatorId, true, () =>
+                {
+                    _registered = true;
+                    connectButtonText.text = "Disconnect";
+                });
+            }
+            else
+            {
+                connectButtonText.text = "Connect";
+            }
         }
 
         #endregion

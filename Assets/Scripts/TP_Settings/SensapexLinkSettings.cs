@@ -5,7 +5,6 @@ using SensapexLink;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace TP_Settings
 {
