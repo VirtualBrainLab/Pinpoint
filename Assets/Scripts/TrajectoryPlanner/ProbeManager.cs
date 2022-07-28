@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using SensapexLink;
 using TMPro;
+using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.UI;
-using TrajectoryPlanner;
 
 /// <summary>
 /// 3D space control for Neuropixels probes in the Trajectory Planner scene
@@ -36,13 +36,17 @@ public class ProbeManager : MonoBehaviour
 
     // Internal flags that track whether we are in manual control or drag/link control mode
     private bool draggingMovement = false;
-    private bool _sensapexLinkMovement = false;
-    
-    // Sensapex link control
+    private bool _sensapexLinkMovement;
+
+    #region Sensapex Link
+
     private CommunicationManager _sensapexLinkCommunicationManager;
-    private int _manipulatorId;
-    private Vector4 _zeroPosition = Vector4.negativeInfinity;
     private readonly NeedlesTransform _neTransform = new NeedlesTransform();
+    private int _manipulatorId;
+    private Vector3 _probeAngles;
+    private Vector4 _bregmaOffset = Vector4.negativeInfinity;
+
+    #endregion
 
     // Exposed fields to collect links to other components inside of the Probe prefab
     [SerializeField] private List<Collider> probeColliders;
@@ -1327,6 +1331,8 @@ public class ProbeManager : MonoBehaviour
 
     #region Sensapex Link and Control
 
+    #region Property Getters and Setters
+
     /// <summary>
     /// Return if this probe is being controlled by the Sensapex Link
     /// </summary>
@@ -1377,11 +1383,42 @@ public class ProbeManager : MonoBehaviour
             // Read and start echoing position
             _sensapexLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
             {
-                if (_zeroPosition.Equals(Vector4.negativeInfinity)) _zeroPosition = vector4;
+                if (_bregmaOffset.Equals(Vector4.negativeInfinity)) _bregmaOffset = vector4;
                 EchoPositionFromSensapexLink(vector4);
             });
         }
     }
+
+    public int GetManipulatorId()
+    {
+        return _manipulatorId;
+    }
+    
+    public Vector3 GetProbeAngles()
+    {
+        return _probeAngles;
+    }
+
+    public void SetProbeAngles(Vector3 angles)
+    {
+        _probeAngles = angles;
+    }
+
+    public Vector4 GetBregmaOffset()
+    {
+        return _bregmaOffset;
+    }
+
+    public void SetBregmaOffset(Vector4 bregmaOffset)
+    {
+        _bregmaOffset = bregmaOffset;
+    }
+
+    #endregion
+
+    
+
+    
 
     /// <summary>
     ///     Echo given position in needles transform space to the probe
@@ -1390,10 +1427,10 @@ public class ProbeManager : MonoBehaviour
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         // Convert position to CCF
-        var ccf = _neTransform.ToCCF(pos - _zeroPosition);
+        var ccf = _neTransform.ToCCF(pos - _bregmaOffset);
         var currentCoordinates = GetCoordinates();
 
-        ManualCoordinateEntryTransformed(ccf.x, ccf.y, ccf.z, pos.w - _zeroPosition.w, currentCoordinates.Item5,
+        ManualCoordinateEntryTransformed(ccf.x, ccf.y, ccf.z, pos.w - _bregmaOffset.w, currentCoordinates.Item5,
             currentCoordinates.Item6, currentCoordinates.Item7);
 
         if (_sensapexLinkMovement)

@@ -52,55 +52,60 @@ namespace TP_Settings
             _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
             _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
             _playerPrefs = GameObject.Find("main").GetComponent<PlayerPrefs>();
+
+            // Initialize session variables
+            _probeIdToProbeConnectionSettingsPanels =
+                new Dictionary<int, Tuple<ProbeConnectionSettingsPanel, GameObject>>();
         }
 
         private void OnEnable()
         {
-            // Get probes in scene
-            var probeIds = new HashSet<int>();
+            var handledProbeIds = new HashSet<int>();
+
+            // Add any new probes in scene to list
             foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes())
             {
-                probeIds.Add(probeManager.GetID());
-            }
+                var probeId = probeManager.GetID();
 
-            // Instantiate probe panel records if necessary
-            _probeIdToProbeConnectionSettingsPanels ??=
-                new Dictionary<int, Tuple<ProbeConnectionSettingsPanel, GameObject>>();
-
-            // Remove probe connections if probe is not in scene anymore
-            if (_probeIdToProbeConnectionSettingsPanels.Count > probeIds.Count)
-            {
-                foreach (var key in _probeIdToProbeConnectionSettingsPanels.Keys.Where(key => !probeIds.Contains(key)))
-                {
-                    Destroy(_probeIdToProbeConnectionSettingsPanels[key].Item2);
-                    _probeIdToProbeConnectionSettingsPanels.Remove(key);
-                }
-            }
-            // Add in new probe settings panels if there are new probes in the scene
-            else if (_probeIdToProbeConnectionSettingsPanels.Count < probeIds.Count)
-            {
-                foreach (var probeId in probeIds.Where(probeId =>
-                             !_probeIdToProbeConnectionSettingsPanels.ContainsKey(probeId)))
+                // Create probe connection settings panel if the probe is new
+                if (!_probeIdToProbeConnectionSettingsPanels.ContainsKey(probeId))
                 {
                     var probeConnectionSettingsPanelGameObject =
                         Instantiate(probeConnectionPanelPrefab, probeList.transform);
                     var probeConnectionSettingsPanel =
                         probeConnectionSettingsPanelGameObject.GetComponent<ProbeConnectionSettingsPanel>();
 
-                    probeConnectionSettingsPanel.SetProbeId(probeId);
+                    probeConnectionSettingsPanel.SetProbeManager(probeManager);
 
                     _probeIdToProbeConnectionSettingsPanels.Add(probeId,
                         new Tuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
                             probeConnectionSettingsPanelGameObject));
                 }
+
+                handledProbeIds.Add(probeId);
             }
-            
+
+            // Remove any probe that is not in the scene anymore
+            foreach (var removedProbeId in _probeIdToProbeConnectionSettingsPanels.Keys.Where(key =>
+                         !handledProbeIds.Contains(key)))
+            {
+                // Cleanup
+                if (_probeIdToProbeConnectionSettingsPanels[removedProbeId].Item1.GetRegistered())
+                {
+                    // TODO: Unregister device
+                }
+
+                // Remove
+                Destroy(_probeIdToProbeConnectionSettingsPanels[removedProbeId].Item2);
+                _probeIdToProbeConnectionSettingsPanels.Remove(removedProbeId);
+            }
+
             // Update available manipulators
             _communicationManager.GetManipulators(availableIds =>
             {
                 var manipulatorDropdownOptions = new List<string> { "-" };
                 manipulatorDropdownOptions.AddRange(availableIds.Select(id => id.ToString()));
-                
+
                 foreach (var value in _probeIdToProbeConnectionSettingsPanels.Values)
                 {
                     value.Item1.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);

@@ -12,10 +12,8 @@ namespace TP_Settings
 
         #region Properties
 
-        private int _probeId;
-        private int _manipulatorId;
-        private Vector3 angles;
-        private Vector4 _bregmaOffset;
+        private bool _registered;
+        private ProbeManager _probeManager;
 
         #endregion
 
@@ -36,31 +34,45 @@ namespace TP_Settings
 
         #endregion
 
-        // Start is called before the first frame update
-        void Start()
-        {
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-        }
-
         #region Property Getters and Setters
 
-        public int GetProbeId()
+        public void SetProbeManager(ProbeManager probeManager)
         {
-            return _probeId;
+            _probeManager = probeManager;
         }
 
-        public void SetProbeId(int id)
+        public bool GetRegistered()
         {
-            _probeId = id;
+            return _registered;
+        }
+
+        public void SetRegistered(bool registered)
+        {
+            _registered = registered;
+        }
+
+        public void SetAngles()
+        {
+            _probeManager.SetProbeAngles(new Vector3(
+                float.Parse(phiInputField.text == "" ? "0" : phiInputField.text),
+                float.Parse(thetaInputField.text == "" ? "0" : thetaInputField.text),
+                float.Parse(spinInputField.text == "" ? "0" : spinInputField.text)
+            ));
+        }
+        
+        public void SetBregmaOffset()
+        {
+            _probeManager.SetBregmaOffset(new Vector4(
+                float.Parse(xInputField.text == "" ? "0" : xInputField.text),
+                float.Parse(yInputField.text == "" ? "0" : yInputField.text),
+                float.Parse(zInputField.text == "" ? "0" : zInputField.text),
+                float.Parse(dInputField.text == "" ? "0" : dInputField.text)
+            ));
         }
 
         #endregion
 
-        #region Component Accessors
+        #region Component Methods
 
         public void SetManipulatorIdDropdownOptions(List<string> idOptions)
         {
@@ -68,7 +80,9 @@ namespace TP_Settings
             manipulatorIdDropdown.AddOptions(idOptions);
 
             // Select the option corresponding to the current manipulator id
-            var indexOfId = _manipulatorId == 0 ? 0 : Math.Max(0, idOptions.IndexOf(_manipulatorId.ToString()));
+            var indexOfId = _probeManager.GetManipulatorId() == 0
+                ? 0
+                : Math.Max(0, idOptions.IndexOf(_probeManager.GetManipulatorId().ToString()));
             manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
         }
 
