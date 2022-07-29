@@ -1306,12 +1306,14 @@ public class ProbeManager : MonoBehaviour
     private Transform surfaceCalculatorT;
 
     /// <summary>
-    /// Running this function assumes you've set the probe position to match the angles
+    /// Recover the tip position when you only know the surface position and depth.
+    /// 
+    /// Use the tip position to set the probe position when converting from surface coordinates.
     /// </summary>
     /// <param name="surfacePosition"></param>
     /// <param name="depth"></param>
     /// <param name="angles"></param>
-    /// <returns></returns>
+    /// <returns>(tipPosition in CCF, angles)</returns>
     public (Vector3, Vector3) Surface2CCF(Vector3 surfacePosition, float depth, Vector3 angles)
     {
         //// I've tried this a number of ways and can't figure it out. It's possible the way I'm applying rotations can't be done by euler angles? 
