@@ -1,0 +1,20 @@
+{
+    "name": "Unisave.Testing",
+    "references": [
+        "Unisave"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        "LightJson.dll",
+        "RSG.Promise.dll",
+        "UnisaveFramework.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

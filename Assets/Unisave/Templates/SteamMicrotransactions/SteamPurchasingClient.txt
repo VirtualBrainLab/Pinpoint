@@ -1,0 +1,186 @@
+using System;
+using Steamworks;
+using Unisave.Facades;
+using UnityEngine;
+
+$NAMESPACE_BEGIN$
+    /*
+     * SteamMicrotransactions template - v0.9.0
+     * ----------------------------------------
+     * 
+     * This script is where you initiate and finalize Steam transactions.
+     *
+     * You need to have Steamworks.NET installed in your project in order
+     * for this script to work. See:
+     * https://steamworks.github.io/installation/
+     *
+     * This script has been developed and tested on Steamworks.NET v14.0.0
+     */
+    
+    public class SteamPurchasingClient : MonoBehaviour
+    {
+        /// <summary>
+        /// This method is an example of transaction initiation.
+        /// Modify, duplicate, and rename it to implement what you need.
+        /// </summary>
+        public void PlayerClickedBuy()
+        {
+            var transaction = new SteamTransactionEntity {
+                playerSteamId = GetSteamId(),
+                language = "en",
+                currency = "USD"
+            };
+            transaction.AddProduct<ExampleVirtualProduct>(quantity: 3);
+
+            SendTransactionProposalToPurchasingServer(transaction);
+        }
+
+        /// <summary>
+        /// Called when a transaction successfully finishes
+        /// </summary>
+        private void TransactionHasBeenSuccessful(
+            SteamTransactionEntity transaction
+        )
+        {
+            // Here you should display a dialog to the player, saying:
+            //
+            // +------------------------------------------------+
+            // | Your purchase has been successful, thank you.  |
+            // |                                       [- OK -] |
+            // +------------------------------------------------+
+            //
+            
+            // The purchased items have been already given to the player,
+            // see ExampleVirtualProduct.GiveToPlayer(...) to learn more.
+            
+            // Reload the scene or pull the new player data from the server,
+            // to make sure the player sees the bought products.
+            
+            Debug.Log(
+                "The transaction has succeeded and the products have been " +
+                "given to the player. Now it's time to refresh data from the " +
+                "server so that the player sees the purchased items."
+            );
+        }
+
+        /// <summary>
+        /// Called when an error message should be displayed to the player
+        /// </summary>
+        private void ReportErrorToThePlayer(string message)
+        {
+            // Here you should display a dialog to the player, saying:
+            //
+            // +------------------------------------------------+
+            // | Sorry, your purchase failed. The reason is:    |
+            // | {message}                                      |
+            // |                                       [- OK -] |
+            // +------------------------------------------------+
+            //
+            
+            Debug.LogError("The transaction failed because of:\n" + message);
+        }
+        
+        
+        
+    // =========================================================================
+    //                    Don't worry about the code below
+    // =========================================================================
+  
+    
+        
+        #region "Utilities"
+    
+        /// <summary>
+        /// Returns Steam ID of the current player
+        /// </summary>
+        protected virtual ulong GetSteamId()
+        {
+            return SteamUser.GetSteamID().m_SteamID;
+        }
+        
+        private async void SendTransactionProposalToPurchasingServer(
+            SteamTransactionEntity transaction
+        )
+        {
+            try
+            {
+                await OnFacet<SteamPurchasingServerFacet>.CallAsync(
+                    nameof(SteamPurchasingServerFacet.InitiateTransaction),
+                    transaction
+                );
+            }
+            catch (Exception e)
+            {
+                ReportErrorToThePlayer(e.Message);
+            }
+        }
+        
+        #endregion
+        
+        #region "Steamworks callback handling"
+    
+        /// <summary>
+        /// This method is called by Steamworks when the transaction finishes
+        /// (player either authorized or aborted the transaction)
+        /// </summary>
+        public async void SteamworksCallbackHandler(
+            MicroTxnAuthorizationResponse_t response
+        )
+        {
+            // finish the transaction
+            SteamTransactionEntity transaction;
+            try
+            {
+                transaction = await OnFacet<SteamPurchasingServerFacet>
+                    .CallAsync<SteamTransactionEntity>(
+                        nameof(SteamPurchasingServerFacet.FinalizeTransaction),
+                        response.m_ulOrderID,
+                        response.m_bAuthorized == 1
+                    );
+            }
+            catch (Exception e)
+            {
+                ReportErrorToThePlayer(e.Message);
+                return;
+            }
+            
+            // transaction has been aborted by the player
+            if (response.m_bAuthorized != 1)
+            {
+                ReportErrorToThePlayer("You've aborted the transaction.");
+                return;
+            }
+
+            // everything went according to plans
+            TransactionHasBeenSuccessful(transaction);
+        }
+        
+        /// <summary>
+        /// The Steamworks callback for transaction finalization
+        /// </summary>
+        private Callback<MicroTxnAuthorizationResponse_t> callback;
+
+        private void OnEnable()
+        {
+            // register Steamworks callback
+            if (SteamManager.Initialized)
+            {
+                callback = Callback<MicroTxnAuthorizationResponse_t>
+                    .Create(SteamworksCallbackHandler);
+            }
+        }
+        
+        private void OnDisable()
+        {
+            // un-register Steamworks callback
+            if (callback != null)
+            {
+                callback.Dispose();
+                callback = null;
+            }
+        }
+        
+        #endregion
+    }
+$NAMESPACE_END$
+

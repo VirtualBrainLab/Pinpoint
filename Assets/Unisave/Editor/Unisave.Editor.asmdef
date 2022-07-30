@@ -1,0 +1,22 @@
+{
+    "name": "Unisave.Editor",
+    "references": [
+        "Unisave"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        "LightJson.dll",
+        "RSG.Promise.dll",
+        "UnisaveFramework.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

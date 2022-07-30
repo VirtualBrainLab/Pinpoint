@@ -1,0 +1,168 @@
+using System;
+using System.Collections.Generic;
+using Unisave.Authentication;
+using Unisave.Facades;
+using Unisave.Facets;
+using Unisave.Utils;
+
+$NAMESPACE_BEGIN$
+    /*
+     * SteamAuthentication template - v0.9.1
+     * -------------------------------------
+     *
+     * This facet handles player login and registration via Steam.
+     *
+     * Read more from Steam about player's Steam ID verification:
+     * https://partner.steamgames.com/doc/features/auth#client_to_backend_webapi
+     *
+     * Environment variables needed:
+     * STEAM_API_URL=https://partner.steam-api.com/
+     * STEAM_APP_ID=480
+     * STEAM_PUBLISHER_KEY=secret
+     */
+    
+    public class SteamLoginFacet : Facet
+    {
+        public void Login(string sessionTicket)
+        {
+            string steamId = SessionTicketToSteamId(sessionTicket);
+
+            var player = DB.TakeAll<PlayerEntity>()
+                .Filter(p => p.steamId == steamId)
+                .First();
+
+            if (player == null)
+            {
+                player = CreateNewPlayer(steamId);
+                player.Save();
+                
+                PlayerHasRegistered(player);
+            }
+
+            PlayerHasLoggedIn(player);
+            
+            Auth.Login(player);
+        }
+
+        /// <summary>
+        /// Creates the new player during successful registration
+        /// </summary>
+        /// <param name="steamId">Player's Steam ID</param>
+        /// <returns>PlayerEntity representing the new player</returns>
+        public static PlayerEntity CreateNewPlayer(string steamId)
+        {
+            var player = new PlayerEntity {
+                steamId = steamId
+            };
+            
+            // Add your own logic here,
+            // e.g. give gold to players on testing server:
+            //
+            //    if (Env.GetString("ENV_TYPE") == "testing")
+            //        gold += 1_000_000;
+            //
+
+            return player;
+        }
+        
+        /// <summary>
+        /// Called after successful login
+        /// </summary>
+        /// <param name="player">The player that has logged in</param>
+        private void PlayerHasLoggedIn(PlayerEntity player)
+        {
+            player.lastLoginAt = DateTime.UtcNow;
+            player.Save();
+            
+            // You can perform any additional actions here
+        }
+        
+        /// <summary>
+        /// Called after successful registration
+        /// </summary>
+        /// <param name="player">The player that has been registered</param>
+        private void PlayerHasRegistered(PlayerEntity player)
+        {
+            // perform actions after registration
+        }
+
+        /// <summary>
+        /// Call this from your "logout" button
+        /// </summary>
+        /// <returns>
+        /// False if the player wasn't logged in to begin with.
+        /// </returns>
+        public bool Logout()
+        {
+            bool wasLoggedIn = Auth.Check();
+            
+            Auth.Logout();
+            
+            return wasLoggedIn;
+        }
+        
+        
+        
+    // =========================================================================
+    //                    Don't worry about the code below
+    // =========================================================================
+        
+        
+        
+        #region "Utilities"
+
+        /// <summary>
+        /// Resolves a session ticket to Steam ID
+        /// </summary>
+        private string SessionTicketToSteamId(string sessionTicket)
+        {
+            // https://partner.steamgames.com/doc/webapi/ISteamUserAuth#AuthenticateUserTicket
+            
+            var response = Http.Get(
+                GetSteamApiUrl() + "ISteamUserAuth/AuthenticateUserTicket/v1/",
+                new Dictionary<string, string> {
+                    ["key"] = Env.GetString("STEAM_PUBLISHER_KEY"),
+                    ["appid"] = Env.GetString("STEAM_APP_ID"),
+                    ["ticket"] = sessionTicket
+                }
+            );
+
+            if (response["response"].AsJsonObject.ContainsKey("error")
+                && response["response"]["error"]["errorcode"] == 3)
+                throw new AuthException("Invalid session token.");
+            
+            response.Throw();
+
+            if (response["response"]["params"]["result"] != "OK")
+                throw new Exception(
+                    "Steam returned a non-OK response: " +
+                    response.Json().ToString(true)
+                );
+
+            if (response["response"]["params"]["vacbanned"].AsBoolean)
+                throw new AuthException("The player is VAC banned.");
+
+            if (response["response"]["params"]["publisherbanned"].AsBoolean)
+                throw new AuthException("The player is publisher-banned.");
+
+            return response["response"]["params"]["steamid"].AsString;
+        }
+
+        /// <summary>
+        /// URL of the Steam microtransactions API, ending with a slash
+        /// </summary>
+        private string GetSteamApiUrl()
+        {
+            // base url for all Steam APIs
+            string steamApi = Env.GetString(
+                key: "STEAM_API_URL",
+                defaultValue: "https://partner.steam-api.com/"
+            );
+            
+            return Str.Finish(steamApi, "/");
+        }
+
+        #endregion
+    }
+$NAMESPACE_END$
+
