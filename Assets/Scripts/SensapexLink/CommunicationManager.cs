@@ -12,21 +12,29 @@ namespace SensapexLink
         #region Variables
 
         // Connection details
-        private string _serverIp = "localhost";
-        private int _serverPort = 8080;
+        private string _serverIp;
+        private int _serverPort;
         private bool _isConnected;
 
         // Components
         private SocketManager _connectionManager;
         private Socket _socket;
+        private PlayerPrefs _playerPrefs;
 
         #endregion
 
         #region Setup
 
+        private void Awake()
+        {
+            _playerPrefs = GameObject.Find("main").GetComponent<PlayerPrefs>();
+        }
+
         private void Start()
         {
             // TODO: Grab the connection details from the player prefs
+            _serverIp = _playerPrefs.GetServerIp();
+            _serverPort = _playerPrefs.GetServerPort();
 
             // Connect to last known server
             ConnectToServer(_serverIp, _serverPort);
@@ -67,6 +75,7 @@ namespace SensapexLink
                 _serverIp = ip;
                 _serverPort = port;
                 _isConnected = true;
+                _playerPrefs.SaveSensapexLinkConnectionData(ip, port);
                 onConnected?.Invoke();
             });
 
