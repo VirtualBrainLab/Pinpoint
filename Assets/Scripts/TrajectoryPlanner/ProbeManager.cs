@@ -1404,6 +1404,7 @@ public class ProbeManager : MonoBehaviour
             _sensapexLinkCommunicationManager.UnregisterManipulator(manipulatorId, () =>
             {
                 Debug.Log("Manipulator Unregistered");
+                _bregmaOffset = Vector4.negativeInfinity;
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
 
