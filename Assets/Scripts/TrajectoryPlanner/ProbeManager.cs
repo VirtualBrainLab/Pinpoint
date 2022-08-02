@@ -1400,6 +1400,12 @@ public class ProbeManager : MonoBehaviour
 
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
+        else
+            _sensapexLinkCommunicationManager.UnregisterManipulator(manipulatorId, () =>
+            {
+                Debug.Log("Manipulator Unregistered");
+                onSuccess?.Invoke();
+            }, err => onError?.Invoke(err));
 
         // Start echoing process
         void StartEchoing()

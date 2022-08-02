@@ -122,6 +122,7 @@ namespace TP_Settings
         /// </summary>
         public void ConnectDisconnectProbeToManipulator()
         {
+            // Connect if currently not connected
             if (_manipulatorId == 0)
             {
                 _manipulatorId = int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text);
@@ -129,11 +130,14 @@ namespace TP_Settings
                 _probeManager.SetSensapexLinkMovement(true, _manipulatorId, true,
                     () => { connectButtonText.text = "Disconnect"; });
             }
+            // Disconnect otherwise
             else
             {
-                connectButtonText.text = "Connect";
-                _manipulatorId = 0;
-                _probeManager.SetSensapexLinkMovement(false, _manipulatorId);
+                _probeManager.SetSensapexLinkMovement(false, _manipulatorId, false, () =>
+                {
+                    connectButtonText.text = "Connect";
+                    _manipulatorId = 0;
+                });
             }
         }
 
