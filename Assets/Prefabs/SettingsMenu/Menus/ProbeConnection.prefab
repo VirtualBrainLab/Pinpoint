@@ -4579,7 +4579,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1511941179097133193}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 839153354918620974}
+        m_TargetAssemblyTypeName: TP_Settings.ProbeConnectionSettingsPanel, Assembly-CSharp
+        m_MethodName: SetBregmaOffset
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &7556207886504022877
 GameObject:
   m_ObjectHideFlags: 0
