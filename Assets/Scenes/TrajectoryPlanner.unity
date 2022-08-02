@@ -9194,6 +9194,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 708882283}
   m_CullTransparentMesh: 1
+--- !u!114 &713245786 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8069259503592110590, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+  m_PrefabInstance: {fileID: 1397446698413376551}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &721887103
 GameObject:
   m_ObjectHideFlags: 0
@@ -20585,6 +20596,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1838538392}
   m_CullTransparentMesh: 1
+--- !u!114 &1847624607 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1319381193195994428, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+  m_PrefabInstance: {fileID: 1397446698413376551}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1851235832
 GameObject:
   m_ObjectHideFlags: 0
@@ -23142,8 +23164,8 @@ MonoBehaviour:
   invivoDropdown: {fileID: 611159662}
   iblAngleToggle: {fileID: 499537228}
   surfaceToggle: {fileID: 1766544453}
-  sensapexLinkServerIpInput: {fileID: 0}
-  sensapexLinkServerPortInput: {fileID: 0}
+  sensapexLinkServerIpInput: {fileID: 713245786}
+  sensapexLinkServerPortInput: {fileID: 1847624607}
 --- !u!114 &2108153957
 MonoBehaviour:
   m_ObjectHideFlags: 0
