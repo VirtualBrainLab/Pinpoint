@@ -1,10 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using SensapexLink;
 using TMPro;
+using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.UI;
-using TrajectoryPlanner;
 
 /// <summary>
 /// 3D space control for Neuropixels probes in the Trajectory Planner scene
@@ -36,13 +37,17 @@ public class ProbeManager : MonoBehaviour
 
     // Internal flags that track whether we are in manual control or drag/link control mode
     private bool draggingMovement = false;
-    private bool _sensapexLinkMovement = false;
-    
-    // Sensapex link control
+    private bool _sensapexLinkMovement;
+
+    #region Sensapex Link
+
     private CommunicationManager _sensapexLinkCommunicationManager;
-    private int _manipulatorId;
-    private Vector4 _zeroPosition = Vector4.negativeInfinity;
     private readonly NeedlesTransform _neTransform = new NeedlesTransform();
+    private int _manipulatorId;
+    private Vector3 _probeAngles;
+    private Vector4 _bregmaOffset = Vector4.negativeInfinity;
+
+    #endregion
 
     // Exposed fields to collect links to other components inside of the Probe prefab
     [SerializeField] private List<Collider> probeColliders;
@@ -1344,6 +1349,8 @@ public class ProbeManager : MonoBehaviour
 
     #region Sensapex Link and Control
 
+    #region Property Getters and Setters
+
     /// <summary>
     /// Return if this probe is being controlled by the Sensapex Link
     /// </summary>
@@ -1359,7 +1366,10 @@ public class ProbeManager : MonoBehaviour
     /// <param name="register">To register or deregister this probe</param>
     /// <param name="manipulatorId">ID of the manipulator in real life to connect to</param>
     /// <param name="calibrated">Is the manipulator in real life calibrated</param>
-    public void SetSensapexLinkMovement(bool register, int manipulatorId, bool calibrated = true)
+    /// <param name="onSuccess">Callback function to handle a successful registration</param>
+    /// <param name="onError">Callback function to handle a failed registration</param>
+    public void SetSensapexLinkMovement(bool register, int manipulatorId, bool calibrated = true,
+        Action onSuccess = null, Action<string> onError = null)
     {
         // Set states
         _sensapexLinkMovement = register;
@@ -1369,6 +1379,7 @@ public class ProbeManager : MonoBehaviour
             // Register
             _sensapexLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
             {
+                Debug.Log("Manipulator Registered");
                 if (calibrated)
                     // Bypass calibration and start echoing
                     _sensapexLinkCommunicationManager.BypassCalibration(manipulatorId, StartEchoing);
@@ -1383,10 +1394,19 @@ public class ProbeManager : MonoBehaviour
                                 {
                                     // Disable write and start echoing
                                     _sensapexLinkCommunicationManager.SetCanWrite(manipulatorId, false, 0,
-                                        _ => { StartEchoing(); });
+                                        _ => onSuccess?.Invoke());
                                 });
                         });
-            });
+
+                onSuccess?.Invoke();
+            }, err => onError?.Invoke(err));
+        else
+            _sensapexLinkCommunicationManager.UnregisterManipulator(manipulatorId, () =>
+            {
+                Debug.Log("Manipulator Unregistered");
+                _bregmaOffset = Vector4.negativeInfinity;
+                onSuccess?.Invoke();
+            }, err => onError?.Invoke(err));
 
         // Start echoing process
         void StartEchoing()
@@ -1394,11 +1414,58 @@ public class ProbeManager : MonoBehaviour
             // Read and start echoing position
             _sensapexLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
             {
-                if (_zeroPosition.Equals(Vector4.negativeInfinity)) _zeroPosition = vector4;
+                if (_bregmaOffset.Equals(Vector4.negativeInfinity)) _bregmaOffset = vector4;
                 EchoPositionFromSensapexLink(vector4);
             });
         }
     }
+
+    /// <summary>
+    ///     Get attached manipulator ID
+    /// </summary>
+    /// <returns>Attached manipulator ID, 0 if none are attached</returns>
+    public int GetManipulatorId()
+    {
+        return _manipulatorId;
+    }
+
+    /// <summary>
+    ///     Probe angles as phi, theta, spin
+    /// </summary>
+    /// <returns>Angles in degrees in phi, theta, spin order</returns>
+    public Vector3 GetProbeAngles()
+    {
+        return _probeAngles;
+    }
+
+    /// <summary>
+    ///     Set probe angles in phi, theta, spin order
+    /// </summary>
+    /// <param name="angles">Angles in degrees in phi, theta, spin order</param>
+    public void SetProbeAngles(Vector3 angles)
+    {
+        _probeAngles = angles;
+    }
+
+    /// <summary>
+    ///     Manipulator space offset to bregma as X, Y, Z, Depth
+    /// </summary>
+    /// <returns>Manipulator space offset to bregma as X, Y, Z, Depth</returns>
+    public Vector4 GetBregmaOffset()
+    {
+        return _bregmaOffset;
+    }
+
+    /// <summary>
+    ///     Set manipulator space offset to bregma as X, Y, Z, Depth
+    /// </summary>
+    /// <param name="bregmaOffset">Offset from bregma as X, Y, Z, Depth</param>
+    public void SetBregmaOffset(Vector4 bregmaOffset)
+    {
+        _bregmaOffset = bregmaOffset;
+    }
+
+    #endregion
 
     /// <summary>
     ///     Echo given position in needles transform space to the probe
@@ -1407,11 +1474,10 @@ public class ProbeManager : MonoBehaviour
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         // Convert position to CCF
-        var ccf = _neTransform.ToCCF(pos - _zeroPosition);
-        var currentCoordinates = GetCoordinates();
+        var ccf = _neTransform.ToCCF(pos - _bregmaOffset);
 
-        ManualCoordinateEntryTransformed(ccf.x, ccf.y, ccf.z, pos.w - _zeroPosition.w, currentCoordinates.Item5,
-            currentCoordinates.Item6, currentCoordinates.Item7);
+        ManualCoordinateEntryTransformed(ccf.x, ccf.y, ccf.z, pos.w - _bregmaOffset.w, _probeAngles.x,
+            _probeAngles.y, _probeAngles.z);
 
         if (_sensapexLinkMovement)
             _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);

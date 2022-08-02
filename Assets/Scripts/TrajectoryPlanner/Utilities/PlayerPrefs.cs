@@ -30,6 +30,8 @@ public class PlayerPrefs : MonoBehaviour
     private bool useIBLAngles;
     private bool showSurfaceCoord;
     //private bool useIblBregma;
+    private string _sensapexLinkServerIp;
+    private int _sensapexLinkServerPort;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -42,6 +44,8 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle iblAngleToggle;
     [SerializeField] Toggle surfaceToggle;
     //[SerializeField] Toggle bregmaToggle;
+    [SerializeField] TMP_InputField sensapexLinkServerIpInput;
+    [SerializeField] TMP_InputField sensapexLinkServerPortInput;
 
 
     /// <summary>
@@ -81,6 +85,12 @@ public class PlayerPrefs : MonoBehaviour
 
         showSurfaceCoord = LoadBoolPref("surface", true);
         surfaceToggle.isOn = showSurfaceCoord;
+        
+        _sensapexLinkServerIp = LoadStringPref("sensapex_ip", "localhost");
+        sensapexLinkServerIpInput.text = _sensapexLinkServerIp;
+        
+        _sensapexLinkServerPort = LoadIntPref("sensapex_port", 8080);
+        sensapexLinkServerPortInput.text = _sensapexLinkServerPort.ToString();
     }
 
     /// <summary>
@@ -233,10 +243,20 @@ public class PlayerPrefs : MonoBehaviour
         return true;
         //return useIblBregma;
     }
+    
+    public string GetServerIp()
+    {
+        return _sensapexLinkServerIp;
+    }
+    
+    public int GetServerPort()
+    {
+        return _sensapexLinkServerPort;
+    }
 
     #endregion
 
-    #region Helper functions for booleans/integers
+    #region Helper functions for booleans/integers/strinngs
     private bool LoadBoolPref(string prefStr, bool defaultValue)
     {
         return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetInt(prefStr) == 1 : defaultValue;
@@ -245,6 +265,11 @@ public class PlayerPrefs : MonoBehaviour
     private int LoadIntPref(string prefStr, int defaultValue)
     {
         return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetInt(prefStr) : defaultValue;
+    }
+
+    private string LoadStringPref(string prefStr, string defaultValue)
+    {
+        return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetString(prefStr) : defaultValue;
     }
 
     #endregion
@@ -269,6 +294,13 @@ public class PlayerPrefs : MonoBehaviour
         }
         UnityEngine.PlayerPrefs.SetInt("probecount", allProbeData.Length);
 
+        UnityEngine.PlayerPrefs.Save();
+    }
+
+    public void SaveSensapexLinkConnectionData(string serverIp, int serverPort)
+    {
+        UnityEngine.PlayerPrefs.SetString("sensapex_ip", serverIp);
+        UnityEngine.PlayerPrefs.SetInt("sensapex_port", serverPort);
         UnityEngine.PlayerPrefs.Save();
     }
 }
