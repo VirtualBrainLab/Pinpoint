@@ -1,0 +1,37 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unisave;
+using Unisave.Entities;
+using Unisave.Facades;
+using Unisave.Broadcasting;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class #CLASSNAME# : UnisaveBroadcastingClient
+{
+    private async void OnEnable()
+    {
+        // customize the subscription logic
+        /*
+        var subscription = await OnFacet<MyFacet>
+            .CallAsync<ChannelSubscription>(
+                nameof(MyFacet.JoinMyChannel)
+            );
+        
+        // customize the message routing    
+        FromSubscription(subscription)
+            .Forward<MyMessage>(MyMessageReceived)
+            .ElseLogWarning();
+        */
+    }
+
+    /*
+    void MyMessageReceived(MyMessage msg)
+    {
+        // customize the message handling
+        
+        Debug.Log("MyMessage has been received");
+    }
+    */
+}

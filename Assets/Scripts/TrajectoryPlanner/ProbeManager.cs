@@ -257,7 +257,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     private void ResetPositionTracking()
     {
-        insertion = new ProbeInsertion(defaultStart, defaultDepth, defaultAngles, "ccf");
+        insertion = new ProbeInsertion(defaultStart, defaultDepth, defaultAngles);
     }
 
     private void CheckForSpeedKeys()
@@ -528,7 +528,7 @@ public class ProbeManager : MonoBehaviour
         if (moved)
         {
             // If the probe was moved, set the new position
-            SetProbePositionCCF(insertion);
+            SetProbePosition();
 
             // Check collisions if we need to
             if (checkForCollisions)
@@ -630,6 +630,11 @@ public class ProbeManager : MonoBehaviour
     public void SetProbePosition()
     {
         SetProbePositionCCF(insertion);
+
+        // Check where we are relative to the surface of the brain
+        UpdateSurfacePosition();
+        // Update probe text
+        UpdateText();
     }
 
     /// <summary>
@@ -651,11 +656,6 @@ public class ProbeManager : MonoBehaviour
 
         // save the data
         insertion.SetCoordinates(localInsertion);
-
-        // Check where we are relative to the surface of the brain
-        UpdateSurfacePosition();
-        // Update probe text
-        UpdateText();
     }
 
     /// <summary>
@@ -993,7 +993,7 @@ public class ProbeManager : MonoBehaviour
                 CheckCollisions(tpmanager.GetAllNonActiveColliders());
 
             tpmanager.UpdateInPlaneView();
-            SetProbePositionCCF(insertion);
+            SetProbePosition();
 
             foreach (TP_ProbeUIManager puimanager in probeUIManagers)
                 puimanager.ProbeMoved();
@@ -1240,7 +1240,6 @@ public class ProbeManager : MonoBehaviour
 
         brainSurfaceWorld = surfacePosition;
 
-        //Surface2CCF(brainSurfaceWorld, depth, insertion.angles);
 
         if (float.IsNaN(depth))
         {
@@ -1283,47 +1282,65 @@ public class ProbeManager : MonoBehaviour
     {
         Vector3 tip_apdvlr25 = Utils.WorldSpace2apdvlr25(tipPosition);
 
-        if (annotationDataset.ValueAtIndex(tip_apdvlr25) > 0)
+        bool crossedThroughBrain = annotationDataset.ValueAtIndex(tip_apdvlr25) > 0;
+       
+        // Iterate up until you exit the brain
+        // if you started outside, first find when you enter
+        Vector3 top = Utils.WorldSpace2apdvlr25(probeTipT.position + probeTipT.up * 10f);
+        for (float perc = 0; perc <= 1f; perc += 0.0005f)
         {
-            // The tip is in the brain, iterate up until you exit the brain
-            Vector3 top = Utils.WorldSpace2apdvlr25(probeTipT.position + probeTipT.up * 10f);
-            for (float perc = 0; perc <= 1f; perc += 0.0005f)
+            Vector3 point = Vector3.Lerp(tip_apdvlr25, top, perc);
+            if (crossedThroughBrain)
             {
-                Vector3 point = Vector3.Lerp(tip_apdvlr25, top, perc);
                 if (annotationDataset.ValueAtIndex(point) <= 0)
                 {
                     Vector3 surfacePosition = Utils.apdvlr25_2World(point);
-                    return (surfacePosition, Vector3.Distance(tipPosition, brainSurfaceWorld), angles);
+                    return (surfacePosition, Vector3.Distance(tipPosition, surfacePosition), angles);
                 }
+            }
+            else
+            {
+                if (annotationDataset.ValueAtIndex(point) > 0)
+                    crossedThroughBrain = true;
             }
         }
 
         return (tipPosition, float.NaN, angles);
     }
 
+    private Transform surfaceCalculatorT;
+
     /// <summary>
-    /// Running this function assumes you've set the probe position to match the angles
+    /// Recover the tip position when you only know the surface position and depth.
+    /// 
+    /// Use the tip position to set the probe position when converting from surface coordinates.
     /// </summary>
     /// <param name="surfacePosition"></param>
     /// <param name="depth"></param>
     /// <param name="angles"></param>
-    /// <returns></returns>
+    /// <returns>(tipPosition in CCF, angles)</returns>
     public (Vector3, Vector3) Surface2CCF(Vector3 surfacePosition, float depth, Vector3 angles)
     {
-        // For now we'll just compute this using the tip transform rotation
-        //Vector3 tipPosition = surfacePosition + -probeTipT.up * depth;
-        //return (tipPosition, angles);
+        //// I've tried this a number of ways and can't figure it out. It's possible the way I'm applying rotations can't be done by euler angles? 
+        //// I think the simplest thing for now is to create an empty gameobject and use its transform to perform this calculation.
+        if (surfaceCalculatorT == null)
+        {
+            GameObject surfaceCalculatorGO = new GameObject("SurfaceCalculator");
+            surfaceCalculatorT = surfaceCalculatorGO.transform;
+        }
 
-        //transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
-        //transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
-        //transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
+        // reset
+        surfaceCalculatorT.position = surfacePosition;
+        surfaceCalculatorT.rotation = initialRotation;
 
-        // I'm confused about why this doesn't work...
-        Debug.Log(angles);
-        Vector3 tipPosition = surfacePosition + Quaternion.Euler(new Vector3(angles.y, 0f, angles.x)) * Vector3.down * depth;
-        GameObject.Find("recovered_tip_down").transform.position = surfacePosition + Vector3.down * depth;
-        GameObject.Find("recovered_tip_phi").transform.position = surfacePosition + Quaternion.Euler(new Vector3(0f, 0f, angles.x)) * Vector3.up * depth;
-        GameObject.Find("recovered_tip_theta").transform.position = surfacePosition + Quaternion.Euler(new Vector3(0f, angles.y, angles.x)) * Vector3.up * depth;
+        surfaceCalculatorT.Translate(-surfaceCalculatorT.up * depth);
+        surfaceCalculatorT.RotateAround(surfacePosition, surfaceCalculatorT.up, angles.x);
+        surfaceCalculatorT.RotateAround(surfacePosition, surfaceCalculatorT.forward, angles.y);
+        //// skip spin because it won't actually affect anything
+        ////tempT.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
+        ///
+        Vector3 tipPosition = Utils.world2apmldv(surfaceCalculatorT.position);
+
         return (tipPosition, angles);
     }
 

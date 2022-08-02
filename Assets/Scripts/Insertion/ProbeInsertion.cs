@@ -36,7 +36,7 @@ public class ProbeInsertion
         SetCoordinates(ap, ml, dv, depth, phi, theta, spin);
     }
 
-    public ProbeInsertion(Vector3 coords, float depth, Vector3 angles, string transformString)
+    public ProbeInsertion(Vector3 coords, float depth, Vector3 angles)
     {
         SetCoordinates(coords.x, coords.y, coords.z, depth, angles.x, angles.y, angles.z);
     }

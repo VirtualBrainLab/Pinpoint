@@ -1,0 +1,158 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Steamworks;
+using Unisave.Facades;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+$NAMESPACE_BEGIN$
+    /*
+     * SteamAuthentication template - v0.9.1
+     * -------------------------------------
+     * 
+     * This script performs registration and login via Steam.
+     *
+     * Don't forget to specify what scene should be loaded after login.
+     *
+     * You need to have Steamworks.NET installed in your project in order
+     * for this script to work. See:
+     * https://steamworks.github.io/installation/
+     *
+     * This script has been developed and tested on Steamworks.NET v14.0.0
+     */
+    
+    public class SteamLoginClient : MonoBehaviour
+    {
+        /// <summary>
+        /// What scene to load after login (specify in the inspector)
+        /// </summary>
+        public string sceneAfterLogin;
+        
+        /// <summary>
+        /// Call this to perform player login via Steam
+        /// </summary>
+        public async void LoginViaSteam()
+        {
+            // already waiting for a ticket
+            if (ticketPromise != null)
+                return;
+            
+            // get a ticket
+            (string ticket, HAuthTicket handle) = await GetSessionTicketAsync();
+
+            // send it to backend to resolve the ticket into Steam ID and login
+            await OnFacet<SteamLoginFacet>.CallAsync(
+                nameof(SteamLoginFacet.Login),
+                ticket
+            );
+            
+            // we don't need the ticket anymore
+            SteamUser.CancelAuthTicket(handle);
+            
+            // load the next scene
+            SceneManager.LoadScene(sceneAfterLogin);
+        }
+        
+        
+        
+    // =========================================================================
+    //                    Don't worry about the code below
+    // =========================================================================
+
+    
+        
+        #region "Session token obtaining"
+        
+        private TaskCompletionSource<(string, HAuthTicket)> ticketPromise;
+        private uint ticketHandle;
+        private string ticketHexString;
+
+        /// <summary>
+        /// Call this to obtain a session ticket, already encoded as hex string
+        /// </summary>
+        private Task<(string, HAuthTicket)> GetSessionTicketAsync()
+        {
+            ticketPromise = new TaskCompletionSource<(string, HAuthTicket)>();
+            
+            const int bufferSize = 8 * 1024;
+            byte[] buffer = new byte[bufferSize];
+
+            // https://partner.steamgames.com/doc/api/ISteamUser#GetAuthSessionTicket
+            ticketHandle = SteamUser.GetAuthSessionTicket(
+                buffer,
+                bufferSize,
+                out uint length
+            ).m_HAuthTicket;
+
+            ticketHexString = BitConverter
+                .ToString(buffer, 0, (int)length)
+                .Replace("-", "");
+
+            return ticketPromise.Task;
+        }
+        
+        /// <summary>
+        /// This will be called by Steamworks when the token is validated
+        /// </summary>
+        /// <param name="response"></param>
+        public void SteamworksCallbackHandler(
+            GetAuthSessionTicketResponse_t response
+        )
+        {
+            if (ticketPromise == null)
+                return;
+            
+            if (response.m_hAuthTicket.m_HAuthTicket != ticketHandle)
+                return;
+
+            if (response.m_eResult != EResult.k_EResultOK)
+            {
+                ticketPromise.SetException(
+                    new Exception(
+                        "Session ticket result wasn't OK, but: " +
+                        response.m_eResult
+                    )
+                );
+                return;
+            }
+            
+            ticketPromise.SetResult((ticketHexString, response.m_hAuthTicket));
+            ticketPromise = null;
+        }
+        
+        #endregion
+    
+        #region "Steamworks callback registration"    
+        
+        /// <summary>
+        /// The Steamworks callback for session ticket receiving
+        /// </summary>
+        private Callback<GetAuthSessionTicketResponse_t> callback;
+
+        private void OnEnable()
+        {
+            ticketPromise = null;
+            
+            // register Steamworks callback
+            if (SteamManager.Initialized)
+            {
+                callback = Callback<GetAuthSessionTicketResponse_t>
+                    .Create(SteamworksCallbackHandler);
+            }
+        }
+        
+        private void OnDisable()
+        {
+            // un-register Steamworks callback
+            if (callback != null)
+            {
+                callback.Dispose();
+                callback = null;
+            }
+        }
+        
+        #endregion
+    }
+$NAMESPACE_END$
+
