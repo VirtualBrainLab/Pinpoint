@@ -2,7 +2,8 @@
     "name": "trajectoryplanner.sensapexlink",
     "rootNamespace": "",
     "references": [
-        "BestHTTP"
+        "BestHTTP",
+        "trajectoryplanner.core.utilities"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

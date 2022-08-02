@@ -149,7 +149,7 @@ namespace TP_Settings
                 else
                 {
                     connectButtonText.text = "Connecting...";
-                    _communicationManager.ConnectToServer(ipAddressInputField.text, ushort.Parse(portInputField.text),
+                    _communicationManager.ConnectToServer(ipAddressInputField.text, int.Parse(portInputField.text),
                         UpdateConnectionUI, err =>
                         {
                             connectionErrorText.text = err;
