@@ -1,11 +1,23 @@
 using System.Collections;
 using NUnit.Framework;
+using SensapexLink;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
 namespace Tests
 {
     public class CommunicationManagerTests
     {
+        
+        private CommunicationManager _communicationManager;
+
+        [SetUp]
+        public void Setup()
+        {
+            SceneManager.LoadScene("Scenes/TrajectoryPlanner");
+            _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
+        }
         // A Test behaves as an ordinary method
         [Test]
         public void CommunicationManagerTestsSimplePasses()
@@ -14,14 +26,10 @@ namespace Tests
             Assert.That(input, Is.EqualTo("Hello"));
         }
 
-        // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
-        // `yield return null;` to skip a frame.
-        [UnityTest]
-        public IEnumerator CommunicationManagerTestsWithEnumeratorPasses()
+        [Test]
+        public void HasAccessToManager()
         {
-            // Use the Assert class to test conditions.
-            // Use yield to skip a frame.
-            yield return null;
+            Assert.That(_communicationManager, Is.Not.Null);
         }
     }
 }
