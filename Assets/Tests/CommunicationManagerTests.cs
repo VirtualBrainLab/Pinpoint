@@ -10,7 +10,8 @@ namespace Tests
         [Test]
         public void CommunicationManagerTestsSimplePasses()
         {
-            Assert.Equals(1, 1);
+            const string input = "Hello";
+            Assert.That(input, Is.EqualTo("Hello"));
         }
 
         // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
