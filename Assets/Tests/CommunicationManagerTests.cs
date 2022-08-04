@@ -19,10 +19,10 @@ namespace Tests
             None,
             Success,
             Failed,
-            FailedLevel2,
-            FailedLevel3,
-            FailedLevel4,
-            FailedLevel5
+            Failed2,
+            Failed3,
+            Failed4,
+            Failed5
         }
 
         #endregion
@@ -89,7 +89,7 @@ namespace Tests
 
                 _communicationManager.RegisterManipulator(id,
                     () => _communicationManager.UnregisterManipulator(id, () => state = State.Success,
-                        _ => state = State.FailedLevel2),
+                        _ => state = State.Failed2),
                     _ => state = State.Failed);
 
                 yield return new WaitWhile(() => state == State.None);
@@ -111,7 +111,7 @@ namespace Tests
                 _communicationManager.RegisterManipulator(id, () => _communicationManager.BypassCalibration(id, () =>
                         _communicationManager.GetPos(id,
                             _ => state = State.Success,
-                            _ => state = State.FailedLevel3), _ => state = State.FailedLevel2),
+                            _ => state = State.Failed3), _ => state = State.Failed2),
                     _ => state = State.Failed);
 
 
@@ -120,6 +120,10 @@ namespace Tests
             }
         }
 
+        /// <summary>
+        ///     Register -> Calibrate -> Goto position -> Return to home position
+        /// </summary>
+        /// <returns></returns>
         [UnityTest]
         public IEnumerator TestCalibrateAndMovement()
         {
@@ -131,9 +135,34 @@ namespace Tests
                         _communicationManager.Calibrate(id, () =>
                             _communicationManager.GotoPos(id, new Vector4(0, 0, 0, 0), 5000,
                                 _ => _communicationManager.GotoPos(id, new Vector4(10000, 10000, 10000, 10000), 5000,
-                                    _ => state = State.Success, _ => state = State.FailedLevel5),
-                                _ => state = State.FailedLevel4), _ => state = State.FailedLevel3),
-                    _ => state = State.FailedLevel2), _ => state = State.Failed);
+                                    _ => state = State.Success, _ => state = State.Failed5),
+                                _ => state = State.Failed4), _ => state = State.Failed3),
+                    _ => state = State.Failed2), _ => state = State.Failed);
+
+                yield return new WaitWhile(() => state == State.None);
+                Assert.That(state, Is.EqualTo(State.Success));
+            }
+        }
+
+        /// <summary>
+        /// Register -> Bypass Calibration -> Drive to depth -> Return to home position
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator TestDriveToDepth()
+        {
+            foreach (var id in _manipulators)
+            {
+                var state = State.None;
+
+                _communicationManager.RegisterManipulator(id,
+                    () => _communicationManager.SetCanWrite(id, true, 1,
+                        _ => _communicationManager.BypassCalibration(id,
+                            () => _communicationManager.DriveToDepth(id, 0, 5000,
+                                _ => _communicationManager.DriveToDepth(id, 10000, 5000, _ => state = State.Success,
+                                    _ => state = State.Failed5), _ => state = State.Failed4),
+                            _ => state = State.Failed3), _ => state = State.Failed2),
+                    _ => state = State.Failed);
 
                 yield return new WaitWhile(() => state == State.None);
                 Assert.That(state, Is.EqualTo(State.Success));
