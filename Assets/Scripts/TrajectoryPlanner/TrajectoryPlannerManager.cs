@@ -23,6 +23,7 @@ namespace TrajectoryPlanner
         [SerializeField] private TP_RecRegionSlider recRegionSlider;
         [SerializeField] private Collider ccfCollider;
         [SerializeField] private TP_InPlaneSlice inPlaneSlice;
+        [SerializeField] private TP_ProbeQuickSettings probeQuickSettings;
         [SerializeField] private TP_SliceRenderer sliceRenderer;
         [SerializeField] private TP_Search searchControl;
         [SerializeField] private TMP_InputField searchInput;
@@ -530,6 +531,9 @@ namespace TrajectoryPlanner
 
             // Reset the inplane slice zoom factor
             inPlaneSlice.ResetZoom();
+            
+            // Update probe quick settings
+            probeQuickSettings.SetProbeManager(newActiveProbeController);
         }
 
         public void ResetActiveProbe()
