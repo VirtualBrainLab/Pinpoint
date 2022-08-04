@@ -5,7 +5,7 @@ using UnityEngine;
 namespace SensapexLink
 {
     /// <summary>
-    /// WebSocket connection manager between the Trajectory Planner and a running Sensapex Link server
+    ///     WebSocket connection manager between the Trajectory Planner and a running Sensapex Link server
     /// </summary>
     public class CommunicationManager : MonoBehaviour
     {
@@ -45,7 +45,7 @@ namespace SensapexLink
         #region Connection Handler
 
         /// <summary>
-        /// Create a connection to the server
+        ///     Create a connection to the server
         /// </summary>
         /// <param name="ip">IP address of the server</param>
         /// <param name="port">Port of the server</param>
@@ -55,10 +55,7 @@ namespace SensapexLink
             Action<string> onError = null)
         {
             // Disconnect the old connection if needed
-            if (_connectionManager != null && _connectionManager.Socket.IsOpen)
-            {
-                _connectionManager.Close();
-            }
+            if (_connectionManager != null && _connectionManager.Socket.IsOpen) _connectionManager.Close();
 
             // Create new connection
             var options = new SocketOptions
@@ -97,7 +94,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Disconnect client from WebSocket server
+        ///     Disconnect client from WebSocket server
         /// </summary>
         /// <param name="onDisconnected">Callback function to handle post disconnection behavior</param>
         public void DisconnectFromServer(Action onDisconnected = null)
@@ -108,7 +105,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Return the stored server IP address
+        ///     Return the stored server IP address
         /// </summary>
         /// <returns>Stored server IP address (can be an empty string)</returns>
         public string GetServerIp()
@@ -117,7 +114,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Return the stored server port
+        ///     Return the stored server port
         /// </summary>
         /// <returns>Stored server port (can be 0)</returns>
         public int GetServerPort()
@@ -126,7 +123,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Return if the server is connected
+        ///     Return if the server is connected
         /// </summary>
         /// <returns>True if the server is connected, false otherwise</returns>
         public bool IsConnected()
@@ -139,7 +136,7 @@ namespace SensapexLink
         #region Event Handlers
 
         /// <summary>
-        /// Get manipulators event sender
+        ///     Get manipulators event sender
         /// </summary>
         /// <param name="onSuccessCallback">Callback function to handle incoming manipulator ID's</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
@@ -160,7 +157,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Register a manipulator with the server
+        ///     Register a manipulator with the server
         /// </summary>
         /// <param name="manipulatorId">The ID of the manipulator to register</param>
         /// <param name="onSuccessCallback">Callback function to handle a successful registration</param>
@@ -182,6 +179,12 @@ namespace SensapexLink
             }).Emit("register_manipulator", manipulatorId);
         }
 
+        /// <summary>
+        ///     Unregister a manipulator with the server
+        /// </summary>
+        /// <param name="manipulatorId">The ID of the manipulator to unregister</param>
+        /// <param name="onSuccessCallback">Callback function to handle a successful un-registration</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void UnregisterManipulator(int manipulatorId, Action onSuccessCallback = null,
             Action<string> onErrorCallback = null)
         {
@@ -200,7 +203,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Request the current position of a manipulator
+        ///     Request the current position of a manipulator
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
         /// <param name="onSuccessCallback"></param>
@@ -223,7 +226,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Request a manipulator be moved to a specific position
+        ///     Request a manipulator be moved to a specific position
         /// </summary>
         /// <remarks>Position is defined by a Vector4</remarks>
         /// <param name="manipulatorId">ID of the manipulator to be moved</param>
@@ -250,7 +253,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Request a manipulator be moved to a specific position defined by an array of 4 floats
+        ///     Request a manipulator be moved to a specific position defined by an array of 4 floats
         /// </summary>
         /// <remarks>Position is defined by an array of 4 floats</remarks>
         /// <param name="manipulatorId">ID of the manipulator to be moved</param>
@@ -262,17 +265,14 @@ namespace SensapexLink
         public void GotoPos(int manipulatorId, float[] pos, int speed, Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
-            if (pos.Length != 4)
-            {
-                throw new ArgumentException("Position array must be of length 4");
-            }
+            if (pos.Length != 4) throw new ArgumentException("Position array must be of length 4");
 
             GotoPos(manipulatorId, new Vector4(pos[0], pos[1], pos[2], pos[3]), speed, onSuccessCallback,
                 onErrorCallback);
         }
 
         /// <summary>
-        /// Request a manipulator drive down to a specific depth
+        ///     Request a manipulator drive down to a specific depth
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to move</param>
         /// <param name="depth">Depth in μm of the manipulator (in needle coordinates)</param>
@@ -297,7 +297,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Set the inside brain state of a manipulator
+        ///     Set the inside brain state of a manipulator
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to set the state of</param>
         /// <param name="inside">State to set to</param>
@@ -321,29 +321,29 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Request a manipulator to be calibrated
+        ///     Request a manipulator to be calibrated
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to be calibrated</param>
-        /// <param name="callback">Callback function to handle a successful calibration</param>
-        /// <param name="error">Callback function to handle an unsuccessful calibration</param>
-        public void Calibrate(int manipulatorId, Action callback, Action<string> error = null)
+        /// <param name="onSuccessCallback">Callback function to handle a successful calibration</param>
+        /// <param name="onErrorCallback">Callback function to handle an unsuccessful calibration</param>
+        public void Calibrate(int manipulatorId, Action onSuccessCallback, Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(errorMessage =>
             {
                 if (errorMessage == "")
                 {
-                    callback();
+                    onSuccessCallback();
                 }
                 else
                 {
-                    error?.Invoke(errorMessage);
+                    onErrorCallback?.Invoke(errorMessage);
                     Debug.LogError(errorMessage);
                 }
             }).Emit("calibrate", manipulatorId);
         }
 
         /// <summary>
-        /// Bypass calibration requirement of a manipulator
+        ///     Bypass calibration requirement of a manipulator
         /// </summary>
         /// <remarks>This method should only be used for testing and NEVER in production</remarks>
         /// <param name="manipulatorId">ID of the manipulator to bypass calibration</param>
@@ -367,7 +367,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Request a write lease for a manipulator
+        ///     Request a write lease for a manipulator
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to allow writing</param>
         /// <param name="canWrite">Write state to set the manipulator to</param>
@@ -392,7 +392,7 @@ namespace SensapexLink
         }
 
         /// <summary>
-        /// Request all movement to stop
+        ///     Request all movement to stop
         /// </summary>
         /// <param name="callback">Callback function to handle stop result</param>
         public void Stop(Action<bool> callback)

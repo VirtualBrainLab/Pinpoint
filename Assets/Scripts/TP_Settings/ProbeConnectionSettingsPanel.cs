@@ -45,7 +45,8 @@ namespace TP_Settings
         {
             _probeManager = probeManager;
 
-            probeIdText.text = "Connect Probe #" + probeManager.GetID() + " to Manipulator";
+            probeIdText.text = probeManager.GetID().ToString();
+            probeIdText.color = probeManager.GetColor();
         }
 
         /// <summary>
