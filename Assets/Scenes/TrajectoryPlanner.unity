@@ -24299,6 +24299,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: ProbeQuickSettings
       objectReference: {fileID: 0}
+    - target: {fileID: 7780014941327432008, guid: 1ea42459f6b81ba478262bdf5eed61d0, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7780014941327432008, guid: 1ea42459f6b81ba478262bdf5eed61d0, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7780014941327432008, guid: 1ea42459f6b81ba478262bdf5eed61d0, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1ea42459f6b81ba478262bdf5eed61d0, type: 3}
 --- !u!1001 &8274225220968729010
