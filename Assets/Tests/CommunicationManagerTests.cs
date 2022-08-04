@@ -9,15 +9,16 @@ namespace Tests
 {
     public class CommunicationManagerTests
     {
-        
         private CommunicationManager _communicationManager;
 
-        [SetUp]
-        public void Setup()
+        [UnitySetUp]
+        public IEnumerator Setup()
         {
             SceneManager.LoadScene("Scenes/TrajectoryPlanner");
+            yield return null;
             _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
         }
+
         // A Test behaves as an ordinary method
         [Test]
         public void CommunicationManagerTestsSimplePasses()
