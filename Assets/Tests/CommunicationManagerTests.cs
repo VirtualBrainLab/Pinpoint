@@ -14,6 +14,17 @@ namespace Tests
         private CommunicationManager _communicationManager;
         private int[] _manipulators;
 
+        private enum State
+        {
+            None,
+            Success,
+            Failed,
+            FailedLevel2,
+            FailedLevel3,
+            FailedLevel4,
+            FailedLevel5
+        }
+
         #endregion
 
 
@@ -35,17 +46,21 @@ namespace Tests
             yield return new WaitUntil(_communicationManager.IsConnected);
 
             // Get manipulators
-            string error = null;
+            var state = State.None;
 
             _communicationManager.GetManipulators(
-                returnedManipulators => _manipulators = returnedManipulators,
-                returnedError => error = returnedError);
+                returnedManipulators =>
+                {
+                    _manipulators = returnedManipulators;
+                    state = State.Success;
+                },
+                returnedError => state = State.Failed);
 
-            yield return new WaitWhile(() => _manipulators == null && error == null);
+            yield return new WaitWhile(() => state == State.None);
 
-            if (error == null && _manipulators != null) yield break;
+            if (state == State.Success) yield break;
             TearDown();
-            Assert.Fail(error);
+            Assert.Fail("Could not get manipulators");
         }
 
         /// <summary>
@@ -70,14 +85,15 @@ namespace Tests
         {
             foreach (var id in _manipulators)
             {
-                var state = -1; // -1 = no state, 0 = failed both, 1 = failed unregister, 2 = success
+                var state = State.None;
 
                 _communicationManager.RegisterManipulator(id,
-                    () => _communicationManager.UnregisterManipulator(id, () => state = 2, _ => state = 1),
-                    _ => state = 0);
+                    () => _communicationManager.UnregisterManipulator(id, () => state = State.Success,
+                        _ => state = State.FailedLevel2),
+                    _ => state = State.Failed);
 
-                yield return new WaitUntil(() => state != -1);
-                Assert.That(state, Is.EqualTo(2));
+                yield return new WaitWhile(() => state == State.None);
+                Assert.That(state, Is.EqualTo(State.Success));
             }
         }
 
@@ -90,17 +106,37 @@ namespace Tests
         {
             foreach (var id in _manipulators)
             {
-                var position = Vector4.positiveInfinity; // + = no state, position = success, - = failed
+                var state = State.None;
 
                 _communicationManager.RegisterManipulator(id, () => _communicationManager.BypassCalibration(id, () =>
                         _communicationManager.GetPos(id,
-                            returnedPos => position = returnedPos,
-                            _ => position = Vector4.negativeInfinity), _ => position = Vector4.negativeInfinity),
-                    _ => position = Vector4.negativeInfinity);
+                            _ => state = State.Success,
+                            _ => state = State.FailedLevel3), _ => state = State.FailedLevel2),
+                    _ => state = State.Failed);
 
 
-                yield return new WaitUntil(() => position != Vector4.positiveInfinity);
-                Assert.That(position, Is.Not.EqualTo(Vector4.negativeInfinity));
+                yield return new WaitWhile(() => state == State.None);
+                Assert.That(state, Is.EqualTo(State.Success));
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator TestCalibrateAndMovement()
+        {
+            foreach (var id in _manipulators)
+            {
+                var state = State.None;
+
+                _communicationManager.RegisterManipulator(id, () => _communicationManager.SetCanWrite(id, true, 1, _ =>
+                        _communicationManager.Calibrate(id, () =>
+                            _communicationManager.GotoPos(id, new Vector4(0, 0, 0, 0), 5000,
+                                _ => _communicationManager.GotoPos(id, new Vector4(10000, 10000, 10000, 10000), 5000,
+                                    _ => state = State.Success, _ => state = State.FailedLevel5),
+                                _ => state = State.FailedLevel4), _ => state = State.FailedLevel3),
+                    _ => state = State.FailedLevel2), _ => state = State.Failed);
+
+                yield return new WaitWhile(() => state == State.None);
+                Assert.That(state, Is.EqualTo(State.Success));
             }
         }
 

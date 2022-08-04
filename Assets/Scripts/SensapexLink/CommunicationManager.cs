@@ -330,19 +330,19 @@ namespace SensapexLink
         /// Request a manipulator to be calibrated
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to be calibrated</param>
-        /// <param name="callback">Callback function to handle a successful calibration</param>
-        /// <param name="error">Callback function to handle an unsuccessful calibration</param>
-        public void Calibrate(int manipulatorId, Action callback, Action<string> error = null)
+        /// <param name="onSuccessCallback">Callback function to handle a successful calibration</param>
+        /// <param name="onErrorCallback">Callback function to handle an unsuccessful calibration</param>
+        public void Calibrate(int manipulatorId, Action onSuccessCallback, Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(errorMessage =>
             {
                 if (errorMessage == "")
                 {
-                    callback();
+                    onSuccessCallback();
                 }
                 else
                 {
-                    error?.Invoke(errorMessage);
+                    onErrorCallback?.Invoke(errorMessage);
                     Debug.LogError(errorMessage);
                 }
             }).Emit("calibrate", manipulatorId);
