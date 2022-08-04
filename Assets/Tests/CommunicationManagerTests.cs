@@ -10,14 +10,30 @@ namespace Tests
     public class CommunicationManagerTests
     {
         private CommunicationManager _communicationManager;
+        private int[] _manipulators;
 
         [UnitySetUp]
         public IEnumerator Setup()
         {
             SceneManager.LoadScene("Scenes/TrajectoryPlanner");
             yield return null;
+
+            // Connect to server
             _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
             yield return new WaitUntil(_communicationManager.IsConnected);
+
+            // Get manipulators
+            string error = null;
+
+            _communicationManager.GetManipulators(
+                returnedManipulators => _manipulators = returnedManipulators,
+                returnedError => error = returnedError);
+
+            yield return new WaitWhile(() => _manipulators == null && error == null);
+
+            if (error == null && _manipulators != null) yield break;
+            TearDown();
+            Assert.Fail(error);
         }
 
         [TearDown]
@@ -26,38 +42,18 @@ namespace Tests
             _communicationManager.DisconnectFromServer();
         }
 
-        /// <summary>
-        /// Check if the communication manager is instantiated
-        /// </summary>
-        [Test]
-        public void TestHasAccessToManager()
-        {
-            Assert.That(_communicationManager, Is.Not.Null);
-            Assert.True(_communicationManager.IsConnected());
-        }
-
-        /// <summary>
-        /// Test that a success response is received from the server when getting manipulators
-        /// </summary>
         [UnityTest]
-        public IEnumerator TestGetManipulators()
+        public IEnumerator TestRegisterAndUnregister()
         {
-            int[] manipulators = null;
-            string error = null;
-
-            _communicationManager.GetManipulators(
-                returnedManipulators => manipulators = returnedManipulators,
-                returnedError => error = returnedError);
-
-            yield return new WaitWhile(() => manipulators == null && error == null);
-
-            Assert.NotNull(manipulators);
-            Assert.Null(error);
-        }
-
-        [Test]
-        public void TestRegisterAndUnRegister()
-        {
+            foreach (var id in _manipulators)
+            {
+                var state = -1; // -1 = no state, 0 = failed both, 1 = failed unregister, 2 = success
+                _communicationManager.RegisterManipulator(id,
+                    () => _communicationManager.UnregisterManipulator(id, () => state = 2, _ => state = 1),
+                    _ => state = 0);
+                yield return new WaitUntil(() => state != -1);
+                Assert.That(state, Is.EqualTo(2));
+            }
         }
     }
 }
