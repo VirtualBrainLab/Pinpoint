@@ -121,7 +121,7 @@ namespace Tests
         }
 
         /// <summary>
-        ///     Register -> Calibrate -> Goto position -> Return to home position
+        ///     Register -> Set Can Write -> Calibrate -> Goto position -> Return to home position
         /// </summary>
         /// <returns></returns>
         [UnityTest]
@@ -145,7 +145,7 @@ namespace Tests
         }
 
         /// <summary>
-        ///     Register -> Bypass Calibration -> Drive to depth -> Return to home position
+        ///     Register -> Set Can Write -> Bypass Calibration -> Drive to depth -> Return to home position
         /// </summary>
         /// <returns></returns>
         [UnityTest]
@@ -184,6 +184,30 @@ namespace Tests
                     () => _communicationManager.BypassCalibration(id, () => _communicationManager.SetInsideBrain(id,
                         true, _ => state = State.Success,
                         _ => state = State.Failed3), _ => state = State.Failed2), _ => state = State.Failed);
+
+                yield return new WaitWhile(() => state == State.None);
+                Assert.That(state, Is.EqualTo(State.Success));
+            }
+        }
+
+        /// <summary>
+        ///     Register -> Set Can Write -> Bypass Calibration -> Goto position -> Stop
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator TestStop()
+        {
+            foreach (var id in _manipulators)
+            {
+                var state = State.None;
+
+                _communicationManager.RegisterManipulator(id, () => _communicationManager.SetCanWrite(id, true, 1, _ =>
+                    _communicationManager.BypassCalibration(id, () =>
+                    {
+                        _communicationManager.GotoPos(id, Vector4.zero, 5000, _ => state = State.Failed4,
+                            _ => state = State.Failed4);
+                        _communicationManager.Stop(_ => state = State.Success);
+                    }, _ => state = State.Failed3), _ => state = State.Failed2), _ => state = State.Failed);
 
                 yield return new WaitWhile(() => state == State.None);
                 Assert.That(state, Is.EqualTo(State.Success));
