@@ -30,6 +30,7 @@ namespace TP_Settings
 
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
+        private TP_QuestionDialogue _questionDialogue;
 
         #endregion
 
@@ -49,6 +50,8 @@ namespace TP_Settings
             // Get Components
             _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
             _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
+                .GetComponent<TP_QuestionDialogue>();
 
             // Initialize session variables
             _probeIdToProbeConnectionSettingsPanels =
@@ -140,27 +143,36 @@ namespace TP_Settings
         /// </summary>
         public void OnConnectDisconnectPressed()
         {
-            try
+            _questionDialogue.SetNoCallback(() => { });
+            if (_communicationManager.IsConnected())
             {
-                if (_communicationManager.IsConnected())
+                _questionDialogue.SetYesCallback(() =>
                 {
-                    _communicationManager.DisconnectFromServer(UpdateConnectionUI);
-                }
-                else
-                {
-                    connectButtonText.text = "Connecting...";
-                    _communicationManager.ConnectToServer(ipAddressInputField.text, int.Parse(portInputField.text),
-                        UpdateConnectionUI, err =>
-                        {
-                            connectionErrorText.text = err;
-                            connectButtonText.text = "Connect";
-                        }
-                    );
-                }
+                    try
+                    {
+                        connectButtonText.text = "Connecting...";
+                        _communicationManager.ConnectToServer(ipAddressInputField.text, int.Parse(portInputField.text),
+                            UpdateConnectionUI, err =>
+                            {
+                                connectionErrorText.text = err;
+                                connectButtonText.text = "Connect";
+                            }
+                        );
+                    }
+                    catch (Exception e)
+                    {
+                        connectionErrorText.text = e.Message;
+                    }
+                });
+
+                _questionDialogue.NewQuestion("Are probes at Bregma?");
             }
-            catch (Exception e)
+            else
             {
-                connectionErrorText.text = e.Message;
+                _questionDialogue.SetYesCallback(() => _communicationManager.DisconnectFromServer(UpdateConnectionUI));
+
+                _questionDialogue.NewQuestion(
+                    "Are you sure you want to disconnect?\nAll incomplete movements will be canceled.");
             }
         }
 
