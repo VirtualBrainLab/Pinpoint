@@ -182,6 +182,12 @@ namespace SensapexLink
             }).Emit("register_manipulator", manipulatorId);
         }
 
+        /// <summary>
+        /// Unregister a manipulator with the server
+        /// </summary>
+        /// <param name="manipulatorId">The ID of the manipulator to unregister</param>
+        /// <param name="onSuccessCallback">Callback function to handle a successful unregistration</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void UnregisterManipulator(int manipulatorId, Action onSuccessCallback = null,
             Action<string> onErrorCallback = null)
         {
