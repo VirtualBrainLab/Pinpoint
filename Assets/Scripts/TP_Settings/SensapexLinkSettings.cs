@@ -144,7 +144,7 @@ namespace TP_Settings
         public void OnConnectDisconnectPressed()
         {
             _questionDialogue.SetNoCallback(() => { });
-            if (_communicationManager.IsConnected())
+            if (!_communicationManager.IsConnected())
             {
                 _questionDialogue.SetYesCallback(() =>
                 {
