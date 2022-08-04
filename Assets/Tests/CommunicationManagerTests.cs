@@ -31,8 +31,8 @@ namespace Tests
         #region Setup and Teardown
 
         /// <summary>
-        /// Setup each test.
-        /// Ensures a connection to the server and gets the manipulators.
+        ///     Setup each test.
+        ///     Ensures a connection to the server and gets the manipulators.
         /// </summary>
         /// <returns></returns>
         [UnitySetUp]
@@ -64,7 +64,7 @@ namespace Tests
         }
 
         /// <summary>
-        /// Disconnect from server after each test
+        ///     Disconnect from server after each test
         /// </summary>
         [TearDown]
         public void TearDown()
@@ -77,7 +77,7 @@ namespace Tests
         #region Tests
 
         /// <summary>
-        /// Register and then unregister each manipulator
+        ///     Register and then unregister each manipulator
         /// </summary>
         /// <returns></returns>
         [UnityTest]
@@ -98,7 +98,7 @@ namespace Tests
         }
 
         /// <summary>
-        /// Register -> Bypass calibration -> Get position
+        ///     Register -> Bypass calibration -> Get position
         /// </summary>
         /// <returns></returns>
         [UnityTest]
@@ -145,7 +145,7 @@ namespace Tests
         }
 
         /// <summary>
-        /// Register -> Bypass Calibration -> Drive to depth -> Return to home position
+        ///     Register -> Bypass Calibration -> Drive to depth -> Return to home position
         /// </summary>
         /// <returns></returns>
         [UnityTest]
