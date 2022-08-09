@@ -25,14 +25,19 @@ namespace SensapexLink
 
         #region Setup
 
+        /// <summary>
+        ///     Initialize components
+        /// </summary>
         private void Awake()
         {
             _playerPrefs = GameObject.Find("main").GetComponent<PlayerPrefs>();
         }
 
+        /// <summary>
+        ///     Populate data and connect to the server
+        /// </summary>
         private void Start()
         {
-            // TODO: Grab the connection details from the player prefs
             _serverIp = _playerPrefs.GetServerIp();
             _serverPort = _playerPrefs.GetServerPort();
 

@@ -8,16 +8,6 @@ namespace TP_Settings
 {
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
-        #region Unity
-
-        private void Awake()
-        {
-            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
-                .GetComponent<TP_QuestionDialogue>();
-        }
-
-        #endregion
-
         #region Components
 
         #region Serialized
@@ -40,7 +30,19 @@ namespace TP_Settings
         private TP_QuestionDialogue _questionDialogue;
 
         #endregion
+        
+        #region Setup
 
+        /// <summary>
+        /// Initialize components
+        /// </summary>
+        private void Awake()
+        {
+            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
+                .GetComponent<TP_QuestionDialogue>();
+        }
+
+        #endregion
 
         #region Property Getters and Setters
 

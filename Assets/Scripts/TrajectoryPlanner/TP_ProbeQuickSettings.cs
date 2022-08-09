@@ -6,19 +6,26 @@ namespace TrajectoryPlanner
 {
     public class TP_ProbeQuickSettings : MonoBehaviour
     {
+        #region Components
+
+        [SerializeField] private TMP_Text panelTitle;
+        private ProbeManager _probeManager;
+        private CommunicationManager _communicationManager;
+        private TP_QuestionDialogue _questionDialogue;
+
+        #endregion
+
+        #region Setup
+
         /// <summary>
         ///     Initialize components
         /// </summary>
         private void Awake()
         {
             _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
+            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
+                .GetComponent<TP_QuestionDialogue>();
         }
-
-        #region Components
-
-        [SerializeField] private TMP_Text panelTitle;
-        private ProbeManager _probeManager;
-        private CommunicationManager _communicationManager;
 
         #endregion
 
@@ -42,7 +49,9 @@ namespace TrajectoryPlanner
         /// </summary>
         public void ZeroDepth()
         {
-            Debug.Log("Zeroing probe depth");
+            _questionDialogue.SetNoCallback(() => { });
+            _questionDialogue.SetYesCallback(() => { Debug.Log("Zeroing probe depth"); });
+            _questionDialogue.NewQuestion("Zero out depth?");
         }
 
         /// <summary>
@@ -50,14 +59,15 @@ namespace TrajectoryPlanner
         /// </summary>
         public void ResetBregma()
         {
-            if (_probeManager.IsConnectedToManipulator())
+            _questionDialogue.SetNoCallback(() => { });
+            _questionDialogue.SetYesCallback(() =>
             {
-                _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetBregmaOffset);
-            }
-            else
-            {
-                _probeManager.ResetPosition();
-            }
+                if (_probeManager.IsConnectedToManipulator())
+                    _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetBregmaOffset);
+                else
+                    _probeManager.ResetPosition();
+            });
+            _questionDialogue.NewQuestion("Reset Bregma?");
         }
 
         #endregion
