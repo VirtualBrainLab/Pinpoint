@@ -33,7 +33,7 @@ namespace TrajectoryPlanner
             if (!gameObject.activeSelf) gameObject.SetActive(true);
             _probeManager = probeManager;
 
-            panelTitle.text = "#" + probeManager.GetID();
+            panelTitle.text = probeManager.GetID().ToString();
             panelTitle.color = probeManager.GetColor();
         }
 

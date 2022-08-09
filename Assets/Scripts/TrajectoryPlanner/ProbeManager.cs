@@ -207,6 +207,12 @@ public class ProbeManager : MonoBehaviour
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.Destroy();
         Destroy(textGO);
+        
+        // Unregister this probe from the sensapex link
+        if (IsConnectedToManipulator())
+        {
+            SetSensapexLinkMovement(false, 0);
+        }
     }
 
     #endregion
@@ -1373,13 +1379,14 @@ public class ProbeManager : MonoBehaviour
     {
         // Set states
         _sensapexLinkMovement = register;
-        _manipulatorId = manipulatorId;
 
         if (register)
             // Register
             _sensapexLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
             {
                 Debug.Log("Manipulator Registered");
+                _manipulatorId = manipulatorId;
+                
                 if (calibrated)
                     // Bypass calibration and start echoing
                     _sensapexLinkCommunicationManager.BypassCalibration(manipulatorId, StartEchoing);
@@ -1405,6 +1412,7 @@ public class ProbeManager : MonoBehaviour
             {
                 Debug.Log("Manipulator Unregistered");
                 _bregmaOffset = Vector4.negativeInfinity;
+                manipulatorId = 0;
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
 
@@ -1427,6 +1435,15 @@ public class ProbeManager : MonoBehaviour
     public int GetManipulatorId()
     {
         return _manipulatorId;
+    }
+
+    /// <summary>
+    ///     Return if this probe is being controlled by the Sensapex Link
+    /// </summary>
+    /// <returns>True if this probe is attached to a manipulator, false otherwise</returns>
+    public bool IsConnectedToManipulator()
+    {
+        return _manipulatorId != 0;
     }
 
     /// <summary>
