@@ -1498,9 +1498,10 @@ public class ProbeManager : MonoBehaviour
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         // Convert position to CCF
-        var ccf = _neTransform.ToCCF(pos - _bregmaOffset);
+        var offsetAdjustedPosition = pos - _bregmaOffset;
 
-        ManualCoordinateEntryTransformed(ccf.x, ccf.y, ccf.z, pos.w - _bregmaOffset.w, _probeAngles.x,
+        ManualCoordinateEntryTransformed(offsetAdjustedPosition.x, offsetAdjustedPosition.y, offsetAdjustedPosition.z,
+            offsetAdjustedPosition.w, _probeAngles.x,
             _probeAngles.y, _probeAngles.z);
 
         if (_sensapexLinkMovement)
