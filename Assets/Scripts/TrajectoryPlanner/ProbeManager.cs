@@ -46,6 +46,7 @@ public class ProbeManager : MonoBehaviour
     private int _manipulatorId;
     private Vector3 _probeAngles;
     private Vector4 _bregmaOffset = Vector4.negativeInfinity;
+    private float _brainSurfaceOffset;
 
     #endregion
 
@@ -1491,6 +1492,8 @@ public class ProbeManager : MonoBehaviour
 
     #endregion
 
+    #region Actions
+
     /// <summary>
     ///     Echo given position in needles transform space to the probe
     /// </summary>
@@ -1500,13 +1503,52 @@ public class ProbeManager : MonoBehaviour
         // Convert position to CCF
         var offsetAdjustedPosition = pos - _bregmaOffset;
 
-        ManualCoordinateEntryTransformed(offsetAdjustedPosition.x, offsetAdjustedPosition.y, offsetAdjustedPosition.z,
-            offsetAdjustedPosition.w, _probeAngles.x,
-            _probeAngles.y, _probeAngles.z);
+        if (Math.Abs(offsetAdjustedPosition.w) < 1)
+        {
+            ManualCoordinateEntryTransformed(offsetAdjustedPosition.x, offsetAdjustedPosition.y,
+                offsetAdjustedPosition.z,
+                offsetAdjustedPosition.w, _probeAngles.x,
+                _probeAngles.y, _probeAngles.z);
+        }
+        else
+        {
+            insertion.SetCoordinates(offsetAdjustedPosition.x, offsetAdjustedPosition.y, offsetAdjustedPosition.z,
+                offsetAdjustedPosition.w, _probeAngles.x, _probeAngles.y, _probeAngles.z);
+            SetProbePosition();
+
+            // Tell the tpmanager we moved and update the UI elements
+            tpmanager.SetMovedThisFrame();
+            foreach (var puimanager in probeUIManagers)
+                puimanager.ProbeMoved();
+            tpmanager.UpdateInPlaneView();
+        }
+
 
         if (_sensapexLinkMovement)
             _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);
     }
+
+    public void ZeroDepth()
+    {
+        _sensapexLinkCommunicationManager.GetPos(_manipulatorId, pos =>
+        {
+            var offsetAdjustedPosition = pos - _bregmaOffset;
+            var surfacePos = Surface2CCF(offsetAdjustedPosition, 0, _probeAngles);
+            _brainSurfaceOffset = offsetAdjustedPosition.w;
+            insertion.SetCoordinates(surfacePos.Item1.x, surfacePos.Item1.y, surfacePos.Item1.z, 0, surfacePos.Item2.x,
+                surfacePos.Item2.y, surfacePos.Item2.z);
+            SetProbePosition();
+            
+            // Tell the tpmanager we moved and update the UI elements
+            tpmanager.SetMovedThisFrame();
+            foreach (var puimanager in probeUIManagers)
+                puimanager.ProbeMoved();
+            tpmanager.UpdateInPlaneView();
+        });
+        
+    }
+
+    #endregion
 
     #endregion
     

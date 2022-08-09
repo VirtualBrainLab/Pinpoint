@@ -50,7 +50,10 @@ namespace TrajectoryPlanner
         public void ZeroDepth()
         {
             _questionDialogue.SetNoCallback(() => { });
-            _questionDialogue.SetYesCallback(() => { Debug.Log("Zeroing probe depth"); });
+            _questionDialogue.SetYesCallback(() =>
+            {
+                
+            });
             _questionDialogue.NewQuestion("Zero out depth?");
         }
 
