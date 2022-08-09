@@ -50,7 +50,14 @@ namespace TrajectoryPlanner
         /// </summary>
         public void ResetBregma()
         {
-            Debug.Log("Reset probe to Bregma");
+            if (_probeManager.IsConnectedToManipulator())
+            {
+                _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetBregmaOffset);
+            }
+            else
+            {
+                _probeManager.ResetPosition();
+            }
         }
 
         #endregion
