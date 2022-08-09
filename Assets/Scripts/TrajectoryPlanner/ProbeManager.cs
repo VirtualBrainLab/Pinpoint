@@ -1374,19 +1374,26 @@ public class ProbeManager : MonoBehaviour
     /// <param name="calibrated">Is the manipulator in real life calibrated</param>
     /// <param name="onSuccess">Callback function to handle a successful registration</param>
     /// <param name="onError">Callback function to handle a failed registration</param>
-    public void SetSensapexLinkMovement(bool register, int manipulatorId, bool calibrated = true,
+    public void SetSensapexLinkMovement(bool register, int manipulatorId = 0, bool calibrated = true,
         Action onSuccess = null, Action<string> onError = null)
     {
+        // Exit early if this was an invalid call
+        switch (register)
+        {
+            case true when IsConnectedToManipulator():
+            case true when manipulatorId == 0:
+                return;
+        }
+
         // Set states
         _sensapexLinkMovement = register;
 
         if (register)
-            // Register
             _sensapexLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
             {
                 Debug.Log("Manipulator Registered");
                 _manipulatorId = manipulatorId;
-                
+
                 if (calibrated)
                     // Bypass calibration and start echoing
                     _sensapexLinkCommunicationManager.BypassCalibration(manipulatorId, StartEchoing);
@@ -1408,11 +1415,11 @@ public class ProbeManager : MonoBehaviour
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
         else
-            _sensapexLinkCommunicationManager.UnregisterManipulator(manipulatorId, () =>
+            _sensapexLinkCommunicationManager.UnregisterManipulator(_manipulatorId, () =>
             {
                 Debug.Log("Manipulator Unregistered");
                 _bregmaOffset = Vector4.negativeInfinity;
-                manipulatorId = 0;
+                _manipulatorId = 0;
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
 
