@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +9,20 @@ namespace TP_Settings
 {
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
+        #region Setup
+
+        /// <summary>
+        ///     Initialize components
+        /// </summary>
+        private void Awake()
+        {
+            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
+                .GetComponent<TP_QuestionDialogue>();
+        }
+
+        #endregion
+
         #region Components
 
         #region Serialized
@@ -26,21 +41,9 @@ namespace TP_Settings
 
         #endregion
 
+        private TrajectoryPlannerManager _trajectoryPlannerManager;
         private ProbeManager _probeManager;
         private TP_QuestionDialogue _questionDialogue;
-
-        #endregion
-        
-        #region Setup
-
-        /// <summary>
-        /// Initialize components
-        /// </summary>
-        private void Awake()
-        {
-            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
-                .GetComponent<TP_QuestionDialogue>();
-        }
 
         #endregion
 

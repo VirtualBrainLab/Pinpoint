@@ -1489,6 +1489,24 @@ public class ProbeManager : MonoBehaviour
     {
         _bregmaOffset = bregmaOffset;
     }
+    
+    /// <summary>
+    /// Get manipulator space offset from brain surface as Depth
+    /// </summary>
+    /// <returns>Manipulator space offset to brain surface</returns>
+    public float GetBrainSurfaceOffset()
+    {
+        return _brainSurfaceOffset;
+    }
+    
+    /// <summary>
+    /// Set manipulator space offset from brain surface as Depth
+    /// </summary>
+    /// <param name="brainSurfaceOffset">Offset from brain surface as Depth</param>
+    public void SetBrainSurfaceOffset(float brainSurfaceOffset)
+    {
+        _brainSurfaceOffset = brainSurfaceOffset;
+    }
 
     #endregion
 
