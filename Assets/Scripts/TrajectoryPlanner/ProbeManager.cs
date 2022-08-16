@@ -917,6 +917,7 @@ public class ProbeManager : MonoBehaviour
             axisLockDepth = false;
             axisLockQE = false;
             axisLockRF = false;
+            SetAxisVisibility(true, false, false);
         }
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
         {
@@ -927,6 +928,7 @@ public class ProbeManager : MonoBehaviour
             axisLockDepth = false;
             axisLockQE = false;
             axisLockRF = false;
+            SetAxisVisibility(false, true, false);
         }
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
         {
@@ -937,6 +939,7 @@ public class ProbeManager : MonoBehaviour
             axisLockDepth = false;
             axisLockQE = false;
             axisLockRF = false;
+            SetAxisVisibility(false, false, true);
         }
         if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.F))
         {
@@ -1017,6 +1020,7 @@ public class ProbeManager : MonoBehaviour
     public void DragMovementRelease()
     {
         // release probe control
+        SetAxisVisibility(false, false, false);
         tpmanager.SetProbeControl(false);
     }
 
@@ -1569,5 +1573,13 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
     #endregion
-    
+
+    #region AxisControl
+
+    private void SetAxisVisibility(bool AP, bool ML, bool DV)
+    {
+        tpmanager.SetAxisVisibility(AP, ML, DV, probeTipT.position);
+    }
+
+    #endregion AxisControl
 }

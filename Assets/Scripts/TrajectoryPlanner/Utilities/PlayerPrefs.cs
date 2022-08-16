@@ -32,6 +32,7 @@ public class PlayerPrefs : MonoBehaviour
     //private bool useIblBregma;
     private string _sensapexLinkServerIp;
     private int _sensapexLinkServerPort;
+    private bool _axisControl;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -46,6 +47,7 @@ public class PlayerPrefs : MonoBehaviour
     //[SerializeField] Toggle bregmaToggle;
     [SerializeField] TMP_InputField sensapexLinkServerIpInput;
     [SerializeField] TMP_InputField sensapexLinkServerPortInput;
+    [SerializeField] Toggle axisControlToggle;
 
 
     /// <summary>
@@ -91,6 +93,9 @@ public class PlayerPrefs : MonoBehaviour
         
         _sensapexLinkServerPort = LoadIntPref("sensapex_port", 8080);
         sensapexLinkServerPortInput.text = _sensapexLinkServerPort.ToString();
+
+        _axisControl = LoadBoolPref("axis_control", false);
+        axisControlToggle.isOn = _axisControl;
     }
 
     /// <summary>
@@ -121,6 +126,17 @@ public class PlayerPrefs : MonoBehaviour
     }
 
     #region Getters/Setters
+
+    public void SetAxisControl(bool state)
+    {
+        _axisControl = state;
+        UnityEngine.PlayerPrefs.SetInt("axis_control", _axisControl ? 1 : 0);
+    }
+
+    public bool GetAxisControl()
+    {
+        return _axisControl;
+    }
 
     public void SetSurfaceCoord(bool state)
     {
@@ -256,7 +272,7 @@ public class PlayerPrefs : MonoBehaviour
 
     #endregion
 
-    #region Helper functions for booleans/integers/strinngs
+    #region Helper functions for booleans/integers/strings
     private bool LoadBoolPref(string prefStr, bool defaultValue)
     {
         return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetInt(prefStr) == 1 : defaultValue;
