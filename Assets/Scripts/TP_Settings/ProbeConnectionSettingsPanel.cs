@@ -59,6 +59,9 @@ namespace TP_Settings
 
             probeIdText.text = probeManager.GetID().ToString();
             probeIdText.color = probeManager.GetColor();
+
+            connectButton.interactable = probeManager.IsConnectedToManipulator();
+            connectButtonText.text = probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
         }
 
         /// <summary>

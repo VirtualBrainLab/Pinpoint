@@ -81,6 +81,11 @@ namespace TP_Settings
                         new Tuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
                             probeConnectionSettingsPanelGameObject));
                 }
+                else
+                {
+                    // Update probeManager in probe connection settings panel
+                    _probeIdToProbeConnectionSettingsPanels[probeId].Item1.SetProbeManager(probeManager);
+                }
 
                 handledProbeIds.Add(probeId);
             }

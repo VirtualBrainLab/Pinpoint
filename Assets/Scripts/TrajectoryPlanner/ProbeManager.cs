@@ -1534,7 +1534,9 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
-            insertion.SetCoordinates(offsetAdjustedPosition.x, offsetAdjustedPosition.y, offsetAdjustedPosition.z,
+            var tipPos = Surface2CCF(offsetAdjustedPosition, offsetAdjustedPosition.w - _brainSurfaceOffset,
+                _probeAngles).Item1;
+            insertion.SetCoordinates(tipPos.x, tipPos.y, tipPos.z,
                 offsetAdjustedPosition.w, _probeAngles.x, _probeAngles.y, _probeAngles.z);
             SetProbePosition();
 
@@ -1552,22 +1554,7 @@ public class ProbeManager : MonoBehaviour
 
     public void ZeroDepth()
     {
-        _sensapexLinkCommunicationManager.GetPos(_manipulatorId, pos =>
-        {
-            var offsetAdjustedPosition = pos - _bregmaOffset;
-            var surfacePos = Surface2CCF(offsetAdjustedPosition, 0, _probeAngles);
-            _brainSurfaceOffset = offsetAdjustedPosition.w;
-            insertion.SetCoordinates(surfacePos.Item1.x, surfacePos.Item1.y, surfacePos.Item1.z, 0, surfacePos.Item2.x,
-                surfacePos.Item2.y, surfacePos.Item2.z);
-            SetProbePosition();
-            
-            // Tell the tpmanager we moved and update the UI elements
-            tpmanager.SetMovedThisFrame();
-            foreach (var puimanager in probeUIManagers)
-                puimanager.ProbeMoved();
-            tpmanager.UpdateInPlaneView();
-        });
-        
+        _sensapexLinkCommunicationManager.GetPos(_manipulatorId, pos => _brainSurfaceOffset = pos.w);
     }
 
     #endregion

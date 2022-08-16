@@ -18301,7 +18301,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -392.5, y: 0}
+  m_AnchoredPosition: {x: -392.50003, y: 0}
   m_SizeDelta: {x: -815, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1669998833
@@ -23259,7 +23259,7 @@ MonoBehaviour:
   surfaceToggle: {fileID: 1766544453}
   sensapexLinkServerIpInput: {fileID: 713245786}
   sensapexLinkServerPortInput: {fileID: 1847624607}
-  axisControlToggle: {fileID: 0}
+  axisControlToggle: {fileID: 1397446698413376552}
 --- !u!114 &2108153957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24115,6 +24115,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+--- !u!114 &1397446698413376552 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3343472823116803256, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+  m_PrefabInstance: {fileID: 1397446698413376551}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4579134257739291417
 PrefabInstance:
   m_ObjectHideFlags: 0

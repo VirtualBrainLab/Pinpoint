@@ -52,7 +52,7 @@ namespace TrajectoryPlanner
             _questionDialogue.SetNoCallback(() => { });
             _questionDialogue.SetYesCallback(() =>
             {
-                
+                _probeManager.ZeroDepth();
             });
             _questionDialogue.NewQuestion("Zero out depth?");
         }
