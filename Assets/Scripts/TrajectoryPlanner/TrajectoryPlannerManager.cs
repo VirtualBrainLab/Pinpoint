@@ -16,6 +16,7 @@ namespace TrajectoryPlanner
         [SerializeField] private PlayerPrefs localPrefs;
         [SerializeField] private Transform brainModel;
         [SerializeField] private Utils util;
+        [SerializeField] private AxisControl acontrol;
 
         // Settings
         [SerializeField] private List<GameObject> probePrefabs;
@@ -869,6 +870,34 @@ namespace TrajectoryPlanner
             }
             localPrefs.SaveCurrentProbeData(probeCoordinates);
         }
+
+
+        #region Axis Control
+
+        public bool GetAxisControlEnabled()
+        {
+            return localPrefs.GetAxisControl();
+        }
+
+        public void SetAxisControlEnabled(bool state)
+        {
+            localPrefs.SetAxisControl(state);
+            if (!state)
+                SetAxisVisibility(false, false, false, Vector3.zero);
+        }
+
+        public void SetAxisVisibility(bool AP, bool ML, bool DV, Vector3 pos)
+        {
+            if (GetAxisControlEnabled())
+            {
+                acontrol.SetAxisPosition(pos);
+                acontrol.SetAPVisibility(AP);
+                acontrol.SetMLVisibility(ML);
+                acontrol.SetDVVisibility(DV);
+            }
+        }
+
+        #endregion
     }
 
 }
