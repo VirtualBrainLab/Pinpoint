@@ -1532,6 +1532,15 @@ public class ProbeManager : MonoBehaviour
     {
         // Convert position to CCF
         var offsetAdjustedPosition = pos - _bregmaOffset;
+        
+        // Phi adjustment
+        var phiAdjustedX = offsetAdjustedPosition.x * Mathf.Cos(_probeAngles.x * Mathf.Deg2Rad) -
+                           offsetAdjustedPosition.y * Mathf.Sin(_probeAngles.x * Mathf.Deg2Rad);
+        var phiAdjustedY = offsetAdjustedPosition.x * Mathf.Sin(_probeAngles.x * Mathf.Deg2Rad) +
+                           offsetAdjustedPosition.y * Mathf.Cos(_probeAngles.x * Mathf.Deg2Rad);
+        offsetAdjustedPosition.x = phiAdjustedX;
+        offsetAdjustedPosition.y = phiAdjustedY;
+        
 
         if (Math.Abs(offsetAdjustedPosition.w) < 1)
         {
