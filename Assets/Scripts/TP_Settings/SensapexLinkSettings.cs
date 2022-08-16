@@ -81,6 +81,11 @@ namespace TP_Settings
                         new Tuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
                             probeConnectionSettingsPanelGameObject));
                 }
+                else
+                {
+                    // Update probeManager in probe connection settings panel
+                    _probeIdToProbeConnectionSettingsPanels[probeId].Item1.SetProbeManager(probeManager);
+                }
 
                 handledProbeIds.Add(probeId);
             }
@@ -89,13 +94,6 @@ namespace TP_Settings
             foreach (var removedProbeId in _probeIdToProbeConnectionSettingsPanels.Keys.Where(key =>
                          !handledProbeIds.Contains(key)))
             {
-                // Cleanup
-                var probeConnectionSettingsPanel = _probeIdToProbeConnectionSettingsPanels[removedProbeId].Item1;
-                if (probeConnectionSettingsPanel.IsRegistered())
-                {
-                    _communicationManager.UnregisterManipulator(probeConnectionSettingsPanel.GetManipulatorId());
-                }
-
                 // Remove
                 Destroy(_probeIdToProbeConnectionSettingsPanels[removedProbeId].Item2);
                 _probeIdToProbeConnectionSettingsPanels.Remove(removedProbeId);
@@ -108,9 +106,7 @@ namespace TP_Settings
                 manipulatorDropdownOptions.AddRange(availableIds.Select(id => id.ToString()));
 
                 foreach (var value in _probeIdToProbeConnectionSettingsPanels.Values)
-                {
                     value.Item1.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
-                }
             });
         }
 
@@ -123,10 +119,10 @@ namespace TP_Settings
 
         #endregion
 
-        #region Helper Functions
+        #region UI Functions
 
         /// <summary>
-        /// Populate UI elements with current connection settings
+        ///     Populate UI elements with current connection settings
         /// </summary>
         private void UpdateConnectionUI()
         {
@@ -134,38 +130,28 @@ namespace TP_Settings
             connectButtonText.text = _communicationManager.IsConnected() ? "Disconnect" : "Connect";
         }
 
-        #endregion
-
-        #region UI Functions
-
         /// <summary>
-        /// Handle when connect/disconnect button is pressed
+        ///     Handle when connect/disconnect button is pressed
         /// </summary>
         public void OnConnectDisconnectPressed()
         {
-            _questionDialogue.SetNoCallback(() => { });
             if (!_communicationManager.IsConnected())
             {
-                _questionDialogue.SetYesCallback(() =>
+                try
                 {
-                    try
-                    {
-                        connectButtonText.text = "Connecting...";
-                        _communicationManager.ConnectToServer(ipAddressInputField.text, int.Parse(portInputField.text),
-                            UpdateConnectionUI, err =>
-                            {
-                                connectionErrorText.text = err;
-                                connectButtonText.text = "Connect";
-                            }
-                        );
-                    }
-                    catch (Exception e)
-                    {
-                        connectionErrorText.text = e.Message;
-                    }
-                });
-
-                _questionDialogue.NewQuestion("Are probes at Bregma?");
+                    connectButtonText.text = "Connecting...";
+                    _communicationManager.ConnectToServer(ipAddressInputField.text, int.Parse(portInputField.text),
+                        UpdateConnectionUI, err =>
+                        {
+                            connectionErrorText.text = err;
+                            connectButtonText.text = "Connect";
+                        }
+                    );
+                }
+                catch (Exception e)
+                {
+                    connectionErrorText.text = e.Message;
+                }
             }
             else
             {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,16 +9,23 @@ namespace TP_Settings
 {
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
-        #region Variables
+        #region Setup
 
-        #region Properties
-
-        private int _manipulatorId;
-        private ProbeManager _probeManager;
+        /// <summary>
+        ///     Initialize components
+        /// </summary>
+        private void Awake()
+        {
+            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
+                .GetComponent<TP_QuestionDialogue>();
+        }
 
         #endregion
 
         #region Components
+
+        #region Serialized
 
         [SerializeField] private TMP_Text probeIdText;
         [SerializeField] private TMP_Dropdown manipulatorIdDropdown;
@@ -33,12 +41,16 @@ namespace TP_Settings
 
         #endregion
 
+        private TrajectoryPlannerManager _trajectoryPlannerManager;
+        private ProbeManager _probeManager;
+        private TP_QuestionDialogue _questionDialogue;
+
         #endregion
 
         #region Property Getters and Setters
 
         /// <summary>
-        /// Set probe manager reference attached to this panel.
+        ///     Set probe manager reference attached to this panel.
         /// </summary>
         /// <param name="probeManager">This panel's probe's corresponding probe manager</param>
         public void SetProbeManager(ProbeManager probeManager)
@@ -47,28 +59,22 @@ namespace TP_Settings
 
             probeIdText.text = probeManager.GetID().ToString();
             probeIdText.color = probeManager.GetColor();
+
+            connectButton.interactable = probeManager.IsConnectedToManipulator();
+            connectButtonText.text = probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
         }
 
         /// <summary>
-        /// Get probe's manipulator registration state
+        ///     Return attached probe manager.
         /// </summary>
-        /// <returns>True if the manipulator is registered, false otherwise</returns>
-        public bool IsRegistered()
+        /// <returns>Probe manager for related probe</returns>
+        public ProbeManager GetProbeManager()
         {
-            return _manipulatorId != 0;
+            return _probeManager;
         }
 
         /// <summary>
-        /// Get probe's manipulator ID
-        /// </summary>
-        /// <returns>ID of the manipulator this probe is registered with</returns>
-        public int GetManipulatorId()
-        {
-            return _manipulatorId;
-        }
-
-        /// <summary>
-        /// Set probe angles by using the values in the input fields.
+        ///     Set probe angles by using the values in the input fields.
         /// </summary>
         public void SetAngles()
         {
@@ -80,7 +86,7 @@ namespace TP_Settings
         }
 
         /// <summary>
-        /// Set probe bregma offset by using the values in the input fields.
+        ///     Set probe bregma offset by using the values in the input fields.
         /// </summary>
         public void SetBregmaOffset()
         {
@@ -97,7 +103,7 @@ namespace TP_Settings
         #region Component Methods
 
         /// <summary>
-        /// Set manipulator id dropdown options.
+        ///     Set manipulator id dropdown options.
         /// </summary>
         /// <param name="idOptions">Available manipulators to pick from</param>
         public void SetManipulatorIdDropdownOptions(List<string> idOptions)
@@ -106,9 +112,9 @@ namespace TP_Settings
             manipulatorIdDropdown.AddOptions(idOptions);
 
             // Select the option corresponding to the current manipulator id
-            var indexOfId = _probeManager.GetManipulatorId() == 0
-                ? 0
-                : Math.Max(0, idOptions.IndexOf(_probeManager.GetManipulatorId().ToString()));
+            var indexOfId = _probeManager.IsConnectedToManipulator()
+                ? Math.Max(0, idOptions.IndexOf(_probeManager.GetManipulatorId().ToString()))
+                : 0;
             manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
             connectButton.interactable = indexOfId != 0;
         }
@@ -119,26 +125,28 @@ namespace TP_Settings
         }
 
         /// <summary>
-        /// Connect and register the selected manipulator.
+        ///     Connect and register the selected manipulator.
         /// </summary>
         public void ConnectDisconnectProbeToManipulator()
         {
-            // Connect if currently not connected
-            if (_manipulatorId == 0)
+            // Disconnect if already connected
+            if (_probeManager.IsConnectedToManipulator())
             {
-                _manipulatorId = int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text);
-                // TODO: Put alert here to make sure manipulators are set to Bregma
-                _probeManager.SetSensapexLinkMovement(true, _manipulatorId, true,
-                    () => { connectButtonText.text = "Disconnect"; });
+                _probeManager.SetSensapexLinkMovement(false, 0, false, () => { connectButtonText.text = "Connect"; });
             }
-            // Disconnect otherwise
+            // Connect otherwise
             else
             {
-                _probeManager.SetSensapexLinkMovement(false, _manipulatorId, false, () =>
+                // Is at bregma prompt
+                _questionDialogue.SetNoCallback(() => { });
+                _questionDialogue.SetYesCallback(() =>
                 {
-                    connectButtonText.text = "Connect";
-                    _manipulatorId = 0;
+                    // Connect to manipulator
+                    _probeManager.SetSensapexLinkMovement(true,
+                        int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text), true,
+                        () => { connectButtonText.text = "Disconnect"; });
                 });
+                _questionDialogue.NewQuestion("Is this manipulator at Bregma?");
             }
         }
 

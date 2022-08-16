@@ -46,6 +46,7 @@ public class ProbeManager : MonoBehaviour
     private int _manipulatorId;
     private Vector3 _probeAngles;
     private Vector4 _bregmaOffset = Vector4.negativeInfinity;
+    private float _brainSurfaceOffset;
 
     #endregion
 
@@ -207,6 +208,12 @@ public class ProbeManager : MonoBehaviour
         foreach (TP_ProbeUIManager puimanager in probeUIManagers)
             puimanager.Destroy();
         Destroy(textGO);
+        
+        // Unregister this probe from the sensapex link
+        if (IsConnectedToManipulator())
+        {
+            SetSensapexLinkMovement(false, 0);
+        }
     }
 
     #endregion
@@ -1372,18 +1379,26 @@ public class ProbeManager : MonoBehaviour
     /// <param name="calibrated">Is the manipulator in real life calibrated</param>
     /// <param name="onSuccess">Callback function to handle a successful registration</param>
     /// <param name="onError">Callback function to handle a failed registration</param>
-    public void SetSensapexLinkMovement(bool register, int manipulatorId, bool calibrated = true,
+    public void SetSensapexLinkMovement(bool register, int manipulatorId = 0, bool calibrated = true,
         Action onSuccess = null, Action<string> onError = null)
     {
+        // Exit early if this was an invalid call
+        switch (register)
+        {
+            case true when IsConnectedToManipulator():
+            case true when manipulatorId == 0:
+                return;
+        }
+
         // Set states
         _sensapexLinkMovement = register;
-        _manipulatorId = manipulatorId;
 
         if (register)
-            // Register
             _sensapexLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
             {
                 Debug.Log("Manipulator Registered");
+                _manipulatorId = manipulatorId;
+
                 if (calibrated)
                     // Bypass calibration and start echoing
                     _sensapexLinkCommunicationManager.BypassCalibration(manipulatorId, StartEchoing);
@@ -1405,10 +1420,11 @@ public class ProbeManager : MonoBehaviour
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
         else
-            _sensapexLinkCommunicationManager.UnregisterManipulator(manipulatorId, () =>
+            _sensapexLinkCommunicationManager.UnregisterManipulator(_manipulatorId, () =>
             {
                 Debug.Log("Manipulator Unregistered");
                 _bregmaOffset = Vector4.negativeInfinity;
+                _manipulatorId = 0;
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
 
@@ -1431,6 +1447,15 @@ public class ProbeManager : MonoBehaviour
     public int GetManipulatorId()
     {
         return _manipulatorId;
+    }
+
+    /// <summary>
+    ///     Return if this probe is being controlled by the Sensapex Link
+    /// </summary>
+    /// <returns>True if this probe is attached to a manipulator, false otherwise</returns>
+    public bool IsConnectedToManipulator()
+    {
+        return _manipulatorId != 0;
     }
 
     /// <summary>
@@ -1468,8 +1493,36 @@ public class ProbeManager : MonoBehaviour
     {
         _bregmaOffset = bregmaOffset;
     }
+    
+    /// <summary>
+    /// Get manipulator space offset from brain surface as Depth
+    /// </summary>
+    /// <returns>Manipulator space offset to brain surface</returns>
+    public float GetBrainSurfaceOffset()
+    {
+        return _brainSurfaceOffset;
+    }
+    
+    /// <summary>
+    ///     Set manipulator space offset from brain surface as Depth from input
+    /// </summary>
+    /// <param name="brainSurfaceOffset">Offset from brain surface as Depth</param>
+    public void SetBrainSurfaceOffset(float brainSurfaceOffset)
+    {
+        _brainSurfaceOffset = brainSurfaceOffset;
+    }
+
+    /// <summary>
+    ///     Set manipulator space offset from brain surface as Depth from manipulator or probe coordinates
+    /// </summary>
+    public void SetBrainSurfaceOffset()
+    {
+        _sensapexLinkCommunicationManager.GetPos(_manipulatorId, pos => _brainSurfaceOffset = pos.w);
+    }
 
     #endregion
+
+    #region Actions
 
     /// <summary>
     ///     Echo given position in needles transform space to the probe
@@ -1478,14 +1531,36 @@ public class ProbeManager : MonoBehaviour
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         // Convert position to CCF
-        var ccf = _neTransform.ToCCF(pos - _bregmaOffset);
+        var offsetAdjustedPosition = pos - _bregmaOffset;
 
-        ManualCoordinateEntryTransformed(ccf.x, ccf.y, ccf.z, pos.w - _bregmaOffset.w, _probeAngles.x,
-            _probeAngles.y, _probeAngles.z);
+        if (Math.Abs(offsetAdjustedPosition.w) < 1)
+        {
+            ManualCoordinateEntryTransformed(offsetAdjustedPosition.x, offsetAdjustedPosition.y,
+                offsetAdjustedPosition.z,
+                offsetAdjustedPosition.w, _probeAngles.x,
+                _probeAngles.y, _probeAngles.z);
+        }
+        else
+        {
+            var tipPos = Surface2CCF(offsetAdjustedPosition, offsetAdjustedPosition.w - _brainSurfaceOffset,
+                _probeAngles).Item1;
+            insertion.SetCoordinates_IBL(tipPos.x, tipPos.y, tipPos.z,
+                0, _probeAngles.x, _probeAngles.y, _probeAngles.z, tpmanager.GetActiveCoordinateTransform());
+            SetProbePosition();
+
+            // Tell the tpmanager we moved and update the UI elements
+            tpmanager.SetMovedThisFrame();
+            foreach (var puimanager in probeUIManagers)
+                puimanager.ProbeMoved();
+            tpmanager.UpdateInPlaneView();
+        }
+
 
         if (_sensapexLinkMovement)
             _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);
     }
+
+    #endregion
 
     #endregion
 
