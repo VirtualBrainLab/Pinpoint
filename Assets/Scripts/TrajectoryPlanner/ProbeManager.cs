@@ -1504,12 +1504,20 @@ public class ProbeManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Set manipulator space offset from brain surface as Depth
+    ///     Set manipulator space offset from brain surface as Depth from input
     /// </summary>
     /// <param name="brainSurfaceOffset">Offset from brain surface as Depth</param>
     public void SetBrainSurfaceOffset(float brainSurfaceOffset)
     {
         _brainSurfaceOffset = brainSurfaceOffset;
+    }
+
+    /// <summary>
+    ///     Set manipulator space offset from brain surface as Depth from manipulator or probe coordinates
+    /// </summary>
+    public void SetBrainSurfaceOffset()
+    {
+        _sensapexLinkCommunicationManager.GetPos(_manipulatorId, pos => _brainSurfaceOffset = pos.w);
     }
 
     #endregion
@@ -1536,8 +1544,8 @@ public class ProbeManager : MonoBehaviour
         {
             var tipPos = Surface2CCF(offsetAdjustedPosition, offsetAdjustedPosition.w - _brainSurfaceOffset,
                 _probeAngles).Item1;
-            insertion.SetCoordinates(tipPos.x, tipPos.y, tipPos.z,
-                offsetAdjustedPosition.w, _probeAngles.x, _probeAngles.y, _probeAngles.z);
+            insertion.SetCoordinates_IBL(tipPos.x, tipPos.y, tipPos.z,
+                0, _probeAngles.x, _probeAngles.y, _probeAngles.z, tpmanager.GetActiveCoordinateTransform());
             SetProbePosition();
 
             // Tell the tpmanager we moved and update the UI elements
@@ -1550,11 +1558,6 @@ public class ProbeManager : MonoBehaviour
 
         if (_sensapexLinkMovement)
             _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);
-    }
-
-    public void ZeroDepth()
-    {
-        _sensapexLinkCommunicationManager.GetPos(_manipulatorId, pos => _brainSurfaceOffset = pos.w);
     }
 
     #endregion

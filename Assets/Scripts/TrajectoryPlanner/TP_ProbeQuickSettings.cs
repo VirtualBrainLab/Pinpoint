@@ -1,3 +1,4 @@
+using System;
 using SensapexLink;
 using TMPro;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace TrajectoryPlanner
         private ProbeManager _probeManager;
         private CommunicationManager _communicationManager;
         private TP_QuestionDialogue _questionDialogue;
+        private CanvasGroup _canvasGroup;
 
         #endregion
 
@@ -25,6 +27,17 @@ namespace TrajectoryPlanner
             _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
             _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
                 .GetComponent<TP_QuestionDialogue>();
+            _canvasGroup = GetComponent<CanvasGroup>();
+        }
+
+        private void FixedUpdate()
+        {
+            _canvasGroup.interactable = _canvasGroup.interactable switch
+            {
+                false when _communicationManager.IsConnected() => true,
+                true when !_communicationManager.IsConnected() => false,
+                _ => _canvasGroup.interactable
+            };
         }
 
         #endregion
@@ -52,7 +65,7 @@ namespace TrajectoryPlanner
             _questionDialogue.SetNoCallback(() => { });
             _questionDialogue.SetYesCallback(() =>
             {
-                _probeManager.ZeroDepth();
+                _probeManager.SetBrainSurfaceOffset();
             });
             _questionDialogue.NewQuestion("Zero out depth?");
         }

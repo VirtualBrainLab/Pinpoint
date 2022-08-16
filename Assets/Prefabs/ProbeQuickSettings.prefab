@@ -548,6 +548,7 @@ GameObject:
   - component: {fileID: 7780014940823821003}
   - component: {fileID: 7780014940823821002}
   - component: {fileID: 7780014940823821005}
+  - component: {fileID: 998422518680573451}
   m_Layer: 5
   m_Name: ProbeQuickSettings
   m_TagString: Untagged
@@ -653,6 +654,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panelTitle: {fileID: 7780014939978196860}
+--- !u!225 &998422518680573451
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7780014940823821001}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7780014940984047516
 GameObject:
   m_ObjectHideFlags: 0
@@ -852,7 +865,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Zero Depth
+  m_text: Set Brain Surface Offset
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -879,8 +892,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -889,7 +902,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: -3
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -934,7 +947,7 @@ GameObject:
   - component: {fileID: 7780014941327432009}
   - component: {fileID: 7780014941327432008}
   m_Layer: 5
-  m_Name: ZeroDepthBtn
+  m_Name: SurfaceOffsetBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
