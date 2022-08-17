@@ -25,12 +25,6 @@ public class TP_SettingsPanel : MonoBehaviour
         ChangePanelState();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void ChangePanelState()
     {
         if (active)

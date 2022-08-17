@@ -173,7 +173,7 @@ namespace TrajectoryPlanner
 
         private async void DelayedModelControlStart()
         {
-            await modelControl.GetDefaultLoaded();
+            await modelControl.GetDefaultLoadedTask();
 
             foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
             {
@@ -323,6 +323,14 @@ namespace TrajectoryPlanner
                 if (movedThisFrame)
                     inPlaneSlice.UpdateInPlaneSlice();
             }
+
+            // TEST CODE: Debugging distance of mesh nodes from camera, trying to fix model "pop"
+            //List<CCFTreeNode> defaultLoadedNodes = modelControl.GetDefaultLoadedNodes();
+            //if (defaultLoadedNodes.Count > 0)
+            //{
+            //    Camera brainCamera = brainCamController.GetCamera();
+            //    Debug.Log(Vector3.Distance(brainCamera.transform.position, defaultLoadedNodes[0].GetMeshCenter()));
+            //}
         }
 
         public List<ProbeManager> GetAllProbes()
