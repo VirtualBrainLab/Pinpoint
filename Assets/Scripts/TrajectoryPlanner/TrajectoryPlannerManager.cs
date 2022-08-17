@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SensapexLink;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,6 +25,7 @@ namespace TrajectoryPlanner
         [SerializeField] private TP_RecRegionSlider recRegionSlider;
         [SerializeField] private Collider ccfCollider;
         [SerializeField] private TP_InPlaneSlice inPlaneSlice;
+        [SerializeField] private TP_ProbeQuickSettings probeQuickSettings;
         [SerializeField] private TP_SliceRenderer sliceRenderer;
         [SerializeField] private TP_Search searchControl;
         [SerializeField] private TMP_InputField searchInput;
@@ -94,6 +96,12 @@ namespace TrajectoryPlanner
 
         Task annotationDatasetLoadTask;
 
+        #region Sensapex Link
+
+        private CommunicationManager _communicationManager;
+
+        #endregion
+
         private void Awake()
         {
             SetProbeControl(false);
@@ -113,6 +121,7 @@ namespace TrajectoryPlanner
             targetedBrainAreas = new List<int>();
             //Physics.autoSyncTransforms = true;
 
+            _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
         }
 
         private void Start()
@@ -354,16 +363,23 @@ namespace TrajectoryPlanner
         // Or maybe the probe coordinates should be an object that can be serialized?
         private ProbeInsertion prevInsertion;
         private int prevProbeType;
+        private int _prevManipulatorId;
+        private Vector4 _prevBregmaOffset;
+        private float _prevBrainSurfaceOffset;
 
         private void DestroyActiveProbeController()
         {
             prevProbeType = activeProbeController.GetProbeType();
             prevInsertion = activeProbeController.GetInsertion();
+            _prevManipulatorId = activeProbeController.GetManipulatorId();
+            _prevBregmaOffset = activeProbeController.GetBregmaOffset();
+            _prevBrainSurfaceOffset = activeProbeController.GetBrainSurfaceOffset();
             List<Collider> probeColliders = activeProbeController.GetProbeColliders();
 
             Debug.Log("Destroying probe type " + prevProbeType + " with coordinates");
 
             Color returnColor = activeProbeController.GetColor();
+
 
             activeProbeController.Destroy();
             Destroy(activeProbeController.gameObject);
@@ -381,11 +397,14 @@ namespace TrajectoryPlanner
             }
 
             ReturnProbeColor(returnColor);
+
+            // Unregister manipulator probe is attached to
+            if (_prevManipulatorId != 0) _communicationManager.UnregisterManipulator(_prevManipulatorId);
         }
 
         private void RecoverActiveProbeController()
         {
-            AddNewProbe(prevProbeType, prevInsertion);
+            AddNewProbe(prevProbeType, prevInsertion, _prevManipulatorId, _prevBregmaOffset, _prevBrainSurfaceOffset);
         }
 
         public void ManualCoordinateEntry(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
@@ -444,10 +463,23 @@ namespace TrajectoryPlanner
 
             return probeController;
         }
-        public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion)
+
+        public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, int manipulatorId = 0,
+            Vector4 bregmaOffset = new Vector4(), float brainSurfaceOffset = 0)
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            StartCoroutine(probeController.DelayedManualCoordinateEntryTransformed(0.1f, localInsertion.ap, localInsertion.ml, localInsertion.dv, localInsertion.depth, localInsertion.phi, localInsertion.theta, localInsertion.spin));
+            if (manipulatorId == 0)
+            {
+                StartCoroutine(probeController.DelayedManualCoordinateEntryTransformed(0.1f, localInsertion.ap,
+                    localInsertion.ml, localInsertion.dv, localInsertion.depth, localInsertion.phi,
+                    localInsertion.theta, localInsertion.spin));
+            }
+            else
+            {
+                probeController.SetBregmaOffset(bregmaOffset);
+                probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
+                probeController.SetSensapexLinkMovement(true, manipulatorId);
+            }
 
             return probeController;
         }
@@ -539,6 +571,9 @@ namespace TrajectoryPlanner
 
             // Reset the inplane slice zoom factor
             inPlaneSlice.ResetZoom();
+            
+            // Update probe quick settings
+            probeQuickSettings.SetProbeManager(newActiveProbeController);
         }
 
         public void ResetActiveProbe()
