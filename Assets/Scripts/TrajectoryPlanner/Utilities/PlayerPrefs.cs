@@ -294,7 +294,7 @@ public class PlayerPrefs : MonoBehaviour
     /// Save the data about all of the probes passed in through allProbeData in CCF coordinates, note that depth is ignored 
     /// </summary>
     /// <param name="allProbeData">tip position, angles, and type for probes in CCF coordinates</param>
-    public void SaveCurrentProbeData((float ap, float ml, float dv, float depth, float phi, float theta, float spin, int type)[] allProbeData)
+    public void SaveCurrentProbeData((float ap, float ml, float dv, float phi, float theta, float spin, int type)[] allProbeData)
     {
         for (int i = 0; i < allProbeData.Length; i++)
         {
@@ -302,7 +302,6 @@ public class PlayerPrefs : MonoBehaviour
             UnityEngine.PlayerPrefs.SetFloat("ap" + i, allProbeData[i].ap);
             UnityEngine.PlayerPrefs.SetFloat("ml" + i, allProbeData[i].ml);
             UnityEngine.PlayerPrefs.SetFloat("dv" + i, allProbeData[i].dv);
-            UnityEngine.PlayerPrefs.SetFloat("depth" + i, allProbeData[i].depth);
             UnityEngine.PlayerPrefs.SetFloat("phi" + i, allProbeData[i].phi);
             UnityEngine.PlayerPrefs.SetFloat("theta" + i, allProbeData[i].theta);
             UnityEngine.PlayerPrefs.SetFloat("spin" + i, allProbeData[i].spin);

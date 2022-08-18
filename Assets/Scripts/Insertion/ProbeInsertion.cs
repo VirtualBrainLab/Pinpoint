@@ -10,7 +10,6 @@ public class ProbeInsertion
     public float ap;
     public float ml;
     public float dv;
-    public float depth;
     public float phi;
     public float theta;
     public float spin;
@@ -31,14 +30,14 @@ public class ProbeInsertion
         }
     }
 
-    public ProbeInsertion(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    public ProbeInsertion(float ap, float ml, float dv, float phi, float theta, float spin)
     {
-        SetCoordinates(ap, ml, dv, depth, phi, theta, spin);
+        SetCoordinates(ap, ml, dv, phi, theta, spin);
     }
 
-    public ProbeInsertion(Vector3 coords, float depth, Vector3 angles)
+    public ProbeInsertion(Vector3 coords, Vector3 angles)
     {
-        SetCoordinates(coords.x, coords.y, coords.z, depth, angles.x, angles.y, angles.z);
+        SetCoordinates(coords.x, coords.y, coords.z, angles.x, angles.y, angles.z);
     }
 
     public ProbeInsertion(string stringRepresentation, bool JSON)
@@ -49,23 +48,21 @@ public class ProbeInsertion
             SetCoordinatesString(stringRepresentation);
     }
 
-    public void SetCoordinates(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    public void SetCoordinates(float ap, float ml, float dv, float phi, float theta, float spin)
     {
         this.ap = ap;
         this.ml = ml;
         this.dv = dv;
-        this.depth = depth;
         this.phi = phi;
         this.theta = theta;
         this.spin = spin;
     }
-    public void SetCoordinates(float ap, float ml, float dv, float depth, float phi, float theta, float spin, CoordinateTransform coordTransform)
+    public void SetCoordinates(float ap, float ml, float dv, float phi, float theta, float spin, CoordinateTransform coordTransform)
     {
         Vector3 ccf_apmldv = coordTransform.ToCCF(new Vector3(ap, ml, dv));
         this.ap = ccf_apmldv.x;
         this.ml = ccf_apmldv.y;
         this.dv = ccf_apmldv.z;
-        this.depth = depth;
         this.phi = phi;
         this.theta = theta;
         this.spin = spin;
@@ -76,7 +73,6 @@ public class ProbeInsertion
         ap = otherInsertion.ap;
         ml = otherInsertion.ml;
         dv = otherInsertion.dv;
-        depth = otherInsertion.depth;
         phi = otherInsertion.phi;
         theta = otherInsertion.theta;
         spin = otherInsertion.spin;
@@ -87,7 +83,6 @@ public class ProbeInsertion
         this.ap = ccf_apmldv.x;
         this.ml = ccf_apmldv.y;
         this.dv = ccf_apmldv.z;
-        depth = otherInsertion.depth;
         phi = otherInsertion.phi;
         theta = otherInsertion.theta;
         spin = otherInsertion.spin;
@@ -99,13 +94,12 @@ public class ProbeInsertion
         int apIdx = input.IndexOf("ccfAP:");
         int mlIdx = input.IndexOf("ccfML:");
         int dvIdx = input.IndexOf("ccfDV:");
-        int depthIdx = input.IndexOf("ccfDP:");
         int phiIdx = input.IndexOf("ccfPh:");
         int thetaIdx = input.IndexOf("ccfTh:");
         int spinIdx = input.IndexOf("ccfSp:");
         ap = float.Parse(input.Substring(apIdx + 7, mlIdx));
         ml = float.Parse(input.Substring(mlIdx + 7, dvIdx));
-        depth = float.Parse(input.Substring(dvIdx + 7, phiIdx));
+        dv = float.Parse(input.Substring(dvIdx + 7, phiIdx));
         phi = float.Parse(input.Substring(phiIdx + 7, thetaIdx));
         theta = float.Parse(input.Substring(thetaIdx + 7, spinIdx));
         spin = float.Parse(input.Substring(spinIdx + 7, input.Length));
@@ -119,7 +113,7 @@ public class ProbeInsertion
 
     public string GetCoordinatesString()
     {
-        return string.Format("ccfAP:{1} ccfML:{2} ccfDV:{3} ccfDP:{4} ccfPh:{5} ccfTh:{6} ccfSp:{7}", ap, ml, dv, depth, phi, theta, spin);
+        return string.Format("ccfAP:{1} ccfML:{2} ccfDV:{3} ccfPh:{4} ccfTh:{5} ccfSp:{6}", ap, ml, dv, phi, theta, spin);
     }
 
     public string GetCoordinatesJSON()
@@ -127,54 +121,54 @@ public class ProbeInsertion
         return JsonUtility.ToJson(this);
     }
 
-    public (float, float, float, float, float, float, float) GetCoordinatesFloat()
+    public (float, float, float, float, float, float) GetCoordinatesFloat()
     {
-        return (ap, ml, dv, depth, phi, theta, spin);
+        return (ap, ml, dv, phi, theta, spin);
     }
-    public (float, float, float, float, float, float, float) GetCoordinatesFloat(CoordinateTransform coordTransform)
+    public (float, float, float, float, float, float) GetCoordinatesFloat(CoordinateTransform coordTransform)
     {
         Vector3 transCoord = coordTransform.FromCCF(apmldv);
-        return (transCoord.x, transCoord.y, transCoord.z, depth, phi, theta, spin);
+        return (transCoord.x, transCoord.y, transCoord.z, phi, theta, spin);
     }
 
-    public (Vector3, float, Vector3) GetCoordinatesVector3()
+    public (Vector3, Vector3) GetCoordinatesVector3()
     {
-        return (apmldv, depth, new Vector3(phi, theta, spin));
+        return (apmldv, new Vector3(phi, theta, spin));
     }
-    public (Vector3, float, Vector3) GetCoordinatesVector3(CoordinateTransform coordTransform)
+    public (Vector3, Vector3) GetCoordinatesVector3(CoordinateTransform coordTransform)
     {
-        return (coordTransform.FromCCF(apmldv), depth, new Vector3(phi, theta, spin));
+        return (coordTransform.FromCCF(apmldv), new Vector3(phi, theta, spin));
     }
 
     /// <summary>
     /// Set coordinates in IBL conventions, expects um units and IBL rotated angles
     /// </summary>
-    public void SetCoordinates_IBL(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    public void SetCoordinates_IBL(float ap, float ml, float dv, float phi, float theta, float spin)
     {
         Vector2 worldPhiTheta = IBL2World(new Vector2(phi, theta));
-        SetCoordinates(ap / 1000f, ml / 1000f, dv / 1000f, depth / 1000f, worldPhiTheta.x, worldPhiTheta.y, spin);
+        SetCoordinates(ap / 1000f, ml / 1000f, dv / 1000f, worldPhiTheta.x, worldPhiTheta.y, spin);
     }
-    public void SetCoordinates_IBL(float ap, float ml, float dv, float depth, float phi, float theta, float spin, CoordinateTransform coordTransform)
+    public void SetCoordinates_IBL(float ap, float ml, float dv, float phi, float theta, float spin, CoordinateTransform coordTransform)
     {
         Vector3 ccf_apmldv = coordTransform.ToCCF(new Vector3(ap / 1000f, ml / 1000f, dv / 1000f));
         Vector2 worldPhiTheta = IBL2World(new Vector2(phi, theta));
-        SetCoordinates(ccf_apmldv.x, ccf_apmldv.y, ccf_apmldv.z, depth / 1000f, worldPhiTheta.x, worldPhiTheta.y, spin);
+        SetCoordinates(ccf_apmldv.x, ccf_apmldv.y, ccf_apmldv.z, worldPhiTheta.x, worldPhiTheta.y, spin);
     }
 
     /// <summary>
     /// Return coordinates in IBL conventions, i.e. um units and rotated angles
     /// </summary>
     /// <returns></returns>
-    public (float, float, float, float, float, float, float) GetCoordinatesFloat_IBL()
+    public (float, float, float, float, float, float) GetCoordinatesFloat_IBL()
     {
         Vector2 iblPhiTheta = World2IBL(new Vector2(phi, theta));
-        return (ap * 1000f, ml * 1000f, dv * 1000f, depth * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
+        return (ap * 1000f, ml * 1000f, dv * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
     }
-    public (float, float, float, float, float, float, float) GetCoordinatesFloat_IBL(CoordinateTransform coordTransform)
+    public (float, float, float, float, float, float) GetCoordinatesFloat_IBL(CoordinateTransform coordTransform)
     {
         Vector3 transCoord = coordTransform.FromCCF(apmldv);
         Vector2 iblPhiTheta = World2IBL(new Vector2(phi, theta));
-        return (transCoord.x * 1000f, transCoord.y * 1000f, transCoord.z * 1000f, depth * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
+        return (transCoord.x * 1000f, transCoord.y * 1000f, transCoord.z * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
     }
 
     /// <summary>

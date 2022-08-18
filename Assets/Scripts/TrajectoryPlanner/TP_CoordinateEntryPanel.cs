@@ -45,11 +45,11 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
 
     public void SetTextValues(ProbeManager probeController)
     {
-        (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = probeController.GetCoordinates();
+        (float ap, float ml, float dv, float phi, float theta, float spin) = probeController.GetCoordinates();
         apField.text = ap.ToString();
         mlField.text = ml.ToString();
         dvField.text = dv.ToString();
-        depthField.text = depth.ToString();
+        //depthField.text = depth.ToString();
 
         // convert phi/theta to 
         phiField.text = phi.ToString();
@@ -64,12 +64,12 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
             float ap = (apField.text.Length > 0) ? float.Parse(apField.text) : 0;
             float ml = (mlField.text.Length > 0) ? float.Parse(mlField.text) : 0;
             float dv = (dvField.text.Length > 0) ? float.Parse(dvField.text) : 0;
-            float depth = (depthField.text.Length > 0) ? float.Parse(depthField.text) : 0;
+            //float depth = (depthField.text.Length > 0) ? float.Parse(depthField.text) : 0;
             float phi = (phiField.text.Length > 0) ? float.Parse(phiField.text) : 0;
             float theta = (thetaField.text.Length > 0) ? float.Parse(thetaField.text) : 0;
             float spin = (spinField.text.Length > 0) ? float.Parse(spinField.text) : 0;
 
-            tpmanager.ManualCoordinateEntry(ap, ml, dv, depth, phi, theta, spin);
+            tpmanager.ManualCoordinateEntry(ap, ml, dv, phi, theta, spin);
         }
         catch
         {
