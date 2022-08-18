@@ -16,7 +16,7 @@ public class TP_ProbePanel : MonoBehaviour
     TP_InPlaneSlice inPlaneSlice;
 
     private ProbeManager _probeController;
-    private TP_ProbeUIManager _probeUIManager;
+    private ProbeUIManager _probeUIManager;
 
     private List<GameObject> textGOs;
 
@@ -53,7 +53,7 @@ public class TP_ProbePanel : MonoBehaviour
         return probePanelPxHeight;
     }
 
-    public void RegisterProbeUIManager(TP_ProbeUIManager probeUImanager)
+    public void RegisterProbeUIManager(ProbeUIManager probeUImanager)
     {
         _probeUIManager = probeUImanager;
         gameObject.name = _probeController.name + "_panel_" + probeUImanager.GetOrder();

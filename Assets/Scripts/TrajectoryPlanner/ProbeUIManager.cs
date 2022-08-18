@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TrajectoryPlanner;
 
-public class TP_ProbeUIManager : MonoBehaviour
+public class ProbeUIManager : MonoBehaviour
 {
     [SerializeField] private GameObject probePanelPrefab;
     private GameObject probePanelGO;
@@ -29,7 +29,7 @@ public class TP_ProbeUIManager : MonoBehaviour
     private float probePanelPxHeight;
     private float pxStep;
 
-    private Utils utils;
+    private const int MINIMUM_AREA_PIXEL_HEIGHT = 7;
 
     private void Awake()
     {
@@ -47,7 +47,6 @@ public class TP_ProbeUIManager : MonoBehaviour
 
         GameObject main = GameObject.Find("main");
         modelControl = main.GetComponent<CCFModelControl>();
-        utils = main.GetComponent<Utils>();
 
         // Get the annotation dataset
         tpmanager = main.GetComponent<TrajectoryPlannerManager>();
@@ -195,10 +194,19 @@ public class TP_ProbeUIManager : MonoBehaviour
         probePanel.UpdateText(centerHeights, names, tpmanager.ProbePanelTextFS(tpmanager.UseAcronyms()));
     }
 
+    /// <summary>
+    /// Compute the annotation acronyms/names along a vector from tipPosition to topPosition, saving the pixel positions and center points of each area
+    /// 
+    /// This function ignores areas where the area height is less than X pixels (defined above)
+    /// </summary>
+    /// <param name="tipPosition"></param>
+    /// <param name="topPosition"></param>
+    /// <returns></returns>
     private (List<int>, List<int>, List<string>)  InterpolateAnnotationIDs(Vector3 tipPosition, Vector3 topPosition)
     {
         //Color[] interpolated = new Color[(int)probePanelPxHeight];
         List<int> heights = new List<int>();
+        List<int> pixelHeight = new List<int>();
         List<string> areaNames = new List<string>();
 
         int prevID = int.MinValue;
@@ -225,16 +233,38 @@ public class TP_ProbeUIManager : MonoBehaviour
             }
         }
 
+        // Also compute the area heights
         // Now get the centerHeights -- this will be the position we'll show the area text at, so it should be bounded between 0 and the probePanelPxHeight
         // and in theory it should be halfway between each height and the next height, with the exception of the first and last areas
         List<int> centerHeights = new List<int>();
         if (heights.Count > 0)
         {
-            for (int i = 0; i < (heights.Count - 1); i++)
+            if (heights.Count > 1)
             {
-                centerHeights.Add(Mathf.RoundToInt((heights[i] + heights[i + 1]) / 2f));
+                for (int i = 0; i < (heights.Count - 1); i++)
+                {
+                    centerHeights.Add(Mathf.RoundToInt((heights[i] + heights[i + 1]) / 2f));
+                    pixelHeight.Add(heights[i + 1] - heights[i]);
+                }
+                pixelHeight.Add(heights[heights.Count - 1] - heights[heights.Count - 2]);
             }
             centerHeights.Add(Mathf.RoundToInt((heights[heights.Count - 1] + probePanelPxHeight) / 2f));
+        }
+
+        // If there is only one value in the heights array, pixelHeight will be empty
+        if (pixelHeight.Count > 0)
+        {
+            // Remove any areas where heights < MINIMUM_AREA_PIXEL_HEIGHT
+            for (int i = heights.Count - 1; i >= 0; i--)
+            {
+                if (pixelHeight[i] < MINIMUM_AREA_PIXEL_HEIGHT)
+                {
+                    Debug.Log(string.Format("Removing {0} with pixel height {1}", areaNames[i], pixelHeight[i]));
+                    heights.RemoveAt(i);
+                    centerHeights.RemoveAt(i);
+                    areaNames.RemoveAt(i);
+                }
+            }
         }
 
         return (heights, centerHeights, areaNames);
