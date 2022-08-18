@@ -1440,6 +1440,7 @@ public class ProbeManager : MonoBehaviour
             _sensapexLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
             {
                 if (_bregmaOffset.Equals(Vector4.negativeInfinity)) _bregmaOffset = vector4;
+                Debug.Log("Bregma offset: " + _bregmaOffset);
                 EchoPositionFromSensapexLink(vector4);
             });
         }
