@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using SensapexLink;
 using TMPro;
-using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,6 +24,7 @@ namespace TP_Settings
         private void FixedUpdate()
         {
             connectButton.interactable = _communicationManager.IsConnected() && manipulatorIdDropdown.value > 0;
+            connectButtonText.text = _probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
         }
 
         #endregion
@@ -65,8 +65,6 @@ namespace TP_Settings
 
             probeIdText.text = probeManager.GetID().ToString();
             probeIdText.color = probeManager.GetColor();
-
-            connectButtonText.text = probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
         }
 
         /// <summary>
