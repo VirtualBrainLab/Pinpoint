@@ -45,6 +45,8 @@ public class ProbeManager : MonoBehaviour
     private readonly NeedlesTransform _neTransform = new NeedlesTransform();
     private int _manipulatorId;
     private Vector3 _probeAngles;
+    private float _phiCos = 1;
+    private float _phiSin;
     private Vector4 _bregmaOffset = Vector4.negativeInfinity;
     private float _brainSurfaceOffset;
 
@@ -1472,6 +1474,8 @@ public class ProbeManager : MonoBehaviour
     public void SetProbeAngles(Vector3 angles)
     {
         _probeAngles = angles;
+        _phiCos = Mathf.Cos(_probeAngles.x * Mathf.Deg2Rad);
+        _phiSin = Mathf.Sin(_probeAngles.x * Mathf.Deg2Rad);
     }
 
     /// <summary>
@@ -1532,14 +1536,15 @@ public class ProbeManager : MonoBehaviour
         var offsetAdjustedPosition = pos - _bregmaOffset;
         
         // Phi adjustment
-        var phiAdjustedX = offsetAdjustedPosition.x * Mathf.Cos(_probeAngles.x * Mathf.Deg2Rad) -
-                           offsetAdjustedPosition.y * Mathf.Sin(_probeAngles.x * Mathf.Deg2Rad);
-        var phiAdjustedY = offsetAdjustedPosition.x * Mathf.Sin(_probeAngles.x * Mathf.Deg2Rad) +
-                           offsetAdjustedPosition.y * Mathf.Cos(_probeAngles.x * Mathf.Deg2Rad);
+        var phiAdjustedX = offsetAdjustedPosition.x * _phiCos -
+                           offsetAdjustedPosition.y * _phiSin;
+        var phiAdjustedY = offsetAdjustedPosition.x * _phiSin +
+                           offsetAdjustedPosition.y * _phiCos;
         offsetAdjustedPosition.x = phiAdjustedX;
         offsetAdjustedPosition.y = phiAdjustedY;
         
 
+        // Drive normally when not moving depth, otherwise use surface coordinates
         if (Math.Abs(offsetAdjustedPosition.w) < 1)
         {
             ManualCoordinateEntryTransformed(offsetAdjustedPosition.x, offsetAdjustedPosition.y,
@@ -1548,6 +1553,7 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
+            // Convert manipulator reported coordinates to world coordinates for conversion
             var tipPos = Surface2CCF(Utils.apmldv2world(offsetAdjustedPosition),
                 offsetAdjustedPosition.w - _brainSurfaceOffset,
                 _probeAngles).Item1;
@@ -1563,6 +1569,7 @@ public class ProbeManager : MonoBehaviour
         }
 
 
+        // Continue echoing position
         if (_sensapexLinkMovement)
             _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);
     }
