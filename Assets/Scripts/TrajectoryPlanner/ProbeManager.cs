@@ -622,6 +622,11 @@ public class ProbeManager : MonoBehaviour
         tpmanager.UpdateInPlaneView();
     }
 
+    public void ManualCoordinateEntryTransformed(Vector3 apmldv, Vector3 angles)
+    {
+        ManualCoordinateEntryTransformed(apmldv.x, apmldv.y, apmldv.z, angles.x, angles.y, angles.z);
+    }
+
     public void ManualCoordinateEntrySurfaceTransformed(float ap, float ml, float dv, float phi, float theta, float spin)
     {
         Debug.LogError("Not implemented");
@@ -1435,6 +1440,7 @@ public class ProbeManager : MonoBehaviour
             _sensapexLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
             {
                 if (_bregmaOffset.Equals(Vector4.negativeInfinity)) _bregmaOffset = vector4;
+                Debug.Log("Bregma offset: " + _bregmaOffset);
                 EchoPositionFromSensapexLink(vector4);
             });
         }
@@ -1532,6 +1538,12 @@ public class ProbeManager : MonoBehaviour
     /// <param name="pos">Position of manipulator in needles transform</param>
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
+        /*
+         * +x = L
+         * +Y = A
+         * +Z = V
+         */
+        
         // Convert position to CCF
         var offsetAdjustedPosition = pos - _bregmaOffset;
         
@@ -1543,19 +1555,19 @@ public class ProbeManager : MonoBehaviour
         offsetAdjustedPosition.x = phiAdjustedX;
         offsetAdjustedPosition.y = phiAdjustedY;
         
+        var positionAxisAdjusted = new Vector4(offsetAdjustedPosition.y, -offsetAdjustedPosition.x,
+            -offsetAdjustedPosition.z, offsetAdjustedPosition.w);
 
         // Drive normally when not moving depth, otherwise use surface coordinates
         if (Math.Abs(offsetAdjustedPosition.w) < 1)
         {
-            ManualCoordinateEntryTransformed(offsetAdjustedPosition.x, offsetAdjustedPosition.y,
-                offsetAdjustedPosition.z, _probeAngles.x,
-                _probeAngles.y, _probeAngles.z);
+            ManualCoordinateEntryTransformed(positionAxisAdjusted, _probeAngles);
         }
         else
         {
             // Convert manipulator reported coordinates to world coordinates for conversion
-            var tipPos = Surface2CCF(Utils.apmldv2world(offsetAdjustedPosition),
-                offsetAdjustedPosition.w - _brainSurfaceOffset,
+            var tipPos = Surface2CCF(Utils.apmldv2world(positionAxisAdjusted),
+                -(offsetAdjustedPosition.w - _brainSurfaceOffset),
                 _probeAngles).Item1;
             insertion.SetCoordinates_IBL(tipPos.x, tipPos.y, tipPos.z,
                 _probeAngles.x, _probeAngles.y, _probeAngles.z, tpmanager.GetActiveCoordinateTransform());
