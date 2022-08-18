@@ -85,14 +85,14 @@ namespace SensapexLink
             _socket.Once("connect_error", () =>
             {
                 var connectionErrorMessage = "Error connecting to WebSocket server at " + ip + ":" + port;
-                Debug.LogError(connectionErrorMessage);
+                Debug.LogWarning(connectionErrorMessage);
                 _isConnected = false;
                 onError?.Invoke(connectionErrorMessage);
             });
             _socket.Once("connect_timeout", () =>
             {
                 var connectionTimeoutMessage = "Connection to WebSocket server at " + ip + ":" + port + " timed out";
-                Debug.LogError(connectionTimeoutMessage);
+                Debug.LogWarning(connectionTimeoutMessage);
                 _isConnected = false;
                 onError?.Invoke(connectionTimeoutMessage);
             });
