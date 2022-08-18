@@ -16742,191 +16742,50 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 0
   m_Loop: 0
---- !u!1 &2108153951
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2108153953}
-  - component: {fileID: 2108153952}
-  - component: {fileID: 2108153954}
-  - component: {fileID: 2108153955}
-  - component: {fileID: 2108153956}
-  - component: {fileID: 2108153957}
-  - component: {fileID: 2108153958}
-  m_Layer: 0
-  m_Name: main
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2108153952
+--- !u!114 &2108153952 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 8016510558008620341, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+  m_PrefabInstance: {fileID: 8016510559444948309}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108153951}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d93ba8ff78b44b64b806ea677c9151d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ontologyContentPanel: {fileID: 0}
-  ontologyTogglePrefab: {fileID: 0}
-  heightPerToggle: 20
-  loadBerylDepth: 0
-  overrideNetwork: 1
-  brainRegionMaterials:
-  - {fileID: 2100000, guid: b8a04b95bf5e0fe4dbdfd3978413393d, type: 2}
-  - {fileID: 2100000, guid: 4fdce846a282bef42af0221c4d4da68d, type: 2}
-  - {fileID: 2100000, guid: 77ae49eeea4656242bf40d119e6f7f0f, type: 2}
-  - {fileID: 2100000, guid: 2a8f9060c91986e4083dd67bf487177b, type: 2}
-  brainRegionMaterialNames:
-  - default
-  - lit
-  - toon
-  - toon-outline
-  modelScale: 0.001
---- !u!4 &2108153953
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108153951}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 39.71585, y: -14.86908, z: 20.29161}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2108153954
+--- !u!114 &2108153954 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+  m_PrefabInstance: {fileID: 8016510559444948309}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108153951}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e3da6b77c935b441931d7f2baa3b435, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelControl: {fileID: 2108153952}
-  vdmanager: {fileID: 2108153957}
-  localPrefs: {fileID: 2108153956}
-  brainModel: {fileID: 1877060505}
-  util: {fileID: 2108153955}
-  acontrol: {fileID: 69148256}
-  probePrefabs:
-  - {fileID: 4368194536080577051, guid: 61b9881781d2c0844a324a8271642e17, type: 3}
-  - {fileID: 4456597164778458636, guid: 5a989b1f005f06940b1c2a2cdfbfd705, type: 3}
-  - {fileID: 8943063119080654577, guid: c6cbe13bba479184aa05bff7d11023f5, type: 3}
-  - {fileID: 8943063119080654577, guid: ff3683f32bd116e439d7151532626d56, type: 3}
-  probePrefabIDs: 01000000020000000400000008000000
-  recRegionSlider: {fileID: 1509006805}
-  ccfCollider: {fileID: 1859818792}
-  inPlaneSlice: {fileID: 672548778}
-  probeQuickSettings: {fileID: 1896838285}
-  sliceRenderer: {fileID: 379075881}
-  searchControl: {fileID: 1369876173}
-  searchInput: {fileID: 1047957689}
-  CollisionPanelGO: {fileID: 2085964517}
-  collisionMaterial: {fileID: 2100000, guid: 1ea6edd2a7b9f3f4195eb54f7d735bb7, type: 2}
-  ProbePanelParentGO: {fileID: 1669998831}
-  IBLToolsGO: {fileID: 1687814895}
-  IBLTrajectoryGO: {fileID: 1210448977}
-  brainCamController: {fileID: 1445581475}
-  qDialogue: {fileID: 1550119012}
-  surfaceDebugGO: {fileID: 1537967822}
-  whiteUIText:
-  - {fileID: 0}
-  - {fileID: 871760447}
-  - {fileID: 267608534}
-  annotationAcronymDropdown: {fileID: 0}
-  probePanelAcronymTextFontSize: 24
-  probePanelAreaTextFontSize: 14
-  manualCoordinatePanel: {fileID: 960137803}
---- !u!114 &2108153955
+--- !u!114 &2108153955 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 8016510558008620342, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+  m_PrefabInstance: {fileID: 8016510559444948309}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108153951}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13968967245d3674eb77f631223a57f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  flatironInfoAsset:
-    m_AssetGUID: cc9c563dcae3923469f616c5ff125232
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
---- !u!114 &2108153956
+--- !u!114 &2108153956 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+  m_PrefabInstance: {fileID: 8016510559444948309}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108153951}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e3be5cd9dbb4d7c4db370319d9dc170a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collisionsToggle: {fileID: 1377288554}
-  recordingRegionToggle: {fileID: 1307773803}
-  acronymToggle: {fileID: 1234619114}
-  depthToggle: {fileID: 1717705639}
-  probeAxisToggle: {fileID: 2091902236}
-  slice3dDropdown: {fileID: 1307370777}
-  inplaneToggle: {fileID: 602476454}
-  invivoDropdown: {fileID: 611159662}
-  iblAngleToggle: {fileID: 499537228}
-  surfaceToggle: {fileID: 1766544453}
-  sensapexLinkServerIpInput: {fileID: 713245786}
-  sensapexLinkServerPortInput: {fileID: 1847624607}
-  axisControlToggle: {fileID: 1397446698413376552}
---- !u!114 &2108153957
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108153951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e87526a9529a5046892704c80bce5ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  coverageIndexes:
-    m_AssetGUID: 2124a773640cd7a4ab491730a80306a1
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
---- !u!114 &2108153958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2108153951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de7e19699c62fef4d8e2f16cfb5e8b22, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  addressablesStorageRemotePath: http://data.virtualbrainlab.org/AddressablesStorage
-  buildVersion: 0.1.1
-  delayCatalogLoad: 0
 --- !u!1 &2118380569
 GameObject:
   m_ObjectHideFlags: 0
@@ -18902,6 +18761,191 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1ea42459f6b81ba478262bdf5eed61d0, type: 3}
+--- !u!1001 &8016510559444948309
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 8016510558008620298, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_Name
+      value: main
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: depthToggle
+      value: 
+      objectReference: {fileID: 1717705639}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: acronymToggle
+      value: 
+      objectReference: {fileID: 1234619114}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: inplaneToggle
+      value: 
+      objectReference: {fileID: 602476454}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: surfaceToggle
+      value: 
+      objectReference: {fileID: 1766544453}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: iblAngleToggle
+      value: 
+      objectReference: {fileID: 499537228}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: invivoDropdown
+      value: 
+      objectReference: {fileID: 611159662}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: probeAxisToggle
+      value: 
+      objectReference: {fileID: 2091902236}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: slice3dDropdown
+      value: 
+      objectReference: {fileID: 1307370777}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: collisionsToggle
+      value: 
+      objectReference: {fileID: 1377288554}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: axisControlToggle
+      value: 
+      objectReference: {fileID: 1397446698413376552}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: recordingRegionToggle
+      value: 
+      objectReference: {fileID: 1307773803}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: sensapexLinkServerIpInput
+      value: 
+      objectReference: {fileID: 713245786}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: sensapexLinkServerPortInput
+      value: 
+      objectReference: {fileID: 1847624607}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 39.71585
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -14.86908
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 20.29161
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: acontrol
+      value: 
+      objectReference: {fileID: 69148256}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: qDialogue
+      value: 
+      objectReference: {fileID: 1550119012}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: IBLToolsGO
+      value: 
+      objectReference: {fileID: 1687814895}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: brainModel
+      value: 
+      objectReference: {fileID: 1877060505}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: ccfCollider
+      value: 
+      objectReference: {fileID: 1859818792}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: searchInput
+      value: 
+      objectReference: {fileID: 1047957689}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: inPlaneSlice
+      value: 
+      objectReference: {fileID: 672548778}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: searchControl
+      value: 
+      objectReference: {fileID: 1369876173}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: sliceRenderer
+      value: 
+      objectReference: {fileID: 379075881}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: surfaceDebugGO
+      value: 
+      objectReference: {fileID: 1537967822}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: IBLTrajectoryGO
+      value: 
+      objectReference: {fileID: 1210448977}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: recRegionSlider
+      value: 
+      objectReference: {fileID: 1509006805}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: CollisionPanelGO
+      value: 
+      objectReference: {fileID: 2085964517}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: ProbePanelParentGO
+      value: 
+      objectReference: {fileID: 1669998831}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: brainCamController
+      value: 
+      objectReference: {fileID: 1445581475}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: probeQuickSettings
+      value: 
+      objectReference: {fileID: 1896838285}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: manualCoordinatePanel
+      value: 
+      objectReference: {fileID: 960137803}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: whiteUIText.Array.data[1]
+      value: 
+      objectReference: {fileID: 871760447}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: whiteUIText.Array.data[2]
+      value: 
+      objectReference: {fileID: 267608534}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
 --- !u!1001 &8274225220968729010
 PrefabInstance:
   m_ObjectHideFlags: 0
