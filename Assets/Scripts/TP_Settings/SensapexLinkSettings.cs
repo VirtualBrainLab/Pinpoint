@@ -155,7 +155,14 @@ namespace TP_Settings
             }
             else
             {
-                _questionDialogue.SetYesCallback(() => _communicationManager.DisconnectFromServer(UpdateConnectionUI));
+                _questionDialogue.SetYesCallback(() =>
+                {
+                    foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes()
+                                 .Where(probeManager => probeManager.IsConnectedToManipulator()))
+                        probeManager.ResetManipulatorProperties();
+
+                    _communicationManager.DisconnectFromServer(UpdateConnectionUI);
+                });
 
                 _questionDialogue.NewQuestion(
                     "Are you sure you want to disconnect?\nAll incomplete movements will be canceled.");

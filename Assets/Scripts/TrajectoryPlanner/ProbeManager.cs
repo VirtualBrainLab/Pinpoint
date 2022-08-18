@@ -622,6 +622,11 @@ public class ProbeManager : MonoBehaviour
         tpmanager.UpdateInPlaneView();
     }
 
+    /// <summary>
+    ///     ManualCoordinateEntryTransformed but with vector inputs
+    /// </summary>
+    /// <param name="apmldv">Vector3 representation of AP, ML, DV positions</param>
+    /// <param name="angles">Vector3 represetnation of probe angles</param>
     public void ManualCoordinateEntryTransformed(Vector3 apmldv, Vector3 angles)
     {
         ManualCoordinateEntryTransformed(apmldv.x, apmldv.y, apmldv.z, angles.x, angles.y, angles.z);
@@ -1428,8 +1433,7 @@ public class ProbeManager : MonoBehaviour
             _sensapexLinkCommunicationManager.UnregisterManipulator(_manipulatorId, () =>
             {
                 Debug.Log("Manipulator Unregistered");
-                _bregmaOffset = Vector4.negativeInfinity;
-                _manipulatorId = 0;
+                ResetManipulatorProperties();
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
 
@@ -1453,6 +1457,16 @@ public class ProbeManager : MonoBehaviour
     public int GetManipulatorId()
     {
         return _manipulatorId;
+    }
+
+    /// <summary>
+    ///     Set manipulator properties such as ID and positional offsets back to defaults
+    /// </summary>
+    public void ResetManipulatorProperties()
+    {
+        _manipulatorId = 0;
+        _bregmaOffset = Vector4.negativeInfinity;
+        _brainSurfaceOffset = 0;
     }
 
     /// <summary>

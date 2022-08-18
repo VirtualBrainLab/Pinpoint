@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using SensapexLink;
 using TMPro;
-using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,9 +16,15 @@ namespace TP_Settings
         /// </summary>
         private void Awake()
         {
-            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+            _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
             _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
                 .GetComponent<TP_QuestionDialogue>();
+        }
+
+        private void FixedUpdate()
+        {
+            connectButton.interactable = _communicationManager.IsConnected() && manipulatorIdDropdown.value > 0;
+            connectButtonText.text = _probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
         }
 
         #endregion
@@ -41,7 +47,7 @@ namespace TP_Settings
 
         #endregion
 
-        private TrajectoryPlannerManager _trajectoryPlannerManager;
+        private CommunicationManager _communicationManager;
         private ProbeManager _probeManager;
         private TP_QuestionDialogue _questionDialogue;
 
@@ -59,9 +65,6 @@ namespace TP_Settings
 
             probeIdText.text = probeManager.GetID().ToString();
             probeIdText.color = probeManager.GetColor();
-
-            connectButton.interactable = probeManager.IsConnectedToManipulator();
-            connectButtonText.text = probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
         }
 
         /// <summary>
