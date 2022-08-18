@@ -171,7 +171,7 @@ namespace TrajectoryPlanner
             {
                 Vector3 tipPos = savedProbe.tipPos;
                 Vector3 angles = savedProbe.angles;
-                AddNewProbe(savedProbe.type, tipPos.x, tipPos.y, tipPos.z, savedProbe.depth, angles.x, angles.y, angles.z);
+                AddNewProbe(savedProbe.type, tipPos.x, tipPos.y, tipPos.z, angles.x, angles.y, angles.z);
             }
         }
 
@@ -407,9 +407,9 @@ namespace TrajectoryPlanner
             AddNewProbe(prevProbeType, prevInsertion, _prevManipulatorId, _prevBregmaOffset, _prevBrainSurfaceOffset);
         }
 
-        public void ManualCoordinateEntry(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+        public void ManualCoordinateEntry(float ap, float ml, float dv, float phi, float theta, float spin)
         {
-            activeProbeController.ManualCoordinateEntryTransformed(ap, ml, dv, depth, phi, theta, spin);
+            activeProbeController.ManualCoordinateEntryTransformed(ap, ml, dv, phi, theta, spin);
         }
 
         public void AddIBLProbes()
@@ -424,7 +424,7 @@ namespace TrajectoryPlanner
             yield return new WaitForSeconds(delay);
             AddNewProbe(1);
             yield return new WaitForSeconds(0.05f);
-            activeProbeController.SetProbePositionCCF(new ProbeInsertion(5.4f, 5.7f, 0.332f, 0f, phi, theta, 0));
+            activeProbeController.SetProbePositionCCF(new ProbeInsertion(5.4f, 5.7f, 0.332f, phi, theta, 0));
         }
 
         IEnumerator DelayedMoveAllProbes()
@@ -456,10 +456,10 @@ namespace TrajectoryPlanner
 
             return newProbe.GetComponent<ProbeManager>();
         }
-        public ProbeManager AddNewProbe(int probeType, float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+        public ProbeManager AddNewProbe(int probeType, float ap, float ml, float dv, float phi, float theta, float spin)
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            StartCoroutine(probeController.DelayedManualCoordinateEntryTransformed(0.1f, ap, ml, dv, depth, phi, theta, spin));
+            StartCoroutine(probeController.DelayedManualCoordinateEntryTransformed(0.1f, ap, ml, dv, phi, theta, spin));
 
             return probeController;
         }
@@ -471,7 +471,7 @@ namespace TrajectoryPlanner
             if (manipulatorId == 0)
             {
                 StartCoroutine(probeController.DelayedManualCoordinateEntryTransformed(0.1f, localInsertion.ap,
-                    localInsertion.ml, localInsertion.dv, localInsertion.depth, localInsertion.phi,
+                    localInsertion.ml, localInsertion.dv, localInsertion.phi,
                     localInsertion.theta, localInsertion.spin));
             }
             else
@@ -903,13 +903,13 @@ namespace TrajectoryPlanner
 
         private void OnApplicationQuit()
         {
-            (float ap, float ml, float dv, float depth, float phi, float theta, float spin, int type)[] probeCoordinates = new (float ap, float ml, float dv, float depth, float phi, float theta, float spin, int type)[allProbes.Count];
+            (float ap, float ml, float dv, float phi, float theta, float spin, int type)[] probeCoordinates = new (float ap, float ml, float dv, float phi, float theta, float spin, int type)[allProbes.Count];
 
             for (int i =0; i< allProbes.Count; i++)
             {
                 ProbeManager probe = allProbes[i];
-                (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = probe.GetCoordinates();
-                probeCoordinates[i] = (ap, ml, dv, depth, phi, theta, spin, probe.GetProbeType());
+                (float ap, float ml, float dv, float phi, float theta, float spin) = probe.GetCoordinates();
+                probeCoordinates[i] = (ap, ml, dv, phi, theta, spin, probe.GetProbeType());
             }
             localPrefs.SaveCurrentProbeData(probeCoordinates);
         }

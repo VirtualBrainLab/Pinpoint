@@ -264,7 +264,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     private void ResetPositionTracking()
     {
-        insertion = new ProbeInsertion(defaultStart, defaultDepth, defaultAngles);
+        insertion = new ProbeInsertion(defaultStart, defaultAngles);
     }
 
     private void CheckForSpeedKeys()
@@ -608,10 +608,10 @@ public class ProbeManager : MonoBehaviour
     /// 
     /// In other words: you have to input coordinates that are *matched* to the current output coordinates. Note that depth is currently ignored.
     /// </summary>
-    public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin)
     {
         // Unconvert back to CCF space
-        SetProbePositionTransformed(ap, ml, dv, depth, phi, theta, spin);
+        SetProbePositionTransformed(ap, ml, dv, phi, theta, spin);
 
         // Tell the tpmanager we moved and update the UI elements
         tpmanager.SetMovedThisFrame();
@@ -620,15 +620,15 @@ public class ProbeManager : MonoBehaviour
         tpmanager.UpdateInPlaneView();
     }
 
-    public void ManualCoordinateEntrySurfaceTransformed(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    public void ManualCoordinateEntrySurfaceTransformed(float ap, float ml, float dv, float phi, float theta, float spin)
     {
         Debug.LogError("Not implemented");
     }
 
-    public IEnumerator DelayedManualCoordinateEntryTransformed(float delay, float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    public IEnumerator DelayedManualCoordinateEntryTransformed(float delay, float ap, float ml, float dv, float phi, float theta, float spin)
     {
         yield return new WaitForSeconds(delay);
-        ManualCoordinateEntryTransformed(ap, ml, dv, depth, phi, theta, spin);
+        ManualCoordinateEntryTransformed(ap, ml, dv, phi, theta, spin);
     }
 
     /// <summary>
@@ -667,21 +667,19 @@ public class ProbeManager : MonoBehaviour
 
     /// <summary>
     /// Set the probe position to match a tip position and angles in the current TRANSFORMED space, this will reverse both the bregma and CoordinateTransform settings
-    /// 
-    /// Note that the depth is ignored
     /// </summary>
-    public void SetProbePositionTransformed(float ap, float ml, float dv, float depth, float phi, float theta, float spin)
+    public void SetProbePositionTransformed(float ap, float ml, float dv, float phi, float theta, float spin)
     {
         if (tpmanager.UseIBLAngles())
             if (tpmanager.GetInVivoTransformState())
-                insertion.SetCoordinates_IBL(ap, ml, dv, depth, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
+                insertion.SetCoordinates_IBL(ap, ml, dv, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
             else
-                insertion.SetCoordinates_IBL(ap, ml, dv, depth, phi, theta, spin);
+                insertion.SetCoordinates_IBL(ap, ml, dv, phi, theta, spin);
         else
             if (tpmanager.GetInVivoTransformState())
-                insertion.SetCoordinates(ap, ml, dv, depth, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
+                insertion.SetCoordinates(ap, ml, dv, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
             else
-                insertion.SetCoordinates(ap, ml, dv, depth, phi, theta, spin);
+                insertion.SetCoordinates(ap, ml, dv, phi, theta, spin);
 
         SetProbePosition();
     }
@@ -690,8 +688,8 @@ public class ProbeManager : MonoBehaviour
     /// <summary>
     /// Get the coordinates of the current probe in mm or um, depending on the current IBL state
     /// </summary>
-    /// <returns>List of ap in um, ml in um, depth in um, phi, theta, spin</returns>
-    public (float, float, float, float, float, float, float) GetCoordinates()
+    /// <returns>List of ap in um, ml in um, phi, theta, spin</returns>
+    public (float, float, float, float, float, float) GetCoordinates()
     {
         if (tpmanager.GetInVivoTransformState())
             return (tpmanager.UseIBLAngles()) ? insertion.GetCoordinatesFloat_IBL(tpmanager.GetActiveCoordinateTransform()) : insertion.GetCoordinatesFloat(tpmanager.GetActiveCoordinateTransform());
@@ -811,13 +809,14 @@ public class ProbeManager : MonoBehaviour
         insertion.dv += dv * speed;
     }
 
+    [Obsolete]
     public void MoveProbeDepth(float depth, bool pressed)
     {
         float speed = pressed ?
             keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
             keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
-        insertion.depth += depth * speed;
+        //insertion.depth += depth * speed;
     }
 
     public void RotateProbe(float phi, float theta, bool pressed)
@@ -848,7 +847,6 @@ public class ProbeManager : MonoBehaviour
     private bool axisLockQE;
 
     private Vector3 origAPMLDV;
-    private float origDepth;
     private float origPhi;
     private float origTheta;
 
@@ -875,7 +873,6 @@ public class ProbeManager : MonoBehaviour
         axisLockQE = false;
 
         origAPMLDV = new Vector3(insertion.ap, insertion.ml, insertion.dv);
-        origDepth = insertion.depth;
         origPhi = insertion.phi;
         origTheta = insertion.theta;
 
@@ -1035,7 +1032,7 @@ public class ProbeManager : MonoBehaviour
         Vector3 apmldv = GetInsertionCoordinateTransformed();
         string[] apml_string = GetAPMLStr();
 
-        (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = tpmanager.UseIBLAngles() ?
+        (float ap, float ml, float dv, float phi, float theta, float spin) = tpmanager.UseIBLAngles() ?
             insertion.GetCoordinatesFloat_IBL() :
             insertion.GetCoordinatesFloat();
 
@@ -1536,8 +1533,7 @@ public class ProbeManager : MonoBehaviour
         if (Math.Abs(offsetAdjustedPosition.w) < 1)
         {
             ManualCoordinateEntryTransformed(offsetAdjustedPosition.x, offsetAdjustedPosition.y,
-                offsetAdjustedPosition.z,
-                offsetAdjustedPosition.w, _probeAngles.x,
+                offsetAdjustedPosition.z, _probeAngles.x,
                 _probeAngles.y, _probeAngles.z);
         }
         else
@@ -1545,7 +1541,7 @@ public class ProbeManager : MonoBehaviour
             var tipPos = Surface2CCF(offsetAdjustedPosition, offsetAdjustedPosition.w - _brainSurfaceOffset,
                 _probeAngles).Item1;
             insertion.SetCoordinates_IBL(tipPos.x, tipPos.y, tipPos.z,
-                0, _probeAngles.x, _probeAngles.y, _probeAngles.z, tpmanager.GetActiveCoordinateTransform());
+                _probeAngles.x, _probeAngles.y, _probeAngles.z, tpmanager.GetActiveCoordinateTransform());
             SetProbePosition();
 
             // Tell the tpmanager we moved and update the UI elements
