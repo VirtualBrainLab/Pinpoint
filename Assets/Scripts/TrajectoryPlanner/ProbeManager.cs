@@ -45,6 +45,8 @@ public class ProbeManager : MonoBehaviour
     private readonly NeedlesTransform _neTransform = new NeedlesTransform();
     private int _manipulatorId;
     private Vector3 _probeAngles;
+    private float _phiCos = 1;
+    private float _phiSin;
     private Vector4 _bregmaOffset = Vector4.negativeInfinity;
     private float _brainSurfaceOffset;
 
@@ -1327,7 +1329,8 @@ public class ProbeManager : MonoBehaviour
     /// <param name="depth"></param>
     /// <param name="angles"></param>
     /// <returns>(tipPosition in CCF, angles)</returns>
-    public (Vector3, Vector3) Surface2CCF(Vector3 surfacePosition, float depth, Vector3 angles)
+    public (Vector3, Vector3) Surface2CCF(Vector3 surfacePosition, float depth, Vector3 angles,
+        bool stereoCoordinates = false)
     {
         //// I've tried this a number of ways and can't figure it out. It's possible the way I'm applying rotations can't be done by euler angles? 
         //// I think the simplest thing for now is to create an empty gameobject and use its transform to perform this calculation.
@@ -1471,6 +1474,8 @@ public class ProbeManager : MonoBehaviour
     public void SetProbeAngles(Vector3 angles)
     {
         _probeAngles = angles;
+        _phiCos = Mathf.Cos(_probeAngles.x * Mathf.Deg2Rad);
+        _phiSin = Mathf.Sin(_probeAngles.x * Mathf.Deg2Rad);
     }
 
     /// <summary>
@@ -1529,7 +1534,17 @@ public class ProbeManager : MonoBehaviour
     {
         // Convert position to CCF
         var offsetAdjustedPosition = pos - _bregmaOffset;
+        
+        // Phi adjustment
+        var phiAdjustedX = offsetAdjustedPosition.x * _phiCos -
+                           offsetAdjustedPosition.y * _phiSin;
+        var phiAdjustedY = offsetAdjustedPosition.x * _phiSin +
+                           offsetAdjustedPosition.y * _phiCos;
+        offsetAdjustedPosition.x = phiAdjustedX;
+        offsetAdjustedPosition.y = phiAdjustedY;
+        
 
+        // Drive normally when not moving depth, otherwise use surface coordinates
         if (Math.Abs(offsetAdjustedPosition.w) < 1)
         {
             ManualCoordinateEntryTransformed(offsetAdjustedPosition.x, offsetAdjustedPosition.y,
@@ -1538,7 +1553,9 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
-            var tipPos = Surface2CCF(offsetAdjustedPosition, offsetAdjustedPosition.w - _brainSurfaceOffset,
+            // Convert manipulator reported coordinates to world coordinates for conversion
+            var tipPos = Surface2CCF(Utils.apmldv2world(offsetAdjustedPosition),
+                offsetAdjustedPosition.w - _brainSurfaceOffset,
                 _probeAngles).Item1;
             insertion.SetCoordinates_IBL(tipPos.x, tipPos.y, tipPos.z,
                 _probeAngles.x, _probeAngles.y, _probeAngles.z, tpmanager.GetActiveCoordinateTransform());
@@ -1552,6 +1569,7 @@ public class ProbeManager : MonoBehaviour
         }
 
 
+        // Continue echoing position
         if (_sensapexLinkMovement)
             _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);
     }
