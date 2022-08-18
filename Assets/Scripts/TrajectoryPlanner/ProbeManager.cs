@@ -52,7 +52,7 @@ public class ProbeManager : MonoBehaviour
 
     // Exposed fields to collect links to other components inside of the Probe prefab
     [SerializeField] private List<Collider> probeColliders;
-    [SerializeField] private List<TP_ProbeUIManager> probeUIManagers;
+    [SerializeField] private List<ProbeUIManager> probeUIManagers;
     [SerializeField] private Transform rotateAround;
     [SerializeField] private GameObject textPrefab;
     [SerializeField] private Renderer probeRenderer;
@@ -143,7 +143,7 @@ public class ProbeManager : MonoBehaviour
     /// Return the probe panel UI managers
     /// </summary>
     /// <returns>list of probe panel UI managers</returns>
-    public List<TP_ProbeUIManager> GetProbeUIManagers()
+    public List<ProbeUIManager> GetProbeUIManagers()
     {
         return probeUIManagers;
     }
@@ -194,7 +194,7 @@ public class ProbeManager : MonoBehaviour
         ResetPosition();
 
         // Reset our probe UI panels
-        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+        foreach (ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
     }
     /// <summary>
@@ -205,7 +205,7 @@ public class ProbeManager : MonoBehaviour
     public void Destroy()
     {
         // Delete this gameObject
-        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+        foreach (ProbeUIManager puimanager in probeUIManagers)
             puimanager.Destroy();
         Destroy(textGO);
         
@@ -241,7 +241,7 @@ public class ProbeManager : MonoBehaviour
         }
         // Update all the UI panels
         UpdateRecordingRegionVars();
-        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+        foreach (ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
     }
 
@@ -542,7 +542,7 @@ public class ProbeManager : MonoBehaviour
                 CheckCollisions(tpmanager.GetAllNonActiveColliders());
 
             // Update all the UI panels
-            foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+            foreach (ProbeUIManager puimanager in probeUIManagers)
                 puimanager.ProbeMoved();
 
             return true;
@@ -615,7 +615,7 @@ public class ProbeManager : MonoBehaviour
 
         // Tell the tpmanager we moved and update the UI elements
         tpmanager.SetMovedThisFrame();
-        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+        foreach (ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
         tpmanager.UpdateInPlaneView();
     }
@@ -1002,7 +1002,7 @@ public class ProbeManager : MonoBehaviour
             tpmanager.UpdateInPlaneView();
             SetProbePosition();
 
-            foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+            foreach (ProbeUIManager puimanager in probeUIManagers)
                 puimanager.ProbeMoved();
 
             tpmanager.SetMovedThisFrame();
@@ -1231,7 +1231,7 @@ public class ProbeManager : MonoBehaviour
     /// <param name="newPxHeight">Set the probe panels of this probe to a new height</param>
     public void ResizeProbePanel(int newPxHeight)
     {
-        foreach (TP_ProbeUIManager puimanager in probeUIManagers)
+        foreach (ProbeUIManager puimanager in probeUIManagers)
         {
             puimanager.ResizeProbePanel(newPxHeight);
             puimanager.ProbeMoved();

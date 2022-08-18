@@ -254,7 +254,7 @@ namespace TrajectoryPlanner
                     break;
             }
             foreach (ProbeManager probeController in allProbes)
-                foreach (TP_ProbeUIManager puimanager in probeController.GetComponents<TP_ProbeUIManager>())
+                foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
         }
 
@@ -551,12 +551,12 @@ namespace TrajectoryPlanner
             Debug.Log("Setting active probe to: " + newActiveProbeController.gameObject.name);
             activeProbeController = newActiveProbeController;
 
-            foreach (TP_ProbeUIManager puimanager in activeProbeController.gameObject.GetComponents<TP_ProbeUIManager>())
+            foreach (ProbeUIManager puimanager in activeProbeController.gameObject.GetComponents<ProbeUIManager>())
                 puimanager.ProbeSelected(true);
 
             foreach (ProbeManager pcontroller in allProbes)
                 if (pcontroller != activeProbeController)
-                    foreach (TP_ProbeUIManager puimanager in pcontroller.gameObject.GetComponents<TP_ProbeUIManager>())
+                    foreach (ProbeUIManager puimanager in pcontroller.gameObject.GetComponents<ProbeUIManager>())
                         puimanager.ProbeSelected(false);
 
             inactiveProbeColliders = new List<Collider>();
@@ -631,7 +631,7 @@ namespace TrajectoryPlanner
         private void MoveAllProbes()
         {
             foreach (ProbeManager probeController in allProbes)
-                foreach (TP_ProbeUIManager puimanager in probeController.GetComponents<TP_ProbeUIManager>())
+                foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
         }
 
@@ -822,7 +822,7 @@ namespace TrajectoryPlanner
         public void ReOrderProbePanels()
         {
             Debug.Log("Re-ordering probe panels");
-            Dictionary<float, TP_ProbeUIManager> sorted = new Dictionary<float, TP_ProbeUIManager>();
+            Dictionary<float, ProbeUIManager> sorted = new Dictionary<float, ProbeUIManager>();
 
             int probeIndex = 0;
             // first, sort probes so that np2.4 probes go first
@@ -836,15 +836,15 @@ namespace TrajectoryPlanner
             // now sort by order within each puimanager
             foreach (ProbeManager pcontroller in np24Probes)
             {
-                List<TP_ProbeUIManager> puimanagers = pcontroller.GetProbeUIManagers();
-                foreach (TP_ProbeUIManager puimanager in pcontroller.GetProbeUIManagers())
+                List<ProbeUIManager> puimanagers = pcontroller.GetProbeUIManagers();
+                foreach (ProbeUIManager puimanager in pcontroller.GetProbeUIManagers())
                     sorted.Add(probeIndex + puimanager.GetOrder() / 10f, puimanager);
                 probeIndex++;
             }
             foreach (ProbeManager pcontroller in otherProbes)
             {
-                List<TP_ProbeUIManager> puimanagers = pcontroller.GetProbeUIManagers();
-                foreach (TP_ProbeUIManager puimanager in pcontroller.GetProbeUIManagers())
+                List<ProbeUIManager> puimanagers = pcontroller.GetProbeUIManagers();
+                foreach (ProbeUIManager puimanager in pcontroller.GetProbeUIManagers())
                     sorted.Add(probeIndex + puimanager.GetOrder() / 10f, puimanager);
                 probeIndex++;
             }
