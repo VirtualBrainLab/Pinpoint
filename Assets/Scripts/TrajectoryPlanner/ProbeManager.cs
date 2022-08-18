@@ -1327,7 +1327,8 @@ public class ProbeManager : MonoBehaviour
     /// <param name="depth"></param>
     /// <param name="angles"></param>
     /// <returns>(tipPosition in CCF, angles)</returns>
-    public (Vector3, Vector3) Surface2CCF(Vector3 surfacePosition, float depth, Vector3 angles)
+    public (Vector3, Vector3) Surface2CCF(Vector3 surfacePosition, float depth, Vector3 angles,
+        bool stereoCoordinates = false)
     {
         //// I've tried this a number of ways and can't figure it out. It's possible the way I'm applying rotations can't be done by euler angles? 
         //// I think the simplest thing for now is to create an empty gameobject and use its transform to perform this calculation.
@@ -1547,7 +1548,8 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
-            var tipPos = Surface2CCF(offsetAdjustedPosition, offsetAdjustedPosition.w - _brainSurfaceOffset,
+            var tipPos = Surface2CCF(Utils.apmldv2world(offsetAdjustedPosition),
+                offsetAdjustedPosition.w - _brainSurfaceOffset,
                 _probeAngles).Item1;
             insertion.SetCoordinates_IBL(tipPos.x, tipPos.y, tipPos.z,
                 _probeAngles.x, _probeAngles.y, _probeAngles.z, tpmanager.GetActiveCoordinateTransform());
