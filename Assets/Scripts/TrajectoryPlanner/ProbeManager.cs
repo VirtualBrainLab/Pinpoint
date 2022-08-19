@@ -165,7 +165,7 @@ public class ProbeManager : MonoBehaviour
         // Pull the tpmanager object and register this probe
         GameObject main = GameObject.Find("main");
         tpmanager = main.GetComponent<TrajectoryPlannerManager>();
-        tpmanager.RegisterProbe(this, probeColliders);
+        tpmanager.RegisterProbe(this);
         
         // Pull sensapex link communication manager
         _sensapexLinkCommunicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();

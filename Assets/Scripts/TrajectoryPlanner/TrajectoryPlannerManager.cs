@@ -385,16 +385,12 @@ namespace TrajectoryPlanner
             Destroy(activeProbeController.gameObject);
             allProbes.Remove(activeProbeController);
             if (allProbes.Count > 0)
-                SetActiveProbe(allProbes[0]);
+                SetActiveProbe(allProbes[allProbes.Count - 1]);
             else
                 activeProbeController = null;
 
             // remove colliders
-            foreach (Collider collider in probeColliders)
-            {
-                inactiveProbeColliders.Remove(collider);
-                allProbeColliders.Remove(collider);
-            }
+            UpdateProbeColliders();
 
             ReturnProbeColor(returnColor);
 
@@ -433,6 +429,8 @@ namespace TrajectoryPlanner
             movedThisFrame = true;
             MoveAllProbes();
         }
+
+        #region Add Probe Functions
 
         public void AddNewProbeVoid(int probeType)
         {
@@ -484,6 +482,8 @@ namespace TrajectoryPlanner
             return probeController;
         }
 
+        #endregion
+
         private void CountProbePanels()
         {
             visibleProbePanels = GameObject.FindGameObjectsWithTag("ProbePanel").Length;
@@ -517,13 +517,12 @@ namespace TrajectoryPlanner
             ReOrderProbePanels();
         }
 
-        public void RegisterProbe(ProbeManager probeController, List<Collider> colliders)
+        public void RegisterProbe(ProbeManager probeController)
         {
             Debug.Log("Registering probe: " + probeController.gameObject.name);
             allProbes.Add(probeController);
             probeController.RegisterProbeCallback(allProbes.Count, NextProbeColor());
-            foreach (Collider collider in colliders)
-                allProbeColliders.Add(collider);
+            UpdateProbeColliders();
         }
 
         private Color NextProbeColor()
@@ -559,12 +558,7 @@ namespace TrajectoryPlanner
                     foreach (ProbeUIManager puimanager in pcontroller.gameObject.GetComponents<ProbeUIManager>())
                         puimanager.ProbeSelected(false);
 
-            inactiveProbeColliders = new List<Collider>();
-            List<Collider> activeProbeColliders = activeProbeController.GetProbeColliders();
-            foreach (Collider collider in allProbeColliders)
-                if (!activeProbeColliders.Contains(collider))
-                    inactiveProbeColliders.Add(collider);
-            UpdateNonActiveColliders();
+            UpdateProbeColliders();
 
             // Also update the recording region size slider
             recRegionSlider.SliderValueChanged(activeProbeController.GetRecordingRegionSize());
@@ -607,6 +601,29 @@ namespace TrajectoryPlanner
             inPlaneSlice.UpdateInPlaneSlice();
         }
 
+        #region COLLIDERS
+
+        public void UpdateProbeColliders()
+        {
+            // Collect *all* colliders from all probes
+            allProbeColliders.Clear();
+            foreach (ProbeManager probeManager in allProbes)
+            {
+                foreach (Collider collider in probeManager.GetProbeColliders())
+                    allProbeColliders.Add(collider);
+            }
+
+            // Sort out which colliders are active vs inactive
+            inactiveProbeColliders.Clear();
+            List<Collider> activeProbeColliders = activeProbeController.GetProbeColliders();
+            foreach (Collider collider in allProbeColliders)
+                if (!activeProbeColliders.Contains(collider))
+                    inactiveProbeColliders.Add(collider);
+
+            // Re-build the list of inactive colliders (which includes both probe + rig colliders)
+            UpdateNonActiveColliders();
+        }
+
         public void UpdateRigColliders(IEnumerable<Collider> newRigColliders, bool keep)
         {
             if (keep)
@@ -627,6 +644,8 @@ namespace TrajectoryPlanner
             foreach (Collider collider in rigColliders)
                 allNonActiveColliders.Add(collider);
         }
+
+        #endregion
 
         private void MoveAllProbes()
         {

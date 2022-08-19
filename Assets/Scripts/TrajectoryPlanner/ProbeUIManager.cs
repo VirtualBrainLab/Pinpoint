@@ -259,7 +259,6 @@ public class ProbeUIManager : MonoBehaviour
             {
                 if (pixelHeight[i] < MINIMUM_AREA_PIXEL_HEIGHT)
                 {
-                    Debug.Log(string.Format("Removing {0} with pixel height {1}", areaNames[i], pixelHeight[i]));
                     heights.RemoveAt(i);
                     centerHeights.RemoveAt(i);
                     areaNames.RemoveAt(i);

@@ -182,6 +182,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de7e19699c62fef4d8e2f16cfb5e8b22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  addressablesStorageRemotePath: http://data.virtualbrainlab.org/AddressablesStorage
+  addressablesStorageRemotePath: https://data.virtualbrainlab.org/AddressablesStorage
   buildVersion: 0.1.1
   delayCatalogLoad: 0
