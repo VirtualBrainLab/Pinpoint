@@ -615,7 +615,11 @@ namespace TrajectoryPlanner
 
             // Sort out which colliders are active vs inactive
             inactiveProbeColliders.Clear();
-            List<Collider> activeProbeColliders = activeProbeController.GetProbeColliders();
+
+            List<Collider> activeProbeColliders = (activeProbeController != null) ?
+                activeProbeController.GetProbeColliders() :
+                new List<Collider>();
+
             foreach (Collider collider in allProbeColliders)
                 if (!activeProbeColliders.Contains(collider))
                     inactiveProbeColliders.Add(collider);
