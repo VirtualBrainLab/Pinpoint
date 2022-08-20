@@ -79,15 +79,16 @@ public class ProbeManager : MonoBehaviour
     // Probe positioning information
     private Vector3 initialPosition;
     private Quaternion initialRotation;
+    private Transform surfaceCalculatorT;
 
     // total position data (for dealing with coordinates)
     private ProbeInsertion insertion;
-    private float minPhi = -180;
-    private float maxPhi = 180f;
-    private float minTheta = -90f;
-    private float maxTheta = 0f;
-    private float minSpin = -180f;
-    private float maxSpin = 180f;
+    private const float minPhi = -180;
+    private const float maxPhi = 180f;
+    private const float minTheta = -90f;
+    private const float maxTheta = 0f;
+    private const float minSpin = -180f;
+    private const float maxSpin = 180f;
 
     // Offset vectors
     private GameObject probeTipOffset;
@@ -190,6 +191,9 @@ public class ProbeManager : MonoBehaviour
         probeEndOffset = new GameObject(name + "EndOffset");
         probeEndOffset.transform.position = probeTipT.position + probeTipT.up * 10.2f;
         probeEndOffset.transform.parent = probeTipT;
+
+        // Access surface calculator (just an empty transform)
+        surfaceCalculatorT = GameObject.Find("SurfaceCalculator").transform;
     }
 
     private void Start()
@@ -1333,41 +1337,33 @@ public class ProbeManager : MonoBehaviour
         return (tipPosition, float.NaN, angles);
     }
 
-    private Transform surfaceCalculatorT;
-
     /// <summary>
-    /// Recover the tip position when you only know the surface position and depth.
-    /// 
-    /// Use the tip position to set the probe position when converting from surface coordinates.
+    /// Convert an insertion position, depth, and set of angles to a tip position, for use with a ProbeInsertion
     /// </summary>
-    /// <param name="surfacePosition"></param>
-    /// <param name="depth"></param>
-    /// <param name="angles"></param>
-    /// <returns>(tipPosition in CCF, angles)</returns>
-    public (Vector3, Vector3) Surface2CCF(Vector3 surfacePosition, float depth, Vector3 angles,
-        bool stereoCoordinates = false)
+    /// <returns>tip position in CCF coordinates</returns>
+    public Vector3 CCFD2CCF(Vector3 insertionPosition, float depth, Vector3 angles)
     {
         //// I've tried this a number of ways and can't figure it out. It's possible the way I'm applying rotations can't be done by euler angles? 
         //// I think the simplest thing for now is to create an empty gameobject and use its transform to perform this calculation.
-        if (surfaceCalculatorT == null)
-        {
-            GameObject surfaceCalculatorGO = new GameObject("SurfaceCalculator");
-            surfaceCalculatorT = surfaceCalculatorGO.transform;
-        }
 
         // reset
-        surfaceCalculatorT.position = surfacePosition;
+        surfaceCalculatorT.position = insertionPosition;
         surfaceCalculatorT.rotation = initialRotation;
 
         surfaceCalculatorT.Translate(-surfaceCalculatorT.up * depth);
-        surfaceCalculatorT.RotateAround(surfacePosition, surfaceCalculatorT.up, angles.x);
-        surfaceCalculatorT.RotateAround(surfacePosition, surfaceCalculatorT.forward, angles.y);
-        //// skip spin because it won't actually affect anything
-        ////tempT.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
-        ///
-        Vector3 tipPosition = Utils.world2apmldv(surfaceCalculatorT.position);
+        surfaceCalculatorT.RotateAround(insertionPosition, surfaceCalculatorT.up, angles.x);
+        surfaceCalculatorT.RotateAround(insertionPosition, surfaceCalculatorT.forward, angles.y);
 
-        return (tipPosition, angles);
+        return Utils.world2apmldv(surfaceCalculatorT.position);
+    }
+
+    /// <summary>
+    /// Convert a tip position, depth, and set of angles to an insertion position
+    /// </summary>
+    /// <returns>insertion position in CCF coordinates</returns>
+    public Vector3 CCF2CCFD(Vector3 tipPosition, float depth, Vector3 angles)
+    {
+        return CCFD2CCF(tipPosition, -depth, angles);
     }
 
 
@@ -1585,9 +1581,9 @@ public class ProbeManager : MonoBehaviour
         else
         {
             // Convert manipulator reported coordinates to world coordinates for conversion
-            var tipPos = Surface2CCF(Utils.apmldv2world(positionAxisAdjusted),
+            var tipPos = CCFD2CCF(Utils.apmldv2world(positionAxisAdjusted),
                 -(offsetAdjustedPosition.w - _brainSurfaceOffset),
-                _probeAngles).Item1;
+                _probeAngles);
             insertion.SetCoordinates_IBL(tipPos.x, tipPos.y, tipPos.z,
                 _probeAngles.x, _probeAngles.y, _probeAngles.z, tpmanager.GetActiveCoordinateTransform());
             SetProbePosition();

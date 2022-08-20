@@ -143,16 +143,18 @@ public class ProbeInsertion
     /// <summary>
     /// Set coordinates in IBL conventions, expects um units and IBL rotated angles
     /// </summary>
-    public void SetCoordinates_IBL(float ap, float ml, float dv, float phi, float theta, float spin)
+    public void SetCoordinates_IBL(float ap, float ml, float dv, float phi, float theta, float spin, CoordinateTransform coordTransform = null)
     {
-        Vector2 worldPhiTheta = IBL2World(new Vector2(phi, theta));
-        SetCoordinates(ap / 1000f, ml / 1000f, dv / 1000f, worldPhiTheta.x, worldPhiTheta.y, spin);
-    }
-    public void SetCoordinates_IBL(float ap, float ml, float dv, float phi, float theta, float spin, CoordinateTransform coordTransform)
-    {
-        Vector3 ccf_apmldv = coordTransform.ToCCF(new Vector3(ap / 1000f, ml / 1000f, dv / 1000f));
-        Vector2 worldPhiTheta = IBL2World(new Vector2(phi, theta));
-        SetCoordinates(ccf_apmldv.x, ccf_apmldv.y, ccf_apmldv.z, worldPhiTheta.x, worldPhiTheta.y, spin);
+        Vector2 worldPhiTheta = Utils.IBL2World(new Vector2(phi, theta));
+
+        if (coordTransform != null)
+        {
+            Vector3 ccf_apmldv = coordTransform.ToCCF(new Vector3(ap / 1000f, ml / 1000f, dv / 1000f));
+            SetCoordinates(ccf_apmldv.x, ccf_apmldv.y, ccf_apmldv.z, worldPhiTheta.x, worldPhiTheta.y, spin);
+        }
+        else
+            SetCoordinates(ap / 1000f, ml / 1000f, dv / 1000f, worldPhiTheta.x, worldPhiTheta.y, spin);
+
     }
 
     /// <summary>
@@ -161,37 +163,14 @@ public class ProbeInsertion
     /// <returns></returns>
     public (float, float, float, float, float, float) GetCoordinatesFloat_IBL()
     {
-        Vector2 iblPhiTheta = World2IBL(new Vector2(phi, theta));
+        Vector2 iblPhiTheta = Utils.World2IBL(new Vector2(phi, theta));
         return (ap * 1000f, ml * 1000f, dv * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
     }
     public (float, float, float, float, float, float) GetCoordinatesFloat_IBL(CoordinateTransform coordTransform)
     {
         Vector3 transCoord = coordTransform.FromCCF(apmldv);
-        Vector2 iblPhiTheta = World2IBL(new Vector2(phi, theta));
+        Vector2 iblPhiTheta = Utils.World2IBL(new Vector2(phi, theta));
         return (transCoord.x * 1000f, transCoord.y * 1000f, transCoord.z * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
     }
-
-    /// <summary>
-    /// Rotate phi and theta to match IBL coordinates
-    /// </summary>
-    /// <param name="phiTheta"></param>
-    /// <returns></returns>
-    private Vector2 World2IBL(Vector2 phiTheta)
-    {
-        float iblPhi = -phiTheta.x - 90f;
-        float iblTheta = -phiTheta.y;
-        return new Vector2(iblPhi, iblTheta);
-    }
-
-    /// <summary>
-    /// Rotate IBL coordinates to return to pinpoint space
-    /// </summary>
-    /// <param name="iblPhiTheta"></param>
-    /// <returns></returns>
-    private Vector2 IBL2World(Vector2 iblPhiTheta)
-    {
-        float worldPhi = -iblPhiTheta.x - 90f;
-        float worldTheta = -iblPhiTheta.y;
-        return new Vector2(worldPhi, worldTheta);
-    }
+    
 }
