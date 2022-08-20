@@ -2299,6 +2299,7 @@ MonoBehaviour:
   - {fileID: 209146349789154571}
   probeType: 4
   probeTipT: {fileID: 4373075753628498810}
+  ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
 --- !u!114 &8943063119080654576
 MonoBehaviour:
   m_ObjectHideFlags: 0

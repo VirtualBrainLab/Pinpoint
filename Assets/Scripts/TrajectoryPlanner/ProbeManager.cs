@@ -12,8 +12,7 @@ using UnityEngine.UI;
 /// </summary>
 public class ProbeManager : MonoBehaviour
 {
-
-    // MOVEMENT CONTROL SPEEDS
+    #region Movement Constants
     private const float REC_HEIGHT_SPEED = 0.1f;
     private const float MOVE_INCREMENT_TAP = 0.010f; // move 1 um per tap
     private const float MOVE_INCREMENT_TAP_FAST = 0.100f;
@@ -27,6 +26,7 @@ public class ProbeManager : MonoBehaviour
     private const float ROT_INCREMENT_HOLD = 5f;
     private const float ROT_INCREMENT_HOLD_FAST = 25;
     private const float ROT_INCREMENT_HOLD_SLOW = 2.5f;
+    #endregion
 
     // Internal flags that track when keys are held down
     private bool keyFast = false;
@@ -61,6 +61,9 @@ public class ProbeManager : MonoBehaviour
     [SerializeField] private List<GameObject> recordingRegionGOs;
     [SerializeField] private int probeType;
     [SerializeField] private Transform probeTipT;
+
+    [SerializeField] private Material ghostMaterial;
+    private Dictionary<GameObject, Material> defaultMaterials;
 
     private TrajectoryPlannerManager tpmanager;
 
@@ -161,6 +164,7 @@ public class ProbeManager : MonoBehaviour
         textButton = textGO.GetComponent<Button>();
         textButton.onClick.AddListener(Probe2Text);
         textUI = textGO.GetComponent<TextMeshProUGUI>();
+        defaultMaterials = new Dictionary<GameObject, Material>();
 
         // Pull the tpmanager object and register this probe
         GameObject main = GameObject.Find("main");
@@ -199,6 +203,7 @@ public class ProbeManager : MonoBehaviour
         foreach (ProbeUIManager puimanager in probeUIManagers)
             puimanager.ProbeMoved();
     }
+
     /// <summary>
     /// Called by Unity when this object is destroyed. 
     /// Unregisters the probe from tpmanager
@@ -1612,4 +1617,31 @@ public class ProbeManager : MonoBehaviour
     }
 
     #endregion AxisControl
+
+    #region Materials
+
+    /// <summary>
+    /// Set all Renderer components to use the ghost material
+    /// </summary>
+    public void SetMaterialsTransparent()
+    {
+        defaultMaterials.Clear();
+        foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
+        {
+            defaultMaterials.Add(renderer.gameObject, renderer.material);
+            renderer.material = ghostMaterial;
+        }
+    }
+
+    /// <summary>
+    /// Reverse a previous call to SetMaterialsTransparent()
+    /// </summary>
+    public void SetMaterialsDefault()
+    {
+        foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
+            if (defaultMaterials.ContainsKey(renderer.gameObject))
+                renderer.material = defaultMaterials[renderer.gameObject];
+    }
+
+    #endregion
 }
