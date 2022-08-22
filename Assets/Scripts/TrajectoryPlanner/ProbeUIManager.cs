@@ -116,7 +116,7 @@ public class ProbeUIManager : MonoBehaviour
         List<int> tickIdxs = new List<int>();
         List<int> tickHeights = new List<int>(); // this will be calculated in the second step
 
-        if (tpmanager.RecordingRegionOnly())
+        if (tpmanager.GetSetting_ShowRecRegionOnly())
         {
             // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
             // we also want to save the mm tick positions
@@ -154,9 +154,9 @@ public class ProbeUIManager : MonoBehaviour
         // Interpolate from the tip to the top, putting this data into the probe panel texture
         (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(tip_apdvlr, top_apdvlr);
 
-        probePanel.SetTipData(tip_apdvlr, top_apdvlr, heightPerc[1], tpmanager.RecordingRegionOnly());
+        probePanel.SetTipData(tip_apdvlr, top_apdvlr, heightPerc[1], tpmanager.GetSetting_ShowRecRegionOnly());
 
-        if (tpmanager.RecordingRegionOnly())
+        if (tpmanager.GetSetting_ShowRecRegionOnly())
         {
             for (int y = 0; y < probePanelPxHeight; y++)
             {
@@ -191,7 +191,7 @@ public class ProbeUIManager : MonoBehaviour
         }
 
         probePanel.UpdateTicks(tickHeights, tickIdxs);
-        probePanel.UpdateText(centerHeights, names, tpmanager.ProbePanelTextFS(tpmanager.UseAcronyms()));
+        probePanel.UpdateText(centerHeights, names, tpmanager.ProbePanelTextFS(tpmanager.GetSetting_UseAcronyms()));
     }
 
     /// <summary>
@@ -224,7 +224,7 @@ public class ProbeUIManager : MonoBehaviour
             {
                 // We have arrived at a new area, get the name and height
                 heights.Add(i);
-                if (tpmanager.UseAcronyms())
+                if (tpmanager.GetSetting_UseAcronyms())
                     areaNames.Add(modelControl.GetCCFAreaAcronym(ID));
                 else
                     areaNames.Add(modelControl.GetCCFAreaName(ID));

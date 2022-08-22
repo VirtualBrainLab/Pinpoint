@@ -148,7 +148,7 @@ public class TP_InPlaneSlice : MonoBehaviour
                 tpmanager.SelectBrainArea(annotation);
         }
 
-        if (tpmanager.UseAcronyms())
+        if (tpmanager.GetSetting_UseAcronyms())
             areaText.text = modelControl.GetCCFAreaAcronym(annotation);
         else
             areaText.text = modelControl.GetCCFAreaName(annotation);

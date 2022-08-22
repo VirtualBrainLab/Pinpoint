@@ -161,16 +161,16 @@ public class ProbeInsertion
     /// Return coordinates in IBL conventions, i.e. um units and rotated angles
     /// </summary>
     /// <returns></returns>
-    public (float, float, float, float, float, float) GetCoordinatesFloat_IBL()
+    public (float, float, float, float, float, float) GetCoordinatesFloat_IBL(CoordinateTransform coordTransform = null)
     {
         Vector2 iblPhiTheta = Utils.World2IBL(new Vector2(phi, theta));
-        return (ap * 1000f, ml * 1000f, dv * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
-    }
-    public (float, float, float, float, float, float) GetCoordinatesFloat_IBL(CoordinateTransform coordTransform)
-    {
-        Vector3 transCoord = coordTransform.FromCCF(apmldv);
-        Vector2 iblPhiTheta = Utils.World2IBL(new Vector2(phi, theta));
-        return (transCoord.x * 1000f, transCoord.y * 1000f, transCoord.z * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
+        if (coordTransform != null)
+        {
+            Vector3 transCoord = coordTransform.FromCCF(apmldv);
+            return (transCoord.x * 1000f, transCoord.y * 1000f, transCoord.z * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
+        }
+        else
+            return (ap * 1000f, ml * 1000f, dv * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
     }
     
 }

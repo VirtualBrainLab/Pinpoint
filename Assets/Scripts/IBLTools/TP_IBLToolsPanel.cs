@@ -66,7 +66,7 @@ namespace IBLTools
 
         private void UpdateText()
         {
-            Vector3 pos = tpmanager.GetInVivoTransformState() ? tpmanager.CoordinateTransformFromCCF(position) : position;
+            Vector3 pos = tpmanager.GetSetting_InVivoTransformActive() ? tpmanager.CoordinateTransformFromCCF(position) : position;
 
             apText.text = "AP: " + Mathf.RoundToInt(pos.x * 1000f);
             mlText.text = "ML: " + Mathf.RoundToInt(pos.y * 1000f);

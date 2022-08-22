@@ -143,11 +143,11 @@ namespace TrajectoryPlanner
 
             // Pull settings from PlayerPrefs
             Debug.Log(localPrefs.GetInplane());
-            SetAcronyms(localPrefs.GetAcronyms());
-            SetInPlane(localPrefs.GetInplane());
-            SetInVivoTransformState(localPrefs.GetStereotaxic());
-            SetUseIBLAngles(localPrefs.GetUseIBLAngles());
-            SetSurfaceDebugVisibility(localPrefs.GetSurfaceCoord());
+            SetSetting_UseAcronyms(localPrefs.GetAcronyms());
+            SetSetting_InPlanePanelVisibility(localPrefs.GetInplane());
+            SetSetting_InVivoTransformState(localPrefs.GetStereotaxic());
+            SetSetting_UseIBLAngles(localPrefs.GetUseIBLAngles());
+            SetSetting_SurfaceDebugSphereVisibility(localPrefs.GetSurfaceCoord());
         }
         public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
         {
@@ -403,9 +403,9 @@ namespace TrajectoryPlanner
             AddNewProbe(prevProbeType, prevInsertion, _prevManipulatorId, _prevBregmaOffset, _prevBrainSurfaceOffset);
         }
 
-        public void ManualCoordinateEntry(float ap, float ml, float dv, float phi, float theta, float spin)
+        public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin, float depth = 0f)
         {
-            activeProbeController.ManualCoordinateEntryTransformed(ap, ml, dv, phi, theta, spin);
+            activeProbeController.ManualCoordinateEntryTransformed(ap, ml, dv, phi, theta, spin, depth);
         }
 
         public void AddIBLProbes()
@@ -727,18 +727,20 @@ namespace TrajectoryPlanner
             }
         }
 
-        public void SetRecordingRegion(bool state)
+        #region Player Preferences
+
+        public void SetSetting_ShowRecRegionOnly(bool state)
         {
             localPrefs.SetRecordingRegionOnly(state);
             MoveAllProbes();
         }
 
-        public bool RecordingRegionOnly()
+        public bool GetSetting_ShowRecRegionOnly()
         {
             return localPrefs.GetRecordingRegionOnly();
         }
 
-        public void SetAcronyms(bool state)
+        public void SetSetting_UseAcronyms(bool state)
         {
             localPrefs.SetAcronyms(state);
             searchControl.RefreshSearchWindow();
@@ -746,77 +748,48 @@ namespace TrajectoryPlanner
             MoveAllProbes();
         }
 
-        public bool UseAcronyms()
+        public bool GetSetting_UseAcronyms()
         {
             return localPrefs.GetAcronyms();
         }
 
-        public void SetUseIBLAngles(bool state)
+        public void SetSetting_UseIBLAngles(bool state)
         {
             localPrefs.SetUseIBLAngles(state);
             foreach (ProbeManager probeController in allProbes)
                 probeController.UpdateText();
         }
 
-        public bool UseIBLAngles()
+        public bool GetSetting_UseIBLAngles()
         {
             return localPrefs.GetUseIBLAngles();
         }
 
-        public void SetDepth(bool state)
+
+        public void SetSetting_GetDepthFromBrain(bool state)
         {
             localPrefs.SetDepthFromBrain(state);
             foreach (ProbeManager probeController in allProbes)
                 probeController.UpdateText();
         }
-        public bool GetDepthFromBrain()
+        public bool GetSetting_GetDepthFromBrain()
         {
             return localPrefs.GetDepthFromBrain();
         }
 
-        public void SetConvertToProbe(bool state)
+        public void SetSetting_ConvertAPMLAxis2Probe(bool state)
         {
             localPrefs.SetAPML2ProbeAxis(state);
             foreach (ProbeManager probeController in allProbes)
                 probeController.UpdateText();
         }
 
-        public bool GetConvertAPML2Probe()
+        public bool GetSetting_ConvertAPMLAxis2Probe()
         {
             return localPrefs.GetAPML2ProbeAxis();
         }
 
-        public void SetCollisions(bool toggleCollisions)
-        {
-            localPrefs.SetCollisions(toggleCollisions);
-            if (activeProbeController != null)
-                activeProbeController.CheckCollisions(GetAllNonActiveColliders());
-        }
-
-        public void SetCollisionPanelVisibility(bool visibility)
-        {
-            CollisionPanelGO.SetActive(visibility);
-        }
-
-        public void SetInPlane(bool state)
-        {
-            localPrefs.SetInplane(state);
-            inPlaneSlice.UpdateInPlaneVisibility();
-        }
-
-        public void SetInVivoMeshMorphState(bool state)
-        {
-            if (state)
-            {
-                Debug.LogWarning("not implemented");
-            }
-            else
-            {
-                Debug.LogWarning("not implemented");
-            }
-        }
-
-        public void SetInVivoTransformState(int invivoOption)
+        public void SetSetting_InVivoTransformState(int invivoOption)
         {
             localPrefs.SetStereotaxic(invivoOption);
             invivoOption -= 1;
@@ -833,14 +806,68 @@ namespace TrajectoryPlanner
                 pcontroller.UpdateText();
         }
 
-        public bool GetInVivoTransformState()
+        public bool GetSetting_InVivoTransformActive()
         {
             return localPrefs.GetStereotaxic() > 0;
         }
+
+        public void SetSetting_SurfaceDebugSphereVisibility(bool state)
+        {
+            localPrefs.SetSurfaceCoord(state);
+            SetSurfaceDebugActive(state);
+        }
+
+        public void SetSetting_CollisionInfoVisibility(bool toggleCollisions)
+        {
+            localPrefs.SetCollisions(toggleCollisions);
+            if (activeProbeController != null)
+                activeProbeController.CheckCollisions(GetAllNonActiveColliders());
+        }
+
+        public void SetSetting_InPlanePanelVisibility(bool state)
+        {
+            localPrefs.SetInplane(state);
+            inPlaneSlice.UpdateInPlaneVisibility();
+        }
+
+        public void SetSetting_InVivoMeshMorphState(bool state)
+        {
+            if (state)
+            {
+                Debug.LogWarning("not implemented");
+            }
+            else
+            {
+                Debug.LogWarning("not implemented");
+            }
+        }
+
+        #endregion
+
+        #region Setting Helper Functions
+
+
+        public void SetSurfaceDebugActive(bool active)
+        {
+            if (localPrefs.GetSurfaceCoord() && activeProbeController != null)
+                surfaceDebugGO.SetActive(active);
+            else
+                surfaceDebugGO.SetActive(false);
+        }
+
+        public void SetCollisionPanelVisibility(bool visibility)
+        {
+            CollisionPanelGO.SetActive(visibility);
+        }
+
         public string GetInVivoPrefix()
         {
             return activeCoordinateTransform.Prefix;
         }
+
+        #endregion
+
+
 
         public void ReOrderProbePanels()
         {
@@ -890,32 +917,11 @@ namespace TrajectoryPlanner
             IBLToolsGO.SetActive(state);
         }
 
-        public void SetIBLTrajectory(bool state)
-        {
-            Debug.LogError("NOT IMPLEMENTED");
-            //IBLTrajectoryGO.SetActive(state);
-            //if (state)
-            //    IBLTrajectoryGO.GetComponent<TP_IBLTrajectories>().Load();
-        }
-
         public void SetSurfaceDebugPosition(Vector3 worldPosition)
         {
             surfaceDebugGO.transform.position = worldPosition;
         }
 
-        public void SetSurfaceDebugActive(bool active)
-        {
-            if (localPrefs.GetSurfaceCoord() && activeProbeController != null)
-                surfaceDebugGO.SetActive(active);
-            else
-                surfaceDebugGO.SetActive(false);
-        }
-
-        public void SetSurfaceDebugVisibility(bool state)
-        {
-            localPrefs.SetSurfaceCoord(state);
-            SetSurfaceDebugActive(state);
-        }
 
         public void SetProbeTipPositionToCCFNode(CCFTreeNode targetNode)
         {

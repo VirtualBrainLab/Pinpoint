@@ -55,7 +55,7 @@ public class TP_Search : MonoBehaviour
             if (i < matchingAreas.Count)
             {
                 CCFTreeNode areaNode = modelControl.tree.findNode(matchingAreas[i]);
-                if (tpmanager.UseAcronyms())
+                if (tpmanager.GetSetting_UseAcronyms())
                     areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.ShortName;
                 else
                     areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.Name;
