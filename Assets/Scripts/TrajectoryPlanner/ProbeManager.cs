@@ -83,6 +83,9 @@ public class ProbeManager : MonoBehaviour
 
     // total position data (for dealing with coordinates)
     private ProbeInsertion insertion;
+    private float depth;
+
+    // coordinate limits
     private const float minPhi = -180;
     private const float maxPhi = 180f;
     private const float minTheta = -90f;
@@ -194,6 +197,8 @@ public class ProbeManager : MonoBehaviour
 
         // Access surface calculator (just an empty transform)
         surfaceCalculatorT = GameObject.Find("SurfaceCalculator").transform;
+
+        depth = defaultDepth;
     }
 
     private void Start()
@@ -617,11 +622,14 @@ public class ProbeManager : MonoBehaviour
     /// <summary>
     /// Set the coordinates of the probe by hand, this function assumes the input is in the current transformation and uses the IBL-relative setting
     /// 
-    /// In other words: you have to input coordinates that are *matched* to the current output coordinates. Note that depth is currently ignored.
+    /// In other words: you have to input coordinates that are *matched* to the current output coordinates.
+    /// 
+    /// Depth is always in mm, even when using IBL-relative settings
     /// </summary>
-    public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin)
+    public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin, float depth = 0f)
     {
         // Unconvert back to CCF space
+        this.depth = depth;
         SetProbePositionTransformed(ap, ml, dv, phi, theta, spin);
 
         // Tell the tpmanager we moved and update the UI elements
@@ -641,11 +649,6 @@ public class ProbeManager : MonoBehaviour
         ManualCoordinateEntryTransformed(apmldv.x, apmldv.y, apmldv.z, angles.x, angles.y, angles.z);
     }
 
-    public void ManualCoordinateEntrySurfaceTransformed(float ap, float ml, float dv, float phi, float theta, float spin)
-    {
-        Debug.LogError("Not implemented");
-    }
-
     public IEnumerator DelayedManualCoordinateEntryTransformed(float delay, float ap, float ml, float dv, float phi, float theta, float spin)
     {
         yield return new WaitForSeconds(delay);
@@ -657,7 +660,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetProbePosition()
     {
-        SetProbePositionCCF(insertion);
+        SetProbePositionCCF(insertion, depth);
 
         // Check where we are relative to the surface of the brain
         UpdateSurfacePosition();
@@ -669,12 +672,20 @@ public class ProbeManager : MonoBehaviour
     /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
     /// </summary>
     /// <param name="localInsertion">new insertion position</param>
-    public void SetProbePositionCCF(ProbeInsertion localInsertion)
+    public void SetProbePositionCCF(ProbeInsertion localInsertion, float depth = 0f)
     {
         // Reset everything
         transform.position = initialPosition;
         transform.rotation = initialRotation;
         ResetPositionTracking();
+
+        // Compute depth transform, if needed
+        if (depth != 0f)
+        {
+            Vector3 tipPosition = CCFD2CCF(localInsertion.apmldv, depth, localInsertion.angles);
+            localInsertion.SetCoordinates(tipPosition.x, tipPosition.y, tipPosition.z, 
+                localInsertion.angles.x, localInsertion.angles.y, localInsertion.angles.z);
+        }
 
         // Manually adjust the coordinates and rotation
         transform.position += Utils.apmldv2world(localInsertion.apmldv);
@@ -691,13 +702,13 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetProbePositionTransformed(float ap, float ml, float dv, float phi, float theta, float spin)
     {
-        if (tpmanager.UseIBLAngles())
-            if (tpmanager.GetInVivoTransformState())
+        if (tpmanager.GetSetting_UseIBLAngles())
+            if (tpmanager.GetSetting_InVivoTransformActive())
                 insertion.SetCoordinates_IBL(ap, ml, dv, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
             else
                 insertion.SetCoordinates_IBL(ap, ml, dv, phi, theta, spin);
         else
-            if (tpmanager.GetInVivoTransformState())
+            if (tpmanager.GetSetting_InVivoTransformActive())
                 insertion.SetCoordinates(ap, ml, dv, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
             else
                 insertion.SetCoordinates(ap, ml, dv, phi, theta, spin);
@@ -707,15 +718,27 @@ public class ProbeManager : MonoBehaviour
 
 
     /// <summary>
-    /// Get the coordinates of the current probe in mm or um, depending on the current IBL state
+    /// Get the coordinates of the current probe (tip/angles) in mm or um, depending on the current IBL state
     /// </summary>
-    /// <returns>List of ap in um, ml in um, phi, theta, spin</returns>
+    /// <returns>(ap, ml, dv, phi, theta, spin)</returns>
     public (float, float, float, float, float, float) GetCoordinates()
     {
-        if (tpmanager.GetInVivoTransformState())
-            return (tpmanager.UseIBLAngles()) ? insertion.GetCoordinatesFloat_IBL(tpmanager.GetActiveCoordinateTransform()) : insertion.GetCoordinatesFloat(tpmanager.GetActiveCoordinateTransform());
-        
-        return (tpmanager.UseIBLAngles()) ? insertion.GetCoordinatesFloat_IBL() : insertion.GetCoordinatesFloat();
+        return tpmanager.GetSetting_UseIBLAngles() ?
+            insertion.GetCoordinatesFloat_IBL(tpmanager.GetActiveCoordinateTransform()) :
+            insertion.GetCoordinatesFloat(tpmanager.GetActiveCoordinateTransform());
+    }
+
+    /// <summary>
+    /// Get the coordinates of the current probe (insertion/depth/angles) in mm or um, depending on the current IBL state
+    /// </summary>
+    /// <returns>(ap, ml, dv, depth, phi, theta, spin)</returns>
+    public (float, float, float, float, float, float, float) GetCoordinatesSurface()
+    {
+        (float ap, float ml, float dv, float phi, float theta, float spin) = tpmanager.GetSetting_UseIBLAngles() ?
+            insertion.GetCoordinatesFloat_IBL(tpmanager.GetActiveCoordinateTransform()) :
+            insertion.GetCoordinatesFloat(tpmanager.GetActiveCoordinateTransform());
+
+        return (ap, ml, dv, 0f, phi, theta, spin);
     }
 
     public ProbeInsertion GetInsertion()
@@ -1053,7 +1076,7 @@ public class ProbeManager : MonoBehaviour
         Vector3 apmldv = GetInsertionCoordinateTransformed();
         string[] apml_string = GetAPMLStr();
 
-        (float ap, float ml, float dv, float phi, float theta, float spin) = tpmanager.UseIBLAngles() ?
+        (float ap, float ml, float dv, float phi, float theta, float spin) = tpmanager.GetSetting_UseIBLAngles() ?
             insertion.GetCoordinatesFloat_IBL() :
             insertion.GetCoordinatesFloat();
 
@@ -1095,10 +1118,10 @@ public class ProbeManager : MonoBehaviour
 
     private string[] GetAPMLStr()
     {
-        if (tpmanager.GetInVivoTransformState())
+        if (tpmanager.GetSetting_InVivoTransformActive())
         {
             string prefix = tpmanager.GetInVivoPrefix();
-            if (tpmanager.GetConvertAPML2Probe())
+            if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
             {
                 return new string[] { prefix + "Forward", prefix + "Side", prefix + "DV" };
             }
@@ -1109,7 +1132,7 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
-            if (tpmanager.GetConvertAPML2Probe())
+            if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
             {
                 return new string[] { "ccfForward", "ccfSide", "ccfDV" };
             }
@@ -1122,7 +1145,7 @@ public class ProbeManager : MonoBehaviour
 
     private string GetDepthStr()
     {
-        if (tpmanager.GetInVivoTransformState())
+        if (tpmanager.GetSetting_InVivoTransformActive())
             return tpmanager.GetInVivoPrefix() + "Depth";
         else
             return "ccfDepth";
@@ -1142,11 +1165,11 @@ public class ProbeManager : MonoBehaviour
         
         // If we're in a transformed space we need to transform the coordinates
         // before we do anything else.
-        if (tpmanager.GetInVivoTransformState())
+        if (tpmanager.GetSetting_InVivoTransformActive())
             insertionCoord = tpmanager.CoordinateTransformFromCCF(insertionCoord);
 
         // We can rotate the ap/ml position now to account for off-coronal/sagittal manipulator angles
-        if (tpmanager.GetConvertAPML2Probe())
+        if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
         {
             // convert to probe angle by solving 
             float localAngleRad = insertion.phi * Mathf.PI / 180f; // our phi is 0 when it we point forward, and our angles go backwards
@@ -1169,7 +1192,7 @@ public class ProbeManager : MonoBehaviour
             // Get the direction
             float dir = Mathf.Sign(Vector3.Dot(probeTipT.transform.position - brainSurfaceWorld, -probeTipT.transform.up));
             // Get the distance
-            float distance = (tpmanager.GetInVivoTransformState()) ?
+            float distance = (tpmanager.GetSetting_InVivoTransformActive()) ?
                 Vector3.Distance(tpmanager.CoordinateTransformFromCCF(probeTipT.transform.position), tpmanager.CoordinateTransformFromCCF(brainSurfaceWorld)) :
                 Vector3.Distance(probeTipT.transform.position, brainSurfaceWorld);
 
@@ -1223,7 +1246,7 @@ public class ProbeManager : MonoBehaviour
         Vector3 tip_apdvlr;
         Vector3 top_apdvlr;
 
-        if (tpmanager.RecordingRegionOnly())
+        if (tpmanager.GetSetting_ShowRecRegionOnly())
         {
             float mmStartPos = heightPerc[0] * (10 - heightPerc[1]);
             float mmRecordingSize = heightPerc[1];
@@ -1300,7 +1323,7 @@ public class ProbeManager : MonoBehaviour
     /// <summary>
     /// Convert from CCF insertion coordinates to brain surface/depth/angles coordinates
     /// 
-    /// If the tip coordinate is outside the brain this function returns the tip coordinate as the surface, a depth of NaN, and identical angles
+    /// If the entire probe is outside the brain this function returns the tip coordinate as the surface, a depth of NaN, and identical angles
     /// 
     /// This function is quite expensive to run!
     /// </summary>
@@ -1334,6 +1357,7 @@ public class ProbeManager : MonoBehaviour
             }
         }
 
+        // If you got here it means you *never* crossed through the brain
         return (tipPosition, float.NaN, angles);
     }
 
