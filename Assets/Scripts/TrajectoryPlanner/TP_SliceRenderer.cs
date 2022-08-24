@@ -39,15 +39,12 @@ public class TP_SliceRenderer : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
-    {
-        AsyncStart();
-    }
-
-    public async void AsyncStart()
+    private async void Start()
     {
         Debug.Log("(SliceRenderer) Waiting for inplane slice to complete");
         await inPlaneSlice.GetGPUTextureTask();
+        Debug.Log("(SliceRenderer) Waiting for node models to load");
+        await modelControl.GetDefaultLoadedTask();
 
         Debug.Log("(SliceRenderer) Loading 3D texture");
         ToggleSliceVisibility(localPrefs.GetSlice3D());

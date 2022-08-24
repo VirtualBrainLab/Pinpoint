@@ -118,7 +118,8 @@ public class TP_Search : MonoBehaviour
 
     private async void LoadSearchNode(CCFTreeNode node)
     {
-        await node.loadNodeModel(false);
+        node.LoadNodeModel(false);
+        await node.GetLoadedTask();
         node.GetNodeTransform().localPosition = Vector3.zero;
         node.GetNodeTransform().localRotation = Quaternion.identity;
         node.SetNodeModelVisibility(true);
