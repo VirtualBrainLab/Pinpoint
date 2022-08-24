@@ -36,6 +36,8 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     private void Awake()
     {
+        rect = GetComponent<RectTransform>();
+
         gpuTextureLoadedSource = new TaskCompletionSource<bool>();
         gpuTextureLoadedTask = gpuTextureLoadedSource.Task;
 
@@ -50,15 +52,9 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuSliceRenderer.material.SetFloat("_ShankWidth", probeWidth);
     }
     // Start is called before the first frame update
-    void Start()
+    private async void Start()
     {
-        rect = GetComponent<RectTransform>();
 
-        AsyncStart();
-    }
-
-    public async void AsyncStart()
-    {
         Task<Texture3D> textureTask = AddressablesRemoteLoader.LoadAnnotationTexture();
         await textureTask;
 
@@ -149,7 +145,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         }
 
         if (tpmanager.GetSetting_UseAcronyms())
-            areaText.text = modelControl.GetCCFAreaAcronym(annotation);
+            areaText.text = modelControl.ID2Acronym(annotation);
         else
             areaText.text = modelControl.GetCCFAreaName(annotation);
     }

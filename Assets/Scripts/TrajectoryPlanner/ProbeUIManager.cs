@@ -225,7 +225,7 @@ public class ProbeUIManager : MonoBehaviour
                 // We have arrived at a new area, get the name and height
                 heights.Add(i);
                 if (tpmanager.GetSetting_UseAcronyms())
-                    areaNames.Add(modelControl.GetCCFAreaAcronym(ID));
+                    areaNames.Add(modelControl.ID2Acronym(ID));
                 else
                     areaNames.Add(modelControl.GetCCFAreaName(ID));
 
