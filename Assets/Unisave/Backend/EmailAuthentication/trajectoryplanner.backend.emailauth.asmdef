@@ -1,0 +1,16 @@
+{
+    "name": "trajectoryplanner.backend.emailauth",
+    "rootNamespace": "",
+    "references": [
+        "GUID:a99f58d8f2dd9754d8f246b5299f912e"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

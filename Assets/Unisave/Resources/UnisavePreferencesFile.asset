@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: UnisavePreferencesFile
   m_EditorClassIdentifier: 
   serverUrl: https://unisave.cloud/
-  gameToken: 
-  backendFolder: Backend
+  gameToken: J25J1cPWvldX2EjF0R223asp
+  backendFolder: Unisave/Backend
   automaticBackendUploading: 1
-  backendHash: 345fe7aa87e33a5ee981fbf4067491ed
+  backendHash: b28e2ee07e8936897f488050aadb3232
   developmentEnv: {fileID: 0}
   testingEnv: {fileID: 0}
