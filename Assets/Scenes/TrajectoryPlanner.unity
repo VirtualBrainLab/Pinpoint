@@ -23867,6 +23867,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4702866770009442969, guid: 0fc2b3dd0dece7e47984bdbe03f35a65, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4702866770714169875, guid: 0fc2b3dd0dece7e47984bdbe03f35a65, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -23877,6 +23881,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4702866770714169875, guid: 0fc2b3dd0dece7e47984bdbe03f35a65, type: 3}
       propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4702866770714169876, guid: 0fc2b3dd0dece7e47984bdbe03f35a65, type: 3}
+      propertyPath: m_Navigation.m_Mode
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4702866771339862470, guid: 0fc2b3dd0dece7e47984bdbe03f35a65, type: 3}
@@ -24461,13 +24469,41 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4561653123658546654, guid: bacde3247e0dc3b45b0b5f28f3e7958a, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4640123575861871941, guid: bacde3247e0dc3b45b0b5f28f3e7958a, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6994720214579440580, guid: bacde3247e0dc3b45b0b5f28f3e7958a, type: 3}
       propertyPath: confirmPasswordField
       value: 
       objectReference: {fileID: 6994720213961477829}
+    - target: {fileID: 6994720214889187972, guid: bacde3247e0dc3b45b0b5f28f3e7958a, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994720215005847167, guid: bacde3247e0dc3b45b0b5f28f3e7958a, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994720215661820463, guid: bacde3247e0dc3b45b0b5f28f3e7958a, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8291593725031253420, guid: bacde3247e0dc3b45b0b5f28f3e7958a, type: 3}
       propertyPath: m_Name
       value: UnisaveCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 8489936002629082841, guid: bacde3247e0dc3b45b0b5f28f3e7958a, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8822677652239110756, guid: bacde3247e0dc3b45b0b5f28f3e7958a, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bacde3247e0dc3b45b0b5f28f3e7958a, type: 3}
