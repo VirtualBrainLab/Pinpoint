@@ -220,81 +220,17 @@ public class ProbeController : MonoBehaviour
 
         // DV movement
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
             MoveProbeDV(1f, true);
         }
-        else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
-        {
-            keyHeld = true;
-            moved = true;
-            MoveProbeDV(1f, false);
-        }
-        if (Input.GetKeyUp(KeyCode.Z))
-            keyHeld = false;
-
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            moved = true;
-            keyPressTime = Time.realtimeSinceStartup;
-            MoveProbeDV(-1f, true);
-        }
-        else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))
-        {
-            keyHeld = true;
-            moved = true;
-            MoveProbeDV(-1f, false);
-        }
-        if (Input.GetKeyUp(KeyCode.X))
-            keyHeld = false;
-
-        // Depth movement
-
-        //if (Input.GetKeyDown(KeyCode.Z))
-        //{
-        //    moved = true;
-        //    keyPressTime = Time.realtimeSinceStartup;
-        //    MoveProbeDepth(1f, true);
-        //}
-        //else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
-        //{
-        //    keyHeld = true;
-        //    moved = true;
-        //    MoveProbeDepth(1f, false);
-        //}
-        //if (Input.GetKeyUp(KeyCode.Z))
-        //    keyHeld = false;
-
-        //if (Input.GetKeyDown(KeyCode.X))
-        //{
-        //    moved = true;
-        //    keyPressTime = Time.realtimeSinceStartup;
-        //    MoveProbeDepth(-1f, true);
-        //}
-        //else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))
-        //{
-        //    keyHeld = true;
-        //    moved = true;
-        //    MoveProbeDepth(-1f, false);
-        //}
-        //if (Input.GetKeyUp(KeyCode.X))
-        //    keyHeld = false;
-
-        // Rotations
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            moved = true;
-            keyPressTime = Time.realtimeSinceStartup;
-            RotateProbe(-1f, 0f, true);
-        }
         else if (Input.GetKey(KeyCode.Q) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
-            RotateProbe(-1f, 0f, false);
+            MoveProbeDV(1f, false);
         }
         if (Input.GetKeyUp(KeyCode.Q))
             keyHeld = false;
@@ -303,15 +239,79 @@ public class ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            RotateProbe(1f, 0f, true);
+            MoveProbeDV(-1f, true);
         }
         else if (Input.GetKey(KeyCode.E) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
-            RotateProbe(1f, 0f, false);
+            MoveProbeDV(-1f, false);
         }
         if (Input.GetKeyUp(KeyCode.E))
+            keyHeld = false;
+
+        // Depth movement
+
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            moved = true;
+            keyPressTime = Time.realtimeSinceStartup;
+            MoveProbeDepth(1f, true);
+        }
+        else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            MoveProbeDepth(1f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.Z))
+            keyHeld = false;
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            moved = true;
+            keyPressTime = Time.realtimeSinceStartup;
+            MoveProbeDepth(-1f, true);
+        }
+        else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            MoveProbeDepth(-1f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.X))
+            keyHeld = false;
+
+        // Rotations
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            moved = true;
+            keyPressTime = Time.realtimeSinceStartup;
+            RotateProbe(-1f, 0f, true);
+        }
+        else if (Input.GetKey(KeyCode.Alpha1) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            RotateProbe(-1f, 0f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha1))
+            keyHeld = false;
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            moved = true;
+            keyPressTime = Time.realtimeSinceStartup;
+            RotateProbe(1f, 0f, true);
+        }
+        else if (Input.GetKey(KeyCode.Alpha3) && (keyHeld || keyHoldDelayPassed))
+        {
+            keyHeld = true;
+            moved = true;
+            RotateProbe(1f, 0f, false);
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha3))
             keyHeld = false;
 
         if (Input.GetKeyDown(KeyCode.R))
@@ -345,34 +345,34 @@ public class ProbeController : MonoBehaviour
             keyHeld = false;
 
         // Spin controls
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.Comma))
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
             SpinProbe(-1f, true);
         }
-        else if (Input.GetKey(KeyCode.Alpha1) && (keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.Comma) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
             SpinProbe(-1f, false);
         }
-        if (Input.GetKeyUp(KeyCode.Alpha1))
+        if (Input.GetKeyUp(KeyCode.Comma))
             keyHeld = false;
 
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+        if (Input.GetKeyDown(KeyCode.Period))
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
             SpinProbe(1f, true);
         }
-        else if (Input.GetKey(KeyCode.Alpha3) && (keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.Period) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
             SpinProbe(1f, false);
         }
-        if (Input.GetKeyUp(KeyCode.Alpha3))
+        if (Input.GetKeyUp(KeyCode.Period))
             keyHeld = false;
 
         // Recording region controls
@@ -438,7 +438,7 @@ public class ProbeController : MonoBehaviour
             keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
             keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
-        //insertion.depth += depth * speed;
+        depth += depth * speed;
     }
 
     public void RotateProbe(float phi, float theta, bool pressed)

@@ -28,6 +28,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.000042915344}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8116517814299126454}
   m_RootOrder: 1
@@ -103,6 +104,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8116517814299126454}
   m_RootOrder: 0
@@ -145,14 +147,14 @@ MonoBehaviour:
     and holding, then press one of the axis keys shown on the right. For example,
     pressing [W] lets you drag the probe along the Anterior-Posterior axis. \n\nYou
     can also click (or click and hold) the keyboard keys to move in that direction
-    in increments. Pressing [SHIFT] or [CTRL] accelerate and slow down movements,
-    respectively.\n\nThe full list of controls are:\nTranslation [W/A/S/D]\t\tDV
-    [R/F]\nAzimuth [Q/E]   \t\t\tElevation [T/G]\t\nSpin [1/3]\t\t\t\tDepth [Z/X]\t\t 
-    \t\nRecording area [Y/H]\n\nDelete probes with [Backspace] and recover with [CTRL+Backspace]\n\n[M]
+    in 10um increments. Press [SHIFT] for larger 100 um increments or [CTRL] for
+    1um.\n\nThe full list of controls are:\nTranslation [W/A/S/D]\t\tDV [Q/E]\nAzimuth
+    [1/3]   \t\t\tElevation [T/G]\t\nSpin [,/.]\t\t\t\tDepth [Z/X]\t\t  \t\nRecording
+    area [Y/H]\n\nDelete probes with [Backspace] and recover with [CTRL+Backspace]\n\n[M]
     opens the manual coordinate entry panel\n\nTo control the camera left click anywhere
     in the scene and drag. Right click and drag to translate. Double click the blue/green/red
     handles on the mini-axis to return the brain to a default position.\n\nPress
-    [ESC] to close this menu.\n\nPinpoint is developed by the Virtual Brain Lab team,
+    [H] to close this menu.\n\nPinpoint is developed by the Virtual Brain Lab team,
     part of the Steinmetz Lab at University of Washington. Learn more about us at
     virtualbrainlab.org"
   m_isRightToLeft: 0
@@ -252,6 +254,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.00006920099}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8116517813904742318}
   - {fileID: 8116517813766829424}
