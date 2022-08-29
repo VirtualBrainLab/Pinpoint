@@ -81,7 +81,7 @@ namespace TrajectoryPlanner
                 if (_probeManager.IsConnectedToManipulator())
                     _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetBregmaOffset);
                 else
-                    _probeManager.ResetPosition();
+                    _probeManager.GetProbeController().ResetPosition();
             });
             _questionDialogue.NewQuestion("Reset Bregma?");
         }

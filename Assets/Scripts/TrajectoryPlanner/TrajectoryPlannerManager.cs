@@ -405,7 +405,7 @@ namespace TrajectoryPlanner
 
         public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin, float depth = 0f)
         {
-            activeProbeController.ManualCoordinateEntryTransformed(ap, ml, dv, phi, theta, spin, depth);
+            activeProbeController.GetProbeController().ManualCoordinateEntryTransformed(ap, ml, dv, phi, theta, spin, depth);
         }
 
         public void AddIBLProbes()
@@ -420,7 +420,7 @@ namespace TrajectoryPlanner
             yield return new WaitForSeconds(delay);
             AddNewProbe(1);
             yield return new WaitForSeconds(0.05f);
-            activeProbeController.SetProbePositionCCF(new ProbeInsertion(5.4f, 5.7f, 0.332f, phi, theta, 0));
+            activeProbeController.GetProbeController().SetProbePositionCCF(new ProbeInsertion(5.4f, 5.7f, 0.332f, phi, theta, 0));
         }
 
         IEnumerator DelayedMoveAllProbes()
@@ -457,7 +457,7 @@ namespace TrajectoryPlanner
         public ProbeManager AddNewProbe(int probeType, float ap, float ml, float dv, float phi, float theta, float spin)
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            StartCoroutine(probeController.DelayedManualCoordinateEntryTransformed(0.1f, ap, ml, dv, phi, theta, spin));
+            StartCoroutine(probeController.GetProbeController().DelayedManualCoordinateEntryTransformed(0.1f, ap, ml, dv, phi, theta, spin));
 
             return probeController;
         }
@@ -468,7 +468,7 @@ namespace TrajectoryPlanner
             ProbeManager probeController = AddNewProbe(probeType);
             if (manipulatorId == 0)
             {
-                StartCoroutine(probeController.DelayedManualCoordinateEntryTransformed(0.1f, localInsertion.ap,
+                StartCoroutine(probeController.GetProbeController().DelayedManualCoordinateEntryTransformed(0.1f, localInsertion.ap,
                     localInsertion.ml, localInsertion.dv, localInsertion.phi,
                     localInsertion.theta, localInsertion.spin));
             }
@@ -573,7 +573,7 @@ namespace TrajectoryPlanner
         public void ResetActiveProbe()
         {
             if (activeProbeController != null)
-                activeProbeController.ResetPosition();
+                activeProbeController.GetProbeController().ResetPosition();
         }
 
         public Color GetProbeColor(int probeID)

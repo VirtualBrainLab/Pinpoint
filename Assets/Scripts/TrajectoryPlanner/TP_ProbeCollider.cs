@@ -6,7 +6,7 @@ using TrajectoryPlanner;
 
 public class TP_ProbeCollider : MonoBehaviour
 {
-    [SerializeField] ProbeManager pcontroller;
+    [SerializeField] ProbeManager probeManager;
     private TrajectoryPlannerManager tpmanager;
 
     private void Start()
@@ -25,17 +25,17 @@ public class TP_ProbeCollider : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
         // If someone clicks on a probe, immediately make that the active probe and claim probe control
-        tpmanager.SetActiveProbe(pcontroller);
-        pcontroller.DragMovementClick();
+        tpmanager.SetActiveProbe(probeManager);
+        probeManager.GetProbeController().DragMovementClick();
     }
 
     private void OnMouseDrag()
     {
-        pcontroller.DragMovementDrag();
+        probeManager.GetProbeController().DragMovementDrag();
     }
 
     private void OnMouseUp()
     {
-        pcontroller.DragMovementRelease();
+        probeManager.GetProbeController().DragMovementRelease();
     }
 }
