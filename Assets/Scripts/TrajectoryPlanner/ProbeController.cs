@@ -27,7 +27,6 @@ public class ProbeController : MonoBehaviour
     private bool keyHeld = false; // If a key is held, we will skip re-checking the key hold delay for any other keys that are added
     private float keyPressTime = 0f;
     private const float keyHoldDelay = 0.300f;
-    private bool draggingMovement = false;
     #endregion
 
     #region Angle limits
@@ -93,12 +92,6 @@ public class ProbeController : MonoBehaviour
         initialRotation = transform.rotation;
 
         ResetPosition();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void Register(TrajectoryPlannerManager tpmanager, ProbeManager probeManager)
