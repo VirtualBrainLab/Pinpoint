@@ -19,10 +19,10 @@ using UnityEngine.UI;
 public class PlayerPrefs : MonoBehaviour
 {
     // Settings
-    private bool collisions;
-    private bool recordingRegionOnly;
-    private bool useAcronyms;
-    private bool depthFromBrain;
+    private bool _collisions;
+    private bool _recordingRegionOnly;
+    private bool _useAcronyms;
+    private bool _depthFromBrain;
     private bool convertAPML2probeAxis;
     private int slice3d;
     private bool inplane;
@@ -33,6 +33,7 @@ public class PlayerPrefs : MonoBehaviour
     private string _sensapexLinkServerIp;
     private int _sensapexLinkServerPort;
     private bool _axisControl;
+    private bool _showAllProbePanels;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -48,6 +49,7 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] TMP_InputField sensapexLinkServerIpInput;
     [SerializeField] TMP_InputField sensapexLinkServerPortInput;
     [SerializeField] Toggle axisControlToggle;
+    [SerializeField] Toggle showAllProbePanelsToggle;
 
 
     /// <summary>
@@ -55,20 +57,20 @@ public class PlayerPrefs : MonoBehaviour
     /// </summary>
     void Awake()
     {
-        collisions = LoadBoolPref("collisions", true);
-        collisionsToggle.isOn = collisions;
+        _collisions = LoadBoolPref("collisions", true);
+        collisionsToggle.isOn = _collisions;
 
         //useIblBregma = LoadBoolPref("bregma", true);
         ////bregmaToggle.isOn = useIblBregma;
 
-        recordingRegionOnly = LoadBoolPref("recording", true);
-        recordingRegionToggle.isOn = recordingRegionOnly;
+        _recordingRegionOnly = LoadBoolPref("recording", true);
+        recordingRegionToggle.isOn = _recordingRegionOnly;
 
-        useAcronyms = LoadBoolPref("acronyms", true);
-        acronymToggle.isOn = useAcronyms;
+        _useAcronyms = LoadBoolPref("acronyms", true);
+        acronymToggle.isOn = _useAcronyms;
 
-        depthFromBrain = LoadBoolPref("depth", true);
-        depthToggle.isOn = depthFromBrain;
+        _depthFromBrain = LoadBoolPref("depth", true);
+        depthToggle.isOn = _depthFromBrain;
 
         convertAPML2probeAxis = LoadBoolPref("probeaxis", false);
         probeAxisToggle.isOn = convertAPML2probeAxis;
@@ -96,6 +98,9 @@ public class PlayerPrefs : MonoBehaviour
 
         _axisControl = LoadBoolPref("axis_control", false);
         axisControlToggle.isOn = _axisControl;
+
+        _showAllProbePanels = LoadBoolPref("show_all_probe_panels", true);
+        showAllProbePanelsToggle.isOn = _showAllProbePanels;
     }
 
     /// <summary>
@@ -126,6 +131,17 @@ public class PlayerPrefs : MonoBehaviour
     }
 
     #region Getters/Setters
+
+    public void SetShowAllProbePanels(bool state)
+    {
+        _showAllProbePanels = state;
+        UnityEngine.PlayerPrefs.SetInt("show_all_probe_panels", _showAllProbePanels ? 1 : 0);
+    }
+
+    public bool GetShowAllProbePanels()
+    {
+        return _showAllProbePanels;
+    }
 
     public void SetAxisControl(bool state)
     {
@@ -206,46 +222,46 @@ public class PlayerPrefs : MonoBehaviour
 
     public void SetDepthFromBrain(bool state)
     {
-        depthFromBrain = state;
-        UnityEngine.PlayerPrefs.SetInt("depth", depthFromBrain ? 1 : 0);
+        _depthFromBrain = state;
+        UnityEngine.PlayerPrefs.SetInt("depth", _depthFromBrain ? 1 : 0);
     }
 
     public bool GetDepthFromBrain()
     {
-        return depthFromBrain;
+        return _depthFromBrain;
     }
 
     public void SetAcronyms(bool state)
     {
-        useAcronyms = state;
-        UnityEngine.PlayerPrefs.SetInt("acronyms", recordingRegionOnly ? 1 : 0);
+        _useAcronyms = state;
+        UnityEngine.PlayerPrefs.SetInt("acronyms", _recordingRegionOnly ? 1 : 0);
     }
 
     public bool GetAcronyms()
     {
-        return useAcronyms;
+        return _useAcronyms;
     }
 
     public void SetRecordingRegionOnly(bool state)
     {
-        recordingRegionOnly = state;
-        UnityEngine.PlayerPrefs.SetInt("recording", recordingRegionOnly ? 1 : 0);
+        _recordingRegionOnly = state;
+        UnityEngine.PlayerPrefs.SetInt("recording", _recordingRegionOnly ? 1 : 0);
     }
 
     public bool GetRecordingRegionOnly()
     {
-        return recordingRegionOnly;
+        return _recordingRegionOnly;
     }
 
     public void SetCollisions(bool toggleCollisions)
     {
-        collisions = toggleCollisions;
-        UnityEngine.PlayerPrefs.SetInt("collisions", collisions ? 1 : 0);
+        _collisions = toggleCollisions;
+        UnityEngine.PlayerPrefs.SetInt("collisions", _collisions ? 1 : 0);
     }
 
     public bool GetCollisions()
     {
-        return collisions;
+        return _collisions;
     }
 
     //public void SetBregma(bool useBregma)

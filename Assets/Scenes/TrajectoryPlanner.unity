@@ -8760,6 +8760,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 444838212221065001, guid: e72134d85f654e840bd7411db394141c, type: 3}
   m_PrefabInstance: {fileID: 444838212838294219}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &795364364 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7694385156596560716, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+  m_PrefabInstance: {fileID: 1397446698413376551}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &804818071
 GameObject:
   m_ObjectHideFlags: 0
@@ -22748,6 +22759,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -522.5
       objectReference: {fileID: 0}
+    - target: {fileID: 7694385156596560716, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2108153954}
+    - target: {fileID: 7694385156596560716, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetSetting_ShowAllProbePanels
+      objectReference: {fileID: 0}
+    - target: {fileID: 7694385156596560716, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: TrajectoryPlanner.TrajectoryPlannerManager, trajectoryplanner.core
+      objectReference: {fileID: 0}
     - target: {fileID: 8724797704987356831, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -24538,6 +24561,10 @@ PrefabInstance:
       propertyPath: recordingRegionToggle
       value: 
       objectReference: {fileID: 1307773803}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: showAllProbePanelsToggle
+      value: 
+      objectReference: {fileID: 795364364}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: sensapexLinkServerIpInput
       value: 

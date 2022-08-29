@@ -161,6 +161,11 @@ public class ProbeManager : MonoBehaviour
             puimanager.ProbeMoved();
     }
 
+    public void SetUIVisibility(bool state)
+    {
+        foreach (ProbeUIManager puimanager in probeUIManagers)
+            puimanager.SetProbePanelVisibility(state);
+    }
 
 
     /// <summary>

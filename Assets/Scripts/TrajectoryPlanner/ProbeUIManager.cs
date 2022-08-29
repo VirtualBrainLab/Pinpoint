@@ -95,6 +95,11 @@ public class ProbeUIManager : MonoBehaviour
         return probePanel;
     }
 
+    public void SetProbePanelVisibility(bool state)
+    {
+        probePanelGO.SetActive(state);
+    }
+
     private void ProbedMovedHelper()
     {
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
