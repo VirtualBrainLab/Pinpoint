@@ -771,6 +771,7 @@ public class ProbeManager : MonoBehaviour
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         /*
+         * Left-handed manipulator movement
          * +x = L
          * +Y = A
          * +Z = V
@@ -785,7 +786,7 @@ public class ProbeManager : MonoBehaviour
         var phiAdjustedY = offsetAdjustedPosition.x * _phiSin +
                            offsetAdjustedPosition.y * _phiCos;
         offsetAdjustedPosition.x = phiAdjustedX;
-        offsetAdjustedPosition.y = phiAdjustedY;
+        offsetAdjustedPosition.y = phiAdjustedY * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1);
         
         var positionAxisAdjusted = new Vector4(offsetAdjustedPosition.y, -offsetAdjustedPosition.x,
             -offsetAdjustedPosition.z, offsetAdjustedPosition.w);
