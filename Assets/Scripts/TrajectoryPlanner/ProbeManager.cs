@@ -757,13 +757,13 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetBrainSurfaceOffset()
     {
-        var tipExtension = probeController.GetTipTransform().up * 50;
+        var tipExtension = probeController.GetTipTransform().up * 0;
         var brainSurface =
             CCF2Surface(
                 probeController.GetTipTransform().position - tipExtension,
                 _probeAngles);
         
-        _brainSurfaceOffset = (brainSurface.Item2 - 50) * 1000;
+        _brainSurfaceOffset = (brainSurface.Item2) * 1000;
         Debug.Log("Raw data: " + brainSurface.Item2);
         Debug.Log("Brain Surface offset: " + _brainSurfaceOffset);
     }
@@ -795,7 +795,7 @@ public class ProbeManager : MonoBehaviour
                            offsetAdjustedPosition.y * _phiCos;
         offsetAdjustedPosition.x = phiAdjustedX;
         offsetAdjustedPosition.y = phiAdjustedY * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1);
-        offsetAdjustedPosition.w -= _brainSurfaceOffset;
+        offsetAdjustedPosition.w -= float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
         
         var positionAxisSwapped = new Vector4(offsetAdjustedPosition.y, -offsetAdjustedPosition.x,
             -offsetAdjustedPosition.z, offsetAdjustedPosition.w);
