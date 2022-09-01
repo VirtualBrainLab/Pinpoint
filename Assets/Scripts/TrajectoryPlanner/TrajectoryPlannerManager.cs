@@ -983,17 +983,18 @@ namespace TrajectoryPlanner
         {
             localPrefs.SetAxisControl(state);
             if (!state)
-                SetAxisVisibility(false, false, false, Vector3.zero);
+                SetAxisVisibility(false, false, false, false, null);
         }
 
-        public void SetAxisVisibility(bool AP, bool ML, bool DV, Vector3 pos)
+        public void SetAxisVisibility(bool AP, bool ML, bool DV, bool depth, Transform transform)
         {
             if (GetAxisControlEnabled())
             {
-                acontrol.SetAxisPosition(pos);
+                acontrol.SetAxisPosition(transform);
                 acontrol.SetAPVisibility(AP);
                 acontrol.SetMLVisibility(ML);
                 acontrol.SetDVVisibility(DV);
+                acontrol.SetDepthVisibility(depth);
             }
         }
 

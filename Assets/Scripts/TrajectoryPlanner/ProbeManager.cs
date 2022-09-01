@@ -826,9 +826,10 @@ public class ProbeManager : MonoBehaviour
 
     #region AxisControl
 
-    public void SetAxisVisibility(bool AP, bool ML, bool DV)
+    public void SetAxisVisibility(bool AP, bool ML, bool DV, bool depth)
     {
-        tpmanager.SetAxisVisibility(AP, ML, DV, probeController.GetTipTransform().position);
+        Transform tipT = probeController.GetTipTransform();
+        tpmanager.SetAxisVisibility(AP, ML, DV, depth, tipT);
     }
 
     #endregion AxisControl

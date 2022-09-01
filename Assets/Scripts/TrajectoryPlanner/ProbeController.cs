@@ -133,6 +133,9 @@ public class ProbeController : MonoBehaviour
 
     public bool MoveProbe_Keyboard(bool checkForCollisions)
     {
+        // drag movement takes precedence
+        if (dragging)
+            return false;
 
         bool moved = false;
         bool keyHoldDelayPassed = (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay;
@@ -461,6 +464,7 @@ public class ProbeController : MonoBehaviour
     private bool axisLockDepth;
     private bool axisLockTheta;
     private bool axisLockPhi;
+    private bool dragging;
 
     private Vector3 origAPMLDV;
     private float origPhi;
@@ -498,6 +502,8 @@ public class ProbeController : MonoBehaviour
         cameraDistance = Vector3.Distance(Camera.main.transform.position, gameObject.transform.position);
         originalClickPositionWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
         lastClickPositionWorld = originalClickPositionWorld;
+
+        dragging = true;
     }
 
     /// <summary>
@@ -533,7 +539,7 @@ public class ProbeController : MonoBehaviour
             axisLockDepth = false;
             axisLockPhi = false;
             axisLockTheta = false;
-            probeManager.SetAxisVisibility(true, false, false);
+            probeManager.SetAxisVisibility(true, false, false, false);
         }
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
         {
@@ -544,7 +550,7 @@ public class ProbeController : MonoBehaviour
             axisLockDepth = false;
             axisLockPhi = false;
             axisLockTheta = false;
-            probeManager.SetAxisVisibility(false, true, false);
+            probeManager.SetAxisVisibility(false, true, false, false);
         }
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
         {
@@ -555,6 +561,7 @@ public class ProbeController : MonoBehaviour
             axisLockDepth = true;
             axisLockPhi = false;
             axisLockTheta = false;
+            probeManager.SetAxisVisibility(false, false, false, true);
         }
         if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.F))
         {
@@ -575,7 +582,7 @@ public class ProbeController : MonoBehaviour
             axisLockDepth = false;
             axisLockPhi = false;
             axisLockTheta = false;
-            probeManager.SetAxisVisibility(false, false, true);
+            probeManager.SetAxisVisibility(false, false, true, false);
         }
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Alpha3))
         {
@@ -648,7 +655,8 @@ public class ProbeController : MonoBehaviour
     public void DragMovementRelease()
     {
         // release probe control
-        probeManager.SetAxisVisibility(false, false, false);
+        dragging = false;
+        probeManager.SetAxisVisibility(false, false, false, false);
         tpmanager.SetProbeControl(false);
     }
 
