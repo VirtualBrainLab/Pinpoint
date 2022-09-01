@@ -771,6 +771,7 @@ public class ProbeManager : MonoBehaviour
     public void EchoPositionFromSensapexLink(Vector4 pos)
     {
         /*
+         * Left-handed manipulator movement
          * +x = L
          * +Y = A
          * +Z = V

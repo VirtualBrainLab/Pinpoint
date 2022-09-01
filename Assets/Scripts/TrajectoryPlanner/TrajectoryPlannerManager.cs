@@ -307,6 +307,14 @@ namespace TrajectoryPlanner
         {
             _rightHandedManipulators.Add(manipulatorId);
         }
+        
+        public void RemoveRightHandedManipulator(int manipulatorId)
+        {
+            if (IsManipulatorRightHanded(manipulatorId))
+            {
+                _rightHandedManipulators.Remove(manipulatorId);
+            }
+        }
 
         // Update is called once per frame
         void Update()

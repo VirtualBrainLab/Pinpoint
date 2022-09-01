@@ -13,7 +13,7 @@ namespace Settings
 
         [SerializeField] private TMP_Text manipulatorIdText;
         [SerializeField] private TMP_Dropdown handednessDropdown;
-        
+
         private TrajectoryPlannerManager _trajectoryPlannerManager;
 
         #endregion
@@ -52,6 +52,10 @@ namespace Settings
             if (handednessDropdown.value == 1)
             {
                 _trajectoryPlannerManager.AddRightHandedManipulator(_manipulatorId);
+            }
+            else
+            {
+                _trajectoryPlannerManager.RemoveRightHandedManipulator(_manipulatorId);
             }
         }
 
