@@ -556,7 +556,7 @@ public class ProbeManager : MonoBehaviour
         // if you started outside, first find when you enter
         Transform probeTipT = probeController.GetTipTransform();
         Vector3 top = Utils.WorldSpace2apdvlr25(probeTipT.position + probeTipT.up * 10f);
-        for (float perc = 0; perc <= 1f; perc += 0.0005f)
+        for (float perc = 0; perc <= 1f; perc += 0.0005f) 
         {
             Vector3 point = Vector3.Lerp(tip_apdvlr25, top, perc);
             if (crossedThroughBrain)
@@ -757,7 +757,15 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetBrainSurfaceOffset()
     {
-        _sensapexLinkCommunicationManager.GetPos(_manipulatorId, pos => _brainSurfaceOffset = pos.w);
+        var tipExtension = probeController.GetTipTransform().up * 50;
+        var brainSurface =
+            CCF2Surface(
+                probeController.GetTipTransform().position - tipExtension,
+                _probeAngles);
+        
+        _brainSurfaceOffset = (brainSurface.Item2 - 50) * 1000;
+        Debug.Log("Raw data: " + brainSurface.Item2);
+        Debug.Log("Brain Surface offset: " + _brainSurfaceOffset);
     }
 
     #endregion
@@ -787,13 +795,14 @@ public class ProbeManager : MonoBehaviour
                            offsetAdjustedPosition.y * _phiCos;
         offsetAdjustedPosition.x = phiAdjustedX;
         offsetAdjustedPosition.y = phiAdjustedY * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1);
+        offsetAdjustedPosition.w -= _brainSurfaceOffset;
         
-        var positionAxisAdjusted = new Vector4(offsetAdjustedPosition.y, -offsetAdjustedPosition.x,
+        var positionAxisSwapped = new Vector4(offsetAdjustedPosition.y, -offsetAdjustedPosition.x,
             -offsetAdjustedPosition.z, offsetAdjustedPosition.w);
 
         // Drive normally when not moving depth, otherwise use surface coordinates
-        probeController.ManualCoordinateEntryTransformed(positionAxisAdjusted, _probeAngles,
-            (offsetAdjustedPosition.w - _brainSurfaceOffset) / 1000f);
+        probeController.ManualCoordinateEntryTransformed(positionAxisSwapped, _probeAngles,
+            offsetAdjustedPosition.w / 1000f);
 
 
         // Continue echoing position
