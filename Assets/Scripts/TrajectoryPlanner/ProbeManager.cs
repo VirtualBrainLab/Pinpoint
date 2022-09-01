@@ -785,7 +785,7 @@ public class ProbeManager : MonoBehaviour
         var phiAdjustedY = offsetAdjustedPosition.x * _phiSin +
                            offsetAdjustedPosition.y * _phiCos;
         offsetAdjustedPosition.x = phiAdjustedX;
-        offsetAdjustedPosition.y = phiAdjustedY;
+        offsetAdjustedPosition.y = phiAdjustedY * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1);
         
         var positionAxisAdjusted = new Vector4(offsetAdjustedPosition.y, -offsetAdjustedPosition.x,
             -offsetAdjustedPosition.z, offsetAdjustedPosition.w);
