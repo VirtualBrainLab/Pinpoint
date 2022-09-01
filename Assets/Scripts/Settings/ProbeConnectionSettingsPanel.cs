@@ -42,6 +42,8 @@ namespace TP_Settings
 
         #endregion
 
+        #region Variables
+
         #region Components
 
         #region Serialized
@@ -63,10 +65,17 @@ namespace TP_Settings
         private CommunicationManager _communicationManager;
         private ProbeManager _probeManager;
         private TP_QuestionDialogue _questionDialogue;
-        
+
+        #endregion
+
+        #region Properties
+
         private Vector4 _displayedBregmaOffset;
 
         #endregion
+
+        #endregion
+
 
         #region Property Getters and Setters
 

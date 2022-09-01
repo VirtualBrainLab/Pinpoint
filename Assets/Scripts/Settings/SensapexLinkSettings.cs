@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using SensapexLink;
 using TMPro;
+using TP_Settings;
 using TrajectoryPlanner;
 using UnityEngine;
 
-namespace TP_Settings
+namespace Settings
 {
     public class SensapexLinkSettings : MonoBehaviour
     {
@@ -19,6 +20,10 @@ namespace TP_Settings
         [SerializeField] private TMP_InputField portInputField;
         [SerializeField] private TMP_Text connectionErrorText;
         [SerializeField] private TMP_Text connectButtonText;
+
+        // Manipulators
+        [SerializeField] private GameObject manipulatorList;
+        [SerializeField] private GameObject manipulatorConnectionPanelPrefab;
 
         // Probes in scene
         [SerializeField] private GameObject probeList;
@@ -36,8 +41,11 @@ namespace TP_Settings
 
         #region Session variables
 
-        private Dictionary<int, Tuple<ProbeConnectionSettingsPanel, GameObject>>
-            _probeIdToProbeConnectionSettingsPanels;
+        private Dictionary<int, Tuple<ManipulatorConnectionSettingsPanel, GameObject>>
+            _manipulatorIdToManipulatorConnectionSettingsPanel = new();
+
+        private readonly Dictionary<int, Tuple<ProbeConnectionSettingsPanel, GameObject>>
+            _probeIdToProbeConnectionSettingsPanels = new();
 
         #endregion
 
@@ -52,10 +60,6 @@ namespace TP_Settings
             _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
             _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
                 .GetComponent<TP_QuestionDialogue>();
-
-            // Initialize session variables
-            _probeIdToProbeConnectionSettingsPanels =
-                new Dictionary<int, Tuple<ProbeConnectionSettingsPanel, GameObject>>();
         }
 
         private void OnEnable()
@@ -107,6 +111,38 @@ namespace TP_Settings
 
                 foreach (var value in _probeIdToProbeConnectionSettingsPanels.Values)
                     value.Item1.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
+
+                // Handle manipulator panels
+                var handledManipulatorIds = new HashSet<int>();
+
+                // Add any new manipulators in scene to list
+                foreach (var manipulatorId in availableIds)
+                {
+                    // Create new manipulator connection settings panel if the manipulator is new
+                    if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorId))
+                    {
+                        var manipulatorConnectionSettingsPanelGameObject =
+                            Instantiate(manipulatorConnectionPanelPrefab, manipulatorList.transform);
+                        var manipulatorConnectionSettingsPanel =
+                            manipulatorConnectionSettingsPanelGameObject
+                                .GetComponent<ManipulatorConnectionSettingsPanel>();
+
+                        manipulatorConnectionSettingsPanel.SetManipulatorId(manipulatorId);
+
+                        _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorId,
+                            new Tuple<ManipulatorConnectionSettingsPanel, GameObject>(
+                                manipulatorConnectionSettingsPanel, manipulatorConnectionSettingsPanelGameObject));
+                    }
+                    
+                    handledManipulatorIds.Add(manipulatorId);
+                }
+                
+                // Remove any manipulator that are not connected anymore
+                foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys.Where(key => !handledManipulatorIds.Contains(key)))
+                {
+                    Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].Item2);
+                    _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
+                }
             });
         }
 
@@ -115,6 +151,8 @@ namespace TP_Settings
         private void Start()
         {
             UpdateConnectionUI();
+
+            // Spawn in manipulators
         }
 
         #endregion

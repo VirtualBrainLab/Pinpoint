@@ -105,6 +105,7 @@ namespace TrajectoryPlanner
         #region Sensapex Link
 
         private CommunicationManager _communicationManager;
+        private HashSet<int> _rightHandedManipulators = new();
 
         #endregion
 
@@ -295,6 +296,16 @@ namespace TrajectoryPlanner
         public int GetActiveProbeType()
         {
             return activeProbeController.GetProbeType();
+        }
+
+        public bool IsManipulatorRightHanded(int manipulatorId)
+        {
+            return _rightHandedManipulators.Contains(manipulatorId);
+        }
+        
+        public void AddRightHandedManipulator(int manipulatorId)
+        {
+            _rightHandedManipulators.Add(manipulatorId);
         }
 
         // Update is called once per frame
