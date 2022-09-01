@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using SensapexLink;
 using TMPro;
 using UnityEngine;
@@ -25,6 +26,18 @@ namespace TP_Settings
         {
             connectButton.interactable = _communicationManager.IsConnected() && manipulatorIdDropdown.value > 0;
             connectButtonText.text = _probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
+
+            if (_probeManager.IsConnectedToManipulator())
+            {
+                if (_probeManager.GetBregmaOffset() != _displayedBregmaOffset)
+                {
+                    _displayedBregmaOffset = _probeManager.GetBregmaOffset();
+                    xInputField.text = _displayedBregmaOffset.x.ToString(CultureInfo.CurrentCulture);
+                    yInputField.text = _displayedBregmaOffset.y.ToString(CultureInfo.CurrentCulture);
+                    zInputField.text = _displayedBregmaOffset.z.ToString(CultureInfo.CurrentCulture);
+                    dInputField.text = _displayedBregmaOffset.w.ToString(CultureInfo.CurrentCulture);
+                }
+            }
         }
 
         #endregion
@@ -50,6 +63,8 @@ namespace TP_Settings
         private CommunicationManager _communicationManager;
         private ProbeManager _probeManager;
         private TP_QuestionDialogue _questionDialogue;
+        
+        private Vector4 _displayedBregmaOffset;
 
         #endregion
 
@@ -93,12 +108,13 @@ namespace TP_Settings
         /// </summary>
         public void SetBregmaOffset()
         {
-            _probeManager.SetBregmaOffset(new Vector4(
+            _displayedBregmaOffset = new Vector4(
                 float.Parse(xInputField.text == "" ? "0" : xInputField.text),
                 float.Parse(yInputField.text == "" ? "0" : yInputField.text),
                 float.Parse(zInputField.text == "" ? "0" : zInputField.text),
                 float.Parse(dInputField.text == "" ? "0" : dInputField.text)
-            ));
+            );
+            _probeManager.SetBregmaOffset(_displayedBregmaOffset);
         }
 
         #endregion

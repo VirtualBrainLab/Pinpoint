@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TrajectoryPlanner;
+using UnityEngine;
 
 public class ProbeController : MonoBehaviour
 {
@@ -730,9 +730,10 @@ public class ProbeController : MonoBehaviour
     /// </summary>
     /// <param name="apmldv">Vector3 representation of AP, ML, DV positions</param>
     /// <param name="angles">Vector3 represetnation of probe angles</param>
-    public void ManualCoordinateEntryTransformed(Vector3 apmldv, Vector3 angles)
+    /// <param name="depthOverride"></param>
+    public void ManualCoordinateEntryTransformed(Vector3 apmldv, Vector3 angles, float depthOverride= 0f)
     {
-        ManualCoordinateEntryTransformed(apmldv.x, apmldv.y, apmldv.z, angles.x, angles.y, angles.z);
+        ManualCoordinateEntryTransformed(apmldv.x, apmldv.y, apmldv.z, angles.x, angles.y, angles.z, depthOverride);
     }
 
     public IEnumerator DelayedManualCoordinateEntryTransformed(float delay, float ap, float ml, float dv, float phi, float theta, float spin)
