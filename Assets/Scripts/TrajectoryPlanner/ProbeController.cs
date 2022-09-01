@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TrajectoryPlanner;
+using UnityEngine;
 
 public class ProbeController : MonoBehaviour
 {

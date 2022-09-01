@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SensapexLink;
 using TMPro;
@@ -37,6 +38,8 @@ namespace TrajectoryPlanner
         [SerializeField] private GameObject IBLToolsGO;
         [SerializeField] private GameObject IBLTrajectoryGO;
         [SerializeField] private BrainCameraController brainCamController;
+
+        [SerializeField] private GameObject CanvasParent;
 
         // UI 
         [SerializeField] TP_QuestionDialogue qDialogue;
@@ -96,6 +99,9 @@ namespace TrajectoryPlanner
 
         Task annotationDatasetLoadTask;
 
+        // Track all input fields
+        private TMP_InputField[] _allInputFields;
+
         #region Sensapex Link
 
         private CommunicationManager _communicationManager;
@@ -120,8 +126,6 @@ namespace TrajectoryPlanner
             allNonActiveColliders = new List<Collider>();
             targetedBrainAreas = new List<int>();
             //Physics.autoSyncTransforms = true;
-
-            _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
         }
 
         private void Start()
@@ -312,8 +316,8 @@ namespace TrajectoryPlanner
 
             if (Input.anyKey && activeProbeController != null && !searchInput.isFocused)
             {
-                // [TODO]: Disable probe deletion when typing in an input field
-                if (Input.GetKeyDown(KeyCode.Backspace))
+                if (Input.GetKeyDown(KeyCode.Backspace) && !CanvasParent.GetComponentsInChildren<TMP_InputField>()
+                        .Any(inputField => inputField.isFocused))
                 {
                     DestroyActiveProbeController();
                     return;

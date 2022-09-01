@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using SensapexLink;
 using TMPro;
@@ -792,7 +791,8 @@ public class ProbeManager : MonoBehaviour
             -offsetAdjustedPosition.z, offsetAdjustedPosition.w);
 
         // Drive normally when not moving depth, otherwise use surface coordinates
-        probeController.ManualCoordinateEntryTransformed(positionAxisAdjusted, _probeAngles, (offsetAdjustedPosition.w - _brainSurfaceOffset)/1000f);
+        probeController.ManualCoordinateEntryTransformed(positionAxisAdjusted, _probeAngles,
+            (offsetAdjustedPosition.w - _brainSurfaceOffset) / 1000f);
 
 
         // Continue echoing position
