@@ -833,18 +833,31 @@ public class ProbeController : MonoBehaviour
             insertion.GetCoordinatesFloat_IBL(tpmanager.GetActiveCoordinateTransform()) :
             insertion.GetCoordinatesFloat(tpmanager.GetActiveCoordinateTransform());
     }
-
     /// <summary>
-    /// Get the coordinates of the current probe (insertion/depth/angles) in mm or um, depending on the current IBL state
+    /// Get the coordinates of the surface and depth, relative to the tip position, depending on the current IBL state
     /// </summary>
-    /// <returns>(ap, ml, dv, depth, phi, theta, spin)</returns>
-    public (float, float, float, float, float, float, float) GetCoordinatesSurface()
+    /// <returns>(ap, ml, dv, phi, theta, spin)</returns>
+    public (float, float, float, float, float, float, float) GetCoordinatesSurface(bool probeInBrain, Vector3 brainSurfaceWorld)
     {
-        (float ap, float ml, float dv, float phi, float theta, float spin) = tpmanager.GetSetting_UseIBLAngles() ?
-            insertion.GetCoordinatesFloat_IBL(tpmanager.GetActiveCoordinateTransform()) :
-            insertion.GetCoordinatesFloat(tpmanager.GetActiveCoordinateTransform());
 
-        return (ap, ml, dv, 0f, phi, theta, spin);
+        CoordinateTransform coordTransform = tpmanager.GetActiveCoordinateTransform();
+
+        Vector2 phiTheta = tpmanager.GetSetting_UseIBLAngles() ?
+            Utils.World2IBL(insertion.angles) :
+            insertion.angles;
+
+        Vector3 tipCoord = insertion.apmldv;
+        Vector3 entryCoord = probeInBrain ? Utils.world2apmldv(brainSurfaceWorld + tpmanager.GetCenterOffset()) : tipCoord;
+
+        if (coordTransform != null)
+        {
+            entryCoord = coordTransform.FromCCF(entryCoord);
+            tipCoord = coordTransform.FromCCF(tipCoord);
+        }
+
+        float depth = probeInBrain ? Vector3.Distance(tipCoord, entryCoord) : float.NaN;
+
+        return (entryCoord.x * 1000f, entryCoord.y * 1000f, entryCoord.z * 1000f, depth * 1000f, phiTheta.x, phiTheta.y, insertion.angles.z);
     }
 
     public ProbeInsertion GetInsertion()

@@ -318,10 +318,10 @@ namespace TrajectoryPlanner
                     return;
                 }
 
-                if (Input.GetKeyDown(KeyCode.M))
-                {
-                    manualCoordinatePanel.gameObject.SetActive(!manualCoordinatePanel.gameObject.activeSelf);
-                }
+                //if (Input.GetKeyDown(KeyCode.M))
+                //{
+                //    manualCoordinatePanel.gameObject.SetActive(!manualCoordinatePanel.gameObject.activeSelf);
+                //}
 
                 // Check if mouse buttons are down, or if probe is under manual control
                 if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
@@ -436,6 +436,14 @@ namespace TrajectoryPlanner
         {
             AddNewProbe(probeType);
         }
+
+        /// <summary>
+        /// Main function for adding new probes (other functions are just overloads)
+        /// 
+        /// Creates the new probe and then sets it to be active
+        /// </summary>
+        /// <param name="probeType"></param>
+        /// <returns></returns>
         public ProbeManager AddNewProbe(int probeType)
         {
             CountProbePanels();

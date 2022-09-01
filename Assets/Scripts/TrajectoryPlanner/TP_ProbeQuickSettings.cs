@@ -15,6 +15,8 @@ namespace TrajectoryPlanner
         private TP_QuestionDialogue _questionDialogue;
         private CanvasGroup _canvasGroup;
 
+        [SerializeField] private TP_CoordinateEntryPanel coordinatePanel;
+
         #endregion
 
         #region Setup
@@ -52,6 +54,7 @@ namespace TrajectoryPlanner
         {
             if (!gameObject.activeSelf) gameObject.SetActive(true);
             _probeManager = probeManager;
+            coordinatePanel.LinkProbe(probeManager);
 
             panelTitle.text = probeManager.GetID().ToString();
             panelTitle.color = probeManager.GetColor();

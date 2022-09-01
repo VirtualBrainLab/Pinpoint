@@ -224,7 +224,7 @@ public class ProbeManager : MonoBehaviour
     }
     public (float, float, float, float, float, float, float) GetCoordinatesSurface()
     {
-        return probeController.GetCoordinatesSurface();
+        return probeController.GetCoordinatesSurface(probeInBrain, brainSurfaceWorld);
     }
 
     public ProbeInsertion GetInsertion()
