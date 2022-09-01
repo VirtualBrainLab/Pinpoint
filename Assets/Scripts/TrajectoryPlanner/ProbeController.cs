@@ -85,6 +85,7 @@ public class ProbeController : MonoBehaviour
         UpdateRecordingRegionVars();
     }
 
+
     // Start is called before the first frame update
     void Start()
     {
@@ -431,7 +432,7 @@ public class ProbeController : MonoBehaviour
             keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
             keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
-        depth += depth * speed;
+        this.depth += depth * speed;
     }
 
     public void RotateProbe(float phi, float theta, bool pressed)
@@ -458,8 +459,8 @@ public class ProbeController : MonoBehaviour
     private bool axisLockML;
     private bool axisLockDV;
     private bool axisLockDepth;
-    private bool axisLockRF;
-    private bool axisLockQE;
+    private bool axisLockTheta;
+    private bool axisLockPhi;
 
     private Vector3 origAPMLDV;
     private float origPhi;
@@ -467,6 +468,7 @@ public class ProbeController : MonoBehaviour
 
     // Camera variables
     private Vector3 originalClickPositionWorld;
+    private Vector3 lastClickPositionWorld;
     private float cameraDistance;
 
     /// <summary>
@@ -484,16 +486,18 @@ public class ProbeController : MonoBehaviour
         axisLockDV = false;
         axisLockML = false;
         axisLockDepth = false;
-        axisLockRF = false;
-        axisLockQE = false;
+        axisLockTheta = false;
+        axisLockPhi = false;
 
         origAPMLDV = new Vector3(insertion.ap, insertion.ml, insertion.dv);
         origPhi = insertion.phi;
         origTheta = insertion.theta;
+        // Note: depth is special since it gets absorbed into the probe position on each frame
 
         // Track the screenPoint that was initially clicked
         cameraDistance = Vector3.Distance(Camera.main.transform.position, gameObject.transform.position);
         originalClickPositionWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
+        lastClickPositionWorld = originalClickPositionWorld;
     }
 
     /// <summary>
@@ -503,7 +507,7 @@ public class ProbeController : MonoBehaviour
     /// </summary>
     private void CheckForPreviousDragClick()
     {
-        if (axisLockAP || axisLockDV || axisLockML || axisLockDepth || axisLockQE || axisLockRF)
+        if (axisLockAP || axisLockDV || axisLockML || axisLockDepth || axisLockPhi || axisLockTheta)
             DragMovementClick();
     }
 
@@ -527,8 +531,8 @@ public class ProbeController : MonoBehaviour
             axisLockML = false;
             axisLockDV = false;
             axisLockDepth = false;
-            axisLockQE = false;
-            axisLockRF = false;
+            axisLockPhi = false;
+            axisLockTheta = false;
             probeManager.SetAxisVisibility(true, false, false);
         }
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
@@ -538,8 +542,8 @@ public class ProbeController : MonoBehaviour
             axisLockML = true;
             axisLockDV = false;
             axisLockDepth = false;
-            axisLockQE = false;
-            axisLockRF = false;
+            axisLockPhi = false;
+            axisLockTheta = false;
             probeManager.SetAxisVisibility(false, true, false);
         }
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
@@ -547,11 +551,10 @@ public class ProbeController : MonoBehaviour
             CheckForPreviousDragClick();
             axisLockAP = false;
             axisLockML = false;
-            axisLockDV = true;
-            axisLockDepth = false;
-            axisLockQE = false;
-            axisLockRF = false;
-            probeManager.SetAxisVisibility(false, false, true);
+            axisLockDV = false;
+            axisLockDepth = true;
+            axisLockPhi = false;
+            axisLockTheta = false;
         }
         if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.F))
         {
@@ -560,18 +563,29 @@ public class ProbeController : MonoBehaviour
             axisLockML = false;
             axisLockDV = false;
             axisLockDepth = false;
-            axisLockQE = false;
-            axisLockRF = true;
+            axisLockPhi = false;
+            axisLockTheta = true;
         }
         if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
         {
             CheckForPreviousDragClick();
             axisLockAP = false;
             axisLockML = false;
+            axisLockDV = true;
+            axisLockDepth = false;
+            axisLockPhi = false;
+            axisLockTheta = false;
+            probeManager.SetAxisVisibility(false, false, true);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            CheckForPreviousDragClick();
+            axisLockAP = false;
+            axisLockML = false;
             axisLockDV = false;
             axisLockDepth = false;
-            axisLockQE = true;
-            axisLockRF = false;
+            axisLockPhi = true;
+            axisLockTheta = false;
         }
 
         Vector3 worldOffset = curScreenPointWorld - originalClickPositionWorld;
@@ -592,17 +606,19 @@ public class ProbeController : MonoBehaviour
             insertion.dv = origAPMLDV.z - worldOffset.y;
             moved = true;
         }
-        //if (axisLockDepth)
-        //{
-        //    insertion.depth = origDepth - 1.5f * worldOffset.y;
-        //    moved = true;
-        //}
-        if (axisLockRF)
+        if (axisLockDepth)
+        {
+            worldOffset = curScreenPointWorld - lastClickPositionWorld;
+            lastClickPositionWorld = curScreenPointWorld;
+            depth = -1.5f * worldOffset.y;
+            moved = true;
+        }
+        if (axisLockTheta)
         {
             insertion.theta = Mathf.Clamp(origTheta + 3f * worldOffset.y, minTheta, maxTheta);
             moved = true;
         }
-        if (axisLockQE)
+        if (axisLockPhi)
         {
             insertion.phi = origPhi - 3f * worldOffset.x;
             moved = true;
@@ -624,6 +640,7 @@ public class ProbeController : MonoBehaviour
 
     }
 
+    #endregion
 
     /// <summary>
     /// Release control of mouse movements after the user releases the mouse button from a probe
@@ -635,6 +652,7 @@ public class ProbeController : MonoBehaviour
         tpmanager.SetProbeControl(false);
     }
 
+    #region Recording region UI
     public void ChangeRecordingRegionSize(float newSize)
     {
         recordingRegionSizeY = newSize;
@@ -686,10 +704,11 @@ public class ProbeController : MonoBehaviour
     /// 
     /// Depth is always in mm, even when using IBL-relative settings
     /// </summary>
-    public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin, float depth = 0f)
+    public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin, float depthOverride = 0f)
     {
         // Unconvert back to CCF space
-        this.depth = depth;
+        if (depthOverride != 0f)
+            depth = depthOverride;
         SetProbePositionTransformed(ap, ml, dv, phi, theta, spin);
 
         // Tell the tpmanager we moved and update the UI elements
@@ -721,9 +740,11 @@ public class ProbeController : MonoBehaviour
     /// <summary>
     /// Set the probe position to the current apml/depth/phi/theta/spin values
     /// </summary>
-    public void SetProbePosition()
+    public void SetProbePosition(float depthOverride = 0f)
     {
-        SetProbePositionCCF(insertion, depth);
+        if (depthOverride != 0f)
+            depth = depthOverride;
+        SetProbePositionCCF(insertion);
 
         // Check where we are relative to the surface of the brain
         probeManager.UpdateSurfacePosition();
@@ -735,26 +756,28 @@ public class ProbeController : MonoBehaviour
     /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
     /// </summary>
     /// <param name="localInsertion">new insertion position</param>
-    public void SetProbePositionCCF(ProbeInsertion localInsertion, float depth = 0f)
+    public void SetProbePositionCCF(ProbeInsertion localInsertion)
     {
         // Reset everything
         transform.position = initialPosition;
         transform.rotation = initialRotation;
         ResetPositionTracking();
 
-        // Compute depth transform, if needed
-        if (depth != 0f)
-        {
-            Vector3 tipPosition = CCFD2CCF(localInsertion.apmldv, depth, localInsertion.angles);
-            localInsertion.SetCoordinates(tipPosition.x, tipPosition.y, tipPosition.z,
-                localInsertion.angles.x, localInsertion.angles.y, localInsertion.angles.z);
-        }
-
         // Manually adjust the coordinates and rotation
         transform.position += Utils.apmldv2world(localInsertion.apmldv);
         transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
         transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
         transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
+
+        // Compute depth transform, if needed
+        if (depth != 0f)
+        {
+            transform.position += -transform.up * depth;
+            Vector3 depthAdjustment = Utils.world2apmldv(-transform.up * depth);
+            localInsertion.SetCoordinates(localInsertion.ap + depthAdjustment.x, localInsertion.ml + depthAdjustment.y, localInsertion.dv + depthAdjustment.z,
+                localInsertion.angles.x, localInsertion.angles.y, localInsertion.angles.z);
+            depth = 0f;
+        }
 
         // save the data
         insertion.SetCoordinates(localInsertion);
@@ -882,38 +905,6 @@ public class ProbeController : MonoBehaviour
         return recordingRegionSizeY;
     }
 
-    #endregion
-
-    #region CCF transforms
-
-    /// <summary>
-    /// Convert an insertion position, depth, and set of angles to a tip position, for use with a ProbeInsertion
-    /// </summary>
-    /// <returns>tip position in CCF coordinates</returns>
-    public Vector3 CCFD2CCF(Vector3 insertionPosition, float depth, Vector3 angles)
-    {
-        //// I've tried this a number of ways and can't figure it out. It's possible the way I'm applying rotations can't be done by euler angles? 
-        //// I think the simplest thing for now is to create an empty gameobject and use its transform to perform this calculation.
-
-        // reset
-        surfaceCalculatorT.position = insertionPosition;
-        surfaceCalculatorT.rotation = initialRotation;
-
-        surfaceCalculatorT.Translate(-surfaceCalculatorT.up * depth);
-        surfaceCalculatorT.RotateAround(insertionPosition, surfaceCalculatorT.up, angles.x);
-        surfaceCalculatorT.RotateAround(insertionPosition, surfaceCalculatorT.forward, angles.y);
-
-        return Utils.world2apmldv(surfaceCalculatorT.position);
-    }
-
-    /// <summary>
-    /// Convert a tip position, depth, and set of angles to an insertion position
-    /// </summary>
-    /// <returns>insertion position in CCF coordinates</returns>
-    public Vector3 CCF2CCFD(Vector3 tipPosition, float depth, Vector3 angles)
-    {
-        return CCFD2CCF(tipPosition, -depth, angles);
-    }
     #endregion
 
 }
