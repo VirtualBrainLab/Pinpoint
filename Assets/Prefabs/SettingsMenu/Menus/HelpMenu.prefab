@@ -149,7 +149,7 @@ MonoBehaviour:
     can also click (or click and hold) the keyboard keys to move in that direction
     in 10um increments. Press [SHIFT] for larger 100 um increments or [CTRL] for
     1um.\n\nThe full list of controls are:\nTranslation [W/A/S/D]\t\tDV [Q/E]\nAzimuth
-    [1/3]   \t\t\tElevation [T/G]\t\nSpin [,/.]\t\t\t\tDepth [Z/X]\t\t  \t\nRecording
+    [1/3]   \t\t\tElevation [R/H]\t\nSpin [,/.]\t\t\t\tDepth [Z/X]\t\t  \t\nRecording
     area [Y/H]\n\nDelete probes with [Backspace] and recover with [CTRL+Backspace]\n\n[M]
     opens the manual coordinate entry panel\n\nTo control the camera left click anywhere
     in the scene and drag. Right click and drag to translate. Double click the blue/green/red
