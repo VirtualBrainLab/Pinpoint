@@ -312,7 +312,8 @@ namespace TrajectoryPlanner
 
             if (Input.anyKey && activeProbeController != null && !searchInput.isFocused)
             {
-                if (Input.GetKeyDown(KeyCode.Backspace) && !manualCoordinatePanel.gameObject.activeSelf)
+                // [TODO]: Disable probe deletion when typing in an input field
+                if (Input.GetKeyDown(KeyCode.Backspace))
                 {
                     DestroyActiveProbeController();
                     return;

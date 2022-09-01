@@ -21,7 +21,7 @@ public class ProbeManager : MonoBehaviour
     private int _manipulatorId;
     private Vector3 _probeAngles;
     private float _phiCos = 1f;
-    private float _phiSin = 0f;
+    private float _phiSin;
     private Vector4 _bregmaOffset = Vector4.negativeInfinity;
     private float _brainSurfaceOffset;
 
@@ -777,47 +777,27 @@ public class ProbeManager : MonoBehaviour
          * +Z = V
          */
         
-        //[TODO] Commented code while re-factoring
-        //// Convert position to CCF
-        //var offsetAdjustedPosition = pos - _bregmaOffset;
+        // Convert position to CCF
+        var offsetAdjustedPosition = pos - _bregmaOffset;
         
-        //// Phi adjustment
-        //var phiAdjustedX = offsetAdjustedPosition.x * _phiCos -
-        //                   offsetAdjustedPosition.y * _phiSin;
-        //var phiAdjustedY = offsetAdjustedPosition.x * _phiSin +
-        //                   offsetAdjustedPosition.y * _phiCos;
-        //offsetAdjustedPosition.x = phiAdjustedX;
-        //offsetAdjustedPosition.y = phiAdjustedY;
+        // Phi adjustment
+        var phiAdjustedX = offsetAdjustedPosition.x * _phiCos -
+                           offsetAdjustedPosition.y * _phiSin;
+        var phiAdjustedY = offsetAdjustedPosition.x * _phiSin +
+                           offsetAdjustedPosition.y * _phiCos;
+        offsetAdjustedPosition.x = phiAdjustedX;
+        offsetAdjustedPosition.y = phiAdjustedY;
         
-        //var positionAxisAdjusted = new Vector4(offsetAdjustedPosition.y, -offsetAdjustedPosition.x,
-        //    -offsetAdjustedPosition.z, offsetAdjustedPosition.w);
+        var positionAxisAdjusted = new Vector4(offsetAdjustedPosition.y, -offsetAdjustedPosition.x,
+            -offsetAdjustedPosition.z, offsetAdjustedPosition.w);
 
-        //// Drive normally when not moving depth, otherwise use surface coordinates
-        //if (Math.Abs(offsetAdjustedPosition.w) < 1)
-        //{
-        //    ManualCoordinateEntryTransformed(positionAxisAdjusted, _probeAngles);
-        //}
-        //else
-        //{
-        //    // Convert manipulator reported coordinates to world coordinates for conversion
-        //    var tipPos = CCFD2CCF(Utils.apmldv2world(positionAxisAdjusted),
-        //        -(offsetAdjustedPosition.w - _brainSurfaceOffset),
-        //        _probeAngles);
-        //    insertion.SetCoordinates_IBL(tipPos.x, tipPos.y, tipPos.z,
-        //        _probeAngles.x, _probeAngles.y, _probeAngles.z, tpmanager.GetActiveCoordinateTransform());
-        //    SetProbePosition();
-
-        //    // Tell the tpmanager we moved and update the UI elements
-        //    tpmanager.SetMovedThisFrame();
-        //    foreach (var puimanager in probeUIManagers)
-        //        puimanager.ProbeMoved();
-        //    tpmanager.UpdateInPlaneView();
-        //}
+        // Drive normally when not moving depth, otherwise use surface coordinates
+        probeController.ManualCoordinateEntryTransformed(positionAxisAdjusted, _probeAngles, (offsetAdjustedPosition.w - _brainSurfaceOffset)/1000f);
 
 
-        //// Continue echoing position
-        //if (_sensapexLinkMovement)
-        //    _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);
+        // Continue echoing position
+        if (_sensapexLinkMovement)
+            _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);
     }
 
     #endregion
