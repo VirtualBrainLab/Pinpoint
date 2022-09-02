@@ -793,7 +793,7 @@ public class ProbeManager : MonoBehaviour
         var phiAdjustedY = bregmaAdjustedPosition.x * _phiSin +
                            bregmaAdjustedPosition.y * _phiCos;
         bregmaAdjustedPosition.x = phiAdjustedX;
-        bregmaAdjustedPosition.y = phiAdjustedY * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1);
+        bregmaAdjustedPosition.y = phiAdjustedY;
         
         // Brain surface adjustment
         float brainSurfaceAdjustment = float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
@@ -808,7 +808,7 @@ public class ProbeManager : MonoBehaviour
 
         // Swap axes to match AP/ML/DV order and adjust for handedness
         var positionAxisSwapped = new Vector3(
-            bregmaAdjustedPosition.y,
+            bregmaAdjustedPosition.y * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1),
             -bregmaAdjustedPosition.x,
             -bregmaAdjustedPosition.z);
 
