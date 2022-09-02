@@ -761,11 +761,10 @@ public class ProbeManager : MonoBehaviour
     public void SetBrainSurfaceOffset()
     {
         var tipExtensionDirection = _usedDepthLast ? probeController.GetTipTransform().up : Vector3.up;
-        var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 15, _probeAngles,
+        var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 5, _probeAngles,
             _usedDepthLast);
 
-        _brainSurfaceOffset += (brainSurface.Item2 - 15) * 1000;
-        Debug.Log("Raw data: " + (brainSurface.Item2 - 15) + "; Brain surface offset: " + _brainSurfaceOffset);
+        _brainSurfaceOffset += (brainSurface.Item2 - 5) * 1000;
     }
 
     #endregion
