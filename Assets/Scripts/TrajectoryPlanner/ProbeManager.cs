@@ -23,7 +23,7 @@ public class ProbeManager : MonoBehaviour
     private float _phiSin;
     private Vector4 _bregmaOffset = Vector4.negativeInfinity;
     private float _brainSurfaceOffset;
-    private bool _usedDepthLast = true;
+    private bool _usedDepthLast = false;
 
     #endregion
 
@@ -796,9 +796,20 @@ public class ProbeManager : MonoBehaviour
         bregmaAdjustedPosition.y = phiAdjustedY * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1);
         
         // Brain surface adjustment
-        bregmaAdjustedPosition.w -= float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
-        
-        var positionAxisSwapped = new Vector3(bregmaAdjustedPosition.y, -bregmaAdjustedPosition.x,
+        float brainSurfaceAdjustment = float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
+        if (_usedDepthLast)
+        {
+            bregmaAdjustedPosition.w -= brainSurfaceAdjustment;
+        }
+        else
+        {
+            bregmaAdjustedPosition.z -= brainSurfaceAdjustment;
+        }
+
+        // Swap axes to match AP/ML/DV order and adjust for handedness
+        var positionAxisSwapped = new Vector3(
+            bregmaAdjustedPosition.y,
+            -bregmaAdjustedPosition.x,
             -bregmaAdjustedPosition.z);
 
         // Drive normally when not moving depth, otherwise use surface coordinates
