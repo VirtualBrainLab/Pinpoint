@@ -23,6 +23,7 @@ public class ProbeManager : MonoBehaviour
     private float _phiSin;
     private Vector4 _bregmaOffset = Vector4.negativeInfinity;
     private float _brainSurfaceOffset;
+    private bool _usedDepthLast = true;
 
     #endregion
 
@@ -545,8 +546,9 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     /// <param name="tipPosition"></param>
     /// <param name="angles"></param>
+    /// <param name="useDepth">Determine which direction to seek brain surface (travel along depth or DV). Defaults to depth</param>
     /// <returns></returns>
-    public (Vector3, float, Vector3) CCF2Surface(Vector3 tipPosition, Vector3 angles)
+    public (Vector3, float, Vector3) CCF2Surface(Vector3 tipPosition, Vector3 angles, bool useDepth = true)
     {
         Vector3 tip_apdvlr25 = Utils.WorldSpace2apdvlr25(tipPosition);
 
@@ -555,7 +557,7 @@ public class ProbeManager : MonoBehaviour
         // Iterate up until you exit the brain
         // if you started outside, first find when you enter
         Transform probeTipT = probeController.GetTipTransform();
-        Vector3 top = Utils.WorldSpace2apdvlr25(probeTipT.position + probeTipT.up * 10f);
+        var top = Utils.WorldSpace2apdvlr25(probeTipT.position + (useDepth ? probeTipT.up : Vector3.up) * 10f);
         for (float perc = 0; perc <= 1f; perc += 0.0005f) 
         {
             Vector3 point = Vector3.Lerp(tip_apdvlr25, top, perc);
@@ -757,15 +759,12 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetBrainSurfaceOffset()
     {
-        var tipExtension = probeController.GetTipTransform().up * 0;
-        var brainSurface =
-            CCF2Surface(
-                probeController.GetTipTransform().position - tipExtension,
-                _probeAngles);
-        
-        _brainSurfaceOffset = (brainSurface.Item2) * 1000;
-        Debug.Log("Raw data: " + brainSurface.Item2);
-        Debug.Log("Brain Surface offset: " + _brainSurfaceOffset);
+        var tipExtensionDirection = _usedDepthLast ? probeController.GetTipTransform().up : Vector3.up;
+        var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 15, _probeAngles,
+            _usedDepthLast);
+
+        _brainSurfaceOffset += (brainSurface.Item2 - 15) * 1000;
+        Debug.Log("Raw data: " + (brainSurface.Item2 - 15) + "; Brain surface offset: " + _brainSurfaceOffset);
     }
 
     #endregion
@@ -786,23 +785,25 @@ public class ProbeManager : MonoBehaviour
          */
         
         // Convert position to CCF
-        var offsetAdjustedPosition = pos - _bregmaOffset;
+        var bregmaAdjustedPosition = pos - _bregmaOffset;
         
         // Phi adjustment
-        var phiAdjustedX = offsetAdjustedPosition.x * _phiCos -
-                           offsetAdjustedPosition.y * _phiSin;
-        var phiAdjustedY = offsetAdjustedPosition.x * _phiSin +
-                           offsetAdjustedPosition.y * _phiCos;
-        offsetAdjustedPosition.x = phiAdjustedX;
-        offsetAdjustedPosition.y = phiAdjustedY * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1);
-        offsetAdjustedPosition.w -= float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
+        var phiAdjustedX = bregmaAdjustedPosition.x * _phiCos -
+                           bregmaAdjustedPosition.y * _phiSin;
+        var phiAdjustedY = bregmaAdjustedPosition.x * _phiSin +
+                           bregmaAdjustedPosition.y * _phiCos;
+        bregmaAdjustedPosition.x = phiAdjustedX;
+        bregmaAdjustedPosition.y = phiAdjustedY * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1);
         
-        var positionAxisSwapped = new Vector4(offsetAdjustedPosition.y, -offsetAdjustedPosition.x,
-            -offsetAdjustedPosition.z, offsetAdjustedPosition.w);
+        // Brain surface adjustment
+        bregmaAdjustedPosition.w -= float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
+        
+        var positionAxisSwapped = new Vector3(bregmaAdjustedPosition.y, -bregmaAdjustedPosition.x,
+            -bregmaAdjustedPosition.z);
 
         // Drive normally when not moving depth, otherwise use surface coordinates
         probeController.ManualCoordinateEntryTransformed(positionAxisSwapped, _probeAngles,
-            offsetAdjustedPosition.w / 1000f);
+            bregmaAdjustedPosition.w / 1000f);
 
 
         // Continue echoing position
