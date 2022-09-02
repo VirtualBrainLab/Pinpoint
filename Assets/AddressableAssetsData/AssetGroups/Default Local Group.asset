@@ -17,10 +17,6 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: eb9eb3c822ec72b468349d4e785d6617
   m_SerializeEntries:
-  - m_GUID: 951b10c85b0298c429254ea51d1814c7
-    m_Address: Assets/Data/second_pass.csv
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: cc9c563dcae3923469f616c5ff125232
     m_Address: Assets/AddressableAssets/flatiron_info.txt
     m_ReadOnly: 0
