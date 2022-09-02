@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SensapexLink;
 using TMPro;
-using TP_Settings;
 using TrajectoryPlanner;
 using UnityEngine;
 

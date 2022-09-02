@@ -23,6 +23,8 @@ public class ProbeManager : MonoBehaviour
     private float _phiSin;
     private Vector4 _bregmaOffset = Vector4.negativeInfinity;
     private float _brainSurfaceOffset;
+    private bool _dropToSurfaceWithDepth = true;
+    private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
 
     #endregion
 
@@ -545,8 +547,9 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     /// <param name="tipPosition"></param>
     /// <param name="angles"></param>
+    /// <param name="useDepth">Determine which direction to seek brain surface (travel along depth or DV). Defaults to depth</param>
     /// <returns></returns>
-    public (Vector3, float, Vector3) CCF2Surface(Vector3 tipPosition, Vector3 angles)
+    public (Vector3, float, Vector3) CCF2Surface(Vector3 tipPosition, Vector3 angles, bool useDepth = true)
     {
         Vector3 tip_apdvlr25 = Utils.WorldSpace2apdvlr25(tipPosition);
 
@@ -555,8 +558,8 @@ public class ProbeManager : MonoBehaviour
         // Iterate up until you exit the brain
         // if you started outside, first find when you enter
         Transform probeTipT = probeController.GetTipTransform();
-        Vector3 top = Utils.WorldSpace2apdvlr25(probeTipT.position + probeTipT.up * 10f);
-        for (float perc = 0; perc <= 1f; perc += 0.0005f)
+        var top = Utils.WorldSpace2apdvlr25(probeTipT.position + (useDepth ? probeTipT.up : Vector3.up) * 10f);
+        for (float perc = 0; perc <= 1f; perc += 0.0005f) 
         {
             Vector3 point = Vector3.Lerp(tip_apdvlr25, top, perc);
             if (crossedThroughBrain)
@@ -757,7 +760,47 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetBrainSurfaceOffset()
     {
-        _sensapexLinkCommunicationManager.GetPos(_manipulatorId, pos => _brainSurfaceOffset = pos.w);
+        var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipTransform().up : Vector3.up;
+        var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 5, _probeAngles,
+            _dropToSurfaceWithDepth);
+
+        _brainSurfaceOffset -= (brainSurface.Item2 - 5) * 1000;
+    }
+
+    /// <summary>
+    ///     Manual adjustment of brain surface offset
+    /// </summary>
+    /// <param name="increment">Amount to change the brain surface offset by</param>
+    public void IncrementBrainSurfaceOffset(float increment)
+    {
+        _brainSurfaceOffset += increment;
+    }
+
+    /// <summary>
+    ///     Manually edit brain surface offset
+    /// </summary>
+    /// <param name="offset">Amount to offset by</param>
+    public void SetBrainSurfaceOffsetManually(float offset)
+    {
+        _brainSurfaceOffset = offset;
+    }
+
+    /// <summary>
+    ///     Set if the probe should be dropped to the surface with depth or with DV
+    /// </summary>
+    /// <param name="dropToSurfaceWithDepth">Use depth if true, use DV if false</param>
+    public void SetDropToSurfaceWithDepth(bool dropToSurfaceWithDepth)
+    {
+        _dropToSurfaceWithDepth = dropToSurfaceWithDepth;
+    }
+
+    /// <summary>
+    ///     Return if this probe is currently set to drop to the surface using depth
+    /// </summary>
+    /// <returns>True if dropping to surface via depth, false if using DV</returns>
+    public bool IsSetToDropToSurfaceWithDepth()
+    {
+        return _dropToSurfaceWithDepth;
     }
 
     #endregion
@@ -778,22 +821,38 @@ public class ProbeManager : MonoBehaviour
          */
         
         // Convert position to CCF
-        var offsetAdjustedPosition = pos - _bregmaOffset;
+        var bregmaAdjustedPosition = pos - _bregmaOffset;
         
         // Phi adjustment
-        var phiAdjustedX = offsetAdjustedPosition.x * _phiCos -
-                           offsetAdjustedPosition.y * _phiSin;
-        var phiAdjustedY = offsetAdjustedPosition.x * _phiSin +
-                           offsetAdjustedPosition.y * _phiCos;
-        offsetAdjustedPosition.x = phiAdjustedX;
-        offsetAdjustedPosition.y = phiAdjustedY * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1);
+        var phiAdjustedX = bregmaAdjustedPosition.x * _phiCos -
+                           bregmaAdjustedPosition.y * _phiSin;
+        var phiAdjustedY = bregmaAdjustedPosition.x * _phiSin +
+                           bregmaAdjustedPosition.y * _phiCos;
+        bregmaAdjustedPosition.x = phiAdjustedX;
+        bregmaAdjustedPosition.y = phiAdjustedY;
+
+        // Calculate last used direction (between depth and DV)
+        var dvDelta = Math.Abs(bregmaAdjustedPosition.z - _lastManipulatorPosition.z);
+        var depthDelta = Math.Abs(bregmaAdjustedPosition.w - _lastManipulatorPosition.w);
+        if (dvDelta > 0.1 || depthDelta > 0.1) _dropToSurfaceWithDepth = depthDelta >= dvDelta;
+        _lastManipulatorPosition = bregmaAdjustedPosition;
         
-        var positionAxisAdjusted = new Vector4(offsetAdjustedPosition.y, -offsetAdjustedPosition.x,
-            -offsetAdjustedPosition.z, offsetAdjustedPosition.w);
+        // Brain surface adjustment
+        var brainSurfaceAdjustment = float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
+        if (_dropToSurfaceWithDepth)
+            bregmaAdjustedPosition.w += brainSurfaceAdjustment;
+        else
+            bregmaAdjustedPosition.z += brainSurfaceAdjustment;
+
+        // Swap axes to match AP/ML/DV order and adjust for handedness
+        var positionAxisSwapped = new Vector3(
+            bregmaAdjustedPosition.y * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1),
+            -bregmaAdjustedPosition.x,
+            -bregmaAdjustedPosition.z);
 
         // Drive normally when not moving depth, otherwise use surface coordinates
-        probeController.ManualCoordinateEntryTransformed(positionAxisAdjusted, _probeAngles,
-            (offsetAdjustedPosition.w - _brainSurfaceOffset) / 1000f);
+        probeController.ManualCoordinateEntryTransformed(positionAxisSwapped, _probeAngles,
+            bregmaAdjustedPosition.w / 1000f);
 
 
         // Continue echoing position
