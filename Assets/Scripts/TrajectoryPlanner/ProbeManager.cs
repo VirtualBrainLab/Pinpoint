@@ -23,7 +23,7 @@ public class ProbeManager : MonoBehaviour
     private float _phiSin;
     private Vector4 _bregmaOffset = Vector4.negativeInfinity;
     private float _brainSurfaceOffset;
-    private bool _usedDepthLast = true;
+    private bool _dropToSurfaceWithDepth = true;
     private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
 
     #endregion
@@ -760,11 +760,47 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetBrainSurfaceOffset()
     {
-        var tipExtensionDirection = _usedDepthLast ? probeController.GetTipTransform().up : Vector3.up;
+        var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipTransform().up : Vector3.up;
         var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 5, _probeAngles,
-            _usedDepthLast);
+            _dropToSurfaceWithDepth);
 
-        _brainSurfaceOffset += (brainSurface.Item2 - 5) * 1000;
+        _brainSurfaceOffset -= (brainSurface.Item2 - 5) * 1000;
+    }
+
+    /// <summary>
+    ///     Manual adjustment of brain surface offset
+    /// </summary>
+    /// <param name="increment">Amount to change the brain surface offset by</param>
+    public void IncrementBrainSurfaceOffset(float increment)
+    {
+        _brainSurfaceOffset += increment;
+    }
+
+    /// <summary>
+    ///     Manually edit brain surface offset
+    /// </summary>
+    /// <param name="offset">Amount to offset by</param>
+    public void SetBrainSurfaceOffsetManually(float offset)
+    {
+        _brainSurfaceOffset = offset;
+    }
+
+    /// <summary>
+    ///     Set if the probe should be dropped to the surface with depth or with DV
+    /// </summary>
+    /// <param name="dropToSurfaceWithDepth">Use depth if true, use DV if false</param>
+    public void SetDropToSurfaceWithDepth(bool dropToSurfaceWithDepth)
+    {
+        _dropToSurfaceWithDepth = dropToSurfaceWithDepth;
+    }
+
+    /// <summary>
+    ///     Return if this probe is currently set to drop to the surface using depth
+    /// </summary>
+    /// <returns>True if dropping to surface via depth, false if using DV</returns>
+    public bool IsSetToDropToSurfaceWithDepth()
+    {
+        return _dropToSurfaceWithDepth;
     }
 
     #endregion
@@ -798,15 +834,15 @@ public class ProbeManager : MonoBehaviour
         // Calculate last used direction (between depth and DV)
         var dvDelta = Math.Abs(bregmaAdjustedPosition.z - _lastManipulatorPosition.z);
         var depthDelta = Math.Abs(bregmaAdjustedPosition.w - _lastManipulatorPosition.w);
-        if (dvDelta > 0.1 || depthDelta > 0.1) _usedDepthLast = depthDelta >= dvDelta;
+        if (dvDelta > 0.1 || depthDelta > 0.1) _dropToSurfaceWithDepth = depthDelta >= dvDelta;
         _lastManipulatorPosition = bregmaAdjustedPosition;
         
         // Brain surface adjustment
-        float brainSurfaceAdjustment = float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
-        if (_usedDepthLast)
-            bregmaAdjustedPosition.w -= brainSurfaceAdjustment;
+        var brainSurfaceAdjustment = float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
+        if (_dropToSurfaceWithDepth)
+            bregmaAdjustedPosition.w += brainSurfaceAdjustment;
         else
-            bregmaAdjustedPosition.z -= brainSurfaceAdjustment;
+            bregmaAdjustedPosition.z += brainSurfaceAdjustment;
 
         // Swap axes to match AP/ML/DV order and adjust for handedness
         var positionAxisSwapped = new Vector3(

@@ -6,42 +6,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TP_Settings
+namespace Settings
 {
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
-        #region Setup
-
-        /// <summary>
-        ///     Initialize components
-        /// </summary>
-        private void Awake()
-        {
-            _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
-            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
-                .GetComponent<TP_QuestionDialogue>();
-        }
-
-        private void FixedUpdate()
-        {
-            connectButton.interactable = _communicationManager.IsConnected() && manipulatorIdDropdown.value > 0;
-            connectButtonText.text = _probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
-
-            if (_probeManager.IsConnectedToManipulator())
-            {
-                if (_probeManager.GetBregmaOffset() != _displayedBregmaOffset)
-                {
-                    _displayedBregmaOffset = _probeManager.GetBregmaOffset();
-                    xInputField.text = _displayedBregmaOffset.x.ToString(CultureInfo.CurrentCulture);
-                    yInputField.text = _displayedBregmaOffset.y.ToString(CultureInfo.CurrentCulture);
-                    zInputField.text = _displayedBregmaOffset.z.ToString(CultureInfo.CurrentCulture);
-                    dInputField.text = _displayedBregmaOffset.w.ToString(CultureInfo.CurrentCulture);
-                }
-            }
-        }
-
-        #endregion
-
         #region Variables
 
         #region Components
@@ -52,13 +20,12 @@ namespace TP_Settings
         [SerializeField] private TMP_Dropdown manipulatorIdDropdown;
         [SerializeField] private Button connectButton;
         [SerializeField] private TMP_Text connectButtonText;
-        [SerializeField] private TMP_InputField phiInputField;
-        [SerializeField] private TMP_InputField thetaInputField;
-        [SerializeField] private TMP_InputField spinInputField;
         [SerializeField] private TMP_InputField xInputField;
         [SerializeField] private TMP_InputField yInputField;
         [SerializeField] private TMP_InputField zInputField;
         [SerializeField] private TMP_InputField dInputField;
+        [SerializeField] private TMP_Dropdown brainSurfaceOffsetDirectionDropdown;
+        [SerializeField] private TMP_InputField brainSurfaceOffsetInputField;
 
         #endregion
 
@@ -71,8 +38,67 @@ namespace TP_Settings
         #region Properties
 
         private Vector4 _displayedBregmaOffset;
+        private float _displayedBrainSurfaceOffset;
 
         #endregion
+
+        #endregion
+
+        #region Unity
+
+        /// <summary>
+        ///     Initialize components
+        /// </summary>
+        private void Awake()
+        {
+            _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
+            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
+                .GetComponent<TP_QuestionDialogue>();
+        }
+
+        /// <summary>
+        ///     Configure input field submissions
+        /// </summary>
+        private void Start()
+        {
+            brainSurfaceOffsetInputField.onEndEdit.AddListener(delegate
+            {
+                _probeManager.SetBrainSurfaceOffset(float.Parse(brainSurfaceOffsetInputField.text));
+            });
+        }
+
+        /// <summary>
+        ///     Update values as they change
+        /// </summary>
+        private void FixedUpdate()
+        {
+            connectButton.interactable = _communicationManager.IsConnected() && manipulatorIdDropdown.value > 0;
+            connectButtonText.text = _probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
+
+            if (_probeManager.IsConnectedToManipulator())
+            {
+                // Update display for Bregma offset
+                if (_probeManager.GetBregmaOffset() != _displayedBregmaOffset)
+                {
+                    _displayedBregmaOffset = _probeManager.GetBregmaOffset();
+                    xInputField.text = _displayedBregmaOffset.x.ToString(CultureInfo.CurrentCulture);
+                    yInputField.text = _displayedBregmaOffset.y.ToString(CultureInfo.CurrentCulture);
+                    zInputField.text = _displayedBregmaOffset.z.ToString(CultureInfo.CurrentCulture);
+                    dInputField.text = _displayedBregmaOffset.w.ToString(CultureInfo.CurrentCulture);
+                }
+
+                // Update brain surface offset drop direction dropdown
+                if (_probeManager.IsSetToDropToSurfaceWithDepth() != (brainSurfaceOffsetDirectionDropdown.value == 0))
+                    brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(
+                        _probeManager.IsSetToDropToSurfaceWithDepth() ? 0 : 1);
+
+                // Update display for brain surface offset
+                if (!(Math.Abs(_probeManager.GetBrainSurfaceOffset() - _displayedBrainSurfaceOffset) > 0.001f)) return;
+                _displayedBrainSurfaceOffset = _probeManager.GetBrainSurfaceOffset();
+                brainSurfaceOffsetInputField.text =
+                    _displayedBrainSurfaceOffset.ToString(CultureInfo.CurrentCulture);
+            }
+        }
 
         #endregion
 
@@ -98,18 +124,6 @@ namespace TP_Settings
         public ProbeManager GetProbeManager()
         {
             return _probeManager;
-        }
-
-        /// <summary>
-        ///     Set probe angles by using the values in the input fields.
-        /// </summary>
-        public void SetAngles()
-        {
-            _probeManager.SetProbeAngles(new Vector3(
-                float.Parse(phiInputField.text == "" ? "0" : phiInputField.text),
-                float.Parse(thetaInputField.text == "" ? "0" : thetaInputField.text),
-                float.Parse(spinInputField.text == "" ? "0" : spinInputField.text)
-            ));
         }
 
         /// <summary>
@@ -147,6 +161,10 @@ namespace TP_Settings
             connectButton.interactable = indexOfId != 0;
         }
 
+        /// <summary>
+        ///     Check selected option for manipulator and disable connect button if no manipulator is selected.
+        /// </summary>
+        /// <param name="value">Manipulator option that was selected (0 = no manipulator)</param>
         public void OnManipulatorDropdownValueChanged(int value)
         {
             connectButton.interactable = value != 0;
@@ -176,6 +194,24 @@ namespace TP_Settings
                 });
                 _questionDialogue.NewQuestion("Is this manipulator at Bregma?");
             }
+        }
+
+        /// <summary>
+        ///     Update drop to surface direction based on dropdown selection
+        /// </summary>
+        /// <param name="value">Selected direction: 0 = depth, 1 = DV</param>
+        public void OnBrainSurfaceOffsetDirectionDropdownValueChanged(int value)
+        {
+            _probeManager.SetDropToSurfaceWithDepth(value == 0);
+        }
+
+        /// <summary>
+        ///     Pass an increment amount to the probe manager to update the drop to surface offset
+        /// </summary>
+        /// <param name="amount">Amount to increment by (negative numbers are valid)</param>
+        public void IncrementBrainSurfaceOffset(float amount)
+        {
+            _probeManager.IncrementBrainSurfaceOffset(amount);
         }
 
         #endregion
