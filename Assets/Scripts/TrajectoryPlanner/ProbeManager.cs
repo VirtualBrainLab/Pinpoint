@@ -23,7 +23,8 @@ public class ProbeManager : MonoBehaviour
     private float _phiSin;
     private Vector4 _bregmaOffset = Vector4.negativeInfinity;
     private float _brainSurfaceOffset;
-    private bool _usedDepthLast = false;
+    private bool _usedDepthLast = true;
+    private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
 
     #endregion
 
@@ -794,17 +795,19 @@ public class ProbeManager : MonoBehaviour
                            bregmaAdjustedPosition.y * _phiCos;
         bregmaAdjustedPosition.x = phiAdjustedX;
         bregmaAdjustedPosition.y = phiAdjustedY;
+
+        // Calculate last used direction (between depth and DV)
+        var dvDelta = Math.Abs(bregmaAdjustedPosition.z - _lastManipulatorPosition.z);
+        var depthDelta = Math.Abs(bregmaAdjustedPosition.w - _lastManipulatorPosition.w);
+        if (dvDelta > 0.1 || depthDelta > 0.1) _usedDepthLast = depthDelta >= dvDelta;
+        _lastManipulatorPosition = bregmaAdjustedPosition;
         
         // Brain surface adjustment
         float brainSurfaceAdjustment = float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
         if (_usedDepthLast)
-        {
             bregmaAdjustedPosition.w -= brainSurfaceAdjustment;
-        }
         else
-        {
             bregmaAdjustedPosition.z -= brainSurfaceAdjustment;
-        }
 
         // Swap axes to match AP/ML/DV order and adjust for handedness
         var positionAxisSwapped = new Vector3(
