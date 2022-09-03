@@ -792,6 +792,13 @@ public class ProbeController : MonoBehaviour
         insertion.SetCoordinates(localInsertion);
     }
 
+    public void SetProbePositionWorld(Vector3 worldPosition)
+    {
+        Vector3 apmldv = Utils.world2apmldv(worldPosition + tpmanager.GetCenterOffset());
+        insertion.SetCoordinates(apmldv.x, apmldv.y, apmldv.z, insertion.phi, insertion.theta, insertion.spin);
+        SetProbePosition();
+    }
+
     /// <summary>
     /// Set the probe position to match a tip position and angles in the current TRANSFORMED space, this will reverse both the bregma and CoordinateTransform settings
     /// </summary>
