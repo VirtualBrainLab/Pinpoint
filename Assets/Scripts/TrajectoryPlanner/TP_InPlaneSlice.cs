@@ -101,6 +101,9 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         ProbeManager activeProbeController = tpmanager.GetActiveProbeController();
 
+        if (activeProbeController == null)
+            return;
+
         // Calculate the size
         float[] heightPerc = activeProbeController.GetRecordingRegionHeight();
         float mmStartPos = heightPerc[0] * (10 - heightPerc[1]);
@@ -109,14 +112,13 @@ public class TP_InPlaneSlice : MonoBehaviour
         // Take the active probe, find the position and rotation, and interpolate across the annotation dataset to render a 400x400 image of the brain at that slice
         tipTransform = activeProbeController.GetTipTransform();
 
-
-        Vector3 tipPosition = tipTransform.position + tipTransform.up * (0.2f + mmStartPos);
+        Vector3 recRegionBottomPos = tipTransform.position + tipTransform.up * (0.2f + mmStartPos);
         //tipPositionAPDVLR = Utils.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
         bool fourShank = activeProbeController.GetProbeType() == 4;
 
         recordingRegionCenterPosition = fourShank ? 
-            Utils.WorldSpace2apdvlr25(tipPosition + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
-            Utils.WorldSpace2apdvlr25(tipPosition + tipTransform.up * mmRecordingSize / 2); ;
+            Utils.WorldSpace2apdvlr25(recRegionBottomPos + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
+            Utils.WorldSpace2apdvlr25(recRegionBottomPos + tipTransform.up * mmRecordingSize / 2); ;
 
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 

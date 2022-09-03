@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using TrajectoryPlanner;
+using UnityEngine.EventSystems;
 
 public class TP_ProbeCollider : MonoBehaviour
 {
@@ -21,10 +19,9 @@ public class TP_ProbeCollider : MonoBehaviour
 
     private void OnMouseDown()
     {
-        // ignore mouse clicks if we're over a UI element
+        // If someone clicks on a probe, immediately make that the active probe and claim probe control
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-        // If someone clicks on a probe, immediately make that the active probe and claim probe control
         tpmanager.SetActiveProbe(probeManager);
         probeManager.GetProbeController().DragMovementClick();
     }

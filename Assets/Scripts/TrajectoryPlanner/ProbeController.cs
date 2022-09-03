@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TrajectoryPlanner;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ProbeController : MonoBehaviour
 {
@@ -480,6 +481,9 @@ public class ProbeController : MonoBehaviour
     /// </summary>
     public void DragMovementClick()
     {
+        // ignore mouse clicks if we're over a UI element
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
         // Cancel movement if being controlled by SensapexLink
         if (probeManager.GetSensapexLinkMovement())
             return;

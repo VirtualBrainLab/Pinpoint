@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using SensapexLink;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace TrajectoryPlanner
