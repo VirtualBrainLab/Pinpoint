@@ -12326,6 +12326,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 1303812039}
+    - target: {fileID: 5418626435328794258, guid: 290858028102fe2479542502c1d6af16, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -200
+      objectReference: {fileID: 0}
     - target: {fileID: 5418626435377505847, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: tpmanager
       value: 
