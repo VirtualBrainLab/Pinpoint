@@ -26,6 +26,10 @@ public class TP_Search : MonoBehaviour
         for (int i =0; i< maxAreaPanels; i++)
         {
             GameObject areaPanel = Instantiate(areaPanelPrefab, areaPanelsParentGO.transform);
+            areaPanel.GetComponentInChildren<Button>().onClick.AddListener(() =>
+            {
+                tpmanager.SetProbeTipPositionToCCFNode(areaPanel.GetComponent<TP_SearchAreaPanel>().GetNode());
+            });
             localAreaPanels.Add(areaPanel);
             areaPanel.SetActive(false);
         }
@@ -68,52 +72,37 @@ public class TP_Search : MonoBehaviour
         }
     }
 
-    private CCFTreeNode lastClickedNode;
-    private float lastClickedTime;
-    private const float DOUBLE_CLICK_TIME = 0.3f;
-
     public void ClickArea(GameObject target)
     {
         CCFTreeNode targetNode = target.GetComponent<TP_SearchAreaPanel>().GetNode();
         // Depending on whether the node is in the base set or not we will load it temporarily or just set it to have a different material
 
-        // Check if this was a double click
-        if ((Time.realtimeSinceStartup - lastClickedTime) < DOUBLE_CLICK_TIME && lastClickedNode == targetNode)
+        // if this is an active node, just make it transparent again
+        if (activeBrainAreas.Contains(targetNode))
         {
-            // double click -- snap the probe tip to this location
-            tpmanager.SetProbeTipPositionToCCFNode(targetNode);
+            if (modelControl.InDefaults(targetNode.ID))
+                modelControl.ChangeMaterial(targetNode, "default");
+            else
+                targetNode.SetNodeModelVisibility(false);
+            activeBrainAreas.Remove(targetNode);
         }
         else
         {
-            // if this is an active node, just make it transparent again
-            if (activeBrainAreas.Contains(targetNode))
-            {
-                if (modelControl.InDefaults(targetNode.ID))
-                    modelControl.ChangeMaterial(targetNode, "default");
-                else
-                    targetNode.SetNodeModelVisibility(false);
-                activeBrainAreas.Remove(targetNode);
-            }
+
+            if (modelControl.InDefaults(targetNode.ID))
+                modelControl.ChangeMaterial(targetNode, "lit");
             else
             {
-                if (modelControl.InDefaults(targetNode.ID))
-                    modelControl.ChangeMaterial(targetNode, "lit");
+                if (!targetNode.IsLoaded())
+                    LoadSearchNode(targetNode);
                 else
                 {
-                    if (!targetNode.IsLoaded())
-                        LoadSearchNode(targetNode);
-                    else
-                    {
-                        targetNode.SetNodeModelVisibility(true);
-                        modelControl.ChangeMaterial(targetNode, "lit");
-                    }
+                    targetNode.SetNodeModelVisibility(true);
+                    modelControl.ChangeMaterial(targetNode, "lit");
                 }
-                activeBrainAreas.Add(targetNode);
             }
+            activeBrainAreas.Add(targetNode);
         }
-
-        lastClickedTime = Time.realtimeSinceStartup;
-        lastClickedNode = targetNode;
     }
 
     private async void LoadSearchNode(CCFTreeNode node)
