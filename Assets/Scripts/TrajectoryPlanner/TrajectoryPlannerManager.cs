@@ -86,9 +86,6 @@ namespace TrajectoryPlanner
             brainCamController.SetControlBlock(state);
         }
 
-        // Track when brain areas get clicked on
-        private List<int> targetedBrainAreas;
-
         private bool movedThisFrame;
         private bool spawnedThisFrame = false;
 
@@ -122,7 +119,6 @@ namespace TrajectoryPlanner
             inactiveProbeColliders = new List<Collider>();
             rigColliders = new List<Collider>();
             allNonActiveColliders = new List<Collider>();
-            targetedBrainAreas = new List<int>();
             //Physics.autoSyncTransforms = true;
         }
 
@@ -230,6 +226,11 @@ namespace TrajectoryPlanner
         public void ClickSearchArea(GameObject target)
         {
             searchControl.ClickArea(target);
+        }
+
+        public void TargetSearchArea(int id)
+        {
+            searchControl.ClickArea(id);
         }
 
         public TP_InPlaneSlice GetInPlaneSlice()
@@ -712,48 +713,6 @@ namespace TrajectoryPlanner
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
         }
-
-
-        public void SelectBrainArea(int id)
-        {
-            if (targetedBrainAreas.Contains(id))
-            {
-                ClearTargetedBrainArea(id);
-                targetedBrainAreas.Remove(id);
-            }
-            else
-            {
-                TargetBrainArea(id);
-                targetedBrainAreas.Add(id);
-            }
-        }
-
-        private async void TargetBrainArea(int id)
-        {
-            CCFTreeNode node = modelControl.GetNode(id);
-            if (!node.IsLoaded())
-            {
-                node.LoadNodeModel(false);
-                await node.GetLoadedTask();
-                node.GetNodeTransform().localPosition = Vector3.zero;
-                node.GetNodeTransform().localRotation = Quaternion.identity;
-                modelControl.ChangeMaterial(id, "lit");
-            }
-
-            if (modelControl.InDefaults(id))
-                modelControl.ChangeMaterial(id, "lit");
-            else
-                node.SetNodeModelVisibility(true);
-        }
-
-        private void ClearTargetedBrainArea(int id)
-        {
-            if (modelControl.InDefaults(id))
-                modelControl.ChangeMaterial(id, "default");
-            else
-                modelControl.GetNode(id).SetNodeModelVisibility(false);
-        }
-
 
         ///
         /// HELPER FUNCTIONS

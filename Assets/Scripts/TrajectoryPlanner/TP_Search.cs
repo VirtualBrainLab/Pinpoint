@@ -76,7 +76,17 @@ public class TP_Search : MonoBehaviour
     {
         CCFTreeNode targetNode = target.GetComponent<TP_SearchAreaPanel>().GetNode();
         // Depending on whether the node is in the base set or not we will load it temporarily or just set it to have a different material
+        SelectBrainArea(targetNode);
+    }
 
+    public void ClickArea(int annotationID)
+    {
+        SelectBrainArea(modelControl.GetNode(annotationID));
+    }
+
+
+    public void SelectBrainArea(CCFTreeNode targetNode)
+    {
         // if this is an active node, just make it transparent again
         if (activeBrainAreas.Contains(targetNode))
         {
@@ -105,16 +115,6 @@ public class TP_Search : MonoBehaviour
         }
     }
 
-    private async void LoadSearchNode(CCFTreeNode node)
-    {
-        node.LoadNodeModel(false);
-        await node.GetLoadedTask();
-        node.GetNodeTransform().localPosition = Vector3.zero;
-        node.GetNodeTransform().localRotation = Quaternion.identity;
-        node.SetNodeModelVisibility(true);
-        modelControl.ChangeMaterial(node, "lit");
-    }
-
     public void ClearAllAreas()
     {
         foreach (CCFTreeNode targetNode in activeBrainAreas)
@@ -129,5 +129,15 @@ public class TP_Search : MonoBehaviour
             }
         }
         activeBrainAreas = new List<CCFTreeNode>();
+    }
+
+    private async void LoadSearchNode(CCFTreeNode node)
+    {
+        node.LoadNodeModel(false);
+        await node.GetLoadedTask();
+        node.GetNodeTransform().localPosition = Vector3.zero;
+        node.GetNodeTransform().localRotation = Quaternion.identity;
+        node.SetNodeModelVisibility(true);
+        modelControl.ChangeMaterial(node, "lit");
     }
 }

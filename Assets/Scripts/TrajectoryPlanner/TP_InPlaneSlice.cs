@@ -133,29 +133,29 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     public void InPlaneSliceHover(Vector2 pointerData)
     {
-        //Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
+        Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
-        //int annotation = annotationDataset.ValueAtIndex(Mathf.RoundToInt(inPlanePosition.x), Mathf.RoundToInt(inPlanePosition.y), Mathf.RoundToInt(inPlanePosition.z));
-        //annotation = modelControl.GetCurrentID(annotation);
+        int annotation = annotationDataset.ValueAtIndex(Mathf.RoundToInt(inPlanePosition.x), Mathf.RoundToInt(inPlanePosition.y), Mathf.RoundToInt(inPlanePosition.z));
+        annotation = modelControl.RemapID(annotation);
 
-        //if (Input.GetMouseButtonDown(0))
-        //{
-        //    if (annotation > 0)
-        //        tpmanager.SelectBrainArea(annotation);
-        //}
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (annotation > 0)
+                tpmanager.TargetSearchArea(annotation);
+        }
 
-        //if (tpmanager.GetSetting_UseAcronyms())
-        //    areaText.text = modelControl.ID2Acronym(annotation);
-        //else
-        //    areaText.text = modelControl.GetCCFAreaName(annotation);
+        if (tpmanager.GetSetting_UseAcronyms())
+            areaText.text = modelControl.ID2Acronym(annotation);
+        else
+            areaText.text = modelControl.ID2AreaName(annotation);
     }
 
     private Vector3 CalculateInPlanePosition(Vector2 pointerData)
     {
-        Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData);
+        Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
 
         // Take the tip transform and go out according to the in plane percentage 
-        Vector3 inPlanePosition = recordingRegionCenterPosition + (RotateWorld2APDVLR(tipTransform.forward) * -inPlanePosNorm.x + RotateWorld2APDVLR(tipTransform.up) * inPlanePosNorm.y) * inPlaneScale;
+        Vector3 inPlanePosition = recordingRegionCenterPosition + (RotateWorld2APDVLR(tipTransform.forward) * -inPlanePosNorm.x + RotateWorld2APDVLR(tipTransform.up) * inPlanePosNorm.y);
 
         return inPlanePosition;
     }

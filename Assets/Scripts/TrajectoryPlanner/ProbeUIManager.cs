@@ -212,7 +212,7 @@ public class ProbeUIManager : MonoBehaviour
             // Round to int
             int ID = annotationDataset.ValueAtIndex(Mathf.RoundToInt(interpolatedPosition.x), Mathf.RoundToInt(interpolatedPosition.y), Mathf.RoundToInt(interpolatedPosition.z));
             // convert to Beryl ID (if modelControl is set to do that)
-            ID = modelControl.GetCurrentID(ID);
+            ID = modelControl.RemapID(ID);
             //interpolated[i] = modelControl.GetCCFAreaColor(ID);
 
             if (ID != prevID)
@@ -222,7 +222,7 @@ public class ProbeUIManager : MonoBehaviour
                 if (tpmanager.GetSetting_UseAcronyms())
                     areaNames.Add(modelControl.ID2Acronym(ID));
                 else
-                    areaNames.Add(modelControl.GetCCFAreaName(ID));
+                    areaNames.Add(modelControl.ID2AreaName(ID));
 
                 prevID = ID;
             }
