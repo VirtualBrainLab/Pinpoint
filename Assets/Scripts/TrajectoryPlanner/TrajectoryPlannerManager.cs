@@ -27,7 +27,9 @@ namespace TrajectoryPlanner
         [SerializeField] private TP_RecRegionSlider recRegionSlider;
         [SerializeField] private Collider ccfCollider;
         [SerializeField] private TP_InPlaneSlice inPlaneSlice;
+
         [SerializeField] private TP_ProbeQuickSettings probeQuickSettings;
+
         [SerializeField] private TP_SliceRenderer sliceRenderer;
         [SerializeField] private TP_Search searchControl;
         [SerializeField] private TMP_InputField searchInput;
@@ -332,7 +334,7 @@ namespace TrajectoryPlanner
                 return;
             }
 
-            if (Input.anyKey && activeProbeController != null && !searchInput.isFocused)
+            if (Input.anyKey && activeProbeController != null && !searchInput.isFocused && !probeQuickSettings.IsFocused())
             {
                 if (Input.GetKeyDown(KeyCode.Backspace) && !CanvasParent.GetComponentsInChildren<TMP_InputField>()
                         .Any(inputField => inputField.isFocused))
@@ -410,7 +412,10 @@ namespace TrajectoryPlanner
             if (allProbeManagers.Count > 0)
                 SetActiveProbe(allProbeManagers[allProbeManagers.Count - 1]);
             else
+            {
                 activeProbeController = null;
+                probeQuickSettings.UpdateInteractable(true);
+            }
 
             // remove colliders
             UpdateProbeColliders();
@@ -625,6 +630,11 @@ namespace TrajectoryPlanner
             
             // Update probe quick settings
             probeQuickSettings.SetProbeManager(newActiveProbeController);
+        }
+
+        public void UpdateQuickSettings()
+        {
+            probeQuickSettings.UpdateInteractable();
         }
 
         public void ResetActiveProbe()

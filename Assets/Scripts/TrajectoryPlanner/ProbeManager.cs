@@ -623,6 +623,7 @@ public class ProbeManager : MonoBehaviour
 
         // Set states
         _sensapexLinkMovement = register;
+        tpmanager.UpdateQuickSettings();
 
         if (register)
             _sensapexLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>

@@ -13,9 +13,13 @@ namespace TrajectoryPlanner
         private ProbeManager _probeManager;
         private CommunicationManager _communicationManager;
         private TP_QuestionDialogue _questionDialogue;
-        private CanvasGroup _canvasGroup;
 
         [SerializeField] private TP_CoordinateEntryPanel coordinatePanel;
+        [SerializeField] private CanvasGroup positionFields;
+        [SerializeField] private CanvasGroup angleFields;
+        [SerializeField] private CanvasGroup buttons;
+
+        private TMP_InputField[] inputFields;
 
         #endregion
 
@@ -29,17 +33,10 @@ namespace TrajectoryPlanner
             _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
             _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
                 .GetComponent<TP_QuestionDialogue>();
-            _canvasGroup = GetComponent<CanvasGroup>();
-        }
 
-        private void FixedUpdate()
-        {
-            _canvasGroup.interactable = _canvasGroup.interactable switch
-            {
-                false when _communicationManager.IsConnected() => true,
-                true when !_communicationManager.IsConnected() => false,
-                _ => _canvasGroup.interactable
-            };
+            inputFields = gameObject.GetComponentsInChildren<TMP_InputField>(true);
+
+            UpdateInteractable(true);
         }
 
         #endregion
@@ -54,10 +51,28 @@ namespace TrajectoryPlanner
         {
             if (!gameObject.activeSelf) gameObject.SetActive(true);
             _probeManager = probeManager;
-            coordinatePanel.LinkProbe(probeManager);
 
             panelTitle.text = probeManager.GetID().ToString();
             panelTitle.color = probeManager.GetColor();
+
+            coordinatePanel.LinkProbe(probeManager);
+            UpdateInteractable();
+        }
+
+        public void UpdateInteractable(bool disableAll=false)
+        {
+            if (disableAll)
+            {
+                positionFields.interactable = false;
+                angleFields.interactable = false;
+                buttons.interactable = false;
+            }
+            else
+            {
+                positionFields.interactable = !_probeManager.GetSensapexLinkMovement();
+                angleFields.interactable = true;
+                buttons.interactable = _communicationManager.IsConnected();
+            }
         }
 
         /// <summary>
@@ -87,6 +102,14 @@ namespace TrajectoryPlanner
                     _probeManager.GetProbeController().ResetPosition();
             });
             _questionDialogue.NewQuestion("Reset Bregma?");
+        }
+
+        public bool IsFocused()
+        {
+            foreach (TMP_InputField inputField in inputFields)
+                if (inputField.isFocused)
+                    return true;
+            return false;
         }
 
         #endregion
