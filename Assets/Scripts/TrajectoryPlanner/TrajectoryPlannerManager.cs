@@ -416,6 +416,9 @@ namespace TrajectoryPlanner
             // remove colliders
             UpdateProbeColliders();
 
+            if (activeProbeController != null)
+                activeProbeController.CheckCollisions(GetAllNonActiveColliders());
+
             ReturnProbeColor(returnColor);
 
             // Unregister manipulator probe is attached to
@@ -986,8 +989,8 @@ namespace TrajectoryPlanner
         public void SetProbeTipPositionToCCFNode(CCFTreeNode targetNode)
         {
             // Not implemented yet
-            //Vector3 meshCenterWorld = targetNode.GetMeshCenter();
-            //activeProbeController.SetProbePosition()
+            Vector3 meshCenterWorld = targetNode.GetMeshCenter();
+            activeProbeController.GetProbeController().SetProbePositionWorld(meshCenterWorld);
         }
 
         private void OnApplicationQuit()
