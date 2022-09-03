@@ -50,9 +50,6 @@ namespace TrajectoryPlanner
         // Text objects that need to stay visible when the background changes
         [SerializeField] private List<TMP_Text> whiteUIText;
 
-        // Which acronym/area name set to use
-        [SerializeField] TMP_Dropdown annotationAcronymDropdown;
-
         // Coordinate system information
         private CoordinateTransform activeCoordinateTransform;
         private List<CoordinateTransform> availableCoordinateTransforms;
@@ -479,8 +476,6 @@ namespace TrajectoryPlanner
 
             GameObject newProbe = Instantiate(probePrefabs[probePrefabIDs.FindIndex(x => x == probeType)], brainModel);
             SetActiveProbe(newProbe.GetComponent<ProbeManager>());
-            if (visibleProbePanels > 4)
-                activeProbeController.ResizeProbePanel(700);
 
             RecalculateProbePanels();
 
@@ -521,7 +516,9 @@ namespace TrajectoryPlanner
 
         private void CountProbePanels()
         {
-            visibleProbePanels = GameObject.FindGameObjectsWithTag("ProbePanel").Length;
+            visibleProbePanels = 0;
+            foreach (ProbeManager probeManager in allProbeManagers)
+                visibleProbePanels += probeManager.GetProbeUIManagers().Count;
         }
 
         private void RecalculateProbePanels()
@@ -545,6 +542,20 @@ namespace TrajectoryPlanner
                 foreach (ProbeManager probeController in allProbeManagers)
                 {
                     probeController.ResizeProbePanel(700);
+                }
+            }
+            else if (visibleProbePanels <= 4)
+            {
+                Debug.Log("Resizing panels to be 1400");
+                // now resize all existing probeUIs to be 1400 tall
+                GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
+                Vector2 cellSize = probePanelParent.cellSize;
+                cellSize.y = 1400;
+                probePanelParent.cellSize = cellSize;
+
+                foreach (ProbeManager probeController in allProbeManagers)
+                {
+                    probeController.ResizeProbePanel(1400);
                 }
             }
 
