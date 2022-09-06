@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using SensapexLink;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace TrajectoryPlanner
@@ -102,7 +101,7 @@ namespace TrajectoryPlanner
         #region Sensapex Link
 
         private CommunicationManager _communicationManager;
-        private HashSet<int> _rightHandedManipulators = new();
+        private HashSet<int> _rightHandedManipulatorIds = new();
 
         #endregion
 
@@ -127,7 +126,6 @@ namespace TrajectoryPlanner
 
         private void Start()
         {
-
             // Startup CCF
             modelControl.LateStart(true);
 
@@ -149,6 +147,8 @@ namespace TrajectoryPlanner
             SetSetting_InVivoTransformState(localPrefs.GetStereotaxic());
             SetSetting_UseIBLAngles(localPrefs.GetUseIBLAngles());
             SetSetting_SurfaceDebugSphereVisibility(localPrefs.GetSurfaceCoord());
+            _rightHandedManipulatorIds =
+                Array.ConvertAll(localPrefs.GetRightHandedManipulatorIds().Split(","), int.Parse).ToHashSet();
         }
         public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
         {
@@ -301,20 +301,20 @@ namespace TrajectoryPlanner
 
         public bool IsManipulatorRightHanded(int manipulatorId)
         {
-            return _rightHandedManipulators.Contains(manipulatorId);
+            return _rightHandedManipulatorIds.Contains(manipulatorId);
         }
         
         public void AddRightHandedManipulator(int manipulatorId)
         {
-            _rightHandedManipulators.Add(manipulatorId);
+            _rightHandedManipulatorIds.Add(manipulatorId);
+            localPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
         }
         
         public void RemoveRightHandedManipulator(int manipulatorId)
         {
-            if (IsManipulatorRightHanded(manipulatorId))
-            {
-                _rightHandedManipulators.Remove(manipulatorId);
-            }
+            if (!IsManipulatorRightHanded(manipulatorId)) return;
+            _rightHandedManipulatorIds.Remove(manipulatorId);
+            localPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
         }
 
         // Update is called once per frame

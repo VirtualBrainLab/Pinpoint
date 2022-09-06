@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -34,6 +33,7 @@ public class PlayerPrefs : MonoBehaviour
     private int _sensapexLinkServerPort;
     private bool _axisControl;
     private bool _showAllProbePanels;
+    private string _rightHandedManipulatorIds;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -50,7 +50,7 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] TMP_InputField sensapexLinkServerPortInput;
     [SerializeField] Toggle axisControlToggle;
     [SerializeField] Toggle showAllProbePanelsToggle;
-
+    
 
     /// <summary>
     /// On Awake() load the preferences and toggle the corresponding UI elements
@@ -101,6 +101,8 @@ public class PlayerPrefs : MonoBehaviour
 
         _showAllProbePanels = LoadBoolPref("show_all_probe_panels", true);
         showAllProbePanelsToggle.isOn = _showAllProbePanels;
+
+        _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulator_ids", "");
     }
 
     /// <summary>
@@ -286,6 +288,11 @@ public class PlayerPrefs : MonoBehaviour
         return _sensapexLinkServerPort;
     }
 
+    public string GetRightHandedManipulatorIds()
+    {
+        return _rightHandedManipulatorIds;
+    }
+
     #endregion
 
     #region Helper functions for booleans/integers/strings
@@ -332,6 +339,12 @@ public class PlayerPrefs : MonoBehaviour
     {
         UnityEngine.PlayerPrefs.SetString("sensapex_ip", serverIp);
         UnityEngine.PlayerPrefs.SetInt("sensapex_port", serverPort);
+        UnityEngine.PlayerPrefs.Save();
+    }
+
+    public void SaveRightHandedManipulatorIds(HashSet<int> manipulatorIds)
+    {
+        UnityEngine.PlayerPrefs.SetString("right_handed_manipulator_ids", string.Join(",", manipulatorIds));
         UnityEngine.PlayerPrefs.Save();
     }
 }
