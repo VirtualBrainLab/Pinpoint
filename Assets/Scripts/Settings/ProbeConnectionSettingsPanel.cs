@@ -4,7 +4,6 @@ using System.Globalization;
 using SensapexLink;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Settings
 {
@@ -18,8 +17,6 @@ namespace Settings
 
         [SerializeField] private TMP_Text probeIdText;
         [SerializeField] private TMP_Dropdown manipulatorIdDropdown;
-        [SerializeField] private Button connectButton;
-        [SerializeField] private TMP_Text connectButtonText;
         [SerializeField] private TMP_InputField xInputField;
         [SerializeField] private TMP_InputField yInputField;
         [SerializeField] private TMP_InputField zInputField;
@@ -29,9 +26,7 @@ namespace Settings
 
         #endregion
 
-        private CommunicationManager _communicationManager;
         private ProbeManager _probeManager;
-        private TP_QuestionDialogue _questionDialogue;
 
         #endregion
 
@@ -46,35 +41,12 @@ namespace Settings
 
         #region Unity
 
-        /// <summary>
-        ///     Initialize components
-        /// </summary>
-        private void Awake()
-        {
-            _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
-            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
-                .GetComponent<TP_QuestionDialogue>();
-        }
-
-        /// <summary>
-        ///     Configure input field submissions
-        /// </summary>
-        private void Start()
-        {
-            brainSurfaceOffsetInputField.onEndEdit.AddListener(delegate
-            {
-                _probeManager.SetBrainSurfaceOffset(float.Parse(brainSurfaceOffsetInputField.text));
-            });
-        }
 
         /// <summary>
         ///     Update values as they change
         /// </summary>
         private void FixedUpdate()
         {
-            connectButton.interactable = _communicationManager.IsConnected() && manipulatorIdDropdown.value > 0;
-            connectButtonText.text = _probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
-
             if (!_probeManager.IsConnectedToManipulator()) return;
             // Update display for zero coordinate offset
             if (_probeManager.GetZeroCoordinateOffset() != _displayedZeroCoordinateOffset)
@@ -115,29 +87,6 @@ namespace Settings
             probeIdText.color = probeManager.GetColor();
         }
 
-        /// <summary>
-        ///     Return attached probe manager.
-        /// </summary>
-        /// <returns>Probe manager for related probe</returns>
-        public ProbeManager GetProbeManager()
-        {
-            return _probeManager;
-        }
-
-        /// <summary>
-        ///     Set probe zero coordinate offset by using the values in the input fields.
-        /// </summary>
-        public void SetZeroCoordinateOffset()
-        {
-            _displayedZeroCoordinateOffset = new Vector4(
-                float.Parse(xInputField.text == "" ? "0" : xInputField.text),
-                float.Parse(yInputField.text == "" ? "0" : yInputField.text),
-                float.Parse(zInputField.text == "" ? "0" : zInputField.text),
-                float.Parse(dInputField.text == "" ? "0" : dInputField.text)
-            );
-            _probeManager.SetZeroCoordinateOffset(_displayedZeroCoordinateOffset);
-        }
-
         #endregion
 
         #region Component Methods
@@ -156,7 +105,6 @@ namespace Settings
                 ? Math.Max(0, idOptions.IndexOf(_probeManager.GetManipulatorId().ToString()))
                 : 0;
             manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
-            connectButton.interactable = indexOfId != 0;
         }
 
         /// <summary>
@@ -165,26 +113,50 @@ namespace Settings
         /// <param name="value">Manipulator option that was selected (0 = no manipulator)</param>
         public void OnManipulatorDropdownValueChanged(int value)
         {
-            connectButton.interactable = value != 0;
+            // Disconnect if already connected
+            if (_probeManager.IsConnectedToManipulator())
+                _probeManager.SetSensapexLinkMovement(false, 0, false);
+
+            // Connect if a manipulator is selected
+            if (value != 0)
+                _probeManager.SetSensapexLinkMovement(true,
+                    int.Parse(manipulatorIdDropdown.options[value].text));
         }
 
         /// <summary>
-        ///     Connect and register the selected manipulator.
+        ///     Update x coordinate of zero coordinate offset
         /// </summary>
-        public void ConnectDisconnectProbeToManipulator()
+        /// <param name="x">X coordinate</param>
+        public void OnZeroCoordinateXInputFieldEndEdit(string x)
         {
-            // Disconnect if already connected
-            if (_probeManager.IsConnectedToManipulator())
-            {
-                _probeManager.SetSensapexLinkMovement(false, 0, false, () => { connectButtonText.text = "Connect"; });
-            }
-            // Connect otherwise
-            else
-            {
-                _probeManager.SetSensapexLinkMovement(true,
-                    int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text), true,
-                    () => { connectButtonText.text = "Disconnect"; });
-            }
+            _probeManager.SetZeroCoordinateOffsetX(float.Parse(x));
+        }
+
+        /// <summary>
+        ///     Update y coordinate of zero coordinate offset
+        /// </summary>
+        /// <param name="y">Y coordinate</param>
+        public void OnZeroCoordinateYInputFieldEndEdit(string y)
+        {
+            _probeManager.SetZeroCoordinateOffsetY(float.Parse(y));
+        }
+
+        /// <summary>
+        ///     Update z coordinate of zero coordinate offset
+        /// </summary>
+        /// <param name="z">Z coordinate</param>
+        public void OnZeroCoordinateZInputFieldEndEdit(string z)
+        {
+            _probeManager.SetZeroCoordinateOffsetZ(float.Parse(z));
+        }
+
+        /// <summary>
+        ///     Update depth coordinate of zero coordinate offset
+        /// </summary>
+        /// <param name="d">Depth coordinate</param>
+        public void OnZeroCoordinateDInputFieldEndEdit(string d)
+        {
+            _probeManager.SetZeroCoordinateOffsetDepth(float.Parse(d));
         }
 
         /// <summary>
@@ -194,6 +166,15 @@ namespace Settings
         public void OnBrainSurfaceOffsetDirectionDropdownValueChanged(int value)
         {
             _probeManager.SetDropToSurfaceWithDepth(value == 0);
+        }
+
+        /// <summary>
+        ///     Update brain surface offset based on input field value
+        /// </summary>
+        /// <param name="value">Input field value</param>
+        public void OnBrainSurfaceOffsetValueUpdated(string value)
+        {
+            _probeManager.SetBrainSurfaceOffset(float.Parse(value));
         }
 
         /// <summary>

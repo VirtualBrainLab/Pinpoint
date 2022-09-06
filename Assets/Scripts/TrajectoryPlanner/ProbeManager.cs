@@ -736,7 +736,45 @@ public class ProbeManager : MonoBehaviour
     {
         _zeroCoordinateOffset = zeroCoordinateOffset;
     }
-    
+
+    /// <summary>
+    ///     Update x coordinate of manipulator space offset to zero coordinate
+    /// </summary>
+    /// <param name="x">X coordinate</param>
+    public void SetZeroCoordinateOffsetX(float x)
+    {
+        _zeroCoordinateOffset.x = x;
+    }
+
+    /// <summary>
+    ///     Update y coordinate of manipulator space offset to zero coordinate
+    /// </summary>
+    /// <param name="y">Y coordinate</param>
+    public void SetZeroCoordinateOffsetY(float y)
+    {
+        _zeroCoordinateOffset.y = y;
+    }
+
+
+    /// <summary>
+    ///     Update Z coordinate of manipulator space offset to zero coordinate
+    /// </summary>
+    /// <param name="z">Z coordinate</param>
+    public void SetZeroCoordinateOffsetZ(float z)
+    {
+        _zeroCoordinateOffset.z = z;
+    }
+
+
+    /// <summary>
+    ///     Update D coordinate of manipulator space offset to zero coordinate
+    /// </summary>
+    /// <param name="depth">D coordinate</param>
+    public void SetZeroCoordinateOffsetDepth(float depth)
+    {
+        _zeroCoordinateOffset.w = depth;
+    }
+
     /// <summary>
     /// Get manipulator space offset from brain surface as Depth
     /// </summary>
