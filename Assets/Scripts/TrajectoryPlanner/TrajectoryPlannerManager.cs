@@ -240,6 +240,11 @@ namespace TrajectoryPlanner
         {
             return inPlaneSlice;
         }
+        
+        public TP_ProbeQuickSettings GetProbeQuickSettings()
+        {
+            return probeQuickSettings;
+        }
 
         /// <summary>
         /// 

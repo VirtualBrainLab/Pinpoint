@@ -45,9 +45,12 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         mlField.text = Round2Str(ml);
         dvField.text = Round2Str(dv);
         depthField.text = Round2Str(depth);
-        phiField.text = Round2Str(phi);
-        thetaField.text = Round2Str(theta);
-        spinField.text = Round2Str(spin);
+        if (!tpmanager.GetActiveProbeController().IsConnectedToManipulator())
+        {
+            phiField.text = Round2Str(phi);
+            thetaField.text = Round2Str(theta);
+            spinField.text = Round2Str(spin);
+        }
     }
 
     private string Round2Str(float value)

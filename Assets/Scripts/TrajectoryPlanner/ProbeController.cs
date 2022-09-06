@@ -114,6 +114,7 @@ public class ProbeController : MonoBehaviour
         ResetPositionTracking();
         SetProbePosition();
         probeManager.UpdateText();
+        tpmanager.SetMovedThisFrame();
     }
 
     /// <summary>

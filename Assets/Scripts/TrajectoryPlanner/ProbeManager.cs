@@ -802,7 +802,15 @@ public class ProbeManager : MonoBehaviour
         var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 5, _probeAngles,
             _dropToSurfaceWithDepth);
 
-        _brainSurfaceOffset -= (brainSurface.Item2 - 5) * 1000;
+        if (IsConnectedToManipulator())
+        {
+            _brainSurfaceOffset -= (brainSurface.Item2 - 5) * 1000;
+        }
+        else
+        {
+            Debug.DrawLine(probeController.GetTipTransform().position, brainSurface.Item1, Color.red, 5);
+            probeController.SetProbePositionCCF(new ProbeInsertion(Utils.world2apmldv(brainSurface.Item1), _probeAngles));
+        }
     }
 
     /// <summary>
