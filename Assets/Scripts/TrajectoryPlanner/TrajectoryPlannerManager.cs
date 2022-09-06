@@ -389,7 +389,7 @@ namespace TrajectoryPlanner
         private ProbeInsertion prevInsertion;
         private int prevProbeType;
         private int _prevManipulatorId;
-        private Vector4 _prevBregmaOffset;
+        private Vector4 _prevZeroCoordinateOffset;
         private float _prevBrainSurfaceOffset;
 
         private void DestroyActiveProbeController()
@@ -397,7 +397,7 @@ namespace TrajectoryPlanner
             prevProbeType = activeProbeController.GetProbeType();
             prevInsertion = activeProbeController.GetInsertion();
             _prevManipulatorId = activeProbeController.GetManipulatorId();
-            _prevBregmaOffset = activeProbeController.GetBregmaOffset();
+            _prevZeroCoordinateOffset = activeProbeController.GetZeroCoordinateOffset();
             _prevBrainSurfaceOffset = activeProbeController.GetBrainSurfaceOffset();
             List<Collider> probeColliders = activeProbeController.GetProbeColliders();
 
@@ -431,7 +431,7 @@ namespace TrajectoryPlanner
 
         private void RecoverActiveProbeController()
         {
-            AddNewProbe(prevProbeType, prevInsertion, _prevManipulatorId, _prevBregmaOffset, _prevBrainSurfaceOffset);
+            AddNewProbe(prevProbeType, prevInsertion, _prevManipulatorId, _prevZeroCoordinateOffset, _prevBrainSurfaceOffset);
         }
 
         public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin, float depth = 0f)
@@ -500,7 +500,7 @@ namespace TrajectoryPlanner
         }
 
         public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, int manipulatorId = 0,
-            Vector4 bregmaOffset = new Vector4(), float brainSurfaceOffset = 0)
+            Vector4 zeroCoordinateOffset = new Vector4(), float brainSurfaceOffset = 0)
         {
             ProbeManager probeController = AddNewProbe(probeType);
             if (manipulatorId == 0)
@@ -511,7 +511,7 @@ namespace TrajectoryPlanner
             }
             else
             {
-                probeController.SetBregmaOffset(bregmaOffset);
+                probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
                 probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
                 probeController.SetSensapexLinkMovement(true, manipulatorId);
             }

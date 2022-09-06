@@ -3906,7 +3906,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 7780014940823821005}
         m_TargetAssemblyTypeName: TrajectoryPlanner.TP_ProbeQuickSettings, trajectoryplanner.core
-        m_MethodName: ResetBregma
+        m_MethodName: ResetZeroCoordinate
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

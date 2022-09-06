@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using SensapexLink;
 using TMPro;
 using UnityEngine;
@@ -80,36 +81,23 @@ namespace TrajectoryPlanner
         /// </summary>
         public void ZeroDepth()
         {
-            _questionDialogue.SetNoCallback(() => { });
-            _questionDialogue.SetYesCallback(() =>
-            {
-                _probeManager.SetBrainSurfaceOffset();
-            });
-            _questionDialogue.NewQuestion("Zero out depth?");
+            _probeManager.SetBrainSurfaceOffset();
         }
 
         /// <summary>
         ///     Set current manipulator position to be Bregma and move probe to Bregma
         /// </summary>
-        public void ResetBregma()
+        public void ResetZeroCoordinate()
         {
-            _questionDialogue.SetNoCallback(() => { });
-            _questionDialogue.SetYesCallback(() =>
-            {
-                if (_probeManager.IsConnectedToManipulator())
-                    _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetBregmaOffset);
-                else
-                    _probeManager.GetProbeController().ResetPosition();
-            });
-            _questionDialogue.NewQuestion("Reset Bregma?");
+            if (_probeManager.IsConnectedToManipulator())
+                _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetZeroCoordinateOffset);
+            else
+                _probeManager.GetProbeController().ResetPosition();
         }
 
         public bool IsFocused()
         {
-            foreach (TMP_InputField inputField in inputFields)
-                if (inputField.isFocused)
-                    return true;
-            return false;
+            return inputFields.Any(inputField => inputField.isFocused);
         }
 
         #endregion
