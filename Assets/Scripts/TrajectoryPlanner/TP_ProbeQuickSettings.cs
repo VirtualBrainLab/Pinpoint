@@ -97,7 +97,7 @@ namespace TrajectoryPlanner
             _questionDialogue.SetYesCallback(() =>
             {
                 if (_probeManager.IsConnectedToManipulator())
-                    _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetBregmaOffset);
+                    _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetZeroCoordinateOffset);
                 else
                     _probeManager.GetProbeController().ResetPosition();
             });

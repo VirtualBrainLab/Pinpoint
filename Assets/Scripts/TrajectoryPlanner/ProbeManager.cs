@@ -21,7 +21,7 @@ public class ProbeManager : MonoBehaviour
     private Vector3 _probeAngles;
     private float _phiCos = 1f;
     private float _phiSin;
-    private Vector4 _bregmaOffset = Vector4.negativeInfinity;
+    private Vector4 _zeroCoordinateOffset = Vector4.negativeInfinity;
     private float _brainSurfaceOffset;
     private bool _dropToSurfaceWithDepth = true;
     private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
@@ -665,8 +665,7 @@ public class ProbeManager : MonoBehaviour
             // Read and start echoing position
             _sensapexLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
             {
-                if (_bregmaOffset.Equals(Vector4.negativeInfinity)) _bregmaOffset = vector4;
-                Debug.Log("Bregma offset: " + _bregmaOffset);
+                if (_zeroCoordinateOffset.Equals(Vector4.negativeInfinity)) _zeroCoordinateOffset = vector4;
                 EchoPositionFromSensapexLink(vector4);
             });
         }
@@ -687,7 +686,7 @@ public class ProbeManager : MonoBehaviour
     public void ResetManipulatorProperties()
     {
         _manipulatorId = 0;
-        _bregmaOffset = Vector4.negativeInfinity;
+        _zeroCoordinateOffset = Vector4.negativeInfinity;
         _brainSurfaceOffset = 0;
     }
 
@@ -721,21 +720,21 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Manipulator space offset to bregma as X, Y, Z, Depth
+    ///     Manipulator space offset to zero coordinate as X, Y, Z, Depth
     /// </summary>
-    /// <returns>Manipulator space offset to bregma as X, Y, Z, Depth</returns>
-    public Vector4 GetBregmaOffset()
+    /// <returns>Manipulator space offset to zero coordinate as X, Y, Z, Depth</returns>
+    public Vector4 GetZeroCoordinateOffset()
     {
-        return _bregmaOffset;
+        return _zeroCoordinateOffset;
     }
 
     /// <summary>
-    ///     Set manipulator space offset to bregma as X, Y, Z, Depth
+    ///     Set manipulator space offset to zero coordinate as X, Y, Z, Depth
     /// </summary>
-    /// <param name="bregmaOffset">Offset from bregma as X, Y, Z, Depth</param>
-    public void SetBregmaOffset(Vector4 bregmaOffset)
+    /// <param name="zeroCoordinateOffset">Offset from zero coordinate as X, Y, Z, Depth</param>
+    public void SetZeroCoordinateOffset(Vector4 zeroCoordinateOffset)
     {
-        _bregmaOffset = bregmaOffset;
+        _zeroCoordinateOffset = zeroCoordinateOffset;
     }
     
     /// <summary>
@@ -822,38 +821,38 @@ public class ProbeManager : MonoBehaviour
          */
         
         // Convert position to CCF
-        var bregmaAdjustedPosition = pos - _bregmaOffset;
+        var zeroCoordinateAdjustedPosition = pos - _zeroCoordinateOffset;
         
         // Phi adjustment
-        var phiAdjustedX = bregmaAdjustedPosition.x * _phiCos -
-                           bregmaAdjustedPosition.y * _phiSin;
-        var phiAdjustedY = bregmaAdjustedPosition.x * _phiSin +
-                           bregmaAdjustedPosition.y * _phiCos;
-        bregmaAdjustedPosition.x = phiAdjustedX;
-        bregmaAdjustedPosition.y = phiAdjustedY;
+        var phiAdjustedX = zeroCoordinateAdjustedPosition.x * _phiCos -
+                           zeroCoordinateAdjustedPosition.y * _phiSin;
+        var phiAdjustedY = zeroCoordinateAdjustedPosition.x * _phiSin +
+                           zeroCoordinateAdjustedPosition.y * _phiCos;
+        zeroCoordinateAdjustedPosition.x = phiAdjustedX;
+        zeroCoordinateAdjustedPosition.y = phiAdjustedY;
 
         // Calculate last used direction (between depth and DV)
-        var dvDelta = Math.Abs(bregmaAdjustedPosition.z - _lastManipulatorPosition.z);
-        var depthDelta = Math.Abs(bregmaAdjustedPosition.w - _lastManipulatorPosition.w);
+        var dvDelta = Math.Abs(zeroCoordinateAdjustedPosition.z - _lastManipulatorPosition.z);
+        var depthDelta = Math.Abs(zeroCoordinateAdjustedPosition.w - _lastManipulatorPosition.w);
         if (dvDelta > 0.1 || depthDelta > 0.1) _dropToSurfaceWithDepth = depthDelta >= dvDelta;
-        _lastManipulatorPosition = bregmaAdjustedPosition;
+        _lastManipulatorPosition = zeroCoordinateAdjustedPosition;
         
         // Brain surface adjustment
         var brainSurfaceAdjustment = float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
         if (_dropToSurfaceWithDepth)
-            bregmaAdjustedPosition.w += brainSurfaceAdjustment;
+            zeroCoordinateAdjustedPosition.w += brainSurfaceAdjustment;
         else
-            bregmaAdjustedPosition.z += brainSurfaceAdjustment;
+            zeroCoordinateAdjustedPosition.z += brainSurfaceAdjustment;
 
         // Swap axes to match AP/ML/DV order and adjust for handedness
         var positionAxisSwapped = new Vector3(
-            bregmaAdjustedPosition.y * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1),
-            -bregmaAdjustedPosition.x,
-            -bregmaAdjustedPosition.z);
+            zeroCoordinateAdjustedPosition.y * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1),
+            -zeroCoordinateAdjustedPosition.x,
+            -zeroCoordinateAdjustedPosition.z);
 
         // Drive normally when not moving depth, otherwise use surface coordinates
         probeController.ManualCoordinateEntryTransformed(positionAxisSwapped, _probeAngles,
-            bregmaAdjustedPosition.w / 1000f);
+            zeroCoordinateAdjustedPosition.w / 1000f);
 
 
         // Continue echoing position

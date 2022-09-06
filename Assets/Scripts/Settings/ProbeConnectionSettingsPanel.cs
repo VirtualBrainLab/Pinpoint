@@ -37,7 +37,7 @@ namespace Settings
 
         #region Properties
 
-        private Vector4 _displayedBregmaOffset;
+        private Vector4 _displayedZeroCoordinateOffset;
         private float _displayedBrainSurfaceOffset;
 
         #endregion
@@ -75,29 +75,27 @@ namespace Settings
             connectButton.interactable = _communicationManager.IsConnected() && manipulatorIdDropdown.value > 0;
             connectButtonText.text = _probeManager.IsConnectedToManipulator() ? "Disconnect" : "Connect";
 
-            if (_probeManager.IsConnectedToManipulator())
+            if (!_probeManager.IsConnectedToManipulator()) return;
+            // Update display for zero coordinate offset
+            if (_probeManager.GetZeroCoordinateOffset() != _displayedZeroCoordinateOffset)
             {
-                // Update display for Bregma offset
-                if (_probeManager.GetBregmaOffset() != _displayedBregmaOffset)
-                {
-                    _displayedBregmaOffset = _probeManager.GetBregmaOffset();
-                    xInputField.text = _displayedBregmaOffset.x.ToString(CultureInfo.CurrentCulture);
-                    yInputField.text = _displayedBregmaOffset.y.ToString(CultureInfo.CurrentCulture);
-                    zInputField.text = _displayedBregmaOffset.z.ToString(CultureInfo.CurrentCulture);
-                    dInputField.text = _displayedBregmaOffset.w.ToString(CultureInfo.CurrentCulture);
-                }
-
-                // Update brain surface offset drop direction dropdown
-                if (_probeManager.IsSetToDropToSurfaceWithDepth() != (brainSurfaceOffsetDirectionDropdown.value == 0))
-                    brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(
-                        _probeManager.IsSetToDropToSurfaceWithDepth() ? 0 : 1);
-
-                // Update display for brain surface offset
-                if (!(Math.Abs(_probeManager.GetBrainSurfaceOffset() - _displayedBrainSurfaceOffset) > 0.001f)) return;
-                _displayedBrainSurfaceOffset = _probeManager.GetBrainSurfaceOffset();
-                brainSurfaceOffsetInputField.text =
-                    _displayedBrainSurfaceOffset.ToString(CultureInfo.CurrentCulture);
+                _displayedZeroCoordinateOffset = _probeManager.GetZeroCoordinateOffset();
+                xInputField.text = _displayedZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
+                yInputField.text = _displayedZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
+                zInputField.text = _displayedZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
+                dInputField.text = _displayedZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
             }
+
+            // Update brain surface offset drop direction dropdown
+            if (_probeManager.IsSetToDropToSurfaceWithDepth() != (brainSurfaceOffsetDirectionDropdown.value == 0))
+                brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(
+                    _probeManager.IsSetToDropToSurfaceWithDepth() ? 0 : 1);
+
+            // Update display for brain surface offset
+            if (!(Math.Abs(_probeManager.GetBrainSurfaceOffset() - _displayedBrainSurfaceOffset) > 0.001f)) return;
+            _displayedBrainSurfaceOffset = _probeManager.GetBrainSurfaceOffset();
+            brainSurfaceOffsetInputField.text =
+                _displayedBrainSurfaceOffset.ToString(CultureInfo.CurrentCulture);
         }
 
         #endregion
@@ -127,17 +125,17 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Set probe bregma offset by using the values in the input fields.
+        ///     Set probe zero coordinate offset by using the values in the input fields.
         /// </summary>
-        public void SetBregmaOffset()
+        public void SetZeroCoordinateOffset()
         {
-            _displayedBregmaOffset = new Vector4(
+            _displayedZeroCoordinateOffset = new Vector4(
                 float.Parse(xInputField.text == "" ? "0" : xInputField.text),
                 float.Parse(yInputField.text == "" ? "0" : yInputField.text),
                 float.Parse(zInputField.text == "" ? "0" : zInputField.text),
                 float.Parse(dInputField.text == "" ? "0" : dInputField.text)
             );
-            _probeManager.SetBregmaOffset(_displayedBregmaOffset);
+            _probeManager.SetZeroCoordinateOffset(_displayedZeroCoordinateOffset);
         }
 
         #endregion
@@ -183,16 +181,9 @@ namespace Settings
             // Connect otherwise
             else
             {
-                // Is at bregma prompt
-                _questionDialogue.SetNoCallback(() => { });
-                _questionDialogue.SetYesCallback(() =>
-                {
-                    // Connect to manipulator
-                    _probeManager.SetSensapexLinkMovement(true,
-                        int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text), true,
-                        () => { connectButtonText.text = "Disconnect"; });
-                });
-                _questionDialogue.NewQuestion("Is this manipulator at Bregma?");
+                _probeManager.SetSensapexLinkMovement(true,
+                    int.Parse(manipulatorIdDropdown.options[manipulatorIdDropdown.value].text), true,
+                    () => { connectButtonText.text = "Disconnect"; });
             }
         }
 
