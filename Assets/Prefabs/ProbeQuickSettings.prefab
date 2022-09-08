@@ -1901,6 +1901,7 @@ MonoBehaviour:
   thetaField: {fileID: 179280910081543160}
   spinField: {fileID: 3264174117162513665}
   tpmanager: {fileID: 0}
+  probeQuickSettings: {fileID: 7780014940823821005}
 --- !u!114 &8065434416982395538
 MonoBehaviour:
   m_ObjectHideFlags: 0

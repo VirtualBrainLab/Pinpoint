@@ -16,6 +16,8 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     [SerializeField] private TMP_InputField spinField;
 
     [SerializeField] private TrajectoryPlannerManager tpmanager;
+    
+    [SerializeField] private TP_ProbeQuickSettings probeQuickSettings;
 
     private ProbeManager linkedProbe;
 
@@ -33,7 +35,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
 
     private void Update()
     {
-        if (tpmanager.MovedThisFrame())
+        if (tpmanager.MovedThisFrame() && !probeQuickSettings.IsFocused())
             SetTextValues();
     }
 
