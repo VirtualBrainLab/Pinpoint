@@ -157,7 +157,11 @@ namespace TrajectoryPlanner
             {
                 if (UnityEngine.PlayerPrefs.GetInt("probecount", 0) > 0)
                 {
-                    qDialogue.NewQuestion("Load previously saved probes?");
+                    var questionString = localPrefs.IsLinkDataExpired()
+                        ? "Load previously saved probes?"
+                        : "Restore previous session?";
+                    
+                    qDialogue.NewQuestion(questionString);
                     qDialogue.SetYesCallback(this.LoadSavedProbes);
                 }
             }
@@ -173,7 +177,7 @@ namespace TrajectoryPlanner
                 Vector3 angles = savedProbe.angles;
                 AddNewProbe(savedProbe.type, tipPos.x, tipPos.y, tipPos.z, angles.x, angles.y, angles.z,
                     savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
-                    savedProbe.dropToSurfaceWithDepth, savedProbe.isLinkDataExpired);
+                    savedProbe.dropToSurfaceWithDepth);
             }
         }
 
@@ -494,12 +498,10 @@ namespace TrajectoryPlanner
         }
 
         public ProbeManager AddNewProbe(int probeType, float ap, float ml, float dv, float phi, float theta, float spin,
-            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-            bool isLinkDataExpired
-        )
+            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            if (!isLinkDataExpired)
+            if (!localPrefs.IsLinkDataExpired())
             {
                 probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
                 probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
