@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TrajectoryPlanner;
@@ -84,18 +85,14 @@ public class ProbeController : MonoBehaviour
         depth = defaultDepth;
 
         UpdateRecordingRegionVars();
-    }
 
-
-    // Start is called before the first frame update
-    void Start()
-    {
         initialPosition = transform.position;
         initialRotation = transform.rotation;
 
-        ResetPosition();
+        ResetPositionTracking();
+        ResetInsertion();
     }
-
+    
     public void Register(TrajectoryPlannerManager tpmanager, ProbeManager probeManager)
     {
         this.tpmanager = tpmanager;
@@ -105,15 +102,32 @@ public class ProbeController : MonoBehaviour
     /// <summary>
     /// Put this probe back at Bregma
     /// </summary>
+    public void ResetInsertion()
+    {
+        ResetPosition();
+        ResetAngles();
+
+        ResetUI();
+    }
+
+    public void ResetUI()
+    {
+        // reset UI as well
+        // ResetPositionTracking();
+        SetProbePosition();
+        probeManager.UpdateText();
+    }
+
     public void ResetPosition()
     {
         transform.position = initialPosition;
-        transform.rotation = initialRotation;
+        insertion.apmldv = defaultStart;
+    }
 
-        // reset UI as well
-        ResetPositionTracking();
-        SetProbePosition();
-        probeManager.UpdateText();
+    public void ResetAngles()
+    {
+        transform.rotation = initialRotation;
+        insertion.angles = defaultAngles;
     }
 
     /// <summary>
@@ -735,7 +749,6 @@ public class ProbeController : MonoBehaviour
     /// <param name="localInsertion">new insertion position</param>
     private void SetProbePositionCCF(ProbeInsertion localInsertion)
     {
-        Debug.Log((localInsertion.apmldv, localInsertion.angles));
         // Reset everything
         transform.position = initialPosition;
         transform.rotation = initialRotation;
@@ -743,7 +756,6 @@ public class ProbeController : MonoBehaviour
 
         // Manually adjust the coordinates and rotation
         transform.position += Utils.apmldv2world(localInsertion.apmldv);
-        Debug.Log(transform.position);
         transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
         transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
         transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
@@ -752,11 +764,9 @@ public class ProbeController : MonoBehaviour
         if (depth != 0f)
         {
             transform.position += -transform.up * depth;
-            Debug.Log(transform.position);
             Vector3 depthAdjustment = Utils.world2apmldv(-transform.up * depth);
             localInsertion.SetCoordinates(localInsertion.ap + depthAdjustment.x, localInsertion.ml + depthAdjustment.y, localInsertion.dv + depthAdjustment.z,
                 localInsertion.angles.x, localInsertion.angles.y, localInsertion.angles.z);
-            Debug.Log((localInsertion.apmldv, localInsertion.angles));
             depth = 0f;
         }
 
@@ -776,8 +786,6 @@ public class ProbeController : MonoBehaviour
     /// </summary>
     public void SetProbeInsertionTransformed(float ap, float ml, float dv, float phi, float theta, float spin, float depthOverride = 0f)
     {
-        depth = depthOverride;
-
         if (tpmanager.GetSetting_UseIBLAngles())
             if (tpmanager.GetSetting_InVivoTransformActive())
                 insertion.SetCoordinates_IBL(ap, ml, dv, phi, theta, spin, tpmanager.GetActiveCoordinateTransform());
@@ -789,7 +797,7 @@ public class ProbeController : MonoBehaviour
         else
             insertion.SetCoordinates(ap, ml, dv, phi, theta, spin);
 
-        SetProbePosition();
+        SetProbePosition(depthOverride);
     }
     public void SetProbeInsertionTransformed(Vector3 apmldv, Vector3 angles, float depthOverride = 0f)
     {
@@ -804,12 +812,27 @@ public class ProbeController : MonoBehaviour
 
     public void SetProbePositionTransformed(float ap, float ml, float dv, float depthOverride = 0f)
     {
-        SetProbeInsertionTransformed(ap, ml, dv, insertion.phi, insertion.theta, insertion.spin, depthOverride);
+        if (tpmanager.GetSetting_InVivoTransformActive())
+            insertion.SetPosition(ap, ml, dv, tpmanager.GetActiveCoordinateTransform());
+        else
+            insertion.SetPosition(ap, ml, dv);
+
+        SetProbePosition(depthOverride);
+    }
+
+    public void SetProbePositionTransformed(Vector4 position)
+    {
+        SetProbePositionTransformed(position.x, position.y, position.z, position.w);
     }
 
     public void SetProbeAnglesTransformed(float phi, float theta, float spin)
     {
-        SetProbeInsertionTransformed(insertion.ap, insertion.ml, insertion.dv, phi, theta, spin);
+        if (tpmanager.GetSetting_UseIBLAngles())
+            insertion.SetAngles_IBL(phi, theta, spin);
+        else
+            insertion.SetAngles(phi, theta, spin);
+
+        SetProbePosition();
     }
 
     #endregion

@@ -18,7 +18,6 @@ public class ProbeManager : MonoBehaviour
 
     private CommunicationManager _sensapexLinkCommunicationManager;
     private int _manipulatorId;
-    private Vector3 _probeAngles;
     private float _phiCos = 1f;
     private float _phiSin;
     private Vector4 _zeroCoordinateOffset = Vector4.negativeInfinity;
@@ -705,26 +704,6 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Probe angles as phi, theta, spin
-    /// </summary>
-    /// <returns>Angles in degrees in phi, theta, spin order</returns>
-    public Vector3 GetProbeAngles()
-    {
-        return _probeAngles;
-    }
-
-    /// <summary>
-    ///     Set probe angles in phi, theta, spin order
-    /// </summary>
-    /// <param name="angles">Angles in degrees in phi, theta, spin order</param>
-    public void SetProbeAngles(Vector3 angles)
-    {
-        _probeAngles = angles;
-        _phiCos = Mathf.Cos(_probeAngles.x * Mathf.Deg2Rad);
-        _phiSin = Mathf.Sin(_probeAngles.x * Mathf.Deg2Rad);
-    }
-
-    /// <summary>
     ///     Manipulator space offset to zero coordinate as X, Y, Z, Depth
     /// </summary>
     /// <returns>Manipulator space offset to zero coordinate as X, Y, Z, Depth</returns>
@@ -804,7 +783,7 @@ public class ProbeManager : MonoBehaviour
     public void SetBrainSurfaceOffset()
     {
         var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipTransform().up : Vector3.up;
-        var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 5, _probeAngles,
+        var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 5, probeController.GetInsertion().angles,
             _dropToSurfaceWithDepth);
 
         _brainSurfaceOffset -= (brainSurface.Item2 - 5) * 1000;
@@ -858,6 +837,8 @@ public class ProbeManager : MonoBehaviour
         var zeroCoordinateAdjustedPosition = pos - _zeroCoordinateOffset;
         
         // Phi adjustment
+        _phiCos = Mathf.Cos(probeController.GetInsertion().GetAngles_IBL().x * Mathf.Deg2Rad);
+        _phiSin = Mathf.Sin(probeController.GetInsertion().GetAngles_IBL().x * Mathf.Deg2Rad);
         var phiAdjustedX = zeroCoordinateAdjustedPosition.x * _phiCos -
                            zeroCoordinateAdjustedPosition.y * _phiSin;
         var phiAdjustedY = zeroCoordinateAdjustedPosition.x * _phiSin +
@@ -878,15 +859,12 @@ public class ProbeManager : MonoBehaviour
         else
             zeroCoordinateAdjustedPosition.z += brainSurfaceAdjustment;
 
-        // Swap axes to match AP/ML/DV order and adjust for handedness
-        var positionAxisSwapped = new Vector3(
+        // Set probe position (swapping the axes)
+        probeController.SetProbePositionTransformed(new Vector4(
             zeroCoordinateAdjustedPosition.y * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1),
             -zeroCoordinateAdjustedPosition.x,
-            -zeroCoordinateAdjustedPosition.z);
-
-        // Drive normally when not moving depth, otherwise use surface coordinates
-        probeController.SetProbeInsertionTransformed(positionAxisSwapped, _probeAngles,
-            zeroCoordinateAdjustedPosition.w / 1000f);
+            -zeroCoordinateAdjustedPosition.z,
+            zeroCoordinateAdjustedPosition.w / 1000f));
 
 
         // Continue echoing position

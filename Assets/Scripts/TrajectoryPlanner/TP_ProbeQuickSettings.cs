@@ -90,10 +90,15 @@ namespace TrajectoryPlanner
         /// </summary>
         public void ResetZeroCoordinate()
         {
+            Debug.Log("Connected: "+_probeManager.IsConnectedToManipulator());
             if (_probeManager.IsConnectedToManipulator())
                 _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetZeroCoordinateOffset);
             else
+            {
                 _probeManager.GetProbeController().ResetPosition();
+                _probeManager.GetProbeController().ResetUI();
+            }
+                
         }
 
         public bool IsFocused()

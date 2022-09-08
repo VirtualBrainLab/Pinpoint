@@ -656,7 +656,7 @@ namespace TrajectoryPlanner
         public void ResetActiveProbe()
         {
             if (activeProbeController != null)
-                activeProbeController.GetProbeController().ResetPosition();
+                activeProbeController.GetProbeController().ResetInsertion();
         }
 
         public Color GetProbeColor(int probeID)

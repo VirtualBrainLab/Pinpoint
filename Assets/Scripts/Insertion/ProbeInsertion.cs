@@ -1,10 +1,11 @@
+using System;
 using UnityEngine;
 
 /// <summary>
 /// Representation of a probe insertion in *CCF SPACE*.
 /// Also allows you to convert insertions to string/JSON formats for export and reads string/JSON formats for ingestion.
 /// </summary>
-[System.Serializable]
+[Serializable]
 public class ProbeInsertion
 {
     public float ap;
@@ -16,10 +17,7 @@ public class ProbeInsertion
 
     public Vector3 apmldv
     {
-        get
-        {
-            return new Vector3(ap, ml, dv);
-        }
+        get => new Vector3(ap, ml, dv);
         set
         {
             ap = value.x;
@@ -30,10 +28,7 @@ public class ProbeInsertion
 
     public Vector3 angles
     {
-        get
-        {
-            return new Vector3(phi, theta, spin);
-        }
+        get => new Vector3(phi, theta, spin);
         set
         {
             phi = value.x;
@@ -70,7 +65,9 @@ public class ProbeInsertion
         this.theta = theta;
         this.spin = spin;
     }
-    public void SetCoordinates(float ap, float ml, float dv, float phi, float theta, float spin, CoordinateTransform coordTransform)
+
+    public void SetCoordinates(float ap, float ml, float dv, float phi, float theta, float spin,
+        CoordinateTransform coordTransform)
     {
         Vector3 ccf_apmldv = coordTransform.ToCCF(new Vector3(ap, ml, dv));
         this.ap = ccf_apmldv.x;
@@ -90,6 +87,7 @@ public class ProbeInsertion
         theta = otherInsertion.theta;
         spin = otherInsertion.spin;
     }
+
     public void SetCoordinates(ProbeInsertion otherInsertion, CoordinateTransform coordTransform)
     {
         Vector3 ccf_apmldv = coordTransform.ToCCF(otherInsertion.apmldv);
@@ -99,6 +97,41 @@ public class ProbeInsertion
         phi = otherInsertion.phi;
         theta = otherInsertion.theta;
         spin = otherInsertion.spin;
+    }
+
+
+    public void SetPosition(ProbeInsertion otherInsertion, CoordinateTransform coordTransform)
+    {
+        var ccf_apmldv = coordTransform.ToCCF(otherInsertion.apmldv);
+        ap = ccf_apmldv.x;
+        ml = ccf_apmldv.y;
+        dv = ccf_apmldv.z;
+    }
+
+    public void SetAngles(ProbeInsertion otherInsertion, CoordinateTransform coordTransform)
+    {
+        phi = otherInsertion.phi;
+        theta = otherInsertion.theta;
+        spin = otherInsertion.spin;
+    }
+
+    public void SetPosition(float ap, float ml, float dv, CoordinateTransform coordTransform = null)
+    {
+        ap /= 1000f;
+        ml /= 1000f;
+        dv /= 1000f;
+        var ccf_apmldv = coordTransform?.ToCCF(new Vector3(ap, ml, dv)) ?? new Vector3(ap, ml, dv);
+
+        this.ap = ccf_apmldv.x;
+        this.ml = ccf_apmldv.y;
+        this.dv = ccf_apmldv.z;
+    }
+
+    public void SetAngles(float phi, float theta, float spin)
+    {
+        this.phi = phi;
+        this.theta = theta;
+        this.spin = spin;
     }
 
     public void SetCoordinatesString(string input)
@@ -126,7 +159,8 @@ public class ProbeInsertion
 
     public string GetCoordinatesString()
     {
-        return string.Format("ccfAP:{1} ccfML:{2} ccfDV:{3} ccfPh:{4} ccfTh:{5} ccfSp:{6}", ap, ml, dv, phi, theta, spin);
+        return string.Format("ccfAP:{1} ccfML:{2} ccfDV:{3} ccfPh:{4} ccfTh:{5} ccfSp:{6}", ap, ml, dv, phi, theta,
+            spin);
     }
 
     public string GetCoordinatesJSON()
@@ -138,6 +172,7 @@ public class ProbeInsertion
     {
         return (ap, ml, dv, phi, theta, spin);
     }
+
     public (float, float, float, float, float, float) GetCoordinatesFloat(CoordinateTransform coordTransform)
     {
         Vector3 transCoord = coordTransform.FromCCF(apmldv);
@@ -147,7 +182,8 @@ public class ProbeInsertion
     /// <summary>
     /// Set coordinates in IBL conventions, expects um units and IBL rotated angles
     /// </summary>
-    public void SetCoordinates_IBL(float ap, float ml, float dv, float phi, float theta, float spin, CoordinateTransform coordTransform = null)
+    public void SetCoordinates_IBL(float ap, float ml, float dv, float phi, float theta, float spin,
+        CoordinateTransform coordTransform = null)
     {
         Vector2 worldPhiTheta = Utils.IBL2World(new Vector2(phi, theta));
 
@@ -158,7 +194,15 @@ public class ProbeInsertion
         }
         else
             SetCoordinates(ap / 1000f, ml / 1000f, dv / 1000f, worldPhiTheta.x, worldPhiTheta.y, spin);
+    }
 
+    /// <summary>
+    ///     Set coordinates in IBL conventions, expects um units and IBL rotated angles
+    /// </summary>
+    public void SetAngles_IBL(float phi, float theta, float spin)
+    {
+        var worldPhiTheta = Utils.IBL2World(new Vector2(phi, theta));
+        SetAngles(worldPhiTheta.x, worldPhiTheta.y, spin);
     }
 
     /// <summary>
@@ -171,10 +215,20 @@ public class ProbeInsertion
         if (coordTransform != null)
         {
             Vector3 transCoord = coordTransform.FromCCF(apmldv);
-            return (transCoord.x * 1000f, transCoord.y * 1000f, transCoord.z * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
+            return (transCoord.x * 1000f, transCoord.y * 1000f, transCoord.z * 1000f, iblPhiTheta.x, iblPhiTheta.y,
+                spin);
         }
         else
             return (ap * 1000f, ml * 1000f, dv * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
     }
     
+    /// <summary>
+    /// Return coordinates in IBL conventions, i.e. um units and rotated angles
+    /// </summary>
+    /// <returns></returns>
+    public Vector3 GetAngles_IBL()
+    {
+        Vector2 iblPhiTheta = Utils.World2IBL(new Vector2(phi, theta));
+        return new Vector3(iblPhiTheta.x, iblPhiTheta.y, spin);
+    }
 }
