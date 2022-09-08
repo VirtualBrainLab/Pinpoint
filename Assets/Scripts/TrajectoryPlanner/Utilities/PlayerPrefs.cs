@@ -137,7 +137,8 @@ public class PlayerPrefs : MonoBehaviour
             var d = UnityEngine.PlayerPrefs.GetFloat("d" + i);
             var brainSurfaceOffset = UnityEngine.PlayerPrefs.GetFloat("brain_surface_offset" + i);
             var dropToSurfaceWithDepth = UnityEngine.PlayerPrefs.GetInt("drop_to_surface_with_depth" + i) == 1;
-            var timestamp = long.Parse(UnityEngine.PlayerPrefs.GetString("timestamp" + i));
+            var timestampString = UnityEngine.PlayerPrefs.GetString("timestamp" + i);
+            var timestamp = timestampString == "" ? 0 : long.Parse(timestampString);
 
             savedProbes[i] = (new Vector3(ap, ml, dv), depth, new Vector3(phi, theta, spin), type, manipulatorId,
                 new Vector4(x, y, z, d), brainSurfaceOffset, dropToSurfaceWithDepth,
@@ -305,7 +306,7 @@ public class PlayerPrefs : MonoBehaviour
 
     public HashSet<int> GetRightHandedManipulatorIds()
     {
-        return Array.ConvertAll(_rightHandedManipulatorIds.Split(','), int.Parse).ToHashSet();
+        return _rightHandedManipulatorIds == "" ? new HashSet<int>(): Array.ConvertAll(_rightHandedManipulatorIds.Split(','), int.Parse).ToHashSet();
     }
 
     #endregion
