@@ -15,6 +15,7 @@ namespace Settings
         #region Serialized Fields
 
         // Server connection
+        [SerializeField] private TMP_Text serverConnectedText;
         [SerializeField] private TMP_InputField ipAddressInputField;
         [SerializeField] private TMP_InputField portInputField;
         [SerializeField] private TMP_Text connectionErrorText;
@@ -165,6 +166,7 @@ namespace Settings
         {
             connectionErrorText.text = "";
             connectButtonText.text = _communicationManager.IsConnected() ? "Disconnect" : "Connect";
+            serverConnectedText.text = (_communicationManager.IsConnected() ? "Connected" : "Connect") + " to server at";
         }
 
         /// <summary>
@@ -176,10 +178,12 @@ namespace Settings
             {
                 try
                 {
+                    serverConnectedText.text = "Connecting to server at";
                     connectButtonText.text = "Connecting...";
                     _communicationManager.ConnectToServer(ipAddressInputField.text, int.Parse(portInputField.text),
                         UpdateConnectionUI, err =>
                         {
+                            serverConnectedText.text = "Connect to server at";
                             connectionErrorText.text = err;
                             connectButtonText.text = "Connect";
                         }

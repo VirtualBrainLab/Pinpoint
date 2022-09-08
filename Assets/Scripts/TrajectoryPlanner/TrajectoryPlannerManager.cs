@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using SensapexLink;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace TrajectoryPlanner
@@ -102,7 +101,7 @@ namespace TrajectoryPlanner
         #region Sensapex Link
 
         private CommunicationManager _communicationManager;
-        private HashSet<int> _rightHandedManipulators = new();
+        private HashSet<int> _rightHandedManipulatorIds = new();
 
         #endregion
 
@@ -127,7 +126,6 @@ namespace TrajectoryPlanner
 
         private void Start()
         {
-
             // Startup CCF
             modelControl.LateStart(true);
 
@@ -149,6 +147,7 @@ namespace TrajectoryPlanner
             SetSetting_InVivoTransformState(localPrefs.GetStereotaxic());
             SetSetting_UseIBLAngles(localPrefs.GetUseIBLAngles());
             SetSetting_SurfaceDebugSphereVisibility(localPrefs.GetSurfaceCoord());
+            _rightHandedManipulatorIds = localPrefs.GetRightHandedManipulatorIds();
         }
         public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
         {
@@ -158,7 +157,11 @@ namespace TrajectoryPlanner
             {
                 if (UnityEngine.PlayerPrefs.GetInt("probecount", 0) > 0)
                 {
-                    qDialogue.NewQuestion("Load previously saved probes?");
+                    var questionString = localPrefs.IsLinkDataExpired()
+                        ? "Load previously saved probes?"
+                        : "Restore previous session?";
+                    
+                    qDialogue.NewQuestion(questionString);
                     qDialogue.SetYesCallback(this.LoadSavedProbes);
                 }
             }
@@ -166,13 +169,15 @@ namespace TrajectoryPlanner
 
         private void LoadSavedProbes()
         {
-            (Vector3 tipPos, float depth, Vector3 angles, int type)[] savedProbes = localPrefs.LoadSavedProbes();
+            var savedProbes = localPrefs.LoadSavedProbes();
 
             foreach (var savedProbe in savedProbes)
             {
                 Vector3 tipPos = savedProbe.tipPos;
                 Vector3 angles = savedProbe.angles;
-                AddNewProbe(savedProbe.type, tipPos.x, tipPos.y, tipPos.z, angles.x, angles.y, angles.z);
+                AddNewProbe(savedProbe.type, tipPos.x, tipPos.y, tipPos.z, angles.x, angles.y, angles.z,
+                    savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
+                    savedProbe.dropToSurfaceWithDepth);
             }
         }
 
@@ -306,20 +311,20 @@ namespace TrajectoryPlanner
 
         public bool IsManipulatorRightHanded(int manipulatorId)
         {
-            return _rightHandedManipulators.Contains(manipulatorId);
+            return _rightHandedManipulatorIds.Contains(manipulatorId);
         }
         
         public void AddRightHandedManipulator(int manipulatorId)
         {
-            _rightHandedManipulators.Add(manipulatorId);
+            _rightHandedManipulatorIds.Add(manipulatorId);
+            localPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
         }
         
         public void RemoveRightHandedManipulator(int manipulatorId)
         {
-            if (IsManipulatorRightHanded(manipulatorId))
-            {
-                _rightHandedManipulators.Remove(manipulatorId);
-            }
+            if (!IsManipulatorRightHanded(manipulatorId)) return;
+            _rightHandedManipulatorIds.Remove(manipulatorId);
+            localPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
         }
 
         // Update is called once per frame
@@ -441,7 +446,7 @@ namespace TrajectoryPlanner
 
         public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin, float depth = 0f)
         {
-            activeProbeController.GetProbeController().ManualCoordinateEntryTransformed(ap, ml, dv, phi, theta, spin, depth);
+            activeProbeController.GetProbeController().SetProbeInsertionTransformed(ap, ml, dv, phi, theta, spin, depth);
         }
 
         public void AddIBLProbes()
@@ -456,7 +461,7 @@ namespace TrajectoryPlanner
             yield return new WaitForSeconds(delay);
             AddNewProbe(1);
             yield return new WaitForSeconds(0.05f);
-            activeProbeController.GetProbeController().SetProbePositionCCF(new ProbeInsertion(5.4f, 5.7f, 0.332f, phi, theta, 0));
+            activeProbeController.GetProbeController().SetProbeInsertionTransformed(5.4f, 5.7f, 0.332f, phi, theta, 0f);
         }
 
         IEnumerator DelayedMoveAllProbes()
@@ -496,10 +501,20 @@ namespace TrajectoryPlanner
 
             return newProbe.GetComponent<ProbeManager>();
         }
-        public ProbeManager AddNewProbe(int probeType, float ap, float ml, float dv, float phi, float theta, float spin)
+
+        public ProbeManager AddNewProbe(int probeType, float ap, float ml, float dv, float phi, float theta, float spin,
+            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            StartCoroutine(probeController.GetProbeController().DelayedManualCoordinateEntryTransformed(0.1f, ap, ml, dv, phi, theta, spin));
+            if (!localPrefs.IsLinkDataExpired())
+            {
+                probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
+                probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
+                probeController.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
+                if (manipulatorId != 0) probeController.SetSensapexLinkMovement(true, manipulatorId);
+            }
+            
+            StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(ap, ml, dv, phi, theta, spin, 0.05f));
 
             return probeController;
         }
@@ -510,9 +525,10 @@ namespace TrajectoryPlanner
             ProbeManager probeController = AddNewProbe(probeType);
             if (manipulatorId == 0)
             {
-                StartCoroutine(probeController.GetProbeController().DelayedManualCoordinateEntryTransformed(0.1f, localInsertion.ap,
-                    localInsertion.ml, localInsertion.dv, localInsertion.phi,
-                    localInsertion.theta, localInsertion.spin));
+                StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(
+                    localInsertion.ap, localInsertion.ml, localInsertion.dv, 
+                    localInsertion.phi, localInsertion.theta, localInsertion.spin,
+                    0.05f));
             }
             else
             {
@@ -645,7 +661,7 @@ namespace TrajectoryPlanner
         public void ResetActiveProbe()
         {
             if (activeProbeController != null)
-                activeProbeController.GetProbeController().ResetPosition();
+                activeProbeController.GetProbeController().ResetInsertion();
         }
 
         public Color GetProbeColor(int probeID)
@@ -981,13 +997,19 @@ namespace TrajectoryPlanner
 
         private void OnApplicationQuit()
         {
-            (float ap, float ml, float dv, float phi, float theta, float spin, int type)[] probeCoordinates = new (float ap, float ml, float dv, float phi, float theta, float spin, int type)[allProbeManagers.Count];
+            var probeCoordinates =
+                new (float ap, float ml, float dv, float phi, float theta, float spin, int type, int manipulatorId,
+                    Vector4
+                    zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[allProbeManagers
+                        .Count];
 
             for (int i =0; i< allProbeManagers.Count; i++)
             {
                 ProbeManager probe = allProbeManagers[i];
                 (float ap, float ml, float dv, float phi, float theta, float spin) = probe.GetCoordinates();
-                probeCoordinates[i] = (ap, ml, dv, phi, theta, spin, probe.GetProbeType());
+                probeCoordinates[i] = (ap, ml, dv, phi, theta, spin, probe.GetProbeType(), probe.GetManipulatorId(),
+                    probe.GetZeroCoordinateOffset(), probe.GetBrainSurfaceOffset(),
+                    probe.IsSetToDropToSurfaceWithDepth());
             }
             localPrefs.SaveCurrentProbeData(probeCoordinates);
         }

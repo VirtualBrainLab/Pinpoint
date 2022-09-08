@@ -1,5 +1,6 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,6 +35,7 @@ public class PlayerPrefs : MonoBehaviour
     private int _sensapexLinkServerPort;
     private bool _axisControl;
     private bool _showAllProbePanels;
+    private string _rightHandedManipulatorIds;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -50,7 +52,7 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] TMP_InputField sensapexLinkServerPortInput;
     [SerializeField] Toggle axisControlToggle;
     [SerializeField] Toggle showAllProbePanelsToggle;
-
+    
 
     /// <summary>
     /// On Awake() load the preferences and toggle the corresponding UI elements
@@ -101,17 +103,22 @@ public class PlayerPrefs : MonoBehaviour
 
         _showAllProbePanels = LoadBoolPref("show_all_probe_panels", true);
         showAllProbePanelsToggle.isOn = _showAllProbePanels;
+
+        _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulator_ids", "");
     }
 
     /// <summary>
     /// Return an array with information about the positions (in CCF) of probes that were saved from the last session
     /// </summary>
     /// <returns></returns>
-    public (Vector3 tipPos, float depth, Vector3 angles, int type)[] LoadSavedProbes()
+    public (Vector3 tipPos, float depth, Vector3 angles, int type, int manipulatorId, Vector4 zeroCoordinateOffset,
+        float brainSurfaceOffset, bool dropToSurfaceWithDepth)[] LoadSavedProbes()
     {
         int probeCount = UnityEngine.PlayerPrefs.GetInt("probecount", 0);
 
-        var savedProbes = new (Vector3 tipPos, float depth, Vector3 angles, int type)[probeCount];
+        var savedProbes =
+            new (Vector3 tipPos, float depth, Vector3 angles, int type, int manipulatorId, Vector4 zeroCoordinateOffset,
+                float brainSurfaceOffset, bool dropToSurfaceWithDepth)[probeCount];
 
         for (int i = 0; i < probeCount; i++)
         {
@@ -123,8 +130,16 @@ public class PlayerPrefs : MonoBehaviour
             float theta = UnityEngine.PlayerPrefs.GetFloat("theta" + i);
             float spin = UnityEngine.PlayerPrefs.GetFloat("spin" + i);
             int type = UnityEngine.PlayerPrefs.GetInt("type" + i);
+            var manipulatorId = UnityEngine.PlayerPrefs.GetInt("manipulator_id" + i);
+            var x = UnityEngine.PlayerPrefs.GetFloat("x" + i);
+            var y = UnityEngine.PlayerPrefs.GetFloat("y" + i);
+            var z = UnityEngine.PlayerPrefs.GetFloat("z" + i);
+            var d = UnityEngine.PlayerPrefs.GetFloat("d" + i);
+            var brainSurfaceOffset = UnityEngine.PlayerPrefs.GetFloat("brain_surface_offset" + i);
+            var dropToSurfaceWithDepth = UnityEngine.PlayerPrefs.GetInt("drop_to_surface_with_depth" + i) == 1;
 
-            savedProbes[i] = (new Vector3(ap, ml, dv), depth, new Vector3(phi, theta, spin), type);
+            savedProbes[i] = (new Vector3(ap, ml, dv), depth, new Vector3(phi, theta, spin), type, manipulatorId,
+                new Vector4(x, y, z, d), brainSurfaceOffset, dropToSurfaceWithDepth);
         }
 
         return savedProbes;
@@ -286,6 +301,19 @@ public class PlayerPrefs : MonoBehaviour
         return _sensapexLinkServerPort;
     }
 
+    public HashSet<int> GetRightHandedManipulatorIds()
+    {
+        return _rightHandedManipulatorIds == "" ? new HashSet<int>(): Array.ConvertAll(_rightHandedManipulatorIds.Split(','), int.Parse).ToHashSet();
+    }
+
+    public bool IsLinkDataExpired()
+    {
+        var timestampString = UnityEngine.PlayerPrefs.GetString("timestamp");
+        if (timestampString == "") return false;
+
+        return new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - long.Parse(timestampString) >= 86400;
+    }
+
     #endregion
 
     #region Helper functions for booleans/integers/strings
@@ -310,7 +338,9 @@ public class PlayerPrefs : MonoBehaviour
     /// Save the data about all of the probes passed in through allProbeData in CCF coordinates, note that depth is ignored 
     /// </summary>
     /// <param name="allProbeData">tip position, angles, and type for probes in CCF coordinates</param>
-    public void SaveCurrentProbeData((float ap, float ml, float dv, float phi, float theta, float spin, int type)[] allProbeData)
+    public void SaveCurrentProbeData(
+        (float ap, float ml, float dv, float phi, float theta, float spin, int type, int manipulatorId, Vector4
+            zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[] allProbeData)
     {
         for (int i = 0; i < allProbeData.Length; i++)
         {
@@ -322,8 +352,18 @@ public class PlayerPrefs : MonoBehaviour
             UnityEngine.PlayerPrefs.SetFloat("theta" + i, allProbeData[i].theta);
             UnityEngine.PlayerPrefs.SetFloat("spin" + i, allProbeData[i].spin);
             UnityEngine.PlayerPrefs.SetInt("type" + i, allProbeData[i].type);
+            UnityEngine.PlayerPrefs.SetInt("manipulator_id" + i, allProbeData[i].manipulatorId);
+            UnityEngine.PlayerPrefs.SetFloat("x" + i, allProbeData[i].zeroCoordinateOffset.x);
+            UnityEngine.PlayerPrefs.SetFloat("y" + i, allProbeData[i].zeroCoordinateOffset.y);
+            UnityEngine.PlayerPrefs.SetFloat("z" + i, allProbeData[i].zeroCoordinateOffset.z);
+            UnityEngine.PlayerPrefs.SetFloat("d" + i, allProbeData[i].zeroCoordinateOffset.w);
+            UnityEngine.PlayerPrefs.SetFloat("brain_surface_offset" + i, allProbeData[i].brainSurfaceOffset);
+            UnityEngine.PlayerPrefs.SetInt("drop_to_surface_with_depth" + i,
+                allProbeData[i].dropToSurfaceWithDepth ? 1 : 0);
         }
         UnityEngine.PlayerPrefs.SetInt("probecount", allProbeData.Length);
+        UnityEngine.PlayerPrefs.SetString("timestamp",
+            new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString("D16"));
 
         UnityEngine.PlayerPrefs.Save();
     }
@@ -332,6 +372,12 @@ public class PlayerPrefs : MonoBehaviour
     {
         UnityEngine.PlayerPrefs.SetString("sensapex_ip", serverIp);
         UnityEngine.PlayerPrefs.SetInt("sensapex_port", serverPort);
+        UnityEngine.PlayerPrefs.Save();
+    }
+
+    public void SaveRightHandedManipulatorIds(HashSet<int> manipulatorIds)
+    {
+        UnityEngine.PlayerPrefs.SetString("right_handed_manipulator_ids", string.Join(",", manipulatorIds));
         UnityEngine.PlayerPrefs.Save();
     }
 }

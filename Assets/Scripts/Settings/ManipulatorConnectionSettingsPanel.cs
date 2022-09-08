@@ -12,6 +12,7 @@ namespace Settings
         #region Components
 
         [SerializeField] private TMP_Text manipulatorIdText;
+        [SerializeField] private TMP_Dropdown handednessDropdown;
 
         private TrajectoryPlannerManager _trajectoryPlannerManager;
 
@@ -40,6 +41,7 @@ namespace Settings
         {
             _manipulatorId = manipulatorId;
             manipulatorIdText.text = manipulatorId.ToString();
+            handednessDropdown.value = _trajectoryPlannerManager.IsManipulatorRightHanded(manipulatorId) ? 1 : 0;
         }
 
         #endregion
