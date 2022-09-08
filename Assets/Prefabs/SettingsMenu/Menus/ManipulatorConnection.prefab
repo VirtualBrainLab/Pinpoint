@@ -1871,6 +1871,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   manipulatorIdText: {fileID: 8699707721372442200}
+  handednessDropdown: {fileID: 5621560955300893446}
 --- !u!1 &8999800724767590326
 GameObject:
   m_ObjectHideFlags: 0

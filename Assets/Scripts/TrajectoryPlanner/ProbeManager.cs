@@ -698,6 +698,11 @@ public class ProbeManager : MonoBehaviour
     {
         return _manipulatorId != 0;
     }
+    
+    public void SetManipulatorId(int manipulatorId)
+    {
+        _manipulatorId = manipulatorId;
+    }
 
     /// <summary>
     ///     Probe angles as phi, theta, spin
@@ -727,7 +732,7 @@ public class ProbeManager : MonoBehaviour
     {
         return _zeroCoordinateOffset;
     }
-
+    
     /// <summary>
     ///     Set manipulator space offset to zero coordinate as X, Y, Z, Depth
     /// </summary>
@@ -812,15 +817,6 @@ public class ProbeManager : MonoBehaviour
     public void IncrementBrainSurfaceOffset(float increment)
     {
         _brainSurfaceOffset += increment;
-    }
-
-    /// <summary>
-    ///     Manually edit brain surface offset
-    /// </summary>
-    /// <param name="offset">Amount to offset by</param>
-    public void SetBrainSurfaceOffsetManually(float offset)
-    {
-        _brainSurfaceOffset = offset;
     }
 
     /// <summary>
