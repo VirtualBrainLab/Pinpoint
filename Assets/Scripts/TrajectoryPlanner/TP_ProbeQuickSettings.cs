@@ -73,7 +73,7 @@ namespace TrajectoryPlanner
                 //[TODO] re-enable position control when coordinate entry issues are fixed
                 positionFields.interactable = false; // !_probeManager.GetSensapexLinkMovement();
                 angleFields.interactable = true;
-                buttons.interactable = _communicationManager.IsConnected();
+                buttons.interactable = true;
             }
         }
 
