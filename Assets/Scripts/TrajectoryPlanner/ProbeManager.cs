@@ -793,7 +793,7 @@ public class ProbeManager : MonoBehaviour
         else
         {
             Debug.DrawLine(probeController.GetTipTransform().position, brainSurface.Item1, Color.red, 5);
-            probeController.SetProbePositionCCF(new ProbeInsertion(Utils.world2apmldv(brainSurface.Item1), _probeAngles));
+            probeController.SetProbePositionTransformed(brainSurface.Item1);
         }
     }
 
