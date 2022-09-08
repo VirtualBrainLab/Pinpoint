@@ -173,7 +173,7 @@ namespace TrajectoryPlanner
                 Vector3 angles = savedProbe.angles;
                 AddNewProbe(savedProbe.type, tipPos.x, tipPos.y, tipPos.z, angles.x, angles.y, angles.z,
                     savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
-                    savedProbe.dropToSurfaceWithDepth);
+                    savedProbe.dropToSurfaceWithDepth, savedProbe.isLinkDataExpired);
             }
         }
 
@@ -494,14 +494,19 @@ namespace TrajectoryPlanner
         }
 
         public ProbeManager AddNewProbe(int probeType, float ap, float ml, float dv, float phi, float theta, float spin,
-            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth
+            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+            bool isLinkDataExpired
         )
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            probeController.SetManipulatorId(manipulatorId);
-            probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
-            probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
-            probeController.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
+            if (!isLinkDataExpired)
+            {
+                probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
+                probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
+                probeController.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
+                if (manipulatorId != 0) probeController.SetSensapexLinkMovement(true, manipulatorId);
+            }
+            
             StartCoroutine(probeController.GetProbeController().DelayedManualCoordinateEntryTransformed(0.1f, ap, ml, dv, phi, theta, spin));
 
             return probeController;
