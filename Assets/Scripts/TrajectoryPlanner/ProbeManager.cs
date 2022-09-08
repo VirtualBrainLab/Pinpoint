@@ -885,7 +885,7 @@ public class ProbeManager : MonoBehaviour
             -zeroCoordinateAdjustedPosition.z);
 
         // Drive normally when not moving depth, otherwise use surface coordinates
-        probeController.ManualCoordinateEntryTransformed(positionAxisSwapped, _probeAngles,
+        probeController.SetProbeInsertionTransformed(positionAxisSwapped, _probeAngles,
             zeroCoordinateAdjustedPosition.w / 1000f);
 
 

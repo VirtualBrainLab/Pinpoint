@@ -20,6 +20,12 @@ public class ProbeInsertion
         {
             return new Vector3(ap, ml, dv);
         }
+        set
+        {
+            ap = value.x;
+            ml = value.y;
+            dv = value.z;
+        }
     }
 
     public Vector3 angles
@@ -28,6 +34,12 @@ public class ProbeInsertion
         {
             return new Vector3(phi, theta, spin);
         }
+        set
+        {
+            phi = value.x;
+            theta = value.y;
+            spin = value.z;
+        }
     }
 
     public ProbeInsertion(float ap, float ml, float dv, float phi, float theta, float spin)
@@ -35,9 +47,10 @@ public class ProbeInsertion
         SetCoordinates(ap, ml, dv, phi, theta, spin);
     }
 
-    public ProbeInsertion(Vector3 coords, Vector3 angles)
+    public ProbeInsertion(Vector3 tipPosition, Vector3 angles)
     {
-        SetCoordinates(coords.x, coords.y, coords.z, angles.x, angles.y, angles.z);
+        apmldv = tipPosition;
+        this.angles = angles;
     }
 
     public ProbeInsertion(string stringRepresentation, bool JSON)
@@ -129,15 +142,6 @@ public class ProbeInsertion
     {
         Vector3 transCoord = coordTransform.FromCCF(apmldv);
         return (transCoord.x, transCoord.y, transCoord.z, phi, theta, spin);
-    }
-
-    public (Vector3, Vector3) GetCoordinatesVector3()
-    {
-        return (apmldv, new Vector3(phi, theta, spin));
-    }
-    public (Vector3, Vector3) GetCoordinatesVector3(CoordinateTransform coordTransform)
-    {
-        return (coordTransform.FromCCF(apmldv), new Vector3(phi, theta, spin));
     }
 
     /// <summary>

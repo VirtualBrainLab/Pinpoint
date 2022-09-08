@@ -437,7 +437,7 @@ namespace TrajectoryPlanner
 
         public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin, float depth = 0f)
         {
-            activeProbeController.GetProbeController().ManualCoordinateEntryTransformed(ap, ml, dv, phi, theta, spin, depth);
+            activeProbeController.GetProbeController().SetProbeInsertionTransformed(ap, ml, dv, phi, theta, spin, depth);
         }
 
         public void AddIBLProbes()
@@ -452,7 +452,7 @@ namespace TrajectoryPlanner
             yield return new WaitForSeconds(delay);
             AddNewProbe(1);
             yield return new WaitForSeconds(0.05f);
-            activeProbeController.GetProbeController().SetProbePositionCCF(new ProbeInsertion(5.4f, 5.7f, 0.332f, phi, theta, 0));
+            activeProbeController.GetProbeController().SetProbeInsertionTransformed(5.4f, 5.7f, 0.332f, phi, theta, 0f);
         }
 
         IEnumerator DelayedMoveAllProbes()
@@ -507,7 +507,7 @@ namespace TrajectoryPlanner
                 if (manipulatorId != 0) probeController.SetSensapexLinkMovement(true, manipulatorId);
             }
             
-            StartCoroutine(probeController.GetProbeController().DelayedManualCoordinateEntryTransformed(0.1f, ap, ml, dv, phi, theta, spin));
+            StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(ap, ml, dv, phi, theta, spin, 0.05f));
 
             return probeController;
         }
@@ -518,9 +518,10 @@ namespace TrajectoryPlanner
             ProbeManager probeController = AddNewProbe(probeType);
             if (manipulatorId == 0)
             {
-                StartCoroutine(probeController.GetProbeController().DelayedManualCoordinateEntryTransformed(0.1f, localInsertion.ap,
-                    localInsertion.ml, localInsertion.dv, localInsertion.phi,
-                    localInsertion.theta, localInsertion.spin));
+                StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(
+                    localInsertion.ap, localInsertion.ml, localInsertion.dv, 
+                    localInsertion.phi, localInsertion.theta, localInsertion.spin,
+                    0.05f));
             }
             else
             {

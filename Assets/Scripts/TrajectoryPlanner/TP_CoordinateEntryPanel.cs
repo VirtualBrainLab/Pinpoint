@@ -21,8 +21,14 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
 
     private void Start()
     {
-        foreach (TMP_InputField inputField in transform.GetComponentsInChildren<TMP_InputField>())
-            inputField.onEndEdit.AddListener(delegate { Apply(); });
+        apField.onEndEdit.AddListener(delegate { ApplyPosition(); });
+        mlField.onEndEdit.AddListener(delegate { ApplyPosition(); });
+        dvField.onEndEdit.AddListener(delegate { ApplyPosition(); });
+        depthField.onEndEdit.AddListener(delegate { ApplyPosition(); });
+
+        phiField.onEndEdit.AddListener(delegate { ApplyAngles(); });
+        thetaField.onEndEdit.AddListener(delegate { ApplyAngles(); });
+        spinField.onEndEdit.AddListener(delegate { ApplyAngles(); });
     }
 
     private void Update()
@@ -40,10 +46,11 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     {
         if (linkedProbe == null) return;
 
-        (float ap, float ml, float dv, float depth, float phi, float theta, float spin) = linkedProbe.GetCoordinatesSurface();
-        apField.text = Round2Str(ap);
-        mlField.text = Round2Str(ml);
-        dvField.text = Round2Str(dv);
+        (float ap, float ml, float dv, float phi, float theta, float spin) = linkedProbe.GetCoordinates();
+        (float aps, float mls, float dvs, float depth, _, _, _) = linkedProbe.GetCoordinatesSurface();
+        apField.text = Round2Str(aps);
+        mlField.text = Round2Str(mls);
+        dvField.text = Round2Str(dvs);
         depthField.text = Round2Str(depth);
         phiField.text = Round2Str(phi);
         thetaField.text = Round2Str(theta);
@@ -57,16 +64,34 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         return ((int)value).ToString();
     }
 
-    public void Apply()
+    private void ApplyPosition()
     {
-        Debug.Log("Value changed");
         try
         {
             float ap = (apField.text.Length > 0) ? float.Parse(apField.text) : 0;
             float ml = (mlField.text.Length > 0) ? float.Parse(mlField.text) : 0;
             float dv = (dvField.text.Length > 0) ? float.Parse(dvField.text) : 0;
             float depth = (depthField.text.Length > 0 && depthField.text != "nan") ? 
-                float.Parse(depthField.text) : 
+                float.Parse(depthField.text) + 200f : 
+                0;
+
+            linkedProbe.GetProbeController().SetProbePositionTransformed(ap, ml, dv, depth/1000f);
+        }
+        catch
+        {
+            Debug.Log("Bad formatting?");
+        }
+    }
+
+    private void ApplyAngles()
+    {
+        try
+        {
+            float ap = (apField.text.Length > 0) ? float.Parse(apField.text) : 0;
+            float ml = (mlField.text.Length > 0) ? float.Parse(mlField.text) : 0;
+            float dv = (dvField.text.Length > 0) ? float.Parse(dvField.text) : 0;
+            float depth = (depthField.text.Length > 0 && depthField.text != "nan") ?
+                float.Parse(depthField.text) + 200f :
                 0;
             float phi = (phiField.text.Length > 0) ? float.Parse(phiField.text) : 0;
             float theta = (thetaField.text.Length > 0) ? float.Parse(thetaField.text) : 0;
@@ -74,7 +99,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
 
             Debug.Log((ap, ml, dv, depth, phi, theta, spin));
 
-            linkedProbe.GetProbeController().ManualCoordinateEntryTransformed(ap, ml, dv, phi, theta, spin, depth);
+            linkedProbe.GetProbeController().SetProbeAnglesTransformed(phi, theta, spin);
         }
         catch
         {
