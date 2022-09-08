@@ -112,13 +112,13 @@ public class PlayerPrefs : MonoBehaviour
     /// </summary>
     /// <returns></returns>
     public (Vector3 tipPos, float depth, Vector3 angles, int type, int manipulatorId, Vector4 zeroCoordinateOffset,
-        float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isLinkDataExpired)[] LoadSavedProbes()
+        float brainSurfaceOffset, bool dropToSurfaceWithDepth)[] LoadSavedProbes()
     {
         int probeCount = UnityEngine.PlayerPrefs.GetInt("probecount", 0);
 
         var savedProbes =
             new (Vector3 tipPos, float depth, Vector3 angles, int type, int manipulatorId, Vector4 zeroCoordinateOffset,
-                float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isLinkDataExpired)[probeCount];
+                float brainSurfaceOffset, bool dropToSurfaceWithDepth)[probeCount];
 
         for (int i = 0; i < probeCount; i++)
         {
@@ -137,12 +137,9 @@ public class PlayerPrefs : MonoBehaviour
             var d = UnityEngine.PlayerPrefs.GetFloat("d" + i);
             var brainSurfaceOffset = UnityEngine.PlayerPrefs.GetFloat("brain_surface_offset" + i);
             var dropToSurfaceWithDepth = UnityEngine.PlayerPrefs.GetInt("drop_to_surface_with_depth" + i) == 1;
-            var timestampString = UnityEngine.PlayerPrefs.GetString("timestamp" + i);
-            var timestamp = timestampString == "" ? 0 : long.Parse(timestampString);
 
             savedProbes[i] = (new Vector3(ap, ml, dv), depth, new Vector3(phi, theta, spin), type, manipulatorId,
-                new Vector4(x, y, z, d), brainSurfaceOffset, dropToSurfaceWithDepth,
-                new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - timestamp >= 86400);
+                new Vector4(x, y, z, d), brainSurfaceOffset, dropToSurfaceWithDepth);
         }
 
         return savedProbes;
@@ -309,6 +306,14 @@ public class PlayerPrefs : MonoBehaviour
         return _rightHandedManipulatorIds == "" ? new HashSet<int>(): Array.ConvertAll(_rightHandedManipulatorIds.Split(','), int.Parse).ToHashSet();
     }
 
+    public bool IsLinkDataExpired()
+    {
+        var timestampString = UnityEngine.PlayerPrefs.GetString("timestamp");
+        if (timestampString == "") return false;
+
+        return new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - long.Parse(timestampString) >= 86400;
+    }
+
     #endregion
 
     #region Helper functions for booleans/integers/strings
@@ -355,10 +360,10 @@ public class PlayerPrefs : MonoBehaviour
             UnityEngine.PlayerPrefs.SetFloat("brain_surface_offset" + i, allProbeData[i].brainSurfaceOffset);
             UnityEngine.PlayerPrefs.SetInt("drop_to_surface_with_depth" + i,
                 allProbeData[i].dropToSurfaceWithDepth ? 1 : 0);
-            UnityEngine.PlayerPrefs.SetString("timestamp" + i,
-                new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString("D16"));
         }
         UnityEngine.PlayerPrefs.SetInt("probecount", allProbeData.Length);
+        UnityEngine.PlayerPrefs.SetString("timestamp",
+            new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString("D16"));
 
         UnityEngine.PlayerPrefs.Save();
     }
