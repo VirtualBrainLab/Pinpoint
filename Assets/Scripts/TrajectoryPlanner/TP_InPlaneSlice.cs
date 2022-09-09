@@ -26,6 +26,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     private AnnotationDataset annotationDataset;
 
     private float probeWidth = 70; // probes are 70um wide
+    private int zoomLevel = 0;
     private float zoomFactor = 1f;
 
     private RectTransform rect;
@@ -91,7 +92,6 @@ public class TP_InPlaneSlice : MonoBehaviour
     }
 
     private float inPlaneScale;
-    private Vector3 centerOffset;
     private Vector3 recordingRegionCenterPosition;
     private Transform tipTransform;
 
@@ -105,10 +105,8 @@ public class TP_InPlaneSlice : MonoBehaviour
             return;
 
         // Calculate the size
-        float[] heightPerc = activeProbeController.GetRecordingRegionHeight();
-        float mmStartPos = heightPerc[0] * (10 - heightPerc[1]);
-        float mmRecordingSize = heightPerc[1];
-
+        (float mmStartPos, float mmRecordingSize) = activeProbeController.GetProbeController().GetRecordingRegionHeight();
+        Debug.Log((mmStartPos, mmRecordingSize));
         // Take the active probe, find the position and rotation, and interpolate across the annotation dataset to render a 400x400 image of the brain at that slice
         tipTransform = activeProbeController.GetTipTransform();
 
@@ -123,6 +121,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 
         inPlaneScale = mmRecordingSize * 1.5f * 1000f / 25f * zoomFactor;
+
+        Debug.Log(inPlaneScale);
 
         gpuSliceRenderer.material.SetVector("_RecordingRegionCenterPosition", recordingRegionCenterPosition);
         gpuSliceRenderer.material.SetVector("_ForwardDirection", tipTransform.forward);
@@ -181,18 +181,21 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     public void ZoomIn()
     {
-        zoomFactor = zoomFactor * 0.75f;
+        zoomLevel += 1;
+        zoomFactor = Mathf.Pow(0.75f, zoomLevel);
         UpdateInPlaneSlice();
     }
 
     public void ZoomOut()
     {
-        zoomFactor = zoomFactor * 1.5f;
+        zoomLevel -= 1;
+        zoomFactor = Mathf.Pow(0.75f, zoomLevel);
         UpdateInPlaneSlice();
     }
 
     public void ResetZoom()
     {
+        zoomLevel = 0;
         zoomFactor = 1f;
         UpdateInPlaneSlice();
     }

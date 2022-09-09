@@ -404,7 +404,7 @@ namespace TrajectoryPlanner
         private void DestroyActiveProbeController()
         {
             prevProbeType = activeProbeController.GetProbeType();
-            prevInsertion = activeProbeController.GetInsertion();
+            prevInsertion = activeProbeController.GetProbeController().GetInsertion();
             _prevManipulatorId = activeProbeController.GetManipulatorId();
             _prevZeroCoordinateOffset = activeProbeController.GetZeroCoordinateOffset();
             _prevBrainSurfaceOffset = activeProbeController.GetBrainSurfaceOffset();
@@ -660,7 +660,7 @@ namespace TrajectoryPlanner
             UpdateProbeColliders();
 
             // Also update the recording region size slider
-            recRegionSlider.SliderValueChanged(activeProbeController.GetRecordingRegionSize());
+            recRegionSlider.SliderValueChanged(activeProbeController.GetProbeController().GetRecordingRegionSize());
 
             // Reset the inplane slice zoom factor
             inPlaneSlice.ResetZoom();
@@ -760,6 +760,7 @@ namespace TrajectoryPlanner
             foreach (ProbeManager probeController in allProbeManagers)
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
+            UpdateInPlaneView();
         }
 
         ///
@@ -883,8 +884,7 @@ namespace TrajectoryPlanner
             else
                 activeCoordinateTransform = null;
 
-            foreach (ProbeManager pcontroller in allProbeManagers)
-                pcontroller.UpdateText();
+            MoveAllProbes();
         }
 
         public bool GetSetting_InVivoTransformActive()

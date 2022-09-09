@@ -558,7 +558,7 @@ GameObject:
   - component: {fileID: 3141458508698061409}
   - component: {fileID: 2792157978347441330}
   m_Layer: 10
-  m_Name: Tip (2)
+  m_Name: ElectrodeBase3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -572,7 +572,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1823020946817655767}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 14, z: -5.2}
+  m_LocalPosition: {x: 0, y: 14.2, z: -5.2}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -781,7 +781,7 @@ GameObject:
   - component: {fileID: 6533732326579814581}
   - component: {fileID: 2172131319257915205}
   m_Layer: 10
-  m_Name: Tip (3)
+  m_Name: ElectrodeBase4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -795,7 +795,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2757399421754738177}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 14, z: -4.95}
+  m_LocalPosition: {x: 0, y: 14.2, z: -4.95}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -835,7 +835,7 @@ GameObject:
   - component: {fileID: 5890165042845447820}
   - component: {fileID: 2237313894972177464}
   m_Layer: 10
-  m_Name: Tip (1)
+  m_Name: ElectrodeBase2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -849,7 +849,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2792236579036533825}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 14, z: -5.45}
+  m_LocalPosition: {x: 0, y: 14.2, z: -5.45}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2148,7 +2148,7 @@ GameObject:
   - component: {fileID: 8132741541750793559}
   - component: {fileID: 8132741541750793545}
   m_Layer: 10
-  m_Name: Tip
+  m_Name: ElectrodeBase1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2162,7 +2162,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8132741541750793547}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 14, z: -5.7}
+  m_LocalPosition: {x: 0, y: 14.2, z: -5.7}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2379,7 +2379,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   probePanelPrefab: {fileID: 2746806081652951299, guid: c969e4be2f14f8f4dae11675354d4dbc, type: 3}
   probeManager: {fileID: 8943063119080654583}
-  probeTip: {fileID: 8132741541750793547}
+  electrodeBase: {fileID: 8132741541750793547}
   order: 3
 --- !u!114 &1545133269317581810
 MonoBehaviour:
@@ -2395,7 +2395,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   probePanelPrefab: {fileID: 2746806081652951299, guid: c969e4be2f14f8f4dae11675354d4dbc, type: 3}
   probeManager: {fileID: 8943063119080654583}
-  probeTip: {fileID: 2792236579036533825}
+  electrodeBase: {fileID: 2792236579036533825}
   order: 2
 --- !u!114 &1889671296123998709
 MonoBehaviour:
@@ -2411,7 +2411,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   probePanelPrefab: {fileID: 2746806081652951299, guid: c969e4be2f14f8f4dae11675354d4dbc, type: 3}
   probeManager: {fileID: 8943063119080654583}
-  probeTip: {fileID: 1823020946817655767}
+  electrodeBase: {fileID: 1823020946817655767}
   order: 1
 --- !u!114 &3819742175937011324
 MonoBehaviour:
@@ -2427,7 +2427,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   probePanelPrefab: {fileID: 2746806081652951299, guid: c969e4be2f14f8f4dae11675354d4dbc, type: 3}
   probeManager: {fileID: 8943063119080654583}
-  probeTip: {fileID: 2757399421754738177}
+  electrodeBase: {fileID: 2757399421754738177}
   order: 0
 --- !u!1001 &3708168665352534330
 PrefabInstance:

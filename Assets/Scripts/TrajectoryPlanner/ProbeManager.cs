@@ -195,41 +195,10 @@ public class ProbeManager : MonoBehaviour
         return probeController.MoveProbe_Keyboard(checkForCollisions);
     }
 
-    /// <summary>
-    /// Return the current size of the recording region
-    /// </summary>
-    /// <returns>size of the recording region</returns>
-    public float GetRecordingRegionSize()
-    {
-        return probeController.GetRecordingRegionSize();
-    }
 
-    /// <summary>
-    /// Return the mm position of the bottom of the recording region and the height
-    /// </summary>
-    /// <returns>float array [0]=bottom, [1]=height</returns>
-    public float[] GetRecordingRegionHeight()
-    {
-        return probeController.GetRecordingRegionHeight();
-    }
-
-
-    /// <summary>
-    /// Get the coordinates of the current probe (tip/angles) in mm or um, depending on the current IBL state
-    /// </summary>
-    /// <returns>(ap, ml, dv, phi, theta, spin)</returns>
-    public (float, float, float, float, float, float) GetCoordinates()
-    {
-        return probeController.GetCoordinatesTransformed();
-    }
     public (float, float, float, float, float, float, float) GetCoordinatesSurface()
     {
         return probeController.GetCoordinatesSurfaceTransformed(probeInBrain, brainSurfaceWorld);
-    }
-
-    public ProbeInsertion GetInsertion()
-    {
-        return probeController.GetInsertion();
     }
 
 
