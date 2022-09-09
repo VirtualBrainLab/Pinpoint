@@ -48,7 +48,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     {
         if (linkedProbe == null) return;
 
-        (float ap, float ml, float dv, float phi, float theta, float spin) = linkedProbe.GetProbeController().GetCoordinates();
+        (float ap, float ml, float dv, float phi, float theta, float spin) = linkedProbe.GetProbeController().GetCoordinatesTransformed();
         (float aps, float mls, float dvs, float depth, _, _, _) = linkedProbe.GetCoordinatesSurface();
         apField.text = Round2Str(aps);
         mlField.text = Round2Str(mls);
