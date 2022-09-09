@@ -2652,7 +2652,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 35.000023, y: -20}
-  m_SizeDelta: {x: 700, y: 100}
+  m_SizeDelta: {x: 1066.1877, y: 100}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6362176154171941205
 CanvasRenderer:
@@ -2682,7 +2682,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Sensapex Link Settings
+  m_text: Electrophysiology Manipulator Link Settings
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2872,7 +2872,7 @@ GameObject:
   - component: {fileID: 6362176155741130745}
   - component: {fileID: 4412914667077470364}
   m_Layer: 5
-  m_Name: SensapexLinkMenu
+  m_Name: EphysLinkMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

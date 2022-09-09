@@ -502,8 +502,8 @@ public class ProbeController : MonoBehaviour
         // ignore mouse clicks if we're over a UI element
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-        // Cancel movement if being controlled by SensapexLink
-        if (probeManager.GetSensapexLinkMovement())
+        // Cancel movement if being controlled by EphysLink
+        if (probeManager.GetEphysLinkMovement())
             return;
 
         tpmanager.SetProbeControl(true);
@@ -544,8 +544,8 @@ public class ProbeController : MonoBehaviour
     /// </summary>
     public void DragMovementDrag()
     {
-        // Cancel movement if being controlled by SensapexLink
-        if (probeManager.GetSensapexLinkMovement())
+        // Cancel movement if being controlled by EphysLink
+        if (probeManager.GetEphysLinkMovement())
             return;
 
         CheckForSpeedKeys();

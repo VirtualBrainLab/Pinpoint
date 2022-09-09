@@ -31,8 +31,8 @@ public class PlayerPrefs : MonoBehaviour
     private bool useIBLAngles;
     private bool showSurfaceCoord;
     //private bool useIblBregma;
-    private string _sensapexLinkServerIp;
-    private int _sensapexLinkServerPort;
+    private string _ephysLinkServerIp;
+    private int _ephysLinkServerPort;
     private bool _axisControl;
     private bool _showAllProbePanels;
     private string _rightHandedManipulatorIds;
@@ -48,8 +48,8 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle iblAngleToggle;
     [SerializeField] Toggle surfaceToggle;
     //[SerializeField] Toggle bregmaToggle;
-    [SerializeField] TMP_InputField sensapexLinkServerIpInput;
-    [SerializeField] TMP_InputField sensapexLinkServerPortInput;
+    [SerializeField] TMP_InputField ephysLinkServerIpInput;
+    [SerializeField] TMP_InputField ephysLinkServerPortInput;
     [SerializeField] Toggle axisControlToggle;
     [SerializeField] Toggle showAllProbePanelsToggle;
     
@@ -92,11 +92,11 @@ public class PlayerPrefs : MonoBehaviour
         showSurfaceCoord = LoadBoolPref("surface", true);
         surfaceToggle.isOn = showSurfaceCoord;
         
-        _sensapexLinkServerIp = LoadStringPref("sensapex_ip", "localhost");
-        sensapexLinkServerIpInput.text = _sensapexLinkServerIp;
+        _ephysLinkServerIp = LoadStringPref("ephys_link_ip", "localhost");
+        ephysLinkServerIpInput.text = _ephysLinkServerIp;
         
-        _sensapexLinkServerPort = LoadIntPref("sensapex_port", 8080);
-        sensapexLinkServerPortInput.text = _sensapexLinkServerPort.ToString();
+        _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8080);
+        ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
 
         _axisControl = LoadBoolPref("axis_control", false);
         axisControlToggle.isOn = _axisControl;
@@ -293,12 +293,12 @@ public class PlayerPrefs : MonoBehaviour
     
     public string GetServerIp()
     {
-        return _sensapexLinkServerIp;
+        return _ephysLinkServerIp;
     }
     
     public int GetServerPort()
     {
-        return _sensapexLinkServerPort;
+        return _ephysLinkServerPort;
     }
 
     public HashSet<int> GetRightHandedManipulatorIds()
@@ -368,10 +368,10 @@ public class PlayerPrefs : MonoBehaviour
         UnityEngine.PlayerPrefs.Save();
     }
 
-    public void SaveSensapexLinkConnectionData(string serverIp, int serverPort)
+    public void SaveEphysLinkConnectionData(string serverIp, int serverPort)
     {
-        UnityEngine.PlayerPrefs.SetString("sensapex_ip", serverIp);
-        UnityEngine.PlayerPrefs.SetInt("sensapex_port", serverPort);
+        UnityEngine.PlayerPrefs.SetString("ephys_link_ip", serverIp);
+        UnityEngine.PlayerPrefs.SetInt("ephys_link_port", serverPort);
         UnityEngine.PlayerPrefs.Save();
     }
 

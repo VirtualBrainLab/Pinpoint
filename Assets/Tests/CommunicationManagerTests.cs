@@ -1,6 +1,6 @@
 using System.Collections;
 using NUnit.Framework;
-using SensapexLink;
+using EphysLink;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -42,7 +42,7 @@ namespace Tests
             yield return null;
 
             // Connect to server
-            _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
+            _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
             yield return new WaitUntil(_communicationManager.IsConnected);
 
             // Get manipulators

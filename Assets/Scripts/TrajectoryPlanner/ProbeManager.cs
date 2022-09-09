@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using SensapexLink;
+using EphysLink;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
@@ -12,11 +12,11 @@ using UnityEngine.UI;
 public class ProbeManager : MonoBehaviour
 {
     // Internal flags that track whether we are in manual control or drag/link control mode
-    private bool _sensapexLinkMovement;
+    private bool _ephysLinkMovement;
 
-    #region Sensapex Link
+    #region Ephys Link
 
-    private CommunicationManager _sensapexLinkCommunicationManager;
+    private CommunicationManager _ephysLinkCommunicationManager;
     private int _manipulatorId;
     private float _phiCos = 1f;
     private float _phiSin;
@@ -123,8 +123,8 @@ public class ProbeManager : MonoBehaviour
         tpmanager.RegisterProbe(this);
         probeController.Register(tpmanager, this);
 
-        // Pull sensapex link communication manager
-        _sensapexLinkCommunicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
+        // Pull ephys link communication manager
+        _ephysLinkCommunicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
 
         // Get access to the annotation dataset and world-space boundaries
         annotationDataset = tpmanager.GetAnnotationDataset();
@@ -145,10 +145,10 @@ public class ProbeManager : MonoBehaviour
             puimanager.Destroy();
         Destroy(textGO);
         
-        // Unregister this probe from the sensapex link
+        // Unregister this probe from the ephys link
         if (IsConnectedToManipulator())
         {
-            SetSensapexLinkMovement(false, 0);
+            SetEphysLinkMovement(false, 0);
         }
     }
 
@@ -188,8 +188,8 @@ public class ProbeManager : MonoBehaviour
     /// <returns>Whether or not the probe moved on this frame</returns>
     public bool MoveProbe(bool checkForCollisions = false)
     {
-        // Cancel movement if being controlled by SensapexLink
-        if (_sensapexLinkMovement)
+        // Cancel movement if being controlled by EphysLink
+        if (_ephysLinkMovement)
             return false;
 
         return probeController.MoveProbe_Keyboard(checkForCollisions);
@@ -552,17 +552,17 @@ public class ProbeManager : MonoBehaviour
 
     #endregion
 
-    #region Sensapex Link and Control
+    #region Ephys Link and Control
 
     #region Property Getters and Setters
 
     /// <summary>
-    /// Return if this probe is being controlled by the Sensapex Link
+    /// Return if this probe is being controlled by the Ephys Link
     /// </summary>
-    /// <returns>True if movement is controlled by Sensapex Link, False otherwise</returns>
-    public bool GetSensapexLinkMovement()
+    /// <returns>True if movement is controlled by Ephys Link, False otherwise</returns>
+    public bool GetEphysLinkMovement()
     {
-        return _sensapexLinkMovement;
+        return _ephysLinkMovement;
     }
 
     public ProbeController GetProbeController()
@@ -578,7 +578,7 @@ public class ProbeManager : MonoBehaviour
     /// <param name="calibrated">Is the manipulator in real life calibrated</param>
     /// <param name="onSuccess">Callback function to handle a successful registration</param>
     /// <param name="onError">Callback function to handle a failed registration</param>
-    public void SetSensapexLinkMovement(bool register, int manipulatorId = 0, bool calibrated = true,
+    public void SetEphysLinkMovement(bool register, int manipulatorId = 0, bool calibrated = true,
         Action onSuccess = null, Action<string> onError = null)
     {
         // Exit early if this was an invalid call
@@ -590,29 +590,29 @@ public class ProbeManager : MonoBehaviour
         }
 
         // Set states
-        _sensapexLinkMovement = register;
+        _ephysLinkMovement = register;
         tpmanager.UpdateQuickSettings();
 
         if (register)
-            _sensapexLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
+            _ephysLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
             {
                 Debug.Log("Manipulator Registered");
                 _manipulatorId = manipulatorId;
 
                 if (calibrated)
                     // Bypass calibration and start echoing
-                    _sensapexLinkCommunicationManager.BypassCalibration(manipulatorId, StartEchoing);
+                    _ephysLinkCommunicationManager.BypassCalibration(manipulatorId, StartEchoing);
                 else
                     // Enable write
-                    _sensapexLinkCommunicationManager.SetCanWrite(manipulatorId, true, 1,
+                    _ephysLinkCommunicationManager.SetCanWrite(manipulatorId, true, 1,
                         _ =>
                         {
                             // Calibrate
-                            _sensapexLinkCommunicationManager.Calibrate(manipulatorId,
+                            _ephysLinkCommunicationManager.Calibrate(manipulatorId,
                                 () =>
                                 {
                                     // Disable write and start echoing
-                                    _sensapexLinkCommunicationManager.SetCanWrite(manipulatorId, false, 0,
+                                    _ephysLinkCommunicationManager.SetCanWrite(manipulatorId, false, 0,
                                         _ => onSuccess?.Invoke());
                                 });
                         });
@@ -620,7 +620,7 @@ public class ProbeManager : MonoBehaviour
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
         else
-            _sensapexLinkCommunicationManager.UnregisterManipulator(_manipulatorId, () =>
+            _ephysLinkCommunicationManager.UnregisterManipulator(_manipulatorId, () =>
             {
                 Debug.Log("Manipulator Unregistered");
                 ResetManipulatorProperties();
@@ -631,7 +631,7 @@ public class ProbeManager : MonoBehaviour
         void StartEchoing()
         {
             // Read and start echoing position
-            _sensapexLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
+            _ephysLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
             {
                 if (_zeroCoordinateOffset.Equals(Vector4.negativeInfinity)) _zeroCoordinateOffset = vector4;
                 EchoPositionFromEphysLink(vector4);
@@ -659,7 +659,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Return if this probe is being controlled by the Sensapex Link
+    ///     Return if this probe is being controlled by the Ephys Link
     /// </summary>
     /// <returns>True if this probe is attached to a manipulator, false otherwise</returns>
     public bool IsConnectedToManipulator()
@@ -847,8 +847,8 @@ public class ProbeManager : MonoBehaviour
 
 
         // Continue echoing position
-        if (_sensapexLinkMovement)
-            _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromEphysLink);
+        if (_ephysLinkMovement)
+            _ephysLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromEphysLink);
     }
 
     #endregion
