@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace SensapexLink
+namespace EphysLink
 {
 #pragma warning disable CS0649
 

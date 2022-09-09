@@ -2,7 +2,7 @@ using System;
 using BestHTTP.SocketIO3;
 using UnityEngine;
 
-namespace SensapexLink
+namespace EphysLink
 {
     /// <summary>
     ///     WebSocket connection manager between the Trajectory Planner and a running Sensapex Link server

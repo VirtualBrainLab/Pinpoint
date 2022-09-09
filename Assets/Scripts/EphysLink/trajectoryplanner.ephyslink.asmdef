@@ -1,5 +1,5 @@
 {
-    "name": "trajectoryplanner.sensapexlink",
+    "name": "trajectoryplanner.ephyslink",
     "rootNamespace": "",
     "references": [
         "BestHTTP",

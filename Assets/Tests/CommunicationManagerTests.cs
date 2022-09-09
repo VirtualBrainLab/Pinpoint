@@ -1,6 +1,6 @@
 using System.Collections;
 using NUnit.Framework;
-using SensapexLink;
+using EphysLink;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;

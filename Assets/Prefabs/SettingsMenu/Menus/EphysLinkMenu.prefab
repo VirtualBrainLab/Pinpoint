@@ -2872,7 +2872,7 @@ GameObject:
   - component: {fileID: 6362176155741130745}
   - component: {fileID: 4412914667077470364}
   m_Layer: 5
-  m_Name: SensapexLinkMenu
+  m_Name: EphysLinkMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

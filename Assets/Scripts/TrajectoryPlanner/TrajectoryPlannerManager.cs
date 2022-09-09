@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SensapexLink;
+using EphysLink;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

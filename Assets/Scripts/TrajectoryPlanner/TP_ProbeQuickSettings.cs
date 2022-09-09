@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using SensapexLink;
+using EphysLink;
 using TMPro;
 using UnityEngine;
 
@@ -31,7 +31,7 @@ namespace TrajectoryPlanner
         /// </summary>
         private void Awake()
         {
-            _communicationManager = GameObject.Find("SensapexLink").GetComponent<CommunicationManager>();
+            _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
             _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
                 .GetComponent<TP_QuestionDialogue>();
 

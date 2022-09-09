@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7137387518804267671}
   - component: {fileID: 6854367561162462583}
   m_Layer: 0
-  m_Name: SensapexLink
+  m_Name: EphysLink
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -48,8 +48,8 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle iblAngleToggle;
     [SerializeField] Toggle surfaceToggle;
     //[SerializeField] Toggle bregmaToggle;
-    [SerializeField] TMP_InputField sensapexLinkServerIpInput;
-    [SerializeField] TMP_InputField sensapexLinkServerPortInput;
+    [SerializeField] TMP_InputField ephysLinkServerIpInput;
+    [SerializeField] TMP_InputField ephysLinkServerPortInput;
     [SerializeField] Toggle axisControlToggle;
     [SerializeField] Toggle showAllProbePanelsToggle;
     
@@ -93,10 +93,10 @@ public class PlayerPrefs : MonoBehaviour
         surfaceToggle.isOn = showSurfaceCoord;
         
         _sensapexLinkServerIp = LoadStringPref("sensapex_ip", "localhost");
-        sensapexLinkServerIpInput.text = _sensapexLinkServerIp;
+        ephysLinkServerIpInput.text = _sensapexLinkServerIp;
         
         _sensapexLinkServerPort = LoadIntPref("sensapex_port", 8080);
-        sensapexLinkServerPortInput.text = _sensapexLinkServerPort.ToString();
+        ephysLinkServerPortInput.text = _sensapexLinkServerPort.ToString();
 
         _axisControl = LoadBoolPref("axis_control", false);
         axisControlToggle.isOn = _axisControl;
