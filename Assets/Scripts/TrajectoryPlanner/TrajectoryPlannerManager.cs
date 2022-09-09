@@ -98,7 +98,7 @@ namespace TrajectoryPlanner
         // Track all input fields
         private TMP_InputField[] _allInputFields;
 
-        #region Sensapex Link
+        #region Ephys Link
 
         private CommunicationManager _communicationManager;
         private HashSet<int> _rightHandedManipulatorIds = new();
@@ -510,7 +510,7 @@ namespace TrajectoryPlanner
                 probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
                 probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
                 probeController.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (manipulatorId != 0) probeController.SetSensapexLinkMovement(true, manipulatorId);
+                if (manipulatorId != 0) probeController.SetEphysLinkMovement(true, manipulatorId);
             }
 
             StartCoroutine(probeController.GetProbeController().SetProbePositionCCF_Delayed(insertion));
@@ -527,7 +527,7 @@ namespace TrajectoryPlanner
                 probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
                 probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
                 probeController.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (manipulatorId != 0) probeController.SetSensapexLinkMovement(true, manipulatorId);
+                if (manipulatorId != 0) probeController.SetEphysLinkMovement(true, manipulatorId);
             }
             
             StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(ap, ml, dv, phi, theta, spin, 0.05f));
@@ -550,7 +550,7 @@ namespace TrajectoryPlanner
             {
                 probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
                 probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
-                probeController.SetSensapexLinkMovement(true, manipulatorId);
+                probeController.SetEphysLinkMovement(true, manipulatorId);
             }
 
             return probeController;

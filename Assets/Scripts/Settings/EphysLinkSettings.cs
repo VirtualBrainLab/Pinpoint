@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Settings
 {
-    public class SensapexLinkSettings : MonoBehaviour
+    public class EphysLinkSettings : MonoBehaviour
     {
         #region Variables
 

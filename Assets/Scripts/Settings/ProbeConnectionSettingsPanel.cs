@@ -114,11 +114,11 @@ namespace Settings
         {
             // Disconnect if already connected
             if (_probeManager.IsConnectedToManipulator())
-                _probeManager.SetSensapexLinkMovement(false, 0, false);
+                _probeManager.SetEphysLinkMovement(false, 0, false);
 
             // Connect if a manipulator is selected
             if (value != 0)
-                _probeManager.SetSensapexLinkMovement(true,
+                _probeManager.SetEphysLinkMovement(true,
                     int.Parse(manipulatorIdDropdown.options[value].text));
         }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace EphysLink
 {
     /// <summary>
-    ///     WebSocket connection manager between the Trajectory Planner and a running Sensapex Link server
+    ///     WebSocket connection manager between the Trajectory Planner and a running Ephys Link server
     /// </summary>
     public class CommunicationManager : MonoBehaviour
     {
@@ -77,7 +77,7 @@ namespace EphysLink
                 _serverIp = ip;
                 _serverPort = port;
                 _isConnected = true;
-                _playerPrefs.SaveSensapexLinkConnectionData(ip, port);
+                _playerPrefs.SaveEphysLinkConnectionData(ip, port);
                 onConnected?.Invoke();
             });
 
