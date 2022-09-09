@@ -26,6 +26,7 @@ namespace IBLTools
         // Start is called before the first frame update
         void Start()
         {
+            Debug.LogWarning("(Ephys Atlas) Development mode running");
             manager = new SocketManager(new Uri("http://128.95.53.25:5000"));
             manager.Socket.On("connect", () => Debug.Log(manager.Handshake.Sid));
             manager.Socket.On<List<float>>("data", ReceiveData);

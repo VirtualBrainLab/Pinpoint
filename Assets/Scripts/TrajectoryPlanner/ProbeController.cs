@@ -60,7 +60,6 @@ public class ProbeController : MonoBehaviour
 
     // Offset vectors
     private GameObject probeTipOffset;
-    private GameObject probeEndOffset;
 
     // References
     private TrajectoryPlannerManager tpmanager;
@@ -75,9 +74,6 @@ public class ProbeController : MonoBehaviour
         probeTipOffset = new GameObject(name + "TipOffset");
         probeTipOffset.transform.position = probeTipT.position + probeTipT.up * 0.2f;
         probeTipOffset.transform.parent = probeTipT;
-        probeEndOffset = new GameObject(name + "EndOffset");
-        probeEndOffset.transform.position = probeTipT.position + probeTipT.up * 10.2f;
-        probeEndOffset.transform.parent = probeTipT;
 
         // Access surface calculator (just an empty transform)
         surfaceCalculatorT = GameObject.Find("SurfaceCalculator").transform;
@@ -694,6 +690,8 @@ public class ProbeController : MonoBehaviour
             pos.y = newSize / 2f + 0.2f;
             go.transform.localPosition = pos;
         }
+
+        UpdateRecordingRegionVars();
     }
 
     /// <summary>
@@ -737,7 +735,6 @@ public class ProbeController : MonoBehaviour
         // Tell the tpmanager we moved and update the UI elements
         tpmanager.SetMovedThisFrame();
         probeManager.UpdateUI();
-        tpmanager.UpdateInPlaneView();
 
         // Update probe text
         probeManager.UpdateText();
@@ -892,16 +889,15 @@ public class ProbeController : MonoBehaviour
 
     public (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR()
     {
-        return GetRecordingRegionCoordinatesAPDVLR(probeTipOffset.transform, probeEndOffset.transform);
+        return GetRecordingRegionCoordinatesAPDVLR(probeTipOffset.transform);
     }
 
     /// <summary>
     /// Compute the position of the bottom and top of the recording region in AP/DV/LR coordinates
     /// </summary>
     /// <returns></returns>
-    private (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR(Transform probeTipOffsetT, Transform probeEndOffsetT)
+    public (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR(Transform probeTipOffsetT)
     {
-        float[] heightPerc = GetRecordingRegionHeight();
         //Debug.Log(heightPerc[0] + " " + heightPerc[1]);
 
         Vector3 tip_apdvlr;
@@ -909,9 +905,8 @@ public class ProbeController : MonoBehaviour
 
         if (tpmanager.GetSetting_ShowRecRegionOnly())
         {
-            float mmStartPos = heightPerc[0] * (10 - heightPerc[1]);
-            float mmRecordingSize = heightPerc[1];
-            float mmEndPos = mmStartPos + mmRecordingSize;
+            (float mmStartPos, float mmRecordingSize) = GetRecordingRegionHeight();
+
             // shift the starting tipPos up by the mmStartPos
             Vector3 tipPos = probeTipOffsetT.position + probeTipOffsetT.up * mmStartPos;
             // shift the tipPos again to get the endPos
@@ -924,22 +919,19 @@ public class ProbeController : MonoBehaviour
         else
         {
             tip_apdvlr = Utils.WorldSpace2apdvlr25(probeTipOffsetT.position);
-            top_apdvlr = Utils.WorldSpace2apdvlr25(probeEndOffsetT.position);
+            top_apdvlr = Utils.WorldSpace2apdvlr25(probeTipOffsetT.position + probeTipOffsetT.up * 10.0f);
         }
 
         return (tip_apdvlr, top_apdvlr);
     }
 
     /// <summary>
-    /// Return the mm position of the bottom of the recording region and the height
+    /// Return the height of the bottom in mm and the total height
     /// </summary>
     /// <returns>float array [0]=bottom, [1]=height</returns>
-    public float[] GetRecordingRegionHeight()
+    public (float, float) GetRecordingRegionHeight()
     {
-        float[] heightPercs = new float[2];
-        heightPercs[0] = (recordingRegionGOs[0].transform.localPosition.y - minRecordHeight) / (maxRecordHeight - minRecordHeight);
-        heightPercs[1] = recordingRegionSizeY;
-        return heightPercs;
+        return (recordingRegionGOs[0].transform.localPosition.y - minRecordHeight, recordingRegionSizeY);
     }
 
     /// <summary>

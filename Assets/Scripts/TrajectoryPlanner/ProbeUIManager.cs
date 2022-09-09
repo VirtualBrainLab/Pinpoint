@@ -12,7 +12,7 @@ public class ProbeUIManager : MonoBehaviour
     [SerializeField] private ProbeManager probeManager;
     private CCFModelControl modelControl;
 
-    [SerializeField] private GameObject probeTip;
+    [SerializeField] private GameObject electrodeBase;
     [SerializeField] private int order;
 
     private AnnotationDataset annotationDataset;
@@ -103,9 +103,9 @@ public class ProbeUIManager : MonoBehaviour
     private void ProbedMovedHelper()
     {
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
-        float[] heightPerc = probeManager.GetRecordingRegionHeight();
+        (float mmStartPos, float mmRecordingSize) = probeManager.GetProbeController().GetRecordingRegionHeight();
 
-        (Vector3 tip_apdvlr, Vector3 top_apdvlr) = probeManager.GetRecordingRegionCoordinatesAPDVLR();
+        (Vector3 tip_apdvlr, Vector3 top_apdvlr) = probeManager.GetProbeController().GetRecordingRegionCoordinatesAPDVLR(electrodeBase.transform);
 
         List<int> mmTickPositions = new List<int>();
         List<int> tickIdxs = new List<int>();
@@ -116,8 +116,6 @@ public class ProbeUIManager : MonoBehaviour
             // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
             // we also want to save the mm tick positions
 
-            float mmStartPos = heightPerc[0] * (10 - heightPerc[1]);
-            float mmRecordingSize = heightPerc[1];
             float mmEndPos = mmStartPos + mmRecordingSize;
             List<int> mmPos = new List<int>();
             for (int i = Mathf.Max(1,Mathf.CeilToInt(mmStartPos)); i <= Mathf.Min(9,Mathf.FloorToInt(mmEndPos)); i++)
@@ -149,7 +147,7 @@ public class ProbeUIManager : MonoBehaviour
         // Interpolate from the tip to the top, putting this data into the probe panel texture
         (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(tip_apdvlr, top_apdvlr);
 
-        probePanel.SetTipData(tip_apdvlr, top_apdvlr, heightPerc[1], tpmanager.GetSetting_ShowRecRegionOnly());
+        probePanel.SetTipData(tip_apdvlr, top_apdvlr, mmRecordingSize, tpmanager.GetSetting_ShowRecRegionOnly());
 
         if (tpmanager.GetSetting_ShowRecRegionOnly())
         {
@@ -169,9 +167,6 @@ public class ProbeUIManager : MonoBehaviour
         }
         else
         {
-            // save the first five pixels for the recording array height
-            int bottomRecord = Mathf.RoundToInt(heightPerc[0] * (probePanelPxHeight - heightPerc[1]/10 * probePanelPxHeight));
-            int topRecord = Mathf.RoundToInt(bottomRecord + heightPerc[1]/10 * probePanelPxHeight);
             // set all the other pixels
             for (int y = 0; y < probePanelPxHeight; y++)
             {

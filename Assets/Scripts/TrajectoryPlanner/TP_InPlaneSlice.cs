@@ -105,14 +105,13 @@ public class TP_InPlaneSlice : MonoBehaviour
             return;
 
         // Calculate the size
-        float[] heightPerc = activeProbeController.GetRecordingRegionHeight();
-        float mmStartPos = heightPerc[0] * (10 - heightPerc[1]);
-        float mmRecordingSize = heightPerc[1];
+        (float mmStartPos, float mmRecordingSize) = activeProbeController.GetProbeController().GetRecordingRegionHeight();
 
         // Take the active probe, find the position and rotation, and interpolate across the annotation dataset to render a 400x400 image of the brain at that slice
         tipTransform = activeProbeController.GetTipTransform();
 
         Vector3 recRegionBottomPos = tipTransform.position + tipTransform.up * (0.2f + mmStartPos);
+        Debug.Log(recRegionBottomPos);
         //tipPositionAPDVLR = Utils.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
         bool fourShank = activeProbeController.GetProbeType() == 4;
 

@@ -400,7 +400,7 @@ namespace TrajectoryPlanner
         private void DestroyActiveProbeController()
         {
             prevProbeType = activeProbeController.GetProbeType();
-            prevInsertion = activeProbeController.GetInsertion();
+            prevInsertion = activeProbeController.GetProbeController().GetInsertion();
             _prevManipulatorId = activeProbeController.GetManipulatorId();
             _prevZeroCoordinateOffset = activeProbeController.GetZeroCoordinateOffset();
             _prevBrainSurfaceOffset = activeProbeController.GetBrainSurfaceOffset();
@@ -639,7 +639,7 @@ namespace TrajectoryPlanner
             UpdateProbeColliders();
 
             // Also update the recording region size slider
-            recRegionSlider.SliderValueChanged(activeProbeController.GetRecordingRegionSize());
+            recRegionSlider.SliderValueChanged(activeProbeController.GetProbeController().GetRecordingRegionSize());
 
             // Reset the inplane slice zoom factor
             inPlaneSlice.ResetZoom();
@@ -739,6 +739,7 @@ namespace TrajectoryPlanner
             foreach (ProbeManager probeController in allProbeManagers)
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
+            UpdateInPlaneView();
         }
 
         ///
@@ -862,8 +863,7 @@ namespace TrajectoryPlanner
             else
                 activeCoordinateTransform = null;
 
-            foreach (ProbeManager pcontroller in allProbeManagers)
-                pcontroller.UpdateText();
+            MoveAllProbes();
         }
 
         public bool GetSetting_InVivoTransformActive()
@@ -1001,7 +1001,7 @@ namespace TrajectoryPlanner
             for (int i =0; i< allProbeManagers.Count; i++)
             {
                 ProbeManager probe = allProbeManagers[i];
-                (float ap, float ml, float dv, float phi, float theta, float spin) = probe.GetCoordinates();
+                (float ap, float ml, float dv, float phi, float theta, float spin) = probe.GetProbeController().GetCoordinates();
                 probeCoordinates[i] = (ap, ml, dv, phi, theta, spin, probe.GetProbeType(), probe.GetManipulatorId(),
                     probe.GetZeroCoordinateOffset(), probe.GetBrainSurfaceOffset(),
                     probe.IsSetToDropToSurfaceWithDepth());
