@@ -232,12 +232,14 @@ public class ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
+            probeManager.SetDropToSurfaceWithDepth(false);
             MoveProbeDV(1f, true);
         }
         else if (Input.GetKey(KeyCode.Q) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
+            probeManager.SetDropToSurfaceWithDepth(false);
             MoveProbeDV(1f, false);
         }
         if (Input.GetKeyUp(KeyCode.Q))
@@ -247,12 +249,14 @@ public class ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
+            probeManager.SetDropToSurfaceWithDepth(false);
             MoveProbeDV(-1f, true);
         }
         else if (Input.GetKey(KeyCode.E) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
+            probeManager.SetDropToSurfaceWithDepth(false);
             MoveProbeDV(-1f, false);
         }
         if (Input.GetKeyUp(KeyCode.E))
@@ -264,12 +268,14 @@ public class ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
+            probeManager.SetDropToSurfaceWithDepth(true);
             MoveProbeDepth(1f, true);
         }
         else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
+            probeManager.SetDropToSurfaceWithDepth(true);
             MoveProbeDepth(1f, false);
         }
         if (Input.GetKeyUp(KeyCode.Z))
@@ -279,12 +285,14 @@ public class ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
+            probeManager.SetDropToSurfaceWithDepth(true);
             MoveProbeDepth(-1f, true);
         }
         else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
+            probeManager.SetDropToSurfaceWithDepth(true);
             MoveProbeDepth(-1f, false);
         }
         if (Input.GetKeyUp(KeyCode.X))
