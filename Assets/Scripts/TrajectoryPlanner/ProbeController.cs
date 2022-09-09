@@ -747,7 +747,7 @@ public class ProbeController : MonoBehaviour
     /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
     /// </summary>
     /// <param name="localInsertion">new insertion position</param>
-    private void SetProbePositionCCF(ProbeInsertion localInsertion)
+    public void SetProbePositionCCF(ProbeInsertion localInsertion)
     {
         // Reset everything
         transform.position = initialPosition;
@@ -772,6 +772,12 @@ public class ProbeController : MonoBehaviour
 
         // save the data
         insertion.SetCoordinates(localInsertion);
+    }
+    
+    public IEnumerator SetProbePositionCCF_Delayed(ProbeInsertion localInsertion, float depthOverride = 0f)
+    {
+        yield return new WaitForEndOfFrame();
+        SetProbePositionCCF(localInsertion);
     }
 
     public void SetProbePositionWorld(Vector3 worldPosition)
@@ -807,6 +813,8 @@ public class ProbeController : MonoBehaviour
     public IEnumerator SetProbeInsertionTransformed_Delayed(float ap, float ml, float dv, float phi, float theta, float spin, float delay, float depthOverride = 0f)
     {
         yield return new WaitForSeconds(delay);
+        // SetProbePositionTransformed(ap, ml, dv, depthOverride);
+        // SetProbeAnglesTransformed(phi, theta, spin);
         SetProbeInsertionTransformed(ap, ml, dv, phi, theta, spin, depthOverride);
     }
 
@@ -847,12 +855,12 @@ public class ProbeController : MonoBehaviour
     {
         return probeTipT;
     }
-
+    
     /// <summary>
     /// Get the coordinates of the current probe (tip/angles) in mm or um, depending on the current IBL state
     /// </summary>
     /// <returns>(ap, ml, dv, phi, theta, spin)</returns>
-    public (float, float, float, float, float, float) GetCoordinates()
+    public (float, float, float, float, float, float) GetCoordinatesTransformed()
     {
         return tpmanager.GetSetting_UseIBLAngles() ?
             insertion.GetCoordinatesFloat_IBL(tpmanager.GetActiveCoordinateTransform()) :
@@ -862,7 +870,7 @@ public class ProbeController : MonoBehaviour
     /// Get the coordinates of the surface and depth, relative to the tip position, depending on the current IBL state
     /// </summary>
     /// <returns>(ap, ml, dv, phi, theta, spin)</returns>
-    public (float, float, float, float, float, float, float) GetCoordinatesSurface(bool probeInBrain, Vector3 brainSurfaceWorld)
+    public (float, float, float, float, float, float, float) GetCoordinatesSurfaceTransformed(bool probeInBrain, Vector3 brainSurfaceWorld)
     {
 
         CoordinateTransform coordTransform = tpmanager.GetActiveCoordinateTransform();

@@ -173,9 +173,8 @@ namespace TrajectoryPlanner
 
             foreach (var savedProbe in savedProbes)
             {
-                Vector3 tipPos = savedProbe.tipPos;
-                Vector3 angles = savedProbe.angles;
-                AddNewProbe(savedProbe.type, tipPos.x, tipPos.y, tipPos.z, angles.x, angles.y, angles.z,
+                var probeInsertion = new ProbeInsertion(savedProbe.tipPos, savedProbe.angles);
+                AddNewProbeCCF(savedProbe.type, probeInsertion,
                     savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
                     savedProbe.dropToSurfaceWithDepth);
             }
@@ -501,8 +500,25 @@ namespace TrajectoryPlanner
 
             return newProbe.GetComponent<ProbeManager>();
         }
+        
+        public ProbeManager AddNewProbeCCF(int probeType, ProbeInsertion insertion,
+            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
+        {
+            ProbeManager probeController = AddNewProbe(probeType);
+            if (!localPrefs.IsLinkDataExpired())
+            {
+                probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
+                probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
+                probeController.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
+                if (manipulatorId != 0) probeController.SetSensapexLinkMovement(true, manipulatorId);
+            }
 
-        public ProbeManager AddNewProbe(int probeType, float ap, float ml, float dv, float phi, float theta, float spin,
+            StartCoroutine(probeController.GetProbeController().SetProbePositionCCF_Delayed(insertion));
+
+            return probeController;
+        }
+
+        public ProbeManager AddNewProbeTransformed(int probeType, float ap, float ml, float dv, float phi, float theta, float spin,
             int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
         {
             ProbeManager probeController = AddNewProbe(probeType);
@@ -1006,8 +1022,8 @@ namespace TrajectoryPlanner
             for (int i =0; i< allProbeManagers.Count; i++)
             {
                 ProbeManager probe = allProbeManagers[i];
-                (float ap, float ml, float dv, float phi, float theta, float spin) = probe.GetCoordinates();
-                probeCoordinates[i] = (ap, ml, dv, phi, theta, spin, probe.GetProbeType(), probe.GetManipulatorId(),
+                ProbeInsertion probeInsertion = probe.GetProbeController().GetInsertion();
+                probeCoordinates[i] = (probeInsertion.ap, probeInsertion.ml, probeInsertion.dv, probeInsertion.phi, probeInsertion.theta, probeInsertion.spin, probe.GetProbeType(), probe.GetManipulatorId(),
                     probe.GetZeroCoordinateOffset(), probe.GetBrainSurfaceOffset(),
                     probe.IsSetToDropToSurfaceWithDepth());
             }
