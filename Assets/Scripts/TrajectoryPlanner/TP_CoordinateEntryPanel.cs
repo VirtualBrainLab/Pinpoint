@@ -48,15 +48,18 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     {
         if (linkedProbe == null) return;
 
-        (float ap, float ml, float dv, float phi, float theta, float spin) = linkedProbe.GetProbeController().GetCoordinates();
+        (float ap, float ml, float dv, float phi, float theta, float spin) = linkedProbe.GetProbeController().GetCoordinatesTransformed();
         (float aps, float mls, float dvs, float depth, _, _, _) = linkedProbe.GetCoordinatesSurface();
         apField.text = Round2Str(aps);
         mlField.text = Round2Str(mls);
         dvField.text = Round2Str(dvs);
         depthField.text = Round2Str(depth);
-        phiField.text = Round2Str(phi);
-        thetaField.text = Round2Str(theta);
-        spinField.text = Round2Str(spin);
+        if (!tpmanager.GetActiveProbeController().IsConnectedToManipulator())
+        {
+            phiField.text = Round2Str(phi);
+            thetaField.text = Round2Str(theta);
+            spinField.text = Round2Str(spin);
+        }
     }
 
     private string Round2Str(float value)

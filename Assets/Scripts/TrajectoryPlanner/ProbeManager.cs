@@ -198,7 +198,7 @@ public class ProbeManager : MonoBehaviour
 
     public (float, float, float, float, float, float, float) GetCoordinatesSurface()
     {
-        return probeController.GetCoordinatesSurface(probeInBrain, brainSurfaceWorld);
+        return probeController.GetCoordinatesSurfaceTransformed(probeInBrain, brainSurfaceWorld);
     }
 
 
@@ -634,7 +634,7 @@ public class ProbeManager : MonoBehaviour
             _sensapexLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
             {
                 if (_zeroCoordinateOffset.Equals(Vector4.negativeInfinity)) _zeroCoordinateOffset = vector4;
-                EchoPositionFromSensapexLink(vector4);
+                EchoPositionFromEphysLink(vector4);
             });
         }
     }
@@ -752,10 +752,20 @@ public class ProbeManager : MonoBehaviour
     public void SetBrainSurfaceOffset()
     {
         var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipTransform().up : Vector3.up;
-        var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 5, probeController.GetInsertion().angles,
+        var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 5,
+            probeController.GetInsertion().angles,
             _dropToSurfaceWithDepth);
+        var computedOffset = brainSurface.Item2 - 5;
 
-        _brainSurfaceOffset -= (brainSurface.Item2 - 5) * 1000;
+        if (IsConnectedToManipulator())
+        {
+            _brainSurfaceOffset -= computedOffset * 1000;
+        }
+        else
+        {
+            var apmldv = Utils.world2apmldv(brainSurface.Item1 + tpmanager.GetCenterOffset());
+            probeController.SetProbePositionCCF(new ProbeInsertion(apmldv, probeController.GetInsertion().angles));
+        }
     }
 
     /// <summary>
@@ -793,7 +803,7 @@ public class ProbeManager : MonoBehaviour
     ///     Echo given position in needles transform space to the probe
     /// </summary>
     /// <param name="pos">Position of manipulator in needles transform</param>
-    public void EchoPositionFromSensapexLink(Vector4 pos)
+    public void EchoPositionFromEphysLink(Vector4 pos)
     {
         /*
          * Left-handed manipulator movement
@@ -838,7 +848,7 @@ public class ProbeManager : MonoBehaviour
 
         // Continue echoing position
         if (_sensapexLinkMovement)
-            _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromSensapexLink);
+            _sensapexLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromEphysLink);
     }
 
     #endregion
