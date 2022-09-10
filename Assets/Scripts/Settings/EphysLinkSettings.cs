@@ -167,6 +167,7 @@ namespace Settings
             connectionErrorText.text = "";
             connectButtonText.text = _communicationManager.IsConnected() ? "Disconnect" : "Connect";
             serverConnectedText.text = (_communicationManager.IsConnected() ? "Connected" : "Connect") + " to server at";
+            OnEnable();
         }
 
         /// <summary>
