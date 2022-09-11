@@ -1091,6 +1091,9 @@ namespace TrajectoryPlanner
             }
 
             prevTipID = berylID;
+
+            activeProbeController.UpdateUI();
+            UpdateInPlaneView();
         }
 
         #endregion
