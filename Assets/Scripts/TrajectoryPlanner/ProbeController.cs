@@ -748,6 +748,12 @@ public class ProbeController : MonoBehaviour
         probeManager.UpdateText();
     }
 
+    public void SetProbePosition(Vector3 position)
+    {
+        insertion.apmldv = position;
+        SetProbePosition();
+    }
+
     /// <summary>
     /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
     /// </summary>

@@ -41,6 +41,9 @@ namespace TrajectoryPlanner
         [SerializeField] private GameObject IBLTrajectoryGO;
         [SerializeField] private BrainCameraController brainCamController;
 
+        [SerializeField] private TextAsset meshCenterText;
+        private Dictionary<int, Vector3> meshCenters;
+
         [SerializeField] private GameObject CanvasParent;
 
         // UI 
@@ -121,6 +124,8 @@ namespace TrajectoryPlanner
             inactiveProbeColliders = new List<Collider>();
             rigColliders = new List<Collider>();
             allNonActiveColliders = new List<Collider>();
+            meshCenters = new Dictionary<int, Vector3>();
+            LoadMeshData();
             //Physics.autoSyncTransforms = true;
         }
 
@@ -1003,14 +1008,6 @@ namespace TrajectoryPlanner
             surfaceDebugGO.transform.position = worldPosition;
         }
 
-
-        public void SetProbeTipPositionToCCFNode(CCFTreeNode targetNode)
-        {
-            // Not implemented yet
-            Vector3 meshCenterWorld = targetNode.GetMeshCenter();
-            activeProbeController.GetProbeController().SetProbePositionWorld(meshCenterWorld);
-        }
-
         private void OnApplicationQuit()
         {
             var probeCoordinates =
@@ -1055,6 +1052,52 @@ namespace TrajectoryPlanner
                 acontrol.SetDVVisibility(DV);
                 acontrol.SetDepthVisibility(depth);
             }
+        }
+
+        #endregion
+
+        #region Mesh centers
+
+        private int prevTipID;
+        private bool prevTipSideLeft;
+
+        private void LoadMeshData()
+        {
+            List<Dictionary<string,object>> data = CSVReader.ParseText(meshCenterText.text);
+
+            for (int i = 0; i < data.Count; i++)
+            {
+                Dictionary<string, object> row = data[i];
+
+                int ID = (int)row["id"];
+                float ap = (float)row["ap"];
+                float ml = (float)row["ml"];
+                float dv = (float)row["dv"];
+
+                meshCenters.Add(ID, new Vector3(ap, ml, dv));
+            }
+        }
+
+        public void SetProbeTipPositionToCCFNode(CCFTreeNode targetNode)
+        {
+            if (activeProbeController == null) return;
+            int berylID = modelControl.GetBerylID(targetNode.ID);
+            Vector3 apmldv = meshCenters[berylID];
+
+            if (berylID==prevTipID && prevTipSideLeft)
+            {
+                // we already hit this area, switch sides
+                    activeProbeController.GetProbeController().SetProbePosition(new Vector3(apmldv.x, 11.4f-apmldv.y, apmldv.z));
+                prevTipSideLeft = false;
+            }
+            else
+            {
+                // first time, go left
+                activeProbeController.GetProbeController().SetProbePosition(apmldv);
+                prevTipSideLeft = true;
+            }
+
+            prevTipID = berylID;
         }
 
         #endregion
