@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class TP_SettingsMenu : MonoBehaviour
+namespace Settings
 {
-    [SerializeField] private GameObject settingsMenuGO;
-
-    // Update is called once per frame
-    void Update()
+    public class TP_SettingsMenu : MonoBehaviour
     {
-        if (Input.GetKeyDown(KeyCode.H))
+        [SerializeField] private GameObject settingsMenuGO;
+
+        public void ToggleSettingsMenu()
         {
             if (!settingsMenuGO.activeSelf)
                 settingsMenuGO.SetActive(true);
@@ -26,4 +25,5 @@ public class TP_SettingsMenu : MonoBehaviour
             }
         }
     }
+
 }

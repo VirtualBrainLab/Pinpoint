@@ -102,16 +102,7 @@ public class ProbeController : MonoBehaviour
     {
         ResetPosition();
         ResetAngles();
-
-        ResetUI();
-    }
-
-    public void ResetUI()
-    {
-        // reset UI as well
-        // ResetPositionTracking();
         SetProbePosition();
-        probeManager.UpdateText();
     }
 
     public void ResetPosition()
@@ -743,9 +734,6 @@ public class ProbeController : MonoBehaviour
         // Tell the tpmanager we moved and update the UI elements
         tpmanager.SetMovedThisFrame();
         probeManager.UpdateUI();
-
-        // Update probe text
-        probeManager.UpdateText();
     }
 
     public void SetProbePosition(Vector3 position)

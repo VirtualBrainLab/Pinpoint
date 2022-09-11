@@ -2565,6 +2565,24 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8116517813904742319, guid: edad15008bdae044bab8a0298aa5b140, type: 3}
+      propertyPath: m_text
+      value: "Thank you for using Pinpoint for planning your recordings. Add probes
+        using the buttons on the right side. To control a probe, select it by left-clicking
+        and holding, then press one of the axis keys shown on the right. For example,
+        pressing [W] lets you drag the probe along the Anterior-Posterior axis. \n\nYou
+        can also click (or click and hold) the keyboard keys to move in that direction
+        in 10um increments. Press [SHIFT] for larger 100 um increments or [CTRL]
+        for 1um.\n\nThe full list of controls are:\nTranslation [W/A/S/D]\t\tDV [Q/E]\nAzimuth
+        [1/3]   \t\t\tElevation [R/H]\t\nSpin [,/.]\t\t\tDepth [Z/X]\t\t  \t\nRecording
+        area [Y/H]\n\nDelete probes with [Backspace] and recover with [CTRL+Backspace]\n\nTo
+        control the camera left click anywhere in the scene and drag. Right click
+        for translation, scroll to zoom. Double click the blue/green/red handles
+        on the mini-axis to return the brain to a default position.\n\nPress [H]
+        to close this menu.\n\nPinpoint is developed by the Virtual Brain Lab team,
+        part of the Steinmetz Lab at University of Washington. Learn more about us
+        at virtualbrainlab.org"
+      objectReference: {fileID: 0}
     - target: {fileID: 8116517814299126409, guid: edad15008bdae044bab8a0298aa5b140, type: 3}
       propertyPath: m_Name
       value: HelpMenu

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EphysLink;
+using Settings;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,6 +33,8 @@ namespace TrajectoryPlanner
         [SerializeField] private TP_SliceRenderer sliceRenderer;
         [SerializeField] private TP_Search searchControl;
         [SerializeField] private TMP_InputField searchInput;
+
+        [SerializeField] private TP_SettingsMenu settingsPanel;
 
         [SerializeField] private GameObject CollisionPanelGO;
         [SerializeField] private Material collisionMaterial;
@@ -78,9 +81,6 @@ namespace TrajectoryPlanner
 
         // Coord data
         private Vector3 centerOffset = new Vector3(-5.7f, -4.0f, +6.6f);
-
-        // Manual coordinate entry
-        [SerializeField] private TP_CoordinateEntryPanel manualCoordinatePanel;
 
         // Track who got clicked on, probe, camera, or brain
         private bool probeControl;
@@ -133,6 +133,7 @@ namespace TrajectoryPlanner
         {
             // Startup CCF
             modelControl.LateStart(true);
+            modelControl.SetBeryl(GetSetting_UseBeryl());
 
             // Set callback
             DelayedModelControlStart();
@@ -255,29 +256,6 @@ namespace TrajectoryPlanner
             return probeQuickSettings;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        public void ToggleBeryl(int value)
-        {
-            switch (value)
-            {
-                case 0:
-                    modelControl.SetBeryl(false);
-                    break;
-                case 1:
-                    modelControl.SetBeryl(true);
-                    break;
-                default:
-                    modelControl.SetBeryl(false);
-                    break;
-            }
-            foreach (ProbeManager probeController in allProbeManagers)
-                foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
-                    puimanager.ProbeMoved();
-        }
-
         public Collider CCFCollider()
         {
             return ccfCollider;
@@ -342,13 +320,16 @@ namespace TrajectoryPlanner
                 return;
             }
 
-            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.C)) && Input.GetKeyDown(KeyCode.Backspace) && !manualCoordinatePanel.gameObject.activeSelf)
+            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.C)) && Input.GetKeyDown(KeyCode.Backspace))
             {
                 RecoverActiveProbeController();
                 return;
             }
 
-            if (Input.anyKey && activeProbeController != null && !searchInput.isFocused && !probeQuickSettings.IsFocused())
+            if (Input.GetKeyDown(KeyCode.H) && !InputsFocused())
+                settingsPanel.ToggleSettingsMenu();
+
+            if (Input.anyKey && activeProbeController != null && !InputsFocused())
             {
                 if (Input.GetKeyDown(KeyCode.Backspace) && !CanvasParent.GetComponentsInChildren<TMP_InputField>()
                         .Any(inputField => inputField.isFocused))
@@ -356,11 +337,6 @@ namespace TrajectoryPlanner
                     DestroyActiveProbeController();
                     return;
                 }
-
-                //if (Input.GetKeyDown(KeyCode.M))
-                //{
-                //    manualCoordinatePanel.gameObject.SetActive(!manualCoordinatePanel.gameObject.activeSelf);
-                //}
 
                 // Check if mouse buttons are down, or if probe is under manual control
                 if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
@@ -379,6 +355,11 @@ namespace TrajectoryPlanner
             //    Camera brainCamera = brainCamController.GetCamera();
             //    Debug.Log(Vector3.Distance(brainCamera.transform.position, defaultLoadedNodes[0].GetMeshCenter()));
             //}
+        }
+
+        public bool InputsFocused()
+        {
+            return searchInput.isFocused || probeQuickSettings.IsFocused();
         }
 
         public List<ProbeManager> GetAllProbes()
@@ -677,6 +658,7 @@ namespace TrajectoryPlanner
         public void UpdateQuickSettings()
         {
             probeQuickSettings.UpdateInteractable();
+            probeQuickSettings.UpdateCoordinates();
         }
 
         public void ResetActiveProbe()
@@ -797,7 +779,21 @@ namespace TrajectoryPlanner
         }
 
         #region Player Preferences
+        
+        public void SetSetting_UseBeryl(bool state)
+        {
+            localPrefs.SetUseBeryl(state);
 
+            foreach (ProbeManager probeController in allProbeManagers)
+                foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
+                    puimanager.ProbeMoved();
+        }
+
+        public bool GetSetting_UseBeryl()
+        {
+            return localPrefs.GetUseBeryl();
+        }
+        
         public void SetSetting_ShowAllProbePanels(bool state)
         {
             localPrefs.SetShowAllProbePanels(state);
@@ -843,8 +839,7 @@ namespace TrajectoryPlanner
         public void SetSetting_UseIBLAngles(bool state)
         {
             localPrefs.SetUseIBLAngles(state);
-            foreach (ProbeManager probeController in allProbeManagers)
-                probeController.UpdateText();
+            UpdateQuickSettings();
         }
 
         public bool GetSetting_UseIBLAngles()
@@ -856,8 +851,7 @@ namespace TrajectoryPlanner
         public void SetSetting_GetDepthFromBrain(bool state)
         {
             localPrefs.SetDepthFromBrain(state);
-            foreach (ProbeManager probeController in allProbeManagers)
-                probeController.UpdateText();
+            UpdateQuickSettings();
         }
         public bool GetSetting_GetDepthFromBrain()
         {
@@ -867,8 +861,7 @@ namespace TrajectoryPlanner
         public void SetSetting_ConvertAPMLAxis2Probe(bool state)
         {
             localPrefs.SetAPML2ProbeAxis(state);
-            foreach (ProbeManager probeController in allProbeManagers)
-                probeController.UpdateText();
+            UpdateQuickSettings();
         }
 
         public bool GetSetting_ConvertAPMLAxis2Probe()
@@ -1098,6 +1091,15 @@ namespace TrajectoryPlanner
             }
 
             prevTipID = berylID;
+        }
+
+        #endregion
+
+        #region Text
+
+        public void CopyText()
+        {
+            activeProbeController.Probe2Text();
         }
 
         #endregion

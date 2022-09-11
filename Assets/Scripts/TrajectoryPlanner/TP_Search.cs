@@ -45,13 +45,42 @@ public class TP_Search : MonoBehaviour
 
     public void ChangeSearch(string searchString)
     {
+        // if empty, hide all panels
+        if (searchString.Length==0)
+        {
+            foreach (GameObject panel in localAreaPanels)
+                panel.SetActive(false);
+            return;
+        }
+        // otherwise do the search
 
         // Find all areas in the CCF that match this search string
-        List<int> areasMatchingAcronym = modelControl.AreasMatchingAcronym(searchString);
-        List<int> areasMatchingName = modelControl.AreasMatchingName(searchString);
+        List<int> matchingAreas = modelControl.AreasMatchingAcronym(searchString);
+        if (matchingAreas.Contains(997))
+            matchingAreas.Remove(997);
 
-        List<int> matchingAreas = areasMatchingAcronym.Union(areasMatchingName).ToList<int>();
-        
+        if (!tpmanager.GetSetting_UseAcronyms())
+        {
+            List<int> areasMatchingName = modelControl.AreasMatchingName(searchString);
+            matchingAreas = matchingAreas.Union(areasMatchingName).ToList();
+        }
+
+        // if the matching areas is larger than the number of max panels, we'll sort the list
+        if (matchingAreas.Count > maxAreaPanels)
+        {
+            Debug.Log("Searching for matched searches, bumping these");
+            for (int i = 0; i < matchingAreas.Count; i++)
+            {
+                int id = matchingAreas[i];
+                CCFTreeNode areaNode = modelControl.tree.findNode(id);
+                if (areaNode.ShortName.ToLower().Equals(searchString) || areaNode.Name.ToLower().Equals(searchString))
+                {
+                    matchingAreas.RemoveAt(i);
+                    matchingAreas = matchingAreas.Prepend(id).ToList();
+                    break;
+                }
+            }
+        }
 
         for (int i = 0; i < maxAreaPanels; i++)
         {

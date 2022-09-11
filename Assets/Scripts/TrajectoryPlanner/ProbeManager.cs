@@ -30,7 +30,6 @@ public class ProbeManager : MonoBehaviour
     // Exposed fields to collect links to other components inside of the Probe prefab
     [SerializeField] private List<Collider> probeColliders;
     [SerializeField] private List<ProbeUIManager> probeUIManagers;
-    [SerializeField] private GameObject textPrefab;
     [SerializeField] private Renderer probeRenderer;
     [SerializeField] private int probeType;
 
@@ -57,10 +56,6 @@ public class ProbeManager : MonoBehaviour
     // Colliders
     private List<GameObject> visibleProbeColliders;
     private Dictionary<GameObject, Material> visibleOtherColliders;
-
-    // Text button
-    GameObject textGO;
-    Button textButton;
 
     #region Accessors
 
@@ -110,11 +105,6 @@ public class ProbeManager : MonoBehaviour
 
     private void Awake()
     {
-        // Setup some basic variables
-        textGO = Instantiate(textPrefab, GameObject.Find("CoordinatePanel").transform);
-        textButton = textGO.GetComponent<Button>();
-        textButton.onClick.AddListener(Probe2Text);
-        textUI = textGO.GetComponent<TextMeshProUGUI>();
         defaultMaterials = new Dictionary<GameObject, Material>();
 
         // Pull the tpmanager object and register this probe
@@ -143,7 +133,6 @@ public class ProbeManager : MonoBehaviour
         // Delete this gameObject
         foreach (ProbeUIManager puimanager in probeUIManagers)
             puimanager.Destroy();
-        Destroy(textGO);
         
         // Unregister this probe from the ephys link
         if (IsConnectedToManipulator())
@@ -290,75 +279,54 @@ public class ProbeManager : MonoBehaviour
 
     #region Text
 
-    public void UpdateText()
+    public void Probe2Text()
     {
         float localDepth = GetLocalDepth();
-        Vector3 apmldv = GetInsertionCoordinateTransformed();
-        string[] apml_string = GetAPMLStr();
+        (string apStr, string mlStr, string dvStr) = GetAPMLStr();
 
         (float ap, float ml, float dv, float phi, float theta, float spin) = tpmanager.GetSetting_UseIBLAngles() ?
             probeController.GetInsertion().GetCoordinatesFloat_IBL() :
             probeController.GetInsertion().GetCoordinatesFloat();
+        (float aps, float mls, float dvs, float depth, _, _, _) = GetCoordinatesSurface();
+        
 
-        string updateStr = string.Format("Probe #{0}: " + apml_string[0] + " {1} " + 
-            apml_string[1] + " {2} " +
-            apml_string[2] + " {3} Azimuth {4} Elevation {5} " + GetDepthStr() + " {6} Spin {7}",
-            probeID, round0(apmldv.x * 1000), round0(apmldv.y * 1000), round0(apmldv.z * 1000), round2(Utils.CircDeg(phi, minPhi, maxPhi)), round2(theta), round0(localDepth * 1000), round2(Utils.CircDeg(spin, minSpin, maxSpin))); ;
+        string updateStr = string.Format("Probe #{0} Surface coordinate: " + 
+            "({1}:{2}, {3}:{4}, {5}:{6})" +
+            " Angles: (Az:{7}, El:{8}, Sp:{9})" + 
+            " Depth: {10}:{11}" + 
+            " Tip coordinate: (ccfAP:{8}, ccfML: {9}, ccfDV:{10})",
+            probeID, 
+            apStr, round0(aps), mlStr, round0(mls), dvStr, round0(dvs), 
+            round2(Utils.CircDeg(phi, minPhi, maxPhi)), round2(theta), round2(Utils.CircDeg(spin, minSpin, maxSpin)),
+            GetDepthStr(), round0(localDepth * 1000),
+            round0(ap), round0(ml), round0(dv));
 
-        textUI.text = updateStr;
+        GUIUtility.systemCopyBuffer = updateStr;
     }
 
-    private void Probe2Text()
-    {
-        Debug.LogWarning("Text not setup right now");
-        //float localDepth = GetLocalDepth();
-        //Vector2 apml_local = GetTransformedTipCoord();
-        //string[] apml_string = GetAPMLStr();
-
-        //(float ap, float ml, float dv, float depth, float phi, float theta, float spin) = tpmanager.UseIBLAngles() ?
-        //    insertion.GetCoordinatesFloat_IBL() :
-        //    insertion.GetCoordinatesFloat();
-
-        //string fullStr = string.Format("Probe #{0}: " + apml_string[0] + " {1} " + apml_string[1] + " {2} Azimuth {3} Elevation {4} "+ GetDepthStr()+" {5} Spin {6} Record Height {7}",
-        //    probeID, apml_local.x * 1000, apml_local.y * 1000, Utils.CircDeg(phi,minPhi, maxPhi), theta, localDepth, Utils.CircDeg(spin,minSpin,maxSpin), minRecordHeight * 1000);
-        //GUIUtility.systemCopyBuffer = fullStr;
-
-        // When you copy text, also set this probe to be active
-        tpmanager.SetActiveProbe(this);
-    }
-
-    public float[] Text2Probe()
-    {
-        float[] output = new float[7];
-
-        // Parse the text string and re-build the probe variables. 
-
-        return output;
-    }
-
-    private string[] GetAPMLStr()
+    private (string, string, string) GetAPMLStr()
     {
         if (tpmanager.GetSetting_InVivoTransformActive())
         {
             string prefix = tpmanager.GetInVivoPrefix();
             if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
             {
-                return new string[] { prefix + "Forward", prefix + "Side", prefix + "DV" };
+                return (prefix + "Forward", prefix + "Side", prefix + "DV");
             }
             else
             {
-                return new string[] { prefix + "AP", prefix + "ML", prefix + "DV" };
+                return (prefix + "AP", prefix + "ML", prefix + "DV");
             }
         }
         else
         {
             if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
             {
-                return new string[] { "ccfForward", "ccfSide", "ccfDV" };
+                return ("ccfForward", "ccfSide", "ccfDV");
             }
             else
             {
-                return new string[] { "ccfAP", "ccfML", "ccfDV" };
+                return ("ccfAP", "ccfML", "ccfDV");
             }
         }
     }
@@ -428,14 +396,6 @@ public class ProbeManager : MonoBehaviour
         probeID = ID;
         name = "PROBE_" + probeID;
         probeRenderer.material.color = probeColor;
-
-        var colors = textButton.colors;
-        colors.highlightedColor = probeColor;
-        Color probeColorTransparent = probeColor;
-        probeColorTransparent.a = 0.75f;
-        colors.selectedColor = probeColorTransparent;
-        colors.pressedColor = probeColorTransparent;
-        textButton.colors = colors;
     }
 
 

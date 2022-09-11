@@ -36,6 +36,7 @@ public class PlayerPrefs : MonoBehaviour
     private bool _axisControl;
     private bool _showAllProbePanels;
     private string _rightHandedManipulatorIds;
+    private bool _useBeryl;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -52,6 +53,7 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] TMP_InputField ephysLinkServerPortInput;
     [SerializeField] Toggle axisControlToggle;
     [SerializeField] Toggle showAllProbePanelsToggle;
+    [SerializeField] Toggle useBerylToggle;
     
 
     /// <summary>
@@ -105,6 +107,9 @@ public class PlayerPrefs : MonoBehaviour
         showAllProbePanelsToggle.isOn = _showAllProbePanels;
 
         _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulator_ids", "");
+
+        _useBeryl = LoadBoolPref("use_beryl", true);
+        useBerylToggle.isOn = _useBeryl;
     }
 
     /// <summary>
@@ -146,6 +151,17 @@ public class PlayerPrefs : MonoBehaviour
     }
 
     #region Getters/Setters
+
+    public void SetUseBeryl(bool state)
+    {
+        _useBeryl = state;
+        UnityEngine.PlayerPrefs.SetInt("use_beryl", _useBeryl ? 1 : 0);
+    }
+
+    public bool GetUseBeryl()
+    {
+        return _useBeryl;
+    }
 
     public void SetShowAllProbePanels(bool state)
     {

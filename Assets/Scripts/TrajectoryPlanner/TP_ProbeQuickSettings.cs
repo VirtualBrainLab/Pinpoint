@@ -77,6 +77,11 @@ namespace TrajectoryPlanner
             }
         }
 
+        public void UpdateCoordinates()
+        {
+            coordinatePanel.UpdateText();
+        }
+
         /// <summary>
         ///     Move probe to brain surface and zero out depth
         /// </summary>
@@ -95,7 +100,6 @@ namespace TrajectoryPlanner
             else
             {
                 _probeManager.GetProbeController().ResetPosition();
-                _probeManager.GetProbeController().ResetUI();
             }
                 
         }

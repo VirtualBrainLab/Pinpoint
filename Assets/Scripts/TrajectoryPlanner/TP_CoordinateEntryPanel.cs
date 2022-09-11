@@ -36,7 +36,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     private void Update()
     {
         if (tpmanager.MovedThisFrame() && !probeQuickSettings.IsFocused())
-            SetTextValues();
+            UpdateText();
     }
 
     public void LinkProbe(ProbeManager probeManager)
@@ -44,7 +44,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         linkedProbe = probeManager;
     }
 
-    public void SetTextValues()
+    public void UpdateText()
     {
         if (linkedProbe == null) return;
 
