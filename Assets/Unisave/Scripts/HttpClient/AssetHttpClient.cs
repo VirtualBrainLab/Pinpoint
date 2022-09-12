@@ -114,7 +114,9 @@ namespace Unisave.HttpClient
                 request.SetRequestHeader("Content-Type", "application/json");
 
             yield return request.SendWebRequest();
-            
+
+            uploadHandler.Dispose();
+
             callback?.Invoke(request, downloadHandler);
         }
     }

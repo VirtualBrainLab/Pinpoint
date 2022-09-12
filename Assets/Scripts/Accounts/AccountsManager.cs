@@ -3,44 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unisave;
 using Unisave.Entities;
+using Unisave.Facades;
 
 public class AccountsManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    //async void Start()
-    //{
-    //    UserEntity player = await OnFacet<ServerDataHandler>
-    //        .Call<UserEntity>(
-    //            nameof(ServerDataHandler.GetPlayerEntity)
-    //        );
+    [SerializeField] private GameObject registerPanelGO;
 
-    //    Debug.Log("Player: " + player.nickname);
-    //    Debug.Log("Coins: " + player.coins);
+    public void LoadPlayer()
+    {
+        OnFacet<PlayerDataFacet>
+            .Call<PlayerEntity>(nameof(PlayerDataFacet.GetPlayerEntity))
+            .Then(LoadPlayerCallback)
+            .Done();
+    }
 
-    //}
+    private void LoadPlayerCallback(PlayerEntity player)
+    {
 
-    //// Update is called once per frame
-    //void Update()
-    //{
-        
-    //}
+        Debug.Log("Player: " + player.email);
+    }
+
+    public void ShowRegisterPanel()
+    {
+        registerPanelGO.SetActive(true);
+    }
 }
-
-
-//using System;
-//using Unisave;
-//using UnityEngine;
-
-//public class HomeSceneController : MonoBehaviour
-//{
-//    async void Start()
-//    {
-//        PlayerEntity player = await OnFacet<HomeFacet>
-//            .Call<PlayerEntity>(
-//                nameof(HomeFacet.GetPlayerEntity)
-//            );
-
-//        Debug.Log("Player: " + player.nickname);
-//        Debug.Log("Coins: " + player.coins);
-//    }
-//}

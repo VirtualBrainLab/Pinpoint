@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using Unisave.Facades;
 using Unisave.Facets;
 using UnityEngine;
@@ -16,12 +17,12 @@ using UnityEngine.UI;
 
 public class EmailLoginForm : MonoBehaviour
 {
-    public InputField emailField;
-    public InputField passwordField;
+    public TMP_InputField emailField;
+    public TMP_InputField passwordField;
     public Button loginButton;
-    public Text statusText;
+    public TMP_Text statusText;
 
-    public string sceneAfterLogin;
+    private bool loggedIn;
 
     void Start()
     {
@@ -52,22 +53,42 @@ public class EmailLoginForm : MonoBehaviour
 
     public async void OnLoginClicked()
     {
+        if (loggedIn)
+        {
+            statusText.enabled = false;
+            loggedIn = false;
+            loginButton.GetComponentInChildren<TMP_Text>().text = "Login";
+
+            var logoutResponse = await OnFacet<EmailLoginFacet>.CallAsync<bool>(nameof(EmailLoginFacet.Logout));
+
+            return;
+        }
+
+
         statusText.enabled = true;
         statusText.text = "Logging in...";
-        
-        var response = await OnFacet<EmailLoginFacet>.CallAsync<bool>(
+        statusText.color = Color.yellow;
+        loggedIn = false;
+
+        var loginResponse = await OnFacet<EmailLoginFacet>.CallAsync<bool>(
             nameof(EmailLoginFacet.Login),
             emailField.text,
             passwordField.text
         );
 
-        if (response)
+        if (loginResponse)
         {
-            SceneManager.LoadScene(sceneAfterLogin);
+            statusText.text = string.Format("Logged into: {0}",emailField.text);
+            statusText.color = Color.green;
+
+            // setup logout logic
+            loggedIn = true;
+            loginButton.GetComponentInChildren<TMP_Text>().text = "Logout";
         }
         else
         {
-            statusText.text = "Given credentials are not valid";
+            statusText.text = "This account does not exist,\nor the password is not valid";
+            statusText.color = Color.red;
         }
     }
 }

@@ -36,4 +36,6 @@ public class ServerProbeInsertion
     public float theta;
     public float spin;
     public float depth;
+    public bool active;
+    public bool recorded;
 }

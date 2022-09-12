@@ -2,9 +2,11 @@
     "name": "trajectoryplanner.accounts",
     "rootNamespace": "",
     "references": [
+        "GUID:563545a647bbf0342aaa19ba1aa9a267",
         "GUID:a99f58d8f2dd9754d8f246b5299f912e",
         "GUID:29fd106b52f0869489582933e16ff1bd",
-        "GUID:563545a647bbf0342aaa19ba1aa9a267"
+        "GUID:a815a12d1bf60d84dae46cea6d75cdea",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
