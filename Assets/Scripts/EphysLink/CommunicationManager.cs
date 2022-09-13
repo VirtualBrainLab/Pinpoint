@@ -70,8 +70,7 @@ namespace EphysLink
             _connectionManager = new SocketManager(new Uri("http://" + ip + ":" + port), options);
             _socket = _connectionManager.Socket;
 
-            // Callback success on connection
-            _socket.Once("connect", () =>
+            _socket.On(SocketIOEventTypes.Connect, () =>
             {
                 Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
                 _serverIp = ip;
@@ -80,18 +79,17 @@ namespace EphysLink
                 _playerPrefs.SaveEphysLinkConnectionData(ip, port);
                 onConnected?.Invoke();
             });
-
-            // Callback error on connection
-            _socket.Once("connect_error", () =>
+            _socket.On(SocketIOEventTypes.Error, () =>
             {
-                var connectionErrorMessage = "Error connecting to WebSocket server at " + ip + ":" + port;
+                var connectionErrorMessage =
+                    "Error connecting to server at " + ip + ":" + port + ". Check server for details.";
                 Debug.LogWarning(connectionErrorMessage);
                 _isConnected = false;
                 onError?.Invoke(connectionErrorMessage);
             });
             _socket.Once("connect_timeout", () =>
             {
-                var connectionTimeoutMessage = "Connection to WebSocket server at " + ip + ":" + port + " timed out";
+                var connectionTimeoutMessage = "Connection to server at " + ip + ":" + port + " timed out";
                 Debug.LogWarning(connectionTimeoutMessage);
                 _isConnected = false;
                 onError?.Invoke(connectionTimeoutMessage);
