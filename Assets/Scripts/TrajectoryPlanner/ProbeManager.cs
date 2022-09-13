@@ -726,6 +726,7 @@ public class ProbeManager : MonoBehaviour
         {
             var apmldv = Utils.world2apmldv(brainSurface.Item1 + tpmanager.GetCenterOffset());
             probeController.SetProbePositionCCF(new ProbeInsertion(apmldv, probeController.GetInsertion().angles));
+            tpmanager.UpdateInPlaneView();
         }
     }
 
