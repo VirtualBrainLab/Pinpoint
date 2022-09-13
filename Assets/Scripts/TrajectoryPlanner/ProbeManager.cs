@@ -613,6 +613,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void ResetManipulatorProperties()
     {
+        SetEphysLinkMovement(false);
         _manipulatorId = 0;
         _zeroCoordinateOffset = Vector4.negativeInfinity;
         _brainSurfaceOffset = 0;
