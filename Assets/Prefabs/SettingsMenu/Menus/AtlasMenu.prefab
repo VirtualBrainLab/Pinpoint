@@ -3799,8 +3799,6 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: CCF Annotation Data
       m_Image: {fileID: 0}
-    - m_Text: IBL Coverage Map
-      m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:

@@ -276,16 +276,6 @@ namespace TrajectoryPlanner
             return vdmanager.GetAnnotationDataset();
         }
 
-        public Task<bool> LoadIBLCoverageDataset()
-        {
-            return vdmanager.LoadIBLCoverage();
-        }
-
-        public VolumetricDataset GetIBLCoverageDataset()
-        {
-            return vdmanager.GetIBLCoverageDataset();
-        }
-
         public int GetActiveProbeType()
         {
             return activeProbeController.GetProbeType();

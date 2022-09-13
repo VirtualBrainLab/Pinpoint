@@ -58,6 +58,7 @@ namespace TrajectoryPlanner
 
             coordinatePanel.LinkProbe(probeManager);
             UpdateInteractable();
+            UpdateCoordinates();
         }
 
         public void UpdateInteractable(bool disableAll=false)

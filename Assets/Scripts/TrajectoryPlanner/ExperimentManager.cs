@@ -57,6 +57,16 @@ public class ExperimentManager : MonoBehaviour
     {
         accountExperiments = newExperiments;
     }
+
+    public void AddExperiment()
+    {
+
+    }
+
+    public void RemoveExperiment()
+    {
+
+    }
 }
 
 

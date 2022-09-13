@@ -51,61 +51,61 @@ public class TP_SliceRenderer : MonoBehaviour
 
         if (dropdownMenu.value == 1)
             SetActiveTextureAnnotation();
-        else if (dropdownMenu.value == 2)
-            SetActiveTextureIBLCoverage();
+        //else if (dropdownMenu.value == 2)
+        //    SetActiveTextureIBLCoverage();
         loaded = true;
     }
 
 
-    private Texture3D iblCoverageTexture;
-    private bool coverageLoaded;
-    private bool coverageLoading;
+    //private Texture3D iblCoverageTexture;
+    //private bool coverageLoaded;
+    //private bool coverageLoading;
 
-    public async void LoadCoverageTexture()
-    {
-        coverageLoading = true;
+    //public async void LoadCoverageTexture()
+    //{
+    //    coverageLoading = true;
 
-        if (iblCoverageTextureAssetRef == null)
-        {
-            VolumetricDataset coverageDataset = tpmanager.GetIBLCoverageDataset();
-            if (coverageDataset == null)
-            {
-                await tpmanager.LoadIBLCoverageDataset();
-                coverageDataset = tpmanager.GetIBLCoverageDataset();
-            }
-            AnnotationDataset annotationDataset = tpmanager.GetAnnotationDataset();
+    //    if (iblCoverageTextureAssetRef == null)
+    //    {
+    //        VolumetricDataset coverageDataset = tpmanager.GetIBLCoverageDataset();
+    //        if (coverageDataset == null)
+    //        {
+    //            await tpmanager.LoadIBLCoverageDataset();
+    //            coverageDataset = tpmanager.GetIBLCoverageDataset();
+    //        }
+    //        AnnotationDataset annotationDataset = tpmanager.GetAnnotationDataset();
 
-            Color[] colors = new Color[] { Color.grey, Color.yellow, Color.green };
+    //        Color[] colors = new Color[] { Color.grey, Color.yellow, Color.green };
 
-            iblCoverageTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
-            iblCoverageTexture.filterMode = FilterMode.Point;
-            iblCoverageTexture.wrapMode = TextureWrapMode.Clamp;
+    //        iblCoverageTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
+    //        iblCoverageTexture.filterMode = FilterMode.Point;
+    //        iblCoverageTexture.wrapMode = TextureWrapMode.Clamp;
 
-            Debug.Log("Converting annotation dataset to texture format");
-            for (int ap = 0; ap < 528; ap++)
-            {
-                for (int dv = 0; dv < 320; dv++)
-                    for (int ml = 0; ml < 456; ml++)
-                        if (annotationDataset.ValueAtIndex(ap, dv, ml) > 0)
-                            iblCoverageTexture.SetPixel(ap, dv, ml, colors[coverageDataset.ValueAtIndex(ap, dv, ml)]);
-                        else
-                            iblCoverageTexture.SetPixel(ap, dv, ml, Color.black);
-            }
-            iblCoverageTexture.Apply();
+    //        Debug.Log("Converting annotation dataset to texture format");
+    //        for (int ap = 0; ap < 528; ap++)
+    //        {
+    //            for (int dv = 0; dv < 320; dv++)
+    //                for (int ml = 0; ml < 456; ml++)
+    //                    if (annotationDataset.ValueAtIndex(ap, dv, ml) > 0)
+    //                        iblCoverageTexture.SetPixel(ap, dv, ml, colors[coverageDataset.ValueAtIndex(ap, dv, ml)]);
+    //                    else
+    //                        iblCoverageTexture.SetPixel(ap, dv, ml, Color.black);
+    //        }
+    //        iblCoverageTexture.Apply();
 
-            //if (Application.isEditor)
-            //    AssetDatabase.CreateAsset(iblCoverageTexture, "Assets/AddressableAssets/Textures/IBLCoverageTexture3D.asset");
-        }
-        else
-        {
-            AsyncOperationHandle<Texture3D> dataLoader = iblCoverageTextureAssetRef.LoadAssetAsync<Texture3D>();
-            await dataLoader.Task;
-            iblCoverageTexture = dataLoader.Result;
-        }
-        coverageLoaded = true;
+    //        //if (Application.isEditor)
+    //        //    AssetDatabase.CreateAsset(iblCoverageTexture, "Assets/AddressableAssets/Textures/IBLCoverageTexture3D.asset");
+    //    }
+    //    else
+    //    {
+    //        AsyncOperationHandle<Texture3D> dataLoader = iblCoverageTextureAssetRef.LoadAssetAsync<Texture3D>();
+    //        await dataLoader.Task;
+    //        iblCoverageTexture = dataLoader.Result;
+    //    }
+    //    coverageLoaded = true;
 
-        SetActiveTextureIBLCoverage();
-    }
+    //    SetActiveTextureIBLCoverage();
+    //}
 
     private async void SetActiveTextureAnnotation()
     {
@@ -116,16 +116,16 @@ public class TP_SliceRenderer : MonoBehaviour
         coronalSliceMaterial.SetTexture("_Volume", textureTask.Result);
     }
 
-    private void SetActiveTextureIBLCoverage()
-    {
-        if (!coverageLoaded && !coverageLoading)
-        {
-            LoadCoverageTexture();
-            return;
-        }
-        saggitalSliceMaterial.SetTexture("_Volume", iblCoverageTexture);
-        coronalSliceMaterial.SetTexture("_Volume", iblCoverageTexture);
-    }
+    //private void SetActiveTextureIBLCoverage()
+    //{
+    //    if (!coverageLoaded && !coverageLoading)
+    //    {
+    //        LoadCoverageTexture();
+    //        return;
+    //    }
+    //    saggitalSliceMaterial.SetTexture("_Volume", iblCoverageTexture);
+    //    coronalSliceMaterial.SetTexture("_Volume", iblCoverageTexture);
+    //}
 
     private void Update()
     {
@@ -244,8 +244,8 @@ public class TP_SliceRenderer : MonoBehaviour
 
             if (sliceType == 1)
                 SetActiveTextureAnnotation();
-            else if (sliceType == 2)
-                SetActiveTextureIBLCoverage();
+            //else if (sliceType == 2)
+            //    SetActiveTextureIBLCoverage();
 
             UpdateSlicePosition();
             UpdateCameraPosition();

@@ -106,7 +106,6 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         // Calculate the size
         (float mmStartPos, float mmRecordingSize) = activeProbeController.GetProbeController().GetRecordingRegionHeight();
-        Debug.Log((mmStartPos, mmRecordingSize));
         // Take the active probe, find the position and rotation, and interpolate across the annotation dataset to render a 400x400 image of the brain at that slice
         tipTransform = activeProbeController.GetTipTransform();
 
@@ -121,8 +120,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 
         inPlaneScale = mmRecordingSize * 1.5f * 1000f / 25f * zoomFactor;
-
-        Debug.Log(inPlaneScale);
 
         gpuSliceRenderer.material.SetVector("_RecordingRegionCenterPosition", recordingRegionCenterPosition);
         gpuSliceRenderer.material.SetVector("_ForwardDirection", tipTransform.forward);

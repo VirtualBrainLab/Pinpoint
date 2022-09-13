@@ -6,7 +6,6 @@ namespace Settings
 {
     public class TB_SettingsTabControl : MonoBehaviour
     {
-        [SerializeField] private List<GameObject> menuGOs;
         [SerializeField] private GameObject menuParent;
 
         public void UpdateMenuVisibility(int menuPosition)
