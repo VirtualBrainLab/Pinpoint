@@ -107,13 +107,11 @@ public class ProbeController : MonoBehaviour
 
     public void ResetPosition()
     {
-        transform.position = initialPosition;
         insertion.apmldv = defaultStart;
     }
 
     public void ResetAngles()
     {
-        transform.rotation = initialRotation;
         insertion.angles = defaultAngles;
     }
 
@@ -733,7 +731,9 @@ public class ProbeController : MonoBehaviour
 
         // Tell the tpmanager we moved and update the UI elements
         tpmanager.SetMovedThisFrame();
+        tpmanager.UpdateInPlaneView();
         probeManager.UpdateUI();
+        
     }
 
     public void SetProbePosition(Vector3 position)
