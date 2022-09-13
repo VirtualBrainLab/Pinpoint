@@ -62,7 +62,7 @@ namespace Settings
                 .GetComponent<TP_QuestionDialogue>();
         }
 
-        private void OnEnable()
+        public void OnEnable()
         {
             var handledProbeIds = new HashSet<int>();
 
@@ -80,6 +80,7 @@ namespace Settings
                         probeConnectionSettingsPanelGameObject.GetComponent<ProbeConnectionSettingsPanel>();
 
                     probeConnectionSettingsPanel.SetProbeManager(probeManager);
+                    probeConnectionSettingsPanel.SetEphysLinkSettings(this);
 
                     _probeIdToProbeConnectionSettingsPanels.Add(probeId,
                         new Tuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
@@ -107,9 +108,14 @@ namespace Settings
             _communicationManager.GetManipulators(availableIds =>
             {
                 var manipulatorDropdownOptions = new List<string> { "-" };
-                manipulatorDropdownOptions.AddRange(availableIds.Select(id => id.ToString()));
+                List<int> availableIdsList = availableIds.ToList();
+                foreach (var manipulatorId in _trajectoryPlannerManager.GetAllProbes().Select(probeManager => probeManager.GetManipulatorId()).Where(manipulatorId => manipulatorId != 0))
+                {
+                    availableIdsList.Remove(manipulatorId);
+                }
+                manipulatorDropdownOptions.AddRange(availableIdsList.Select(id => id.ToString()));
 
-                foreach (var value in _probeIdToProbeConnectionSettingsPanels.Values)
+                foreach (var value in _probeIdToProbeConnectionSettingsPanels.Values.Where(value => value.Item1.GetProbeManager().GetManipulatorId() == 0))
                     value.Item1.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
 
                 // Handle manipulator panels

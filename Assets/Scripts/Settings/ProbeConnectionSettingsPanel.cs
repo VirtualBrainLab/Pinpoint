@@ -26,6 +26,7 @@ namespace Settings
         #endregion
 
         private ProbeManager _probeManager;
+        private EphysLinkSettings _ephysLinkSettings;
 
         #endregion
 
@@ -85,6 +86,16 @@ namespace Settings
             probeIdText.text = probeManager.GetID().ToString();
             probeIdText.color = probeManager.GetColor();
         }
+        
+        public ProbeManager GetProbeManager()
+        {
+            return _probeManager;
+        }
+        
+        public void SetEphysLinkSettings(EphysLinkSettings ephysLinkSettings)
+        {
+            _ephysLinkSettings = ephysLinkSettings;
+        }
 
         #endregion
 
@@ -120,6 +131,7 @@ namespace Settings
             if (value != 0)
                 _probeManager.SetEphysLinkMovement(true,
                     int.Parse(manipulatorIdDropdown.options[value].text));
+            // _ephysLinkSettings.OnEnable();
         }
 
         /// <summary>
