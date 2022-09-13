@@ -733,7 +733,9 @@ public class ProbeController : MonoBehaviour
 
         // Tell the tpmanager we moved and update the UI elements
         tpmanager.SetMovedThisFrame();
+        tpmanager.UpdateInPlaneView();
         probeManager.UpdateUI();
+        
     }
 
     public void SetProbePosition(Vector3 position)
