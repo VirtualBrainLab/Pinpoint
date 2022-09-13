@@ -54,7 +54,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         mlField.text = Round2Str(mls);
         dvField.text = Round2Str(dvs);
         depthField.text = Round2Str(depth);
-        if (!tpmanager.GetActiveProbeController().IsConnectedToManipulator())
+        if (!probeQuickSettings.IsFocused())
         {
             phiField.text = Round2Str(phi);
             thetaField.text = Round2Str(theta);

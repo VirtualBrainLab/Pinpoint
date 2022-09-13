@@ -107,13 +107,11 @@ public class ProbeController : MonoBehaviour
 
     public void ResetPosition()
     {
-        transform.position = initialPosition;
         insertion.apmldv = defaultStart;
     }
 
     public void ResetAngles()
     {
-        transform.rotation = initialRotation;
         insertion.angles = defaultAngles;
     }
 

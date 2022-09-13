@@ -101,8 +101,8 @@ namespace TrajectoryPlanner
             else
             {
                 _probeManager.GetProbeController().ResetPosition();
+                _probeManager.GetProbeController().SetProbePosition();
             }
-                
         }
 
         public bool IsFocused()
