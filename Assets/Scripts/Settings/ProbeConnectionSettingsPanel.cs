@@ -72,7 +72,6 @@ namespace Settings
 
         #endregion
 
-
         #region Property Getters and Setters
 
         /// <summary>
@@ -131,7 +130,7 @@ namespace Settings
             if (value != 0)
                 _probeManager.SetEphysLinkMovement(true,
                     int.Parse(manipulatorIdDropdown.options[value].text));
-            // _ephysLinkSettings.OnEnable();
+            _ephysLinkSettings.UpdateManipulatorPanelAndSelection();
         }
 
         /// <summary>

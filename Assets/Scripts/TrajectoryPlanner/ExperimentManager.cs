@@ -9,17 +9,15 @@ public class ExperimentManager : MonoBehaviour
     [SerializeField] TMP_Dropdown quickSettingsDropdown;
     [SerializeField] TMP_Dropdown activeExperimentDropdown;
 
-    private Dictionary<ProbeManager, string> probeExperiments;
+    private Dictionary<ProbeManager, string> probeExperiments = new();
 
     private string activeExperiment;
 
-    private Dictionary<string, Dictionary<string, ServerProbeInsertion>> accountExperiments;
+    private Dictionary<string, Dictionary<string, ServerProbeInsertion>> accountExperiments = new();
 
 
     private void Awake()
     {
-        probeExperiments = new Dictionary<ProbeManager, string>();
-        accountExperiments = new Dictionary<string, Dictionary<string, ServerProbeInsertion>>();
         UpdateQuickSettingDropdown();
         UpdateActiveExperimentDropdown();
     }
