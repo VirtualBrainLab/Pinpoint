@@ -19,6 +19,7 @@ public class ExperimentManager : MonoBehaviour
     private void Awake()
     {
         probeExperiments = new Dictionary<ProbeManager, string>();
+        accountExperiments = new Dictionary<string, Dictionary<string, ServerProbeInsertion>>();
         UpdateQuickSettingDropdown();
         UpdateActiveExperimentDropdown();
     }

@@ -41,7 +41,7 @@ namespace Settings
 
         #region Session variables
 
-        private Dictionary<int, Tuple<ManipulatorConnectionSettingsPanel, GameObject>>
+        private readonly Dictionary<int, Tuple<ManipulatorConnectionSettingsPanel, GameObject>>
             _manipulatorIdToManipulatorConnectionSettingsPanel = new();
 
         private readonly Dictionary<int, Tuple<ProbeConnectionSettingsPanel, GameObject>>
@@ -143,7 +143,7 @@ namespace Settings
                     handledManipulatorIds.Add(manipulatorId);
                 }
                 
-                // Remove any manipulator that are not connected anymore
+                // Remove any manipulators that are not connected anymore
                 foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys.Where(key => !handledManipulatorIds.Contains(key)))
                 {
                     Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].Item2);
