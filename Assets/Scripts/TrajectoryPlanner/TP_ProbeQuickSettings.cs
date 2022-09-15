@@ -97,7 +97,10 @@ namespace TrajectoryPlanner
         public void ResetZeroCoordinate()
         {
             if (_probeManager.IsConnectedToManipulator())
+            {
                 _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetZeroCoordinateOffset);
+                _probeManager.SetBrainSurfaceOffset(0);
+            }
             else
             {
                 _probeManager.GetProbeController().ResetPosition();

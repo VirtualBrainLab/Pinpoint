@@ -41,7 +41,7 @@ namespace Settings
 
         #region Session variables
 
-        private Dictionary<int, Tuple<ManipulatorConnectionSettingsPanel, GameObject>>
+        private readonly Dictionary<int, Tuple<ManipulatorConnectionSettingsPanel, GameObject>>
             _manipulatorIdToManipulatorConnectionSettingsPanel = new();
 
         private readonly Dictionary<int, Tuple<ProbeConnectionSettingsPanel, GameObject>>
@@ -51,7 +51,7 @@ namespace Settings
 
         #endregion
 
-        #region Setup
+        #region Unity
 
         private void Awake()
         {
@@ -62,7 +62,46 @@ namespace Settings
                 .GetComponent<TP_QuestionDialogue>();
         }
 
-        private void OnEnable()
+        private void FixedUpdate()
+        {
+            if (_trajectoryPlannerManager.GetAllProbes().Count != _probeIdToProbeConnectionSettingsPanels.Count)
+                UpdateProbePanels();
+        }
+
+
+        // Start is called before the first frame update
+        private void Start()
+        {
+            UpdateConnectionUI();
+        }
+
+        #endregion
+
+        #region UI Functions
+
+        /// <summary>
+        ///     Populate UI elements with current connection settings
+        /// </summary>
+        private void UpdateConnectionUI()
+        {
+            connectionErrorText.text = "";
+            connectButtonText.text = _communicationManager.IsConnected() ? "Disconnect" : "Connect";
+            serverConnectedText.text =
+                (_communicationManager.IsConnected() ? "Connected" : "Connect") + " to server at";
+            if (_communicationManager.IsConnected())
+            {
+                UpdateManipulatorPanelAndSelection();
+            }
+            else
+            {
+                foreach (var manipulatorPanel in
+                         _manipulatorIdToManipulatorConnectionSettingsPanel.Values.Select(value => value.Item2))
+                    Destroy(manipulatorPanel);
+                _manipulatorIdToManipulatorConnectionSettingsPanel.Clear();
+            }
+        }
+
+        private void UpdateProbePanels()
         {
             var handledProbeIds = new HashSet<int>();
 
@@ -80,6 +119,7 @@ namespace Settings
                         probeConnectionSettingsPanelGameObject.GetComponent<ProbeConnectionSettingsPanel>();
 
                     probeConnectionSettingsPanel.SetProbeManager(probeManager);
+                    probeConnectionSettingsPanel.SetEphysLinkSettings(this);
 
                     _probeIdToProbeConnectionSettingsPanels.Add(probeId,
                         new Tuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
@@ -103,14 +143,27 @@ namespace Settings
                 _probeIdToProbeConnectionSettingsPanels.Remove(removedProbeId);
             }
 
-            // Update available manipulators
+            UpdateManipulatorPanelAndSelection();
+        }
+
+        public void UpdateManipulatorPanelAndSelection()
+        {
             _communicationManager.GetManipulators(availableIds =>
             {
-                var manipulatorDropdownOptions = new List<string> { "-" };
-                manipulatorDropdownOptions.AddRange(availableIds.Select(id => id.ToString()));
+                // Update probes with selectable options
+                var usedManipulatorIds = _trajectoryPlannerManager.GetAllProbes()
+                    .Where(probeManager => probeManager.IsConnectedToManipulator())
+                    .Select(probeManager => probeManager.GetManipulatorId()).ToHashSet();
+                foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
+                             values => values.Item1))
+                {
+                    var manipulatorDropdownOptions = new List<string> { "-" };
+                    manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
+                        id == probeConnectionSettingsPanel.GetProbeManager().GetManipulatorId() ||
+                        !usedManipulatorIds.Contains(id)).Select(id => id.ToString()));
 
-                foreach (var value in _probeIdToProbeConnectionSettingsPanels.Values)
-                    value.Item1.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
+                    probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
+                }
 
                 // Handle manipulator panels
                 var handledManipulatorIds = new HashSet<int>();
@@ -133,41 +186,19 @@ namespace Settings
                             new Tuple<ManipulatorConnectionSettingsPanel, GameObject>(
                                 manipulatorConnectionSettingsPanel, manipulatorConnectionSettingsPanelGameObject));
                     }
-                    
+
                     handledManipulatorIds.Add(manipulatorId);
                 }
-                
-                // Remove any manipulator that are not connected anymore
-                foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys.Where(key => !handledManipulatorIds.Contains(key)))
+
+                // Remove any manipulators that are not connected anymore
+                foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys.Where(
+                             key =>
+                                 !handledManipulatorIds.Contains(key)))
                 {
                     Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].Item2);
                     _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
                 }
             });
-        }
-
-
-        // Start is called before the first frame update
-        private void Start()
-        {
-            UpdateConnectionUI();
-
-            // Spawn in manipulators
-        }
-
-        #endregion
-
-        #region UI Functions
-
-        /// <summary>
-        ///     Populate UI elements with current connection settings
-        /// </summary>
-        private void UpdateConnectionUI()
-        {
-            connectionErrorText.text = "";
-            connectButtonText.text = _communicationManager.IsConnected() ? "Disconnect" : "Connect";
-            serverConnectedText.text = (_communicationManager.IsConnected() ? "Connected" : "Connect") + " to server at";
-            OnEnable();
         }
 
         /// <summary>

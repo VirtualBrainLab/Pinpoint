@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -492,6 +492,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4413677511551059608, guid: 9b26f2f04782ec646a6ffbeb5496cdd5, type: 3}
   m_PrefabInstance: {fileID: 4413677511474924550}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &98805196 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1780008577384584233, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+  m_PrefabInstance: {fileID: 1397446698413376551}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b743370ac3e4ec2a1668f5455a8ef8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &102559458
 GameObject:
   m_ObjectHideFlags: 0
@@ -8558,7 +8569,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -392.50003, y: 0}
+  m_AnchoredPosition: {x: -392.49997, y: 0}
   m_SizeDelta: {x: -815, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1669998833
@@ -10337,7 +10348,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   quickSettingsDropdown: {fileID: 538605290}
-  activeExperimentDropdown: {fileID: 0}
+  activeExperimentDropdown: {fileID: 98805196}
 --- !u!1 &2118380569
 GameObject:
   m_ObjectHideFlags: 0
