@@ -8,39 +8,7 @@ namespace Settings
 {
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
-        #region Variables
-
-        #region Components
-
-        #region Serialized
-
-        [SerializeField] private TMP_Text probeIdText;
-        [SerializeField] private TMP_Dropdown manipulatorIdDropdown;
-        [SerializeField] private TMP_InputField xInputField;
-        [SerializeField] private TMP_InputField yInputField;
-        [SerializeField] private TMP_InputField zInputField;
-        [SerializeField] private TMP_InputField dInputField;
-        [SerializeField] private TMP_Dropdown brainSurfaceOffsetDirectionDropdown;
-        [SerializeField] private TMP_InputField brainSurfaceOffsetInputField;
-
-        #endregion
-
-        private ProbeManager _probeManager;
-        private EphysLinkSettings _ephysLinkSettings;
-
-        #endregion
-
-        #region Properties
-
-        private Vector4 _displayedZeroCoordinateOffset;
-        private float _displayedBrainSurfaceOffset;
-
-        #endregion
-
-        #endregion
-
         #region Unity
-
 
         /// <summary>
         ///     Update values as they change
@@ -72,6 +40,37 @@ namespace Settings
 
         #endregion
 
+        #region Variables
+
+        #region Components
+
+        #region Serialized
+
+        [SerializeField] private TMP_Text probeIdText;
+        [SerializeField] private TMP_Dropdown manipulatorIdDropdown;
+        [SerializeField] private TMP_InputField xInputField;
+        [SerializeField] private TMP_InputField yInputField;
+        [SerializeField] private TMP_InputField zInputField;
+        [SerializeField] private TMP_InputField dInputField;
+        [SerializeField] private TMP_Dropdown brainSurfaceOffsetDirectionDropdown;
+        [SerializeField] private TMP_InputField brainSurfaceOffsetInputField;
+
+        #endregion
+
+        private ProbeManager _probeManager;
+        private EphysLinkSettings _ephysLinkSettings;
+
+        #endregion
+
+        #region Properties
+
+        private Vector4 _displayedZeroCoordinateOffset;
+        private float _displayedBrainSurfaceOffset;
+
+        #endregion
+
+        #endregion
+
         #region Property Getters and Setters
 
         /// <summary>
@@ -85,12 +84,12 @@ namespace Settings
             probeIdText.text = probeManager.GetID().ToString();
             probeIdText.color = probeManager.GetColor();
         }
-        
+
         public ProbeManager GetProbeManager()
         {
             return _probeManager;
         }
-        
+
         public void SetEphysLinkSettings(EphysLinkSettings ephysLinkSettings)
         {
             _ephysLinkSettings = ephysLinkSettings;
@@ -122,18 +121,23 @@ namespace Settings
         /// <param name="index">Manipulator option index that was selected (0 = no manipulator)</param>
         public void OnManipulatorDropdownValueChanged(int index)
         {
-            // Disconnect if already connected
             if (_probeManager.IsConnectedToManipulator())
-                _probeManager.SetEphysLinkMovement(false, 0, false);
+                _probeManager.SetEphysLinkMovement(false, 0, false, () =>
+                {
+                    if (index != 0)
+                        AttachToManipulatorAndUpdateUI();
+                    else
+                        _ephysLinkSettings.UpdateManipulatorPanelAndSelection();
+                });
+            else
+                AttachToManipulatorAndUpdateUI();
 
-            // Connect if a manipulator is selected
-            if (index != 0)
+            void AttachToManipulatorAndUpdateUI()
             {
                 _probeManager.SetEphysLinkMovement(true,
-                    int.Parse(manipulatorIdDropdown.options[index].text));
-                
+                    int.Parse(manipulatorIdDropdown.options[index].text),
+                    onSuccess: () => { _ephysLinkSettings.UpdateManipulatorPanelAndSelection(); });
             }
-            _ephysLinkSettings.UpdateManipulatorPanelAndSelection();
         }
 
         /// <summary>
