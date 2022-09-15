@@ -119,17 +119,20 @@ namespace Settings
         /// <summary>
         ///     Check selected option for manipulator and disable connect button if no manipulator is selected.
         /// </summary>
-        /// <param name="value">Manipulator option that was selected (0 = no manipulator)</param>
-        public void OnManipulatorDropdownValueChanged(int value)
+        /// <param name="index">Manipulator option index that was selected (0 = no manipulator)</param>
+        public void OnManipulatorDropdownValueChanged(int index)
         {
             // Disconnect if already connected
             if (_probeManager.IsConnectedToManipulator())
                 _probeManager.SetEphysLinkMovement(false, 0, false);
 
             // Connect if a manipulator is selected
-            if (value != 0)
+            if (index != 0)
+            {
                 _probeManager.SetEphysLinkMovement(true,
-                    int.Parse(manipulatorIdDropdown.options[value].text));
+                    int.Parse(manipulatorIdDropdown.options[index].text));
+                
+            }
             _ephysLinkSettings.UpdateManipulatorPanelAndSelection();
         }
 

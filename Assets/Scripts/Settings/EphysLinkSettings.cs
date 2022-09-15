@@ -62,11 +62,6 @@ namespace Settings
                 .GetComponent<TP_QuestionDialogue>();
         }
 
-        public void OnEnable()
-        {
-            UpdateManipulatorPanelAndSelection();
-        }
-
         private void FixedUpdate()
         {
             if (_trajectoryPlannerManager.GetAllProbes().Count != _probeIdToProbeConnectionSettingsPanels.Count)
@@ -99,10 +94,9 @@ namespace Settings
             }
             else
             {
-                foreach (var manipulatorPanel in _manipulatorIdToManipulatorConnectionSettingsPanel.Values.Select(value => value.Item2))
-                {
+                foreach (var manipulatorPanel in
+                         _manipulatorIdToManipulatorConnectionSettingsPanel.Values.Select(value => value.Item2))
                     Destroy(manipulatorPanel);
-                }
                 _manipulatorIdToManipulatorConnectionSettingsPanel.Clear();
             }
         }
@@ -148,26 +142,28 @@ namespace Settings
                 Destroy(_probeIdToProbeConnectionSettingsPanels[removedProbeId].Item2);
                 _probeIdToProbeConnectionSettingsPanels.Remove(removedProbeId);
             }
+
+            UpdateManipulatorPanelAndSelection();
         }
 
         public void UpdateManipulatorPanelAndSelection()
         {
             _communicationManager.GetManipulators(availableIds =>
             {
-                // Create selectable manipulators
-                var manipulatorDropdownOptions = new List<string> { "-" };
-                var availableIdsList = availableIds.ToList();
-                foreach (var manipulatorId in _trajectoryPlannerManager.GetAllProbes()
-                             .Select(probeManager => probeManager.GetManipulatorId())
-                             .Where(manipulatorId => manipulatorId != 0))
-                    availableIdsList.Remove(manipulatorId);
-                
                 // Update probes with selectable options
-                manipulatorDropdownOptions.AddRange(availableIdsList.Select(id => id.ToString()));
-                foreach (var value in _probeIdToProbeConnectionSettingsPanels.Values.Select(values => values.Item1)
-                             .Where(probeConnectionSettingsPanel =>
-                                 probeConnectionSettingsPanel.GetProbeManager().GetManipulatorId() == 0))
-                    value.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
+                var usedManipulatorIds = _trajectoryPlannerManager.GetAllProbes()
+                    .Where(probeManager => probeManager.IsConnectedToManipulator())
+                    .Select(probeManager => probeManager.GetManipulatorId()).ToHashSet();
+                foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
+                             values => values.Item1))
+                {
+                    var manipulatorDropdownOptions = new List<string> { "-" };
+                    manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
+                        id == probeConnectionSettingsPanel.GetProbeManager().GetManipulatorId() ||
+                        !usedManipulatorIds.Contains(id)).Select(id => id.ToString()));
+
+                    probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
+                }
 
                 // Handle manipulator panels
                 var handledManipulatorIds = new HashSet<int>();
