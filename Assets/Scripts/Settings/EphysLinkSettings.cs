@@ -68,10 +68,9 @@ namespace Settings
                 UpdateProbePanels();
         }
 
-
-        // Start is called before the first frame update
-        private void Start()
+        private void OnEnable()
         {
+            UpdateProbePanels();
             UpdateConnectionUI();
         }
 
