@@ -4,7 +4,6 @@ using EphysLink;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
-using UnityEngine.UI;
 
 /// <summary>
 /// 3D space control for Neuropixels probes in the Trajectory Planner scene
@@ -613,10 +612,10 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void ResetManipulatorProperties()
     {
-        SetEphysLinkMovement(false);
         _manipulatorId = 0;
         _zeroCoordinateOffset = Vector4.negativeInfinity;
         _brainSurfaceOffset = 0;
+        if (IsConnectedToManipulator()) SetEphysLinkMovement(false);
     }
 
     /// <summary>
