@@ -587,7 +587,21 @@ namespace TrajectoryPlanner
         {
             Debug.Log("Registering probe: " + probeController.gameObject.name);
             allProbeManagers.Add(probeController);
-            probeController.RegisterProbeCallback(allProbeManagers.Count, NextProbeColor());
+            
+            // Calculate an unused probe ID
+            HashSet<int> usedIds = new();
+            foreach (var probeId in allProbeManagers.Select(manager => manager.GetID() ))
+            {
+                usedIds.Add(probeId);
+            }
+
+            var thisProbeId = 1;
+            while (usedIds.Contains(thisProbeId))
+            {
+                thisProbeId++;
+            }
+            
+            probeController.RegisterProbeCallback(thisProbeId, NextProbeColor());
             UpdateProbeColliders();
         }
 
