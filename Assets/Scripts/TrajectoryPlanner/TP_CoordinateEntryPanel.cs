@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -33,10 +34,10 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         spinField.onEndEdit.AddListener(delegate { ApplyAngles(); });
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        if (tpmanager.MovedThisFrame() && !probeQuickSettings.IsFocused())
-            UpdateText();
+        if (!tpmanager.MovedThisFrame() || probeQuickSettings.IsFocused()) return;
+        UpdateText();
     }
 
     public void LinkProbe(ProbeManager probeManager)
