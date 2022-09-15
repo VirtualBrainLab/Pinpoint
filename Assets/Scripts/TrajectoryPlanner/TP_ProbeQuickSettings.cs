@@ -71,7 +71,6 @@ namespace TrajectoryPlanner
             }
             else
             {
-                //[TODO] re-enable position control when coordinate entry issues are fixed
                 positionFields.interactable = false; // !_probeManager.GetEphysLinkMovement();
                 angleFields.interactable = true;
                 buttons.interactable = true;
