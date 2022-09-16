@@ -11,19 +11,25 @@ namespace EphysLink
     {
         #region Variables
 
-        // Connection details
-        private string _serverIp;
-        private int _serverPort;
-        private bool _isConnected;
+        #region Components
 
-        // Components
         private SocketManager _connectionManager;
         private Socket _socket;
         private PlayerPrefs _playerPrefs;
 
         #endregion
 
-        #region Setup
+        #region Properties
+
+        private string _serverIp;
+        private int _serverPort;
+        private bool _isConnected;
+
+        #endregion
+
+        #endregion
+
+        #region Unity
 
         /// <summary>
         ///     Initialize components
@@ -177,7 +183,7 @@ namespace EphysLink
                 else
                 {
                     onErrorCallback?.Invoke(error);
-                    Debug.LogError(error);
+                    Debug.LogWarning(error);
                 }
             }).Emit("register_manipulator", manipulatorId);
         }
@@ -200,7 +206,7 @@ namespace EphysLink
                 else
                 {
                     onErrorCallback?.Invoke(error);
-                    Debug.LogError(error);
+                    Debug.LogWarning(error);
                 }
             }).Emit("unregister_manipulator", manipulatorId);
         }
@@ -209,8 +215,8 @@ namespace EphysLink
         ///     Request the current position of a manipulator
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
-        /// <param name="onSuccessCallback"></param>
-        /// <param name="onErrorCallback"></param>
+        /// <param name="onSuccessCallback">Callback function to pass manipulator position to</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void GetPos(int manipulatorId, Action<Vector4> onSuccessCallback, Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(data =>
@@ -223,7 +229,7 @@ namespace EphysLink
                 else
                 {
                     onErrorCallback?.Invoke(data.error);
-                    Debug.LogError(data.error);
+                    Debug.LogWarning(data.error);
                 }
             }).Emit("get_pos", manipulatorId);
         }
@@ -235,8 +241,8 @@ namespace EphysLink
         /// <param name="manipulatorId">ID of the manipulator to be moved</param>
         /// <param name="pos">Position in μm of the manipulator (in needle coordinates)</param>
         /// <param name="speed">How fast to move the manipulator (in μm/s)</param>
-        /// <param name="onSuccessCallback"></param>
-        /// <param name="onErrorCallback"></param>
+        /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void GotoPos(int manipulatorId, Vector4 pos, int speed, Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
@@ -250,7 +256,7 @@ namespace EphysLink
                 else
                 {
                     onErrorCallback?.Invoke(data.error);
-                    Debug.LogError(data.error);
+                    Debug.LogWarning(data.error);
                 }
             }).Emit("goto_pos", new GotoPositionInputDataFormat(manipulatorId, pos, speed));
         }
@@ -262,8 +268,8 @@ namespace EphysLink
         /// <param name="manipulatorId">ID of the manipulator to be moved</param>
         /// <param name="pos">Position in μm of the manipulator (in needle coordinates)</param>
         /// <param name="speed">How fast to move the manipulator (in μm/s)</param>
-        /// <param name="onSuccessCallback"></param>
-        /// <param name="onErrorCallback"></param>
+        /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
         /// <exception cref="ArgumentException">If the given position is not in an array of 4 floats</exception>
         public void GotoPos(int manipulatorId, float[] pos, int speed, Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null)
@@ -280,8 +286,8 @@ namespace EphysLink
         /// <param name="manipulatorId">ID of the manipulator to move</param>
         /// <param name="depth">Depth in μm of the manipulator (in needle coordinates)</param>
         /// <param name="speed">How fast to drive the manipulator (in μm/s)</param>
-        /// <param name="onSuccessCallback"></param>
-        /// <param name="onErrorCallback"></param>
+        /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void DriveToDepth(int manipulatorId, float depth, int speed, Action<float> onSuccessCallback,
             Action<string> onErrorCallback)
         {
@@ -294,7 +300,7 @@ namespace EphysLink
                 else
                 {
                     onErrorCallback?.Invoke(data.error);
-                    Debug.LogError(data.error);
+                    Debug.LogWarning(data.error);
                 }
             }).Emit("drive_to_depth", new DriveToDepthInputDataFormat(manipulatorId, depth, speed));
         }
@@ -304,8 +310,8 @@ namespace EphysLink
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to set the state of</param>
         /// <param name="inside">State to set to</param>
-        /// <param name="onSuccessCallback"></param>
-        /// <param name="onErrorCallback"></param>
+        /// <param name="onSuccessCallback">Callback function to handle setting inside_brain state successfully</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void SetInsideBrain(int manipulatorId, bool inside, Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
@@ -318,7 +324,7 @@ namespace EphysLink
                 else
                 {
                     onErrorCallback?.Invoke(data.error);
-                    Debug.LogError(data.error);
+                    Debug.LogWarning(data.error);
                 }
             }).Emit("set_inside_brain", new InsideBrainInputDataFormat(manipulatorId, inside));
         }
@@ -340,7 +346,7 @@ namespace EphysLink
                 else
                 {
                     onErrorCallback?.Invoke(errorMessage);
-                    Debug.LogError(errorMessage);
+                    Debug.LogWarning(errorMessage);
                 }
             }).Emit("calibrate", manipulatorId);
         }
@@ -350,8 +356,8 @@ namespace EphysLink
         /// </summary>
         /// <remarks>This method should only be used for testing and NEVER in production</remarks>
         /// <param name="manipulatorId">ID of the manipulator to bypass calibration</param>
-        /// <param name="onSuccessCallback"></param>
-        /// <param name="onErrorCallback"></param>
+        /// <param name="onSuccessCallback">Callback function to handle a successful calibration bypass</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void BypassCalibration(int manipulatorId, Action onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
@@ -364,7 +370,7 @@ namespace EphysLink
                 else
                 {
                     onErrorCallback?.Invoke(error);
-                    Debug.LogError(error);
+                    Debug.LogWarning(error);
                 }
             }).Emit("bypass_calibration", manipulatorId);
         }
@@ -375,8 +381,8 @@ namespace EphysLink
         /// <param name="manipulatorId">ID of the manipulator to allow writing</param>
         /// <param name="canWrite">Write state to set the manipulator to</param>
         /// <param name="hours">How many hours a manipulator may have a write lease</param>
-        /// <param name="onSuccessCallback"></param>
-        /// <param name="onErrorCallback"></param>
+        /// <param name="onSuccessCallback">Callback function to handle successfully setting can_write state</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void SetCanWrite(int manipulatorId, bool canWrite, float hours, Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
@@ -389,7 +395,7 @@ namespace EphysLink
                 else
                 {
                     onErrorCallback?.Invoke(data.error);
-                    Debug.LogError(data.error);
+                    Debug.LogWarning(data.error);
                 }
             }).Emit("set_can_write", new CanWriteInputDataFormat(manipulatorId, canWrite, hours));
         }
