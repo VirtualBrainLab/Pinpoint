@@ -82,7 +82,7 @@ namespace EphysLink
                 _serverIp = ip;
                 _serverPort = port;
                 _isConnected = true;
-                _playerPrefs.SaveEphysLinkConnectionData(ip, port);
+                PlayerPrefs.SaveEphysLinkConnectionData(ip, port);
                 onConnected?.Invoke();
             });
             _socket.On(SocketIOEventTypes.Error, () =>

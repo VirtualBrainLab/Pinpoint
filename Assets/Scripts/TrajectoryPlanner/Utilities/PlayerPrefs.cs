@@ -306,23 +306,39 @@ public class PlayerPrefs : MonoBehaviour
         return true;
         //return useIblBregma;
     }
-    
+
+    /// <summary>
+    ///     Return the saved Ephys Link server IP address.
+    /// </summary>
+    /// <returns>Saved IP address of the Ephys Link server</returns>
     public string GetServerIp()
     {
         return _ephysLinkServerIp;
     }
-    
+
+    /// <summary>
+    ///     Return the saved Ephys Link server port.
+    /// </summary>
+    /// <returns>Saved server port of the Ephys Link server</returns>
     public int GetServerPort()
     {
         return _ephysLinkServerPort;
     }
 
+    /// <summary>
+    ///     Return the saved IDs of right handed manipulators.
+    /// </summary>
+    /// <returns>Saved IDs of right handed manipulators</returns>
     public HashSet<int> GetRightHandedManipulatorIds()
     {
         return _rightHandedManipulatorIds == "" ? new HashSet<int>(): Array.ConvertAll(_rightHandedManipulatorIds.Split(','), int.Parse).ToHashSet();
     }
 
-    public bool IsLinkDataExpired()
+    /// <summary>
+    ///     Return if it has been more than 24 hours since the last launch.
+    /// </summary>
+    /// <returns>If it has been more than 24 hours since the last launch</returns>
+    public static bool IsLinkDataExpired()
     {
         var timestampString = UnityEngine.PlayerPrefs.GetString("timestamp");
         if (timestampString == "") return false;
@@ -384,14 +400,23 @@ public class PlayerPrefs : MonoBehaviour
         UnityEngine.PlayerPrefs.Save();
     }
 
-    public void SaveEphysLinkConnectionData(string serverIp, int serverPort)
+    /// <summary>
+    ///     Save Ephys Link server connection information.
+    /// </summary>
+    /// <param name="serverIp">Server IP address</param>
+    /// <param name="serverPort">Server port number</param>
+    public static void SaveEphysLinkConnectionData(string serverIp, int serverPort)
     {
         UnityEngine.PlayerPrefs.SetString("ephys_link_ip", serverIp);
         UnityEngine.PlayerPrefs.SetInt("ephys_link_port", serverPort);
         UnityEngine.PlayerPrefs.Save();
     }
 
-    public void SaveRightHandedManipulatorIds(HashSet<int> manipulatorIds)
+    /// <summary>
+    ///     Save the IDs of right handed manipulators.
+    /// </summary>
+    /// <param name="manipulatorIds">IDs of right handed manipulators</param>
+    public static void SaveRightHandedManipulatorIds(IEnumerable<int> manipulatorIds)
     {
         UnityEngine.PlayerPrefs.SetString("right_handed_manipulator_ids", string.Join(",", manipulatorIds));
         UnityEngine.PlayerPrefs.Save();

@@ -163,7 +163,7 @@ namespace TrajectoryPlanner
             {
                 if (UnityEngine.PlayerPrefs.GetInt("probecount", 0) > 0)
                 {
-                    var questionString = localPrefs.IsLinkDataExpired()
+                    var questionString = PlayerPrefs.IsLinkDataExpired()
                         ? "Load previously saved probes?"
                         : "Restore previous session?";
                     
@@ -289,14 +289,14 @@ namespace TrajectoryPlanner
         public void AddRightHandedManipulator(int manipulatorId)
         {
             _rightHandedManipulatorIds.Add(manipulatorId);
-            localPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
+            PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
         }
         
         public void RemoveRightHandedManipulator(int manipulatorId)
         {
             if (!IsManipulatorRightHanded(manipulatorId)) return;
             _rightHandedManipulatorIds.Remove(manipulatorId);
-            localPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
+            PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
         }
 
         // Update is called once per frame
@@ -481,7 +481,7 @@ namespace TrajectoryPlanner
             int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            if (!localPrefs.IsLinkDataExpired())
+            if (!PlayerPrefs.IsLinkDataExpired())
             {
                 probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
                 probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
@@ -498,7 +498,7 @@ namespace TrajectoryPlanner
             int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            if (!localPrefs.IsLinkDataExpired())
+            if (!PlayerPrefs.IsLinkDataExpired())
             {
                 probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
                 probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
