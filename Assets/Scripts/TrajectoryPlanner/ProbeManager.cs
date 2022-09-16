@@ -90,6 +90,15 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
+    ///     Get a reference to the probe's controller.
+    /// </summary>
+    /// <returns>Reference to this probe's controller</returns>
+    public ProbeController GetProbeController()
+    {
+        return probeController;
+    }
+
+    /// <summary>
     /// Return the probe panel UI managers
     /// </summary>
     /// <returns>list of probe panel UI managers</returns>
@@ -516,7 +525,7 @@ public class ProbeManager : MonoBehaviour
     #region Property Getters and Setters
 
     /// <summary>
-    /// Return if this probe is being controlled by the Ephys Link
+    /// Return if this probe is being controlled by the Ephys Link.
     /// </summary>
     /// <returns>True if movement is controlled by Ephys Link, False otherwise</returns>
     public bool GetEphysLinkMovement()
@@ -524,13 +533,8 @@ public class ProbeManager : MonoBehaviour
         return _ephysLinkMovement;
     }
 
-    public ProbeController GetProbeController()
-    {
-        return probeController;
-    }
-
     /// <summary>
-    /// (un)Register a probe and begin echoing position
+    /// (un)Register a probe and begin echoing position.
     /// </summary>
     /// <param name="register">To register or deregister this probe</param>
     /// <param name="manipulatorId">ID of the manipulator in real life to connect to</param>
@@ -600,7 +604,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Get attached manipulator ID
+    ///     Get attached manipulator ID.
     /// </summary>
     /// <returns>Attached manipulator ID, 0 if none are attached</returns>
     public int GetManipulatorId()
@@ -609,7 +613,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Set manipulator properties such as ID and positional offsets back to defaults
+    ///     Set manipulator properties such as ID and positional offsets back to defaults.
     /// </summary>
     public void ResetManipulatorProperties()
     {
@@ -620,21 +624,16 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Return if this probe is being controlled by the Ephys Link
+    ///     Return if this probe is being controlled by the Ephys Link.
     /// </summary>
     /// <returns>True if this probe is attached to a manipulator, false otherwise</returns>
     public bool IsConnectedToManipulator()
     {
         return _manipulatorId != 0;
     }
-    
-    public void SetManipulatorId(int manipulatorId)
-    {
-        _manipulatorId = manipulatorId;
-    }
 
     /// <summary>
-    ///     Manipulator space offset to zero coordinate as X, Y, Z, Depth
+    ///     Manipulator space offset to zero coordinate as X, Y, Z, Depth.
     /// </summary>
     /// <returns>Manipulator space offset to zero coordinate as X, Y, Z, Depth</returns>
     public Vector4 GetZeroCoordinateOffset()
@@ -643,7 +642,7 @@ public class ProbeManager : MonoBehaviour
     }
     
     /// <summary>
-    ///     Set manipulator space offset to zero coordinate as X, Y, Z, Depth
+    ///     Set manipulator space offset to zero coordinate as X, Y, Z, Depth.
     /// </summary>
     /// <param name="zeroCoordinateOffset">Offset from zero coordinate as X, Y, Z, Depth</param>
     public void SetZeroCoordinateOffset(Vector4 zeroCoordinateOffset)
@@ -652,7 +651,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Update x coordinate of manipulator space offset to zero coordinate
+    ///     Update x coordinate of manipulator space offset to zero coordinate.
     /// </summary>
     /// <param name="x">X coordinate</param>
     public void SetZeroCoordinateOffsetX(float x)
@@ -661,7 +660,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Update y coordinate of manipulator space offset to zero coordinate
+    ///     Update y coordinate of manipulator space offset to zero coordinate.
     /// </summary>
     /// <param name="y">Y coordinate</param>
     public void SetZeroCoordinateOffsetY(float y)
@@ -671,7 +670,7 @@ public class ProbeManager : MonoBehaviour
 
 
     /// <summary>
-    ///     Update Z coordinate of manipulator space offset to zero coordinate
+    ///     Update Z coordinate of manipulator space offset to zero coordinate.
     /// </summary>
     /// <param name="z">Z coordinate</param>
     public void SetZeroCoordinateOffsetZ(float z)
@@ -681,7 +680,7 @@ public class ProbeManager : MonoBehaviour
 
 
     /// <summary>
-    ///     Update D coordinate of manipulator space offset to zero coordinate
+    ///     Update D coordinate of manipulator space offset to zero coordinate.
     /// </summary>
     /// <param name="depth">D coordinate</param>
     public void SetZeroCoordinateOffsetDepth(float depth)
@@ -690,7 +689,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Get manipulator space offset from brain surface as Depth
+    /// Get manipulator space offset from brain surface as Depth.
     /// </summary>
     /// <returns>Manipulator space offset to brain surface</returns>
     public float GetBrainSurfaceOffset()
@@ -699,7 +698,7 @@ public class ProbeManager : MonoBehaviour
     }
     
     /// <summary>
-    ///     Set manipulator space offset from brain surface as Depth from input
+    ///     Set manipulator space offset from brain surface as Depth from input.
     /// </summary>
     /// <param name="brainSurfaceOffset">Offset from brain surface as Depth</param>
     public void SetBrainSurfaceOffset(float brainSurfaceOffset)
@@ -708,7 +707,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Set manipulator space offset from brain surface as Depth from manipulator or probe coordinates
+    ///     Set manipulator space offset from brain surface as Depth from manipulator or probe coordinates.
     /// </summary>
     public void SetBrainSurfaceOffset()
     {
@@ -731,7 +730,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Manual adjustment of brain surface offset
+    ///     Manual adjustment of brain surface offset.
     /// </summary>
     /// <param name="increment">Amount to change the brain surface offset by</param>
     public void IncrementBrainSurfaceOffset(float increment)
@@ -740,7 +739,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Set if the probe should be dropped to the surface with depth or with DV
+    ///     Set if the probe should be dropped to the surface with depth or with DV.
     /// </summary>
     /// <param name="dropToSurfaceWithDepth">Use depth if true, use DV if false</param>
     public void SetDropToSurfaceWithDepth(bool dropToSurfaceWithDepth)
@@ -749,7 +748,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Return if this probe is currently set to drop to the surface using depth
+    ///     Return if this probe is currently set to drop to the surface using depth.
     /// </summary>
     /// <returns>True if dropping to surface via depth, false if using DV</returns>
     public bool IsSetToDropToSurfaceWithDepth()
@@ -762,18 +761,11 @@ public class ProbeManager : MonoBehaviour
     #region Actions
 
     /// <summary>
-    ///     Echo given position in needles transform space to the probe
+    ///     Echo given position in needles transform space to the probe.
     /// </summary>
     /// <param name="pos">Position of manipulator in needles transform</param>
-    public void EchoPositionFromEphysLink(Vector4 pos)
+    private void EchoPositionFromEphysLink(Vector4 pos)
     {
-        /*
-         * Left-handed manipulator movement
-         * +x = L
-         * +Y = A
-         * +Z = V
-         */
-        
         // Convert position to CCF
         var zeroCoordinateAdjustedPosition = pos - _zeroCoordinateOffset;
         
