@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace Settings
 {
+    /// <summary>
+    ///     Settings menu to connect to the Ephys Link server and manage probe-manipulator bindings.
+    /// </summary>
     public class EphysLinkSettings : MonoBehaviour
     {
         #region Variables
@@ -64,12 +67,14 @@ namespace Settings
 
         private void FixedUpdate()
         {
+            // Update probe panels whenever they change
             if (_trajectoryPlannerManager.GetAllProbes().Count != _probeIdToProbeConnectionSettingsPanels.Count)
                 UpdateProbePanels();
         }
 
         private void OnEnable()
         {
+            // Update UI elements every time the settings panel is opened
             UpdateProbePanels();
             UpdateConnectionUI();
         }
@@ -79,20 +84,24 @@ namespace Settings
         #region UI Functions
 
         /// <summary>
-        ///     Populate UI elements with current connection settings
+        ///     Populate UI elements with current connection settings.
         /// </summary>
         private void UpdateConnectionUI()
         {
+            // Connection UI
             connectionErrorText.text = "";
             connectButtonText.text = _communicationManager.IsConnected() ? "Disconnect" : "Connect";
             serverConnectedText.text =
                 (_communicationManager.IsConnected() ? "Connected" : "Connect") + " to server at";
+
+            // Update available manipulators and their panels
             if (_communicationManager.IsConnected())
             {
                 UpdateManipulatorPanelAndSelection();
             }
             else
             {
+                // Clear manipulator panels if not connected
                 foreach (var manipulatorPanel in
                          _manipulatorIdToManipulatorConnectionSettingsPanel.Values.Select(value => value.Item2))
                     Destroy(manipulatorPanel);
@@ -145,6 +154,9 @@ namespace Settings
             UpdateManipulatorPanelAndSelection();
         }
 
+        /// <summary>
+        ///     Updates the list of available manipulators to connect to and the selection options for probes.
+        /// </summary>
         public void UpdateManipulatorPanelAndSelection()
         {
             _communicationManager.GetManipulators(availableIds =>
@@ -201,12 +213,13 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Handle when connect/disconnect button is pressed
+        ///     Handle when connect/disconnect button is pressed.
         /// </summary>
         public void OnConnectDisconnectPressed()
         {
             if (!_communicationManager.IsConnected())
             {
+                // Attempt to connect to server
                 try
                 {
                     serverConnectedText.text = "Connecting to server at";
@@ -227,6 +240,7 @@ namespace Settings
             }
             else
             {
+                // Disconnect from server
                 _questionDialogue.SetYesCallback(() =>
                 {
                     foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes()
