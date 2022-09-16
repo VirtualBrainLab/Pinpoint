@@ -11,7 +11,7 @@ namespace EphysLink
     #region Input Data Format
 
     /// <summary>
-    /// Enable/Disable write access to the server event argument format
+    ///     Enable/Disable write access to the server event argument format.
     /// </summary>
     public struct CanWriteInputDataFormat
     {
@@ -20,7 +20,7 @@ namespace EphysLink
         public float hours;
 
         /// <summary>
-        /// Construct a new can_write event argument
+        ///     Construct a new can_write event argument.
         /// </summary>
         /// <param name="manipulatorID">ID of the manipulator to set the state on</param>
         /// <param name="canWrite">Write state to set</param>
@@ -34,16 +34,16 @@ namespace EphysLink
     }
 
     /// <summary>
-    /// Movement argument format
+    ///     Movement argument format.
     /// </summary>
     public struct GotoPositionInputDataFormat
     {
         public int manipulator_id;
         public float[] pos;
         public int speed;
-        
+
         /// <summary>
-        /// Construct a new goto_pos event argument
+        ///     Construct a new goto_pos event argument.
         /// </summary>
         /// <param name="manipulatorID">ID of the manipulator to move</param>
         /// <param name="pos">Position in μm of the manipulator (in needle coordinates)</param>
@@ -57,16 +57,16 @@ namespace EphysLink
     }
 
     /// <summary>
-    /// Depth driving argument format
+    ///     Depth driving argument format.
     /// </summary>
     public struct DriveToDepthInputDataFormat
     {
         public int manipulator_id;
         public float depth;
         public int speed;
-        
+
         /// <summary>
-        /// Construct a new drive_to_depth event argument
+        ///     Construct a new drive_to_depth event argument.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to move</param>
         /// <param name="depth">Depth in μm of the manipulator (in needle coordinates)</param>
@@ -80,15 +80,15 @@ namespace EphysLink
     }
 
     /// <summary>
-    /// Inside brain state argument format
+    ///     Inside brain state argument format.
     /// </summary>
     public struct InsideBrainInputDataFormat
     {
         public int manipulator_id;
         public bool inside;
-        
+
         /// <summary>
-        /// Construct a new inside_brain event argument
+        ///     Construct a new inside_brain event argument.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to set the state of</param>
         /// <param name="inside">State to set to</param>
@@ -104,7 +104,7 @@ namespace EphysLink
     #region Callback Parameters Data Format (Output)
 
     /// <summary>
-    /// Returned callback data format containing available manipulator IDs and error message
+    ///     Returned callback data format containing available manipulator IDs and error message.
     /// </summary>
     public struct GetManipulatorsCallbackParameters
     {
@@ -113,7 +113,7 @@ namespace EphysLink
     }
 
     /// <summary>
-    /// Returned callback data format from positional data
+    ///     Returned callback data format from positional data.
     /// </summary>
     public struct PositionalCallbackParameters
     {
@@ -122,16 +122,16 @@ namespace EphysLink
     }
 
     /// <summary>
-    /// Returned callback data format from driving to depth
+    ///     Returned callback data format from driving to depth.
     /// </summary>
     public struct DriveToDepthCallbackParameters
     {
         public float depth;
         public string error;
     }
-    
+
     /// <summary>
-    /// Returned callback data for a state-based event
+    ///     Returned callback data for a state-based event.
     /// </summary>
     public struct StateCallbackParameters
     {
