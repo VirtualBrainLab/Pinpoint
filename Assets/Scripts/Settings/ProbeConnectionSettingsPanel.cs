@@ -6,12 +6,15 @@ using UnityEngine;
 
 namespace Settings
 {
+    /// <summary>
+    ///     Panel representing a probe in the scene and it's binding with a manipulator.
+    /// </summary>
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
         #region Unity
 
         /// <summary>
-        ///     Update values as they change
+        ///     Update values as they change.
         /// </summary>
         private void FixedUpdate()
         {
@@ -85,11 +88,19 @@ namespace Settings
             probeIdText.color = probeManager.GetColor();
         }
 
+        /// <summary>
+        ///     Get the probe manager attached to this panel.
+        /// </summary>
+        /// <returns>This probe's probe manager</returns>
         public ProbeManager GetProbeManager()
         {
             return _probeManager;
         }
 
+        /// <summary>
+        ///     Set a reference to the Ephys Link settings panel.
+        /// </summary>
+        /// <param name="ephysLinkSettings">Reference to the Ephys Link settings menu.</param>
         public void SetEphysLinkSettings(EphysLinkSettings ephysLinkSettings)
         {
             _ephysLinkSettings = ephysLinkSettings;
@@ -141,7 +152,7 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Update x coordinate of zero coordinate offset
+        ///     Update x coordinate of zero coordinate offset.
         /// </summary>
         /// <param name="x">X coordinate</param>
         public void OnZeroCoordinateXInputFieldEndEdit(string x)
@@ -150,7 +161,7 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Update y coordinate of zero coordinate offset
+        ///     Update y coordinate of zero coordinate offset.
         /// </summary>
         /// <param name="y">Y coordinate</param>
         public void OnZeroCoordinateYInputFieldEndEdit(string y)
@@ -159,7 +170,7 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Update z coordinate of zero coordinate offset
+        ///     Update z coordinate of zero coordinate offset.
         /// </summary>
         /// <param name="z">Z coordinate</param>
         public void OnZeroCoordinateZInputFieldEndEdit(string z)
@@ -168,7 +179,7 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Update depth coordinate of zero coordinate offset
+        ///     Update depth coordinate of zero coordinate offset.
         /// </summary>
         /// <param name="d">Depth coordinate</param>
         public void OnZeroCoordinateDInputFieldEndEdit(string d)
@@ -177,7 +188,7 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Update drop to surface direction based on dropdown selection
+        ///     Update drop to surface direction based on dropdown selection.
         /// </summary>
         /// <param name="value">Selected direction: 0 = depth, 1 = DV</param>
         public void OnBrainSurfaceOffsetDirectionDropdownValueChanged(int value)
@@ -186,7 +197,7 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Update brain surface offset based on input field value
+        ///     Update brain surface offset based on input field value.
         /// </summary>
         /// <param name="value">Input field value</param>
         public void OnBrainSurfaceOffsetValueUpdated(string value)
@@ -195,7 +206,7 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Pass an increment amount to the probe manager to update the drop to surface offset
+        ///     Pass an increment amount to the probe manager to update the drop to surface offset.
         /// </summary>
         /// <param name="amount">Amount to increment by (negative numbers are valid)</param>
         public void IncrementBrainSurfaceOffset(float amount)

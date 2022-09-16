@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Settings
 {
     /// <summary>
-    ///     Settings panel to connect to the Ephys Link server and manage probe-manipulator bindings.
+    ///     Settings menu to connect to the Ephys Link server and manage probe-manipulator bindings.
     /// </summary>
     public class EphysLinkSettings : MonoBehaviour
     {
