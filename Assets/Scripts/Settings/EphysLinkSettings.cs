@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace Settings
 {
+    /// <summary>
+    ///     Settings panel to connect to the Ephys Link server and manage probe-manipulator bindings.
+    /// </summary>
     public class EphysLinkSettings : MonoBehaviour
     {
         #region Variables
@@ -81,7 +84,7 @@ namespace Settings
         #region UI Functions
 
         /// <summary>
-        ///     Populate UI elements with current connection settings
+        ///     Populate UI elements with current connection settings.
         /// </summary>
         private void UpdateConnectionUI()
         {
@@ -152,7 +155,7 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Updates the list of available manipulators to connect to and the selection options for probes
+        ///     Updates the list of available manipulators to connect to and the selection options for probes.
         /// </summary>
         public void UpdateManipulatorPanelAndSelection()
         {
@@ -210,7 +213,7 @@ namespace Settings
         }
 
         /// <summary>
-        ///     Handle when connect/disconnect button is pressed
+        ///     Handle when connect/disconnect button is pressed.
         /// </summary>
         public void OnConnectDisconnectPressed()
         {

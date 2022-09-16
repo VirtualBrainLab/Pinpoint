@@ -5,7 +5,7 @@ using UnityEngine;
 namespace EphysLink
 {
     /// <summary>
-    ///     WebSocket connection manager between the Trajectory Planner and a running Ephys Link server
+    ///     WebSocket connection manager between the Trajectory Planner and a running Ephys Link server.
     /// </summary>
     public class CommunicationManager : MonoBehaviour
     {
@@ -40,7 +40,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Populate data and connect to the server
+        ///     Populate data and connect to the server.
         /// </summary>
         private void Start()
         {
@@ -56,7 +56,7 @@ namespace EphysLink
         #region Connection Handler
 
         /// <summary>
-        ///     Create a connection to the server
+        ///     Create a connection to the server.
         /// </summary>
         /// <param name="ip">IP address of the server</param>
         /// <param name="port">Port of the server</param>
@@ -103,7 +103,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Disconnect client from WebSocket server
+        ///     Disconnect client from WebSocket server.
         /// </summary>
         /// <param name="onDisconnected">Callback function to handle post disconnection behavior</param>
         public void DisconnectFromServer(Action onDisconnected = null)
@@ -114,7 +114,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Return the stored server IP address
+        ///     Return the stored server IP address.
         /// </summary>
         /// <returns>Stored server IP address (can be an empty string)</returns>
         public string GetServerIp()
@@ -123,7 +123,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Return the stored server port
+        ///     Return the stored server port.
         /// </summary>
         /// <returns>Stored server port (can be 0)</returns>
         public int GetServerPort()
@@ -132,7 +132,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Return if the server is connected
+        ///     Return if the server is connected.
         /// </summary>
         /// <returns>True if the server is connected, false otherwise</returns>
         public bool IsConnected()
@@ -145,7 +145,7 @@ namespace EphysLink
         #region Event Handlers
 
         /// <summary>
-        ///     Get manipulators event sender
+        ///     Get manipulators event sender.
         /// </summary>
         /// <param name="onSuccessCallback">Callback function to handle incoming manipulator ID's</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
@@ -166,7 +166,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Register a manipulator with the server
+        ///     Register a manipulator with the server.
         /// </summary>
         /// <param name="manipulatorId">The ID of the manipulator to register</param>
         /// <param name="onSuccessCallback">Callback function to handle a successful registration</param>
@@ -189,7 +189,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Unregister a manipulator with the server
+        ///     Unregister a manipulator with the server.
         /// </summary>
         /// <param name="manipulatorId">The ID of the manipulator to unregister</param>
         /// <param name="onSuccessCallback">Callback function to handle a successful un-registration</param>
@@ -212,7 +212,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Request the current position of a manipulator
+        ///     Request the current position of a manipulator.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
         /// <param name="onSuccessCallback">Callback function to pass manipulator position to</param>
@@ -235,7 +235,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Request a manipulator be moved to a specific position
+        ///     Request a manipulator be moved to a specific position.
         /// </summary>
         /// <remarks>Position is defined by a Vector4</remarks>
         /// <param name="manipulatorId">ID of the manipulator to be moved</param>
@@ -262,7 +262,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Request a manipulator be moved to a specific position defined by an array of 4 floats
+        ///     Request a manipulator be moved to a specific position defined by an array of 4 floats.
         /// </summary>
         /// <remarks>Position is defined by an array of 4 floats</remarks>
         /// <param name="manipulatorId">ID of the manipulator to be moved</param>
@@ -281,7 +281,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Request a manipulator drive down to a specific depth
+        ///     Request a manipulator drive down to a specific depth.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to move</param>
         /// <param name="depth">Depth in μm of the manipulator (in needle coordinates)</param>
@@ -306,7 +306,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Set the inside brain state of a manipulator
+        ///     Set the inside brain state of a manipulator.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to set the state of</param>
         /// <param name="inside">State to set to</param>
@@ -330,7 +330,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Request a manipulator to be calibrated
+        ///     Request a manipulator to be calibrated.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to be calibrated</param>
         /// <param name="onSuccessCallback">Callback function to handle a successful calibration</param>
@@ -352,7 +352,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Bypass calibration requirement of a manipulator
+        ///     Bypass calibration requirement of a manipulator.
         /// </summary>
         /// <remarks>This method should only be used for testing and NEVER in production</remarks>
         /// <param name="manipulatorId">ID of the manipulator to bypass calibration</param>
@@ -376,7 +376,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Request a write lease for a manipulator
+        ///     Request a write lease for a manipulator.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to allow writing</param>
         /// <param name="canWrite">Write state to set the manipulator to</param>
@@ -401,7 +401,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Request all movement to stop
+        ///     Request all movement to stop.
         /// </summary>
         /// <param name="callback">Callback function to handle stop result</param>
         public void Stop(Action<bool> callback)
