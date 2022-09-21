@@ -8569,7 +8569,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -392.50003, y: 0}
+  m_AnchoredPosition: {x: -392.5, y: 0}
   m_SizeDelta: {x: -815, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1669998833
@@ -12551,31 +12551,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5418626434834778437, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5418626434834778437, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5418626434834778437, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 354.84
       objectReference: {fileID: 0}
     - target: {fileID: 5418626434834778437, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -15
       objectReference: {fileID: 0}
     - target: {fileID: 5418626435172264581, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5418626435172264581, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5418626435172264581, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 169.88
       objectReference: {fileID: 0}
     - target: {fileID: 5418626435242200077, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_Navigation.m_Mode
@@ -12583,19 +12583,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5418626435242200082, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5418626435242200082, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5418626435242200082, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 384.91998
       objectReference: {fileID: 0}
     - target: {fileID: 5418626435242200082, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -15
       objectReference: {fileID: 0}
     - target: {fileID: 5418626435328794256, guid: 290858028102fe2479542502c1d6af16, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -13124,7 +13124,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620339, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: buildVersion
-      value: 0.2.0
+      value: 0.2.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620339, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: addressablesStorageRemotePath
+      value: https://data.virtualbrainlab.org/AddressablesStorage/0.2.1
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: m_RootOrder
@@ -13169,6 +13173,22 @@ PrefabInstance:
     - target: {fileID: 8016510558008620340, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620341, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: brainRegionMaterials.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620341, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: brainRegionMaterials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2a8f9060c91986e4083dd67bf487177b, type: 2}
+    - target: {fileID: 8016510558008620341, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: brainRegionMaterialNames.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620341, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: brainRegionMaterialNames.Array.data[2]
+      value: toon-outline
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: acontrol

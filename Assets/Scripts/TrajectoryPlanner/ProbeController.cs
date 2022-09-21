@@ -652,6 +652,7 @@ public class ProbeController : MonoBehaviour
             SetProbePosition();
 
             probeManager.UpdateUI();
+            tpmanager.UpdateQuickSettings();
 
             tpmanager.SetMovedThisFrame();
         }
