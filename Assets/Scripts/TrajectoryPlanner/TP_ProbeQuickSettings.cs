@@ -88,6 +88,8 @@ namespace TrajectoryPlanner
         public void ZeroDepth()
         {
             _probeManager.SetBrainSurfaceOffset();
+
+            UpdateCoordinates();
         }
 
         /// <summary>
@@ -105,6 +107,8 @@ namespace TrajectoryPlanner
                 _probeManager.GetProbeController().ResetPosition();
                 _probeManager.GetProbeController().SetProbePosition();
             }
+
+            UpdateCoordinates();
         }
 
         public bool IsFocused()

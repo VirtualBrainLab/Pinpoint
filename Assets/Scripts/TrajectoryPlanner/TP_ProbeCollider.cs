@@ -28,6 +28,8 @@ public class TP_ProbeCollider : MonoBehaviour
 
     private void OnMouseDrag()
     {
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;
         probeManager.GetProbeController().DragMovementDrag();
     }
 
