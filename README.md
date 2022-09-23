@@ -6,11 +6,11 @@
 
 # Usage & Documentation
 
-[Launch the web app](http://data.virtualbrainlab.org/NPTrajectoryPlanner/) for more instructions see the [documentation](https://virtualbrainlab.org/build/html/02_traj_planner/01_tp_intro.html).
+[Launch the web app](http://data.virtualbrainlab.org/Pinpoint/) for more instructions see the [documentation](https://virtualbrainlab.org/build/html/02_traj_planner/01_tp_intro.html).
 
 # References
 
-Based on the trajectory explorer by Andy Peters https://github.com/petersaj/neuropixels_trajectory_explorer. 
+Inspired by the trajectory explorer by Andy Peters https://github.com/petersaj/neuropixels_trajectory_explorer. 
 
 CCF Atlas downloaded from http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ 
 
