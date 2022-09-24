@@ -79,11 +79,13 @@ namespace IBLTools
             }
             lastRequest = Time.realtimeSinceStartup;
 
-            (Vector3 tip_apdvlr, Vector3 top_apdvlr) = tpmanager.GetActiveProbeController().GetRecordingRegionCoordinatesAPDVLR();
+            (Vector3 tip_world, Vector3 top_world) = tpmanager.GetActiveProbeController().GetRecordingRegionCoordinates();
+            Vector3 tip_apdvlr25 = annotationDataset.World2Annotation(tip_world);
+            Vector3 top_apdvlr25 = annotationDataset.World2Annotation(top_world);
 
             for (int ci = 0; ci <= (CHAN_COUNT - 1); ci++)
             {
-                Vector3 coords = NearestInt(Vector3.Lerp(top_apdvlr, tip_apdvlr, ci / (float)(CHAN_COUNT - 1f)));
+                Vector3 coords = NearestInt(Vector3.Lerp(top_apdvlr25, tip_apdvlr25, ci / (float)(CHAN_COUNT - 1f)));
                 if (annotationDataset != null)
                 {
                     // check whether the coords are within the annotation dataset

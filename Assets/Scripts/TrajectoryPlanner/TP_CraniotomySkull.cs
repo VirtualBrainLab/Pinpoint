@@ -28,7 +28,8 @@ public class TP_CraniotomySkull : MonoBehaviour
 
     public void SetCraniotomyPosition(Vector3 apmldv)
     {
-        Vector3 world = Utils.apmldv2world(apmldv) - tpmanager.GetCenterOffset();
+        Vector3 world = tpmanager.GetCoordinateSpace().Space2World(apmldv);
+        //Vector3 world = Utils.apmldv2world(apmldv) - tpmanager.GetCenterOffset();
 
         craniotomyGO.transform.position = world;
 

@@ -102,10 +102,15 @@ public class ProbeUIManager : MonoBehaviour
 
     private void ProbedMovedHelper()
     {
+        Debug.Log("Probe moved, re-drawing UI");
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
         (float mmStartPos, float mmRecordingSize) = probeManager.GetProbeController().GetRecordingRegionHeight();
 
-        (Vector3 tip_apdvlr, Vector3 top_apdvlr) = probeManager.GetProbeController().GetRecordingRegionCoordinatesAPDVLR(electrodeBase.transform);
+        
+        (Vector3 tip_world, Vector3 top_world) = probeManager.GetProbeController().GetRecordingRegionCoordinates(electrodeBase.transform);
+        Vector3 tip_apdvlr25 = annotationDataset.World2Annotation(tip_world);
+        Vector3 top_apdvlr25 = annotationDataset.World2Annotation(top_world);
+
 
         List<int> mmTickPositions = new List<int>();
         List<int> tickIdxs = new List<int>();
@@ -145,9 +150,9 @@ public class ProbeUIManager : MonoBehaviour
         }
 
         // Interpolate from the tip to the top, putting this data into the probe panel texture
-        (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(tip_apdvlr, top_apdvlr);
+        (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(tip_apdvlr25, top_apdvlr25);
 
-        probePanel.SetTipData(tip_apdvlr, top_apdvlr, mmRecordingSize, tpmanager.GetSetting_ShowRecRegionOnly());
+        probePanel.SetTipData(tip_apdvlr25, top_apdvlr25, mmRecordingSize, tpmanager.GetSetting_ShowRecRegionOnly());
 
         if (tpmanager.GetSetting_ShowRecRegionOnly())
         {

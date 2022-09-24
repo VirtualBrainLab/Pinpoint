@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using CoordinateSpaces;
 
 public class ProbeController : MonoBehaviour
 {
@@ -53,6 +54,7 @@ public class ProbeController : MonoBehaviour
     private Vector3 initialPosition;
     private Quaternion initialRotation;
     private Transform surfaceCalculatorT;
+    private CoordinateSpace coordinateSpace;
 
     // total position data (for dealing with coordinates)
     private ProbeInsertion insertion;
@@ -93,6 +95,8 @@ public class ProbeController : MonoBehaviour
     {
         this.tpmanager = tpmanager;
         this.probeManager = probeManager;
+
+        coordinateSpace = tpmanager.GetCoordinateSpace();
     }
 
     /// <summary>
@@ -749,13 +753,14 @@ public class ProbeController : MonoBehaviour
     /// <param name="localInsertion">new insertion position</param>
     public void SetProbePositionCCF(ProbeInsertion localInsertion)
     {
+        Debug.Log("Set probe position CCF called");
         // Reset everything
         transform.position = initialPosition;
         transform.rotation = initialRotation;
         ResetPositionTracking();
 
         // Manually adjust the coordinates and rotation
-        transform.position += Utils.apmldv2world(localInsertion.apmldv);
+        transform.position += coordinateSpace.Space2World(localInsertion.apmldv) + new Vector3(-5.7f, -4.0f, +6.6f);
         transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
         transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
         transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
@@ -764,7 +769,7 @@ public class ProbeController : MonoBehaviour
         if (depth != 0f)
         {
             transform.position += -transform.up * depth;
-            Vector3 depthAdjustment = Utils.world2apmldv(-transform.up * depth);
+            Vector3 depthAdjustment = ((CCFSpace)coordinateSpace).World2CCFRotation(-transform.up * depth);
             localInsertion.SetCoordinates(localInsertion.ap + depthAdjustment.x, localInsertion.ml + depthAdjustment.y, localInsertion.dv + depthAdjustment.z,
                 localInsertion.angles.x, localInsertion.angles.y, localInsertion.angles.z);
             depth = 0f;
@@ -782,7 +787,7 @@ public class ProbeController : MonoBehaviour
 
     public void SetProbePositionWorld(Vector3 worldPosition)
     {
-        Vector3 apmldv = Utils.world2apmldv(worldPosition + tpmanager.GetCenterOffset());
+        Vector3 apmldv = coordinateSpace.World2Space(worldPosition);
         insertion.SetCoordinates(apmldv.x, apmldv.y, apmldv.z, insertion.phi, insertion.theta, insertion.spin);
         SetProbePosition();
     }
@@ -880,7 +885,7 @@ public class ProbeController : MonoBehaviour
             insertion.angles;
 
         Vector3 tipCoord = insertion.apmldv;
-        Vector3 entryCoord = probeInBrain ? Utils.world2apmldv(brainSurfaceWorld + tpmanager.GetCenterOffset()) : tipCoord;
+        Vector3 entryCoord = probeInBrain ? coordinateSpace.World2Space(brainSurfaceWorld) : tipCoord;
 
         if (coordTransform != null)
         {
@@ -898,22 +903,17 @@ public class ProbeController : MonoBehaviour
         return insertion;
     }
 
-    public (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR()
+    public (Vector3, Vector3) GetRecordingRegionCoordinates()
     {
-        return GetRecordingRegionCoordinatesAPDVLR(probeTipOffset.transform);
+        return GetRecordingRegionCoordinates(probeTipOffset.transform);
     }
 
     /// <summary>
     /// Compute the position of the bottom and top of the recording region in AP/DV/LR coordinates
     /// </summary>
     /// <returns></returns>
-    public (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR(Transform probeTipOffsetT)
+    public (Vector3, Vector3) GetRecordingRegionCoordinates(Transform probeTipOffsetT)
     {
-        //Debug.Log(heightPerc[0] + " " + heightPerc[1]);
-
-        Vector3 tip_apdvlr;
-        Vector3 top_apdvlr;
-
         if (tpmanager.GetSetting_ShowRecRegionOnly())
         {
             (float mmStartPos, float mmRecordingSize) = GetRecordingRegionHeight();
@@ -922,18 +922,11 @@ public class ProbeController : MonoBehaviour
             Vector3 tipPos = probeTipOffsetT.position + probeTipOffsetT.up * mmStartPos;
             // shift the tipPos again to get the endPos
             Vector3 endPos = tipPos + probeTipOffsetT.up * mmRecordingSize;
-            //GameObject.Find("recording_bot").transform.position = tipPos;
-            //GameObject.Find("recording_top").transform.position = endPos;
-            tip_apdvlr = Utils.WorldSpace2apdvlr25(tipPos);
-            top_apdvlr = Utils.WorldSpace2apdvlr25(endPos);
+
+            return (tipPos, endPos);
         }
         else
-        {
-            tip_apdvlr = Utils.WorldSpace2apdvlr25(probeTipOffsetT.position);
-            top_apdvlr = Utils.WorldSpace2apdvlr25(probeTipOffsetT.position + probeTipOffsetT.up * 10.0f);
-        }
-
-        return (tip_apdvlr, top_apdvlr);
+            return (probeTipOffsetT.position, probeTipOffsetT.position + probeTipOffsetT.up * 10f);
     }
 
     /// <summary>

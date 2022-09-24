@@ -231,4 +231,9 @@ public class ProbeInsertion
         Vector2 iblPhiTheta = Utils.World2IBL(new Vector2(phi, theta));
         return new Vector3(iblPhiTheta.x, iblPhiTheta.y, spin);
     }
+
+    public override string ToString()
+    {
+        return string.Format("position ({0},{1},{2}) angles ({3},{4},{5})", ap, ml, dv, phi, theta, spin);
+    }
 }

@@ -357,7 +357,7 @@ public class ProbeManager : MonoBehaviour
     /// <returns></returns>
     private Vector3 GetInsertionCoordinateTransformed()
     {
-        Vector3 insertionCoord = probeInBrain ? Utils.world2apmldv(brainSurfaceWorld + tpmanager.GetCenterOffset()) : probeController.GetInsertion().apmldv;
+        Vector3 insertionCoord = probeInBrain ? tpmanager.GetCoordinateSpace().World2Space(brainSurfaceWorld) : probeController.GetInsertion().apmldv;
         
         // If we're in a transformed space we need to transform the coordinates
         // before we do anything else.
@@ -418,9 +418,9 @@ public class ProbeManager : MonoBehaviour
 
 
 
-    public (Vector3, Vector3) GetRecordingRegionCoordinatesAPDVLR()
+    public (Vector3, Vector3) GetRecordingRegionCoordinates()
     {
-        return probeController.GetRecordingRegionCoordinatesAPDVLR();
+        return probeController.GetRecordingRegionCoordinates();
     }
 
     /// <summary>
@@ -487,14 +487,15 @@ public class ProbeManager : MonoBehaviour
     /// <returns></returns>
     public (Vector3, float, Vector3) CCF2Surface(Vector3 tipPosition, Vector3 angles, bool useDepth = true)
     {
-        Vector3 tip_apdvlr25 = Utils.WorldSpace2apdvlr25(tipPosition);
+
+        Vector3 tip_apdvlr25 = annotationDataset.World2Annotation(tipPosition);
 
         bool crossedThroughBrain = annotationDataset.ValueAtIndex(tip_apdvlr25) > 0;
 
         // Iterate up until you exit the brain
         // if you started outside, first find when you enter
         Transform probeTipT = probeController.GetTipTransform();
-        var top = Utils.WorldSpace2apdvlr25(probeTipT.position + (useDepth ? probeTipT.up : Vector3.up) * 10f);
+        var top = annotationDataset.World2Annotation(probeTipT.position + (useDepth ? probeTipT.up : Vector3.up) * 10f);
         for (float perc = 0; perc <= 1f; perc += 0.0005f) 
         {
             Vector3 point = Vector3.Lerp(tip_apdvlr25, top, perc);
@@ -502,7 +503,7 @@ public class ProbeManager : MonoBehaviour
             {
                 if (annotationDataset.ValueAtIndex(point) <= 0)
                 {
-                    Vector3 surfacePosition = Utils.apdvlr25_2World(point);
+                    Vector3 surfacePosition = annotationDataset.Annotation2World(point);
                     return (surfacePosition, Vector3.Distance(tipPosition, surfacePosition), angles);
                 }
             }
@@ -723,7 +724,7 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
-            var apmldv = Utils.world2apmldv(brainSurface.Item1 + tpmanager.GetCenterOffset());
+            var apmldv = tpmanager.GetCoordinateSpace().World2Space(brainSurface.Item1); ;
             probeController.SetProbePositionCCF(new ProbeInsertion(apmldv, probeController.GetInsertion().angles));
             tpmanager.UpdateInPlaneView();
         }

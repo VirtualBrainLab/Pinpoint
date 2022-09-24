@@ -8,6 +8,7 @@ using Settings;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using CoordinateSpaces;
 
 namespace TrajectoryPlanner
 {
@@ -79,8 +80,8 @@ namespace TrajectoryPlanner
         [SerializeField] private int probePanelAcronymTextFontSize = 14;
         [SerializeField] private int probePanelAreaTextFontSize = 10;
 
-        // Coord data
-        private Vector3 centerOffset = new Vector3(-5.7f, -4.0f, +6.6f);
+        // Coordinates spaces
+        private CoordinateSpace _coordinateSpace = new CCFSpace();
 
         // Track who got clicked on, probe, camera, or brain
         private bool probeControl;
@@ -108,10 +109,12 @@ namespace TrajectoryPlanner
 
         #endregion
 
+        #region Unity
         private void Awake()
         {
             SetProbeControl(false);
 
+            // Deal with coordinate spaces and transforms
             availableCoordinateTransforms = new List<CoordinateTransform>();
             availableCoordinateTransforms.Add(new NeedlesTransform());
             availableCoordinateTransforms.Add(new MRILinearTransform());
@@ -128,6 +131,7 @@ namespace TrajectoryPlanner
             LoadMeshData();
             //Physics.autoSyncTransforms = true;
         }
+
 
         private void Start()
         {
@@ -155,6 +159,55 @@ namespace TrajectoryPlanner
             SetSetting_SurfaceDebugSphereVisibility(localPrefs.GetSurfaceCoord());
             _rightHandedManipulatorIds = localPrefs.GetRightHandedManipulatorIds();
         }
+        void Update()
+        {
+            movedThisFrame = false;
+
+            if (spawnedThisFrame)
+            {
+                spawnedThisFrame = false;
+                return;
+            }
+
+            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.C)) && Input.GetKeyDown(KeyCode.Backspace))
+            {
+                RecoverActiveProbeController();
+                return;
+            }
+
+            if (Input.GetKeyDown(KeyCode.H) && !InputsFocused())
+                settingsPanel.ToggleSettingsMenu();
+
+            if (Input.anyKey && activeProbeController != null && !InputsFocused())
+            {
+                if (Input.GetKeyDown(KeyCode.Backspace) && !CanvasParent.GetComponentsInChildren<TMP_InputField>()
+                        .Any(inputField => inputField.isFocused))
+                {
+                    DestroyActiveProbeController();
+                    return;
+                }
+
+                // Check if mouse buttons are down, or if probe is under manual control
+                if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
+                {
+                    movedThisFrame = localPrefs.GetCollisions() ? activeProbeController.MoveProbe(true) : activeProbeController.MoveProbe(false);
+                }
+
+                if (movedThisFrame)
+                    inPlaneSlice.UpdateInPlaneSlice();
+            }
+
+            // TEST CODE: Debugging distance of mesh nodes from camera, trying to fix model "pop"
+            //List<CCFTreeNode> defaultLoadedNodes = modelControl.GetDefaultLoadedNodes();
+            //if (defaultLoadedNodes.Count > 0)
+            //{
+            //    Camera brainCamera = brainCamController.GetCamera();
+            //    Debug.Log(Vector3.Distance(brainCamera.transform.position, defaultLoadedNodes[0].GetMeshCenter()));
+            //}
+        }
+
+        #endregion
+
         public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
         {
             await annotationDatasetLoadTask;
@@ -266,11 +319,6 @@ namespace TrajectoryPlanner
             return acronym ? probePanelAcronymTextFontSize : probePanelAreaTextFontSize;
         }
 
-        public Vector3 GetCenterOffset()
-        {
-            return centerOffset;
-        }
-
         public AnnotationDataset GetAnnotationDataset()
         {
             return vdmanager.GetAnnotationDataset();
@@ -299,53 +347,6 @@ namespace TrajectoryPlanner
             PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-            movedThisFrame = false;
-
-            if (spawnedThisFrame)
-            {
-                spawnedThisFrame = false;
-                return;
-            }
-
-            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.C)) && Input.GetKeyDown(KeyCode.Backspace))
-            {
-                RecoverActiveProbeController();
-                return;
-            }
-
-            if (Input.GetKeyDown(KeyCode.H) && !InputsFocused())
-                settingsPanel.ToggleSettingsMenu();
-
-            if (Input.anyKey && activeProbeController != null && !InputsFocused())
-            {
-                if (Input.GetKeyDown(KeyCode.Backspace) && !CanvasParent.GetComponentsInChildren<TMP_InputField>()
-                        .Any(inputField => inputField.isFocused))
-                {
-                    DestroyActiveProbeController();
-                    return;
-                }
-
-                // Check if mouse buttons are down, or if probe is under manual control
-                if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
-                {
-                    movedThisFrame = localPrefs.GetCollisions() ? activeProbeController.MoveProbe(true) : activeProbeController.MoveProbe(false);
-                }
-
-                if (movedThisFrame)
-                    inPlaneSlice.UpdateInPlaneSlice();
-            }
-
-            // TEST CODE: Debugging distance of mesh nodes from camera, trying to fix model "pop"
-            //List<CCFTreeNode> defaultLoadedNodes = modelControl.GetDefaultLoadedNodes();
-            //if (defaultLoadedNodes.Count > 0)
-            //{
-            //    Camera brainCamera = brainCamController.GetCamera();
-            //    Debug.Log(Vector3.Distance(brainCamera.transform.position, defaultLoadedNodes[0].GetMeshCenter()));
-            //}
-        }
 
         public bool InputsFocused()
         {
@@ -1051,6 +1052,12 @@ namespace TrajectoryPlanner
             }
         }
 
+        #endregion
+
+        #region Coordinate spaces
+
+        public CoordinateSpace GetCoordinateSpace() { return _coordinateSpace; }
+        public void SetCoordinateSpace(CoordinateSpace newSpace) { _coordinateSpace = newSpace; }
         #endregion
 
         #region Mesh centers
