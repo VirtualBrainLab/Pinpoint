@@ -751,8 +751,8 @@ public class ProbeManager : MonoBehaviour
 
         // Set probe position (swapping the axes)
         probeController.SetProbePosition(new Vector4(
-            zeroCoordinateAdjustedPosition.y * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1),
-            -zeroCoordinateAdjustedPosition.x,
+            zeroCoordinateAdjustedPosition.y,
+            zeroCoordinateAdjustedPosition.x * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? 1 : -1),
             -zeroCoordinateAdjustedPosition.z,
             zeroCoordinateAdjustedPosition.w));
 
