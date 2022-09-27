@@ -97,7 +97,7 @@ public class PlayerPrefs : MonoBehaviour
         _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8080);
         ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
 
-        _axisControl = LoadBoolPref("axis_control", false);
+        _axisControl = LoadBoolPref("axis_control", true);
         axisControlToggle.isOn = _axisControl;
 
         _showAllProbePanels = LoadBoolPref("show_all_probe_panels", true);

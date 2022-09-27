@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: AddressableAssetSettings
   m_EditorClassIdentifier: 
   m_DefaultGroup: eb9eb3c822ec72b468349d4e785d6617
+  m_CachedHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 1
   m_BundleLocalCatalog: 0
@@ -21,6 +24,7 @@ MonoBehaviour:
   m_IgnoreUnsupportedFilesInBuild: 0
   m_UniqueBundleIds: 0
   m_NonRecursiveBuilding: 0
+  m_CCDEnabled: 0
   m_maxConcurrentWebRequests: 500
   m_ContiguousBundles: 0
   m_StripUnityVersionFromBundleBuild: 0
@@ -34,6 +38,7 @@ MonoBehaviour:
   m_RemoteCatalogLoadPath:
     m_Id: 8b0e868bf8565ef4ba5a95e7d57f666c
   m_ContentStateBuildPath: 
+  m_BuildAddressablesWithPlayerBuild: 2
   m_overridePlayerVersion: 
   m_GroupAssets:
   - {fileID: 11400000, guid: f5ef3838dcf03ab4b8a46a08e76e3145, type: 2}
@@ -61,7 +66,7 @@ MonoBehaviour:
       - m_Id: 0dbfffed1e7d1434696f5a6193af38d3
         m_Value: ServerData/[BuildTarget]
       - m_Id: 8b0e868bf8565ef4ba5a95e7d57f666c
-        m_Value: http://data.virtualbrainlab.org/NPTrajData/[BuildTarget]
+        m_Value: http://data.virtualbrainlab.org/NPTrajData/0.8.1/[BuildTarget]
     m_ProfileEntryNames:
     - m_Id: b28712faecae3244489993d74caf0ba7
       m_Name: BuildTarget
