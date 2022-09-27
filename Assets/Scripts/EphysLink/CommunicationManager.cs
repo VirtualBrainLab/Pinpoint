@@ -91,6 +91,9 @@ namespace EphysLink
                     "Error connecting to server at " + ip + ":" + port + ". Check server for details.";
                 Debug.LogWarning(connectionErrorMessage);
                 _isConnected = false;
+                _connectionManager.Close();
+                _connectionManager = null;
+                _socket = null;
                 onError?.Invoke(connectionErrorMessage);
             });
             _socket.Once("connect_timeout", () =>
@@ -98,6 +101,9 @@ namespace EphysLink
                 var connectionTimeoutMessage = "Connection to server at " + ip + ":" + port + " timed out";
                 Debug.LogWarning(connectionTimeoutMessage);
                 _isConnected = false;
+                _connectionManager.Close();
+                _connectionManager = null;
+                _socket = null;
                 onError?.Invoke(connectionTimeoutMessage);
             });
         }

@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CoordinateSpaces;
+using CoordinateTransforms;
 using EphysLink;
 using Settings;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using CoordinateSpaces;
-using CoordinateTransforms; 
 
 namespace TrajectoryPlanner
 {
@@ -138,6 +138,8 @@ namespace TrajectoryPlanner
             meshCenters = new Dictionary<int, Vector3>();
             LoadMeshData();
             //Physics.autoSyncTransforms = true;
+
+            _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
         }
 
 
