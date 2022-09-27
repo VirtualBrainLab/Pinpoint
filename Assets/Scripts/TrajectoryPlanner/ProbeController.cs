@@ -726,9 +726,6 @@ public class ProbeController : MonoBehaviour
             depth = depthOverride;
         SetProbePositionTransformed(_insertion);
 
-        // Check where we are relative to the surface of the brain
-        probeManager.UpdateSurfacePosition();
-
         // Tell the tpmanager we moved and update the UI elements
         tpmanager.SetMovedThisFrame();
         tpmanager.UpdateInPlaneView();
@@ -793,8 +790,11 @@ public class ProbeController : MonoBehaviour
 
         // save the data
         _insertion = localInsertion;
+
+        // update surface position
+        probeManager.UpdateSurfacePosition();
     }
-    
+
     public IEnumerator SetProbePositionCCF_Delayed(ProbeInsertion localInsertion, float depthOverride = 0f)
     {
         yield return new WaitForEndOfFrame();

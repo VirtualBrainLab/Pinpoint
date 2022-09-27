@@ -497,18 +497,18 @@ namespace TrajectoryPlanner
         public ProbeManager AddNewProbeTransformed(int probeType, ProbeInsertion insertion,
             int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
         {
-            ProbeManager probeController = AddNewProbe(probeType);
+            ProbeManager probeManager = AddNewProbe(probeType);
             if (!PlayerPrefs.IsLinkDataExpired())
             {
-                probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
-                probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
-                probeController.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (manipulatorId != 0) probeController.SetEphysLinkMovement(true, manipulatorId);
+                probeManager.SetZeroCoordinateOffset(zeroCoordinateOffset);
+                probeManager.SetBrainSurfaceOffset(brainSurfaceOffset);
+                probeManager.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
+                if (manipulatorId != 0) probeManager.SetEphysLinkMovement(true, manipulatorId);
             }
 
-            probeController.GetProbeController().SetProbePositionTransformed(insertion);
+            probeManager.GetProbeController().SetProbePositionTransformed(insertion);
 
-            return probeController;
+            return probeManager;
         }
 
         public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, int manipulatorId = 0,
