@@ -171,7 +171,7 @@ public class ProbeManager : MonoBehaviour
     /// <param name="newSize">New size of recording region in mm</param>
     public void ChangeRecordingRegionSize(float newSize)
     {
-        probeController.ChangeRecordingRegionSize(newSize);
+        ((DefaultProbeController)probeController).ChangeRecordingRegionSize(newSize);
 
         // Update all the UI panels
         UpdateUI();
@@ -189,7 +189,7 @@ public class ProbeManager : MonoBehaviour
         if (_ephysLinkMovement)
             return false;
 
-        return probeController.MoveProbe_Keyboard(checkForCollisions);
+        return ((DefaultProbeController)probeController).MoveProbe_Keyboard(checkForCollisions);
     }
 
 
@@ -394,7 +394,7 @@ public class ProbeManager : MonoBehaviour
 
     public (Vector3, Vector3) GetRecordingRegionCoordinates()
     {
-        return probeController.GetRecordingRegionCoordinates();
+        return ((DefaultProbeController)probeController).GetRecordingRegionCoordinates();
     }
 
     /// <summary>

@@ -105,7 +105,7 @@ public class TP_InPlaneSlice : MonoBehaviour
             return;
 
         // Calculate the size
-        (float mmStartPos, float mmRecordingSize) = activeProbeController.GetProbeController().GetRecordingRegionHeight();
+        (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)activeProbeController.GetProbeController()).GetRecordingRegionHeight();
         // Take the active probe, find the position and rotation, and interpolate across the annotation dataset to render a 400x400 image of the brain at that slice
         tipTransform = activeProbeController.GetTipTransform();
 

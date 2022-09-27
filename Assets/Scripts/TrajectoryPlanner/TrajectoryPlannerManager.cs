@@ -651,7 +651,7 @@ namespace TrajectoryPlanner
             UpdateProbeColliders();
 
             // Also update the recording region size slider
-            recRegionSlider.SliderValueChanged(activeProbe.GetProbeController().GetRecordingRegionSize());
+            recRegionSlider.SliderValueChanged(((DefaultProbeController)activeProbe.GetProbeController()).GetRecordingRegionSize());
 
             // Reset the inplane slice zoom factor
             inPlaneSlice.ResetZoom();

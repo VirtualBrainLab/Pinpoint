@@ -2,7 +2,7 @@ using UnityEngine;
 using TrajectoryPlanner;
 using UnityEngine.EventSystems;
 
-public class TP_ProbeCollider : MonoBehaviour
+public class DefaultProbeCollider : MonoBehaviour
 {
     [SerializeField] ProbeManager probeManager;
     private TrajectoryPlannerManager tpmanager;
@@ -23,18 +23,18 @@ public class TP_ProbeCollider : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
         tpmanager.SetActiveProbe(probeManager);
-        probeManager.GetProbeController().DragMovementClick();
+        ((DefaultProbeController)probeManager.GetProbeController()).DragMovementClick();
     }
 
     private void OnMouseDrag()
     {
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-        probeManager.GetProbeController().DragMovementDrag();
+        ((DefaultProbeController)probeManager.GetProbeController()).DragMovementDrag();
     }
 
     private void OnMouseUp()
     {
-        probeManager.GetProbeController().DragMovementRelease();
+        ((DefaultProbeController)probeManager.GetProbeController()).DragMovementRelease();
     }
 }

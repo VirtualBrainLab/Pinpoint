@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using CoordinateSpaces;
 
-public class ProbeController : MonoBehaviour
+public class DefaultProbeController : ProbeController
 {
     #region Movement Constants
     private const float REC_HEIGHT_SPEED = 0.1f;
@@ -55,17 +55,12 @@ public class ProbeController : MonoBehaviour
     private Quaternion initialRotation;
     private Transform surfaceCalculatorT;
 
-    // total position data (for dealing with coordinates)
-    private ProbeInsertion _insertion;
-    public ProbeInsertion Insertion { get { return _insertion; } }
     private float depth;
 
     // Offset vectors
     private GameObject probeTipOffset;
 
     // References
-    private TrajectoryPlannerManager tpmanager;
-    private ProbeManager probeManager;
     [SerializeField] private Transform probeTipT;
     [SerializeField] private List<GameObject> recordingRegionGOs;
     [SerializeField] private Transform rotateAround;
@@ -87,35 +82,29 @@ public class ProbeController : MonoBehaviour
         initialPosition = transform.position;
         initialRotation = transform.rotation;
 
-        _insertion = new ProbeInsertion(defaultStart, defaultAngles, tpmanager.GetCoordinateSpace(), tpmanager.GetActiveCoordinateTransform());
+        Insertion = new ProbeInsertion(defaultStart, defaultAngles, TPManager.GetCoordinateSpace(), TPManager.GetActiveCoordinateTransform());
 
         SetProbePosition();
     }
     
-    public void Register(TrajectoryPlannerManager tpmanager, ProbeManager probeManager)
-    {
-        this.tpmanager = tpmanager;
-        this.probeManager = probeManager;
-    }
-
     /// <summary>
     /// Put this probe back at Bregma
     /// </summary>
-    public void ResetInsertion()
+    public override void ResetInsertion()
     {
         ResetPosition();
         ResetAngles();
         SetProbePosition();
     }
 
-    public void ResetPosition()
+    public override void ResetPosition()
     {
-        _insertion.apmldv = defaultStart;
+        Insertion.apmldv = defaultStart;
     }
 
-    public void ResetAngles()
+    public override void ResetAngles()
     {
-        _insertion.angles = defaultAngles;
+        Insertion.angles = defaultAngles;
     }
 
     #region Keyboard movement
@@ -216,14 +205,13 @@ public class ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            probeManager.SetDropToSurfaceWithDepth(false);
+            ProbeManager.SetDropToSurfaceWithDepth(false);
             MoveProbeDV(1f, true);
         }
         else if (Input.GetKey(KeyCode.Q) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
-            probeManager.SetDropToSurfaceWithDepth(false);
             MoveProbeDV(1f, false);
         }
         if (Input.GetKeyUp(KeyCode.Q))
@@ -233,14 +221,13 @@ public class ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            probeManager.SetDropToSurfaceWithDepth(false);
+            ProbeManager.SetDropToSurfaceWithDepth(false);
             MoveProbeDV(-1f, true);
         }
         else if (Input.GetKey(KeyCode.E) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
-            probeManager.SetDropToSurfaceWithDepth(false);
             MoveProbeDV(-1f, false);
         }
         if (Input.GetKeyUp(KeyCode.E))
@@ -252,14 +239,13 @@ public class ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            probeManager.SetDropToSurfaceWithDepth(true);
+            ProbeManager.SetDropToSurfaceWithDepth(true);
             MoveProbeDepth(1f, true);
         }
         else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
-            probeManager.SetDropToSurfaceWithDepth(true);
             MoveProbeDepth(1f, false);
         }
         if (Input.GetKeyUp(KeyCode.Z))
@@ -269,14 +255,13 @@ public class ProbeController : MonoBehaviour
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            probeManager.SetDropToSurfaceWithDepth(true);
+            ProbeManager.SetDropToSurfaceWithDepth(true);
             MoveProbeDepth(-1f, true);
         }
         else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))
         {
             keyHeld = true;
             moved = true;
-            probeManager.SetDropToSurfaceWithDepth(true);
             MoveProbeDepth(-1f, false);
         }
         if (Input.GetKeyUp(KeyCode.X))
@@ -395,10 +380,10 @@ public class ProbeController : MonoBehaviour
 
             // Check collisions if we need to
             if (checkForCollisions)
-                probeManager.CheckCollisions(tpmanager.GetAllNonActiveColliders());
+                ProbeManager.CheckCollisions(TPManager.GetAllNonActiveColliders());
 
             // Update all the UI panels
-            probeManager.UpdateUI();
+            ProbeManager.UpdateUI();
 
             return true;
         }
@@ -420,7 +405,7 @@ public class ProbeController : MonoBehaviour
             keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
         Vector3 apmldv = new Vector3(ap, ml, 0f) * speed;
-        _insertion.apmldv += _insertion.CoordinateTransform.Space2TransformRot(apmldv);
+        Insertion.apmldv += Insertion.CoordinateTransform.Space2TransformRot(apmldv);
     }
 
     public void MoveProbeDV(float dv, bool pressed)
@@ -430,7 +415,7 @@ public class ProbeController : MonoBehaviour
             keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
         Vector3 apmldv = new Vector3(0f, 0f, dv) * speed;
-        _insertion.apmldv += _insertion.CoordinateTransform.Space2TransformRot(apmldv);
+        Insertion.apmldv += Insertion.CoordinateTransform.Space2TransformRot(apmldv);
     }
 
     public void MoveProbeDepth(float depth, bool pressed)
@@ -448,8 +433,8 @@ public class ProbeController : MonoBehaviour
             keyFast ? ROT_INCREMENT_TAP_FAST : keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
             keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
 
-        _insertion.phi += phi * speed;
-        _insertion.theta = Mathf.Clamp(_insertion.theta + theta * speed, minTheta, maxTheta);
+        Insertion.phi += phi * speed;
+        Insertion.theta = Mathf.Clamp(Insertion.theta + theta * speed, minTheta, maxTheta);
     }
 
     public void SpinProbe(float spin, bool pressed)
@@ -458,7 +443,7 @@ public class ProbeController : MonoBehaviour
             keyFast ? ROT_INCREMENT_TAP_FAST : keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
             keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
 
-        _insertion.spin += spin * speed;
+        Insertion.spin += spin * speed;
     }
 
     // Drag movement variables
@@ -488,10 +473,10 @@ public class ProbeController : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
         // Cancel movement if being controlled by EphysLink
-        if (probeManager.GetEphysLinkMovement())
+        if (ProbeManager.GetEphysLinkMovement())
             return;
 
-        tpmanager.SetProbeControl(true);
+        TPManager.SetProbeControl(true);
 
         axisLockAP = false;
         axisLockDV = false;
@@ -500,9 +485,9 @@ public class ProbeController : MonoBehaviour
         axisLockTheta = false;
         axisLockPhi = false;
 
-        origAPMLDV = new Vector3(_insertion.ap, _insertion.ml, _insertion.dv);
-        origPhi = _insertion.phi;
-        origTheta = _insertion.theta;
+        origAPMLDV = new Vector3(Insertion.ap, Insertion.ml, Insertion.dv);
+        origPhi = Insertion.phi;
+        origTheta = Insertion.theta;
         // Note: depth is special since it gets absorbed into the probe position on each frame
 
         // Track the screenPoint that was initially clicked
@@ -530,7 +515,7 @@ public class ProbeController : MonoBehaviour
     public void DragMovementDrag()
     {
         // Cancel movement if being controlled by EphysLink
-        if (probeManager.GetEphysLinkMovement())
+        if (ProbeManager.GetEphysLinkMovement())
             return;
 
         CheckForSpeedKeys();
@@ -546,7 +531,7 @@ public class ProbeController : MonoBehaviour
             axisLockDepth = false;
             axisLockPhi = false;
             axisLockTheta = false;
-            probeManager.SetAxisVisibility(true, false, false, false);
+            ProbeManager.SetAxisVisibility(true, false, false, false);
         }
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
         {
@@ -557,7 +542,7 @@ public class ProbeController : MonoBehaviour
             axisLockDepth = false;
             axisLockPhi = false;
             axisLockTheta = false;
-            probeManager.SetAxisVisibility(false, true, false, false);
+            ProbeManager.SetAxisVisibility(false, true, false, false);
         }
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
         {
@@ -568,7 +553,7 @@ public class ProbeController : MonoBehaviour
             axisLockDepth = true;
             axisLockPhi = false;
             axisLockTheta = false;
-            probeManager.SetAxisVisibility(false, false, false, true);
+            ProbeManager.SetAxisVisibility(false, false, false, true);
         }
         if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.F))
         {
@@ -589,7 +574,7 @@ public class ProbeController : MonoBehaviour
             axisLockDepth = false;
             axisLockPhi = false;
             axisLockTheta = false;
-            probeManager.SetAxisVisibility(false, false, true, false);
+            ProbeManager.SetAxisVisibility(false, false, true, false);
         }
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Alpha3))
         {
@@ -603,23 +588,23 @@ public class ProbeController : MonoBehaviour
         }
 
         Vector3 worldOffset = curScreenPointWorld - originalClickPositionWorld;
-        worldOffset = _insertion.CoordinateTransform.Space2TransformRot(_insertion.CoordinateSpace.World2SpaceRot(worldOffset));
+        worldOffset = Insertion.CoordinateTransform.Space2TransformRot(Insertion.CoordinateSpace.World2SpaceRot(worldOffset));
 
         bool moved = false;
 
         if (axisLockAP)
         {
-            _insertion.ap = origAPMLDV.x + worldOffset.x;
+            Insertion.ap = origAPMLDV.x + worldOffset.x;
             moved = true;
         }
         if (axisLockML)
         {
-            _insertion.ml = origAPMLDV.y + worldOffset.y;
+            Insertion.ml = origAPMLDV.y + worldOffset.y;
             moved = true;
         }
         if (axisLockDV)
         {
-            _insertion.dv = origAPMLDV.z + worldOffset.z;
+            Insertion.dv = origAPMLDV.z + worldOffset.z;
             moved = true;
         }
         if (axisLockDepth)
@@ -632,28 +617,27 @@ public class ProbeController : MonoBehaviour
 
         if (axisLockTheta)
         {
-            _insertion.theta = Mathf.Clamp(origTheta + 3f * worldOffset.y, minTheta, maxTheta);
+            Insertion.theta = Mathf.Clamp(origTheta + 3f * worldOffset.y, minTheta, maxTheta);
             moved = true;
         }
         if (axisLockPhi)
         {
-            _insertion.phi = origPhi - 3f * worldOffset.x;
+            Insertion.phi = origPhi - 3f * worldOffset.x;
             moved = true;
         }
 
 
         if (moved)
         {
-            if (tpmanager.GetCollisions())
-                probeManager.CheckCollisions(tpmanager.GetAllNonActiveColliders());
+            if (TPManager.GetCollisions())
+                ProbeManager.CheckCollisions(TPManager.GetAllNonActiveColliders());
 
-            tpmanager.UpdateInPlaneView();
+            TPManager.UpdateInPlaneView();
             SetProbePosition();
 
-            probeManager.UpdateUI();
-            tpmanager.UpdateQuickSettings();
+            ProbeManager.UpdateUI();
 
-            tpmanager.SetMovedThisFrame();
+            TPManager.SetMovedThisFrame();
         }
 
     }
@@ -667,8 +651,8 @@ public class ProbeController : MonoBehaviour
     {
         // release probe control
         dragging = false;
-        probeManager.SetAxisVisibility(false, false, false, false);
-        tpmanager.SetProbeControl(false);
+        ProbeManager.SetAxisVisibility(false, false, false, false);
+        TPManager.SetProbeControl(false);
     }
 
     #region Recording region UI
@@ -720,27 +704,31 @@ public class ProbeController : MonoBehaviour
     /// <summary>
     /// Set the probe position to the current apml/depth/phi/theta/spin values
     /// </summary>
-    public void SetProbePosition(float depthOverride = 0f)
+    public override void SetProbePosition()
     {
-        if (depthOverride != 0f)
-            depth = depthOverride;
-        SetProbePositionTransformed(_insertion);
+        SetProbePositionTransformed(Insertion);
 
         // Tell the tpmanager we moved and update the UI elements
-        tpmanager.SetMovedThisFrame();
-        tpmanager.UpdateInPlaneView();
-        probeManager.UpdateUI();
+        TPManager.SetMovedThisFrame();
+        TPManager.UpdateInPlaneView();
+        ProbeManager.UpdateUI();
     }
 
-    public void SetProbePosition(Vector3 position)
+    public void SetProbePosition(float depthOverride)
     {
-        _insertion.apmldv = position;
+        depth = depthOverride;
+        SetProbePosition();
+    }
+
+    public override void SetProbePosition(Vector3 position)
+    {
+        Insertion.apmldv = position;
         SetProbePosition();
     }
 
     public void SetProbePosition(Vector4 positionDepth)
     {
-        _insertion.apmldv = positionDepth;
+        Insertion.apmldv = positionDepth;
         depth = positionDepth.z;
         SetProbePosition();
     }
@@ -752,13 +740,13 @@ public class ProbeController : MonoBehaviour
     /// <param name="spaceCoord"></param>
     public void SetProbePositionCoordSpace(Vector3 spaceCoord)
     {
-        _insertion.apmldv = _insertion.CoordinateTransform.Space2Transform(spaceCoord);
+        Insertion.apmldv = Insertion.CoordinateTransform.Space2Transform(spaceCoord);
         SetProbePosition();
     }
 
-    public void SetProbeAngles(Vector3 angles)
+    public override void SetProbeAngles(Vector3 angles)
     {
-        _insertion.angles = angles;
+        Insertion.angles = angles;
         SetProbePosition();
     }
 
@@ -766,7 +754,7 @@ public class ProbeController : MonoBehaviour
     /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
     /// </summary>
     /// <param name="localInsertion">new insertion position</param>
-    public void SetProbePositionTransformed(ProbeInsertion localInsertion)
+    public override void SetProbePositionTransformed(ProbeInsertion localInsertion)
     {
         // Reset everything
         transform.position = initialPosition;
@@ -782,17 +770,17 @@ public class ProbeController : MonoBehaviour
         if (depth != 0f)
         {
             transform.position += -transform.up * depth;
-            Vector3 depthAdjustment = _insertion.CoordinateTransform.Space2TransformRot(localInsertion.CoordinateSpace.World2SpaceRot(-transform.up * depth));
+            Vector3 depthAdjustment = Insertion.CoordinateTransform.Space2TransformRot(localInsertion.CoordinateSpace.World2SpaceRot(-transform.up * depth));
 
             localInsertion.apmldv += depthAdjustment;
             depth = 0f;
         }
 
         // save the data
-        _insertion = localInsertion;
+        Insertion = localInsertion;
 
         // update surface position
-        probeManager.UpdateSurfacePosition();
+        ProbeManager.UpdateSurfacePosition();
     }
 
     public IEnumerator SetProbePositionCCF_Delayed(ProbeInsertion localInsertion, float depthOverride = 0f)
@@ -803,7 +791,7 @@ public class ProbeController : MonoBehaviour
 
     public void SetProbePositionWorld(Vector3 coordWorld)
     {
-        _insertion.apmldv = _insertion.World2Transformed(coordWorld);
+        Insertion.apmldv = Insertion.World2Transformed(coordWorld);
         SetProbePosition();
     }
 
@@ -815,7 +803,7 @@ public class ProbeController : MonoBehaviour
     /// Get the tip transform
     /// </summary>
     /// <returns>tip transform</returns>
-    public Transform GetTipTransform()
+    public override Transform GetTipTransform()
     {
         return probeTipT;
     }
@@ -831,7 +819,7 @@ public class ProbeController : MonoBehaviour
     /// <returns></returns>
     public (Vector3, Vector3) GetRecordingRegionCoordinates(Transform probeTipOffsetT)
     {
-        if (tpmanager.GetSetting_ShowRecRegionOnly())
+        if (TPManager.GetSetting_ShowRecRegionOnly())
         {
             (float mmStartPos, float mmRecordingSize) = GetRecordingRegionHeight();
 
