@@ -95,6 +95,20 @@ public class ProbeInsertion
         return _coordinateTransform.Space2Transform(_coordinateSpace.World2Space(coordWorld));
     }
 
+    public Vector3 World2TransformedRot(Vector3 coordWorld)
+    {
+        return _coordinateTransform.Space2TransformRot(_coordinateSpace.World2SpaceRot(coordWorld));
+    }
+
+    public Vector3 Transformed2World(Vector3 coordTransformed)
+    {
+        return _coordinateSpace.Space2World(_coordinateTransform.Transform2Space(coordTransformed));
+    }
+    public Vector3 Transformed2WorldRot(Vector3 coordTransformed)
+    {
+        return _coordinateSpace.Space2WorldRot(_coordinateTransform.Transform2SpaceRot(coordTransformed));
+    }
+
     public override string ToString()
     {
         return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, phi, theta, spin, _coordinateSpace.ToString(), _coordinateTransform.ToString());
