@@ -76,7 +76,7 @@ namespace EphysLink
             _connectionManager = new SocketManager(new Uri("http://" + ip + ":" + port), options);
             _socket = _connectionManager.Socket;
 
-            _socket.On(SocketIOEventTypes.Connect, () =>
+            _socket.Once("connect", () =>
             {
                 Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
                 _serverIp = ip;
@@ -85,7 +85,7 @@ namespace EphysLink
                 PlayerPrefs.SaveEphysLinkConnectionData(ip, port);
                 onConnected?.Invoke();
             });
-            _socket.On(SocketIOEventTypes.Error, () =>
+            _socket.Once("error", () =>
             {
                 var connectionErrorMessage =
                     "Error connecting to server at " + ip + ":" + port + ". Check server for details.";
