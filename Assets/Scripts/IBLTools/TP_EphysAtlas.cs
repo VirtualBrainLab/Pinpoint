@@ -14,7 +14,7 @@ namespace IBLTools
         [SerializeField] TrajectoryPlannerManager tpmanager;
         [SerializeField] Material lineMaterial;
 
-        private AnnotationDataset annotationDataset;
+        private CCFAnnotationDataset annotationDataset;
 
         SocketManager manager;
 
@@ -80,8 +80,8 @@ namespace IBLTools
             lastRequest = Time.realtimeSinceStartup;
 
             (Vector3 tip_world, Vector3 top_world) = tpmanager.GetActiveProbeController().GetRecordingRegionCoordinates();
-            Vector3 tip_apdvlr25 = annotationDataset.World2Annotation(tip_world);
-            Vector3 top_apdvlr25 = annotationDataset.World2Annotation(top_world);
+            Vector3 tip_apdvlr25 = annotationDataset.CoordinateSpace.World2Space(tip_world);
+            Vector3 top_apdvlr25 = annotationDataset.CoordinateSpace.World2Space(top_world);
 
             for (int ci = 0; ci <= (CHAN_COUNT - 1); ci++)
             {

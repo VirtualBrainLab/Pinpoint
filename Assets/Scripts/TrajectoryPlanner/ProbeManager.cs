@@ -48,7 +48,7 @@ public class ProbeManager : MonoBehaviour
     private const float maxSpin = 180f;
 
     // Brain surface position
-    private AnnotationDataset annotationDataset;
+    private CCFAnnotationDataset annotationDataset;
     private bool probeInBrain;
     private Vector3 brainSurfaceWorld;
 
@@ -193,12 +193,6 @@ public class ProbeManager : MonoBehaviour
     }
 
 
-    public (float, float, float, float, float, float, float) GetCoordinatesSurface()
-    {
-        return probeController.GetCoordinatesSurfaceTransformed(probeInBrain, brainSurfaceWorld);
-    }
-
-
     /// <summary>
     /// Check for collisions between the probe colliders and a list of other colliders
     /// </summary>
@@ -289,13 +283,46 @@ public class ProbeManager : MonoBehaviour
 
     public void Probe2Text()
     {
-        float localDepth = GetLocalDepth();
-        (string apStr, string mlStr, string dvStr) = GetAPMLStr();
+        string apStr;
+        string mlStr;
+        string dvStr;
+        string depthStr;
 
-        (float ap, float ml, float dv, float phi, float theta, float spin) = tpmanager.GetSetting_UseIBLAngles() ?
-            probeController.GetInsertion().GetCoordinatesFloat_IBL() :
-            probeController.GetInsertion().GetCoordinatesFloat();
-        (float aps, float mls, float dvs, float depth, _, _, _) = GetCoordinatesSurface();
+        Vector3 apmldv;
+        Vector3 angles;
+
+        ProbeInsertion insertion = probeController.Insertion;
+        string prefix = insertion.CoordinateTransform.Prefix;
+
+        // If we are using the 
+        if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
+        {
+            Debug.LogWarning("Not working");
+            apStr = "not-implemented";
+            mlStr = "not-implemented";
+            dvStr = "not-implemented";
+            depthStr = "not-implemented";
+        }
+        else
+        {
+            apStr = prefix + "AP";
+            mlStr = prefix + "ML";
+            dvStr = prefix + "DV";
+            depthStr = prefix + "Depth";
+        }
+
+        if (tpmanager.GetSetting_UseIBLAngles())
+        {
+            apmldv = insertion.apmldv * 1000f;
+            angles = Utils.World2IBL(insertion.angles);
+        }
+        else
+        {
+            apmldv = insertion.apmldv;
+            angles = insertion.angles;
+        }
+
+        (_, Vector3 entryCoordTranformed, float depthTransformed) = GetSurfaceCoordinateTransformed();
         
 
         string updateStr = string.Format("Probe #{0} Surface coordinate: " + 
@@ -304,47 +331,12 @@ public class ProbeManager : MonoBehaviour
             " Depth: {10}:{11}" + 
             " Tip coordinate: (ccfAP:{8}, ccfML: {9}, ccfDV:{10})",
             probeID, 
-            apStr, round0(aps), mlStr, round0(mls), dvStr, round0(dvs), 
-            round2(Utils.CircDeg(phi, minPhi, maxPhi)), round2(theta), round2(Utils.CircDeg(spin, minSpin, maxSpin)),
-            GetDepthStr(), round0(localDepth * 1000),
-            round0(ap), round0(ml), round0(dv));
+            apStr, round0(entryCoordTranformed.x * 1000f), mlStr, round0(entryCoordTranformed.y * 1000f), dvStr, round0(entryCoordTranformed.z * 1000f), 
+            round2(Utils.CircDeg(angles.x, minPhi, maxPhi)), round2(angles.y), round2(Utils.CircDeg(angles.z, minSpin, maxSpin)),
+            depthStr, round0(depthTransformed * 1000f),
+            round0(apmldv.x), round0(apmldv.y), round0(apmldv.z));
 
         GUIUtility.systemCopyBuffer = updateStr;
-    }
-
-    private (string, string, string) GetAPMLStr()
-    {
-        if (tpmanager.GetSetting_InVivoTransformActive())
-        {
-            string prefix = tpmanager.GetInVivoPrefix();
-            if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
-            {
-                return (prefix + "Forward", prefix + "Side", prefix + "DV");
-            }
-            else
-            {
-                return (prefix + "AP", prefix + "ML", prefix + "DV");
-            }
-        }
-        else
-        {
-            if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
-            {
-                return ("ccfForward", "ccfSide", "ccfDV");
-            }
-            else
-            {
-                return ("ccfAP", "ccfML", "ccfDV");
-            }
-        }
-    }
-
-    private string GetDepthStr()
-    {
-        if (tpmanager.GetSetting_InVivoTransformActive())
-            return tpmanager.GetInVivoPrefix() + "Depth";
-        else
-            return "ccfDepth";
     }
 
     #endregion
@@ -357,7 +349,8 @@ public class ProbeManager : MonoBehaviour
     /// <returns></returns>
     private Vector3 GetInsertionCoordinateTransformed()
     {
-        Vector3 insertionCoord = probeInBrain ? tpmanager.GetCoordinateSpace().World2Space(brainSurfaceWorld) : probeController.GetInsertion().apmldv;
+        Debug.LogError("TODO Re-implement this code based on the changes");
+        Vector3 insertionCoord = probeInBrain ? tpmanager.GetCoordinateSpace().World2Space(brainSurfaceWorld) : probeController.Insertion.apmldv;
         
         // If we're in a transformed space we need to transform the coordinates
         // before we do anything else.
@@ -368,7 +361,7 @@ public class ProbeManager : MonoBehaviour
         if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
         {
             // convert to probe angle by solving 
-            float localAngleRad = probeController.GetInsertion().phi * Mathf.PI / 180f; // our phi is 0 when it we point forward, and our angles go backwards
+            float localAngleRad = probeController.Insertion.phi * Mathf.PI / 180f; // our phi is 0 when it we point forward, and our angles go backwards
 
             float x = insertionCoord.x * Mathf.Cos(localAngleRad) + insertionCoord.y * Mathf.Sin(localAngleRad);
             float y = -insertionCoord.x * Mathf.Sin(localAngleRad) + insertionCoord.y * Mathf.Cos(localAngleRad);
@@ -381,23 +374,6 @@ public class ProbeManager : MonoBehaviour
         }
     }
 
-    private float GetLocalDepth()
-    {
-        if (probeInBrain)
-        {
-            Transform probeTipT = probeController.GetTipTransform();
-            // Get the direction
-            float dir = Mathf.Sign(Vector3.Dot(probeTipT.position - brainSurfaceWorld, -probeTipT.up));
-            // Get the distance
-            float distance = (tpmanager.GetSetting_InVivoTransformActive()) ?
-                Vector3.Distance(tpmanager.CoordinateTransformFromCCF(probeTipT.position), tpmanager.CoordinateTransformFromCCF(brainSurfaceWorld)) :
-                Vector3.Distance(probeTipT.position, brainSurfaceWorld);
-
-            return dir * distance;
-        }
-        // If the probe is not in the brain, return NaN
-        return float.NaN;
-    }
 
     public void RegisterProbeCallback(int ID, Color probeColor)
     {
@@ -415,8 +391,6 @@ public class ProbeManager : MonoBehaviour
     {
         return Mathf.Round(input * 100) / 100;
     }
-
-
 
     public (Vector3, Vector3) GetRecordingRegionCoordinates()
     {
@@ -436,33 +410,58 @@ public class ProbeManager : MonoBehaviour
         }
     }
 
+    #region Brain surface coordinate
+
     /// <summary>
     /// Check whether the probe is in the brain.
     /// If it is, calculate the brain surface coordinate by iterating up the probe until you leave the brain.
     /// </summary>
     public void UpdateSurfacePosition()
     {
-        (Vector3 surfacePosition, float depth, Vector3 angles) = CCF2Surface(probeController.GetTipTransform().position, probeController.GetInsertion().angles);
+        Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(
+            annotationDataset.CoordinateSpace.World2Space(probeController.GetTipTransform().position),
+            annotationDataset.CoordinateSpace.World2SpaceRot(probeController.GetTipTransform().up).normalized);
 
-        brainSurfaceWorld = surfacePosition;
-
-
-        if (float.IsNaN(depth))
+        if (float.IsNaN(surfacePos25.x))
         {
             // not in the brain
             probeInBrain = false;
-            // these debugs are really bad coding style -- tpmanager should *get* the position and set these, it shouldn't be called from here
-            tpmanager.SetSurfaceDebugActive(false);
+            brainSurfaceWorld = new Vector3(float.NaN, float.NaN, float.NaN);
         }
         else
         {
             // in the brain
             probeInBrain = true;
-            // these debugs are really bad coding style -- tpmanager should *get* the position and set these, it shouldn't be called from here
-            tpmanager.SetSurfaceDebugActive(true);
-            tpmanager.SetSurfaceDebugPosition(brainSurfaceWorld);
+            brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(surfacePos25);
         }
     }
+    public (Vector3 surfaceCoordinateWorld, float worldDepth) GetSurfaceCoordinateWorld()
+    {
+        return (brainSurfaceWorld, Vector3.Distance(brainSurfaceWorld, probeController.GetTipTransform().position));
+    }
+
+    public (Vector3 tipCoordTransformed, Vector3 entryCoordTransformed, float depthTransformed) GetSurfaceCoordinateTransformed()
+    {
+        // Get the tip and entry coordinates in world space, transform them -> Space -> Transformed, then calculate depth
+        Vector3 tipCoordWorld = probeController.GetTipTransform().position;
+        Vector3 entryCoordWorld = probeInBrain ? brainSurfaceWorld : tipCoordWorld;
+
+        // Convert
+        ProbeInsertion insertion = probeController.Insertion;
+        Vector3 tipCoordTransformed = insertion.World2Transformed(tipCoordWorld);
+        Vector3 entryCoordTransformed = insertion.World2Transformed(entryCoordWorld);
+
+        float depth = probeInBrain ? Vector3.Distance(tipCoordTransformed, entryCoordTransformed) : 0f;
+
+        return (tipCoordTransformed, entryCoordTransformed, depth);
+    }
+
+    public bool IsProbeInBrain()
+    {
+        return probeInBrain;
+    }
+
+    #endregion
 
     /// <summary>
     /// to implement 
@@ -471,55 +470,6 @@ public class ProbeManager : MonoBehaviour
     {
 
     }
-
-    #region Transforms
-
-    /// <summary>
-    /// Convert from CCF insertion coordinates to brain surface/depth/angles coordinates
-    /// 
-    /// If the entire probe is outside the brain this function returns the tip coordinate as the surface, a depth of NaN, and identical angles
-    /// 
-    /// This function is quite expensive to run!
-    /// </summary>
-    /// <param name="tipPosition"></param>
-    /// <param name="angles"></param>
-    /// <param name="useDepth">Determine which direction to seek brain surface (travel along depth or DV). Defaults to depth</param>
-    /// <returns></returns>
-    public (Vector3, float, Vector3) CCF2Surface(Vector3 tipPosition, Vector3 angles, bool useDepth = true)
-    {
-
-        Vector3 tip_apdvlr25 = annotationDataset.World2Annotation(tipPosition);
-
-        bool crossedThroughBrain = annotationDataset.ValueAtIndex(tip_apdvlr25) > 0;
-
-        // Iterate up until you exit the brain
-        // if you started outside, first find when you enter
-        Transform probeTipT = probeController.GetTipTransform();
-        var top = annotationDataset.World2Annotation(probeTipT.position + (useDepth ? probeTipT.up : Vector3.up) * 10f);
-        for (float perc = 0; perc <= 1f; perc += 0.0005f) 
-        {
-            Vector3 point = Vector3.Lerp(tip_apdvlr25, top, perc);
-            if (crossedThroughBrain)
-            {
-                if (annotationDataset.ValueAtIndex(point) <= 0)
-                {
-                    Vector3 surfacePosition = annotationDataset.Annotation2World(point);
-                    return (surfacePosition, Vector3.Distance(tipPosition, surfacePosition), angles);
-                }
-            }
-            else
-            {
-                if (annotationDataset.ValueAtIndex(point) > 0)
-                    crossedThroughBrain = true;
-            }
-        }
-
-        // If you got here it means you *never* crossed through the brain
-        return (tipPosition, float.NaN, angles);
-    }
-
-
-    #endregion
 
     #region Ephys Link and Control
 
@@ -713,10 +663,16 @@ public class ProbeManager : MonoBehaviour
     public void SetBrainSurfaceOffset()
     {
         var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipTransform().up : Vector3.up;
-        var brainSurface = CCF2Surface(probeController.GetTipTransform().position - tipExtensionDirection * 5,
-            probeController.GetInsertion().angles,
-            _dropToSurfaceWithDepth);
-        var computedOffset = brainSurface.Item2 - 5;
+        
+        
+        var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
+            annotationDataset.CoordinateSpace.World2Space(probeController.GetTipTransform().position - tipExtensionDirection * 5),
+            probeController.GetTipTransform().up);
+
+        Vector3 brainSurface = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
+        float depth = Vector3.Distance(brainSurface, probeController.GetTipTransform().position);
+
+        var computedOffset = depth - 5;
 
         if (IsConnectedToManipulator())
         {
@@ -724,8 +680,7 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
-            var apmldv = tpmanager.GetCoordinateSpace().World2Space(brainSurface.Item1); ;
-            probeController.SetProbePositionCCF(new ProbeInsertion(apmldv, probeController.GetInsertion().angles));
+            probeController.SetProbePosition(brainSurface);
             tpmanager.UpdateInPlaneView();
         }
     }
@@ -769,10 +724,11 @@ public class ProbeManager : MonoBehaviour
     {
         // Convert position to CCF
         var zeroCoordinateAdjustedPosition = pos - _zeroCoordinateOffset;
-        
+
         // Phi adjustment
-        _phiCos = Mathf.Cos(probeController.GetInsertion().GetAngles_IBL().x * Mathf.Deg2Rad);
-        _phiSin = Mathf.Sin(probeController.GetInsertion().GetAngles_IBL().x * Mathf.Deg2Rad);
+        Debug.LogWarning("Rotation here may no longer be correct");
+        _phiCos = Mathf.Cos(probeController.Insertion.phi * Mathf.Deg2Rad);
+        _phiSin = Mathf.Sin(probeController.Insertion.phi * Mathf.Deg2Rad);
         var phiAdjustedX = zeroCoordinateAdjustedPosition.x * _phiCos -
                            zeroCoordinateAdjustedPosition.y * _phiSin;
         var phiAdjustedY = zeroCoordinateAdjustedPosition.x * _phiSin +
@@ -794,7 +750,7 @@ public class ProbeManager : MonoBehaviour
             zeroCoordinateAdjustedPosition.z += brainSurfaceAdjustment;
 
         // Set probe position (swapping the axes)
-        probeController.SetProbePositionTransformed(new Vector4(
+        probeController.SetProbePosition(new Vector4(
             zeroCoordinateAdjustedPosition.y * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1),
             -zeroCoordinateAdjustedPosition.x,
             -zeroCoordinateAdjustedPosition.z,

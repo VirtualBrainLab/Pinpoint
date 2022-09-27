@@ -9,6 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using CoordinateSpaces;
+using CoordinateTransforms;
 
 namespace TrajectoryPlanner
 {
@@ -60,11 +61,12 @@ namespace TrajectoryPlanner
         [SerializeField] private List<TMP_Text> whiteUIText;
 
         // Coordinate system information
+        private CoordinateSpace activeCoordinateSpace = new CCFSpace();
         private CoordinateTransform activeCoordinateTransform;
         private List<CoordinateTransform> availableCoordinateTransforms;
 
         // Local tracking variables
-        private ProbeManager activeProbeController;
+        private ProbeManager activeProbe;
         private List<ProbeManager> allProbeManagers;
         private List<Collider> inactiveProbeColliders;
         private List<Collider> allProbeColliders;
@@ -116,6 +118,7 @@ namespace TrajectoryPlanner
 
             // Deal with coordinate spaces and transforms
             availableCoordinateTransforms = new List<CoordinateTransform>();
+            availableCoordinateTransforms.Add(new NullTransform());
             availableCoordinateTransforms.Add(new NeedlesTransform());
             availableCoordinateTransforms.Add(new MRILinearTransform());
             activeCoordinateTransform = null;
@@ -161,8 +164,6 @@ namespace TrajectoryPlanner
         }
         void Update()
         {
-            movedThisFrame = false;
-
             if (spawnedThisFrame)
             {
                 spawnedThisFrame = false;
@@ -178,7 +179,7 @@ namespace TrajectoryPlanner
             if (Input.GetKeyDown(KeyCode.H) && !InputsFocused())
                 settingsPanel.ToggleSettingsMenu();
 
-            if (Input.anyKey && activeProbeController != null && !InputsFocused())
+            if (Input.anyKey && activeProbe != null && !InputsFocused())
             {
                 if (Input.GetKeyDown(KeyCode.Backspace) && !CanvasParent.GetComponentsInChildren<TMP_InputField>()
                         .Any(inputField => inputField.isFocused))
@@ -190,11 +191,8 @@ namespace TrajectoryPlanner
                 // Check if mouse buttons are down, or if probe is under manual control
                 if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
                 {
-                    movedThisFrame = localPrefs.GetCollisions() ? activeProbeController.MoveProbe(true) : activeProbeController.MoveProbe(false);
+                    movedThisFrame = localPrefs.GetCollisions() ? activeProbe.MoveProbe(true) : activeProbe.MoveProbe(false);
                 }
-
-                if (movedThisFrame)
-                    inPlaneSlice.UpdateInPlaneSlice();
             }
 
             // TEST CODE: Debugging distance of mesh nodes from camera, trying to fix model "pop"
@@ -204,6 +202,21 @@ namespace TrajectoryPlanner
             //    Camera brainCamera = brainCamController.GetCamera();
             //    Debug.Log(Vector3.Distance(brainCamera.transform.position, defaultLoadedNodes[0].GetMeshCenter()));
             //}
+        }
+
+        private void LateUpdate()
+        {
+            if (movedThisFrame)
+            {
+                movedThisFrame = false;
+
+                inPlaneSlice.UpdateInPlaneSlice();
+
+                bool inBrain = activeProbe.IsProbeInBrain();
+                SetSurfaceDebugActive(inBrain);
+                if (inBrain)
+                    SetSurfaceDebugPosition(activeProbe.GetSurfaceCoordinateWorld().surfaceCoordinateWorld);
+            }
         }
 
         #endregion
@@ -232,7 +245,7 @@ namespace TrajectoryPlanner
 
             foreach (var savedProbe in savedProbes)
             {
-                var probeInsertion = new ProbeInsertion(savedProbe.tipPos, savedProbe.angles);
+                var probeInsertion = new ProbeInsertion(savedProbe.tipPos, savedProbe.angles, activeCoordinateSpace, activeCoordinateTransform);
                 AddNewProbeCCF(savedProbe.type, probeInsertion,
                     savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
                     savedProbe.dropToSurfaceWithDepth);
@@ -266,7 +279,7 @@ namespace TrajectoryPlanner
         public Vector3 CoordinateTransformToCCF(Vector3 fromCoord)
         {
             if (activeCoordinateTransform != null)
-                return activeCoordinateTransform.ToCCF(fromCoord);
+                return activeCoordinateTransform.Transform2Space(fromCoord);
             else
                 return fromCoord;
         }
@@ -279,7 +292,7 @@ namespace TrajectoryPlanner
         public Vector3 CoordinateTransformFromCCF(Vector3 ccfCoord)
         {
             if (activeCoordinateTransform != null)
-                return activeCoordinateTransform.FromCCF(ccfCoord);
+                return activeCoordinateTransform.Space2Transform(ccfCoord);
             else
                 return ccfCoord;
         }
@@ -319,14 +332,14 @@ namespace TrajectoryPlanner
             return acronym ? probePanelAcronymTextFontSize : probePanelAreaTextFontSize;
         }
 
-        public AnnotationDataset GetAnnotationDataset()
+        public CCFAnnotationDataset GetAnnotationDataset()
         {
             return vdmanager.GetAnnotationDataset();
         }
 
         public int GetActiveProbeType()
         {
-            return activeProbeController.GetProbeType();
+            return activeProbe.GetProbeType();
         }
 
         public bool IsManipulatorRightHanded(int manipulatorId)
@@ -380,34 +393,34 @@ namespace TrajectoryPlanner
 
         private void DestroyActiveProbeController()
         {
-            prevProbeType = activeProbeController.GetProbeType();
-            prevInsertion = activeProbeController.GetProbeController().GetInsertion();
-            _prevManipulatorId = activeProbeController.GetManipulatorId();
-            _prevZeroCoordinateOffset = activeProbeController.GetZeroCoordinateOffset();
-            _prevBrainSurfaceOffset = activeProbeController.GetBrainSurfaceOffset();
-            List<Collider> probeColliders = activeProbeController.GetProbeColliders();
+            prevProbeType = activeProbe.GetProbeType();
+            prevInsertion = activeProbe.GetProbeController().Insertion;
+            _prevManipulatorId = activeProbe.GetManipulatorId();
+            _prevZeroCoordinateOffset = activeProbe.GetZeroCoordinateOffset();
+            _prevBrainSurfaceOffset = activeProbe.GetBrainSurfaceOffset();
+            List<Collider> probeColliders = activeProbe.GetProbeColliders();
 
             Debug.Log("Destroying probe type " + prevProbeType + " with coordinates");
 
-            Color returnColor = activeProbeController.GetColor();
+            Color returnColor = activeProbe.GetColor();
 
 
-            activeProbeController.Destroy();
-            Destroy(activeProbeController.gameObject);
-            allProbeManagers.Remove(activeProbeController);
+            activeProbe.Destroy();
+            Destroy(activeProbe.gameObject);
+            allProbeManagers.Remove(activeProbe);
             if (allProbeManagers.Count > 0)
                 SetActiveProbe(allProbeManagers[allProbeManagers.Count - 1]);
             else
             {
-                activeProbeController = null;
+                activeProbe = null;
                 probeQuickSettings.UpdateInteractable(true);
             }
 
             // remove colliders
             UpdateProbeColliders();
 
-            if (activeProbeController != null)
-                activeProbeController.CheckCollisions(GetAllNonActiveColliders());
+            if (activeProbe != null)
+                activeProbe.CheckCollisions(GetAllNonActiveColliders());
 
             ReturnProbeColor(returnColor);
 
@@ -418,11 +431,6 @@ namespace TrajectoryPlanner
         private void RecoverActiveProbeController()
         {
             AddNewProbe(prevProbeType, prevInsertion, _prevManipulatorId, _prevZeroCoordinateOffset, _prevBrainSurfaceOffset);
-        }
-
-        public void ManualCoordinateEntryTransformed(float ap, float ml, float dv, float phi, float theta, float spin, float depth = 0f)
-        {
-            activeProbeController.GetProbeController().SetProbeInsertionTransformed(ap, ml, dv, phi, theta, spin, depth);
         }
 
         public void AddIBLProbes()
@@ -437,7 +445,7 @@ namespace TrajectoryPlanner
             yield return new WaitForSeconds(delay);
             AddNewProbe(1);
             yield return new WaitForSeconds(0.05f);
-            activeProbeController.GetProbeController().SetProbeInsertionTransformed(5.4f, 5.7f, 0.332f, phi, theta, 0f);
+            activeProbe.GetProbeController().SetProbeAngles(new Vector3(phi, theta, 0f));
         }
 
         IEnumerator DelayedMoveAllProbes()
@@ -495,33 +503,17 @@ namespace TrajectoryPlanner
             return probeController;
         }
 
-        public ProbeManager AddNewProbeTransformed(int probeType, float ap, float ml, float dv, float phi, float theta, float spin,
-            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
-        {
-            ProbeManager probeController = AddNewProbe(probeType);
-            if (!PlayerPrefs.IsLinkDataExpired())
-            {
-                probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
-                probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
-                probeController.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (manipulatorId != 0) probeController.SetEphysLinkMovement(true, manipulatorId);
-            }
-            
-            StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(ap, ml, dv, phi, theta, spin, 0.05f));
-
-            return probeController;
-        }
-
         public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, int manipulatorId = 0,
             Vector4 zeroCoordinateOffset = new Vector4(), float brainSurfaceOffset = 0)
         {
             ProbeManager probeController = AddNewProbe(probeType);
             if (manipulatorId == 0)
             {
-                StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(
-                    localInsertion.ap, localInsertion.ml, localInsertion.dv, 
-                    localInsertion.phi, localInsertion.theta, localInsertion.spin,
-                    0.05f));
+                Debug.LogError("TODO IMPLEMENT");
+                //StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(
+                //    localInsertion.ap, localInsertion.ml, localInsertion.dv, 
+                //    localInsertion.phi, localInsertion.theta, localInsertion.spin,
+                //    0.05f));
             }
             else
             {
@@ -625,16 +617,16 @@ namespace TrajectoryPlanner
 
         public void SetActiveProbe(ProbeManager newActiveProbeController)
         {
-            if (activeProbeController == newActiveProbeController)
+            if (activeProbe == newActiveProbeController)
                 return;
 
             Debug.Log("Setting active probe to: " + newActiveProbeController.gameObject.name);
-            activeProbeController = newActiveProbeController;
+            activeProbe = newActiveProbeController;
 
             foreach (ProbeManager probeManager in allProbeManagers)
             {
                 // Check visibility
-                bool isActiveProbe = probeManager == activeProbeController;
+                bool isActiveProbe = probeManager == activeProbe;
                 if (GetSetting_ShowAllProbePanels())
                     probeManager.SetUIVisibility(true);
                 else
@@ -651,7 +643,7 @@ namespace TrajectoryPlanner
             UpdateProbeColliders();
 
             // Also update the recording region size slider
-            recRegionSlider.SliderValueChanged(activeProbeController.GetProbeController().GetRecordingRegionSize());
+            recRegionSlider.SliderValueChanged(activeProbe.GetProbeController().GetRecordingRegionSize());
 
             // Reset the inplane slice zoom factor
             inPlaneSlice.ResetZoom();
@@ -668,8 +660,8 @@ namespace TrajectoryPlanner
 
         public void ResetActiveProbe()
         {
-            if (activeProbeController != null)
-                activeProbeController.GetProbeController().ResetInsertion();
+            if (activeProbe != null)
+                activeProbe.GetProbeController().ResetInsertion();
         }
 
         public Color GetProbeColor(int probeID)
@@ -679,7 +671,7 @@ namespace TrajectoryPlanner
 
         public ProbeManager GetActiveProbeController()
         {
-            return activeProbeController;
+            return activeProbe;
         }
 
         public bool MovedThisFrame()
@@ -712,8 +704,8 @@ namespace TrajectoryPlanner
             // Sort out which colliders are active vs inactive
             inactiveProbeColliders.Clear();
 
-            List<Collider> activeProbeColliders = (activeProbeController != null) ?
-                activeProbeController.GetProbeColliders() :
+            List<Collider> activeProbeColliders = (activeProbe != null) ?
+                activeProbe.GetProbeColliders() :
                 new List<Collider>();
 
             foreach (Collider collider in allProbeColliders)
@@ -753,6 +745,7 @@ namespace TrajectoryPlanner
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
             UpdateInPlaneView();
+            UpdateQuickSettings();
         }
 
         ///
@@ -784,6 +777,18 @@ namespace TrajectoryPlanner
         }
 
         #region Player Preferences
+
+        public void SetSetting_DisplayUM(bool state)
+        {
+            localPrefs.SetDisplayUm(state);
+
+            UpdateQuickSettings();
+        }
+
+        public bool GetSetting_DisplayUM()
+        {
+            return localPrefs.GetDisplayUm();
+        }
         
         public void SetSetting_UseBeryl(bool state)
         {
@@ -807,7 +812,7 @@ namespace TrajectoryPlanner
                     probeManager.SetUIVisibility(true);
             else
                 foreach (ProbeManager probeManager in allProbeManagers)
-                    probeManager.SetUIVisibility(activeProbeController == probeManager);
+                    probeManager.SetUIVisibility(activeProbe == probeManager);
 
             RecalculateProbePanels();
         }
@@ -877,15 +882,9 @@ namespace TrajectoryPlanner
         public void SetSetting_InVivoTransformState(int invivoOption)
         {
             localPrefs.SetStereotaxic(invivoOption);
-            invivoOption -= 1;
 
-            if (invivoOption >= 0)
-            {
-                Debug.Log("(tpmanager) Attempting to set transform to: " + availableCoordinateTransforms[invivoOption].Name);
-                activeCoordinateTransform = availableCoordinateTransforms[invivoOption];
-            }
-            else
-                activeCoordinateTransform = null;
+            Debug.Log("(tpmanager) Attempting to set transform to: " + availableCoordinateTransforms[invivoOption].Name);
+            activeCoordinateTransform = availableCoordinateTransforms[invivoOption];
 
             MoveAllProbes();
         }
@@ -904,8 +903,8 @@ namespace TrajectoryPlanner
         public void SetSetting_CollisionInfoVisibility(bool toggleCollisions)
         {
             localPrefs.SetCollisions(toggleCollisions);
-            if (activeProbeController != null)
-                activeProbeController.CheckCollisions(GetAllNonActiveColliders());
+            if (activeProbe != null)
+                activeProbe.CheckCollisions(GetAllNonActiveColliders());
         }
 
         public void SetSetting_InPlanePanelVisibility(bool state)
@@ -933,7 +932,7 @@ namespace TrajectoryPlanner
 
         public void SetSurfaceDebugActive(bool active)
         {
-            if (localPrefs.GetSurfaceCoord() && activeProbeController != null)
+            if (localPrefs.GetSurfaceCoord() && activeProbe != null)
                 surfaceDebugGO.SetActive(active);
             else
                 surfaceDebugGO.SetActive(false);
@@ -1017,7 +1016,7 @@ namespace TrajectoryPlanner
             for (int i =0; i< allProbeManagers.Count; i++)
             {
                 ProbeManager probe = allProbeManagers[i];
-                ProbeInsertion probeInsertion = probe.GetProbeController().GetInsertion();
+                ProbeInsertion probeInsertion = probe.GetProbeController().Insertion;
                 probeCoordinates[i] = (probeInsertion.ap, probeInsertion.ml, probeInsertion.dv, probeInsertion.phi, probeInsertion.theta, probeInsertion.spin, probe.GetProbeType(), probe.GetManipulatorId(),
                     probe.GetZeroCoordinateOffset(), probe.GetBrainSurfaceOffset(),
                     probe.IsSetToDropToSurfaceWithDepth());
@@ -1084,26 +1083,26 @@ namespace TrajectoryPlanner
 
         public void SetProbeTipPositionToCCFNode(CCFTreeNode targetNode)
         {
-            if (activeProbeController == null) return;
+            if (activeProbe == null) return;
             int berylID = modelControl.GetBerylID(targetNode.ID);
             Vector3 apmldv = meshCenters[berylID];
 
             if (berylID==prevTipID && prevTipSideLeft)
             {
                 // we already hit this area, switch sides
-                    activeProbeController.GetProbeController().SetProbePosition(new Vector3(apmldv.x, 11.4f-apmldv.y, apmldv.z));
+                    activeProbe.GetProbeController().SetProbePosition(new Vector3(apmldv.x, 11.4f-apmldv.y, apmldv.z));
                 prevTipSideLeft = false;
             }
             else
             {
                 // first time, go left
-                activeProbeController.GetProbeController().SetProbePosition(apmldv);
+                activeProbe.GetProbeController().SetProbePosition(apmldv);
                 prevTipSideLeft = true;
             }
 
             prevTipID = berylID;
 
-            activeProbeController.UpdateUI();
+            activeProbe.UpdateUI();
             UpdateInPlaneView();
         }
 
@@ -1113,7 +1112,7 @@ namespace TrajectoryPlanner
 
         public void CopyText()
         {
-            activeProbeController.Probe2Text();
+            activeProbe.Probe2Text();
         }
 
         #endregion

@@ -1,13 +1,28 @@
 using System;
 using UnityEngine;
+using CoordinateSpaces;
+using CoordinateTransforms;
 
 /// <summary>
-/// Representation of a probe insertion in *CCF SPACE*.
-/// Also allows you to convert insertions to string/JSON formats for export and reads string/JSON formats for ingestion.
+/// Representation of a probe insertion in a native CoordinateSpace and CoordinateTransform
+/// 
+/// Note that ProbeInsertions don't internally represent rotations caused by a CoordinateTransform
+/// to interpolate these properly you need to use e.g. the tip/top positions that are output by the
+/// CoordinateTransform 
 /// </summary>
 [Serializable]
 public class ProbeInsertion
 {
+    #region Coordinate vars
+    private CoordinateSpace _coordinateSpace;
+    private CoordinateTransform _coordinateTransform;
+
+    public CoordinateSpace CoordinateSpace { get { return _coordinateSpace; } }
+    public CoordinateTransform CoordinateTransform { get { return _coordinateTransform; } }
+    #endregion
+
+    #region pos/angle vars
+
     public float ap;
     public float ml;
     public float dv;
@@ -36,27 +51,12 @@ public class ProbeInsertion
             spin = value.z;
         }
     }
+    #endregion
 
-    public ProbeInsertion(float ap, float ml, float dv, float phi, float theta, float spin)
-    {
-        SetCoordinates(ap, ml, dv, phi, theta, spin);
-    }
+    #region constructor
 
-    public ProbeInsertion(Vector3 tipPosition, Vector3 angles)
-    {
-        apmldv = tipPosition;
-        this.angles = angles;
-    }
-
-    public ProbeInsertion(string stringRepresentation, bool JSON)
-    {
-        if (JSON)
-            SetCoordinatesJSON(stringRepresentation);
-        else
-            SetCoordinatesString(stringRepresentation);
-    }
-
-    public void SetCoordinates(float ap, float ml, float dv, float phi, float theta, float spin)
+    public ProbeInsertion(float ap, float ml, float dv, float phi, float theta, float spin, 
+        CoordinateSpace coordSpace, CoordinateTransform coordTransform)
     {
         this.ap = ap;
         this.ml = ml;
@@ -64,176 +64,39 @@ public class ProbeInsertion
         this.phi = phi;
         this.theta = theta;
         this.spin = spin;
+        _coordinateSpace = coordSpace;
+        _coordinateTransform = coordTransform;
     }
 
-    public void SetCoordinates(float ap, float ml, float dv, float phi, float theta, float spin,
-        CoordinateTransform coordTransform)
+    public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
+        CoordinateSpace coordSpace, CoordinateTransform coordTransform)
     {
-        Vector3 ccf_apmldv = coordTransform.ToCCF(new Vector3(ap, ml, dv));
-        this.ap = ccf_apmldv.x;
-        this.ml = ccf_apmldv.y;
-        this.dv = ccf_apmldv.z;
-        this.phi = phi;
-        this.theta = theta;
-        this.spin = spin;
+        apmldv = tipPosition;
+        this.angles = angles;
+        _coordinateSpace = coordSpace;
+        _coordinateTransform = coordTransform;
     }
 
-    public void SetCoordinates(ProbeInsertion otherInsertion)
+    #endregion
+
+    public Vector3 GetPositionSpace()
     {
-        ap = otherInsertion.ap;
-        ml = otherInsertion.ml;
-        dv = otherInsertion.dv;
-        phi = otherInsertion.phi;
-        theta = otherInsertion.theta;
-        spin = otherInsertion.spin;
+        return _coordinateTransform.Transform2Space(apmldv);
     }
 
-    public void SetCoordinates(ProbeInsertion otherInsertion, CoordinateTransform coordTransform)
+    public Vector3 GetPositionWorld()
     {
-        Vector3 ccf_apmldv = coordTransform.ToCCF(otherInsertion.apmldv);
-        this.ap = ccf_apmldv.x;
-        this.ml = ccf_apmldv.y;
-        this.dv = ccf_apmldv.z;
-        phi = otherInsertion.phi;
-        theta = otherInsertion.theta;
-        spin = otherInsertion.spin;
+        return _coordinateSpace.Space2World(GetPositionSpace());
     }
 
-
-    public void SetPosition(ProbeInsertion otherInsertion, CoordinateTransform coordTransform)
+    // Convenience function for transforming world to this insertion's transformed space (i.e. world -> space -> transformed)
+    public Vector3 World2Transformed(Vector3 coordWorld)
     {
-        var ccf_apmldv = coordTransform.ToCCF(otherInsertion.apmldv);
-        ap = ccf_apmldv.x;
-        ml = ccf_apmldv.y;
-        dv = ccf_apmldv.z;
-    }
-
-    public void SetAngles(ProbeInsertion otherInsertion, CoordinateTransform coordTransform)
-    {
-        phi = otherInsertion.phi;
-        theta = otherInsertion.theta;
-        spin = otherInsertion.spin;
-    }
-
-    public void SetPosition(float ap, float ml, float dv, CoordinateTransform coordTransform = null)
-    {
-        ap /= 1000f;
-        ml /= 1000f;
-        dv /= 1000f;
-        var ccf_apmldv = coordTransform?.ToCCF(new Vector3(ap, ml, dv)) ?? new Vector3(ap, ml, dv);
-
-        this.ap = ccf_apmldv.x;
-        this.ml = ccf_apmldv.y;
-        this.dv = ccf_apmldv.z;
-    }
-
-    public void SetAngles(float phi, float theta, float spin)
-    {
-        this.phi = phi;
-        this.theta = theta;
-        this.spin = spin;
-    }
-
-    public void SetCoordinatesString(string input)
-    {
-        int metaIdx = input.IndexOf(';');
-        int apIdx = input.IndexOf("ccfAP:");
-        int mlIdx = input.IndexOf("ccfML:");
-        int dvIdx = input.IndexOf("ccfDV:");
-        int phiIdx = input.IndexOf("ccfPh:");
-        int thetaIdx = input.IndexOf("ccfTh:");
-        int spinIdx = input.IndexOf("ccfSp:");
-        ap = float.Parse(input.Substring(apIdx + 7, mlIdx));
-        ml = float.Parse(input.Substring(mlIdx + 7, dvIdx));
-        dv = float.Parse(input.Substring(dvIdx + 7, phiIdx));
-        phi = float.Parse(input.Substring(phiIdx + 7, thetaIdx));
-        theta = float.Parse(input.Substring(thetaIdx + 7, spinIdx));
-        spin = float.Parse(input.Substring(spinIdx + 7, input.Length));
-    }
-
-    public void SetCoordinatesJSON(string json)
-    {
-        ProbeInsertion temp = JsonUtility.FromJson<ProbeInsertion>(json);
-        SetCoordinates(temp);
-    }
-
-    public string GetCoordinatesString()
-    {
-        return string.Format("ccfAP:{1} ccfML:{2} ccfDV:{3} ccfPh:{4} ccfTh:{5} ccfSp:{6}", ap, ml, dv, phi, theta,
-            spin);
-    }
-
-    public string GetCoordinatesJSON()
-    {
-        return JsonUtility.ToJson(this);
-    }
-
-    public (float, float, float, float, float, float) GetCoordinatesFloat()
-    {
-        return (ap, ml, dv, phi, theta, spin);
-    }
-
-    public (float, float, float, float, float, float) GetCoordinatesFloat(CoordinateTransform coordTransform)
-    {
-        Vector3 transCoord = coordTransform.FromCCF(apmldv);
-        return (transCoord.x, transCoord.y, transCoord.z, phi, theta, spin);
-    }
-
-    /// <summary>
-    /// Set coordinates in IBL conventions, expects um units and IBL rotated angles
-    /// </summary>
-    public void SetCoordinates_IBL(float ap, float ml, float dv, float phi, float theta, float spin,
-        CoordinateTransform coordTransform = null)
-    {
-        Vector2 worldPhiTheta = Utils.IBL2World(new Vector2(phi, theta));
-
-        if (coordTransform != null)
-        {
-            Vector3 ccf_apmldv = coordTransform.ToCCF(new Vector3(ap / 1000f, ml / 1000f, dv / 1000f));
-            SetCoordinates(ccf_apmldv.x, ccf_apmldv.y, ccf_apmldv.z, worldPhiTheta.x, worldPhiTheta.y, spin);
-        }
-        else
-            SetCoordinates(ap / 1000f, ml / 1000f, dv / 1000f, worldPhiTheta.x, worldPhiTheta.y, spin);
-    }
-
-    /// <summary>
-    ///     Set coordinates in IBL conventions, expects um units and IBL rotated angles
-    /// </summary>
-    public void SetAngles_IBL(float phi, float theta, float spin)
-    {
-        var worldPhiTheta = Utils.IBL2World(new Vector2(phi, theta));
-        SetAngles(worldPhiTheta.x, worldPhiTheta.y, spin);
-    }
-
-    /// <summary>
-    /// Return coordinates in IBL conventions, i.e. um units and rotated angles
-    /// </summary>
-    /// <returns></returns>
-    public (float, float, float, float, float, float) GetCoordinatesFloat_IBL(CoordinateTransform coordTransform = null)
-    {
-        Vector2 iblPhiTheta = Utils.World2IBL(new Vector2(phi, theta));
-        if (coordTransform != null)
-        {
-            Vector3 transCoord = coordTransform.FromCCF(apmldv);
-            return (transCoord.x * 1000f, transCoord.y * 1000f, transCoord.z * 1000f, iblPhiTheta.x, iblPhiTheta.y,
-                spin);
-        }
-        else
-            return (ap * 1000f, ml * 1000f, dv * 1000f, iblPhiTheta.x, iblPhiTheta.y, spin);
-    }
-    
-    /// <summary>
-    /// Return coordinates in IBL conventions, i.e. um units and rotated angles
-    /// </summary>
-    /// <returns></returns>
-    public Vector3 GetAngles_IBL()
-    {
-        Vector2 iblPhiTheta = Utils.World2IBL(new Vector2(phi, theta));
-        return new Vector3(iblPhiTheta.x, iblPhiTheta.y, spin);
+        return _coordinateTransform.Space2Transform(_coordinateSpace.World2Space(coordWorld));
     }
 
     public override string ToString()
     {
-        return string.Format("position ({0},{1},{2}) angles ({3},{4},{5})", ap, ml, dv, phi, theta, spin);
+        return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, phi, theta, spin, _coordinateSpace.ToString(), _coordinateTransform.ToString());
     }
 }

@@ -8,6 +8,11 @@ using TrajectoryPlanner;
 
 public class TP_CoordinateEntryPanel : MonoBehaviour
 {
+    [SerializeField] private TMP_Text apText;
+    [SerializeField] private TMP_Text mlText;
+    [SerializeField] private TMP_Text dvText;
+    [SerializeField] private TMP_Text depthText;
+
     [SerializeField] private TMP_InputField apField;
     [SerializeField] private TMP_InputField mlField;
     [SerializeField] private TMP_InputField dvField;
@@ -43,23 +48,39 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     public void LinkProbe(ProbeManager probeManager)
     {
         linkedProbe = probeManager;
+        // change the apmldv/depth text fields to match the prefix on this probe's insertion
+        string prefix = linkedProbe.GetProbeController().Insertion.CoordinateTransform.Prefix;
+        apText.text = prefix + "AP";
+        mlText.text = prefix + "ML";
+        dvText.text = prefix + "DV";
+        depthText.text = prefix + "Depth";
     }
 
     public void UpdateText()
     {
         if (linkedProbe == null) return;
 
-        (float ap, float ml, float dv, float phi, float theta, float spin) = linkedProbe.GetProbeController().GetCoordinatesTransformed();
-        (float aps, float mls, float dvs, float depth, _, _, _) = linkedProbe.GetCoordinatesSurface();
-        apField.text = Round2Str(aps);
-        mlField.text = Round2Str(mls);
-        dvField.text = Round2Str(dvs);
-        depthField.text = Round2Str(depth);
+        //Vector3 apmldv = linkedProbe.GetProbeController().GetInsertion().apmldv;
+        Vector3 angles = linkedProbe.GetProbeController().Insertion.angles;
+
+        (_, Vector3 entryCoordT, float depthT) = linkedProbe.GetSurfaceCoordinateTransformed();
+
+        float mult = tpmanager.GetSetting_DisplayUM() ? 1000f : 1f;
+
+        apField.text = Round2Str(entryCoordT.x * mult);
+        mlField.text = Round2Str(entryCoordT.y * mult);
+        dvField.text = Round2Str(entryCoordT.z * mult);
+        depthField.text = float.IsNaN(depthT) ? "nan" : Round2Str(depthT * mult);
+
+        // if in IBL angles, rotate the angles appropriately
+        if (tpmanager.GetSetting_UseIBLAngles())
+            angles = Utils.World2IBL(angles);
+
         if (!probeQuickSettings.IsFocused())
         {
-            phiField.text = Round2Str(phi);
-            thetaField.text = Round2Str(theta);
-            spinField.text = Round2Str(spin);
+            phiField.text = Round2Str(angles.x);
+            thetaField.text = Round2Str(angles.y);
+            spinField.text = Round2Str(angles.z);
         }
     }
 
@@ -81,7 +102,8 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
                 float.Parse(depthField.text) + 200f : 
                 0;
 
-            linkedProbe.GetProbeController().SetProbePositionTransformed(ap, ml, dv, depth/1000f);
+            Debug.LogError("TODO implement");
+            //linkedProbe.GetProbeController().SetProbePositionTransformed(ap, ml, dv, depth/1000f);
         }
         catch
         {
@@ -93,19 +115,14 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     {
         try
         {
-            float ap = (apField.text.Length > 0) ? float.Parse(apField.text) : 0;
-            float ml = (mlField.text.Length > 0) ? float.Parse(mlField.text) : 0;
-            float dv = (dvField.text.Length > 0) ? float.Parse(dvField.text) : 0;
-            float depth = (depthField.text.Length > 0 && depthField.text != "nan") ?
-                float.Parse(depthField.text) + 200f :
-                0;
-            float phi = (phiField.text.Length > 0) ? float.Parse(phiField.text) : 0;
-            float theta = (thetaField.text.Length > 0) ? float.Parse(thetaField.text) : 0;
-            float spin = (spinField.text.Length > 0) ? float.Parse(spinField.text) : 0;
+            Vector3 angles = new Vector3((phiField.text.Length > 0) ? float.Parse(phiField.text) : 0,
+                (thetaField.text.Length > 0) ? float.Parse(thetaField.text) : 0,
+                (spinField.text.Length > 0) ? float.Parse(spinField.text) : 0);
 
-            Debug.Log((ap, ml, dv, depth, phi, theta, spin));
+            if (tpmanager.GetSetting_UseIBLAngles())
+                angles = Utils.IBL2World(angles);
 
-            linkedProbe.GetProbeController().SetProbeAnglesTransformed(phi, theta, spin);
+            linkedProbe.GetProbeController().SetProbeAngles(angles);
         }
         catch
         {

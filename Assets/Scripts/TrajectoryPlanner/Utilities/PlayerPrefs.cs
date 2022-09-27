@@ -37,6 +37,7 @@ public class PlayerPrefs : MonoBehaviour
     private bool _showAllProbePanels;
     private string _rightHandedManipulatorIds;
     private bool _useBeryl;
+    private bool _displayUM;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -54,6 +55,7 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle axisControlToggle;
     [SerializeField] Toggle showAllProbePanelsToggle;
     [SerializeField] Toggle useBerylToggle;
+    [SerializeField] Toggle displayUmToggle;
     
 
     /// <summary>
@@ -110,6 +112,9 @@ public class PlayerPrefs : MonoBehaviour
 
         _useBeryl = LoadBoolPref("use_beryl", true);
         useBerylToggle.isOn = _useBeryl;
+
+        _displayUM = LoadBoolPref("display_um", true);
+        displayUmToggle.isOn = _displayUM;
     }
 
     /// <summary>
@@ -151,6 +156,17 @@ public class PlayerPrefs : MonoBehaviour
     }
 
     #region Getters/Setters
+
+    public void SetDisplayUm(bool state)
+    {
+        _displayUM = state;
+        UnityEngine.PlayerPrefs.SetInt("display_um", _displayUM ? 1 : 0);
+    }
+
+    public bool GetDisplayUm()
+    {
+        return _displayUM;
+    }
 
     public void SetUseBeryl(bool state)
     {

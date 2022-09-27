@@ -683,7 +683,7 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
-    - m_Text: Do not transform CCF to in vivo
+    - m_Text: CCF Atlas
       m_Image: {fileID: 0}
     - m_Text: Needles Transform
       m_Image: {fileID: 0}
@@ -1220,7 +1220,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Do not transform CCF to in vivo
+  m_text: CCF Atlas
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

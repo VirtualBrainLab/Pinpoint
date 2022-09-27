@@ -15,7 +15,7 @@ public class ProbeUIManager : MonoBehaviour
     [SerializeField] private GameObject electrodeBase;
     [SerializeField] private int order;
 
-    private AnnotationDataset annotationDataset;
+    private CCFAnnotationDataset annotationDataset;
 
     private TrajectoryPlannerManager tpmanager;
 
@@ -102,14 +102,13 @@ public class ProbeUIManager : MonoBehaviour
 
     private void ProbedMovedHelper()
     {
-        Debug.Log("Probe moved, re-drawing UI");
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
         (float mmStartPos, float mmRecordingSize) = probeManager.GetProbeController().GetRecordingRegionHeight();
 
         
         (Vector3 tip_world, Vector3 top_world) = probeManager.GetProbeController().GetRecordingRegionCoordinates(electrodeBase.transform);
-        Vector3 tip_apdvlr25 = annotationDataset.World2Annotation(tip_world);
-        Vector3 top_apdvlr25 = annotationDataset.World2Annotation(top_world);
+        Vector3 tip_apdvlr25 = annotationDataset.CoordinateSpace.World2Space(tip_world);
+        Vector3 top_apdvlr25 = annotationDataset.CoordinateSpace.World2Space(top_world);
 
 
         List<int> mmTickPositions = new List<int>();

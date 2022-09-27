@@ -23,7 +23,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     [SerializeField] private GameObject gpuInPlaneSliceGO;
     private Renderer gpuSliceRenderer;
 
-    private AnnotationDataset annotationDataset;
+    private CCFAnnotationDataset annotationDataset;
 
     private float probeWidth = 70; // probes are 70um wide
     private int zoomLevel = 0;
@@ -114,8 +114,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         bool fourShank = activeProbeController.GetProbeType() == 4;
 
         recordingRegionCenterPosition = fourShank ? 
-            annotationDataset.World2Annotation(recRegionBottomPos + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
-            annotationDataset.World2Annotation(recRegionBottomPos + tipTransform.up * mmRecordingSize / 2); ;
+            annotationDataset.CoordinateSpace.World2Space(recRegionBottomPos + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
+            annotationDataset.CoordinateSpace.World2Space(recRegionBottomPos + tipTransform.up * mmRecordingSize / 2); ;
 
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 
