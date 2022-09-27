@@ -726,9 +726,9 @@ public class ProbeManager : MonoBehaviour
         var zeroCoordinateAdjustedPosition = pos - _zeroCoordinateOffset;
 
         // Phi adjustment
-        Debug.LogWarning("Rotation here may no longer be correct");
-        _phiCos = Mathf.Cos(probeController.Insertion.phi * Mathf.Deg2Rad);
-        _phiSin = Mathf.Sin(probeController.Insertion.phi * Mathf.Deg2Rad);
+        var probePhi = (probeController.Insertion.phi + 90) * Mathf.Deg2Rad;
+        _phiCos = Mathf.Cos(probePhi);
+        _phiSin = Mathf.Sin(probePhi);
         var phiAdjustedX = zeroCoordinateAdjustedPosition.x * _phiCos -
                            zeroCoordinateAdjustedPosition.y * _phiSin;
         var phiAdjustedY = zeroCoordinateAdjustedPosition.x * _phiSin +
@@ -751,10 +751,10 @@ public class ProbeManager : MonoBehaviour
 
         // Set probe position (swapping the axes)
         probeController.SetProbePosition(new Vector4(
-            zeroCoordinateAdjustedPosition.y * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? -1 : 1),
-            -zeroCoordinateAdjustedPosition.x,
+            zeroCoordinateAdjustedPosition.y,
+            zeroCoordinateAdjustedPosition.x * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? 1 : -1),
             -zeroCoordinateAdjustedPosition.z,
-            zeroCoordinateAdjustedPosition.w / 1000f));
+            zeroCoordinateAdjustedPosition.w));
 
 
         // Continue echoing position

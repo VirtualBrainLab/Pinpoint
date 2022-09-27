@@ -726,10 +726,10 @@ public class DefaultProbeController : ProbeController
         SetProbePosition();
     }
 
-    public void SetProbePosition(Vector4 positionDepth)
+    public override void SetProbePosition(Vector4 positionDepth)
     {
         Insertion.apmldv = positionDepth;
-        depth = positionDepth.z;
+        depth = positionDepth.w;
         SetProbePosition();
     }
     
