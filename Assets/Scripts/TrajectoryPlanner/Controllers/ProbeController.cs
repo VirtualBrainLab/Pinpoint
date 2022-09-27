@@ -32,6 +32,8 @@ public abstract class ProbeController : MonoBehaviour
 
     public abstract void SetProbePosition(Vector3 position);
 
+    public abstract void SetProbePosition(Vector4 positionDepth);
+
     public abstract void SetProbePositionTransformed(ProbeInsertion localInsertion);
 
     public abstract void SetProbeAngles(Vector3 angles);
