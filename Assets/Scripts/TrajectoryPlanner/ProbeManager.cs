@@ -667,21 +667,22 @@ public class ProbeManager : MonoBehaviour
         
         var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
             annotationDataset.CoordinateSpace.World2Space(probeController.GetTipTransform().position - tipExtensionDirection * 5),
-            probeController.GetTipTransform().up);
+            annotationDataset.CoordinateSpace.World2SpaceRot(probeController.GetTipTransform().up));
 
-        Vector3 brainSurface = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
-        float depth = Vector3.Distance(brainSurface, probeController.GetTipTransform().position);
+        var brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
+        var depth = Vector3.Distance(brainSurfaceWorld, probeController.GetTipTransform().position);
+        
+        Debug.DrawLine(probeController.GetTipTransform().position, brainSurfaceWorld, Color.red, 30);
 
         var computedOffset = depth - 5;
 
         if (IsConnectedToManipulator())
         {
-            _brainSurfaceOffset -= computedOffset * 1000;
+            _brainSurfaceOffset -= computedOffset;
         }
         else
         {
-            probeController.SetProbePosition(brainSurface);
-            tpmanager.UpdateInPlaneView();
+            probeController.SetProbePosition(probeController.Insertion.World2Transformed(brainSurfaceWorld));
         }
     }
 
