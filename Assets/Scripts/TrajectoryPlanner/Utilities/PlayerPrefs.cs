@@ -30,7 +30,6 @@ public class PlayerPrefs : MonoBehaviour
     private int invivoTransform;
     private bool useIBLAngles;
     private bool showSurfaceCoord;
-    //private bool useIblBregma;
     private string _ephysLinkServerIp;
     private int _ephysLinkServerPort;
     private bool _axisControl;
@@ -49,14 +48,13 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] TMP_Dropdown invivoDropdown;
     [SerializeField] Toggle iblAngleToggle;
     [SerializeField] Toggle surfaceToggle;
-    //[SerializeField] Toggle bregmaToggle;
     [SerializeField] TMP_InputField ephysLinkServerIpInput;
     [SerializeField] TMP_InputField ephysLinkServerPortInput;
     [SerializeField] Toggle axisControlToggle;
     [SerializeField] Toggle showAllProbePanelsToggle;
     [SerializeField] Toggle useBerylToggle;
     [SerializeField] Toggle displayUmToggle;
-    
+
 
     /// <summary>
     /// On Awake() load the preferences and toggle the corresponding UI elements
@@ -65,9 +63,6 @@ public class PlayerPrefs : MonoBehaviour
     {
         _collisions = LoadBoolPref("collisions", true);
         collisionsToggle.isOn = _collisions;
-
-        //useIblBregma = LoadBoolPref("bregma", true);
-        ////bregmaToggle.isOn = useIblBregma;
 
         _recordingRegionOnly = LoadBoolPref("recording", true);
         recordingRegionToggle.isOn = _recordingRegionOnly;
@@ -95,10 +90,10 @@ public class PlayerPrefs : MonoBehaviour
 
         showSurfaceCoord = LoadBoolPref("surface", true);
         surfaceToggle.isOn = showSurfaceCoord;
-        
+
         _ephysLinkServerIp = LoadStringPref("ephys_link_ip", "localhost");
         ephysLinkServerIpInput.text = _ephysLinkServerIp;
-        
+
         _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8080);
         ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
 
@@ -115,44 +110,6 @@ public class PlayerPrefs : MonoBehaviour
 
         _displayUM = LoadBoolPref("display_um", true);
         displayUmToggle.isOn = _displayUM;
-    }
-
-    /// <summary>
-    /// Return an array with information about the positions (in CCF) of probes that were saved from the last session
-    /// </summary>
-    /// <returns></returns>
-    public (Vector3 tipPos, float depth, Vector3 angles, int type, int manipulatorId, Vector4 zeroCoordinateOffset,
-        float brainSurfaceOffset, bool dropToSurfaceWithDepth)[] LoadSavedProbes()
-    {
-        int probeCount = UnityEngine.PlayerPrefs.GetInt("probecount", 0);
-
-        var savedProbes =
-            new (Vector3 tipPos, float depth, Vector3 angles, int type, int manipulatorId, Vector4 zeroCoordinateOffset,
-                float brainSurfaceOffset, bool dropToSurfaceWithDepth)[probeCount];
-
-        for (int i = 0; i < probeCount; i++)
-        {
-            float ap = UnityEngine.PlayerPrefs.GetFloat("ap" + i);
-            float ml = UnityEngine.PlayerPrefs.GetFloat("ml" + i);
-            float dv = UnityEngine.PlayerPrefs.GetFloat("dv" + i);
-            float depth = UnityEngine.PlayerPrefs.GetFloat("depth" + i);
-            float phi = UnityEngine.PlayerPrefs.GetFloat("phi" + i);
-            float theta = UnityEngine.PlayerPrefs.GetFloat("theta" + i);
-            float spin = UnityEngine.PlayerPrefs.GetFloat("spin" + i);
-            int type = UnityEngine.PlayerPrefs.GetInt("type" + i);
-            var manipulatorId = UnityEngine.PlayerPrefs.GetInt("manipulator_id" + i);
-            var x = UnityEngine.PlayerPrefs.GetFloat("x" + i);
-            var y = UnityEngine.PlayerPrefs.GetFloat("y" + i);
-            var z = UnityEngine.PlayerPrefs.GetFloat("z" + i);
-            var d = UnityEngine.PlayerPrefs.GetFloat("d" + i);
-            var brainSurfaceOffset = UnityEngine.PlayerPrefs.GetFloat("brain_surface_offset" + i);
-            var dropToSurfaceWithDepth = UnityEngine.PlayerPrefs.GetInt("drop_to_surface_with_depth" + i) == 1;
-
-            savedProbes[i] = (new Vector3(ap, ml, dv), depth, new Vector3(phi, theta, spin), type, manipulatorId,
-                new Vector4(x, y, z, d), brainSurfaceOffset, dropToSurfaceWithDepth);
-        }
-
-        return savedProbes;
     }
 
     #region Getters/Setters
@@ -311,18 +268,6 @@ public class PlayerPrefs : MonoBehaviour
         return _collisions;
     }
 
-    //public void SetBregma(bool useBregma)
-    //{
-    //    useIblBregma = useBregma;
-    //    PlayerPrefs.SetInt("bregma", useIblBregma ? 1 : 0);
-    //}
-
-    public bool GetBregma()
-    {
-        return true;
-        //return useIblBregma;
-    }
-
     /// <summary>
     ///     Return the saved Ephys Link server IP address.
     /// </summary>
@@ -347,7 +292,7 @@ public class PlayerPrefs : MonoBehaviour
     /// <returns>Saved IDs of right handed manipulators</returns>
     public HashSet<int> GetRightHandedManipulatorIds()
     {
-        return _rightHandedManipulatorIds == "" ? new HashSet<int>(): Array.ConvertAll(_rightHandedManipulatorIds.Split(','), int.Parse).ToHashSet();
+        return _rightHandedManipulatorIds == "" ? new HashSet<int>() : Array.ConvertAll(_rightHandedManipulatorIds.Split(','), int.Parse).ToHashSet();
     }
 
     /// <summary>
@@ -365,16 +310,35 @@ public class PlayerPrefs : MonoBehaviour
     #endregion
 
     #region Helper functions for booleans/integers/strings
+
+    /// <summary>
+    /// Load a boolean preference
+    /// </summary>
+    /// <param name="prefStr">string accessor</param>
+    /// <param name="defaultValue">default value if the preference is not set</param>
+    /// <returns></returns>
     private bool LoadBoolPref(string prefStr, bool defaultValue)
     {
         return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetInt(prefStr) == 1 : defaultValue;
     }
 
+    /// <summary>
+    /// Load an integer preference
+    /// </summary>
+    /// <param name="prefStr">string accessor</param>
+    /// <param name="defaultValue">default value if the preference is not set</param>
+    /// <returns></returns>
     private int LoadIntPref(string prefStr, int defaultValue)
     {
         return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetInt(prefStr) : defaultValue;
     }
 
+    /// <summary>
+    /// Load a string preference
+    /// </summary>
+    /// <param name="prefStr">string accessor</param>
+    /// <param name="defaultValue">default value if the preference is not set</param>
+    /// <returns></returns>
     private string LoadStringPref(string prefStr, string defaultValue)
     {
         return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetString(prefStr) : defaultValue;
@@ -382,29 +346,80 @@ public class PlayerPrefs : MonoBehaviour
 
     #endregion
 
+    #region Probe saving/loading
     /// <summary>
-    /// Save the data about all of the probes passed in through allProbeData in CCF coordinates, note that depth is ignored 
+    /// Return an array with information about the positions of probes that were saved from the last session
     /// </summary>
-    /// <param name="allProbeData">tip position, angles, and type for probes in CCF coordinates</param>
+    /// <returns></returns>
+    public (Vector3 apmldv, Vector3 angles,
+                int type, int manipulatorId,
+                string coordinateSpaceName, string coordinateTransformName,
+                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[] LoadSavedProbes()
+    {
+        int probeCount = UnityEngine.PlayerPrefs.GetInt("probecount", 0);
+
+        var savedProbes =
+            new (Vector3 apmldv, Vector3 angles,
+                int type, int manipulatorId,
+                string coordinateSpaceName, string coordinateTransformName,
+                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[probeCount];
+
+        for (int i = 0; i < probeCount; i++)
+        {
+            float ap = UnityEngine.PlayerPrefs.GetFloat("ap" + i);
+            float ml = UnityEngine.PlayerPrefs.GetFloat("ml" + i);
+            float dv = UnityEngine.PlayerPrefs.GetFloat("dv" + i);
+            float phi = UnityEngine.PlayerPrefs.GetFloat("phi" + i);
+            float theta = UnityEngine.PlayerPrefs.GetFloat("theta" + i);
+            float spin = UnityEngine.PlayerPrefs.GetFloat("spin" + i);
+            int type = UnityEngine.PlayerPrefs.GetInt("type" + i);
+            var manipulatorId = UnityEngine.PlayerPrefs.GetInt("manipulator_id" + i);
+            string coordSpaceName = UnityEngine.PlayerPrefs.GetString("coord_space" + i);
+            string coordTransName = UnityEngine.PlayerPrefs.GetString("coord_trans" + i);
+            var x = UnityEngine.PlayerPrefs.GetFloat("x" + i);
+            var y = UnityEngine.PlayerPrefs.GetFloat("y" + i);
+            var z = UnityEngine.PlayerPrefs.GetFloat("z" + i);
+            var d = UnityEngine.PlayerPrefs.GetFloat("d" + i);
+            var brainSurfaceOffset = UnityEngine.PlayerPrefs.GetFloat("brain_surface_offset" + i);
+            var dropToSurfaceWithDepth = UnityEngine.PlayerPrefs.GetInt("drop_to_surface_with_depth" + i) == 1;
+
+            savedProbes[i] = (new Vector3(ap, ml, dv), new Vector3(phi, theta, spin),
+                type, manipulatorId,
+                coordSpaceName, coordTransName,
+                new Vector4(x, y, z, d), brainSurfaceOffset, dropToSurfaceWithDepth);
+        }
+
+        return savedProbes;
+    }
+
+    /// <summary>
+    /// Save the data about all of the probes passed in through allProbeData
+    /// </summary>
+    /// <param name="allProbeData">tip position, angles, and type for probes</param>
     public void SaveCurrentProbeData(
-        (float ap, float ml, float dv, float phi, float theta, float spin, int type, int manipulatorId, Vector4
-            zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[] allProbeData)
+        (Vector3 apmldv, Vector3 angles,
+                int type, int manipulatorId,
+                string coordinateSpace, string coordinateTransform,
+                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[] allProbeData)
     {
         for (int i = 0; i < allProbeData.Length; i++)
         {
+            var currentProbeData = allProbeData[i];
 
-            UnityEngine.PlayerPrefs.SetFloat("ap" + i, allProbeData[i].ap);
-            UnityEngine.PlayerPrefs.SetFloat("ml" + i, allProbeData[i].ml);
-            UnityEngine.PlayerPrefs.SetFloat("dv" + i, allProbeData[i].dv);
-            UnityEngine.PlayerPrefs.SetFloat("phi" + i, allProbeData[i].phi);
-            UnityEngine.PlayerPrefs.SetFloat("theta" + i, allProbeData[i].theta);
-            UnityEngine.PlayerPrefs.SetFloat("spin" + i, allProbeData[i].spin);
-            UnityEngine.PlayerPrefs.SetInt("type" + i, allProbeData[i].type);
-            UnityEngine.PlayerPrefs.SetInt("manipulator_id" + i, allProbeData[i].manipulatorId);
-            UnityEngine.PlayerPrefs.SetFloat("x" + i, allProbeData[i].zeroCoordinateOffset.x);
-            UnityEngine.PlayerPrefs.SetFloat("y" + i, allProbeData[i].zeroCoordinateOffset.y);
-            UnityEngine.PlayerPrefs.SetFloat("z" + i, allProbeData[i].zeroCoordinateOffset.z);
-            UnityEngine.PlayerPrefs.SetFloat("d" + i, allProbeData[i].zeroCoordinateOffset.w);
+            UnityEngine.PlayerPrefs.SetFloat("ap" + i, currentProbeData.apmldv.x);
+            UnityEngine.PlayerPrefs.SetFloat("ml" + i, currentProbeData.apmldv.y);
+            UnityEngine.PlayerPrefs.SetFloat("dv" + i, currentProbeData.apmldv.z);
+            UnityEngine.PlayerPrefs.SetFloat("phi" + i, currentProbeData.angles.x);
+            UnityEngine.PlayerPrefs.SetFloat("theta" + i, currentProbeData.angles.y);
+            UnityEngine.PlayerPrefs.SetFloat("spin" + i, currentProbeData.angles.z);
+            UnityEngine.PlayerPrefs.SetInt("type" + i, currentProbeData.type);
+            UnityEngine.PlayerPrefs.SetInt("manipulator_id" + i, currentProbeData.manipulatorId);
+            UnityEngine.PlayerPrefs.SetString("coord_space" + i, currentProbeData.coordinateSpace);
+            UnityEngine.PlayerPrefs.SetString("coord_trans" + i, currentProbeData.coordinateTransform);
+            UnityEngine.PlayerPrefs.SetFloat("x" + i, currentProbeData.zeroCoordinateOffset.x);
+            UnityEngine.PlayerPrefs.SetFloat("y" + i, currentProbeData.zeroCoordinateOffset.y);
+            UnityEngine.PlayerPrefs.SetFloat("z" + i, currentProbeData.zeroCoordinateOffset.z);
+            UnityEngine.PlayerPrefs.SetFloat("d" + i, currentProbeData.zeroCoordinateOffset.w);
             UnityEngine.PlayerPrefs.SetFloat("brain_surface_offset" + i, allProbeData[i].brainSurfaceOffset);
             UnityEngine.PlayerPrefs.SetInt("drop_to_surface_with_depth" + i,
                 allProbeData[i].dropToSurfaceWithDepth ? 1 : 0);
@@ -415,6 +430,10 @@ public class PlayerPrefs : MonoBehaviour
 
         UnityEngine.PlayerPrefs.Save();
     }
+
+    #endregion
+
+    #region Ephys link
 
     /// <summary>
     ///     Save Ephys Link server connection information.
@@ -437,4 +456,6 @@ public class PlayerPrefs : MonoBehaviour
         UnityEngine.PlayerPrefs.SetString("right_handed_manipulator_ids", string.Join(",", manipulatorIds));
         UnityEngine.PlayerPrefs.Save();
     }
+
+    #endregion
 }

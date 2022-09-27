@@ -9,7 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using CoordinateSpaces;
-using CoordinateTransforms;
+using CoordinateTransforms; 
 
 namespace TrajectoryPlanner
 {
@@ -61,9 +61,11 @@ namespace TrajectoryPlanner
         [SerializeField] private List<TMP_Text> whiteUIText;
 
         // Coordinate system information
-        private CoordinateSpace activeCoordinateSpace = new CCFSpace();
+        private Dictionary<string, CoordinateSpace> coordinateSpaceOpts;
+        private Dictionary<string, CoordinateTransform> coordinateTransformOpts;
+        // tracking
+        private CoordinateSpace activeCoordinateSpace;
         private CoordinateTransform activeCoordinateTransform;
-        private List<CoordinateTransform> availableCoordinateTransforms;
 
         // Local tracking variables
         private ProbeManager activeProbe;
@@ -117,11 +119,14 @@ namespace TrajectoryPlanner
             SetProbeControl(false);
 
             // Deal with coordinate spaces and transforms
-            availableCoordinateTransforms = new List<CoordinateTransform>();
-            availableCoordinateTransforms.Add(new NullTransform());
-            availableCoordinateTransforms.Add(new NeedlesTransform());
-            availableCoordinateTransforms.Add(new MRILinearTransform());
-            activeCoordinateTransform = null;
+            coordinateSpaceOpts = new Dictionary<string, CoordinateSpace>();
+            coordinateSpaceOpts.Add("CCF", new CCFSpace());
+            activeCoordinateSpace = coordinateSpaceOpts["CCF"];
+
+            coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
+            coordinateTransformOpts.Add("CCF", new CCFTransform());
+            coordinateTransformOpts.Add("Needles", new NeedlesTransform());
+            coordinateTransformOpts.Add("MRI", new MRILinearTransform());
 
             visibleProbePanels = 0;
 
@@ -245,11 +250,14 @@ namespace TrajectoryPlanner
 
             foreach (var savedProbe in savedProbes)
             {
-                var probeInsertion = new ProbeInsertion(savedProbe.tipPos, savedProbe.angles, activeCoordinateSpace, activeCoordinateTransform);
-                AddNewProbeCCF(savedProbe.type, probeInsertion,
+                var probeInsertion = new ProbeInsertion(savedProbe.apmldv, savedProbe.angles, 
+                    coordinateSpaceOpts[savedProbe.coordinateSpaceName], coordinateTransformOpts[savedProbe.coordinateTransformName]);
+                AddNewProbeTransformed(savedProbe.type, probeInsertion,
                     savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
                     savedProbe.dropToSurfaceWithDepth);
             }
+
+            UpdateQuickSettings();
         }
 
         public Task GetAnnotationDatasetLoadedTask()
@@ -486,7 +494,7 @@ namespace TrajectoryPlanner
             return newProbe.GetComponent<ProbeManager>();
         }
         
-        public ProbeManager AddNewProbeCCF(int probeType, ProbeInsertion insertion,
+        public ProbeManager AddNewProbeTransformed(int probeType, ProbeInsertion insertion,
             int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
         {
             ProbeManager probeController = AddNewProbe(probeType);
@@ -498,7 +506,7 @@ namespace TrajectoryPlanner
                 if (manipulatorId != 0) probeController.SetEphysLinkMovement(true, manipulatorId);
             }
 
-            StartCoroutine(probeController.GetProbeController().SetProbePositionCCF_Delayed(insertion));
+            probeController.GetProbeController().SetProbePositionTransformed(insertion);
 
             return probeController;
         }
@@ -883,8 +891,8 @@ namespace TrajectoryPlanner
         {
             localPrefs.SetStereotaxic(invivoOption);
 
-            Debug.Log("(tpmanager) Attempting to set transform to: " + availableCoordinateTransforms[invivoOption].Name);
-            activeCoordinateTransform = availableCoordinateTransforms[invivoOption];
+            Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
+            activeCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
 
             MoveAllProbes();
         }
@@ -1008,18 +1016,20 @@ namespace TrajectoryPlanner
         private void OnApplicationQuit()
         {
             var probeCoordinates =
-                new (float ap, float ml, float dv, float phi, float theta, float spin, int type, int manipulatorId,
-                    Vector4
-                    zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[allProbeManagers
-                        .Count];
+                new (Vector3 apmldv, Vector3 angles, 
+                int type, int manipulatorId,
+                string coordinateSpace, string coordinateTransform,
+                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[allProbeManagers.Count];
 
             for (int i =0; i< allProbeManagers.Count; i++)
             {
                 ProbeManager probe = allProbeManagers[i];
                 ProbeInsertion probeInsertion = probe.GetProbeController().Insertion;
-                probeCoordinates[i] = (probeInsertion.ap, probeInsertion.ml, probeInsertion.dv, probeInsertion.phi, probeInsertion.theta, probeInsertion.spin, probe.GetProbeType(), probe.GetManipulatorId(),
-                    probe.GetZeroCoordinateOffset(), probe.GetBrainSurfaceOffset(),
-                    probe.IsSetToDropToSurfaceWithDepth());
+                probeCoordinates[i] = (probeInsertion.apmldv, 
+                    probeInsertion.angles,
+                    probe.GetProbeType(), probe.GetManipulatorId(),
+                    probeInsertion.CoordinateSpace.Name, probeInsertion.CoordinateTransform.Name,
+                    probe.GetZeroCoordinateOffset(), probe.GetBrainSurfaceOffset(), probe.IsSetToDropToSurfaceWithDepth());
             }
             localPrefs.SaveCurrentProbeData(probeCoordinates);
         }
