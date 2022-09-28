@@ -271,11 +271,8 @@ namespace TrajectoryPlanner
 
             foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
             {
-                node.SetNodeModelVisibility(true);
-                Transform nodeT = node.GetNodeTransform();
-                // I don't know why this has to happen, somewhere these are getting set incorrectly?
-                nodeT.localPosition = Vector3.zero;
-                nodeT.localRotation = Quaternion.identity;
+                await node.GetLoadedTask(true);
+                node.SetNodeModelVisibility(true, false, false);
             }
         }
 
@@ -328,6 +325,11 @@ namespace TrajectoryPlanner
         public TP_ProbeQuickSettings GetProbeQuickSettings()
         {
             return probeQuickSettings;
+        }
+        
+        public TP_QuestionDialogue GetQuestionDialogue()
+        {
+            return qDialogue;
         }
 
         public Collider CCFCollider()
@@ -506,7 +508,7 @@ namespace TrajectoryPlanner
                 if (manipulatorId != 0) probeManager.SetEphysLinkMovement(true, manipulatorId);
             }
 
-            probeManager.GetProbeController().SetProbePositionTransformed(insertion);
+            probeManager.GetProbeController().SetProbePosition(insertion);
 
             return probeManager;
         }
@@ -623,13 +625,16 @@ namespace TrajectoryPlanner
             probeColors.Insert(0, returnColor);
         }
 
-        public void SetActiveProbe(ProbeManager newActiveProbeController)
+        public void SetActiveProbe(ProbeManager newActiveProbeManager)
         {
-            if (activeProbe == newActiveProbeController)
+            if (activeProbe == newActiveProbeManager)
                 return;
 
-            Debug.Log("Setting active probe to: " + newActiveProbeController.gameObject.name);
-            activeProbe = newActiveProbeController;
+#if UNITY_EDITOR
+            Debug.Log("Setting active probe to: " + newActiveProbeManager.gameObject.name);
+#endif
+            activeProbe = newActiveProbeManager;
+            activeProbe.SetActive();
 
             foreach (ProbeManager probeManager in allProbeManagers)
             {
@@ -657,7 +662,7 @@ namespace TrajectoryPlanner
             inPlaneSlice.ResetZoom();
             
             // Update probe quick settings
-            probeQuickSettings.SetProbeManager(newActiveProbeController);
+            probeQuickSettings.SetProbeManager(newActiveProbeManager);
         }
 
         public void UpdateQuickSettings()

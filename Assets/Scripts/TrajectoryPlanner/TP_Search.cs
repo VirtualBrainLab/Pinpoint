@@ -93,7 +93,7 @@ public class TP_Search : MonoBehaviour
                 else
                     areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.Name;
                 areaPanel.GetComponent<TP_SearchAreaPanel>().SetNode(areaNode);
-                areaPanel.GetComponent<Image>().color = areaNode.GetColor();
+                areaPanel.GetComponent<Image>().color = areaNode.Color;
                 areaPanel.SetActive(true);
             }
             else
@@ -132,7 +132,7 @@ public class TP_Search : MonoBehaviour
                 modelControl.ChangeMaterial(targetNode, "lit");
             else
             {
-                if (!targetNode.IsLoaded())
+                if (!targetNode.IsLoaded(true))
                     LoadSearchNode(targetNode);
                 else
                 {
@@ -162,8 +162,8 @@ public class TP_Search : MonoBehaviour
 
     private async void LoadSearchNode(CCFTreeNode node)
     {
-        node.LoadNodeModel(false);
-        await node.GetLoadedTask();
+        node.LoadNodeModel(true, false);
+        await node.GetLoadedTask(true);
         node.GetNodeTransform().localPosition = Vector3.zero;
         node.GetNodeTransform().localRotation = Quaternion.identity;
         node.SetNodeModelVisibility(true);
