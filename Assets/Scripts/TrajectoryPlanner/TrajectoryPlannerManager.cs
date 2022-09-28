@@ -488,8 +488,6 @@ namespace TrajectoryPlanner
             GameObject newProbe = Instantiate(probePrefabs[probePrefabIDs.FindIndex(x => x == probeType)], brainModel);
             SetActiveProbe(newProbe.GetComponent<ProbeManager>());
 
-            RecalculateProbePanels();
-
             spawnedThisFrame = true;
             StartCoroutine(DelayedMoveAllProbes());
 
@@ -1105,15 +1103,17 @@ namespace TrajectoryPlanner
             if (berylID==prevTipID && prevTipSideLeft)
             {
                 // we already hit this area, switch sides
-                    activeProbe.GetProbeController().SetProbePosition(new Vector3(apmldv.x, 11.4f-apmldv.y, apmldv.z));
+                apmldv.y = 11.4f - apmldv.y;
                 prevTipSideLeft = false;
             }
             else
             {
                 // first time, go left
-                activeProbe.GetProbeController().SetProbePosition(apmldv);
                 prevTipSideLeft = true;
             }
+
+            apmldv = activeProbe.GetProbeController().Insertion.CoordinateTransform.Space2Transform(apmldv);
+            activeProbe.GetProbeController().SetProbePosition(apmldv);
 
             prevTipID = berylID;
 
