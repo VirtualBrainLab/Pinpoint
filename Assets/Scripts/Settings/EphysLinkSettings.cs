@@ -248,7 +248,7 @@ namespace Settings
                 {
                     foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes()
                                  .Where(probeManager => probeManager.IsConnectedToManipulator()))
-                        probeManager.ResetManipulatorProperties();
+                        probeManager.SetEphysLinkMovement(false);
 
                     _communicationManager.DisconnectFromServer(UpdateConnectionUI);
                 });

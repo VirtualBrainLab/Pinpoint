@@ -414,10 +414,6 @@ namespace TrajectoryPlanner
 
             Color returnColor = activeProbe.GetColor();
 
-            
-            // Unregister manipulator probe is attached to
-            if (_prevManipulatorId != 0) activeProbe.SetEphysLinkMovement(false);
-
             activeProbe.Destroy();
             Destroy(activeProbe.gameObject);
             allProbeManagers.Remove(activeProbe);
