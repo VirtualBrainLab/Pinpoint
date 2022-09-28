@@ -111,6 +111,7 @@ namespace Settings
 
         private void UpdateProbePanels()
         {
+            Debug.Log("Update probe panels");
             var handledProbeIds = new HashSet<int>();
 
             // Add any new probes in scene to list
@@ -159,8 +160,10 @@ namespace Settings
         /// </summary>
         public void UpdateManipulatorPanelAndSelection()
         {
+            Debug.Log("Called to update manipulator selection");
             _communicationManager.GetManipulators(availableIds =>
             {
+                Debug.Log("Updating manipulator options: "+availableIds);
                 // Update probes with selectable options
                 var usedManipulatorIds = _trajectoryPlannerManager.GetAllProbes()
                     .Where(probeManager => probeManager.IsConnectedToManipulator())
