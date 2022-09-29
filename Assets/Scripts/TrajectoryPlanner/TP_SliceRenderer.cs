@@ -134,7 +134,7 @@ public class TP_SliceRenderer : MonoBehaviour
             // Check if the camera moved such that we have to flip the slice quads
             UpdateCameraPosition();
 
-            if (tpmanager.MovedThisFrame())
+            if (tpmanager.MovedThisFrame)
             {
                 UpdateSlicePosition();
             }
@@ -149,6 +149,7 @@ public class TP_SliceRenderer : MonoBehaviour
     /// </summary>
     private void UpdateSlicePosition()
     {
+        Debug.Log("Update slice called: " + Time.realtimeSinceStartup);
         ProbeManager activeProbeController = tpmanager.GetActiveProbeController();
         if (activeProbeController == null) return;
         Transform activeProbeTipT = activeProbeController.GetTipTransform();

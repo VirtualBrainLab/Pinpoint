@@ -37,6 +37,7 @@ public class PlayerPrefs : MonoBehaviour
     private string _rightHandedManipulatorIds;
     private bool _useBeryl;
     private bool _displayUM;
+    private Vector3 _relCoord;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -110,9 +111,22 @@ public class PlayerPrefs : MonoBehaviour
 
         _displayUM = LoadBoolPref("display_um", true);
         displayUmToggle.isOn = _displayUM;
+
+        _relCoord = LoadVector3Pref("rel_coord", new Vector3(5.4f, 5.7f, 0.332f));
     }
 
     #region Getters/Setters
+
+    public void SetRelCoord(Vector3 coord)
+    {
+        _relCoord = coord;
+        SaveVector3Pref("rel_coord", _relCoord);
+    }
+
+    public Vector3 GetRelCoord()
+    {
+        return _relCoord;
+    }
 
     public void SetDisplayUm(bool state)
     {
@@ -342,6 +356,27 @@ public class PlayerPrefs : MonoBehaviour
     private string LoadStringPref(string prefStr, string defaultValue)
     {
         return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetString(prefStr) : defaultValue;
+    }
+
+    private Vector3 LoadVector3Pref(string prefStr, Vector3 defaultValue)
+    {
+        if (UnityEngine.PlayerPrefs.HasKey(prefStr + "_x"))
+        {
+            float ap = UnityEngine.PlayerPrefs.GetFloat(prefStr + "_x");
+            float ml = UnityEngine.PlayerPrefs.GetFloat(prefStr + "_y");
+            float dv = UnityEngine.PlayerPrefs.GetFloat(prefStr + "_z");
+
+            return new Vector3(ap, ml, dv);
+        }
+        else
+            return defaultValue;
+    }
+
+    private void SaveVector3Pref(string prefStr, Vector3 value)
+    {
+        UnityEngine.PlayerPrefs.SetFloat(prefStr + "_x", value.x);
+        UnityEngine.PlayerPrefs.SetFloat(prefStr + "_y", value.y);
+        UnityEngine.PlayerPrefs.SetFloat(prefStr + "_z", value.z);
     }
 
     #endregion

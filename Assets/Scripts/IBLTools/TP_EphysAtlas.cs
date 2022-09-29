@@ -62,7 +62,7 @@ namespace IBLTools
         {
             if (tpmanager.GetActiveProbeController() != null)
             {
-                if (tpmanager.MovedThisFrame())
+                if (tpmanager.MovedThisFrame)
                     UpdateProbePosition();
                 else
                     foreach (Channel chan in allChannels)

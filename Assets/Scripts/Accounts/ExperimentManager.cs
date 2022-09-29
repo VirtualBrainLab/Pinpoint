@@ -9,7 +9,7 @@ public class ExperimentManager : MonoBehaviour
     [SerializeField] TMP_Dropdown quickSettingsDropdown;
     [SerializeField] TMP_Dropdown activeExperimentDropdown;
 
-    private Dictionary<ProbeManager, string> probeExperiments = new();
+    //private Dictionary<ProbeManager, string> probeExperiments = new();
 
     private string activeExperiment;
 

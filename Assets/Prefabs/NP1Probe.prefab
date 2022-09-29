@@ -921,7 +921,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4368194536080577051}
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -10, z: -6.6}
+  m_LocalPosition: {x: -5.7, y: -14, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -953,7 +953,6 @@ MonoBehaviour:
   - {fileID: 6605905025463014201}
   probeUIManagers:
   - {fileID: 4368194536080577050}
-  textPrefab: {fileID: 8313610428545859077, guid: 999717cdb0927ad46ae876c2cb398778, type: 3}
   probeRenderer: {fileID: 2762817814583501863}
   probeType: 1
   probeController: {fileID: 2207803182506741358}

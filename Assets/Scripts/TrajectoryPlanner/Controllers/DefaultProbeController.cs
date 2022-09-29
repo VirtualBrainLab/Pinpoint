@@ -45,16 +45,13 @@ public class DefaultProbeController : ProbeController
 
     #region Defaults
     // in ap/ml/dv
-    private Vector3 defaultStart = new Vector3(5.4f, 5.7f, 0.332f);
+    private Vector3 defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
     private float defaultDepth = 0f;
     private Vector2 defaultAngles = new Vector2(-90f, 0f); // 0 phi is forward, default theta is 90 degrees down from horizontal, but internally this is a value of 0f
     #endregion
 
-    // Probe positioning information
-    private Vector3 initialPosition;
-    private Quaternion initialRotation;
-    private Transform surfaceCalculatorT;
-
+    private Vector3 _initialPosition;
+    private Quaternion _initialRotation;
     private float depth;
 
     // Offset vectors
@@ -72,21 +69,21 @@ public class DefaultProbeController : ProbeController
         probeTipOffset.transform.position = probeTipT.position + probeTipT.up * 0.2f;
         probeTipOffset.transform.parent = probeTipT;
 
-        // Access surface calculator (just an empty transform)
-        surfaceCalculatorT = GameObject.Find("SurfaceCalculator").transform;
-
         depth = defaultDepth;
+
+        _initialPosition = transform.position;
+        _initialRotation = transform.rotation;
 
         UpdateRecordingRegionVars();
 
-        initialPosition = transform.position;
-        initialRotation = transform.rotation;
-
         Insertion = new ProbeInsertion(defaultStart, defaultAngles, TPManager.GetCoordinateSpace(), TPManager.GetActiveCoordinateTransform());
+    }
 
+    private void Start()
+    {
         SetProbePosition();
     }
-    
+
     /// <summary>
     /// Put this probe back at Bregma
     /// </summary>
@@ -610,7 +607,7 @@ public class DefaultProbeController : ProbeController
         {
             worldOffset = curScreenPointWorld - lastClickPositionWorld;
             lastClickPositionWorld = curScreenPointWorld;
-            depth = 1.5f * worldOffset.z;
+            depth = -1.5f * worldOffset.y;
             moved = true;
         }
 
@@ -636,7 +633,7 @@ public class DefaultProbeController : ProbeController
 
             ProbeManager.UpdateUI();
 
-            TPManager.SetMovedThisFrame();
+            TPManager.MovedThisFrame = true;
         }
 
     }
@@ -706,11 +703,6 @@ public class DefaultProbeController : ProbeController
     public override void SetProbePosition()
     {
         SetProbePosition(Insertion);
-
-        // Tell the tpmanager we moved and update the UI elements
-        TPManager.SetMovedThisFrame();
-        TPManager.UpdateInPlaneView();
-        ProbeManager.UpdateUI();
     }
 
     public void SetProbePosition(float depthOverride)
@@ -745,11 +737,9 @@ public class DefaultProbeController : ProbeController
     public override void SetProbePosition(ProbeInsertion localInsertion)
     {
         // Reset everything
-        transform.position = initialPosition;
-        transform.rotation = initialRotation;
+        transform.position = _initialPosition;
+        transform.rotation = _initialRotation;
 
-        Debug.Log(localInsertion.apmldv);
-        Debug.Log(localInsertion.PositionWorld());
         // Manually adjust the coordinates and rotation
         transform.position += localInsertion.PositionWorld();
         transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
@@ -771,12 +761,11 @@ public class DefaultProbeController : ProbeController
 
         // update surface position
         ProbeManager.UpdateSurfacePosition();
-    }
 
-    public IEnumerator SetProbePositionCCF_Delayed(ProbeInsertion localInsertion, float depthOverride = 0f)
-    {
-        yield return new WaitForEndOfFrame();
-        SetProbePosition(localInsertion);
+        // Tell the tpmanager we moved and update the UI elements
+        TPManager.MovedThisFrame = true;
+        TPManager.UpdateInPlaneView();
+        ProbeManager.UpdateUI();
     }
 
     #endregion

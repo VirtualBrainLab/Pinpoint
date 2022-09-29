@@ -108,7 +108,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         (Vector3 startPosWorld, Vector3 endPosWorld) = ((DefaultProbeController)activeProbeController.GetProbeController()).GetRecordingRegionCoordinates();
         upWorld = (endPosWorld - startPosWorld).normalized;
-        forwardWorld = Quaternion.Euler(90f, 0f, 0f) * upWorld;
+        forwardWorld = Quaternion.Euler(-90f, 0f, 0f) * upWorld;
 
         // Calculate the size
         (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)activeProbeController.GetProbeController()).GetRecordingRegionHeight();
