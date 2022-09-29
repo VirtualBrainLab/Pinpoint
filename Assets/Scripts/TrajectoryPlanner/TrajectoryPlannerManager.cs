@@ -120,8 +120,10 @@ namespace TrajectoryPlanner
 
             // Deal with coordinate spaces and transforms
             coordinateSpaceOpts = new Dictionary<string, CoordinateSpace>();
-            coordinateSpaceOpts.Add("CCF", new CCFSpace());
+            coordinateSpaceOpts.Add("CCF", _coordinateSpace);
             activeCoordinateSpace = coordinateSpaceOpts["CCF"];
+
+            _coordinateSpace.RelativeOffset = new Vector3(5.4f, 5.7f, 0.332f);
 
             coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
             coordinateTransformOpts.Add("CCF", new CCFTransform());
@@ -167,6 +169,7 @@ namespace TrajectoryPlanner
             SetSetting_SurfaceDebugSphereVisibility(localPrefs.GetSurfaceCoord());
             _rightHandedManipulatorIds = localPrefs.GetRightHandedManipulatorIds();
         }
+
         void Update()
         {
             if (spawnedThisFrame)
@@ -633,6 +636,15 @@ namespace TrajectoryPlanner
 #endif
             activeProbe = newActiveProbeManager;
             activeProbe.SetActive();
+
+            // Transform the node models
+            //foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+            //{
+            //    Debug.Log(string.Format("Transforming node {0}", node.Name));
+            //    node.TransformVertices(activeProbe.GetProbeController().Insertion.World2World, true);
+            //}
+
+            Debug.Log(activeProbe.GetProbeController().Insertion.World2World(Vector3.one));
 
             foreach (ProbeManager probeManager in allProbeManagers)
             {

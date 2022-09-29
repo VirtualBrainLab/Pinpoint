@@ -151,6 +151,26 @@ public class ProbeManager : MonoBehaviour
 
     #endregion
 
+    /// <summary>
+    /// Called by the TPManager when this Probe becomes the active probe
+    /// </summary>
+    public void SetActive()
+    {
+        if (probeController.Insertion.CoordinateTransform != tpmanager.GetActiveCoordinateTransform())
+        {
+            TP_QuestionDialogue questionDialogue = tpmanager.GetQuestionDialogue();
+            questionDialogue.SetYesCallback(ChangeTransform);
+            questionDialogue.NewQuestion("The coordinate transform in the scene is mis-matched with the transform in this Probe insertion. Do you want to replace the transform?");
+        }
+    }
+
+    private void ChangeTransform()
+    {
+        ProbeInsertion originalInsertion = probeController.Insertion;
+        Debug.LogWarning("Insertion coordinates are not being transformed!! This might not be expected behavior");
+        probeController.SetProbePosition(new ProbeInsertion(originalInsertion.apmldv, originalInsertion.angles, tpmanager.GetCoordinateSpace(), tpmanager.GetActiveCoordinateTransform()));
+    }
+
     public void UpdateUI()
     {
         // Reset our probe UI panels
@@ -288,9 +308,6 @@ public class ProbeManager : MonoBehaviour
         string dvStr;
         string depthStr;
 
-        Vector3 apmldv;
-        Vector3 angles;
-
         ProbeInsertion insertion = probeController.Insertion;
         string prefix = insertion.CoordinateTransform.Prefix;
 
@@ -311,16 +328,13 @@ public class ProbeManager : MonoBehaviour
             depthStr = prefix + "Depth";
         }
 
-        if (tpmanager.GetSetting_UseIBLAngles())
-        {
-            apmldv = insertion.apmldv * 1000f;
-            angles = Utils.World2IBL(insertion.angles);
-        }
-        else
-        {
-            apmldv = insertion.apmldv;
-            angles = insertion.angles;
-        }
+        float mult = tpmanager.GetSetting_DisplayUM() ? 1000f : 1f;
+
+        Vector3 apmldvS = insertion.PositionSpace();
+
+        Vector3 angles = tpmanager.GetSetting_UseIBLAngles() ?
+            Utils.World2IBL(insertion.angles) :
+            insertion.angles;
 
         (_, Vector3 entryCoordTranformed, float depthTransformed) = GetSurfaceCoordinateTransformed();
         
@@ -329,12 +343,12 @@ public class ProbeManager : MonoBehaviour
             "({1}:{2}, {3}:{4}, {5}:{6})" +
             " Angles: (Az:{7}, El:{8}, Sp:{9})" + 
             " Depth: {10}:{11}" + 
-            " Tip coordinate: (ccfAP:{8}, ccfML: {9}, ccfDV:{10})",
+            " Tip coordinate: (ccfAP:{12}, ccfML: {13}, ccfDV:{14})",
             probeID, 
-            apStr, round0(entryCoordTranformed.x * 1000f), mlStr, round0(entryCoordTranformed.y * 1000f), dvStr, round0(entryCoordTranformed.z * 1000f), 
+            apStr, round0(entryCoordTranformed.x * mult), mlStr, round0(entryCoordTranformed.y * mult), dvStr, round0(entryCoordTranformed.z * mult), 
             round2(Utils.CircDeg(angles.x, minPhi, maxPhi)), round2(angles.y), round2(Utils.CircDeg(angles.z, minSpin, maxSpin)),
-            depthStr, round0(depthTransformed * 1000f),
-            round0(apmldv.x), round0(apmldv.y), round0(apmldv.z));
+            depthStr, round0(depthTransformed * mult),
+            round0(apmldvS.x * mult), round0(apmldvS.y * mult), round0(apmldvS.z * mult));
 
         GUIUtility.systemCopyBuffer = updateStr;
     }

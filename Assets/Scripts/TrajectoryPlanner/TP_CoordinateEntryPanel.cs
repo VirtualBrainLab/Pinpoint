@@ -60,17 +60,19 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     {
         if (linkedProbe == null) return;
 
-        //Vector3 apmldv = linkedProbe.GetProbeController().GetInsertion().apmldv;
+        Vector3 apmldv = linkedProbe.GetProbeController().Insertion.apmldv;
         Vector3 angles = linkedProbe.GetProbeController().Insertion.angles;
 
-        (_, Vector3 entryCoordT, float depthT) = linkedProbe.GetSurfaceCoordinateTransformed();
+        //(_, Vector3 entryCoordT, float depthT) = linkedProbe.GetSurfaceCoordinateTransformed();
 
         float mult = tpmanager.GetSetting_DisplayUM() ? 1000f : 1f;
 
-        apField.text = Round2Str(entryCoordT.x * mult);
-        mlField.text = Round2Str(entryCoordT.y * mult);
-        dvField.text = Round2Str(entryCoordT.z * mult);
-        depthField.text = float.IsNaN(depthT) ? "nan" : Round2Str(depthT * mult);
+        apField.text = Round2Str(apmldv.x * mult);
+        mlField.text = Round2Str(apmldv.y * mult);
+        dvField.text = Round2Str(apmldv.z * mult);
+
+        depthField.text = "nan";
+        //depthField.text = float.IsNaN(depthT) ? "nan" : Round2Str(depthT * mult);
 
         // if in IBL angles, rotate the angles appropriately
         if (tpmanager.GetSetting_UseIBLAngles())
@@ -93,22 +95,22 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
 
     private void ApplyPosition()
     {
-        try
-        {
-            float ap = (apField.text.Length > 0) ? float.Parse(apField.text) : 0;
-            float ml = (mlField.text.Length > 0) ? float.Parse(mlField.text) : 0;
-            float dv = (dvField.text.Length > 0) ? float.Parse(dvField.text) : 0;
-            float depth = (depthField.text.Length > 0 && depthField.text != "nan") ? 
-                float.Parse(depthField.text) + 200f : 
-                0;
+        //try
+        //{
+        //    float ap = (apField.text.Length > 0) ? float.Parse(apField.text) : 0;
+        //    float ml = (mlField.text.Length > 0) ? float.Parse(mlField.text) : 0;
+        //    float dv = (dvField.text.Length > 0) ? float.Parse(dvField.text) : 0;
+        //    float depth = (depthField.text.Length > 0 && depthField.text != "nan") ? 
+        //        float.Parse(depthField.text) + 200f : 
+        //        0;
 
-            Debug.LogError("TODO implement");
-            //linkedProbe.GetProbeController().SetProbePositionTransformed(ap, ml, dv, depth/1000f);
-        }
-        catch
-        {
-            Debug.Log("Bad formatting?");
-        }
+        //    Debug.LogError("TODO implement");
+        //    //linkedProbe.GetProbeController().SetProbePositionTransformed(ap, ml, dv, depth/1000f);
+        //}
+        //catch
+        //{
+        //    Debug.Log("Bad formatting?");
+        //}
     }
 
     private void ApplyAngles()
