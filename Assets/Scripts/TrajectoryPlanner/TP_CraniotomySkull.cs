@@ -21,9 +21,12 @@ public class TP_CraniotomySkull : MonoBehaviour
     {
         craniotomyGO.transform.localScale = new Vector3(craniotomySize, 1f, craniotomySize);
 
-        skullRenderer.material.SetVector("_CraniotomyPosition_0", craniotomyGO.transform.position);
-        skullRenderer.material.SetVector("_CraniotomyUpAxis_0", craniotomyGO.transform.up);
-        skullRenderer.material.SetFloat("_CraniotomySize_0", craniotomySize / 2);
+        if (skullRenderer != null)
+        {
+            skullRenderer.material.SetVector("_CraniotomyPosition_0", craniotomyGO.transform.position);
+            skullRenderer.material.SetVector("_CraniotomyUpAxis_0", craniotomyGO.transform.up);
+            skullRenderer.material.SetFloat("_CraniotomySize_0", craniotomySize / 2);
+        }
     }
 
     public void SetCraniotomyPosition(Vector3 apmldv)

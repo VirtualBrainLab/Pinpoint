@@ -119,6 +119,8 @@ namespace TrajectoryPlanner
 
         public bool IsFocused()
         {
+            if (!isActiveAndEnabled)
+                return false;
             foreach (TMP_InputField inputField in inputFields)
                 if (inputField != null && inputField.isFocused)
                     return true;

@@ -101,7 +101,8 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     {
         if (float.IsNaN(value))
             return "nan";
-        return ((int)value).ToString();
+
+        return _tpmanager.GetSetting_DisplayUM() ? ((int)value).ToString() : value.ToString("F3");
     }
 
     private void ApplyPosition()

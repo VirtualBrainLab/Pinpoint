@@ -43,8 +43,7 @@ namespace TrajectoryPlanner
         [SerializeField] private Material collisionMaterial;
 
         [SerializeField] private GameObject ProbePanelParentGO;
-        [SerializeField] private GameObject IBLToolsGO;
-        [SerializeField] private GameObject IBLTrajectoryGO;
+        [SerializeField] private GameObject CraniotomyToolsGO;
         [SerializeField] private BrainCameraController brainCamController;
 
         [SerializeField] private TextAsset meshCenterText;
@@ -436,6 +435,7 @@ namespace TrajectoryPlanner
                 activeProbe = null;
                 probeQuickSettings.UpdateInteractable(true);
                 probeQuickSettings.SetProbeManager(null);
+                SetSurfaceDebugActive(false);
                 UpdateQuickSettings();
             }
 
@@ -1038,7 +1038,7 @@ namespace TrajectoryPlanner
 
         public void SetIBLTools(bool state)
         {
-            IBLToolsGO.SetActive(state);
+            CraniotomyToolsGO.SetActive(state);
         }
 
         public void SetSurfaceDebugPosition(Vector3 worldPosition)
@@ -1142,7 +1142,7 @@ namespace TrajectoryPlanner
                 prevTipSideLeft = true;
             }
 
-            apmldv = activeProbe.GetProbeController().Insertion.CoordinateTransform.Space2Transform(apmldv);
+            apmldv = activeProbe.GetProbeController().Insertion.CoordinateTransform.Space2Transform(apmldv - _coordinateSpace.RelativeOffset);
             activeProbe.GetProbeController().SetProbePosition(apmldv);
 
             prevTipID = berylID;

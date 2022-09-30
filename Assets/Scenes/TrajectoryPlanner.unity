@@ -415,6 +415,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6a325379d55ee3449480bc27f118c11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &382584097 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5254134626700332939, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
+  m_PrefabInstance: {fileID: 3412951401243568317}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &466331096 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3598104332601356229, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
@@ -4162,6 +4173,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2085964517}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: CraniotomyToolsGO
+      value: 
+      objectReference: {fileID: 1687814895}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ProbePanelParentGO
       value: 
       objectReference: {fileID: 1669998831}
@@ -4185,6 +4200,10 @@ PrefabInstance:
       propertyPath: probePrefabIDs.Array.size
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: whiteUIText.Array.data[0]
+      value: 
+      objectReference: {fileID: 382584097}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: whiteUIText.Array.data[1]
       value: 
