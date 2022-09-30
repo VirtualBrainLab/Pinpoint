@@ -51,6 +51,7 @@ public class ProbeManager : MonoBehaviour
     private CCFAnnotationDataset annotationDataset;
     private bool probeInBrain;
     private Vector3 brainSurfaceWorld;
+    private Vector3 brainSurfaceLocal;
 
     // Colliders
     private List<GameObject> visibleProbeColliders;
@@ -355,39 +356,6 @@ public class ProbeManager : MonoBehaviour
 
     #endregion
 
-    /// <summary>
-    /// Returns the coordinate that a user should target to insert a probe into the brain.
-    /// If the probe is outside the brain we return the tip position
-    /// Once the probe is in the brain we return the brain surface position
-    /// </summary>
-    /// <returns></returns>
-    private Vector3 GetInsertionCoordinateTransformed()
-    {
-        Debug.LogError("TODO Re-implement this code based on the changes");
-        Vector3 insertionCoord = probeInBrain ? tpmanager.GetCoordinateSpace().World2Space(brainSurfaceWorld) : probeController.Insertion.apmldv;
-        
-        // If we're in a transformed space we need to transform the coordinates
-        // before we do anything else.
-        if (tpmanager.GetSetting_InVivoTransformActive())
-            insertionCoord = tpmanager.CoordinateTransformFromCCF(insertionCoord);
-
-        // We can rotate the ap/ml position now to account for off-coronal/sagittal manipulator angles
-        if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
-        {
-            // convert to probe angle by solving 
-            float localAngleRad = probeController.Insertion.phi * Mathf.PI / 180f; // our phi is 0 when it we point forward, and our angles go backwards
-
-            float x = insertionCoord.x * Mathf.Cos(localAngleRad) + insertionCoord.y * Mathf.Sin(localAngleRad);
-            float y = -insertionCoord.x * Mathf.Sin(localAngleRad) + insertionCoord.y * Mathf.Cos(localAngleRad);
-            return new Vector3(x, y, insertionCoord.z);
-        }
-        else
-        {
-            // just return apml
-            return insertionCoord;
-        }
-    }
-
 
     public void RegisterProbeCallback(int ID, Color probeColor)
     {
@@ -441,15 +409,53 @@ public class ProbeManager : MonoBehaviour
             // not in the brain
             probeInBrain = false;
             brainSurfaceWorld = new Vector3(float.NaN, float.NaN, float.NaN);
+            brainSurfaceLocal = new Vector3(float.NaN, float.NaN, float.NaN);
         }
         else
         {
             // in the brain
             probeInBrain = true;
             brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(surfacePos25);
+            brainSurfaceLocal = probeController.Insertion.World2Transformed(brainSurfaceLocal);
         }
     }
-    public (Vector3 surfaceCoordinateWorld, float worldDepth) GetSurfaceCoordinateWorld()
+
+
+    ///// <summary>
+    ///// Returns the coordinate that a user should target to insert a probe into the brain.
+    ///// If the probe is outside the brain we return the tip position
+    ///// Once the probe is in the brain we return the brain surface position
+    ///// </summary>
+    ///// <returns></returns>
+    //private Vector3 GetInsertionCoordinateTransformed()
+    //{
+    //    Debug.LogError("TODO Re-implement this code based on the changes");
+    //    Vector3 insertionCoord = probeInBrain ? tpmanager.GetCoordinateSpace().World2Space(brainSurfaceWorld) : probeController.Insertion.apmldv;
+
+    //    // If we're in a transformed space we need to transform the coordinates
+    //    // before we do anything else.
+    //    if (tpmanager.GetSetting_InVivoTransformActive())
+    //        insertionCoord = tpmanager.CoordinateTransformFromCCF(insertionCoord);
+
+    //    // We can rotate the ap/ml position now to account for off-coronal/sagittal manipulator angles
+    //    if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
+    //    {
+    //        // convert to probe angle by solving 
+    //        float localAngleRad = probeController.Insertion.phi * Mathf.PI / 180f; // our phi is 0 when it we point forward, and our angles go backwards
+
+    //        float x = insertionCoord.x * Mathf.Cos(localAngleRad) + insertionCoord.y * Mathf.Sin(localAngleRad);
+    //        float y = -insertionCoord.x * Mathf.Sin(localAngleRad) + insertionCoord.y * Mathf.Cos(localAngleRad);
+    //        return new Vector3(x, y, insertionCoord.z);
+    //    }
+    //    else
+    //    {
+    //        // just return apml
+    //        return insertionCoord;
+    //    }
+    //}
+
+
+    public (Vector3 surfaceCoordinateWorld, float depthWorld) GetSurfaceCoordinateWorld()
     {
         return (brainSurfaceWorld, Vector3.Distance(brainSurfaceWorld, probeController.GetTipTransform().position));
     }

@@ -65,8 +65,8 @@ namespace TrajectoryPlanner
         private Dictionary<string, CoordinateSpace> coordinateSpaceOpts;
         private Dictionary<string, CoordinateTransform> coordinateTransformOpts;
         // tracking
-        private CoordinateSpace activeCoordinateSpace;
-        private CoordinateTransform activeCoordinateTransform;
+        private CoordinateSpace _activeCoordinateSpace;
+        private CoordinateTransform _activeCoordinateTransform;
 
         // Local tracking variables
         private ProbeManager activeProbe;
@@ -123,7 +123,7 @@ namespace TrajectoryPlanner
             // Deal with coordinate spaces and transforms
             coordinateSpaceOpts = new Dictionary<string, CoordinateSpace>();
             coordinateSpaceOpts.Add("CCF", _coordinateSpace);
-            activeCoordinateSpace = coordinateSpaceOpts["CCF"];
+            _activeCoordinateSpace = coordinateSpaceOpts["CCF"];
 
             coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
             coordinateTransformOpts.Add("CCF", new CCFTransform());
@@ -289,8 +289,8 @@ namespace TrajectoryPlanner
         /// <returns></returns>
         public Vector3 CoordinateTransformToCCF(Vector3 fromCoord)
         {
-            if (activeCoordinateTransform != null)
-                return activeCoordinateTransform.Transform2Space(fromCoord);
+            if (_activeCoordinateTransform != null)
+                return _activeCoordinateTransform.Transform2Space(fromCoord);
             else
                 return fromCoord;
         }
@@ -302,15 +302,15 @@ namespace TrajectoryPlanner
         /// <returns></returns>
         public Vector3 CoordinateTransformFromCCF(Vector3 ccfCoord)
         {
-            if (activeCoordinateTransform != null)
-                return activeCoordinateTransform.Space2Transform(ccfCoord);
+            if (_activeCoordinateTransform != null)
+                return _activeCoordinateTransform.Space2Transform(ccfCoord);
             else
                 return ccfCoord;
         }
 
         public CoordinateTransform GetActiveCoordinateTransform()
         {
-            return activeCoordinateTransform;
+            return _activeCoordinateTransform;
         }
 
         public void ClickSearchArea(GameObject target)
@@ -437,6 +437,7 @@ namespace TrajectoryPlanner
                 probeQuickSettings.UpdateInteractable(true);
                 probeQuickSettings.SetProbeManager(null);
                 UpdateQuickSettings();
+                UnwarpBrain();
             }
 
             // update colliders
@@ -623,16 +624,6 @@ namespace TrajectoryPlanner
             activeProbe = newActiveProbeManager;
             activeProbe.SetActive();
 
-            // Transform the node models
-            //foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
-            //{
-            //    Debug.Log(string.Format("Transforming node {0}", node.Name));
-            //    node.TransformVertices(activeProbe.GetProbeController().Insertion.World2World, true);
-            //}
-
-            Debug.LogWarning("Testing World2World");
-            activeProbe.GetProbeController().Insertion.World2World(Vector3.one);
-
             foreach (ProbeManager probeManager in allProbeManagers)
             {
                 // Check visibility
@@ -689,7 +680,40 @@ namespace TrajectoryPlanner
             inPlaneSlice.UpdateInPlaneSlice();
         }
 
-        #region COLLIDERS
+        #region Warping
+
+        public void WarpBrain()
+        {
+            foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+            {
+#if UNITY_EDITOR
+                Debug.Log(string.Format("Transforming node {0}", node.Name));
+#endif
+                node.TransformVertices(World2World, true);
+            }
+        }
+
+        public void UnwarpBrain()
+        {
+            foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+            {
+                node.ClearTransform(true);
+            }
+        }
+
+        /// <summary>
+        /// Convert a world coordinate into the corresponding world coordinate after transformation
+        /// </summary>
+        /// <param name="coordWorld"></param>
+        /// <returns></returns>
+        private Vector3 World2World(Vector3 coordWorld)
+        {
+            return _coordinateSpace.Space2World(_activeCoordinateTransform.Transform2SpaceRot(_activeCoordinateTransform.Space2Transform(_activeCoordinateSpace.World2Space(coordWorld))));
+        }
+
+        #endregion
+
+        #region Colliders
 
         public void UpdateProbeColliders()
         {
@@ -896,7 +920,8 @@ namespace TrajectoryPlanner
             localPrefs.SetStereotaxic(invivoOption);
 
             Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
-            activeCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
+            _activeCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
+            WarpBrain();
 
             MoveAllProbes();
         }
@@ -957,7 +982,7 @@ namespace TrajectoryPlanner
 
         public string GetInVivoPrefix()
         {
-            return activeCoordinateTransform.Prefix;
+            return _activeCoordinateTransform.Prefix;
         }
 
         #endregion

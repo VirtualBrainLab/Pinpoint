@@ -124,22 +124,6 @@ public class ProbeInsertion
         return _coordinateTransform.Space2TransformRot(_coordinateSpace.World2SpaceRot(coordWorld));
     }
 
-    /// <summary>
-    /// Convert a world coordinate into the corresponding world coordinate after transformation
-    /// </summary>
-    /// <param name="coordWorld"></param>
-    /// <returns></returns>
-    public Vector3 World2World(Vector3 coordWorld)
-    {
-        //_coordinateSpace.Space2World(_coordinateTransform.Transform2SpaceRot(
-        Debug.Log(coordWorld);
-        Debug.Log(_coordinateSpace.World2Space(coordWorld));
-        Debug.Log(_coordinateTransform.Space2Transform(_coordinateSpace.World2Space(coordWorld)));
-        Debug.Log(_coordinateTransform.Transform2SpaceRot(_coordinateTransform.Space2Transform(_coordinateSpace.World2Space(coordWorld))));
-        Debug.Log(_coordinateSpace.Space2World(_coordinateTransform.Transform2SpaceRot(_coordinateTransform.Space2Transform(_coordinateSpace.World2Space(coordWorld)))));
-        return _coordinateSpace.Space2World(_coordinateTransform.Transform2SpaceRot(_coordinateTransform.Space2Transform(_coordinateSpace.World2Space(coordWorld))));
-    }
-
     public Vector3 Transformed2World(Vector3 coordTransformed)
     {
         return _coordinateSpace.Space2World(_coordinateTransform.Transform2Space(coordTransformed));

@@ -67,17 +67,3 @@ public class ExperimentManager : MonoBehaviour
 
     }
 }
-
-
-public class ServerProbeInsertion
-{
-    public float ap;
-    public float ml;
-    public float dv;
-    public float phi;
-    public float theta;
-    public float spin;
-    public float depth;
-    public bool active;
-    public bool recorded;
-}

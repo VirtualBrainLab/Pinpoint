@@ -65,19 +65,25 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
             return;
         }
 
-        Vector3 apmldv = _linkedProbe.GetProbeController().Insertion.apmldv;
+        Vector3 apmldv;
         Vector3 angles = _linkedProbe.GetProbeController().Insertion.angles;
+        float depth = float.NaN;
 
-        //(_, Vector3 entryCoordT, float depthT) = linkedProbe.GetSurfaceCoordinateTransformed();
+        if (_linkedProbe.IsProbeInBrain())
+        {
+            (apmldv, depth) = _linkedProbe.GetSurfaceCoordinateWorld();
+        }
+        else
+        {
+            apmldv = _linkedProbe.GetProbeController().Insertion.apmldv;
+        }
 
         float mult = _tpmanager.GetSetting_DisplayUM() ? 1000f : 1f;
 
         _apField.text = Round2Str(apmldv.x * mult);
         _mlField.text = Round2Str(apmldv.y * mult);
         _dvField.text = Round2Str(apmldv.z * mult);
-
-        _depthField.text = "nan";
-        //depthField.text = float.IsNaN(depthT) ? "nan" : Round2Str(depthT * mult);
+        _depthField.text = float.IsNaN(depth) ? "nan" : Round2Str(depth * mult);
 
         // if in IBL angles, rotate the angles appropriately
         if (_tpmanager.GetSetting_UseIBLAngles())
