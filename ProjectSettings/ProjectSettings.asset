@@ -654,6 +654,7 @@ PlayerSettings:
   webGLDecompressionFallback: 0
   scriptingDefineSymbols:
     Standalone: ENABLE_HYBRID_RENDERER_V2
+    WebGL: UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

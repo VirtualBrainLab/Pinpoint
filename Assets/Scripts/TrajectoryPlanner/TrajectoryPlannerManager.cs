@@ -437,7 +437,6 @@ namespace TrajectoryPlanner
                 probeQuickSettings.UpdateInteractable(true);
                 probeQuickSettings.SetProbeManager(null);
                 UpdateQuickSettings();
-                UnwarpBrain();
             }
 
             // update colliders
