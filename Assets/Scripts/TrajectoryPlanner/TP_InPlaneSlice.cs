@@ -44,13 +44,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         gpuSliceRenderer = gpuInPlaneSliceGO.GetComponent<Renderer>();
 
-        gpuSliceRenderer.material.SetFloat("_FourShankProbe", 0f);
-        gpuSliceRenderer.material.SetVector("_TipPosition", Vector4.zero);
-        gpuSliceRenderer.material.SetVector("_ForwardDirection", Vector4.zero);
-        gpuSliceRenderer.material.SetVector("_UpDirection", Vector4.zero);
-        gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", 0f);
-        gpuSliceRenderer.material.SetFloat("_Scale", 1f);
-        gpuSliceRenderer.material.SetFloat("_ShankWidth", probeWidth);
+        ResetRendererParameters();
     }
     // Start is called before the first frame update
     private async void Start()
@@ -65,6 +59,17 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuTextureLoadedSource.SetResult(true);
 
         Debug.Log("(InPlaneSlice) Annotation dataset texture loaded");
+    }
+
+    private void ResetRendererParameters()
+    {
+        gpuSliceRenderer.material.SetFloat("_FourShankProbe", 0f);
+        gpuSliceRenderer.material.SetVector("_TipPosition", Vector4.zero);
+        gpuSliceRenderer.material.SetVector("_ForwardDirection", Vector4.zero);
+        gpuSliceRenderer.material.SetVector("_UpDirection", Vector4.zero);
+        gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", 0f);
+        gpuSliceRenderer.material.SetFloat("_Scale", 1f);
+        gpuSliceRenderer.material.SetFloat("_ShankWidth", probeWidth);
     }
 
     public async Task<Texture3D> GetAnnotationDatasetGPUTexture()
@@ -104,7 +109,10 @@ public class TP_InPlaneSlice : MonoBehaviour
         ProbeManager activeProbeController = tpmanager.GetActiveProbeController();
 
         if (activeProbeController == null)
+        {
+            ResetRendererParameters();
             return;
+        }
 
         (Vector3 startPosWorld, Vector3 endPosWorld) = ((DefaultProbeController)activeProbeController.GetProbeController()).GetRecordingRegionCoordinates();
         upWorld = (endPosWorld - startPosWorld).normalized;

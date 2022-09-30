@@ -119,7 +119,10 @@ namespace TrajectoryPlanner
 
         public bool IsFocused()
         {
-            return inputFields.Any(inputField => inputField!=null ? inputField.isFocused : false);
+            foreach (TMP_InputField inputField in inputFields)
+                if (inputField != null && inputField.isFocused)
+                    return true;
+            return false;
         }
 
         #endregion
