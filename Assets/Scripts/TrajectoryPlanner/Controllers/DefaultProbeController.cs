@@ -645,8 +645,6 @@ public class DefaultProbeController : ProbeController
 
     }
 
-    #endregion
-
     /// <summary>
     /// Release control of mouse movements after the user releases the mouse button from a probe
     /// </summary>
@@ -657,6 +655,8 @@ public class DefaultProbeController : ProbeController
         ProbeManager.SetAxisVisibility(false, false, false, false);
         TPManager.SetProbeControl(false);
     }
+
+    #endregion
 
     #region Recording region UI
     public void ChangeRecordingRegionSize(float newSize)

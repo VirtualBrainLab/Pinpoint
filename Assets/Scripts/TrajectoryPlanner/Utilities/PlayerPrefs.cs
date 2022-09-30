@@ -26,7 +26,7 @@ public class PlayerPrefs : MonoBehaviour
     private bool _depthFromBrain;
     private bool convertAPML2probeAxis;
     private int slice3d;
-    private bool inplane;
+    private bool _inplane;
     private int invivoTransform;
     private bool useIBLAngles;
     private bool showSurfaceCoord;
@@ -80,8 +80,8 @@ public class PlayerPrefs : MonoBehaviour
         slice3d = LoadIntPref("slice3d", 0);
         slice3dDropdown.SetValueWithoutNotify(slice3d);
 
-        inplane = LoadBoolPref("inplane", true);
-        inplaneToggle.isOn = inplane;
+        _inplane = LoadBoolPref("inplane", true);
+        inplaneToggle.isOn = _inplane;
 
         invivoTransform = LoadIntPref("stereotaxic", 1);
         invivoDropdown.SetValueWithoutNotify(invivoTransform);
@@ -207,13 +207,13 @@ public class PlayerPrefs : MonoBehaviour
 
     public void SetInplane(bool state)
     {
-        inplane = state;
-        UnityEngine.PlayerPrefs.SetInt("inplane", inplane ? 1 : 0);
+        _inplane = state;
+        UnityEngine.PlayerPrefs.SetInt("inplane", _inplane ? 1 : 0);
     }
 
     public bool GetInplane()
     {
-        return inplane;
+        return _inplane;
     }
 
     public void SetSlice3D(int state)

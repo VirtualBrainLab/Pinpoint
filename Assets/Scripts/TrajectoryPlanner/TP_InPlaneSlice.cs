@@ -19,6 +19,8 @@ public class TP_InPlaneSlice : MonoBehaviour
     [SerializeField] private PlayerPrefs localPrefs;
 
     [SerializeField] private TextMeshProUGUI areaText;
+    [SerializeField] private TMP_Text textX;
+    [SerializeField] private TMP_Text textY;
 
     [SerializeField] private GameObject gpuInPlaneSliceGO;
     private Renderer gpuSliceRenderer;
@@ -119,16 +121,14 @@ public class TP_InPlaneSlice : MonoBehaviour
         forwardWorld = Quaternion.Euler(-90f, 0f, 0f) * upWorld;
 
         // Calculate the size
-        (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)activeProbeController.GetProbeController()).GetRecordingRegionHeight();
-        // Take the active probe, find the position and rotation, and interpolate across the annotation dataset to render a 400x400 image of the brain at that slice
-        //tipTransform = activeProbeController.GetTipTransform();
+        float mmRecordingSize = Vector3.Distance(startCoordWorld, endCoordWorld);
 
-        //tipPositionAPDVLR = Utils.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
         bool fourShank = activeProbeController.GetProbeType() == 4;
 
+        // ** CRASH HERE ON WEBGL**
         recordingRegionCenterPosition = fourShank ? 
             annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2 + forwardWorld * 0.375f) :
-            annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2); ;
+            annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2);
 
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 
@@ -139,8 +139,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuSliceRenderer.material.SetVector("_UpDirection", upWorld);
         gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize * 1000f / 25f);
         gpuSliceRenderer.material.SetFloat("_Scale", inPlaneScale);
-        GameObject.Find("SliceTextX").GetComponent<TextMeshProUGUI>().text = "<- " + mmRecordingSize * 1.5f + "mm ->";
-        GameObject.Find("SliceTextY").GetComponent<TextMeshProUGUI>().text = "<- " + mmRecordingSize * 1.5f + "mm ->";
+        textX.text = "<- " + mmRecordingSize * 1.5f + "mm ->";
+        textY.text = "<- " + mmRecordingSize * 1.5f + "mm ->";
     }
 
     public void InPlaneSliceHover(Vector2 pointerData)
