@@ -223,7 +223,7 @@ namespace TrajectoryPlanner
                 bool inBrain = activeProbe.IsProbeInBrain();
                 SetSurfaceDebugActive(inBrain);
                 if (inBrain)
-                    SetSurfaceDebugPosition(activeProbe.GetSurfaceCoordinateWorld().surfaceCoordinateWorld);
+                    SetSurfaceDebugPosition(activeProbe.GetSurfaceCoordinateWorldT());
 
                 if (!probeQuickSettings.IsFocused())
                     UpdateQuickSettings();
@@ -688,7 +688,7 @@ namespace TrajectoryPlanner
 #if UNITY_EDITOR
                 Debug.Log(string.Format("Transforming node {0}", node.Name));
 #endif
-                node.TransformVertices(World2World, true);
+                node.TransformVertices(WorldU2WorldT, true);
             }
         }
 
@@ -705,9 +705,14 @@ namespace TrajectoryPlanner
         /// </summary>
         /// <param name="coordWorld"></param>
         /// <returns></returns>
-        private Vector3 World2World(Vector3 coordWorld)
+        public Vector3 WorldU2WorldT(Vector3 coordWorld)
         {
             return _coordinateSpace.Space2World(_activeCoordinateTransform.Transform2SpaceRot(_activeCoordinateTransform.Space2Transform(_activeCoordinateSpace.World2Space(coordWorld))));
+        }
+
+        public Vector3 WorldT2WorldU(Vector3 coordWorldT)
+        {
+            return _coordinateSpace.Space2World(_activeCoordinateTransform.Transform2Space(_activeCoordinateTransform.Space2TransformRot(_activeCoordinateSpace.World2Space(coordWorldT))));
         }
 
         #endregion

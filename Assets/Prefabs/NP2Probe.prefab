@@ -1140,7 +1140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7902403c47a64dc43bdfb804dcc30b8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  probeTipT: {fileID: 3537694416159337911}
+  _probeTipT: {fileID: 3537694416159337911}
   recordingRegionGOs:
   - {fileID: 2194279852132282093}
   rotateAround: {fileID: 7221844362321588931}

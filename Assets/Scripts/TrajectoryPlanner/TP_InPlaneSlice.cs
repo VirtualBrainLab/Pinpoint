@@ -114,8 +114,8 @@ public class TP_InPlaneSlice : MonoBehaviour
             return;
         }
 
-        (Vector3 startPosWorld, Vector3 endPosWorld) = ((DefaultProbeController)activeProbeController.GetProbeController()).GetRecordingRegionCoordinates();
-        upWorld = (endPosWorld - startPosWorld).normalized;
+        (Vector3 startCoordWorld, Vector3 endCoordWorld) = activeProbeController.GetProbeController().GetRecordingRegionWorld();
+        upWorld = (endCoordWorld - startCoordWorld).normalized;
         forwardWorld = Quaternion.Euler(-90f, 0f, 0f) * upWorld;
 
         // Calculate the size
@@ -127,8 +127,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         bool fourShank = activeProbeController.GetProbeType() == 4;
 
         recordingRegionCenterPosition = fourShank ? 
-            annotationDataset.CoordinateSpace.World2Space(startPosWorld + upWorld * mmRecordingSize / 2 + forwardWorld * 0.375f) :
-            annotationDataset.CoordinateSpace.World2Space(startPosWorld + upWorld * mmRecordingSize / 2); ;
+            annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2 + forwardWorld * 0.375f) :
+            annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2); ;
 
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 

@@ -50,8 +50,9 @@ public class ProbeManager : MonoBehaviour
     // Brain surface position
     private CCFAnnotationDataset annotationDataset;
     private bool probeInBrain;
+    private Vector3 brainSurface;
     private Vector3 brainSurfaceWorld;
-    private Vector3 brainSurfaceLocal;
+    private Vector3 brainSurfaceWorldT;
 
     // Colliders
     private List<GameObject> visibleProbeColliders;
@@ -68,14 +69,7 @@ public class ProbeManager : MonoBehaviour
         return probeType;
     }
 
-    /// <summary>
-    /// Get the tip transform
-    /// </summary>
-    /// <returns>tip transform</returns>
-    public Transform GetTipTransform()
-    {
-        return probeController.GetTipTransform();
-    }
+
     public int GetID()
     {
         return probeID;
@@ -337,7 +331,7 @@ public class ProbeManager : MonoBehaviour
             Utils.World2IBL(insertion.angles) :
             insertion.angles;
 
-        (_, Vector3 entryCoordTranformed, float depthTransformed) = GetSurfaceCoordinateTransformed();
+        (Vector3 entryCoordTranformed, float depthTransformed) = GetSurfaceCoordinateT();
         
 
         string updateStr = string.Format("Probe #{0} Surface coordinate: " + 
@@ -374,11 +368,6 @@ public class ProbeManager : MonoBehaviour
         return Mathf.Round(input * 100) / 100;
     }
 
-    public (Vector3, Vector3) GetRecordingRegionCoordinates()
-    {
-        return ((DefaultProbeController)probeController).GetRecordingRegionCoordinates();
-    }
-
     /// <summary>
     /// Re-scale probe panels 
     /// </summary>
@@ -400,81 +389,57 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateSurfacePosition()
     {
-        Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(
-            annotationDataset.CoordinateSpace.World2Space(probeController.GetTipTransform().position),
-            annotationDataset.CoordinateSpace.World2SpaceRot(probeController.GetTipTransform().up).normalized);
+        (Vector3 tipCoordWorld, Vector3 tipUpWorld) = probeController.GetTipWorld();
+
+        Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(annotationDataset.CoordinateSpace.World2Space(tipCoordWorld),
+            annotationDataset.CoordinateSpace.World2SpaceRot(tipUpWorld));
 
         if (float.IsNaN(surfacePos25.x))
         {
             // not in the brain
             probeInBrain = false;
             brainSurfaceWorld = new Vector3(float.NaN, float.NaN, float.NaN);
-            brainSurfaceLocal = new Vector3(float.NaN, float.NaN, float.NaN);
+            brainSurfaceWorldT = new Vector3(float.NaN, float.NaN, float.NaN);
+            brainSurface = new Vector3(float.NaN, float.NaN, float.NaN);
         }
         else
         {
             // in the brain
             probeInBrain = true;
             brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(surfacePos25);
-            brainSurfaceLocal = probeController.Insertion.World2Transformed(brainSurfaceLocal);
+            brainSurfaceWorldT = tpmanager.WorldU2WorldT(brainSurfaceWorld);
+            brainSurface = probeController.Insertion.World2Transformed(brainSurfaceWorld);
         }
     }
 
 
-    ///// <summary>
-    ///// Returns the coordinate that a user should target to insert a probe into the brain.
-    ///// If the probe is outside the brain we return the tip position
-    ///// Once the probe is in the brain we return the brain surface position
-    ///// </summary>
-    ///// <returns></returns>
-    //private Vector3 GetInsertionCoordinateTransformed()
+    public (Vector3 surfaceCoordinateT, float depthT) GetSurfaceCoordinateT()
+    {
+        return (brainSurface, Vector3.Distance(probeController.Insertion.apmldv, brainSurface));
+    }
+
+    public Vector3 GetSurfaceCoordinateWorldT()
+    {
+        return brainSurfaceWorldT;
+    }
+
+    //public Vector3 surfaceCoordinateWorldT 
+
+    //public (Vector3 tipCoordTransformed, Vector3 entryCoordTransformed, float depthTransformed) GetSurfaceCoordinateTransformed()
     //{
-    //    Debug.LogError("TODO Re-implement this code based on the changes");
-    //    Vector3 insertionCoord = probeInBrain ? tpmanager.GetCoordinateSpace().World2Space(brainSurfaceWorld) : probeController.Insertion.apmldv;
+    //    // Get the tip and entry coordinates in world space, transform them -> Space -> Transformed, then calculate depth
+    //    Vector3 tipCoordWorld = probeController.GetTipTransform().position;
+    //    Vector3 entryCoordWorld = probeInBrain ? brainSurfaceWorld : tipCoordWorld;
 
-    //    // If we're in a transformed space we need to transform the coordinates
-    //    // before we do anything else.
-    //    if (tpmanager.GetSetting_InVivoTransformActive())
-    //        insertionCoord = tpmanager.CoordinateTransformFromCCF(insertionCoord);
+    //    // Convert
+    //    ProbeInsertion insertion = probeController.Insertion;
+    //    Vector3 tipCoordTransformed = insertion.World2Transformed(tipCoordWorld);
+    //    Vector3 entryCoordTransformed = insertion.World2Transformed(entryCoordWorld);
 
-    //    // We can rotate the ap/ml position now to account for off-coronal/sagittal manipulator angles
-    //    if (tpmanager.GetSetting_ConvertAPMLAxis2Probe())
-    //    {
-    //        // convert to probe angle by solving 
-    //        float localAngleRad = probeController.Insertion.phi * Mathf.PI / 180f; // our phi is 0 when it we point forward, and our angles go backwards
+    //    float depth = probeInBrain ? Vector3.Distance(tipCoordTransformed, entryCoordTransformed) : 0f;
 
-    //        float x = insertionCoord.x * Mathf.Cos(localAngleRad) + insertionCoord.y * Mathf.Sin(localAngleRad);
-    //        float y = -insertionCoord.x * Mathf.Sin(localAngleRad) + insertionCoord.y * Mathf.Cos(localAngleRad);
-    //        return new Vector3(x, y, insertionCoord.z);
-    //    }
-    //    else
-    //    {
-    //        // just return apml
-    //        return insertionCoord;
-    //    }
+    //    return (tipCoordTransformed, entryCoordTransformed, depth);
     //}
-
-
-    public (Vector3 surfaceCoordinateWorld, float depthWorld) GetSurfaceCoordinateWorld()
-    {
-        return (brainSurfaceWorld, Vector3.Distance(brainSurfaceWorld, probeController.GetTipTransform().position));
-    }
-
-    public (Vector3 tipCoordTransformed, Vector3 entryCoordTransformed, float depthTransformed) GetSurfaceCoordinateTransformed()
-    {
-        // Get the tip and entry coordinates in world space, transform them -> Space -> Transformed, then calculate depth
-        Vector3 tipCoordWorld = probeController.GetTipTransform().position;
-        Vector3 entryCoordWorld = probeInBrain ? brainSurfaceWorld : tipCoordWorld;
-
-        // Convert
-        ProbeInsertion insertion = probeController.Insertion;
-        Vector3 tipCoordTransformed = insertion.World2Transformed(tipCoordWorld);
-        Vector3 entryCoordTransformed = insertion.World2Transformed(entryCoordWorld);
-
-        float depth = probeInBrain ? Vector3.Distance(tipCoordTransformed, entryCoordTransformed) : 0f;
-
-        return (tipCoordTransformed, entryCoordTransformed, depth);
-    }
 
     public bool IsProbeInBrain()
     {
@@ -682,28 +647,29 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetBrainSurfaceOffset()
     {
-        var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipTransform().up : Vector3.up;
+        Debug.LogError("Not fixed yet");
+        //var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipTransform().up : Vector3.up;
         
         
-        var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
-            annotationDataset.CoordinateSpace.World2Space(probeController.GetTipTransform().position - tipExtensionDirection * 5),
-            annotationDataset.CoordinateSpace.World2SpaceRot(probeController.GetTipTransform().up));
+        //var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
+        //    annotationDataset.CoordinateSpace.World2Space(probeController.GetTipTransform().position - tipExtensionDirection * 5),
+        //    annotationDataset.CoordinateSpace.World2SpaceRot(probeController.GetTipTransform().up));
 
-        var brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
-        var depth = Vector3.Distance(brainSurfaceWorld, probeController.GetTipTransform().position);
+        //var brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
+        //var depth = Vector3.Distance(brainSurfaceWorld, probeController.GetTipTransform().position);
         
-        Debug.DrawLine(probeController.GetTipTransform().position, brainSurfaceWorld, Color.red, 30);
+        //Debug.DrawLine(probeController.GetTipTransform().position, brainSurfaceWorld, Color.red, 30);
 
-        var computedOffset = depth - 5;
+        //var computedOffset = depth - 5;
 
-        if (IsConnectedToManipulator())
-        {
-            _brainSurfaceOffset -= computedOffset;
-        }
-        else
-        {
-            probeController.SetProbePosition(probeController.Insertion.World2Transformed(brainSurfaceWorld));
-        }
+        //if (IsConnectedToManipulator())
+        //{
+        //    _brainSurfaceOffset -= computedOffset;
+        //}
+        //else
+        //{
+        //    probeController.SetProbePosition(probeController.Insertion.World2Transformed(brainSurfaceWorld));
+        //}
     }
 
     /// <summary>
@@ -791,7 +757,7 @@ public class ProbeManager : MonoBehaviour
 
     public void SetAxisVisibility(bool AP, bool ML, bool DV, bool depth)
     {
-        Transform tipT = probeController.GetTipTransform();
+        Transform tipT = probeController.ProbeTipT;
         tpmanager.SetAxisVisibility(AP, ML, DV, depth, tipT);
     }
 

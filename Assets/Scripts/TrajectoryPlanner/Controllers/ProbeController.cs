@@ -20,7 +20,11 @@ public abstract class ProbeController : MonoBehaviour
         this._probeManager = probeManager;
     }
 
-    public abstract Transform GetTipTransform();
+    public abstract Transform ProbeTipT { get; }
+
+    public abstract (Vector3 tipCoordWorld, Vector3 tipUpWorld) GetTipWorld();
+
+    public abstract (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld();
 
     public abstract void ResetInsertion();
 

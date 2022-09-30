@@ -56,18 +56,25 @@ public class DefaultProbeController : ProbeController
 
     // Offset vectors
     private GameObject probeTipOffset;
+    private GameObject probeTipTop;
 
     // References
-    [SerializeField] private Transform probeTipT;
+    [SerializeField] private Transform _probeTipT;
     [SerializeField] private List<GameObject> recordingRegionGOs;
     [SerializeField] private Transform rotateAround;
+
+    public override Transform ProbeTipT { get { return _probeTipT; } }
 
     private void Awake()
     {
         // Create two points offset from the tip that we'll use to interpolate where we are on the probe
         probeTipOffset = new GameObject(name + "TipOffset");
-        probeTipOffset.transform.position = probeTipT.position + probeTipT.up * 0.2f;
-        probeTipOffset.transform.parent = probeTipT;
+        probeTipOffset.transform.parent = _probeTipT;
+        probeTipOffset.transform.position = _probeTipT.position + _probeTipT.up * 0.2f;
+
+        probeTipTop = new GameObject(name + "TipTop");
+        probeTipTop.transform.parent = _probeTipT;
+        probeTipTop.transform.position = _probeTipT.position + _probeTipT.up * 10.2f;
 
         depth = defaultDepth;
 
@@ -773,46 +780,46 @@ public class DefaultProbeController : ProbeController
     #region Getters
 
     /// <summary>
-    /// Get the tip transform
+    /// Return the tip coordinates in **un-transformed** world coordinates
     /// </summary>
-    /// <returns>tip transform</returns>
-    public override Transform GetTipTransform()
+    /// <returns></returns>
+    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld) GetTipWorld()
     {
-        return probeTipT;
-    }
-
-    public (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionCoordinates()
-    {
-        return GetRecordingRegionCoordinates(probeTipOffset.transform);
+        Vector3 tipCoordWorld = WorldT2WorldU(_probeTipT.position);
+        Vector3 tipUpWorld = (WorldT2WorldU(probeTipTop.transform.position) - tipCoordWorld).normalized;
+        return (tipCoordWorld, tipUpWorld);
     }
 
     /// <summary>
-    /// Compute the start and end positions of the recording region in World coordinates
+    /// Convert a transformed world coordinate into an un-transformed coordinate
     /// </summary>
+    /// <param name="coordWorldT"></param>
     /// <returns></returns>
-    public (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionCoordinates(Transform probeTipOffsetT)
+    private Vector3 WorldT2WorldU(Vector3 coordWorldT)
+    {
+        return Insertion.CoordinateSpace.Space2World(Insertion.CoordinateTransform.Transform2Space(Insertion.CoordinateTransform.Space2TransformRot(Insertion.CoordinateSpace.World2Space(coordWorldT))));
+    }
+
+    public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld()
     {
         if (TPManager.GetSetting_ShowRecRegionOnly())
         {
+            // only rec region
             (float mmStartPos, float mmRecordingSize) = GetRecordingRegionHeight();
 
-            Vector3 tipCoordT = Insertion.apmldv;
-            Vector3 tipUpT = Insertion.World2TransformedRot(probeTipOffsetT.up).normalized;
+            Vector3 startCoordWorld = WorldT2WorldU(probeTipOffset.transform.position + probeTipOffset.transform.up * mmStartPos);
+            Vector3 endCoordWorld = WorldT2WorldU(probeTipOffset.transform.position + probeTipOffset.transform.up * (mmStartPos + mmRecordingSize));
 
-            Vector3 startCoordT = tipCoordT + tipUpT * mmStartPos;
-            Vector3 topCoordT = startCoordT + tipUpT * mmRecordingSize;
-
-            //// shift the starting tipPos up by the mmStartPos
-            //Vector3 tipPos = probeTipOffsetT.position + probeTipOffsetT.up * mmStartPos;
-            //// shift the tipPos again to get the endPos
-            //Vector3 endPos = tipPos + probeTipOffsetT.up * mmRecordingSize;
-
-            return (Insertion.Transformed2World(startCoordT), Insertion.Transformed2World(topCoordT));
+#if UNITY_EDITOR
+            //GameObject.Find("recording_bot").transform.position = startCoordWorld;
+            //GameObject.Find("recording_top").transform.position = endCoordWorld;
+#endif
+            return (startCoordWorld, endCoordWorld);
         }
         else
-            Debug.LogWarning("Not implemented");
-        return (Vector3.zero, Vector3.zero);
-            //return (probeTipOffsetT.position, probeTipOffsetT.position + probeTipOffsetT.up * 10f);
+        {
+            return (WorldT2WorldU(probeTipOffset.transform.position), WorldT2WorldU(probeTipTop.transform.position));
+        }
     }
 
     /// <summary>

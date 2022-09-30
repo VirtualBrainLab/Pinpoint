@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using CoordinateSpaces;
 using CoordinateTransforms;
@@ -10,7 +9,6 @@ using CoordinateTransforms;
 /// to interpolate these properly you need to use e.g. the tip/top positions that are output by the
 /// CoordinateTransform 
 /// </summary>
-[Serializable]
 public class ProbeInsertion
 {
     #region Coordinate vars

@@ -150,19 +150,22 @@ public class TP_SliceRenderer : MonoBehaviour
     private void UpdateSlicePosition()
     {
         Debug.Log("Update slice called: " + Time.realtimeSinceStartup);
-        ProbeManager activeProbeController = tpmanager.GetActiveProbeController();
-        if (activeProbeController == null) return;
-        Transform activeProbeTipT = activeProbeController.GetTipTransform();
-        Vector3 tipPosition = activeProbeTipT.position + activeProbeTipT.up * 0.2f; // add 200 um to get to the start of the recording region
+        ProbeManager activeProbeManager = tpmanager.GetActiveProbeController();
+        if (activeProbeManager == null) return;
 
-        //Vector3 tipPositionAPDVLR = util.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
+        // the actual tip
+        Vector3 probeTipWorld = activeProbeManager.GetProbeController().ProbeTipT.position;
+        // position the slices along the real tip in world space
+        coronalSliceGO.transform.position = new Vector3(0f, 0f, probeTipWorld.z);
+        sagittalSliceGO.transform.position = new Vector3(probeTipWorld.x, 0f, 0f);
 
-        apWorldmm = tipPosition.z + 6.6f;
-        coronalSliceGO.transform.position = new Vector3(0f, 0f, tipPosition.z);
+        // for CCF coordinates
+        (Vector3 tipCoordWorld, _) = activeProbeManager.GetProbeController().GetTipWorld();
+
+        apWorldmm = tipCoordWorld.z + 6.6f;
         coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / 13.2f);
 
-        mlWorldmm = -(tipPosition.x - 5.7f);
-        sagittalSliceGO.transform.position = new Vector3(tipPosition.x, 0f, 0f);
+        mlWorldmm = -(tipCoordWorld.x - 5.7f);
         saggitalSliceMaterial.SetFloat("_SlicePosition", mlWorldmm / 11.4f);
 
         UpdateNodeModelSlicing();

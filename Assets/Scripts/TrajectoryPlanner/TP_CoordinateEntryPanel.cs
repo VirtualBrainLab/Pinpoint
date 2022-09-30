@@ -71,7 +71,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
 
         if (_linkedProbe.IsProbeInBrain())
         {
-            (apmldv, depth) = _linkedProbe.GetSurfaceCoordinateWorld();
+            (apmldv, depth) = _linkedProbe.GetSurfaceCoordinateT();
         }
         else
         {
