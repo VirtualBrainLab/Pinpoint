@@ -105,7 +105,7 @@ public class ProbeUIManager : MonoBehaviour
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
         (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)probeManager.GetProbeController()).GetRecordingRegionHeight();
 
-        (Vector3 startCoordWorld, Vector3 endCoordWorld) = probeManager.GetProbeController().GetRecordingRegionWorld();
+        (Vector3 startCoordWorld, Vector3 endCoordWorld) = probeManager.GetProbeController().GetRecordingRegionWorld(electrodeBase.transform);
         Vector3 startApdvlr25 = annotationDataset.CoordinateSpace.World2Space(startCoordWorld);
         Vector3 endApdvlr25 = annotationDataset.CoordinateSpace.World2Space(endCoordWorld);
 

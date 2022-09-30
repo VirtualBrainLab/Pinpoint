@@ -802,13 +802,18 @@ public class DefaultProbeController : ProbeController
 
     public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld()
     {
+        return GetRecordingRegionWorld(probeTipOffset.transform);
+    }
+
+    public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld(Transform tipTransform)
+    {
         if (TPManager.GetSetting_ShowRecRegionOnly())
         {
             // only rec region
             (float mmStartPos, float mmRecordingSize) = GetRecordingRegionHeight();
 
-            Vector3 startCoordWorld = WorldT2WorldU(probeTipOffset.transform.position + probeTipOffset.transform.up * mmStartPos);
-            Vector3 endCoordWorld = WorldT2WorldU(probeTipOffset.transform.position + probeTipOffset.transform.up * (mmStartPos + mmRecordingSize));
+            Vector3 startCoordWorld = WorldT2WorldU(tipTransform.position + tipTransform.up * mmStartPos);
+            Vector3 endCoordWorld = WorldT2WorldU(tipTransform.position + tipTransform.up * (mmStartPos + mmRecordingSize));
 
 #if UNITY_EDITOR
             //GameObject.Find("recording_bot").transform.position = startCoordWorld;
@@ -818,7 +823,7 @@ public class DefaultProbeController : ProbeController
         }
         else
         {
-            return (WorldT2WorldU(probeTipOffset.transform.position), WorldT2WorldU(probeTipTop.transform.position));
+            return (WorldT2WorldU(tipTransform.position), WorldT2WorldU(tipTransform.position));
         }
     }
 
