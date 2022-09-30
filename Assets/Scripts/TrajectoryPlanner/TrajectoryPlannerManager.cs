@@ -84,9 +84,6 @@ namespace TrajectoryPlanner
         [SerializeField] private int probePanelAcronymTextFontSize = 14;
         [SerializeField] private int probePanelAreaTextFontSize = 10;
 
-        // Coordinates spaces
-        private CoordinateSpace _coordinateSpace = new CCFSpace();
-
         // Track who got clicked on, probe, camera, or brain
         private bool probeControl;
 
@@ -121,7 +118,7 @@ namespace TrajectoryPlanner
 
             // Deal with coordinate spaces and transforms
             coordinateSpaceOpts = new Dictionary<string, CoordinateSpace>();
-            coordinateSpaceOpts.Add("CCF", _coordinateSpace);
+            coordinateSpaceOpts.Add("CCF", new CCFSpace());
             _activeCoordinateSpace = coordinateSpaceOpts["CCF"];
 
             coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
@@ -707,12 +704,12 @@ namespace TrajectoryPlanner
         /// <returns></returns>
         public Vector3 WorldU2WorldT(Vector3 coordWorld)
         {
-            return _coordinateSpace.Space2World(_activeCoordinateTransform.Transform2SpaceRot(_activeCoordinateTransform.Space2Transform(_activeCoordinateSpace.World2Space(coordWorld))));
+            return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2SpaceRot(_activeCoordinateTransform.Space2Transform(_activeCoordinateSpace.World2Space(coordWorld))));
         }
 
         public Vector3 WorldT2WorldU(Vector3 coordWorldT)
         {
-            return _coordinateSpace.Space2World(_activeCoordinateTransform.Transform2Space(_activeCoordinateTransform.Space2TransformRot(_activeCoordinateSpace.World2Space(coordWorldT))));
+            return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2Space(_activeCoordinateTransform.Space2TransformRot(_activeCoordinateSpace.World2Space(coordWorldT))));
         }
 
         #endregion
@@ -809,7 +806,7 @@ namespace TrajectoryPlanner
         public void SetSetting_RelCoord(Vector3 coord)
         {
             localPrefs.SetRelCoord(coord);
-            _coordinateSpace.RelativeOffset = coord;
+            _activeCoordinateSpace.RelativeOffset = coord;
             _relCoordPanel.SetRelativeCoordinateText(coord);
         }
 
@@ -926,6 +923,10 @@ namespace TrajectoryPlanner
             Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
             _activeCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
             WarpBrain();
+
+            // Check if active probe is a mis-match
+            if (activeProbe != null)
+                activeProbe.SetActive();
 
             MoveAllProbes();
         }
@@ -1098,8 +1099,8 @@ namespace TrajectoryPlanner
 
         #region Coordinate spaces
 
-        public CoordinateSpace GetCoordinateSpace() { return _coordinateSpace; }
-        public void SetCoordinateSpace(CoordinateSpace newSpace) { _coordinateSpace = newSpace; }
+        public CoordinateSpace GetCoordinateSpace() { return _activeCoordinateSpace; }
+        public void SetCoordinateSpace(CoordinateSpace newSpace) { _activeCoordinateSpace = newSpace; }
         #endregion
 
         #region Mesh centers
@@ -1142,7 +1143,7 @@ namespace TrajectoryPlanner
                 prevTipSideLeft = true;
             }
 
-            apmldv = activeProbe.GetProbeController().Insertion.CoordinateTransform.Space2Transform(apmldv - _coordinateSpace.RelativeOffset);
+            apmldv = activeProbe.GetProbeController().Insertion.CoordinateTransform.Space2Transform(apmldv - _activeCoordinateSpace.RelativeOffset);
             activeProbe.GetProbeController().SetProbePosition(apmldv);
 
             prevTipID = berylID;

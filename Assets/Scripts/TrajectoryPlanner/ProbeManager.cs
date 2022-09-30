@@ -325,7 +325,7 @@ public class ProbeManager : MonoBehaviour
 
         float mult = tpmanager.GetSetting_DisplayUM() ? 1000f : 1f;
 
-        Vector3 apmldvS = insertion.PositionSpace();
+        Vector3 apmldvS = insertion.PositionSpace() + insertion.CoordinateSpace.RelativeOffset;
 
         Vector3 angles = tpmanager.GetSetting_UseIBLAngles() ?
             Utils.World2IBL(insertion.angles) :
