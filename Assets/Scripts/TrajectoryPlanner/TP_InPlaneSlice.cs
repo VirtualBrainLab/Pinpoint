@@ -123,7 +123,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         // Calculate the size
         float mmRecordingSize = Vector3.Distance(startCoordWorld, endCoordWorld);
 
-        bool fourShank = activeProbeController.GetProbeType() == 4;
+        int type = activeProbeController.GetProbeType();
+        bool fourShank = type == 4 || type == 8;
 
         // ** CRASH HERE ON WEBGL**
         recordingRegionCenterPosition = fourShank ? 

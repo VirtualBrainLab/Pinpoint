@@ -104,6 +104,9 @@ namespace TrajectoryPlanner
         // Track all input fields
         private TMP_InputField[] _allInputFields;
 
+        // Track coen probe
+        private EightShankProbeControl _coenProbe;
+
         #region Ephys Link
 
         private CommunicationManager _communicationManager;
@@ -199,6 +202,12 @@ namespace TrajectoryPlanner
                 }
             }
 
+
+            if ( Input.GetKeyDown(KeyCode.P))
+                _coenProbe = AddNewProbe(8).GetComponent<EightShankProbeControl>();
+            //if (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.P))
+            //    AddNewProbe(8);
+
             // TEST CODE: Debugging distance of mesh nodes from camera, trying to fix model "pop"
             //List<CCFTreeNode> defaultLoadedNodes = modelControl.GetDefaultLoadedNodes();
             //if (defaultLoadedNodes.Count > 0)
@@ -224,6 +233,9 @@ namespace TrajectoryPlanner
                 if (!probeQuickSettings.IsFocused())
                     UpdateQuickSettings();
             }
+
+            if (_coenProbe != null && _coenProbe.MovedThisFrame)
+                activeProbe.UpdateUI();
         }
 
         #endregion

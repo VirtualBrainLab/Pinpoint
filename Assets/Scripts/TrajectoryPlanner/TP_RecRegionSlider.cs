@@ -15,7 +15,7 @@ public class TP_RecRegionSlider : MonoBehaviour
     private float[] np2Range = { 2.88f, 5.76f };
     private float[] np24Range = { 0.72f, 1.44f, 2.88f, 5.76f };
     private List<float[]> ranges;
-    private int[] type2index = { -1, 0, 1, -1, 2 };
+    private int[] type2index = { -1, 0, 1, -1, 2, -1, -1, -1, 2 };
 
     public TP_RecRegionSlider()
     {
