@@ -25,6 +25,11 @@ public class PlayerEntity : Entity
     //
 
     public Dictionary<string, Dictionary<string, ServerProbeInsertion>> experiments;
+
+    public PlayerEntity()
+    {
+        experiments = new Dictionary<string, Dictionary<string, ServerProbeInsertion>>();
+    }
 }
 
 public class ServerProbeInsertion
@@ -35,7 +40,9 @@ public class ServerProbeInsertion
     public float phi;
     public float theta;
     public float spin;
-    public float depth;
+    public float probeType;
+    public string coordinateSpaceName;
+    public string coordinateTransformName;
     public bool active;
     public bool recorded;
 }

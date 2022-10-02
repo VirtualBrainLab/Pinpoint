@@ -9,6 +9,11 @@ public class AccountsManager : MonoBehaviour
 {
     [SerializeField] private GameObject registerPanelGO;
 
+    #region current player data
+    private PlayerEntity player;
+
+    #endregion
+
     public void LoadPlayer()
     {
         OnFacet<PlayerDataFacet>
@@ -19,8 +24,26 @@ public class AccountsManager : MonoBehaviour
 
     private void LoadPlayerCallback(PlayerEntity player)
     {
+        this.player = player;
+        Debug.Log("Loaded player data: " + player.email);
+    }
 
-        Debug.Log("Player: " + player.email);
+    public void AddExperiment()
+    {
+
+        player.Save();
+    }
+
+    public void AddProbe()
+    {
+
+        player.Save();
+    }
+
+    public void ChangeProbeExperiment()
+    {
+
+        player.Save();
     }
 
     public void ShowRegisterPanel()
