@@ -219,7 +219,7 @@ namespace TrajectoryPlanner
 
         private void LateUpdate()
         {
-            if (_movedThisFrame)
+            if (_movedThisFrame && activeProbe != null)
             {
                 _movedThisFrame = false;
 
@@ -683,11 +683,6 @@ namespace TrajectoryPlanner
             return activeProbe;
         }
 
-        public void UpdateInPlaneView()
-        {
-            inPlaneSlice.UpdateInPlaneSlice();
-        }
-
         #region Warping
 
         public void WarpBrain()
@@ -781,8 +776,8 @@ namespace TrajectoryPlanner
             foreach (ProbeManager probeController in allProbeManagers)
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
-            UpdateInPlaneView();
-            UpdateQuickSettings();
+
+            _movedThisFrame = true;
         }
 
         ///
@@ -1159,9 +1154,6 @@ namespace TrajectoryPlanner
             activeProbe.GetProbeController().SetProbePosition(apmldv);
 
             prevTipID = berylID;
-
-            activeProbe.UpdateUI();
-            UpdateInPlaneView();
         }
 
         #endregion

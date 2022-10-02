@@ -154,3 +154,5 @@ Assets/InitTestScene*
 UserSettings/Layouts/*
 
 UserSettings/
+Assets/AddressableAssetsData/link.xml
+Assets/AddressableAssetsData/link.xml.meta
