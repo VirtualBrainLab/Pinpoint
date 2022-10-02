@@ -210,7 +210,7 @@ namespace TrajectoryPlanner
 
         private void LateUpdate()
         {
-            if (_movedThisFrame)
+            if (_movedThisFrame && activeProbe != null)
             {
                 _movedThisFrame = false;
 

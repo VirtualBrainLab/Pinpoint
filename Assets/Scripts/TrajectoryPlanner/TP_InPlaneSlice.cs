@@ -124,7 +124,6 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         bool fourShank = activeProbeController.GetProbeType() == 4;
 
-        // ** CRASH HERE ON WEBGL**
         recordingRegionCenterPosition = fourShank ? 
             annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2 + forwardWorld * 0.375f) :
             annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2);
