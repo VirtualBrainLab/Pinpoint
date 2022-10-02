@@ -24,11 +24,13 @@ public class PlayerEntity : Entity
     public DateTime lastLoginAt = DateTime.UtcNow;
     //
 
-    public Dictionary<string, Dictionary<string, ServerProbeInsertion>> experiments;
+    public string activeExperiment;
+
+    public Dictionary<string, List<ServerProbeInsertion>> experiments;
 
     public PlayerEntity()
     {
-        experiments = new Dictionary<string, Dictionary<string, ServerProbeInsertion>>();
+        experiments = new Dictionary<string, List<ServerProbeInsertion>>();
     }
 }
 
@@ -44,5 +46,6 @@ public class ServerProbeInsertion
     public string coordinateSpaceName;
     public string coordinateTransformName;
     public bool active;
+    public bool enabled;
     public bool recorded;
 }

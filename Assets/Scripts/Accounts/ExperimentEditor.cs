@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ExperimentEditor : MonoBehaviour
 {
+    [SerializeField] private AccountsManager _accountsManager;
+
     [SerializeField] private GameObject experimentEditorGO;
 
     public void ShowEditor()
@@ -17,6 +19,17 @@ public class ExperimentEditor : MonoBehaviour
     }
 
     public void AddExperiment()
+    {
+        _accountsManager.AddExperiment();
+        UpdateList();
+    }
+
+    public void DeleteExperiment(string experiment)
+    {
+
+    }
+
+    public void UpdateList()
     {
 
     }

@@ -16,6 +16,6 @@ MonoBehaviour:
   gameToken: J25J1cPWvldX2EjF0R223asp
   backendFolder: Unisave/Backend
   automaticBackendUploading: 1
-  backendHash: cf1cfdfebad0ba754ed6b9f333d41732
+  backendHash: 02ced4383e0396245981584163e7e868
   developmentEnv: {fileID: 0}
   testingEnv: {fileID: 0}
