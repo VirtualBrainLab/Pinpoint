@@ -632,11 +632,10 @@ public class DefaultProbeController : ProbeController
 
         if (moved)
         {
+            SetProbePosition();
+
             if (TPManager.GetCollisions())
                 ProbeManager.CheckCollisions(TPManager.GetAllNonActiveColliders());
-
-            TPManager.UpdateInPlaneView();
-            SetProbePosition();
 
             ProbeManager.UpdateUI();
 
@@ -771,7 +770,6 @@ public class DefaultProbeController : ProbeController
 
         // Tell the tpmanager we moved and update the UI elements
         TPManager.MovedThisFrame = true;
-        TPManager.UpdateInPlaneView();
         ProbeManager.UpdateUI();
     }
 

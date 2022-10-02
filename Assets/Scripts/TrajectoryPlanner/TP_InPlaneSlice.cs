@@ -37,6 +37,11 @@ public class TP_InPlaneSlice : MonoBehaviour
     private TaskCompletionSource<bool> gpuTextureLoadedSource;
     private Task gpuTextureLoadedTask;
 
+    private float inPlaneScale;
+    private Vector3 recordingRegionCenterPosition;
+    Vector3 upWorld;
+    Vector3 forwardWorld;
+
     private void Awake()
     {
         rect = GetComponent<RectTransform>();
@@ -84,7 +89,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     public void StartAnnotationDataset()
     {
         annotationDataset = tpmanager.GetAnnotationDataset();
-
+        Debug.Log("(in-plane slice) Annotation data set");
     }
 
     public Task GetGPUTextureTask()
@@ -97,12 +102,6 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         inPlaneSliceUIGO.SetActive(localPrefs.GetInplane());
     }
-
-    private float inPlaneScale;
-    private Vector3 recordingRegionCenterPosition;
-    //private Transform tipTransform;
-    Vector3 upWorld;
-    Vector3 forwardWorld;
 
     public void UpdateInPlaneSlice()
     {

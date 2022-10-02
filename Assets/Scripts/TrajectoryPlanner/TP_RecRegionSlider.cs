@@ -33,7 +33,8 @@ public class TP_RecRegionSlider : MonoBehaviour
             float[] range = ranges[type2index[tpmanager.GetActiveProbeType()]];
             uiSlider.value = Round2Nearest(value, range);
             tpmanager.GetActiveProbeController().ChangeRecordingRegionSize(uiSlider.value);
-            tpmanager.UpdateInPlaneView();
+
+            tpmanager.MovedThisFrame = true;
 
             recRegionSizeText.text = "Recording region size: " + uiSlider.value;
         }
