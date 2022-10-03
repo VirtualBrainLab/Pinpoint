@@ -12,6 +12,8 @@ public class ProbeManager : MonoBehaviour
 {
     // Internal flags that track whether we are in manual control or drag/link control mode
     private bool _ephysLinkMovement;
+    private string _uuid;
+    public string UUID { get { return _uuid; } }
 
     #region Ephys Link
 
@@ -108,6 +110,8 @@ public class ProbeManager : MonoBehaviour
 
     private void Awake()
     {
+        _uuid = System.Guid.NewGuid().ToString();
+
         defaultMaterials = new Dictionary<GameObject, Material>();
 
         // Pull the tpmanager object and register this probe
