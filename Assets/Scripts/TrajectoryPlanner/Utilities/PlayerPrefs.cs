@@ -38,6 +38,7 @@ public class PlayerPrefs : MonoBehaviour
     private bool _useBeryl;
     private bool _displayUM;
     private Vector3 _relCoord;
+    private bool _ghostInactiveProbes;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -55,6 +56,7 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle showAllProbePanelsToggle;
     [SerializeField] Toggle useBerylToggle;
     [SerializeField] Toggle displayUmToggle;
+    [SerializeField] Toggle ghostInactiveProbesToggle;
 
 
     /// <summary>
@@ -113,9 +115,23 @@ public class PlayerPrefs : MonoBehaviour
         displayUmToggle.isOn = _displayUM;
 
         _relCoord = LoadVector3Pref("rel_coord", new Vector3(5.4f, 5.7f, 0.332f));
+
+        _ghostInactiveProbes = LoadBoolPref("ghost_inactive", false);
+        ghostInactiveProbesToggle.isOn = _ghostInactiveProbes;
     }
 
     #region Getters/Setters
+
+    public void SetGhostInactiveProbes(bool ghostInactive)
+    {
+        _ghostInactiveProbes = ghostInactive;
+        UnityEngine.PlayerPrefs.SetInt("ghost_inactive", _ghostInactiveProbes ? 1 : 0);
+    }
+
+    public bool GetGhostInactiveProbes()
+    {
+        return _ghostInactiveProbes;
+    }
 
     public void SetRelCoord(Vector3 coord)
     {

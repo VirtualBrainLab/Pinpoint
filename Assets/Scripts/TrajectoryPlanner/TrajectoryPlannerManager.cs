@@ -22,6 +22,7 @@ namespace TrajectoryPlanner
         [SerializeField] private Transform brainModel;
         [SerializeField] private Utils util;
         [SerializeField] private AxisControl acontrol;
+        [SerializeField] private AccountsManager accountsManager;
 
         // Settings
         [SerializeField] private List<GameObject> probePrefabs;
@@ -644,6 +645,11 @@ namespace TrajectoryPlanner
                 // Set active state for UI managers
                 foreach (ProbeUIManager puimanager in probeManager.GetProbeUIManagers())
                     puimanager.ProbeSelected(isActiveProbe);
+
+                if (GetSetting_GhostInactive() && !isActiveProbe && !probeManager.IsTransparent)
+                    probeManager.SetMaterialsTransparent();
+                else if (probeManager.IsTransparent)
+                    probeManager.SetMaterialsDefault();
             }
 
             // Change the height of the probe panels, if needed
@@ -809,6 +815,23 @@ namespace TrajectoryPlanner
         }
 
         #region Player Preferences
+
+        public void SetSetting_GhostInactive(bool state)
+        {
+            localPrefs.SetGhostInactiveProbes(state);
+            foreach (ProbeManager probeManager in allProbeManagers)
+            {
+                if (state && activeProbe != probeManager && !probeManager.IsTransparent)
+                    probeManager.SetMaterialsTransparent();
+                else if (probeManager.IsTransparent)
+                    probeManager.SetMaterialsDefault();
+            }
+        }
+
+        public bool GetSetting_GhostInactive()
+        {
+            return localPrefs.GetGhostInactiveProbes();
+        }
 
         public void SetSetting_RelCoord(Vector3 coord)
         {

@@ -765,11 +765,15 @@ public class ProbeManager : MonoBehaviour
 
     #region Materials
 
+    private bool _isTransparent;
+    public bool IsTransparent { get { return _isTransparent; } }
+
     /// <summary>
     /// Set all Renderer components to use the ghost material
     /// </summary>
     public void SetMaterialsTransparent()
     {
+        _isTransparent = true;
         defaultMaterials.Clear();
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
         {
@@ -783,6 +787,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
+        _isTransparent = false;
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
             if (defaultMaterials.ContainsKey(renderer.gameObject))
                 renderer.material = defaultMaterials[renderer.gameObject];
