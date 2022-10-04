@@ -19,6 +19,8 @@ public class TP_InPlaneSlice : MonoBehaviour
     [SerializeField] private PlayerPrefs localPrefs;
 
     [SerializeField] private TextMeshProUGUI areaText;
+    [SerializeField] private TMP_Text textX;
+    [SerializeField] private TMP_Text textY;
 
     [SerializeField] private GameObject gpuInPlaneSliceGO;
     private Renderer gpuSliceRenderer;
@@ -35,6 +37,11 @@ public class TP_InPlaneSlice : MonoBehaviour
     private TaskCompletionSource<bool> gpuTextureLoadedSource;
     private Task gpuTextureLoadedTask;
 
+    private float inPlaneScale;
+    private Vector3 recordingRegionCenterPosition;
+    Vector3 upWorld;
+    Vector3 forwardWorld;
+
     private void Awake()
     {
         rect = GetComponent<RectTransform>();
@@ -44,13 +51,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         gpuSliceRenderer = gpuInPlaneSliceGO.GetComponent<Renderer>();
 
-        gpuSliceRenderer.material.SetFloat("_FourShankProbe", 0f);
-        gpuSliceRenderer.material.SetVector("_TipPosition", Vector4.zero);
-        gpuSliceRenderer.material.SetVector("_ForwardDirection", Vector4.zero);
-        gpuSliceRenderer.material.SetVector("_UpDirection", Vector4.zero);
-        gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", 0f);
-        gpuSliceRenderer.material.SetFloat("_Scale", 1f);
-        gpuSliceRenderer.material.SetFloat("_ShankWidth", probeWidth);
+        ResetRendererParameters();
     }
     // Start is called before the first frame update
     private async void Start()
@@ -67,6 +68,17 @@ public class TP_InPlaneSlice : MonoBehaviour
         Debug.Log("(InPlaneSlice) Annotation dataset texture loaded");
     }
 
+    private void ResetRendererParameters()
+    {
+        gpuSliceRenderer.material.SetFloat("_FourShankProbe", 0f);
+        gpuSliceRenderer.material.SetVector("_TipPosition", Vector4.zero);
+        gpuSliceRenderer.material.SetVector("_ForwardDirection", Vector4.zero);
+        gpuSliceRenderer.material.SetVector("_UpDirection", Vector4.zero);
+        gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", 0f);
+        gpuSliceRenderer.material.SetFloat("_Scale", 1f);
+        gpuSliceRenderer.material.SetFloat("_ShankWidth", probeWidth);
+    }
+
     public async Task<Texture3D> GetAnnotationDatasetGPUTexture()
     {
         await gpuTextureLoadedTask;
@@ -77,7 +89,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     public void StartAnnotationDataset()
     {
         annotationDataset = tpmanager.GetAnnotationDataset();
-
+        Debug.Log("(in-plane slice) Annotation data set");
     }
 
     public Task GetGPUTextureTask()
@@ -91,10 +103,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         inPlaneSliceUIGO.SetActive(localPrefs.GetInplane());
     }
 
-    private float inPlaneScale;
-    private Vector3 recordingRegionCenterPosition;
-    private Transform tipTransform;
-
     public void UpdateInPlaneSlice()
     {
         if (!localPrefs.GetInplane()) return;
@@ -102,32 +110,35 @@ public class TP_InPlaneSlice : MonoBehaviour
         ProbeManager activeProbeController = tpmanager.GetActiveProbeController();
 
         if (activeProbeController == null)
+        {
+            ResetRendererParameters();
             return;
+        }
+
+        (Vector3 startCoordWorld, Vector3 endCoordWorld) = activeProbeController.GetProbeController().GetRecordingRegionWorld();
+        upWorld = (endCoordWorld - startCoordWorld).normalized;
+        forwardWorld = Quaternion.Euler(-90f, 0f, 0f) * upWorld;
 
         // Calculate the size
-        (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)activeProbeController.GetProbeController()).GetRecordingRegionHeight();
-        // Take the active probe, find the position and rotation, and interpolate across the annotation dataset to render a 400x400 image of the brain at that slice
-        tipTransform = activeProbeController.GetTipTransform();
+        float mmRecordingSize = Vector3.Distance(startCoordWorld, endCoordWorld);
 
-        Vector3 recRegionBottomPos = tipTransform.position + tipTransform.up * (0.2f + mmStartPos);
-        //tipPositionAPDVLR = Utils.WorldSpace2apdvlr(tipPosition + tpmanager.GetCenterOffset());
         bool fourShank = activeProbeController.GetProbeType() == 4;
 
         recordingRegionCenterPosition = fourShank ? 
-            annotationDataset.CoordinateSpace.World2Space(recRegionBottomPos + tipTransform.up * mmRecordingSize / 2 + tipTransform.forward * 0.375f) :
-            annotationDataset.CoordinateSpace.World2Space(recRegionBottomPos + tipTransform.up * mmRecordingSize / 2); ;
+            annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2 + forwardWorld * 0.375f) :
+            annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2);
 
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 
         inPlaneScale = mmRecordingSize * 1.5f * 1000f / 25f * zoomFactor;
 
         gpuSliceRenderer.material.SetVector("_RecordingRegionCenterPosition", recordingRegionCenterPosition);
-        gpuSliceRenderer.material.SetVector("_ForwardDirection", tipTransform.forward);
-        gpuSliceRenderer.material.SetVector("_UpDirection", tipTransform.up);
+        gpuSliceRenderer.material.SetVector("_ForwardDirection", forwardWorld);
+        gpuSliceRenderer.material.SetVector("_UpDirection", upWorld);
         gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize * 1000f / 25f);
         gpuSliceRenderer.material.SetFloat("_Scale", inPlaneScale);
-        GameObject.Find("SliceTextX").GetComponent<TextMeshProUGUI>().text = "<- " + mmRecordingSize * 1.5f + "mm ->";
-        GameObject.Find("SliceTextY").GetComponent<TextMeshProUGUI>().text = "<- " + mmRecordingSize * 1.5f + "mm ->";
+        textX.text = "<- " + mmRecordingSize * 1.5f + "mm ->";
+        textY.text = "<- " + mmRecordingSize * 1.5f + "mm ->";
     }
 
     public void InPlaneSliceHover(Vector2 pointerData)
@@ -154,7 +165,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
 
         // Take the tip transform and go out according to the in plane percentage 
-        Vector3 inPlanePosition = recordingRegionCenterPosition + (RotateWorld2APDVLR(tipTransform.forward) * -inPlanePosNorm.x + RotateWorld2APDVLR(tipTransform.up) * inPlanePosNorm.y);
+        Vector3 inPlanePosition = recordingRegionCenterPosition + (annotationDataset.CoordinateSpace.World2SpaceRot(forwardWorld) * -inPlanePosNorm.x + annotationDataset.CoordinateSpace.World2SpaceRot(upWorld) * inPlanePosNorm.y);
 
         return inPlanePosition;
     }
@@ -169,11 +180,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         inPlanePosNorm.x = inPlanePosNorm.x / rect.rect.width * 2 - 1;
         inPlanePosNorm.y = inPlanePosNorm.y / rect.rect.height * 2 - 1;
         return inPlanePosNorm;
-    }
-
-    private Vector3 RotateWorld2APDVLR(Vector3 world)
-    {
-        return new Vector3(world.z, -world.y, -world.x);
     }
 
     public void ZoomIn()

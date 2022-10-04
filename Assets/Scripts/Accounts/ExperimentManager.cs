@@ -9,7 +9,7 @@ public class ExperimentManager : MonoBehaviour
     [SerializeField] TMP_Dropdown quickSettingsDropdown;
     [SerializeField] TMP_Dropdown activeExperimentDropdown;
 
-    private Dictionary<ProbeManager, string> probeExperiments = new();
+    //private Dictionary<ProbeManager, string> probeExperiments = new();
 
     private string activeExperiment;
 
@@ -66,18 +66,4 @@ public class ExperimentManager : MonoBehaviour
     {
 
     }
-}
-
-
-public class ServerProbeInsertion
-{
-    public float ap;
-    public float ml;
-    public float dv;
-    public float phi;
-    public float theta;
-    public float spin;
-    public float depth;
-    public bool active;
-    public bool recorded;
 }

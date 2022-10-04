@@ -2303,7 +2303,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8943063119080654577}
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -10, z: -6.6}
+  m_LocalPosition: {x: -5.7, y: -14, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2341,7 +2341,6 @@ MonoBehaviour:
   - {fileID: 1545133269317581810}
   - {fileID: 1889671296123998709}
   - {fileID: 3819742175937011324}
-  textPrefab: {fileID: 8313610428545859077, guid: 999717cdb0927ad46ae876c2cb398778, type: 3}
   probeRenderer: {fileID: 7409922654742737101}
   probeType: 4
   probeController: {fileID: 897778941437095604}
@@ -2358,7 +2357,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7902403c47a64dc43bdfb804dcc30b8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  probeTipT: {fileID: 4373075753628498810}
+  _probeTipT: {fileID: 4373075753628498810}
   recordingRegionGOs:
   - {fileID: 6896843788505130512}
   - {fileID: 8790212291502270615}

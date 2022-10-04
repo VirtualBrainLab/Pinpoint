@@ -50,15 +50,21 @@ namespace TrajectoryPlanner
         /// <param name="probeManager">Probe Manager of active probe</param>
         public void SetProbeManager(ProbeManager probeManager)
         {
-            if (!gameObject.activeSelf) gameObject.SetActive(true);
-            _probeManager = probeManager;
+            if (probeManager == null)
+                gameObject.SetActive(false);
+            else
+            {
+                gameObject.SetActive(true);
+                _probeManager = probeManager;
 
-            panelTitle.text = probeManager.GetID().ToString();
-            panelTitle.color = probeManager.GetColor();
+                panelTitle.text = probeManager.GetID().ToString();
+                panelTitle.color = probeManager.GetColor();
 
-            coordinatePanel.LinkProbe(probeManager);
-            UpdateInteractable();
-            UpdateCoordinates();
+                coordinatePanel.LinkProbe(probeManager);
+
+                UpdateInteractable();
+                UpdateCoordinates();
+            }
         }
 
         public void UpdateInteractable(bool disableAll=false)
@@ -113,7 +119,12 @@ namespace TrajectoryPlanner
 
         public bool IsFocused()
         {
-            return inputFields.Any(inputField => inputField.isFocused);
+            if (!isActiveAndEnabled)
+                return false;
+            foreach (TMP_InputField inputField in inputFields)
+                if (inputField != null && inputField.isFocused)
+                    return true;
+            return false;
         }
 
         #endregion

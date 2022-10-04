@@ -26,7 +26,7 @@ public class PlayerPrefs : MonoBehaviour
     private bool _depthFromBrain;
     private bool convertAPML2probeAxis;
     private int slice3d;
-    private bool inplane;
+    private bool _inplane;
     private int invivoTransform;
     private bool useIBLAngles;
     private bool showSurfaceCoord;
@@ -37,6 +37,7 @@ public class PlayerPrefs : MonoBehaviour
     private string _rightHandedManipulatorIds;
     private bool _useBeryl;
     private bool _displayUM;
+    private Vector3 _relCoord;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -79,8 +80,8 @@ public class PlayerPrefs : MonoBehaviour
         slice3d = LoadIntPref("slice3d", 0);
         slice3dDropdown.SetValueWithoutNotify(slice3d);
 
-        inplane = LoadBoolPref("inplane", true);
-        inplaneToggle.isOn = inplane;
+        _inplane = LoadBoolPref("inplane", true);
+        inplaneToggle.isOn = _inplane;
 
         invivoTransform = LoadIntPref("stereotaxic", 1);
         invivoDropdown.SetValueWithoutNotify(invivoTransform);
@@ -110,9 +111,22 @@ public class PlayerPrefs : MonoBehaviour
 
         _displayUM = LoadBoolPref("display_um", true);
         displayUmToggle.isOn = _displayUM;
+
+        _relCoord = LoadVector3Pref("rel_coord", new Vector3(5.4f, 5.7f, 0.332f));
     }
 
     #region Getters/Setters
+
+    public void SetRelCoord(Vector3 coord)
+    {
+        _relCoord = coord;
+        SaveVector3Pref("rel_coord", _relCoord);
+    }
+
+    public Vector3 GetRelCoord()
+    {
+        return _relCoord;
+    }
 
     public void SetDisplayUm(bool state)
     {
@@ -193,13 +207,13 @@ public class PlayerPrefs : MonoBehaviour
 
     public void SetInplane(bool state)
     {
-        inplane = state;
-        UnityEngine.PlayerPrefs.SetInt("inplane", inplane ? 1 : 0);
+        _inplane = state;
+        UnityEngine.PlayerPrefs.SetInt("inplane", _inplane ? 1 : 0);
     }
 
     public bool GetInplane()
     {
-        return inplane;
+        return _inplane;
     }
 
     public void SetSlice3D(int state)
@@ -342,6 +356,27 @@ public class PlayerPrefs : MonoBehaviour
     private string LoadStringPref(string prefStr, string defaultValue)
     {
         return UnityEngine.PlayerPrefs.HasKey(prefStr) ? UnityEngine.PlayerPrefs.GetString(prefStr) : defaultValue;
+    }
+
+    private Vector3 LoadVector3Pref(string prefStr, Vector3 defaultValue)
+    {
+        if (UnityEngine.PlayerPrefs.HasKey(prefStr + "_x"))
+        {
+            float ap = UnityEngine.PlayerPrefs.GetFloat(prefStr + "_x");
+            float ml = UnityEngine.PlayerPrefs.GetFloat(prefStr + "_y");
+            float dv = UnityEngine.PlayerPrefs.GetFloat(prefStr + "_z");
+
+            return new Vector3(ap, ml, dv);
+        }
+        else
+            return defaultValue;
+    }
+
+    private void SaveVector3Pref(string prefStr, Vector3 value)
+    {
+        UnityEngine.PlayerPrefs.SetFloat(prefStr + "_x", value.x);
+        UnityEngine.PlayerPrefs.SetFloat(prefStr + "_y", value.y);
+        UnityEngine.PlayerPrefs.SetFloat(prefStr + "_z", value.z);
     }
 
     #endregion

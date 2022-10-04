@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using CoordinateSpaces;
 using CoordinateTransforms;
@@ -10,7 +9,6 @@ using CoordinateTransforms;
 /// to interpolate these properly you need to use e.g. the tip/top positions that are output by the
 /// CoordinateTransform 
 /// </summary>
-[Serializable]
 public class ProbeInsertion
 {
     #region Coordinate vars
@@ -30,6 +28,9 @@ public class ProbeInsertion
     public float theta;
     public float spin;
 
+    /// <summary>
+    /// The **transformed** coordinate in the active CoordinateSpace
+    /// </summary>
     public Vector3 apmldv
     {
         get => new Vector3(ap, ml, dv);
@@ -79,17 +80,38 @@ public class ProbeInsertion
 
     #endregion
 
-    public Vector3 GetPositionSpace()
+    /// <summary>
+    /// Get the corresponding **un-transformed** coordinate in the CoordinateSpace
+    /// </summary>
+    /// <returns></returns>
+    public Vector3 PositionSpace()
     {
         return _coordinateTransform.Transform2Space(apmldv);
     }
 
-    public Vector3 GetPositionWorld()
+    /// <summary>
+    /// Get the corresponding **transformed** coordinate in World
+    /// </summary>
+    /// <returns></returns>
+    public Vector3 PositionWorld()
     {
-        return _coordinateSpace.Space2World(GetPositionSpace());
+        return _coordinateSpace.Space2World(_coordinateTransform.Transform2SpaceRot(apmldv));
     }
 
-    // Convenience function for transforming world to this insertion's transformed space (i.e. world -> space -> transformed)
+    /// <summary>
+    /// Get the corresponding **un-transformed** coordinate in World
+    /// </summary>
+    /// <returns></returns>
+    public Vector3 GetPositionWorldUnTransformed()
+    {
+        return _coordinateSpace.Space2World(PositionSpace());
+    }
+
+    /// <summary>
+    /// Convert a world coordinate into the ProbeInsertion's transformed space
+    /// </summary>
+    /// <param name="coordWorld"></param>
+    /// <returns></returns>
     public Vector3 World2Transformed(Vector3 coordWorld)
     {
         return _coordinateTransform.Space2Transform(_coordinateSpace.World2Space(coordWorld));
