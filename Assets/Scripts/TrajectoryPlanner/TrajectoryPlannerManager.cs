@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CoordinateSpaces;
+using CoordinateTransforms;
 using EphysLink;
 using Settings;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using CoordinateSpaces;
-using CoordinateTransforms; 
 
 namespace TrajectoryPlanner
 {
@@ -136,6 +136,8 @@ namespace TrajectoryPlanner
             meshCenters = new Dictionary<int, Vector3>();
             LoadMeshData();
             //Physics.autoSyncTransforms = true;
+
+            _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
         }
 
 
@@ -416,7 +418,7 @@ namespace TrajectoryPlanner
             Color returnColor = activeProbe.GetColor();
 
             // Unregister manipulator probe is attached to
-            if (_prevManipulatorId != 0) _communicationManager.UnregisterManipulator(_prevManipulatorId);
+            // if (_prevManipulatorId != 0) _communicationManager.UnregisterManipulator(_prevManipulatorId);
 
             activeProbe.Destroy();
             Destroy(activeProbe.gameObject);
@@ -424,7 +426,7 @@ namespace TrajectoryPlanner
 
             if (allProbeManagers.Count > 0)
             {
-                SetActiveProbe(allProbeManagers[allProbeManagers.Count - 1]);
+                SetActiveProbe(allProbeManagers[^1]);
                 activeProbe.CheckCollisions(GetAllNonActiveColliders());
             }
             else
@@ -440,7 +442,6 @@ namespace TrajectoryPlanner
             UpdateProbeColliders();
 
             ReturnProbeColor(returnColor);
-
         }
 
         private void RecoverActiveProbeController()

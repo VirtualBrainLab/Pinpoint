@@ -44,10 +44,14 @@ namespace Settings
 
         #region Session variables
 
-        private readonly Dictionary<int, Tuple<ManipulatorConnectionSettingsPanel, GameObject>>
+        // private readonly Dictionary<int, Tuple<ManipulatorConnectionSettingsPanel, GameObject>>
+        //     _manipulatorIdToManipulatorConnectionSettingsPanel = new();
+        private readonly Dictionary<int, (ManipulatorConnectionSettingsPanel manipulatorConnectionSettingsPanel,
+                GameObject gameObject)>
             _manipulatorIdToManipulatorConnectionSettingsPanel = new();
 
-        private readonly Dictionary<int, Tuple<ProbeConnectionSettingsPanel, GameObject>>
+        private readonly Dictionary<int, (ProbeConnectionSettingsPanel probeConnectionSettingsPanel, GameObject
+                gameObject)>
             _probeIdToProbeConnectionSettingsPanels = new();
 
         #endregion
@@ -103,7 +107,7 @@ namespace Settings
             {
                 // Clear manipulator panels if not connected
                 foreach (var manipulatorPanel in
-                         _manipulatorIdToManipulatorConnectionSettingsPanel.Values.Select(value => value.Item2))
+                         _manipulatorIdToManipulatorConnectionSettingsPanel.Values.Select(value => value.gameObject))
                     Destroy(manipulatorPanel);
                 _manipulatorIdToManipulatorConnectionSettingsPanel.Clear();
             }
@@ -111,6 +115,7 @@ namespace Settings
 
         private void UpdateProbePanels()
         {
+            Debug.Log("Update probe panels");
             var handledProbeIds = new HashSet<int>();
 
             // Add any new probes in scene to list
@@ -130,24 +135,24 @@ namespace Settings
                     probeConnectionSettingsPanel.SetEphysLinkSettings(this);
 
                     _probeIdToProbeConnectionSettingsPanels.Add(probeId,
-                        new Tuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
+                        new ValueTuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
                             probeConnectionSettingsPanelGameObject));
                 }
                 else
                 {
                     // Update probeManager in probe connection settings panel
-                    _probeIdToProbeConnectionSettingsPanels[probeId].Item1.SetProbeManager(probeManager);
+                    _probeIdToProbeConnectionSettingsPanels[probeId].probeConnectionSettingsPanel
+                        .SetProbeManager(probeManager);
                 }
 
                 handledProbeIds.Add(probeId);
             }
 
             // Remove any probe that is not in the scene anymore
-            foreach (var removedProbeId in _probeIdToProbeConnectionSettingsPanels.Keys.Where(key =>
-                         !handledProbeIds.Contains(key)))
+            foreach (var removedProbeId in _probeIdToProbeConnectionSettingsPanels.Keys.Except(handledProbeIds)
+                         .ToList())
             {
-                // Remove
-                Destroy(_probeIdToProbeConnectionSettingsPanels[removedProbeId].Item2);
+                Destroy(_probeIdToProbeConnectionSettingsPanels[removedProbeId].gameObject);
                 _probeIdToProbeConnectionSettingsPanels.Remove(removedProbeId);
             }
 
@@ -159,14 +164,16 @@ namespace Settings
         /// </summary>
         public void UpdateManipulatorPanelAndSelection()
         {
+            Debug.Log("Called to update manipulator selection");
             _communicationManager.GetManipulators(availableIds =>
             {
+                Debug.Log("Updating manipulator options: " + availableIds);
                 // Update probes with selectable options
                 var usedManipulatorIds = _trajectoryPlannerManager.GetAllProbes()
                     .Where(probeManager => probeManager.IsConnectedToManipulator())
                     .Select(probeManager => probeManager.GetManipulatorId()).ToHashSet();
                 foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
-                             values => values.Item1))
+                             values => values.probeConnectionSettingsPanel))
                 {
                     var manipulatorDropdownOptions = new List<string> { "-" };
                     manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
@@ -194,7 +201,7 @@ namespace Settings
                         manipulatorConnectionSettingsPanel.SetManipulatorId(manipulatorId);
 
                         _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorId,
-                            new Tuple<ManipulatorConnectionSettingsPanel, GameObject>(
+                            new ValueTuple<ManipulatorConnectionSettingsPanel, GameObject>(
                                 manipulatorConnectionSettingsPanel, manipulatorConnectionSettingsPanelGameObject));
                     }
 
@@ -202,11 +209,10 @@ namespace Settings
                 }
 
                 // Remove any manipulators that are not connected anymore
-                foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys.Where(
-                             key =>
-                                 !handledManipulatorIds.Contains(key)))
+                foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys
+                             .Except(handledManipulatorIds).ToList())
                 {
-                    Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].Item2);
+                    Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].gameObject);
                     _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
                 }
             });
@@ -245,7 +251,7 @@ namespace Settings
                 {
                     foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes()
                                  .Where(probeManager => probeManager.IsConnectedToManipulator()))
-                        probeManager.ResetManipulatorProperties();
+                        probeManager.SetEphysLinkMovement(false);
 
                     _communicationManager.DisconnectFromServer(UpdateConnectionUI);
                 });

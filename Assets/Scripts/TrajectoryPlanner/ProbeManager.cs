@@ -140,7 +140,7 @@ public class ProbeManager : MonoBehaviour
         // Unregister this probe from the ephys link
         if (IsConnectedToManipulator())
         {
-            SetEphysLinkMovement(false, 0);
+            SetEphysLinkMovement(false);
         }
     }
 
@@ -556,7 +556,6 @@ public class ProbeManager : MonoBehaviour
         _manipulatorId = 0;
         _zeroCoordinateOffset = Vector4.negativeInfinity;
         _brainSurfaceOffset = 0;
-        if (IsConnectedToManipulator()) SetEphysLinkMovement(false);
     }
 
     /// <summary>
@@ -709,6 +708,11 @@ public class ProbeManager : MonoBehaviour
     /// <param name="pos">Position of manipulator in needles transform</param>
     private void EchoPositionFromEphysLink(Vector4 pos)
     {
+        // Quit early if the probe has been removed
+        if (probeController == null)
+        {
+            return;
+        }
         // Convert position to CCF
         var zeroCoordinateAdjustedPosition = pos - _zeroCoordinateOffset;
 
