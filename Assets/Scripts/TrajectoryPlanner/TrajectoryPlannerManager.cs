@@ -204,10 +204,8 @@ namespace TrajectoryPlanner
             }
 
 
-            if ( Input.GetKeyDown(KeyCode.P))
+            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.P))
                 _coenProbe = AddNewProbe(8).GetComponent<EightShankProbeControl>();
-            //if (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.P))
-            //    AddNewProbe(8);
 
             // TEST CODE: Debugging distance of mesh nodes from camera, trying to fix model "pop"
             //List<CCFTreeNode> defaultLoadedNodes = modelControl.GetDefaultLoadedNodes();
@@ -233,6 +231,8 @@ namespace TrajectoryPlanner
 
                 if (!probeQuickSettings.IsFocused())
                     UpdateQuickSettings();
+
+                accountsManager.UpdateProbeData(activeProbe.UUID, Probe2ServerProbeInsertion(activeProbe));
             }
 
             if (_coenProbe != null && _coenProbe.MovedThisFrame)
@@ -364,7 +364,7 @@ namespace TrajectoryPlanner
 
         public int GetActiveProbeType()
         {
-            return activeProbe.GetProbeType();
+            return activeProbe.ProbeType;
         }
 
         public bool IsManipulatorRightHanded(int manipulatorId)
@@ -418,7 +418,7 @@ namespace TrajectoryPlanner
 
         private void DestroyActiveProbeController()
         {
-            _prevProbeType = activeProbe.GetProbeType();
+            _prevProbeType = activeProbe.ProbeType;
             _prevInsertion = activeProbe.GetProbeController().Insertion;
             _prevManipulatorId = activeProbe.GetManipulatorId();
             _prevZeroCoordinateOffset = activeProbe.GetZeroCoordinateOffset();
@@ -1034,7 +1034,7 @@ namespace TrajectoryPlanner
             List<ProbeManager> np24Probes = new List<ProbeManager>();
             List<ProbeManager> otherProbes = new List<ProbeManager>();
             foreach (ProbeManager pcontroller in allProbeManagers)
-                if (pcontroller.GetProbeType() == 4)
+                if (pcontroller.ProbeType == 4)
                     np24Probes.Add(pcontroller);
                 else
                     otherProbes.Add(pcontroller);
@@ -1091,7 +1091,7 @@ namespace TrajectoryPlanner
                 ProbeInsertion probeInsertion = probe.GetProbeController().Insertion;
                 probeCoordinates[i] = (probeInsertion.apmldv, 
                     probeInsertion.angles,
-                    probe.GetProbeType(), probe.GetManipulatorId(),
+                    probe.ProbeType, probe.GetManipulatorId(),
                     probeInsertion.CoordinateSpace.Name, probeInsertion.CoordinateTransform.Name,
                     probe.GetZeroCoordinateOffset(), probe.GetBrainSurfaceOffset(), probe.IsSetToDropToSurfaceWithDepth());
             }
@@ -1186,6 +1186,18 @@ namespace TrajectoryPlanner
         public void CopyText()
         {
             activeProbe.Probe2Text();
+        }
+
+        #endregion
+
+        #region Accounts
+
+        private (Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName) Probe2ServerProbeInsertion(ProbeManager probeManager)
+        {
+            ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
+            return (insertion.apmldv, insertion.angles,
+                probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name);
+           
         }
 
         #endregion

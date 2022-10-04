@@ -18,19 +18,26 @@ public class PlayerEntity : Entity
     // Add authentication via email:
     // https://unisave.cloud/docs/email-authentication
     //
+    [Fillable]
     public string email;
     [DontLeaveServer]
     public string password;
     public DateTime lastLoginAt = DateTime.UtcNow;
     //
 
+    [Fillable]
     public string activeExperiment;
 
-    public Dictionary<string, List<ServerProbeInsertion>> experiments;
+    [Fillable]
+    public Dictionary<string, Dictionary<string, ServerProbeInsertion>> experiments;
+
+    [Fillable]
+    public List<int> visibleRigParts;
 
     public PlayerEntity()
     {
-        experiments = new Dictionary<string, List<ServerProbeInsertion>>();
+        experiments = new Dictionary<string, Dictionary<string, ServerProbeInsertion>>();
+        visibleRigParts = new List<int>();
     }
 }
 
@@ -46,6 +53,5 @@ public class ServerProbeInsertion
     public string coordinateSpaceName;
     public string coordinateTransformName;
     public bool active;
-    public bool enabled;
     public bool recorded;
 }

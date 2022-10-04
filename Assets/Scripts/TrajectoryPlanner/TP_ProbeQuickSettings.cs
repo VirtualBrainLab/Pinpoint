@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
 using TMPro;
@@ -19,6 +20,9 @@ namespace TrajectoryPlanner
         [SerializeField] private CanvasGroup positionFields;
         [SerializeField] private CanvasGroup angleFields;
         [SerializeField] private CanvasGroup buttons;
+
+        [SerializeField] private AccountsManager _accountsManager;
+        [SerializeField] private TMP_Dropdown _linkedExperimentDropdown;
 
         private TMP_InputField[] inputFields;
 
@@ -125,6 +129,29 @@ namespace TrajectoryPlanner
                 if (inputField != null && inputField.isFocused)
                     return true;
             return false;
+        }
+
+        public void UpdateExperimentList()
+        {
+            List<string> experiments = _accountsManager.GetExperiments();
+            _linkedExperimentDropdown.ClearOptions();
+
+            List<TMP_Dropdown.OptionData> optList = new List<TMP_Dropdown.OptionData>();
+            optList.Add(new TMP_Dropdown.OptionData("Not saved"));
+            foreach (string experiment in experiments)
+                optList.Add(new TMP_Dropdown.OptionData(experiment));
+            _linkedExperimentDropdown.AddOptions(optList);
+        }
+
+        public void ChangeExperiment(int optIdx)
+        {
+            if (optIdx > 0)
+            {
+                string optText = _linkedExperimentDropdown.options[optIdx].text;
+                _accountsManager.ChangeProbeExperiment(_probeManager.UUID, optText);
+            }
+            else
+                _accountsManager.RemoveProbeExperiment(_probeManager.UUID);
         }
 
         #endregion

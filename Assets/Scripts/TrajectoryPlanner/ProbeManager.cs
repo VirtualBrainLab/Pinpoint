@@ -32,7 +32,8 @@ public class ProbeManager : MonoBehaviour
     [SerializeField] private List<Collider> probeColliders;
     [SerializeField] private List<ProbeUIManager> probeUIManagers;
     [SerializeField] private Renderer probeRenderer;
-    [SerializeField] private int probeType;
+    [SerializeField] private int _probeType;
+    public int ProbeType { get { return _probeType; } }
 
     [SerializeField] private ProbeController probeController;
 
@@ -61,15 +62,6 @@ public class ProbeManager : MonoBehaviour
     private Dictionary<GameObject, Material> visibleOtherColliders;
 
     #region Accessors
-
-    /// <summary>
-    /// Get the probe-type of this probe
-    /// </summary>
-    /// <returns>probe type</returns>
-    public int GetProbeType()
-    {
-        return probeType;
-    }
 
 
     public int GetID()

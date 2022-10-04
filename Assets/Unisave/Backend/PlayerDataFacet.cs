@@ -8,19 +8,20 @@ public class PlayerDataFacet : Facet
     /// <summary>
     /// Returns information about the logged-in player
     /// </summary>
-    public PlayerEntity GetPlayerEntity()
+    public PlayerEntity LoadPlayerEntity()
     {
         // obtain authenticated player ID from the session
         // and load player data from the database
-        PlayerEntity player = Auth.GetPlayer<PlayerEntity>();
-
-        // send the data back to the game client
-        return player;
+        return Auth.GetPlayer<PlayerEntity>();
     }
 
-    public void SavePlayerEntity()
+    public void SavePlayerEntity(PlayerEntity givenPlayer)
     {
-        
+        var player = Auth.GetPlayer<PlayerEntity>();
+
+        player.FillWith(givenPlayer);
+
+        player.Save();
     }
 
     public string Greeting()

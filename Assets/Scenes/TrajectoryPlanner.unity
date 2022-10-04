@@ -191,6 +191,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94237c2a95545f34989abd8b583d1742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &76833136 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3208650239917680535, guid: 660ce40bc11f7704b9904d1fdf674b54, type: 3}
+  m_PrefabInstance: {fileID: 3208650240759701691}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &98805196 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1780008577384584233, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
@@ -224,6 +229,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &144466446 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6620571198980172986, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+  m_PrefabInstance: {fileID: 1397446698413376551}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &211792534
 GameObject:
   m_ObjectHideFlags: 0
@@ -881,6 +891,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1020089445 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8061281441871470616, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+  m_PrefabInstance: {fileID: 1397446698413376551}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb50476a2f404ef4bb87f6de9dd43a57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1047957689 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3412951402215766020, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
@@ -1024,7 +1045,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3208650239917680523, guid: 660ce40bc11f7704b9904d1fdf674b54, type: 3}
   m_PrefabInstance: {fileID: 3208650240759701691}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 76833136}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 144d68bb148f61440bb20b07e6c27e2e, type: 3}
@@ -1118,6 +1139,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Accounts
       objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: registerPanelGO
+      value: 
+      objectReference: {fileID: 76833136}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: experimentEditor
+      value: 
+      objectReference: {fileID: 1556897669}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: activeExpListBehavior
+      value: 
+      objectReference: {fileID: 1020089445}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
 --- !u!114 &1445581475 stripped
@@ -1185,6 +1218,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6727b3f12b6b3934c9a98b47b258ae52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1556897669 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3212082043136251182, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+  m_PrefabInstance: {fileID: 1397446698413376551}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef8f26d31ab1d734bbc23784541694bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1669998831 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2697801029150039415, guid: d78b8e4ed4a566b4e821d110f00655a7, type: 3}
@@ -1225,6 +1269,17 @@ MonoBehaviour:
 --- !u!114 &1717705639 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1397446697903906688, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+  m_PrefabInstance: {fileID: 1397446698413376551}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1719348668 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3463128308402570353, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
   m_PrefabInstance: {fileID: 1397446698413376551}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -2111,6 +2166,18 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 3212082043136251182, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+      propertyPath: editorListGO
+      value: 
+      objectReference: {fileID: 144466446}
+    - target: {fileID: 3212082043136251182, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+      propertyPath: _accountsManager
+      value: 
+      objectReference: {fileID: 809984607}
+    - target: {fileID: 3212082043136251182, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+      propertyPath: experimentListPrefab
+      value: 
+      objectReference: {fileID: 460346300256650340, guid: ef0b092c28bf3da449fdfe10b6610930, type: 3}
     - target: {fileID: 3343472823116803256, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -2120,6 +2187,18 @@ PrefabInstance:
       value: SetAxisControlEnabled
       objectReference: {fileID: 0}
     - target: {fileID: 3343472823116803256, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: TrajectoryPlanner.TrajectoryPlannerManager, trajectoryplanner.core
+      objectReference: {fileID: 0}
+    - target: {fileID: 3463128308402570353, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2108153954}
+    - target: {fileID: 3463128308402570353, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetSetting_GhostInactive
+      objectReference: {fileID: 0}
+    - target: {fileID: 3463128308402570353, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: TrajectoryPlanner.TrajectoryPlannerManager, trajectoryplanner.core
       objectReference: {fileID: 0}
@@ -2227,6 +2306,10 @@ PrefabInstance:
       propertyPath: _tpmanager
       value: 
       objectReference: {fileID: 2108153954}
+    - target: {fileID: 8061281441871470616, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
+      propertyPath: _accountsManager
+      value: 
+      objectReference: {fileID: 809984607}
     - target: {fileID: 8220900519574087826, guid: b789710e596e04e41a4d178650b90f0b, type: 3}
       propertyPath: m_RootOrder
       value: 6
@@ -2562,7 +2645,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2697801029150039400, guid: d78b8e4ed4a566b4e821d110f00655a7, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -392.49994
+      value: -392.5
       objectReference: {fileID: 0}
     - target: {fileID: 2697801029150039400, guid: d78b8e4ed4a566b4e821d110f00655a7, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -4037,6 +4120,10 @@ PrefabInstance:
       propertyPath: showAllProbePanelsToggle
       value: 
       objectReference: {fileID: 795364364}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: ghostInactiveProbesToggle
+      value: 
+      objectReference: {fileID: 1719348668}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: sensapexLinkServerIpInput
       value: 
