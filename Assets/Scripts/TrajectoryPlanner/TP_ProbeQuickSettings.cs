@@ -3,6 +3,7 @@ using System.Linq;
 using EphysLink;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TrajectoryPlanner
 {
@@ -11,16 +12,17 @@ namespace TrajectoryPlanner
         #region Components
 
         [SerializeField] private TMP_Text panelTitle;
-        private ProbeManager _probeManager;
-        private CommunicationManager _communicationManager;
-        private TP_QuestionDialogue _questionDialogue;
-
         [SerializeField] private TP_CoordinateEntryPanel coordinatePanel;
         [SerializeField] private CanvasGroup positionFields;
         [SerializeField] private CanvasGroup angleFields;
         [SerializeField] private CanvasGroup buttons;
-
-        private TMP_InputField[] inputFields;
+        [SerializeField] private TMP_InputField automaticMovementSpeedInputField;
+        [SerializeField] private Button automaticMovementGoButton;
+        
+        private ProbeManager _probeManager;
+        private CommunicationManager _communicationManager;
+        private TP_QuestionDialogue _questionDialogue;
+        private TMP_InputField[] _inputFields;
 
         #endregion
 
@@ -35,7 +37,7 @@ namespace TrajectoryPlanner
             _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
                 .GetComponent<TP_QuestionDialogue>();
 
-            inputFields = gameObject.GetComponentsInChildren<TMP_InputField>(true);
+            _inputFields = gameObject.GetComponentsInChildren<TMP_InputField>(true);
 
             UpdateInteractable(true);
         }
@@ -119,12 +121,19 @@ namespace TrajectoryPlanner
 
         public bool IsFocused()
         {
-            if (!isActiveAndEnabled)
-                return false;
-            foreach (TMP_InputField inputField in inputFields)
-                if (inputField != null && inputField.isFocused)
-                    return true;
-            return false;
+            return isActiveAndEnabled && _inputFields.Any(inputField => inputField != null && inputField.isFocused);
+        }
+
+        /// <summary>
+        /// Toggle on or off automatic manipulator control
+        /// </summary>
+        /// <param name="isOn">Toggle state</param>
+        public void ToggleAutomaticControl(bool isOn)
+        {
+            automaticMovementSpeedInputField.interactable = isOn;
+            automaticMovementGoButton.interactable = isOn;
+            
+            // Spawn ghost
         }
 
         #endregion
