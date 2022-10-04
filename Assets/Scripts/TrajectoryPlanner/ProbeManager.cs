@@ -708,6 +708,11 @@ public class ProbeManager : MonoBehaviour
     /// <param name="pos">Position of manipulator in needles transform</param>
     private void EchoPositionFromEphysLink(Vector4 pos)
     {
+        // Quit early if the probe has been removed
+        if (probeController == null)
+        {
+            return;
+        }
         // Convert position to CCF
         var zeroCoordinateAdjustedPosition = pos - _zeroCoordinateOffset;
 

@@ -418,7 +418,7 @@ namespace TrajectoryPlanner
             Color returnColor = activeProbe.GetColor();
 
             // Unregister manipulator probe is attached to
-            if (_prevManipulatorId != 0) _communicationManager.UnregisterManipulator(_prevManipulatorId);
+            // if (_prevManipulatorId != 0) _communicationManager.UnregisterManipulator(_prevManipulatorId);
 
             activeProbe.Destroy();
             Destroy(activeProbe.gameObject);
@@ -426,7 +426,7 @@ namespace TrajectoryPlanner
 
             if (allProbeManagers.Count > 0)
             {
-                SetActiveProbe(allProbeManagers[allProbeManagers.Count - 1]);
+                SetActiveProbe(allProbeManagers[^1]);
                 activeProbe.CheckCollisions(GetAllNonActiveColliders());
             }
             else
@@ -442,7 +442,6 @@ namespace TrajectoryPlanner
             UpdateProbeColliders();
 
             ReturnProbeColor(returnColor);
-
         }
 
         private void RecoverActiveProbeController()
