@@ -713,39 +713,46 @@ public class ProbeManager : MonoBehaviour
         {
             return;
         }
-        // Convert position to CCF
-        var zeroCoordinateAdjustedPosition = pos - _zeroCoordinateOffset;
+        // Apply zero coordinate offset
+        var zeroCoordinateAdjustedManipulatorPosition = pos - _zeroCoordinateOffset;
+        
+        // Apply axis negations
+        zeroCoordinateAdjustedManipulatorPosition.z *= -1;
+        zeroCoordinateAdjustedManipulatorPosition.y *= tpmanager.IsManipulatorRightHanded(_manipulatorId) ? 1 : -1;
 
         // Phi adjustment
-        var probePhi = (probeController.Insertion.phi + 90) * Mathf.Deg2Rad;
+        var probePhi = -probeController.Insertion.phi * Mathf.Deg2Rad;
         _phiCos = Mathf.Cos(probePhi);
         _phiSin = Mathf.Sin(probePhi);
-        var phiAdjustedX = zeroCoordinateAdjustedPosition.x * _phiCos -
-                           zeroCoordinateAdjustedPosition.y * _phiSin;
-        var phiAdjustedY = zeroCoordinateAdjustedPosition.x * _phiSin +
-                           zeroCoordinateAdjustedPosition.y * _phiCos;
-        zeroCoordinateAdjustedPosition.x = phiAdjustedX;
-        zeroCoordinateAdjustedPosition.y = phiAdjustedY;
-
+        var phiAdjustedX = zeroCoordinateAdjustedManipulatorPosition.x * _phiCos -
+                           zeroCoordinateAdjustedManipulatorPosition.y * _phiSin;
+        var phiAdjustedY = zeroCoordinateAdjustedManipulatorPosition.x * _phiSin +
+                           zeroCoordinateAdjustedManipulatorPosition.y * _phiCos;
+        zeroCoordinateAdjustedManipulatorPosition.x = phiAdjustedX;
+        zeroCoordinateAdjustedManipulatorPosition.y = phiAdjustedY;
+        
         // Calculate last used direction (between depth and DV)
-        var dvDelta = Math.Abs(zeroCoordinateAdjustedPosition.z - _lastManipulatorPosition.z);
-        var depthDelta = Math.Abs(zeroCoordinateAdjustedPosition.w - _lastManipulatorPosition.w);
+        var dvDelta = Math.Abs(zeroCoordinateAdjustedManipulatorPosition.z - _lastManipulatorPosition.z);
+        var depthDelta = Math.Abs(zeroCoordinateAdjustedManipulatorPosition.w - _lastManipulatorPosition.w);
         if (dvDelta > 0.1 || depthDelta > 0.1) _dropToSurfaceWithDepth = depthDelta >= dvDelta;
-        _lastManipulatorPosition = zeroCoordinateAdjustedPosition;
+        _lastManipulatorPosition = zeroCoordinateAdjustedManipulatorPosition;
         
         // Brain surface adjustment
         var brainSurfaceAdjustment = float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
         if (_dropToSurfaceWithDepth)
-            zeroCoordinateAdjustedPosition.w += brainSurfaceAdjustment;
+            zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
         else
-            zeroCoordinateAdjustedPosition.z += brainSurfaceAdjustment;
+            zeroCoordinateAdjustedManipulatorPosition.z += brainSurfaceAdjustment;
+
+        // Convert to world space
+        var zeroCoordinateAdjustedWorldPosition = new Vector4(zeroCoordinateAdjustedManipulatorPosition.y,
+            zeroCoordinateAdjustedManipulatorPosition.z, -zeroCoordinateAdjustedManipulatorPosition.x,
+            zeroCoordinateAdjustedManipulatorPosition.w);
 
         // Set probe position (swapping the axes)
-        probeController.SetProbePosition(new Vector4(
-            zeroCoordinateAdjustedPosition.y,
-            zeroCoordinateAdjustedPosition.x * (tpmanager.IsManipulatorRightHanded(_manipulatorId) ? 1 : -1),
-            -zeroCoordinateAdjustedPosition.z,
-            zeroCoordinateAdjustedPosition.w));
+        var zeroCoordinateApmldv = probeController.Insertion.World2TransformedRot(zeroCoordinateAdjustedWorldPosition);
+        probeController.SetProbePosition(new Vector4(zeroCoordinateApmldv.x, zeroCoordinateApmldv.y,
+            zeroCoordinateApmldv.z, zeroCoordinateAdjustedWorldPosition.w));
 
 
         // Continue echoing position
