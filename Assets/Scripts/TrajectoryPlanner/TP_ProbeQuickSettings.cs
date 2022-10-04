@@ -136,6 +136,43 @@ namespace TrajectoryPlanner
             // Spawn ghost
         }
 
+        /// <summary>
+        /// Automatically limit speed input from text input
+        /// </summary>
+        /// <param name="input">Value from text input</param>
+        public void LimitSpeedInput(string input)
+        {
+            if (input.Length == 0)
+            {
+                return;
+            }
+
+            switch (int.Parse(input))
+            {
+                case < 0:
+                    automaticMovementSpeedInputField.SetTextWithoutNotify("0");
+                    break;
+                case > 8000:
+                    automaticMovementSpeedInputField.SetTextWithoutNotify("8000");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Send position to start automatic driving
+        /// </summary>
+        public void AutomaticallyDriveManipulator()
+        {
+            if (automaticMovementSpeedInputField.text.Length == 0)
+            {
+                automaticMovementSpeedInputField.SetTextWithoutNotify("200");
+            }
+
+            var speed = int.Parse(automaticMovementSpeedInputField.text);
+            
+            print(speed);
+        }
+
         #endregion
     }
 }
