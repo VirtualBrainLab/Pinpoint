@@ -665,7 +665,7 @@ public class ProbeManager : MonoBehaviour
 
             var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
                 annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorld().tipCoordWorld - tipExtensionDirection * 5),
-                annotationDataset.CoordinateSpace.World2SpaceRot(probeController.GetTipWorld().tipUpWorld));
+                annotationDataset.CoordinateSpace.World2SpaceRot(tipExtensionDirection));
 
             var brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
 
