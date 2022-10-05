@@ -646,28 +646,44 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetBrainSurfaceOffset()
     {
-        var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipWorld().tipUpWorld : Vector3.up;
-        
-        
-        var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
-            annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorld().tipCoordWorld - tipExtensionDirection * 5),
-            annotationDataset.CoordinateSpace.World2SpaceRot(probeController.GetTipWorld().tipUpWorld));
-
-        var brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
-        var depth = Vector3.Distance(brainSurfaceWorld, probeController.GetTipWorld().tipCoordWorld);
-        
-        Debug.DrawLine(probeController.GetTipWorld().tipCoordWorld, brainSurfaceWorld, Color.red, 30);
-
-        var computedOffset = depth - 5;
-
-        if (IsConnectedToManipulator())
+        if (probeInBrain)
         {
-            _brainSurfaceOffset -= computedOffset;
+            // Just calculate the distance from the probe tip position to the brain surface            
+            if (IsConnectedToManipulator())
+            {
+                _brainSurfaceOffset -= Vector3.Distance(brainSurface, probeController.Insertion.apmldv);
+            }
+            else
+            {
+                probeController.SetProbePosition(brainSurface);
+            }
         }
         else
         {
-            probeController.SetProbePosition(probeController.Insertion.World2Transformed(brainSurfaceWorld));
+            // We need to calculate the surface coordinate ourselves
+            var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipWorld().tipUpWorld : Vector3.up;
+
+            var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
+                annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorld().tipCoordWorld - tipExtensionDirection * 5),
+                annotationDataset.CoordinateSpace.World2SpaceRot(probeController.GetTipWorld().tipUpWorld));
+
+            var brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
+
+            Debug.DrawLine(probeController.GetTipWorld().tipCoordWorld, brainSurfaceWorld, Color.red, 30);
+
+            if (IsConnectedToManipulator())
+            {
+                var depth = Vector3.Distance(probeController.Insertion.World2Transformed(brainSurfaceWorld), probeController.Insertion.apmldv);
+                var computedOffset = depth - 5;
+                _brainSurfaceOffset -= computedOffset;
+            }
+            else
+            {
+                probeController.SetProbePosition(probeController.Insertion.World2Transformed(brainSurfaceWorld));
+            }
         }
+        
+
     }
 
     /// <summary>
