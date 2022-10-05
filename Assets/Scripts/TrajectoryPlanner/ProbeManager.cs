@@ -646,29 +646,28 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetBrainSurfaceOffset()
     {
-        Debug.LogError("Not fixed yet");
-        //var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipTransform().up : Vector3.up;
+        var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipWorld().tipUpWorld : Vector3.up;
         
         
-        //var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
-        //    annotationDataset.CoordinateSpace.World2Space(probeController.GetTipTransform().position - tipExtensionDirection * 5),
-        //    annotationDataset.CoordinateSpace.World2SpaceRot(probeController.GetTipTransform().up));
+        var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
+            annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorld().tipCoordWorld - tipExtensionDirection * 5),
+            annotationDataset.CoordinateSpace.World2SpaceRot(probeController.GetTipWorld().tipUpWorld));
 
-        //var brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
-        //var depth = Vector3.Distance(brainSurfaceWorld, probeController.GetTipTransform().position);
+        var brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
+        var depth = Vector3.Distance(brainSurfaceWorld, probeController.GetTipWorld().tipCoordWorld);
         
-        //Debug.DrawLine(probeController.GetTipTransform().position, brainSurfaceWorld, Color.red, 30);
+        Debug.DrawLine(probeController.GetTipWorld().tipCoordWorld, brainSurfaceWorld, Color.red, 30);
 
-        //var computedOffset = depth - 5;
+        var computedOffset = depth - 5;
 
-        //if (IsConnectedToManipulator())
-        //{
-        //    _brainSurfaceOffset -= computedOffset;
-        //}
-        //else
-        //{
-        //    probeController.SetProbePosition(probeController.Insertion.World2Transformed(brainSurfaceWorld));
-        //}
+        if (IsConnectedToManipulator())
+        {
+            _brainSurfaceOffset -= computedOffset;
+        }
+        else
+        {
+            probeController.SetProbePosition(probeController.Insertion.World2Transformed(brainSurfaceWorld));
+        }
     }
 
     /// <summary>
