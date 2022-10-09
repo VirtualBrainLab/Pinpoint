@@ -6231,6 +6231,7 @@ MonoBehaviour:
   angleFields: {fileID: 5353964328855063755}
   buttons: {fileID: 2691002164104663128}
   automaticMovementSpeedInputField: {fileID: 4912173287244133525}
+  automaticMovementControlPanelGameObject: {fileID: 5845088992127050120}
   automaticMovementGoButton: {fileID: 3542177453428073158}
 --- !u!225 &998422518680573451
 CanvasGroup:

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -478,7 +477,8 @@ namespace TrajectoryPlanner
         }
         
         public ProbeManager AddNewProbeTransformed(int probeType, ProbeInsertion insertion,
-            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
+            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+            int mockingManipulatorId = 0)
         {
             ProbeManager probeManager = AddNewProbe(probeType);
             if (!PlayerPrefs.IsLinkDataExpired())
@@ -489,7 +489,23 @@ namespace TrajectoryPlanner
                 if (manipulatorId != 0) probeManager.SetEphysLinkMovement(true, manipulatorId);
             }
 
-            probeManager.GetProbeController().SetProbePosition(insertion);
+
+            if (mockingManipulatorId > 0)
+            {
+                probeManager.SetMaterialsTransparent();
+                probeManager.SetMockingManipulatorId(mockingManipulatorId);
+                probeManager.DisableAllColliders();
+
+                // Deep copy the positions and angles of the insertion
+                probeManager.GetProbeController().SetProbePosition(new ProbeInsertion(insertion.ap, insertion.ml,
+                    insertion.dv, insertion.phi, insertion.theta, insertion.spin, insertion.CoordinateSpace,
+                    insertion.CoordinateTransform));
+            }
+            else
+            {
+                // Shallow copy over the insertion
+                probeManager.GetProbeController().SetProbePosition(insertion);
+            }
 
             spawnedThisFrame = true;
 

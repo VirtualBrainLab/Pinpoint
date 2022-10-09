@@ -23,6 +23,7 @@ public class ProbeManager : MonoBehaviour
     private float _brainSurfaceOffset;
     private bool _dropToSurfaceWithDepth = true;
     private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
+    private int _mockingManipulatorId;
 
     #endregion
 
@@ -82,6 +83,14 @@ public class ProbeManager : MonoBehaviour
     public List<Collider> GetProbeColliders()
     {
         return probeColliders;
+    }
+
+    public void DisableAllColliders()
+    {
+        foreach (var probeCollider in probeColliders)
+        {
+            probeCollider.enabled = false;
+        }
     }
 
     /// <summary>
@@ -546,6 +555,15 @@ public class ProbeManager : MonoBehaviour
     public int GetManipulatorId()
     {
         return _manipulatorId;
+    }
+
+    /// <summary>
+    ///     Set the ID of the manipulator this probe will be used to send the position of.
+    /// </summary>
+    /// <param name="id">ID of the manipulator this probe will be mocking position for</param>
+    public void SetMockingManipulatorId(int id)
+    {
+        _mockingManipulatorId = id;
     }
 
     /// <summary>

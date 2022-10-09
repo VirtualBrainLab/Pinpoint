@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using EphysLink;
 using TMPro;
@@ -17,16 +16,17 @@ namespace TrajectoryPlanner
         [SerializeField] private CanvasGroup angleFields;
         [SerializeField] private CanvasGroup buttons;
         [SerializeField] private TMP_InputField automaticMovementSpeedInputField;
+        [SerializeField] private GameObject automaticMovementControlPanelGameObject;
         [SerializeField] private Button automaticMovementGoButton;
         
         private ProbeManager _probeManager;
         private CommunicationManager _communicationManager;
-        private TP_QuestionDialogue _questionDialogue;
+        private TrajectoryPlannerManager _trajectoryPlannerManager;
         private TMP_InputField[] _inputFields;
 
         #endregion
 
-        #region Setup
+        #region Unity
 
         /// <summary>
         ///     Initialize components
@@ -34,12 +34,21 @@ namespace TrajectoryPlanner
         private void Awake()
         {
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
-            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
-                .GetComponent<TP_QuestionDialogue>();
+            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
 
             _inputFields = gameObject.GetComponentsInChildren<TMP_InputField>(true);
 
             UpdateInteractable(true);
+        }
+
+        /// <summary>
+        ///     Update UI components based on external updates
+        /// </summary>
+        private void FixedUpdate()
+        {
+            if (!_probeManager) return;
+            if (_probeManager.IsConnectedToManipulator() != automaticMovementControlPanelGameObject.activeSelf)
+                automaticMovementControlPanelGameObject.SetActive(_probeManager.IsConnectedToManipulator());
         }
 
         #endregion
@@ -63,6 +72,8 @@ namespace TrajectoryPlanner
                 panelTitle.color = probeManager.GetColor();
 
                 coordinatePanel.LinkProbe(probeManager);
+                
+                automaticMovementControlPanelGameObject.SetActive(_probeManager.IsConnectedToManipulator());
 
                 UpdateInteractable();
                 UpdateCoordinates();
@@ -134,6 +145,10 @@ namespace TrajectoryPlanner
             automaticMovementGoButton.interactable = isOn;
             
             // Spawn ghost
+            _trajectoryPlannerManager.AddNewProbeTransformed(_probeManager.GetProbeType(),
+                _probeManager.GetProbeController().Insertion, 0, _probeManager.GetZeroCoordinateOffset(),
+                _probeManager.GetBrainSurfaceOffset(), _probeManager.IsSetToDropToSurfaceWithDepth(),
+                _probeManager.GetManipulatorId());
         }
 
         /// <summary>
