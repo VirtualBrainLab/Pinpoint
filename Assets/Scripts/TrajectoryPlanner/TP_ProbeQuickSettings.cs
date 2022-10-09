@@ -145,25 +145,26 @@ namespace TrajectoryPlanner
             automaticMovementGoButton.interactable = isOn;
             
             // Spawn ghost
+            var originalProbeManager = _probeManager;
             var ghostProbeManager = _trajectoryPlannerManager.AddNewProbeTransformed(
                 _probeManager.GetProbeType(), _probeManager.GetProbeController().Insertion, 0,
                 _probeManager.GetZeroCoordinateOffset(), _probeManager.GetBrainSurfaceOffset(),
                 _probeManager.IsSetToDropToSurfaceWithDepth());
 
             // Configure ghost
-            var thisProbeInsertion = _probeManager.GetProbeController().Insertion;
+            var originalProbeInsertion = originalProbeManager.GetProbeController().Insertion;
 
             ghostProbeManager.SetMaterialsTransparent();
             ghostProbeManager.DisableAllColliders();
 
             // Deep copy overwrite the positions and angles of the insertion
-            ghostProbeManager.GetProbeController().SetProbePosition(new ProbeInsertion(thisProbeInsertion.ap,
-                thisProbeInsertion.ml, thisProbeInsertion.dv, thisProbeInsertion.phi, thisProbeInsertion.theta,
-                thisProbeInsertion.spin, thisProbeInsertion.CoordinateSpace, thisProbeInsertion.CoordinateTransform));
+            ghostProbeManager.GetProbeController().SetProbePosition(new ProbeInsertion(originalProbeInsertion.ap,
+                originalProbeInsertion.ml, originalProbeInsertion.dv, originalProbeInsertion.phi, originalProbeInsertion.theta,
+                originalProbeInsertion.spin, originalProbeInsertion.CoordinateSpace, originalProbeInsertion.CoordinateTransform));
             
             // Set references
-            ghostProbeManager.SetOriginalProbeManager(_probeManager);
-            _probeManager.SetGhostProbeManager(ghostProbeManager);
+            ghostProbeManager.SetOriginalProbeManager(originalProbeManager);
+            originalProbeManager.SetGhostProbeManager(ghostProbeManager);
         }
 
         /// <summary>
@@ -201,6 +202,7 @@ namespace TrajectoryPlanner
             var speed = int.Parse(automaticMovementSpeedInputField.text);
             
             print(speed);
+            print(_probeManager.GetGhostProbeManager().GetProbeController().Insertion.apmldv);
         }
 
         #endregion
