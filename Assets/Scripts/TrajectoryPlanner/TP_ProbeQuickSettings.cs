@@ -194,24 +194,47 @@ namespace TrajectoryPlanner
         /// </summary>
         public void AutomaticallyDriveManipulator()
         {
+            // Set default speed if none was provided
             if (automaticMovementSpeedInputField.text.Length == 0)
             {
-                automaticMovementSpeedInputField.SetTextWithoutNotify("200");
+                automaticMovementSpeedInputField.SetTextWithoutNotify("500");
             }
 
+            // Gather info
             var speed = int.Parse(automaticMovementSpeedInputField.text);
             var apmldv = _probeManager.GetGhostProbeManager().GetProbeController().Insertion.apmldv;
             var depth = _probeManager.GetGhostProbeManager().GetProbeController().GetProbeDepth();
+
+            // Convert apmldv to world coordinate
             var convertToWorld = _probeManager.GetGhostProbeManager().GetProbeController().Insertion
                 .Transformed2WorldRot(apmldv);
-            var posWithDepth = new Vector4(convertToWorld.x, convertToWorld.y, convertToWorld.z, depth);
-            var zeroCoordinateOffsetPos = posWithDepth + _probeManager.GetZeroCoordinateOffset();
+
+            // Flip axes to match manipulator
+            var posWithDepthAndCorrectAxes = new Vector4(
+                -convertToWorld.z,
+                convertToWorld.x * (
+                    _trajectoryPlannerManager.IsManipulatorRightHanded(_probeManager.GetManipulatorId())
+                        ? 1
+                        : -1),
+                -convertToWorld.y,
+                depth);
+
+            var brainSurfaceAdjustment = float.IsNaN(_probeManager.GetBrainSurfaceOffset())
+                ? 0
+                : _probeManager.GetBrainSurfaceOffset();
+            if (_probeManager.IsSetToDropToSurfaceWithDepth())
+                posWithDepthAndCorrectAxes.w -= brainSurfaceAdjustment;
+            else
+                posWithDepthAndCorrectAxes.z -= brainSurfaceAdjustment;
+
+            var zeroCoordinateOffsetPos = posWithDepthAndCorrectAxes + _probeManager.GetZeroCoordinateOffset();
 
             print("Speed: " + speed);
             print("Pos: " + zeroCoordinateOffsetPos);
             zeroCoordinateOffsetPos.w -= _probeManager.GetBrainSurfaceOffset();
             print("Pos after depth update: " + zeroCoordinateOffsetPos);
 
+            
             _communicationManager.SetCanWrite(_probeManager.GetManipulatorId(), true, 1, canWrite =>
             {
                 if (canWrite)
