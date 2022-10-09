@@ -702,6 +702,11 @@ public class DefaultProbeController : ProbeController
     #endregion
 
     #region Set Probe pos/angles
+    
+    public override float GetProbeDepth()
+    {
+        return depth;
+    }
 
     /// <summary>
     /// Set the probe position to the current apml/depth/phi/theta/spin values

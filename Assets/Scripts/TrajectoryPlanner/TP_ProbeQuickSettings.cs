@@ -200,11 +200,27 @@ namespace TrajectoryPlanner
             }
 
             var speed = int.Parse(automaticMovementSpeedInputField.text);
-            
-            print(speed);
-            print(_probeManager.GetGhostProbeManager().GetProbeController().Insertion.apmldv);
-        }
+            var apmldv = _probeManager.GetGhostProbeManager().GetProbeController().Insertion.apmldv;
+            var depth = _probeManager.GetGhostProbeManager().GetProbeController().GetProbeDepth();
+            var convertToWorld = _probeManager.GetGhostProbeManager().GetProbeController().Insertion
+                .Transformed2WorldRot(apmldv);
+            var posWithDepth = new Vector4(convertToWorld.x, convertToWorld.y, convertToWorld.z, depth);
+            var zeroCoordinateOffsetPos = posWithDepth + _probeManager.GetZeroCoordinateOffset();
 
+            print("Speed: " + speed);
+            print("Pos: " + zeroCoordinateOffsetPos);
+            zeroCoordinateOffsetPos.w -= _probeManager.GetBrainSurfaceOffset();
+            print("Pos after depth update: " + zeroCoordinateOffsetPos);
+
+            _communicationManager.SetCanWrite(_probeManager.GetManipulatorId(), true, 1, canWrite =>
+            {
+                if (canWrite)
+                    _communicationManager.GotoPos(_probeManager.GetManipulatorId(),
+                        zeroCoordinateOffsetPos, speed, endPos => Debug.Log("End Position: " + endPos),
+                        Debug.LogError);
+            }, Debug.LogError);
+            
+        }
         #endregion
     }
 }
