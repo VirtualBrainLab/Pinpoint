@@ -187,7 +187,7 @@ namespace TrajectoryPlanner
             if (Input.anyKey && activeProbe != null && !InputsFocused())
             {
                 if (Input.GetKeyDown(KeyCode.Backspace) && !CanvasParent.GetComponentsInChildren<TMP_InputField>()
-                        .Any(inputField => inputField.isFocused))
+                        .Any(inputField => inputField.isFocused) && !activeProbe.IsGhost())
                 {
                     DestroyActiveProbeController();
                     return;
@@ -416,9 +416,6 @@ namespace TrajectoryPlanner
 
             Color returnColor = activeProbe.GetColor();
 
-            // Unregister manipulator probe is attached to
-            // if (_prevManipulatorId != 0) _communicationManager.UnregisterManipulator(_prevManipulatorId);
-
             activeProbe.Destroy();
             Destroy(activeProbe.gameObject);
             allProbeManagers.Remove(activeProbe);
@@ -477,8 +474,7 @@ namespace TrajectoryPlanner
         }
         
         public ProbeManager AddNewProbeTransformed(int probeType, ProbeInsertion insertion,
-            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-            int mockingManipulatorId = 0)
+            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
         {
             ProbeManager probeManager = AddNewProbe(probeType);
             if (!PlayerPrefs.IsLinkDataExpired())
@@ -489,23 +485,7 @@ namespace TrajectoryPlanner
                 if (manipulatorId != 0) probeManager.SetEphysLinkMovement(true, manipulatorId);
             }
 
-
-            if (mockingManipulatorId > 0)
-            {
-                probeManager.SetMaterialsTransparent();
-                probeManager.SetMockingManipulatorId(mockingManipulatorId);
-                probeManager.DisableAllColliders();
-
-                // Deep copy the positions and angles of the insertion
-                probeManager.GetProbeController().SetProbePosition(new ProbeInsertion(insertion.ap, insertion.ml,
-                    insertion.dv, insertion.phi, insertion.theta, insertion.spin, insertion.CoordinateSpace,
-                    insertion.CoordinateTransform));
-            }
-            else
-            {
-                // Shallow copy over the insertion
-                probeManager.GetProbeController().SetProbePosition(insertion);
-            }
+            probeManager.GetProbeController().SetProbePosition(insertion);
 
             spawnedThisFrame = true;
 

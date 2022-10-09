@@ -145,10 +145,25 @@ namespace TrajectoryPlanner
             automaticMovementGoButton.interactable = isOn;
             
             // Spawn ghost
-            _trajectoryPlannerManager.AddNewProbeTransformed(_probeManager.GetProbeType(),
-                _probeManager.GetProbeController().Insertion, 0, _probeManager.GetZeroCoordinateOffset(),
-                _probeManager.GetBrainSurfaceOffset(), _probeManager.IsSetToDropToSurfaceWithDepth(),
-                _probeManager.GetManipulatorId());
+            var ghostProbeManager = _trajectoryPlannerManager.AddNewProbeTransformed(
+                _probeManager.GetProbeType(), _probeManager.GetProbeController().Insertion, 0,
+                _probeManager.GetZeroCoordinateOffset(), _probeManager.GetBrainSurfaceOffset(),
+                _probeManager.IsSetToDropToSurfaceWithDepth());
+
+            // Configure ghost
+            var thisProbeInsertion = _probeManager.GetProbeController().Insertion;
+
+            ghostProbeManager.SetMaterialsTransparent();
+            ghostProbeManager.DisableAllColliders();
+
+            // Deep copy overwrite the positions and angles of the insertion
+            ghostProbeManager.GetProbeController().SetProbePosition(new ProbeInsertion(thisProbeInsertion.ap,
+                thisProbeInsertion.ml, thisProbeInsertion.dv, thisProbeInsertion.phi, thisProbeInsertion.theta,
+                thisProbeInsertion.spin, thisProbeInsertion.CoordinateSpace, thisProbeInsertion.CoordinateTransform));
+            
+            // Set references
+            ghostProbeManager.SetOriginalProbeManager(_probeManager);
+            _probeManager.SetGhostProbeManager(ghostProbeManager);
         }
 
         /// <summary>

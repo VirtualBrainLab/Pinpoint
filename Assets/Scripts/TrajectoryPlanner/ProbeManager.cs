@@ -23,7 +23,8 @@ public class ProbeManager : MonoBehaviour
     private float _brainSurfaceOffset;
     private bool _dropToSurfaceWithDepth = true;
     private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
-    private int _mockingManipulatorId;
+    private ProbeManager _ghostProbeManager;
+    private ProbeManager _originalProbeManager;
 
     #endregion
 
@@ -558,12 +559,39 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    ///     Set the ID of the manipulator this probe will be used to send the position of.
+    ///     Set a reference to the probe manager of the ghost probe for moving the manipulator tied to this probe.
     /// </summary>
-    /// <param name="id">ID of the manipulator this probe will be mocking position for</param>
-    public void SetMockingManipulatorId(int id)
+    /// <param name="probeManager">probe manager of the ghost probe for this probe</param>
+    public void SetGhostProbeManager(ProbeManager probeManager)
     {
-        _mockingManipulatorId = id;
+        _ghostProbeManager = probeManager;
+    }
+    
+    /// <summary>
+    /// Return ghost probe's probe manager
+    /// </summary>
+    /// <returns>Ghost probe's probe manager</returns>
+    public ProbeManager GetGhostProbeManager()
+    {
+        return _ghostProbeManager;
+    }
+
+    /// <summary>
+    /// For a ghost probe, set the original probe's probe manager
+    /// </summary>
+    /// <param name="probeManager">Original probe's probe manager</param>
+    public void SetOriginalProbeManager(ProbeManager probeManager)
+    {
+        _originalProbeManager = probeManager;
+    }
+    
+    /// <summary>
+    /// Get the original probe's probe manager
+    /// </summary>
+    /// <returns>Original probe's probe manager</returns>
+    public ProbeManager GetOriginalProbeManager()
+    {
+        return _originalProbeManager;
     }
 
     /// <summary>
@@ -583,6 +611,15 @@ public class ProbeManager : MonoBehaviour
     public bool IsConnectedToManipulator()
     {
         return _manipulatorId != 0;
+    }
+
+    /// <summary>
+    ///     Return if this probe is a ghost of another probe
+    /// </summary>
+    /// <returns>True if this probe is a ghost, false otherwise</returns>
+    public bool IsGhost()
+    {
+        return _originalProbeManager != null;
     }
 
     /// <summary>
