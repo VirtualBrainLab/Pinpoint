@@ -227,22 +227,29 @@ namespace TrajectoryPlanner
             else
                 posWithDepthAndCorrectAxes.z -= brainSurfaceAdjustment;
 
+            // Adjust for phi
+            var probePhi = -_probeManager.GetProbeController().Insertion.phi * Mathf.Deg2Rad;
+            var phiCos = Mathf.Cos(probePhi);
+            var phiSin = Mathf.Sin(probePhi);
+            var phiAdjustedX = posWithDepthAndCorrectAxes.x * phiCos -
+                               posWithDepthAndCorrectAxes.y * phiSin;
+            var phiAdjustedY = posWithDepthAndCorrectAxes.x * phiSin +
+                               posWithDepthAndCorrectAxes.y * phiCos;
+            posWithDepthAndCorrectAxes.x = phiAdjustedX;
+            posWithDepthAndCorrectAxes.y = phiAdjustedY;
+
+            // Apply coordinate offsets
             var zeroCoordinateOffsetPos = posWithDepthAndCorrectAxes + _probeManager.GetZeroCoordinateOffset();
-
-            print("Speed: " + speed);
-            print("Pos: " + zeroCoordinateOffsetPos);
             zeroCoordinateOffsetPos.w -= _probeManager.GetBrainSurfaceOffset();
-            print("Pos after depth update: " + zeroCoordinateOffsetPos);
 
-            
+            // Send position to manipulator
             _communicationManager.SetCanWrite(_probeManager.GetManipulatorId(), true, 1, canWrite =>
             {
                 if (canWrite)
                     _communicationManager.GotoPos(_probeManager.GetManipulatorId(),
-                        zeroCoordinateOffsetPos, speed, endPos => Debug.Log("End Position: " + endPos),
+                        zeroCoordinateOffsetPos, speed, endPos => Debug.Log("Moved probe to: " + endPos),
                         Debug.LogError);
             }, Debug.LogError);
-            
         }
         #endregion
     }
