@@ -243,14 +243,16 @@ namespace TrajectoryPlanner
             var zeroCoordinateOffsetPos = posWithDepthAndCorrectAxes + _probeManager.GetZeroCoordinateOffset();
 
             // Draw pathway
-            var lineObject = new GameObject("AutoControlPath");
+            var lineObject = new GameObject("AutoControlPath")
+            {
+                layer = 5
+            };
             var lineRenderer = lineObject.AddComponent<LineRenderer>();
-            lineRenderer.sortingOrder = 1;
             lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
             lineRenderer.startColor = Color.green;
             lineRenderer.endColor = Color.red;
-            lineRenderer.startWidth = 0.01f;
-            lineRenderer.endWidth = 0.01f;
+            lineRenderer.startWidth = 0.05f;
+            lineRenderer.endWidth = 0.05f;
             lineRenderer.positionCount = 2;
             // Set start position (current position)
             lineRenderer.SetPosition(0, _probeManager.GetProbeController().GetTipWorld().tipCoordWorld);
@@ -263,7 +265,7 @@ namespace TrajectoryPlanner
             {
                 if (canWrite)
                     _communicationManager.GotoPos(_probeManager.GetManipulatorId(),
-                        zeroCoordinateOffsetPos, speed, endPos => Debug.Log("Moved probe to: " + endPos),
+                        zeroCoordinateOffsetPos, speed, endPos => Destroy(lineObject),
                         Debug.LogError);
             }, Debug.LogError);
         }
