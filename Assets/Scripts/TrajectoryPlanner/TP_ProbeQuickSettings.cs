@@ -219,6 +219,7 @@ namespace TrajectoryPlanner
                 -convertToWorld.y,
                 depth);
 
+            // Apply brain surface offset
             var brainSurfaceAdjustment = float.IsNaN(_probeManager.GetBrainSurfaceOffset())
                 ? 0
                 : _probeManager.GetBrainSurfaceOffset();
@@ -240,7 +241,6 @@ namespace TrajectoryPlanner
 
             // Apply coordinate offsets
             var zeroCoordinateOffsetPos = posWithDepthAndCorrectAxes + _probeManager.GetZeroCoordinateOffset();
-            zeroCoordinateOffsetPos.w -= _probeManager.GetBrainSurfaceOffset();
 
             // Send position to manipulator
             _communicationManager.SetCanWrite(_probeManager.GetManipulatorId(), true, 1, canWrite =>
