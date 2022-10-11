@@ -722,19 +722,24 @@ public class ProbeManager : MonoBehaviour
                 annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorld().tipCoordWorld - tipExtensionDirection * 5),
                 annotationDataset.CoordinateSpace.World2SpaceRot(tipExtensionDirection));
 
-            var brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
+            if (float.IsNaN(brainSurfaceAPDVLR.x))
+            {
+                Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
+                return;
+            }
 
-            Debug.DrawLine(probeController.GetTipWorld().tipCoordWorld, brainSurfaceWorld, Color.red, 30);
+            var brainSurfaceToWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
 
             if (IsConnectedToManipulator())
             {
-                var depth = Vector3.Distance(probeController.Insertion.World2Transformed(brainSurfaceWorld), probeController.Insertion.apmldv);
+                var depth = Vector3.Distance(probeController.Insertion.World2Transformed(brainSurfaceToWorld),
+                    probeController.Insertion.apmldv);
                 _brainSurfaceOffset += depth;
                 print("Depth: " + depth + " Total: " + _brainSurfaceOffset);
             }
             else
             {
-                probeController.SetProbePosition(probeController.Insertion.World2Transformed(brainSurfaceWorld));
+                probeController.SetProbePosition(probeController.Insertion.World2Transformed(brainSurfaceToWorld));
             }
         }
         
@@ -804,7 +809,7 @@ public class ProbeManager : MonoBehaviour
         // Calculate last used direction (between depth and DV)
         var dvDelta = Math.Abs(zeroCoordinateAdjustedManipulatorPosition.z - _lastManipulatorPosition.z);
         var depthDelta = Math.Abs(zeroCoordinateAdjustedManipulatorPosition.w - _lastManipulatorPosition.w);
-        if (dvDelta > 0.1 || depthDelta > 0.1) _dropToSurfaceWithDepth = depthDelta >= dvDelta;
+        if (dvDelta > 0.0001 || depthDelta > 0.0001) _dropToSurfaceWithDepth = depthDelta >= dvDelta;
         _lastManipulatorPosition = zeroCoordinateAdjustedManipulatorPosition;
         
         // Brain surface adjustment
