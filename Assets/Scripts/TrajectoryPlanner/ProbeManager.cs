@@ -729,8 +729,8 @@ public class ProbeManager : MonoBehaviour
             if (IsConnectedToManipulator())
             {
                 var depth = Vector3.Distance(probeController.Insertion.World2Transformed(brainSurfaceWorld), probeController.Insertion.apmldv);
-                var computedOffset = depth - 5;
-                _brainSurfaceOffset -= computedOffset;
+                _brainSurfaceOffset += depth;
+                print("Depth: " + depth + " Total: " + _brainSurfaceOffset);
             }
             else
             {
@@ -812,7 +812,7 @@ public class ProbeManager : MonoBehaviour
         if (_dropToSurfaceWithDepth)
             zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
         else
-            zeroCoordinateAdjustedManipulatorPosition.z += brainSurfaceAdjustment;
+            zeroCoordinateAdjustedManipulatorPosition.z -= brainSurfaceAdjustment;
 
         // Convert to world space
         var zeroCoordinateAdjustedWorldPosition = new Vector4(zeroCoordinateAdjustedManipulatorPosition.y,
