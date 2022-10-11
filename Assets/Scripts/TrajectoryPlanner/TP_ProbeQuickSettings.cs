@@ -242,6 +242,22 @@ namespace TrajectoryPlanner
             // Apply coordinate offsets
             var zeroCoordinateOffsetPos = posWithDepthAndCorrectAxes + _probeManager.GetZeroCoordinateOffset();
 
+            // Draw pathway
+            var lineObject = new GameObject("AutoControlPath");
+            var lineRenderer = lineObject.AddComponent<LineRenderer>();
+            lineRenderer.sortingOrder = 1;
+            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            lineRenderer.startColor = Color.green;
+            lineRenderer.endColor = Color.red;
+            lineRenderer.startWidth = 0.01f;
+            lineRenderer.endWidth = 0.01f;
+            lineRenderer.positionCount = 2;
+            // Set start position (current position)
+            lineRenderer.SetPosition(0, _probeManager.GetProbeController().GetTipWorld().tipCoordWorld);
+            // Set end position (ghost position)
+            lineRenderer.SetPosition(1,
+                _probeManager.GetGhostProbeManager().GetProbeController().GetTipWorld().tipCoordWorld);
+
             // Send position to manipulator
             _communicationManager.SetCanWrite(_probeManager.GetManipulatorId(), true, 1, canWrite =>
             {
