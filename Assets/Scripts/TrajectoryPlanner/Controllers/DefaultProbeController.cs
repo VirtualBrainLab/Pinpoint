@@ -783,10 +783,11 @@ public class DefaultProbeController : ProbeController
     /// <returns></returns>
     public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorld()
     {
+        Debug.Log((_probeTipT.up, _probeTipT.forward));
         Vector3 tipCoordWorld = WorldT2WorldU(_probeTipT.position);
-        //Vector3 tipUpWorld = (WorldT2WorldU(probeTipTop.transform.position) - tipCoordWorld).normalized;
-        Vector3 tipUpWorld = WorldT2WorldU(_probeTipT.up).normalized;
-        Vector3 tipForwardWorld = WorldT2WorldU(_probeTipT.forward).normalized;
+        Vector3 tipUpWorld = (WorldT2WorldU(_probeTipT.position + _probeTipT.up) - tipCoordWorld).normalized;
+        Vector3 tipForwardWorld = (WorldT2WorldU(_probeTipT.position + _probeTipT.forward) - tipCoordWorld).normalized;
+
         return (tipCoordWorld, tipUpWorld, tipForwardWorld);
     }
 
@@ -823,7 +824,7 @@ public class DefaultProbeController : ProbeController
         }
         else
         {
-            return (WorldT2WorldU(tipTransform.position), WorldT2WorldU(tipTransform.position));
+            return (WorldT2WorldU(tipTransform.position), WorldT2WorldU(tipTransform.position + tipTransform.up * 10f));
         }
     }
 

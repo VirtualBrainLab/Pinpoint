@@ -103,11 +103,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         inPlaneSliceUIGO.SetActive(localPrefs.GetInplane());
     }
 
-    private void Update()
-    {
-        UpdateInPlaneSlice();
-    }
-
     public void UpdateInPlaneSlice()
     {
         if (!localPrefs.GetInplane()) return;
@@ -122,8 +117,6 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         (Vector3 startCoordWorld, Vector3 endCoordWorld) = activeProbeManager.GetProbeController().GetRecordingRegionWorld();
         (_, Vector3 upWorld, Vector3 forwardWorld) = activeProbeManager.GetProbeController().GetTipWorld();
-        upWorld = (endCoordWorld - startCoordWorld).normalized;
-        forwardWorld = Quaternion.Euler(-90f, 0f, 0f) * upWorld;
 
 #if UNITY_EDITOR
         // debug statements
