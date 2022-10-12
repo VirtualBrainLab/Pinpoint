@@ -692,12 +692,16 @@ namespace TrajectoryPlanner
         public void WarpBrain()
         {
             foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
-            {
+                WarpNode(node);
+            searchControl.ChangeWarp();
+        }
+
+        public void WarpNode(CCFTreeNode node)
+        {
 #if UNITY_EDITOR
-                Debug.Log(string.Format("Transforming node {0}", node.Name));
+            Debug.Log(string.Format("Transforming node {0}", node.Name));
 #endif
-                node.TransformVertices(WorldU2WorldT, true);
-            }
+            node.TransformVertices(WorldU2WorldT, true);
         }
 
         public void UnwarpBrain()
