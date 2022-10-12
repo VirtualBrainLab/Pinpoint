@@ -104,10 +104,10 @@ public class PlaceholderProbeController : ProbeController
     /// Return the tip coordinates in **un-transformed** world coordinates
     /// </summary>
     /// <returns></returns>
-    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld) GetTipWorld()
+    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorld()
     {
         // not implemented
-        return (Vector3.zero, Vector3.zero);
+        return (Vector3.zero, Vector3.zero, Vector3.zero);
     }
 
     public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld()

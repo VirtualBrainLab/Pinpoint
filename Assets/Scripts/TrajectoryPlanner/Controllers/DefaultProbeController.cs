@@ -411,7 +411,7 @@ public class DefaultProbeController : ProbeController
         // Get the xyz transformation
         Vector3 xyz = new Vector3(x, y, z) * speed;
         // Rotate to match the probe axis directions
-        Insertion.apmldv += Insertion.World2TransformedRot(xyz);
+        Insertion.apmldv += Insertion.World2TransformedAxisChange(xyz);
     }
 
     public void MoveProbeDepth(float depth, bool pressed)
@@ -607,7 +607,7 @@ public class DefaultProbeController : ProbeController
 
         if (moved)
         {
-            Insertion.apmldv = origAPMLDV + Insertion.World2TransformedRot(newXYZ);
+            Insertion.apmldv = origAPMLDV + Insertion.World2TransformedAxisChange(newXYZ);
         }
 
         if (axisLockDepth)
@@ -756,7 +756,7 @@ public class DefaultProbeController : ProbeController
         if (depth != 0f)
         {
             transform.position += -transform.up * depth;
-            Vector3 depthAdjustment = Insertion.World2TransformedRot(-transform.up) * depth;
+            Vector3 depthAdjustment = Insertion.World2TransformedAxisChange(-transform.up) * depth;
 
             localInsertion.apmldv += depthAdjustment;
             depth = 0f;
@@ -781,11 +781,13 @@ public class DefaultProbeController : ProbeController
     /// Return the tip coordinates in **un-transformed** world coordinates
     /// </summary>
     /// <returns></returns>
-    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld) GetTipWorld()
+    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorld()
     {
         Vector3 tipCoordWorld = WorldT2WorldU(_probeTipT.position);
-        Vector3 tipUpWorld = (WorldT2WorldU(probeTipTop.transform.position) - tipCoordWorld).normalized;
-        return (tipCoordWorld, tipUpWorld);
+        //Vector3 tipUpWorld = (WorldT2WorldU(probeTipTop.transform.position) - tipCoordWorld).normalized;
+        Vector3 tipUpWorld = WorldT2WorldU(_probeTipT.up).normalized;
+        Vector3 tipForwardWorld = WorldT2WorldU(_probeTipT.forward).normalized;
+        return (tipCoordWorld, tipUpWorld, tipForwardWorld);
     }
 
     /// <summary>
@@ -795,7 +797,7 @@ public class DefaultProbeController : ProbeController
     /// <returns></returns>
     private Vector3 WorldT2WorldU(Vector3 coordWorldT)
     {
-        return Insertion.CoordinateSpace.Space2World(Insertion.CoordinateTransform.Transform2Space(Insertion.CoordinateTransform.Space2TransformRot(Insertion.CoordinateSpace.World2Space(coordWorldT))));
+        return Insertion.CoordinateSpace.Space2World(Insertion.CoordinateTransform.Transform2Space(Insertion.CoordinateTransform.Space2TransformAxisChange(Insertion.CoordinateSpace.World2Space(coordWorldT))));
     }
 
     public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld()

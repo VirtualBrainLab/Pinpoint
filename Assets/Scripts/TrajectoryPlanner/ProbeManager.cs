@@ -385,10 +385,10 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateSurfacePosition()
     {
-        (Vector3 tipCoordWorld, Vector3 tipUpWorld) = probeController.GetTipWorld();
+        (Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = probeController.GetTipWorld();
 
         Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(annotationDataset.CoordinateSpace.World2Space(tipCoordWorld),
-            annotationDataset.CoordinateSpace.World2SpaceRot(tipUpWorld));
+            annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipUpWorld));
 
         if (float.IsNaN(surfacePos25.x))
         {
@@ -661,7 +661,7 @@ public class ProbeManager : MonoBehaviour
 
             var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
                 annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorld().tipCoordWorld - tipExtensionDirection * 5),
-                annotationDataset.CoordinateSpace.World2SpaceRot(tipExtensionDirection));
+                annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipExtensionDirection));
 
             var brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
 
@@ -761,7 +761,7 @@ public class ProbeManager : MonoBehaviour
             zeroCoordinateAdjustedManipulatorPosition.w);
 
         // Set probe position (swapping the axes)
-        var zeroCoordinateApmldv = probeController.Insertion.World2TransformedRot(zeroCoordinateAdjustedWorldPosition);
+        var zeroCoordinateApmldv = probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
         probeController.SetProbePosition(new Vector4(zeroCoordinateApmldv.x, zeroCoordinateApmldv.y,
             zeroCoordinateApmldv.z, zeroCoordinateAdjustedWorldPosition.w));
 

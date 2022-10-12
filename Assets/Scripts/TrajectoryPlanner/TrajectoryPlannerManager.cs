@@ -715,12 +715,12 @@ namespace TrajectoryPlanner
         /// <returns></returns>
         public Vector3 WorldU2WorldT(Vector3 coordWorld)
         {
-            return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2SpaceRot(_activeCoordinateTransform.Space2Transform(_activeCoordinateSpace.World2Space(coordWorld))));
+            return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2SpaceAxisChange(_activeCoordinateTransform.Space2Transform(_activeCoordinateSpace.World2Space(coordWorld))));
         }
 
         public Vector3 WorldT2WorldU(Vector3 coordWorldT)
         {
-            return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2Space(_activeCoordinateTransform.Space2TransformRot(_activeCoordinateSpace.World2Space(coordWorldT))));
+            return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2Space(_activeCoordinateTransform.Space2TransformAxisChange(_activeCoordinateSpace.World2Space(coordWorldT))));
         }
 
         #endregion

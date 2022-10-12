@@ -103,32 +103,38 @@ public class TP_InPlaneSlice : MonoBehaviour
         inPlaneSliceUIGO.SetActive(localPrefs.GetInplane());
     }
 
+    private void Update()
+    {
+        UpdateInPlaneSlice();
+    }
+
     public void UpdateInPlaneSlice()
     {
         if (!localPrefs.GetInplane()) return;
 
-        ProbeManager activeProbeController = tpmanager.GetActiveProbeManager();
+        ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
 
-        if (activeProbeController == null)
+        if (activeProbeManager == null)
         {
             ResetRendererParameters();
             return;
         }
 
-        (Vector3 startCoordWorld, Vector3 endCoordWorld) = activeProbeController.GetProbeController().GetRecordingRegionWorld();
+        (Vector3 startCoordWorld, Vector3 endCoordWorld) = activeProbeManager.GetProbeController().GetRecordingRegionWorld();
+        (_, Vector3 upWorld, Vector3 forwardWorld) = activeProbeManager.GetProbeController().GetTipWorld();
         upWorld = (endCoordWorld - startCoordWorld).normalized;
         forwardWorld = Quaternion.Euler(-90f, 0f, 0f) * upWorld;
 
 #if UNITY_EDITOR
         // debug statements
-        Debug.DrawLine(startCoordWorld, endCoordWorld, Color.green);
+        Debug.DrawRay(startCoordWorld, upWorld, Color.green);
         Debug.DrawRay(startCoordWorld, forwardWorld, Color.red);
 #endif
 
         // Calculate the size
         float mmRecordingSize = Vector3.Distance(startCoordWorld, endCoordWorld);
 
-        int type = activeProbeController.ProbeType;
+        int type = activeProbeManager.ProbeType;
         bool fourShank = type == 4 || type == 8;
 
         recordingRegionCenterPosition = fourShank ? 
@@ -174,7 +180,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
 
         // Take the tip transform and go out according to the in plane percentage 
-        Vector3 inPlanePosition = recordingRegionCenterPosition + (annotationDataset.CoordinateSpace.World2SpaceRot(forwardWorld) * -inPlanePosNorm.x + annotationDataset.CoordinateSpace.World2SpaceRot(upWorld) * inPlanePosNorm.y);
+        Vector3 inPlanePosition = recordingRegionCenterPosition + (annotationDataset.CoordinateSpace.World2SpaceAxisChange(forwardWorld) * -inPlanePosNorm.x + annotationDataset.CoordinateSpace.World2SpaceAxisChange(upWorld) * inPlanePosNorm.y);
 
         return inPlanePosition;
     }
