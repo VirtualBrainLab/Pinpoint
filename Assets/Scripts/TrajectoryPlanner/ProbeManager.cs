@@ -12,6 +12,8 @@ public class ProbeManager : MonoBehaviour
 {
     // Internal flags that track whether we are in manual control or drag/link control mode
     private bool _ephysLinkMovement;
+    private string _uuid;
+    public string UUID { get { return _uuid; } }
 
     #region Ephys Link
 
@@ -30,7 +32,8 @@ public class ProbeManager : MonoBehaviour
     [SerializeField] private List<Collider> probeColliders;
     [SerializeField] private List<ProbeUIManager> probeUIManagers;
     [SerializeField] private Renderer probeRenderer;
-    [SerializeField] private int probeType;
+    [SerializeField] private int _probeType;
+    public int ProbeType { get { return _probeType; } }
 
     [SerializeField] private ProbeController probeController;
 
@@ -59,15 +62,6 @@ public class ProbeManager : MonoBehaviour
     private Dictionary<GameObject, Material> visibleOtherColliders;
 
     #region Accessors
-
-    /// <summary>
-    /// Get the probe-type of this probe
-    /// </summary>
-    /// <returns>probe type</returns>
-    public int GetProbeType()
-    {
-        return probeType;
-    }
 
 
     public int GetID()
@@ -108,6 +102,8 @@ public class ProbeManager : MonoBehaviour
 
     private void Awake()
     {
+        _uuid = Guid.NewGuid().ToString();
+
         defaultMaterials = new Dictionary<GameObject, Material>();
 
         // Pull the tpmanager object and register this probe
@@ -791,11 +787,15 @@ public class ProbeManager : MonoBehaviour
 
     #region Materials
 
+    private bool _isTransparent;
+    public bool IsTransparent { get { return _isTransparent; } }
+
     /// <summary>
     /// Set all Renderer components to use the ghost material
     /// </summary>
     public void SetMaterialsTransparent()
     {
+        _isTransparent = true;
         defaultMaterials.Clear();
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
         {
@@ -809,6 +809,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
+        _isTransparent = false;
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
             if (defaultMaterials.ContainsKey(renderer.gameObject))
                 renderer.material = defaultMaterials[renderer.gameObject];

@@ -12,10 +12,7 @@ public class DefaultProbeCollider : MonoBehaviour
         tpmanager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
     }
 
-    private void OnDestroy()
-    {
-        //tpmanager.
-    }
+    // [TODO] Refactor these into UnityEvents so that we don't need to have access to tpmanager!!
 
     private void OnMouseDown()
     {
