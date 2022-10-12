@@ -783,7 +783,6 @@ public class DefaultProbeController : ProbeController
     /// <returns></returns>
     public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorld()
     {
-        Debug.Log((_probeTipT.up, _probeTipT.forward));
         Vector3 tipCoordWorld = WorldT2WorldU(_probeTipT.position);
         Vector3 tipUpWorld = (WorldT2WorldU(_probeTipT.position + _probeTipT.up) - tipCoordWorld).normalized;
         Vector3 tipForwardWorld = (WorldT2WorldU(_probeTipT.position + _probeTipT.forward) - tipCoordWorld).normalized;

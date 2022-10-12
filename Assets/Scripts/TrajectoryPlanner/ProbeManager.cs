@@ -122,6 +122,11 @@ public class ProbeManager : MonoBehaviour
         visibleOtherColliders = new Dictionary<GameObject, Material>();
     }
 
+    private void Start()
+    {
+        Debug.Log(string.Format("New probe created with UUID: {0}", _uuid));
+    }
+
     /// <summary>
     /// Called by Unity when this object is destroyed. 
     /// Unregisters the probe from tpmanager
@@ -175,6 +180,14 @@ public class ProbeManager : MonoBehaviour
             puimanager.SetProbePanelVisibility(state);
     }
 
+
+    public void OverrideUUID(string newUUID)
+    {
+#if UNITY_EDITOR
+        Debug.Log(string.Format("Override UUID to {0}", newUUID));
+#endif
+        _uuid = newUUID;
+    }
 
     /// <summary>
     /// Update the size of the recording region.

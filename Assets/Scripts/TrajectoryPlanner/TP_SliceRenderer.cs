@@ -149,7 +149,6 @@ public class TP_SliceRenderer : MonoBehaviour
     /// </summary>
     private void UpdateSlicePosition()
     {
-        Debug.Log("Update slice called: " + Time.realtimeSinceStartup);
         ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
         if (activeProbeManager == null) return;
 

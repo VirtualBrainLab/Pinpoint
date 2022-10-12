@@ -31,7 +31,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     private int zoomLevel = 0;
     private float zoomFactor = 1f;
 
-    private RectTransform rect;
+    private RectTransform _rect;
 
     private Texture3D annotationDatasetGPUTexture;
     private TaskCompletionSource<bool> gpuTextureLoadedSource;
@@ -44,7 +44,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     private void Awake()
     {
-        rect = GetComponent<RectTransform>();
+        _rect = GetComponent<RectTransform>();
 
         gpuTextureLoadedSource = new TaskCompletionSource<bool>();
         gpuTextureLoadedTask = gpuTextureLoadedSource.Task;
@@ -116,7 +116,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         }
 
         (Vector3 startCoordWorld, Vector3 endCoordWorld) = activeProbeManager.GetProbeController().GetRecordingRegionWorld();
-        (_, Vector3 upWorld, Vector3 forwardWorld) = activeProbeManager.GetProbeController().GetTipWorld();
+        (_, upWorld, forwardWorld) = activeProbeManager.GetProbeController().GetTipWorld();
 
 #if UNITY_EDITOR
         // debug statements
@@ -171,10 +171,8 @@ public class TP_InPlaneSlice : MonoBehaviour
     private Vector3 CalculateInPlanePosition(Vector2 pointerData)
     {
         Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
-
         // Take the tip transform and go out according to the in plane percentage 
         Vector3 inPlanePosition = recordingRegionCenterPosition + (annotationDataset.CoordinateSpace.World2SpaceAxisChange(forwardWorld) * -inPlanePosNorm.x + annotationDataset.CoordinateSpace.World2SpaceAxisChange(upWorld) * inPlanePosNorm.y);
-
         return inPlanePosition;
     }
 
@@ -182,11 +180,11 @@ public class TP_InPlaneSlice : MonoBehaviour
     private Vector2 GetLocalRectPosNormalized(Vector2 pointerData)
     {
         Vector2 inPlanePosNorm;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, pointerData, Camera.main, out inPlanePosNorm);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_rect, pointerData, Camera.main, out inPlanePosNorm);
 
-        inPlanePosNorm += new Vector2(rect.rect.width, rect.rect.height / 2);
-        inPlanePosNorm.x = inPlanePosNorm.x / rect.rect.width * 2 - 1;
-        inPlanePosNorm.y = inPlanePosNorm.y / rect.rect.height * 2 - 1;
+        inPlanePosNorm += new Vector2(_rect.rect.width, _rect.rect.height / 2);
+        inPlanePosNorm.x = inPlanePosNorm.x / _rect.rect.width * 2 - 1;
+        inPlanePosNorm.y = inPlanePosNorm.y / _rect.rect.height * 2 - 1;
         return inPlanePosNorm;
     }
 
