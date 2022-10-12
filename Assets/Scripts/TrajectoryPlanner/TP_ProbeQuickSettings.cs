@@ -143,28 +143,35 @@ namespace TrajectoryPlanner
         {
             automaticMovementSpeedInputField.interactable = isOn;
             automaticMovementGoButton.interactable = isOn;
-            
-            // Spawn ghost
-            var originalProbeManager = _probeManager;
-            var ghostProbeManager = _trajectoryPlannerManager.AddNewProbeTransformed(
-                _probeManager.GetProbeType(), _probeManager.GetProbeController().Insertion, 0,
-                _probeManager.GetZeroCoordinateOffset(), _probeManager.GetBrainSurfaceOffset(),
-                _probeManager.IsSetToDropToSurfaceWithDepth());
 
-            // Configure ghost
-            var originalProbeInsertion = originalProbeManager.GetProbeController().Insertion;
-
-            ghostProbeManager.SetMaterialsTransparent();
-            ghostProbeManager.DisableAllColliders();
-
-            // Deep copy overwrite the positions and angles of the insertion
-            ghostProbeManager.GetProbeController().SetProbePosition(new ProbeInsertion(originalProbeInsertion.ap,
-                originalProbeInsertion.ml, originalProbeInsertion.dv, originalProbeInsertion.phi, originalProbeInsertion.theta,
-                originalProbeInsertion.spin, originalProbeInsertion.CoordinateSpace, originalProbeInsertion.CoordinateTransform));
-            
-            // Set references
-            ghostProbeManager.SetOriginalProbeManager(originalProbeManager);
-            originalProbeManager.SetGhostProbeManager(ghostProbeManager);
+            if (isOn)
+            {
+                // Spawn ghost
+                var originalProbeManager = _probeManager;
+                var ghostProbeManager = _trajectoryPlannerManager.AddNewProbeTransformed(
+                    _probeManager.GetProbeType(), _probeManager.GetProbeController().Insertion, 0,
+                    _probeManager.GetZeroCoordinateOffset(), _probeManager.GetBrainSurfaceOffset(),
+                    _probeManager.IsSetToDropToSurfaceWithDepth());
+    
+                // Configure ghost
+                var originalProbeInsertion = originalProbeManager.GetProbeController().Insertion;
+    
+                ghostProbeManager.SetMaterialsTransparent();
+                ghostProbeManager.DisableAllColliders();
+    
+                // Deep copy overwrite the positions and angles of the insertion
+                ghostProbeManager.GetProbeController().SetProbePosition(new ProbeInsertion(originalProbeInsertion.ap,
+                    originalProbeInsertion.ml, originalProbeInsertion.dv, originalProbeInsertion.phi, originalProbeInsertion.theta,
+                    originalProbeInsertion.spin, originalProbeInsertion.CoordinateSpace, originalProbeInsertion.CoordinateTransform));
+                
+                // Set references
+                ghostProbeManager.SetOriginalProbeManager(originalProbeManager);
+                originalProbeManager.SetGhostProbeManager(ghostProbeManager);
+            }
+            else
+            {
+                _trajectoryPlannerManager.DestroyProbe(_probeManager.GetGhostProbeManager());
+            }
         }
 
         /// <summary>

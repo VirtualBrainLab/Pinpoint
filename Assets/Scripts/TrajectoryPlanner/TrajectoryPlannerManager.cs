@@ -404,30 +404,34 @@ namespace TrajectoryPlanner
         private Vector4 _prevZeroCoordinateOffset;
         private float _prevBrainSurfaceOffset;
 
-        private void DestroyActiveProbeController()
+        public void DestroyProbe(ProbeManager probeManager)
         {
-            _prevProbeType = activeProbe.GetProbeType();
-            _prevInsertion = activeProbe.GetProbeController().Insertion;
-            _prevManipulatorId = activeProbe.GetManipulatorId();
-            _prevZeroCoordinateOffset = activeProbe.GetZeroCoordinateOffset();
-            _prevBrainSurfaceOffset = activeProbe.GetBrainSurfaceOffset();
-
             Debug.Log("Destroying probe type " + _prevProbeType + " with coordinates");
 
-            Color returnColor = activeProbe.GetColor();
+            _prevProbeType = probeManager.GetProbeType();
+            _prevInsertion = probeManager.GetProbeController().Insertion;
+            _prevManipulatorId = probeManager.GetManipulatorId();
+            _prevZeroCoordinateOffset = probeManager.GetZeroCoordinateOffset();
+            _prevBrainSurfaceOffset = probeManager.GetBrainSurfaceOffset();
 
-            activeProbe.Destroy();
-            Destroy(activeProbe.gameObject);
-            allProbeManagers.Remove(activeProbe);
+            // Return color if not a ghost probe
+            if (probeManager.GetOriginalProbeManager() == null) ReturnProbeColor(probeManager.GetColor());
 
+            // Destroy probe
+            probeManager.Destroy();
+            Destroy(probeManager.gameObject);
+            allProbeManagers.Remove(probeManager);
+
+            // Cleanup UI if this was last probe in scene
             if (allProbeManagers.Count > 0)
             {
                 SetActiveProbe(allProbeManagers[^1]);
-                activeProbe.CheckCollisions(GetAllNonActiveColliders());
+                probeManager.CheckCollisions(GetAllNonActiveColliders());
             }
             else
             {
-                activeProbe = null;
+                // Invalidate activeProbe
+                if (probeManager == activeProbe) activeProbe = null;
                 probeQuickSettings.UpdateInteractable(true);
                 probeQuickSettings.SetProbeManager(null);
                 SetSurfaceDebugActive(false);
@@ -436,8 +440,10 @@ namespace TrajectoryPlanner
 
             // update colliders
             UpdateProbeColliders();
-
-            ReturnProbeColor(returnColor);
+        }
+        private void DestroyActiveProbeController()
+        {
+            DestroyProbe(activeProbe);
         }
 
         private void RecoverActiveProbeController()
@@ -467,6 +473,7 @@ namespace TrajectoryPlanner
 
             GameObject newProbe = Instantiate(probePrefabs[probePrefabIDs.FindIndex(x => x == probeType)], brainModel);
             SetActiveProbe(newProbe.GetComponent<ProbeManager>());
+            print("Got here before awake");
 
             spawnedThisFrame = true;
 
@@ -567,25 +574,31 @@ namespace TrajectoryPlanner
             ReOrderProbePanels();
         }
 
-        public void RegisterProbe(ProbeManager probeController)
+        public void RegisterProbe(ProbeManager probeManager)
         {
-            Debug.Log("Registering probe: " + probeController.gameObject.name);
-            allProbeManagers.Add(probeController);
+            Debug.Log("Registering probe: " + probeManager.gameObject.name);
+            allProbeManagers.Add(probeManager);
             
-            // Calculate an unused probe ID
-            HashSet<int> usedIds = new();
-            foreach (var probeId in allProbeManagers.Select(manager => manager.GetID() ))
+            // Get a unique ID for this probe
+            var thisProbeId = 1;
+            
+            if (probeManager.GetOriginalProbeManager() != null)
             {
-                usedIds.Add(probeId);
+                // Use negative of original probe if a ghost
+                thisProbeId = -probeManager.GetOriginalProbeManager().GetID();
+            }
+            else
+            {
+                // Find an unused probe ID otherwise
+                HashSet<int> usedIds = new();
+                foreach (var probeId in allProbeManagers.Select(manager => manager.GetID())) usedIds.Add(probeId);
+                while (usedIds.Contains(thisProbeId)) thisProbeId++;
             }
 
-            var thisProbeId = 1;
-            while (usedIds.Contains(thisProbeId))
-            {
-                thisProbeId++;
-            }
+            // Register this ID
+            probeManager.RegisterProbeCallback(thisProbeId, NextProbeColor());
             
-            probeController.RegisterProbeCallback(thisProbeId, NextProbeColor());
+            // Update collider records
             UpdateProbeColliders();
         }
 
