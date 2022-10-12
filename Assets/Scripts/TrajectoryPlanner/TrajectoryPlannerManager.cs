@@ -579,30 +579,20 @@ namespace TrajectoryPlanner
             Debug.Log("Registering probe: " + probeManager.gameObject.name);
             allProbeManagers.Add(probeManager);
             
-            // Get a unique ID for this probe
-            var thisProbeId = 1;
-            
-            if (probeManager.GetOriginalProbeManager() != null)
-            {
-                // Use negative of original probe if a ghost
-                thisProbeId = -probeManager.GetOriginalProbeManager().GetID();
-            }
-            else
-            {
-                // Find an unused probe ID otherwise
-                HashSet<int> usedIds = new();
-                foreach (var probeId in allProbeManagers.Select(manager => manager.GetID())) usedIds.Add(probeId);
-                while (usedIds.Contains(thisProbeId)) thisProbeId++;
-            }
-
-            // Register this ID
-            probeManager.RegisterProbeCallback(thisProbeId, NextProbeColor());
-            
             // Update collider records
             UpdateProbeColliders();
         }
 
-        private Color NextProbeColor()
+        public int GetNextProbeId()
+        {
+            var thisProbeId = 1;
+            HashSet<int> usedIds = new();
+            foreach (var probeId in allProbeManagers.Select(manager => manager.GetID())) usedIds.Add(probeId);
+            while (usedIds.Contains(thisProbeId)) thisProbeId++;
+            return thisProbeId;
+        }
+
+        public Color GetNextProbeColor()
         {
             Color next = probeColors[0];
             probeColors.RemoveAt(0);

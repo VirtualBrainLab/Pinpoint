@@ -167,6 +167,7 @@ namespace TrajectoryPlanner
                 // Set references
                 ghostProbeManager.SetOriginalProbeManager(originalProbeManager);
                 originalProbeManager.SetGhostProbeManager(ghostProbeManager);
+                print("Set properties");
             }
             else
             {

@@ -136,6 +136,23 @@ public class ProbeManager : MonoBehaviour
         visibleOtherColliders = new Dictionary<GameObject, Material>();
     }
 
+    private void Start()
+    {
+        // Request for ID and color if this is a normal probe
+        if (_originalProbeManager == null)
+        {
+            probeID = tpmanager.GetNextProbeId();
+            name = "PROBE_" + probeID;
+            probeRenderer.material.color = tpmanager.GetNextProbeColor();
+        }
+        else
+        {
+            // Otherwise, generate info based on the original probe
+            probeID = _originalProbeManager.GetID();
+            name = "GHOST_PROBE_" + probeID;
+        }
+    }
+
     /// <summary>
     /// Called by Unity when this object is destroyed. 
     /// Unregisters the probe from tpmanager
