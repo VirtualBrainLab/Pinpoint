@@ -262,7 +262,7 @@ namespace TrajectoryPlanner
 
         private void LoadSavedProbes()
         {
-            var savedProbes = localPrefs.LoadSavedProbes();
+            var savedProbes = localPrefs.LoadSavedProbeData();
 
             foreach (var savedProbe in savedProbes)
             {
@@ -270,7 +270,7 @@ namespace TrajectoryPlanner
                     coordinateSpaceOpts[savedProbe.coordinateSpaceName], coordinateTransformOpts[savedProbe.coordinateTransformName]);
                 AddNewProbeTransformed(savedProbe.type, probeInsertion,
                     savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
-                    savedProbe.dropToSurfaceWithDepth);
+                    savedProbe.dropToSurfaceWithDepth, savedProbe.uuid);
             }
 
             UpdateQuickSettings();
@@ -488,9 +488,14 @@ namespace TrajectoryPlanner
         }
         
         public ProbeManager AddNewProbeTransformed(int probeType, ProbeInsertion insertion,
-            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)
+            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+            string uuid = null)
         {
             ProbeManager probeManager = AddNewProbe(probeType);
+
+            if (uuid != null)
+                probeManager.OverrideUUID(uuid);
+
             if (!PlayerPrefs.IsLinkDataExpired())
             {
                 probeManager.SetZeroCoordinateOffset(zeroCoordinateOffset);
@@ -1085,7 +1090,8 @@ namespace TrajectoryPlanner
                 new (Vector3 apmldv, Vector3 angles, 
                 int type, int manipulatorId,
                 string coordinateSpace, string coordinateTransform,
-                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[allProbeManagers.Count];
+                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+                string uuid)[allProbeManagers.Count];
 
             for (int i =0; i< allProbeManagers.Count; i++)
             {
@@ -1095,7 +1101,8 @@ namespace TrajectoryPlanner
                     probeInsertion.angles,
                     probe.ProbeType, probe.GetManipulatorId(),
                     probeInsertion.CoordinateSpace.Name, probeInsertion.CoordinateTransform.Name,
-                    probe.GetZeroCoordinateOffset(), probe.GetBrainSurfaceOffset(), probe.IsSetToDropToSurfaceWithDepth());
+                    probe.GetZeroCoordinateOffset(), probe.GetBrainSurfaceOffset(), probe.IsSetToDropToSurfaceWithDepth(),
+                    probe.UUID);
             }
             localPrefs.SaveCurrentProbeData(probeCoordinates);
         }
