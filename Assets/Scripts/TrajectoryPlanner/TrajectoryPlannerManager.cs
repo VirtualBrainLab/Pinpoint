@@ -165,7 +165,6 @@ namespace TrajectoryPlanner
             // Pull settings from PlayerPrefs
             SetSetting_UseAcronyms(localPrefs.GetAcronyms());
             SetSetting_InPlanePanelVisibility(localPrefs.GetInplane());
-            SetSetting_InVivoTransformState(localPrefs.GetStereotaxic());
             SetSetting_UseIBLAngles(localPrefs.GetUseIBLAngles());
             SetSetting_SurfaceDebugSphereVisibility(localPrefs.GetSurfaceCoord());
             SetSetting_RelCoord(localPrefs.GetRelCoord());
@@ -291,6 +290,9 @@ namespace TrajectoryPlanner
                 await node.GetLoadedTask(true);
                 node.SetNodeModelVisibility(true, false, false);
             }
+
+            // Set the warp setting
+            SetSetting_InVivoTransformState(localPrefs.GetStereotaxic());
         }
 
         /// <summary>
