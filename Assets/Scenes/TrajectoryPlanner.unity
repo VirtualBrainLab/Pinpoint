@@ -1533,6 +1533,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: BrainParts
       objectReference: {fileID: 0}
+    - target: {fileID: 1302158968978081032, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: minXRotation
+      value: -150
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968978081032, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: minZRotation
+      value: -180
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
 --- !u!1001 &1397446698413376551
@@ -3874,6 +3882,18 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6193778550765170455, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6193778550765170455, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6193778550765170455, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 6193778552029777169, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
       propertyPath: m_RootOrder
       value: 6
@@ -3922,6 +3942,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Debug
       objectReference: {fileID: 0}
+    - target: {fileID: 6193778552155365640, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6193778552155365640, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6193778552155365640, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 6193778552155365641, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -3935,6 +3967,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 211792538}
     m_Modifications:
+    - target: {fileID: 821444603974483889, guid: 06e37a956a642544ca1ab258bde47264, type: 3}
+      propertyPath: eulerAngles.x
+      value: -180
+      objectReference: {fileID: 0}
+    - target: {fileID: 821444603974483889, guid: 06e37a956a642544ca1ab258bde47264, type: 3}
+      propertyPath: eulerAngles.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 821444603974483889, guid: 06e37a956a642544ca1ab258bde47264, type: 3}
+      propertyPath: cameraController
+      value: 
+      objectReference: {fileID: 1445581475}
     - target: {fileID: 7481604451505502264, guid: 06e37a956a642544ca1ab258bde47264, type: 3}
       propertyPath: brainCameraController
       value: 
@@ -4034,6 +4078,10 @@ PrefabInstance:
     - target: {fileID: 7481604452546003726, guid: 06e37a956a642544ca1ab258bde47264, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7481604452670194185, guid: 06e37a956a642544ca1ab258bde47264, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7481604453359634523, guid: 06e37a956a642544ca1ab258bde47264, type: 3}
       propertyPath: cameraController
