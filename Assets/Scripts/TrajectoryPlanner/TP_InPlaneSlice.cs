@@ -119,6 +119,12 @@ public class TP_InPlaneSlice : MonoBehaviour
         upWorld = (endCoordWorld - startCoordWorld).normalized;
         forwardWorld = Quaternion.Euler(-90f, 0f, 0f) * upWorld;
 
+#if UNITY_EDITOR
+        // debug statements
+        Debug.DrawLine(startCoordWorld, endCoordWorld, Color.green);
+        Debug.DrawRay(startCoordWorld, forwardWorld, Color.red);
+#endif
+
         // Calculate the size
         float mmRecordingSize = Vector3.Distance(startCoordWorld, endCoordWorld);
 
@@ -138,8 +144,10 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuSliceRenderer.material.SetVector("_UpDirection", upWorld);
         gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize * 1000f / 25f);
         gpuSliceRenderer.material.SetFloat("_Scale", inPlaneScale);
-        textX.text = "<- " + mmRecordingSize * 1.5f + "mm ->";
-        textY.text = "<- " + mmRecordingSize * 1.5f + "mm ->";
+        float roundedMmRecSize = Mathf.Round(mmRecordingSize * 1.5f * 100) / 100;
+        string formatted = string.Format("<- {0} mm ->", roundedMmRecSize);
+        textX.text = formatted;
+        textY.text = formatted;
     }
 
     public void InPlaneSliceHover(Vector2 pointerData)
