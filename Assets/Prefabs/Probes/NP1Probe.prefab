@@ -954,7 +954,7 @@ MonoBehaviour:
   probeUIManagers:
   - {fileID: 4368194536080577050}
   probeRenderer: {fileID: 2762817814583501863}
-  probeType: 1
+  _probeType: 1
   probeController: {fileID: 2207803182506741358}
   ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
 --- !u!114 &4368194536080577050

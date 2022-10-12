@@ -37,7 +37,7 @@ public class TP_UIClickHandler : MonoBehaviour
                 // check if this is the in-plane slice panel
                 if (uiTarget.name == "InPlaneSlicePanel")
                 {
-                    if (tpmanager.GetActiveProbeController() != null)
+                    if (tpmanager.GetActiveProbeManager() != null)
                         inPlaneSlice.InPlaneSliceHover(pointerData.position);
                 }
                 else

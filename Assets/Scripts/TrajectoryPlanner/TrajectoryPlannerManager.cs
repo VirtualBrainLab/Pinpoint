@@ -362,11 +362,6 @@ namespace TrajectoryPlanner
             return vdmanager.GetAnnotationDataset();
         }
 
-        public int GetActiveProbeType()
-        {
-            return activeProbe.ProbeType;
-        }
-
         public bool IsManipulatorRightHanded(int manipulatorId)
         {
             return _rightHandedManipulatorIds.Contains(manipulatorId);
@@ -684,7 +679,7 @@ namespace TrajectoryPlanner
             return probeColors[probeID];
         }
 
-        public ProbeManager GetActiveProbeController()
+        public ProbeManager GetActiveProbeManager()
         {
             return activeProbe;
         }

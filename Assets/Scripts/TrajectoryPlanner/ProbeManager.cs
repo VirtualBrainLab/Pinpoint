@@ -102,7 +102,7 @@ public class ProbeManager : MonoBehaviour
 
     private void Awake()
     {
-        _uuid = System.Guid.NewGuid().ToString();
+        _uuid = Guid.NewGuid().ToString();
 
         defaultMaterials = new Dictionary<GameObject, Material>();
 

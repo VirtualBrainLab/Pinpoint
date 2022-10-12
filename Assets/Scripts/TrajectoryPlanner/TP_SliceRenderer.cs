@@ -150,7 +150,7 @@ public class TP_SliceRenderer : MonoBehaviour
     private void UpdateSlicePosition()
     {
         Debug.Log("Update slice called: " + Time.realtimeSinceStartup);
-        ProbeManager activeProbeManager = tpmanager.GetActiveProbeController();
+        ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
         if (activeProbeManager == null) return;
 
         // the actual tip

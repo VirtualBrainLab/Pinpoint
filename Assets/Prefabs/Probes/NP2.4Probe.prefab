@@ -2342,7 +2342,7 @@ MonoBehaviour:
   - {fileID: 1889671296123998709}
   - {fileID: 3819742175937011324}
   probeRenderer: {fileID: 7409922654742737101}
-  probeType: 4
+  _probeType: 4
   probeController: {fileID: 897778941437095604}
   ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
 --- !u!114 &897778941437095604

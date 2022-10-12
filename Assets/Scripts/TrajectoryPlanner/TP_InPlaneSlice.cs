@@ -107,7 +107,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         if (!localPrefs.GetInplane()) return;
 
-        ProbeManager activeProbeController = tpmanager.GetActiveProbeController();
+        ProbeManager activeProbeController = tpmanager.GetActiveProbeManager();
 
         if (activeProbeController == null)
         {

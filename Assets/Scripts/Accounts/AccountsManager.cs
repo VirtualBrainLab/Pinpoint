@@ -45,19 +45,19 @@ public class AccountsManager : MonoBehaviour
 
     public void UpdateProbeData(string UUID, (Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName) data)
     {
-        dirty = true;
+        //dirty = true;
 
-        ServerProbeInsertion serverProbeInsertion = player.experiments[probeUUID2experiment[UUID]][UUID];
-        serverProbeInsertion.ap = data.apmldv.x;
-        serverProbeInsertion.ml = data.apmldv.y;
-        serverProbeInsertion.dv = data.apmldv.z;
-        serverProbeInsertion.phi = data.angles.x;
-        serverProbeInsertion.theta = data.angles.y;
-        serverProbeInsertion.spin = data.angles.z;
-        serverProbeInsertion.coordinateSpaceName = data.spaceName;
-        serverProbeInsertion.coordinateTransformName = data.transformName;
+        //ServerProbeInsertion serverProbeInsertion = player.experiments[probeUUID2experiment[UUID]][UUID];
+        //serverProbeInsertion.ap = data.apmldv.x;
+        //serverProbeInsertion.ml = data.apmldv.y;
+        //serverProbeInsertion.dv = data.apmldv.z;
+        //serverProbeInsertion.phi = data.angles.x;
+        //serverProbeInsertion.theta = data.angles.y;
+        //serverProbeInsertion.spin = data.angles.z;
+        //serverProbeInsertion.coordinateSpaceName = data.spaceName;
+        //serverProbeInsertion.coordinateTransformName = data.transformName;
 
-        player.experiments[probeUUID2experiment[UUID]][UUID] = serverProbeInsertion;
+        //player.experiments[probeUUID2experiment[UUID]][UUID] = serverProbeInsertion;
     }
 
     public void LoadPlayer()

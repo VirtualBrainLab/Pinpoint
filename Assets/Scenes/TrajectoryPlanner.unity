@@ -4261,6 +4261,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: accountsManager
+      value: 
+      objectReference: {fileID: 809984607}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: recRegionSlider
       value: 
       objectReference: {fileID: 1509006805}
