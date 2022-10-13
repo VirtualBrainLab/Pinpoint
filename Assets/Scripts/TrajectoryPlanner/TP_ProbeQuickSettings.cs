@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
@@ -12,7 +11,7 @@ namespace TrajectoryPlanner
     {
         #region Components
 
-        [SerializeField] private TMP_Text panelTitle;
+        [SerializeField] private TMP_Text probeIdText;
         [SerializeField] private TP_CoordinateEntryPanel coordinatePanel;
         [SerializeField] private CanvasGroup positionFields;
         [SerializeField] private CanvasGroup angleFields;
@@ -75,8 +74,7 @@ namespace TrajectoryPlanner
                 gameObject.SetActive(true);
                 _probeManager = probeManager;
 
-                panelTitle.text = probeManager.GetID().ToString();
-                panelTitle.color = probeManager.GetColor();
+                UpdateProbeIdText();
 
                 coordinatePanel.LinkProbe(probeManager);
                 
@@ -106,6 +104,12 @@ namespace TrajectoryPlanner
         public void UpdateCoordinates()
         {
             coordinatePanel.UpdateText();
+        }
+
+        public void UpdateProbeIdText()
+        {
+            probeIdText.text = _probeManager.GetID().ToString();
+            probeIdText.color = _probeManager.GetColor();
         }
 
         /// <summary>

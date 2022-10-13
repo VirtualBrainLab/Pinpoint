@@ -148,6 +148,12 @@ public class ProbeManager : MonoBehaviour
             probeID = _originalProbeManager.GetID();
             name = "GHOST_PROBE_" + probeID;
         }
+
+        foreach (var probeUIManager in probeUIManagers)
+        {
+            probeUIManager.UpdateColors();
+        }
+        tpmanager.UpdateQuickSettingsProbeIdText();
     }
 
     /// <summary>
@@ -847,7 +853,7 @@ public class ProbeManager : MonoBehaviour
             zeroCoordinateAdjustedManipulatorPosition.w);
 
         // Set probe position (change axes to match probe)
-        var zeroCoordinateApmldv = probeController.Insertion.Transformed2WorldAxisChange(zeroCoordinateAdjustedWorldPosition);
+        var zeroCoordinateApmldv = probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
         probeController.SetProbePosition(new Vector4(zeroCoordinateApmldv.x, zeroCoordinateApmldv.y,
             zeroCoordinateApmldv.z, zeroCoordinateAdjustedWorldPosition.w));
 
@@ -875,12 +881,15 @@ public class ProbeManager : MonoBehaviour
 
     private bool _isTransparent;
     public bool IsTransparent { get { return _isTransparent; } }
+    
+    // TODO: function to use transparent material and set color to probe color
 
     /// <summary>
     /// Set all Renderer components to use the ghost material
     /// </summary>
     public void SetMaterialsTransparent()
     {
+        // TODO: return out if is a ghost
         _isTransparent = true;
         defaultMaterials.Clear();
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
@@ -895,6 +904,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
+        // TODO: return out if is a ghost
         _isTransparent = false;
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
             if (defaultMaterials.ContainsKey(renderer.gameObject))

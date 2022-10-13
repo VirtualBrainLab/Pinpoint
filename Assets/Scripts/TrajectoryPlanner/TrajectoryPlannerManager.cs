@@ -490,7 +490,6 @@ namespace TrajectoryPlanner
 
             GameObject newProbe = Instantiate(probePrefabs[probePrefabIDs.FindIndex(x => x == probeType)], brainModel);
             SetActiveProbe(newProbe.GetComponent<ProbeManager>());
-            print("Got here before awake");
 
             spawnedThisFrame = true;
 
@@ -680,6 +679,11 @@ namespace TrajectoryPlanner
         {
             probeQuickSettings.UpdateInteractable();
             probeQuickSettings.UpdateCoordinates();
+        }
+
+        public void UpdateQuickSettingsProbeIdText()
+        {
+            probeQuickSettings.UpdateProbeIdText();
         }
 
         public void ResetActiveProbe()
