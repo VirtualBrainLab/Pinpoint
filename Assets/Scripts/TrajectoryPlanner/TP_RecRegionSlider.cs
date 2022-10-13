@@ -15,7 +15,7 @@ public class TP_RecRegionSlider : MonoBehaviour
     private float[] np2Range = { 2.88f, 5.76f };
     private float[] np24Range = { 0.72f, 1.44f, 2.88f, 5.76f };
     private List<float[]> ranges;
-    private int[] type2index = { -1, 0, 1, -1, 2 };
+    private int[] type2index = { -1, 0, 1, -1, 2, -1, -1, -1, 2 };
 
     public TP_RecRegionSlider()
     {
@@ -27,12 +27,14 @@ public class TP_RecRegionSlider : MonoBehaviour
 
     public void SliderValueChanged(float value)
     {
-        if (tpmanager.GetActiveProbeController() != null)
+        ProbeManager probeManager = tpmanager.GetActiveProbeManager();
+        if (probeManager != null)
         {
             // Get active probe type from tpmanager
-            float[] range = ranges[type2index[tpmanager.GetActiveProbeType()]];
+            Debug.Log(probeManager.ProbeType);
+            float[] range = ranges[type2index[probeManager.ProbeType]];
             uiSlider.value = Round2Nearest(value, range);
-            tpmanager.GetActiveProbeController().ChangeRecordingRegionSize(uiSlider.value);
+            probeManager.ChangeRecordingRegionSize(uiSlider.value);
 
             tpmanager.MovedThisFrame = true;
 

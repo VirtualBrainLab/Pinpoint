@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
 using TMPro;
@@ -23,6 +25,11 @@ namespace TrajectoryPlanner
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
         private TMP_InputField[] _inputFields;
+
+        [SerializeField] private AccountsManager _accountsManager;
+        [SerializeField] private TMP_Dropdown _linkedExperimentDropdown;
+
+        private TMP_InputField[] inputFields;
 
         #endregion
 
@@ -277,6 +284,29 @@ namespace TrajectoryPlanner
                         Debug.LogError);
             }, Debug.LogError);
         }
+        public void UpdateExperimentList()
+        {
+            List<string> experiments = _accountsManager.GetExperiments();
+            _linkedExperimentDropdown.ClearOptions();
+
+            List<TMP_Dropdown.OptionData> optList = new List<TMP_Dropdown.OptionData>();
+            optList.Add(new TMP_Dropdown.OptionData("Not saved"));
+            foreach (string experiment in experiments)
+                optList.Add(new TMP_Dropdown.OptionData(experiment));
+            _linkedExperimentDropdown.AddOptions(optList);
+        }
+
+        public void ChangeExperiment(int optIdx)
+        {
+            if (optIdx > 0)
+            {
+                string optText = _linkedExperimentDropdown.options[optIdx].text;
+                _accountsManager.ChangeProbeExperiment(_probeManager.UUID, optText);
+            }
+            else
+                _accountsManager.RemoveProbeExperiment(_probeManager.UUID);
+        }
+
         #endregion
     }
 }

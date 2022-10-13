@@ -31,7 +31,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     private int zoomLevel = 0;
     private float zoomFactor = 1f;
 
-    private RectTransform rect;
+    private RectTransform _rect;
 
     private Texture3D annotationDatasetGPUTexture;
     private TaskCompletionSource<bool> gpuTextureLoadedSource;
@@ -44,7 +44,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     private void Awake()
     {
-        rect = GetComponent<RectTransform>();
+        _rect = GetComponent<RectTransform>();
 
         gpuTextureLoadedSource = new TaskCompletionSource<bool>();
         gpuTextureLoadedTask = gpuTextureLoadedSource.Task;
@@ -107,22 +107,28 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         if (!localPrefs.GetInplane()) return;
 
-        ProbeManager activeProbeController = tpmanager.GetActiveProbeController();
+        ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
 
-        if (activeProbeController == null)
+        if (activeProbeManager == null)
         {
             ResetRendererParameters();
             return;
         }
 
-        (Vector3 startCoordWorld, Vector3 endCoordWorld) = activeProbeController.GetProbeController().GetRecordingRegionWorld();
-        upWorld = (endCoordWorld - startCoordWorld).normalized;
-        forwardWorld = Quaternion.Euler(-90f, 0f, 0f) * upWorld;
+        (Vector3 startCoordWorld, Vector3 endCoordWorld) = activeProbeManager.GetProbeController().GetRecordingRegionWorld();
+        (_, upWorld, forwardWorld) = activeProbeManager.GetProbeController().GetTipWorld();
+
+#if UNITY_EDITOR
+        // debug statements
+        Debug.DrawRay(startCoordWorld, upWorld, Color.green);
+        Debug.DrawRay(startCoordWorld, forwardWorld, Color.red);
+#endif
 
         // Calculate the size
         float mmRecordingSize = Vector3.Distance(startCoordWorld, endCoordWorld);
 
-        bool fourShank = activeProbeController.GetProbeType() == 4;
+        int type = activeProbeManager.ProbeType;
+        bool fourShank = type == 4 || type == 8;
 
         recordingRegionCenterPosition = fourShank ? 
             annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2 + forwardWorld * 0.375f) :
@@ -137,8 +143,10 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuSliceRenderer.material.SetVector("_UpDirection", upWorld);
         gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize * 1000f / 25f);
         gpuSliceRenderer.material.SetFloat("_Scale", inPlaneScale);
-        textX.text = "<- " + mmRecordingSize * 1.5f + "mm ->";
-        textY.text = "<- " + mmRecordingSize * 1.5f + "mm ->";
+        float roundedMmRecSize = Mathf.Round(mmRecordingSize * 1.5f * 100) / 100;
+        string formatted = string.Format("<- {0} mm ->", roundedMmRecSize);
+        textX.text = formatted;
+        textY.text = formatted;
     }
 
     public void InPlaneSliceHover(Vector2 pointerData)
@@ -163,10 +171,8 @@ public class TP_InPlaneSlice : MonoBehaviour
     private Vector3 CalculateInPlanePosition(Vector2 pointerData)
     {
         Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
-
         // Take the tip transform and go out according to the in plane percentage 
-        Vector3 inPlanePosition = recordingRegionCenterPosition + (annotationDataset.CoordinateSpace.World2SpaceRot(forwardWorld) * -inPlanePosNorm.x + annotationDataset.CoordinateSpace.World2SpaceRot(upWorld) * inPlanePosNorm.y);
-
+        Vector3 inPlanePosition = recordingRegionCenterPosition + (annotationDataset.CoordinateSpace.World2SpaceAxisChange(forwardWorld) * -inPlanePosNorm.x + annotationDataset.CoordinateSpace.World2SpaceAxisChange(upWorld) * inPlanePosNorm.y);
         return inPlanePosition;
     }
 
@@ -174,11 +180,11 @@ public class TP_InPlaneSlice : MonoBehaviour
     private Vector2 GetLocalRectPosNormalized(Vector2 pointerData)
     {
         Vector2 inPlanePosNorm;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, pointerData, Camera.main, out inPlanePosNorm);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_rect, pointerData, Camera.main, out inPlanePosNorm);
 
-        inPlanePosNorm += new Vector2(rect.rect.width, rect.rect.height / 2);
-        inPlanePosNorm.x = inPlanePosNorm.x / rect.rect.width * 2 - 1;
-        inPlanePosNorm.y = inPlanePosNorm.y / rect.rect.height * 2 - 1;
+        inPlanePosNorm += new Vector2(_rect.rect.width, _rect.rect.height / 2);
+        inPlanePosNorm.x = inPlanePosNorm.x / _rect.rect.width * 2 - 1;
+        inPlanePosNorm.y = inPlanePosNorm.y / _rect.rect.height * 2 - 1;
         return inPlanePosNorm;
     }
 

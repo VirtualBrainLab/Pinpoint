@@ -96,7 +96,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorld()
     {
-        return _coordinateSpace.Space2World(_coordinateTransform.Transform2SpaceRot(apmldv));
+        return _coordinateSpace.Space2World(_coordinateTransform.Transform2SpaceAxisChange(apmldv));
     }
 
     /// <summary>
@@ -118,18 +118,18 @@ public class ProbeInsertion
         return _coordinateTransform.Space2Transform(_coordinateSpace.World2Space(coordWorld));
     }
 
-    public Vector3 World2TransformedRot(Vector3 coordWorld)
+    public Vector3 World2TransformedAxisChange(Vector3 coordWorld)
     {
-        return _coordinateTransform.Space2TransformRot(_coordinateSpace.World2SpaceRot(coordWorld));
+        return _coordinateTransform.Space2TransformAxisChange(_coordinateSpace.World2SpaceAxisChange(coordWorld));
     }
 
     public Vector3 Transformed2World(Vector3 coordTransformed)
     {
         return _coordinateSpace.Space2World(_coordinateTransform.Transform2Space(coordTransformed));
     }
-    public Vector3 Transformed2WorldRot(Vector3 coordTransformed)
+    public Vector3 Transformed2WorldAxisChange(Vector3 coordTransformed)
     {
-        return _coordinateSpace.Space2WorldRot(_coordinateTransform.Transform2SpaceRot(coordTransformed));
+        return _coordinateSpace.Space2WorldAxisChange(_coordinateTransform.Transform2SpaceAxisChange(coordTransformed));
     }
 
     public override string ToString()

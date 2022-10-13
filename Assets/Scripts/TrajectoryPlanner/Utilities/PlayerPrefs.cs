@@ -38,6 +38,7 @@ public class PlayerPrefs : MonoBehaviour
     private bool _useBeryl;
     private bool _displayUM;
     private Vector3 _relCoord;
+    private bool _ghostInactiveProbes;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -55,6 +56,7 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle showAllProbePanelsToggle;
     [SerializeField] Toggle useBerylToggle;
     [SerializeField] Toggle displayUmToggle;
+    [SerializeField] Toggle ghostInactiveProbesToggle;
 
 
     /// <summary>
@@ -113,9 +115,23 @@ public class PlayerPrefs : MonoBehaviour
         displayUmToggle.isOn = _displayUM;
 
         _relCoord = LoadVector3Pref("rel_coord", new Vector3(5.4f, 5.7f, 0.332f));
+
+        _ghostInactiveProbes = LoadBoolPref("ghost_inactive", false);
+        ghostInactiveProbesToggle.isOn = _ghostInactiveProbes;
     }
 
     #region Getters/Setters
+
+    public void SetGhostInactiveProbes(bool ghostInactive)
+    {
+        _ghostInactiveProbes = ghostInactive;
+        UnityEngine.PlayerPrefs.SetInt("ghost_inactive", _ghostInactiveProbes ? 1 : 0);
+    }
+
+    public bool GetGhostInactiveProbes()
+    {
+        return _ghostInactiveProbes;
+    }
 
     public void SetRelCoord(Vector3 coord)
     {
@@ -389,7 +405,8 @@ public class PlayerPrefs : MonoBehaviour
     public (Vector3 apmldv, Vector3 angles,
                 int type, int manipulatorId,
                 string coordinateSpaceName, string coordinateTransformName,
-                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[] LoadSavedProbes()
+                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+                string uuid)[] LoadSavedProbeData()
     {
         int probeCount = UnityEngine.PlayerPrefs.GetInt("probecount", 0);
 
@@ -397,7 +414,8 @@ public class PlayerPrefs : MonoBehaviour
             new (Vector3 apmldv, Vector3 angles,
                 int type, int manipulatorId,
                 string coordinateSpaceName, string coordinateTransformName,
-                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[probeCount];
+                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+                string uuid)[probeCount];
 
         for (int i = 0; i < probeCount; i++)
         {
@@ -417,11 +435,13 @@ public class PlayerPrefs : MonoBehaviour
             var d = UnityEngine.PlayerPrefs.GetFloat("d" + i);
             var brainSurfaceOffset = UnityEngine.PlayerPrefs.GetFloat("brain_surface_offset" + i);
             var dropToSurfaceWithDepth = UnityEngine.PlayerPrefs.GetInt("drop_to_surface_with_depth" + i) == 1;
+            string uuid = UnityEngine.PlayerPrefs.GetString("uuid" + i);
 
             savedProbes[i] = (new Vector3(ap, ml, dv), new Vector3(phi, theta, spin),
                 type, manipulatorId,
                 coordSpaceName, coordTransName,
-                new Vector4(x, y, z, d), brainSurfaceOffset, dropToSurfaceWithDepth);
+                new Vector4(x, y, z, d), brainSurfaceOffset, dropToSurfaceWithDepth,
+                uuid);
         }
 
         return savedProbes;
@@ -435,7 +455,8 @@ public class PlayerPrefs : MonoBehaviour
         (Vector3 apmldv, Vector3 angles,
                 int type, int manipulatorId,
                 string coordinateSpace, string coordinateTransform,
-                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth)[] allProbeData)
+                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+                string uuid)[] allProbeData)
     {
         for (int i = 0; i < allProbeData.Length; i++)
         {
@@ -458,6 +479,7 @@ public class PlayerPrefs : MonoBehaviour
             UnityEngine.PlayerPrefs.SetFloat("brain_surface_offset" + i, allProbeData[i].brainSurfaceOffset);
             UnityEngine.PlayerPrefs.SetInt("drop_to_surface_with_depth" + i,
                 allProbeData[i].dropToSurfaceWithDepth ? 1 : 0);
+            UnityEngine.PlayerPrefs.SetString("uuid" + i, allProbeData[i].uuid);
         }
         UnityEngine.PlayerPrefs.SetInt("probecount", allProbeData.Length);
         UnityEngine.PlayerPrefs.SetString("timestamp",

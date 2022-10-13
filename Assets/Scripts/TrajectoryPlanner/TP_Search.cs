@@ -167,6 +167,13 @@ public class TP_Search : MonoBehaviour
         node.GetNodeTransform().localPosition = Vector3.zero;
         node.GetNodeTransform().localRotation = Quaternion.identity;
         node.SetNodeModelVisibility(true);
+        tpmanager.WarpNode(node);
         modelControl.ChangeMaterial(node, "lit");
+    }
+
+    public void ChangeWarp()
+    {
+        foreach (CCFTreeNode node in activeBrainAreas)
+            tpmanager.WarpNode(node);
     }
 }

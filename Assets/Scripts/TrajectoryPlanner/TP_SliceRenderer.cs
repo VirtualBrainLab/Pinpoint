@@ -149,8 +149,7 @@ public class TP_SliceRenderer : MonoBehaviour
     /// </summary>
     private void UpdateSlicePosition()
     {
-        Debug.Log("Update slice called: " + Time.realtimeSinceStartup);
-        ProbeManager activeProbeManager = tpmanager.GetActiveProbeController();
+        ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
         if (activeProbeManager == null) return;
 
         // the actual tip
@@ -160,7 +159,7 @@ public class TP_SliceRenderer : MonoBehaviour
         sagittalSliceGO.transform.position = new Vector3(probeTipWorld.x, 0f, 0f);
 
         // for CCF coordinates
-        (Vector3 tipCoordWorld, _) = activeProbeManager.GetProbeController().GetTipWorld();
+        (Vector3 tipCoordWorld, _, _) = activeProbeManager.GetProbeController().GetTipWorld();
 
         apWorldmm = tipCoordWorld.z + 6.6f;
         coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / 13.2f);

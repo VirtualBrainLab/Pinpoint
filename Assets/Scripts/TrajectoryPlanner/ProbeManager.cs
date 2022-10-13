@@ -12,6 +12,8 @@ public class ProbeManager : MonoBehaviour
 {
     // Internal flags that track whether we are in manual control or drag/link control mode
     private bool _ephysLinkMovement;
+    private string _uuid;
+    public string UUID { get { return _uuid; } }
 
     #region Ephys Link
 
@@ -32,7 +34,8 @@ public class ProbeManager : MonoBehaviour
     [SerializeField] private List<Collider> probeColliders;
     [SerializeField] private List<ProbeUIManager> probeUIManagers;
     [SerializeField] private Renderer probeRenderer;
-    [SerializeField] private int probeType;
+    [SerializeField] private int _probeType;
+    public int ProbeType { get { return _probeType; } }
 
     [SerializeField] private ProbeController probeController;
 
@@ -61,15 +64,6 @@ public class ProbeManager : MonoBehaviour
     private Dictionary<GameObject, Material> visibleOtherColliders;
 
     #region Accessors
-
-    /// <summary>
-    /// Get the probe-type of this probe
-    /// </summary>
-    /// <returns>probe type</returns>
-    public int GetProbeType()
-    {
-        return probeType;
-    }
 
 
     public int GetID()
@@ -118,6 +112,8 @@ public class ProbeManager : MonoBehaviour
 
     private void Awake()
     {
+        _uuid = Guid.NewGuid().ToString();
+
         defaultMaterials = new Dictionary<GameObject, Material>();
 
         // Pull the tpmanager object and register this probe
@@ -138,6 +134,7 @@ public class ProbeManager : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log(string.Format("New probe created with UUID: {0}", _uuid));
         // Request for ID and color if this is a normal probe
         if (_originalProbeManager == null)
         {
@@ -206,6 +203,14 @@ public class ProbeManager : MonoBehaviour
             puimanager.SetProbePanelVisibility(state);
     }
 
+
+    public void OverrideUUID(string newUUID)
+    {
+#if UNITY_EDITOR
+        Debug.Log(string.Format("Override UUID to {0}", newUUID));
+#endif
+        _uuid = newUUID;
+    }
 
     /// <summary>
     /// Update the size of the recording region.
@@ -416,10 +421,10 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateSurfacePosition()
     {
-        (Vector3 tipCoordWorld, Vector3 tipUpWorld) = probeController.GetTipWorld();
+        (Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = probeController.GetTipWorld();
 
         Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(annotationDataset.CoordinateSpace.World2Space(tipCoordWorld),
-            annotationDataset.CoordinateSpace.World2SpaceRot(tipUpWorld));
+            annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipUpWorld));
 
         if (float.IsNaN(surfacePos25.x))
         {
@@ -737,7 +742,7 @@ public class ProbeManager : MonoBehaviour
 
             var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
                 annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorld().tipCoordWorld - tipExtensionDirection * 5),
-                annotationDataset.CoordinateSpace.World2SpaceRot(tipExtensionDirection));
+                annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipExtensionDirection));
 
             if (float.IsNaN(brainSurfaceAPDVLR.x))
             {
@@ -868,11 +873,15 @@ public class ProbeManager : MonoBehaviour
 
     #region Materials
 
+    private bool _isTransparent;
+    public bool IsTransparent { get { return _isTransparent; } }
+
     /// <summary>
     /// Set all Renderer components to use the ghost material
     /// </summary>
     public void SetMaterialsTransparent()
     {
+        _isTransparent = true;
         defaultMaterials.Clear();
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
         {
@@ -886,6 +895,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
+        _isTransparent = false;
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
             if (defaultMaterials.ContainsKey(renderer.gameObject))
                 renderer.material = defaultMaterials[renderer.gameObject];
