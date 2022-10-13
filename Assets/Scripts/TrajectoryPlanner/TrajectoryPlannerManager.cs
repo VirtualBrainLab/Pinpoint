@@ -425,7 +425,7 @@ namespace TrajectoryPlanner
 
             Debug.Log("Destroying probe type " + _prevProbeType + " with coordinates");
 
-            _prevProbeType = probeManager.GetProbeType();
+            _prevProbeType = probeManager.ProbeType;
             _prevInsertion = probeManager.GetProbeController().Insertion;
             _prevManipulatorId = probeManager.GetManipulatorId();
             _prevZeroCoordinateOffset = probeManager.GetZeroCoordinateOffset();

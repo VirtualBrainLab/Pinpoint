@@ -847,7 +847,7 @@ public class ProbeManager : MonoBehaviour
             zeroCoordinateAdjustedManipulatorPosition.w);
 
         // Set probe position (change axes to match probe)
-        var zeroCoordinateApmldv = probeController.Insertion.World2TransformedRot(zeroCoordinateAdjustedWorldPosition);
+        var zeroCoordinateApmldv = probeController.Insertion.Transformed2WorldAxisChange(zeroCoordinateAdjustedWorldPosition);
         probeController.SetProbePosition(new Vector4(zeroCoordinateApmldv.x, zeroCoordinateApmldv.y,
             zeroCoordinateApmldv.z, zeroCoordinateAdjustedWorldPosition.w));
 

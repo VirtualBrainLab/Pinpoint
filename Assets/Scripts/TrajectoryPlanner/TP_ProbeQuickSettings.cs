@@ -156,7 +156,7 @@ namespace TrajectoryPlanner
                 // Spawn ghost
                 var originalProbeManager = _probeManager;
                 var ghostProbeManager = _trajectoryPlannerManager.AddNewProbeTransformed(
-                    _probeManager.GetProbeType(), _probeManager.GetProbeController().Insertion, 0,
+                    _probeManager.ProbeType, _probeManager.GetProbeController().Insertion, 0,
                     _probeManager.GetZeroCoordinateOffset(), _probeManager.GetBrainSurfaceOffset(),
                     _probeManager.IsSetToDropToSurfaceWithDepth());
     
@@ -222,7 +222,7 @@ namespace TrajectoryPlanner
 
             // Convert apmldv to world coordinate
             var convertToWorld = _probeManager.GetGhostProbeManager().GetProbeController().Insertion
-                .Transformed2WorldRot(apmldv);
+                .Transformed2WorldAxisChange(apmldv);
 
             // Flip axes to match manipulator
             var posWithDepthAndCorrectAxes = new Vector4(
