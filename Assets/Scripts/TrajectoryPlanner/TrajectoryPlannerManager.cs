@@ -127,8 +127,9 @@ namespace TrajectoryPlanner
 
             coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
             coordinateTransformOpts.Add("CCF", new CCFTransform());
-            coordinateTransformOpts.Add("Needles", new NeedlesTransform());
             coordinateTransformOpts.Add("MRI", new MRILinearTransform());
+            coordinateTransformOpts.Add("Needles", new NeedlesTransform());
+            coordinateTransformOpts.Add("IBL-Needles", new IBLNeedlesTransform());
 
             visibleProbePanels = 0;
 
