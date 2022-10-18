@@ -786,7 +786,7 @@ public class DefaultProbeController : ProbeController
     /// Return the tip coordinates in **un-transformed** world coordinates
     /// </summary>
     /// <returns></returns>
-    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorld()
+    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorldU()
     {
         Vector3 tipCoordWorld = WorldT2WorldU(_probeTipT.position);
         Vector3 tipUpWorld = (WorldT2WorldU(_probeTipT.position + _probeTipT.up) - tipCoordWorld).normalized;

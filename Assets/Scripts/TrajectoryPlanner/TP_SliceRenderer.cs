@@ -159,7 +159,7 @@ public class TP_SliceRenderer : MonoBehaviour
         sagittalSliceGO.transform.position = new Vector3(probeTipWorld.x, 0f, 0f);
 
         // for CCF coordinates
-        (Vector3 tipCoordWorld, _, _) = activeProbeManager.GetProbeController().GetTipWorld();
+        (Vector3 tipCoordWorld, _, _) = activeProbeManager.GetProbeController().GetTipWorldU();
 
         apWorldmm = tipCoordWorld.z + 6.6f;
         coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / 13.2f);

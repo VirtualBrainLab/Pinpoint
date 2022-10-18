@@ -274,10 +274,10 @@ namespace TrajectoryPlanner
             lineRenderer.endWidth = 0.05f;
             lineRenderer.positionCount = 2;
             // Set start position (current position)
-            lineRenderer.SetPosition(0, _probeManager.GetProbeController().GetTipWorld().tipCoordWorld);
+            lineRenderer.SetPosition(0, _probeManager.GetProbeController().ProbeTipT.position);
             // Set end position (ghost position)
             lineRenderer.SetPosition(1,
-                _probeManager.GetGhostProbeManager().GetProbeController().GetTipWorld().tipCoordWorld);
+                _probeManager.GetGhostProbeManager().GetProbeController().ProbeTipT.position);
 
             // Send position to manipulator
             _communicationManager.SetCanWrite(_probeManager.GetManipulatorId(), true, 1, canWrite =>

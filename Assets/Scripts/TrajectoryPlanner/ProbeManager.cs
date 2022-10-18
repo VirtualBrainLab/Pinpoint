@@ -427,7 +427,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateSurfacePosition()
     {
-        (Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = probeController.GetTipWorld();
+        (Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = probeController.GetTipWorldU();
 
         Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(annotationDataset.CoordinateSpace.World2Space(tipCoordWorld),
             annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipUpWorld));
@@ -744,10 +744,10 @@ public class ProbeManager : MonoBehaviour
         else
         {
             // We need to calculate the surface coordinate ourselves
-            var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipWorld().tipUpWorld : Vector3.up;
+            var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipWorldU().tipUpWorld : Vector3.up;
 
             var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
-                annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorld().tipCoordWorld - tipExtensionDirection * 5),
+                annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorldU().tipCoordWorld - tipExtensionDirection * 5),
                 annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipExtensionDirection));
 
             if (float.IsNaN(brainSurfaceAPDVLR.x))
