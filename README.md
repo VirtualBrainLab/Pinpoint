@@ -6,7 +6,7 @@
 
 # Usage & Documentation
 
-[Launch the web app](http://data.virtualbrainlab.org/Pinpoint/) for more instructions see the [documentation](https://virtualbrainlab.org/02_traj_planner/01_tp_intro.html).
+[Launch the web app](http://data.virtualbrainlab.org/Pinpoint/). For instructions and tutorials see the [documentation](https://virtualbrainlab.org/02_traj_planner/01_tp_intro.html).
 
 Desktop builds are available on the [Releases](https://github.com/VirtualBrainLab/Pinpoint/releases) page.
 
