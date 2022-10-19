@@ -112,6 +112,12 @@ namespace TrajectoryPlanner
             probeIdText.color = _probeManager.GetColor();
         }
 
+        public void EnableAutomaticControlUI(bool enable)
+        {
+            automaticMovementSpeedInputField.interactable = enable;
+            automaticMovementGoButton.interactable = enable;
+        }
+
         /// <summary>
         ///     Move probe to brain surface and zero out depth
         /// </summary>
@@ -152,8 +158,7 @@ namespace TrajectoryPlanner
         /// <param name="isOn">Toggle state</param>
         public void ToggleAutomaticControl(bool isOn)
         {
-            automaticMovementSpeedInputField.interactable = isOn;
-            automaticMovementGoButton.interactable = isOn;
+            EnableAutomaticControlUI(isOn);
 
             if (isOn)
             {
@@ -182,7 +187,12 @@ namespace TrajectoryPlanner
             }
             else
             {
+                // Disable UI
+                EnableAutomaticControlUI(false);
+                // Remove ghost
                 _trajectoryPlannerManager.DestroyProbe(_probeManager.GetGhostProbeManager());
+                // Remove ghost probe manager reference
+                _probeManager.SetGhostProbeManager(null);
             }
         }
 

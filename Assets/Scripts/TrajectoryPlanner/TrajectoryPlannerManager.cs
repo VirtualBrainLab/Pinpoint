@@ -191,7 +191,7 @@ namespace TrajectoryPlanner
             if (Input.anyKey && activeProbe != null && !InputsFocused())
             {
                 if (Input.GetKeyDown(KeyCode.Backspace) && !CanvasParent.GetComponentsInChildren<TMP_InputField>()
-                        .Any(inputField => inputField.isFocused) && !activeProbe.IsGhost())
+                        .Any(inputField => inputField.isFocused))
                 {
                     DestroyActiveProbeController();
                     return;
@@ -460,6 +460,16 @@ namespace TrajectoryPlanner
         }
         private void DestroyActiveProbeController()
         {
+            // Extra steps for destroying the active probe if it's a ghost probe
+            if (activeProbe.IsGhost())
+            {
+                // Remove ghost probe ref from original probe
+                activeProbe.GetOriginalProbeManager().SetGhostProbeManager(null);
+                // Disable control UI
+                probeQuickSettings.EnableAutomaticControlUI(false);
+            }
+
+            // Remove Probe
             DestroyProbe(activeProbe);
         }
 
