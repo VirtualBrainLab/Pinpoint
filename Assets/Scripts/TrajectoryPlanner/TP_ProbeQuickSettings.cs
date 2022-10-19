@@ -231,11 +231,8 @@ namespace TrajectoryPlanner
             // Flip axes to match manipulator
             var posWithDepthAndCorrectAxes = new Vector4(
                 -convertToWorld.z,
-                convertToWorld.x * (
-                    _trajectoryPlannerManager.IsManipulatorRightHanded(_probeManager.GetManipulatorId())
-                        ? 1
-                        : -1),
-                -convertToWorld.y,
+                convertToWorld.x,
+                convertToWorld.y,
                 depth);
 
             // Apply brain surface offset
@@ -248,7 +245,7 @@ namespace TrajectoryPlanner
                 posWithDepthAndCorrectAxes.z -= brainSurfaceAdjustment;
 
             // Adjust for phi
-            var probePhi = -_probeManager.GetProbeController().Insertion.phi * Mathf.Deg2Rad;
+            var probePhi = _probeManager.GetProbeController().Insertion.phi * Mathf.Deg2Rad;
             var phiCos = Mathf.Cos(probePhi);
             var phiSin = Mathf.Sin(probePhi);
             var phiAdjustedX = posWithDepthAndCorrectAxes.x * phiCos -
@@ -257,6 +254,10 @@ namespace TrajectoryPlanner
                                posWithDepthAndCorrectAxes.y * phiCos;
             posWithDepthAndCorrectAxes.x = phiAdjustedX;
             posWithDepthAndCorrectAxes.y = phiAdjustedY;
+            
+            // Apply axis negations
+            posWithDepthAndCorrectAxes.z *= -1;
+            posWithDepthAndCorrectAxes.y *= _trajectoryPlannerManager.IsManipulatorRightHanded(_probeManager.GetManipulatorId()) ? 1 : -1;
 
             // Apply coordinate offsets
             var zeroCoordinateOffsetPos = posWithDepthAndCorrectAxes + _probeManager.GetZeroCoordinateOffset();
