@@ -651,6 +651,15 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
+    ///     Return if this probe has a ghost attached to it
+    /// </summary>
+    /// <returns>True if this probe has a ghost, false otherwise</returns>
+    public bool HasGhost()
+    {
+        return _ghostProbeManager != null;
+    }
+
+    /// <summary>
     ///     Manipulator space offset to zero coordinate as X, Y, Z, Depth.
     /// </summary>
     /// <returns>Manipulator space offset to zero coordinate as X, Y, Z, Depth</returns>
