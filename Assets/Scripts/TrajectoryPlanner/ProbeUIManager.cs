@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.UI;
-using TrajectoryPlanner;
 
 public class ProbeUIManager : MonoBehaviour
 {
@@ -51,11 +51,7 @@ public class ProbeUIManager : MonoBehaviour
         annotationDataset = tpmanager.GetAnnotationDataset();
 
         // Set color properly
-        defaultColor = probeManager.GetColor();
-        defaultColor.a = 0.5f;
-
-        selectedColor = defaultColor;
-        selectedColor.a = 0.75f;
+        UpdateColors();
 
         // Set probe to be un-selected
         ProbeSelected(false);
@@ -68,6 +64,17 @@ public class ProbeUIManager : MonoBehaviour
             ProbedMovedHelper();
             probeMovedDirty = false;
         }
+    }
+
+    public void UpdateColors()
+    {
+        defaultColor = probeManager.GetColor();
+        defaultColor.a = 0.5f;
+
+        selectedColor = defaultColor;
+        selectedColor.a = 0.75f;
+
+        ProbeSelected(tpmanager.GetActiveProbeManager() == probeManager);
     }
 
     public int GetOrder()

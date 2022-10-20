@@ -116,7 +116,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         }
 
         (Vector3 startCoordWorld, Vector3 endCoordWorld) = activeProbeManager.GetProbeController().GetRecordingRegionWorld();
-        (_, upWorld, forwardWorld) = activeProbeManager.GetProbeController().GetTipWorld();
+        (_, upWorld, forwardWorld) = activeProbeManager.GetProbeController().GetTipWorldU();
 
 #if UNITY_EDITOR
         // debug statements
