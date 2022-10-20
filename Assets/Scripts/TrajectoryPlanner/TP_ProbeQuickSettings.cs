@@ -16,6 +16,7 @@ namespace TrajectoryPlanner
         [SerializeField] private CanvasGroup positionFields;
         [SerializeField] private CanvasGroup angleFields;
         [SerializeField] private CanvasGroup buttons;
+        [SerializeField] private Toggle automaticMovementToggle;
         [SerializeField] private TMP_InputField automaticMovementSpeedInputField;
         [SerializeField] private GameObject automaticMovementControlPanelGameObject;
         [SerializeField] private Button automaticMovementGoButton;
@@ -78,10 +79,9 @@ namespace TrajectoryPlanner
 
                 coordinatePanel.LinkProbe(probeManager);
                 
-                automaticMovementControlPanelGameObject.SetActive(_probeManager.IsConnectedToManipulator());
-
                 UpdateInteractable();
                 UpdateCoordinates();
+                UpdateAutomaticControlPanel();
             }
         }
 
@@ -110,6 +110,30 @@ namespace TrajectoryPlanner
         {
             probeIdText.text = _probeManager.GetID().ToString();
             probeIdText.color = _probeManager.GetColor();
+        }
+
+        private void UpdateAutomaticControlPanel()
+        {
+            // Check if this probe can be controlled by EphysLink
+            if (_probeManager.IsConnectedToManipulator())
+            {
+                // Show the panel
+                automaticMovementControlPanelGameObject.SetActive(true);
+                
+                // Set enable status (based on if there is a ghost attached or not)
+                automaticMovementToggle.SetIsOnWithoutNotify(_probeManager.HasGhost());
+                
+                // Enable/disable interaction based on if there is a ghost attached or not
+                EnableAutomaticControlUI(_probeManager.HasGhost());
+                
+                // Set value in speed input field
+                automaticMovementSpeedInputField.text = _probeManager.GetAutomaticMovementSpeed().ToString();
+            }
+            else
+            {
+                // Hide the panel
+                automaticMovementControlPanelGameObject.SetActive(false);
+            }
         }
 
         public void EnableAutomaticControlUI(bool enable)
@@ -209,13 +233,16 @@ namespace TrajectoryPlanner
 
             switch (int.Parse(input))
             {
-                case < 0:
-                    automaticMovementSpeedInputField.SetTextWithoutNotify("0");
+                case <= 0:
+                    automaticMovementSpeedInputField.SetTextWithoutNotify("1");
                     break;
                 case > 8000:
                     automaticMovementSpeedInputField.SetTextWithoutNotify("8000");
                     break;
             }
+            
+            // Set speed to probe
+            _probeManager.SetAutomaticMovementSpeed(int.Parse(automaticMovementSpeedInputField.text));
         }
 
         /// <summary>
@@ -223,14 +250,7 @@ namespace TrajectoryPlanner
         /// </summary>
         public void AutomaticallyDriveManipulator()
         {
-            // Set default speed if none was provided
-            if (automaticMovementSpeedInputField.text.Length == 0)
-            {
-                automaticMovementSpeedInputField.SetTextWithoutNotify("500");
-            }
-
             // Gather info
-            var speed = int.Parse(automaticMovementSpeedInputField.text);
             var apmldv = _probeManager.GetGhostProbeManager().GetProbeController().Insertion.apmldv;
             var depth = _probeManager.GetGhostProbeManager().GetProbeController().GetProbeDepth();
 
@@ -295,7 +315,7 @@ namespace TrajectoryPlanner
             {
                 if (canWrite)
                     _communicationManager.GotoPos(_probeManager.GetManipulatorId(),
-                        zeroCoordinateOffsetPos, speed, endPos => Destroy(lineObject),
+                        zeroCoordinateOffsetPos, _probeManager.GetAutomaticMovementSpeed(), endPos => Destroy(lineObject),
                         Debug.LogError);
             }, Debug.LogError);
         }

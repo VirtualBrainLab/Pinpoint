@@ -6230,6 +6230,7 @@ MonoBehaviour:
   positionFields: {fileID: 8158554547281336636}
   angleFields: {fileID: 5353964328855063755}
   buttons: {fileID: 2691002164104663128}
+  automaticMovementToggle: {fileID: 7855425331421390626}
   automaticMovementSpeedInputField: {fileID: 4912173287244133525}
   automaticMovementControlPanelGameObject: {fileID: 5845088992127050120}
   automaticMovementGoButton: {fileID: 3542177453428073158}

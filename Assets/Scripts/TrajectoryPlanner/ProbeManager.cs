@@ -25,6 +25,7 @@ public class ProbeManager : MonoBehaviour
     private float _brainSurfaceOffset;
     private bool _dropToSurfaceWithDepth = true;
     private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
+    private int _automaticMovementSpeed = 500; // Default to 500 um/s
     private ProbeManager _ghostProbeManager;
     private ProbeManager _originalProbeManager;
 
@@ -657,6 +658,29 @@ public class ProbeManager : MonoBehaviour
     public bool HasGhost()
     {
         return _ghostProbeManager != null;
+    }
+
+    /// <summary>
+    /// Set the automatic movement speed of this probe (when put under automatic control)
+    /// </summary>
+    /// <param name="speed">Speed in um/s</param>
+    public void SetAutomaticMovementSpeed(int speed)
+    {
+        // Ghosts don't have automatic movement speeds
+        if (IsGhost())
+        {
+            return;
+        }
+        _automaticMovementSpeed = speed;
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public int GetAutomaticMovementSpeed()
+    {
+        return _automaticMovementSpeed;
     }
 
     /// <summary>
