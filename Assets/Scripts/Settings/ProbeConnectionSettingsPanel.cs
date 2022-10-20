@@ -39,6 +39,10 @@ namespace Settings
             if (_probeManager.IsSetToDropToSurfaceWithDepth() != (brainSurfaceOffsetDirectionDropdown.value == 0))
                 brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(
                     _probeManager.IsSetToDropToSurfaceWithDepth() ? 0 : 1);
+            
+            // Enable/disable interactivity of brain surface offset axis
+            if (_probeManager.CanChangeBrainSurfaceOffsetAxis() != brainSurfaceOffsetDirectionDropdown.interactable)
+                brainSurfaceOffsetDirectionDropdown.interactable = _probeManager.CanChangeBrainSurfaceOffsetAxis();
 
             // Update display for brain surface offset
             if (!(Math.Abs(_probeManager.GetBrainSurfaceOffset() - _displayedBrainSurfaceOffset) > 0.001f)) return;
