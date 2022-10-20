@@ -747,6 +747,15 @@ public class ProbeManager : MonoBehaviour
     {
         return _brainSurfaceOffset;
     }
+
+    /// <summary>
+    /// Check if brain surface offset axis (Depth vs DV) is allowed to be changed
+    /// </summary>
+    /// <returns>True if the axis is allowed to be changed, false otherwise</returns>
+    public bool CanChangeBrainSurfaceOffsetAxis()
+    {
+        return _brainSurfaceOffset == 0;
+    }
     
     /// <summary>
     ///     Set manipulator space offset from brain surface as Depth from input.
@@ -822,6 +831,10 @@ public class ProbeManager : MonoBehaviour
     /// <param name="dropToSurfaceWithDepth">Use depth if true, use DV if false</param>
     public void SetDropToSurfaceWithDepth(bool dropToSurfaceWithDepth)
     {
+        // Only make changes to brain surface offset axis if the offset is 0
+        if (!CanChangeBrainSurfaceOffsetAxis()) return;
+        
+        // Apply change (if eligible)
         _dropToSurfaceWithDepth = dropToSurfaceWithDepth;
     }
 
@@ -870,7 +883,7 @@ public class ProbeManager : MonoBehaviour
         // Calculate last used direction (between depth and DV)
         var dvDelta = Math.Abs(zeroCoordinateAdjustedManipulatorPosition.z - _lastManipulatorPosition.z);
         var depthDelta = Math.Abs(zeroCoordinateAdjustedManipulatorPosition.w - _lastManipulatorPosition.w);
-        if (dvDelta > 0.0001 || depthDelta > 0.0001) _dropToSurfaceWithDepth = depthDelta >= dvDelta;
+        if (dvDelta > 0.0001 || depthDelta > 0.0001) SetDropToSurfaceWithDepth(depthDelta >= dvDelta);
         _lastManipulatorPosition = zeroCoordinateAdjustedManipulatorPosition;
         
         // Brain surface adjustment
