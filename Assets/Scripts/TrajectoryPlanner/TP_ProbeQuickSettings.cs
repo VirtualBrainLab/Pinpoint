@@ -96,7 +96,7 @@ namespace TrajectoryPlanner
             else
             {
                 positionFields.interactable = false; // !_probeManager.GetEphysLinkMovement();
-                angleFields.interactable = true;
+                angleFields.interactable = _probeManager == null || !_probeManager.IsGhost();
                 buttons.interactable = true;
             }
         }
