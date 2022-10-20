@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
+using TrajectoryPlanner;
 using UnityEngine;
 
 namespace Settings
@@ -12,6 +13,11 @@ namespace Settings
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
         #region Unity
+
+        private void Awake()
+        {
+            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+        }
 
         /// <summary>
         ///     Update values as they change.
@@ -62,6 +68,7 @@ namespace Settings
 
         private ProbeManager _probeManager;
         private EphysLinkSettings _ephysLinkSettings;
+        private TrajectoryPlannerManager _trajectoryPlannerManager;
 
         #endregion
 
@@ -138,7 +145,14 @@ namespace Settings
                     if (index != 0)
                         AttachToManipulatorAndUpdateUI();
                     else
+                    {
                         _ephysLinkSettings.UpdateManipulatorPanelAndSelection();
+                        
+                        // Cleanup ghost prove stuff if applicable
+                        if (!_probeManager.HasGhost()) return;
+                        _trajectoryPlannerManager.DestroyProbe(_probeManager.GetGhostProbeManager());
+                        _probeManager.SetGhostProbeManager(null);
+                    }
                 });
             else
                 AttachToManipulatorAndUpdateUI();

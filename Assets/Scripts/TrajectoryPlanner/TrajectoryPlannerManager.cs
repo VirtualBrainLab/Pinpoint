@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -416,8 +415,11 @@ namespace TrajectoryPlanner
         private Vector4 _prevZeroCoordinateOffset;
         private float _prevBrainSurfaceOffset;
 
-        private void DestroyActiveProbeController()
+        public void DestroyProbe(ProbeManager probeManager)
         {
+            var isGhost = probeManager.IsGhost();
+            var isActiveProbe = activeProbe == probeManager;
+            
             _prevProbeType = activeProbe.ProbeType;
             _prevInsertion = activeProbe.GetProbeController().Insertion;
             _prevManipulatorId = activeProbe.GetManipulatorId();
@@ -426,23 +428,39 @@ namespace TrajectoryPlanner
 
             Debug.Log("Destroying probe type " + _prevProbeType + " with coordinates");
 
-            Color returnColor = activeProbe.GetColor();
+            _prevProbeType = probeManager.ProbeType;
+            _prevInsertion = probeManager.GetProbeController().Insertion;
+            _prevManipulatorId = probeManager.GetManipulatorId();
+            _prevZeroCoordinateOffset = probeManager.GetZeroCoordinateOffset();
+            _prevBrainSurfaceOffset = probeManager.GetBrainSurfaceOffset();
 
-            // Unregister manipulator probe is attached to
-            // if (_prevManipulatorId != 0) _communicationManager.UnregisterManipulator(_prevManipulatorId);
+            // Return color if not a ghost probe
+            if (probeManager.GetOriginalProbeManager() == null) ReturnProbeColor(probeManager.GetColor());
 
-            activeProbe.Destroy();
-            Destroy(activeProbe.gameObject);
-            allProbeManagers.Remove(activeProbe);
+            // Destroy probe
+            probeManager.Destroy();
+            Destroy(probeManager.gameObject);
+            allProbeManagers.Remove(probeManager);
 
+            // Cleanup UI if this was last probe in scene
             if (allProbeManagers.Count > 0)
             {
-                SetActiveProbe(allProbeManagers[^1]);
-                activeProbe.CheckCollisions(GetAllNonActiveColliders());
+                if (isActiveProbe)
+                {
+                    SetActiveProbe(allProbeManagers[^1]);
+                }
+
+                if (isGhost)
+                {
+                    UpdateQuickSettings();
+                }
+                
+                probeManager.CheckCollisions(GetAllNonActiveColliders());
             }
             else
             {
-                activeProbe = null;
+                // Invalidate activeProbe
+                if (probeManager == activeProbe) activeProbe = null;
                 probeQuickSettings.UpdateInteractable(true);
                 probeQuickSettings.SetProbeManager(null);
                 SetSurfaceDebugActive(false);
@@ -451,8 +469,20 @@ namespace TrajectoryPlanner
 
             // update colliders
             UpdateProbeColliders();
+        }
+        private void DestroyActiveProbeController()
+        {
+            // Extra steps for destroying the active probe if it's a ghost probe
+            if (activeProbe.IsGhost())
+            {
+                // Remove ghost probe ref from original probe
+                activeProbe.GetOriginalProbeManager().SetGhostProbeManager(null);
+                // Disable control UI
+                probeQuickSettings.EnableAutomaticControlUI(false);
+            }
 
-            ReturnProbeColor(returnColor);
+            // Remove Probe
+            DestroyProbe(activeProbe);
         }
 
         private void RecoverActiveProbeController()
@@ -587,29 +617,25 @@ namespace TrajectoryPlanner
             ReOrderProbePanels();
         }
 
-        public void RegisterProbe(ProbeManager probeController)
+        public void RegisterProbe(ProbeManager probeManager)
         {
-            Debug.Log("Registering probe: " + probeController.gameObject.name);
-            allProbeManagers.Add(probeController);
+            Debug.Log("Registering probe: " + probeManager.gameObject.name);
+            allProbeManagers.Add(probeManager);
             
-            // Calculate an unused probe ID
-            HashSet<int> usedIds = new();
-            foreach (var probeId in allProbeManagers.Select(manager => manager.GetID() ))
-            {
-                usedIds.Add(probeId);
-            }
-
-            var thisProbeId = 1;
-            while (usedIds.Contains(thisProbeId))
-            {
-                thisProbeId++;
-            }
-            
-            probeController.RegisterProbeCallback(thisProbeId, NextProbeColor());
+            // Update collider records
             UpdateProbeColliders();
         }
 
-        private Color NextProbeColor()
+        public int GetNextProbeId()
+        {
+            var thisProbeId = 1;
+            HashSet<int> usedIds = new();
+            foreach (var probeId in allProbeManagers.Select(manager => manager.GetID())) usedIds.Add(probeId);
+            while (usedIds.Contains(thisProbeId)) thisProbeId++;
+            return thisProbeId;
+        }
+
+        public Color GetNextProbeColor()
         {
             Color next = probeColors[0];
             probeColors.RemoveAt(0);
@@ -675,6 +701,11 @@ namespace TrajectoryPlanner
         {
             probeQuickSettings.UpdateInteractable();
             probeQuickSettings.UpdateCoordinates();
+        }
+
+        public void UpdateQuickSettingsProbeIdText()
+        {
+            probeQuickSettings.UpdateProbeIdText();
         }
 
         public void ResetActiveProbe()
