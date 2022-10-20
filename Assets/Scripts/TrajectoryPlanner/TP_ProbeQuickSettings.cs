@@ -54,8 +54,8 @@ namespace TrajectoryPlanner
         private void FixedUpdate()
         {
             if (!_probeManager) return;
-            if (_probeManager.IsConnectedToManipulator() != automaticMovementControlPanelGameObject.activeSelf)
-                automaticMovementControlPanelGameObject.SetActive(_probeManager.IsConnectedToManipulator());
+            if (_probeManager.IsConnectedToManipulator() == automaticMovementControlPanelGameObject.activeSelf) return;
+            UpdateAutomaticControlPanel();
         }
 
         #endregion

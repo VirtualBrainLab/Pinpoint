@@ -417,6 +417,9 @@ namespace TrajectoryPlanner
 
         public void DestroyProbe(ProbeManager probeManager)
         {
+            var isGhost = probeManager.IsGhost();
+            var isActiveProbe = activeProbe == probeManager;
+            
             _prevProbeType = activeProbe.ProbeType;
             _prevInsertion = activeProbe.GetProbeController().Insertion;
             _prevManipulatorId = activeProbe.GetManipulatorId();
@@ -442,7 +445,16 @@ namespace TrajectoryPlanner
             // Cleanup UI if this was last probe in scene
             if (allProbeManagers.Count > 0)
             {
-                SetActiveProbe(allProbeManagers[^1]);
+                if (isActiveProbe)
+                {
+                    SetActiveProbe(allProbeManagers[^1]);
+                }
+
+                if (isGhost)
+                {
+                    UpdateQuickSettings();
+                }
+                
                 probeManager.CheckCollisions(GetAllNonActiveColliders());
             }
             else
