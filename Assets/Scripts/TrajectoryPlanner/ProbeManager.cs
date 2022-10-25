@@ -142,6 +142,12 @@ public class ProbeManager : MonoBehaviour
             probeID = tpmanager.GetNextProbeId();
             name = "PROBE_" + probeID;
             probeRenderer.material.color = tpmanager.GetNextProbeColor();
+            
+            // Record default materials
+            foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
+            {
+                defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
+            }
         }
         else
         {
@@ -925,26 +931,20 @@ public class ProbeManager : MonoBehaviour
 
     #region Materials
 
-    private bool _isTransparent;
-    public bool IsTransparent { get { return _isTransparent; } }
-    
-    // TODO: function to use transparent material and set color to probe color
 
     /// <summary>
     /// Set all Renderer components to use the ghost material
     /// </summary>
     public void SetMaterialsTransparent()
     {
-        _isTransparent = true;
-        var currentColor = GetColor();
-        defaultMaterials.Clear();
+        print("Set materials to transparent");
+        var currentColorTint = new Color(GetColor().r, GetColor().g, GetColor().b, .2f);
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
         {
-            defaultMaterials.Add(renderer.gameObject, renderer.material);
             renderer.material = ghostMaterial;
 
             // Tint transparent material for non-ghost probes
-            if (!IsGhost()) renderer.material.color = new Color(currentColor.r, currentColor.g, currentColor.b, .2f);
+            if (!IsGhost()) renderer.material.color = currentColorTint;
         }
     }
 
@@ -953,7 +953,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
-        _isTransparent = false;
+        print("Set materials to default");
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
             if (defaultMaterials.ContainsKey(renderer.gameObject))
                 renderer.material = defaultMaterials[renderer.gameObject];

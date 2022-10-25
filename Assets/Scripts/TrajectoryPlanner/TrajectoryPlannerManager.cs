@@ -664,20 +664,23 @@ namespace TrajectoryPlanner
             foreach (ProbeManager probeManager in allProbeManagers)
             {
                 // Check visibility
-                bool isActiveProbe = probeManager == activeProbe;
-                if (GetSetting_ShowAllProbePanels())
-                    probeManager.SetUIVisibility(true);
-                else
-                    probeManager.SetUIVisibility(isActiveProbe);
+                var isActiveProbe = probeManager == activeProbe;
+                probeManager.SetUIVisibility(GetSetting_ShowAllProbePanels() || isActiveProbe);
 
                 // Set active state for UI managers
                 foreach (ProbeUIManager puimanager in probeManager.GetProbeUIManagers())
                     puimanager.ProbeSelected(isActiveProbe);
 
-                if (GetSetting_GhostInactive() && !isActiveProbe && !probeManager.IsTransparent)
-                    probeManager.SetMaterialsTransparent();
-                else if (probeManager.IsTransparent && !probeManager.IsGhost())
+                // Update transparency for probe (if not ghost)
+                if (probeManager.IsGhost()) continue;
+                if (isActiveProbe)
+                {
                     probeManager.SetMaterialsDefault();
+                    continue;
+                }
+
+                if (GetSetting_GhostInactive()) probeManager.SetMaterialsTransparent();
+
             }
 
             // Change the height of the probe panels, if needed
@@ -858,10 +861,13 @@ namespace TrajectoryPlanner
             localPrefs.SetGhostInactiveProbes(state);
             foreach (ProbeManager probeManager in allProbeManagers)
             {
-                if (state && activeProbe != probeManager && !probeManager.IsTransparent)
-                    probeManager.SetMaterialsTransparent();
-                else if (probeManager.IsTransparent)
+                if (probeManager == activeProbe)
+                {
                     probeManager.SetMaterialsDefault();
+                    continue;
+                }
+
+                if (state) probeManager.SetMaterialsTransparent();
             }
         }
 
