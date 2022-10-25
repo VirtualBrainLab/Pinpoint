@@ -154,13 +154,6 @@ public class ProbeManager : MonoBehaviour
                 defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
             }
         }
-        else
-        {
-            // Otherwise, generate info based on the original probe
-            print("Original probe manager != null: "+_originalProbeManager != null+"; Probe ID: "+_originalProbeManager.probeID);
-            probeID = _originalProbeManager.GetID();
-            name = "GHOST_PROBE_" + probeID;
-        }
 
         foreach (var probeUIManager in probeUIManagers)
         {
