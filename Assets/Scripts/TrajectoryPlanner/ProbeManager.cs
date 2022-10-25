@@ -936,11 +936,15 @@ public class ProbeManager : MonoBehaviour
     public void SetMaterialsTransparent()
     {
         _isTransparent = true;
+        var currentColor = GetColor();
         defaultMaterials.Clear();
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
         {
             defaultMaterials.Add(renderer.gameObject, renderer.material);
             renderer.material = ghostMaterial;
+
+            // Tint transparent material for non-ghost probes
+            if (!IsGhost()) renderer.material.color = new Color(currentColor.r, currentColor.g, currentColor.b, .2f);
         }
     }
 

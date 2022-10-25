@@ -193,7 +193,7 @@ namespace TrajectoryPlanner
                 if (Input.GetKeyDown(KeyCode.Backspace) && !CanvasParent.GetComponentsInChildren<TMP_InputField>()
                         .Any(inputField => inputField.isFocused))
                 {
-                    DestroyActiveProbeController();
+                    DestroyActiveProbeManager();
                     return;
                 }
 
@@ -420,12 +420,6 @@ namespace TrajectoryPlanner
             var isGhost = probeManager.IsGhost();
             var isActiveProbe = activeProbe == probeManager;
             
-            _prevProbeType = activeProbe.ProbeType;
-            _prevInsertion = activeProbe.GetProbeController().Insertion;
-            _prevManipulatorId = activeProbe.GetManipulatorId();
-            _prevZeroCoordinateOffset = activeProbe.GetZeroCoordinateOffset();
-            _prevBrainSurfaceOffset = activeProbe.GetBrainSurfaceOffset();
-
             Debug.Log("Destroying probe type " + _prevProbeType + " with coordinates");
 
             _prevProbeType = probeManager.ProbeType;
@@ -470,7 +464,8 @@ namespace TrajectoryPlanner
             // update colliders
             UpdateProbeColliders();
         }
-        private void DestroyActiveProbeController()
+
+        private void DestroyActiveProbeManager()
         {
             // Extra steps for destroying the active probe if it's a ghost probe
             if (activeProbe.IsGhost())
@@ -520,7 +515,7 @@ namespace TrajectoryPlanner
         
         public ProbeManager AddNewProbeTransformed(int probeType, ProbeInsertion insertion,
             int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-            string uuid = null)
+            string uuid = null, bool isGhost = false)
         {
             ProbeManager probeManager = AddNewProbe(probeType);
 
@@ -536,6 +531,9 @@ namespace TrajectoryPlanner
             }
 
             probeManager.GetProbeController().SetProbePosition(insertion);
+            
+            // Set original probe manager early on
+            if (isGhost) probeManager.SetOriginalProbeManager(GetActiveProbeManager());
 
             spawnedThisFrame = true;
 
