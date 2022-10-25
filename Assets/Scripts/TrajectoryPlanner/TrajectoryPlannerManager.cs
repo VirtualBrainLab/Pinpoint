@@ -414,6 +414,7 @@ namespace TrajectoryPlanner
         private int _prevManipulatorId;
         private Vector4 _prevZeroCoordinateOffset;
         private float _prevBrainSurfaceOffset;
+        private bool _restoredProbe = true; // Can't restore anything at start
 
         public void DestroyProbe(ProbeManager probeManager)
         {
@@ -422,11 +423,17 @@ namespace TrajectoryPlanner
             
             Debug.Log("Destroying probe type " + _prevProbeType + " with coordinates");
 
-            _prevProbeType = probeManager.ProbeType;
-            _prevInsertion = probeManager.GetProbeController().Insertion;
-            _prevManipulatorId = probeManager.GetManipulatorId();
-            _prevZeroCoordinateOffset = probeManager.GetZeroCoordinateOffset();
-            _prevBrainSurfaceOffset = probeManager.GetBrainSurfaceOffset();
+            if (!isGhost)
+            {
+                _prevProbeType = probeManager.ProbeType;
+                _prevInsertion = probeManager.GetProbeController().Insertion;
+                _prevManipulatorId = probeManager.GetManipulatorId();
+                _prevZeroCoordinateOffset = probeManager.GetZeroCoordinateOffset();
+                _prevBrainSurfaceOffset = probeManager.GetBrainSurfaceOffset();
+            }
+
+            // Cannot restore a ghost probe, so we set restored to true
+            _restoredProbe = isGhost;
 
             // Return color if not a ghost probe
             if (probeManager.GetOriginalProbeManager() == null) ReturnProbeColor(probeManager.GetColor());
@@ -482,7 +489,9 @@ namespace TrajectoryPlanner
 
         private void RecoverActiveProbeController()
         {
+            if (_restoredProbe) return;
             AddNewProbe(_prevProbeType, _prevInsertion, _prevManipulatorId, _prevZeroCoordinateOffset, _prevBrainSurfaceOffset);
+            _restoredProbe = true;
         }
 
         #region Add Probe Functions
@@ -1122,16 +1131,17 @@ namespace TrajectoryPlanner
 
         private void OnApplicationQuit()
         {
+            var nonGhostProbeManagers = allProbeManagers.Where(manager => !manager.IsGhost()).ToList();
             var probeCoordinates =
                 new (Vector3 apmldv, Vector3 angles, 
                 int type, int manipulatorId,
                 string coordinateSpace, string coordinateTransform,
                 Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-                string uuid)[allProbeManagers.Count];
+                string uuid)[nonGhostProbeManagers.Count];
 
-            for (int i =0; i< allProbeManagers.Count; i++)
+            for (int i =0; i< nonGhostProbeManagers.Count; i++)
             {
-                ProbeManager probe = allProbeManagers[i];
+                ProbeManager probe = nonGhostProbeManagers[i];
                 ProbeInsertion probeInsertion = probe.GetProbeController().Insertion;
                 probeCoordinates[i] = (probeInsertion.apmldv, 
                     probeInsertion.angles,
