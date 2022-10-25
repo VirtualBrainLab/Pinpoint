@@ -72,6 +72,11 @@ public class ProbeManager : MonoBehaviour
         return probeID;
     }
 
+    public void SetId(int id)
+    {
+        probeID = id;
+    }
+
     public Color GetColor()
     {
         return probeRenderer.material.color;
@@ -135,7 +140,7 @@ public class ProbeManager : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log(string.Format("New probe created with UUID: {0}", _uuid));
+        Debug.Log($"New probe created with UUID: {_uuid}");
         // Request for ID and color if this is a normal probe
         if (_originalProbeManager == null)
         {
@@ -152,6 +157,7 @@ public class ProbeManager : MonoBehaviour
         else
         {
             // Otherwise, generate info based on the original probe
+            print("Original probe manager != null: "+_originalProbeManager != null+"; Probe ID: "+_originalProbeManager.probeID);
             probeID = _originalProbeManager.GetID();
             name = "GHOST_PROBE_" + probeID;
         }
@@ -937,14 +943,13 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsTransparent()
     {
-        print("Set materials to transparent");
         var currentColorTint = new Color(GetColor().r, GetColor().g, GetColor().b, .2f);
-        foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
+        foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
-            renderer.material = ghostMaterial;
+            childRenderer.material = ghostMaterial;
 
             // Tint transparent material for non-ghost probes
-            if (!IsGhost()) renderer.material.color = currentColorTint;
+            if (!IsGhost()) childRenderer.material.color = currentColorTint;
         }
     }
 
@@ -953,10 +958,9 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
-        print("Set materials to default");
-        foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
-            if (defaultMaterials.ContainsKey(renderer.gameObject))
-                renderer.material = defaultMaterials[renderer.gameObject];
+        foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
+            if (defaultMaterials.ContainsKey(childRenderer.gameObject))
+                childRenderer.material = defaultMaterials[childRenderer.gameObject];
     }
 
     #endregion

@@ -206,6 +206,7 @@ namespace TrajectoryPlanner
                 
                 // Set references
                 originalProbeManager.SetGhostProbeManager(ghostProbeManager);
+                ghostProbeManager.SetId(originalProbeManager.GetID());
             }
             else
             {
