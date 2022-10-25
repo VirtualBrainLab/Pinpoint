@@ -72,6 +72,11 @@ public class ProbeManager : MonoBehaviour
         return probeID;
     }
 
+    public void SetId(int id)
+    {
+        probeID = id;
+    }
+
     public Color GetColor()
     {
         return probeRenderer.material.color;
@@ -135,19 +140,19 @@ public class ProbeManager : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log(string.Format("New probe created with UUID: {0}", _uuid));
+        Debug.Log($"New probe created with UUID: {_uuid}");
         // Request for ID and color if this is a normal probe
         if (_originalProbeManager == null)
         {
             probeID = tpmanager.GetNextProbeId();
             name = "PROBE_" + probeID;
             probeRenderer.material.color = tpmanager.GetNextProbeColor();
-        }
-        else
-        {
-            // Otherwise, generate info based on the original probe
-            probeID = _originalProbeManager.GetID();
-            name = "GHOST_PROBE_" + probeID;
+            
+            // Record default materials
+            foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
+            {
+                defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
+            }
         }
 
         foreach (var probeUIManager in probeUIManagers)
@@ -925,23 +930,19 @@ public class ProbeManager : MonoBehaviour
 
     #region Materials
 
-    private bool _isTransparent;
-    public bool IsTransparent { get { return _isTransparent; } }
-    
-    // TODO: function to use transparent material and set color to probe color
 
     /// <summary>
     /// Set all Renderer components to use the ghost material
     /// </summary>
     public void SetMaterialsTransparent()
     {
-        // TODO: return out if is a ghost
-        _isTransparent = true;
-        defaultMaterials.Clear();
-        foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
+        var currentColorTint = new Color(GetColor().r, GetColor().g, GetColor().b, .2f);
+        foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
-            defaultMaterials.Add(renderer.gameObject, renderer.material);
-            renderer.material = ghostMaterial;
+            childRenderer.material = ghostMaterial;
+
+            // Tint transparent material for non-ghost probes
+            if (!IsGhost()) childRenderer.material.color = currentColorTint;
         }
     }
 
@@ -950,11 +951,9 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
-        // TODO: return out if is a ghost
-        _isTransparent = false;
-        foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
-            if (defaultMaterials.ContainsKey(renderer.gameObject))
-                renderer.material = defaultMaterials[renderer.gameObject];
+        foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
+            if (defaultMaterials.ContainsKey(childRenderer.gameObject))
+                childRenderer.material = defaultMaterials[childRenderer.gameObject];
     }
 
     #endregion

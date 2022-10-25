@@ -191,7 +191,7 @@ namespace TrajectoryPlanner
                 var ghostProbeManager = _trajectoryPlannerManager.AddNewProbeTransformed(
                     _probeManager.ProbeType, _probeManager.GetProbeController().Insertion, 0,
                     _probeManager.GetZeroCoordinateOffset(), _probeManager.GetBrainSurfaceOffset(),
-                    _probeManager.IsSetToDropToSurfaceWithDepth());
+                    _probeManager.IsSetToDropToSurfaceWithDepth(), null, true);
     
                 // Configure ghost
                 var originalProbeInsertion = originalProbeManager.GetProbeController().Insertion;
@@ -205,9 +205,9 @@ namespace TrajectoryPlanner
                     originalProbeInsertion.spin, originalProbeInsertion.CoordinateSpace, originalProbeInsertion.CoordinateTransform));
                 
                 // Set references
-                ghostProbeManager.SetOriginalProbeManager(originalProbeManager);
                 originalProbeManager.SetGhostProbeManager(ghostProbeManager);
-                print("Set properties");
+                ghostProbeManager.SetId(originalProbeManager.GetID());
+                ghostProbeManager.name = "GHOST_PROBE_" + originalProbeManager.GetID();
             }
             else
             {
