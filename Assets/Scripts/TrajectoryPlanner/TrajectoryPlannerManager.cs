@@ -678,7 +678,7 @@ namespace TrajectoryPlanner
 
                 if (GetSetting_GhostInactive() && !isActiveProbe && !probeManager.IsTransparent)
                     probeManager.SetMaterialsTransparent();
-                else if (probeManager.IsTransparent)
+                else if (probeManager.IsTransparent && !probeManager.IsGhost())
                     probeManager.SetMaterialsDefault();
             }
 

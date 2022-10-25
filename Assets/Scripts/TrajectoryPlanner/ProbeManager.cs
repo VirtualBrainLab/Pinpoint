@@ -935,7 +935,6 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsTransparent()
     {
-        // TODO: return out if is a ghost
         _isTransparent = true;
         defaultMaterials.Clear();
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
@@ -950,7 +949,6 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
-        // TODO: return out if is a ghost
         _isTransparent = false;
         foreach (Renderer renderer in transform.GetComponentsInChildren<Renderer>())
             if (defaultMaterials.ContainsKey(renderer.gameObject))
