@@ -639,7 +639,7 @@ public class DefaultProbeController : ProbeController
 
             ProbeManager.UpdateUI();
 
-            TPManager.MovedThisFrame = true;
+            TPManager.movedThisFrame = true;
         }
 
     }
@@ -774,7 +774,7 @@ public class DefaultProbeController : ProbeController
         ProbeManager.UpdateSurfacePosition();
 
         // Tell the tpmanager we moved and update the UI elements
-        TPManager.MovedThisFrame = true;
+        TPManager.movedThisFrame = true;
         ProbeManager.UpdateUI();
     }
 

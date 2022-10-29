@@ -93,8 +93,7 @@ namespace TrajectoryPlanner
             brainCamController.SetControlBlock(state);
         }
 
-        private bool _movedThisFrame;
-        public bool MovedThisFrame { get { return _movedThisFrame; } set { _movedThisFrame = value; } }
+        public bool movedThisFrame { get; set; }
         private bool spawnedThisFrame = false;
 
         private int visibleProbePanels;
@@ -200,7 +199,7 @@ namespace TrajectoryPlanner
                 // Check if mouse buttons are down, or if probe is under manual control
                 if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
                 {
-                    _movedThisFrame = localPrefs.GetCollisions() ? activeProbe.MoveProbe(true) : activeProbe.MoveProbe(false);
+                    movedThisFrame = localPrefs.GetCollisions() ? activeProbe.MoveProbe(true) : activeProbe.MoveProbe(false);
                 }
             }
 
@@ -219,9 +218,9 @@ namespace TrajectoryPlanner
 
         private void LateUpdate()
         {
-            if (_movedThisFrame && activeProbe != null)
+            if (movedThisFrame && activeProbe != null)
             {
-                _movedThisFrame = false;
+                movedThisFrame = false;
 
                 inPlaneSlice.UpdateInPlaneSlice();
 
@@ -832,7 +831,7 @@ namespace TrajectoryPlanner
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
 
-            _movedThisFrame = true;
+            movedThisFrame = true;
         }
 
         ///
