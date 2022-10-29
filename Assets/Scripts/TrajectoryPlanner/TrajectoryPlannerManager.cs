@@ -586,12 +586,10 @@ namespace TrajectoryPlanner
         {
             CountProbePanels();
 
-            if (visibleProbePanels > 8)
-            {
-                // Increase the layout to have 8 columns and two rows
-                GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>().constraintCount = 8;
-            }
-            else if (visibleProbePanels > 4)
+            // Set number of columns based on whether we need 8 probes or more
+            GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>().constraintCount = (visibleProbePanels > 8) ? 8 : 4;
+
+            if (visibleProbePanels > 4)
             {
                 // Increase the layout to have two rows, by shrinking all the ProbePanel objects to be 500 pixels tall
                 GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
