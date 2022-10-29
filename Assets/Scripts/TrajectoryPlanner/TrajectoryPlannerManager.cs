@@ -863,6 +863,28 @@ namespace TrajectoryPlanner
         }
 
         #region Player Preferences
+        public void SetSetting_GhostAreas(bool state)
+        {
+            localPrefs.SetGhostInactiveAreas(state);
+
+            if (state)
+            {
+                List<CCFTreeNode> activeAreas = searchControl.activeBrainAreas;
+                foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+                    if (!activeAreas.Contains(node))
+                        node.SetNodeModelVisibility();
+            }
+            else
+            {
+                foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+                    node.SetNodeModelVisibility(true);
+            }
+        }
+
+        public bool GetSetting_GhostAreas()
+        {
+            return localPrefs.GetGhostInactiveAreas();
+        }
 
         public void SetSetting_GhostInactive(bool state)
         {
@@ -1035,18 +1057,6 @@ namespace TrajectoryPlanner
         {
             localPrefs.SetInplane(state);
             inPlaneSlice.UpdateInPlaneVisibility();
-        }
-
-        public void SetSetting_InVivoMeshMorphState(bool state)
-        {
-            if (state)
-            {
-                Debug.LogWarning("not implemented");
-            }
-            else
-            {
-                Debug.LogWarning("not implemented");
-            }
         }
 
         #endregion

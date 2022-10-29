@@ -236,7 +236,6 @@ public class TP_SliceRenderer : MonoBehaviour
         else
         {
             // Standard sagittal/coronal slices
-            localPrefs.SetSlice3D(sliceType);
             sagittalSliceGO.SetActive(true);
             coronalSliceGO.SetActive(true);
 

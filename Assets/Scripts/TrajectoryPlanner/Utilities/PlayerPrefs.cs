@@ -39,6 +39,7 @@ public class PlayerPrefs : MonoBehaviour
     private bool _displayUM;
     private Vector3 _relCoord;
     private bool _ghostInactiveProbes;
+    private bool _ghostInactiveAreas;
 
     [SerializeField] Toggle collisionsToggle;
     [SerializeField] Toggle recordingRegionToggle;
@@ -57,6 +58,7 @@ public class PlayerPrefs : MonoBehaviour
     [SerializeField] Toggle useBerylToggle;
     [SerializeField] Toggle displayUmToggle;
     [SerializeField] Toggle ghostInactiveProbesToggle;
+    [SerializeField] Toggle ghostInactiveAreasToggle;
 
 
     /// <summary>
@@ -118,9 +120,23 @@ public class PlayerPrefs : MonoBehaviour
 
         _ghostInactiveProbes = LoadBoolPref("ghost_inactive", false);
         ghostInactiveProbesToggle.isOn = _ghostInactiveProbes;
+
+        _ghostInactiveAreas = LoadBoolPref("ghost_areas", false);
+        ghostInactiveAreasToggle.isOn = _ghostInactiveAreas;
     }
 
     #region Getters/Setters
+
+    public void SetGhostInactiveAreas(bool ghostInactive)
+    {
+        _ghostInactiveAreas = ghostInactive;
+        UnityEngine.PlayerPrefs.SetInt("ghost_areas", _ghostInactiveAreas ? 1 : 0);
+    }
+
+    public bool GetGhostInactiveAreas()
+    {
+        return _ghostInactiveAreas;
+    }
 
     public void SetGhostInactiveProbes(bool ghostInactive)
     {
