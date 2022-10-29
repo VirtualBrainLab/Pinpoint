@@ -910,6 +910,7 @@ namespace TrajectoryPlanner
         public void SetSetting_UseBeryl(bool state)
         {
             localPrefs.SetUseBeryl(state);
+            modelControl.SetBeryl(state);
 
             foreach (ProbeManager probeController in allProbeManagers)
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
