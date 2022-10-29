@@ -133,11 +133,6 @@ public class TP_SliceRenderer : MonoBehaviour
         {
             // Check if the camera moved such that we have to flip the slice quads
             UpdateCameraPosition();
-
-            if (tpmanager.MovedThisFrame)
-            {
-                UpdateSlicePosition();
-            }
         }
     }
 
@@ -147,7 +142,7 @@ public class TP_SliceRenderer : MonoBehaviour
     /// <summary>
     /// Shift the position of the sagittal and coronal slices to match the tip of the active probe
     /// </summary>
-    private void UpdateSlicePosition()
+    public void UpdateSlicePosition()
     {
         ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
         if (activeProbeManager == null) return;

@@ -233,6 +233,8 @@ namespace TrajectoryPlanner
                 if (!probeQuickSettings.IsFocused())
                     UpdateQuickSettings();
 
+                sliceRenderer.UpdateSlicePosition();
+
                 accountsManager.UpdateProbeData(activeProbe.UUID, Probe2ServerProbeInsertion(activeProbe));
             }
 
