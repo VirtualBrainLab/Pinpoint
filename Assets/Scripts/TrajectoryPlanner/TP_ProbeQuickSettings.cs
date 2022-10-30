@@ -26,7 +26,7 @@ namespace TrajectoryPlanner
         private TrajectoryPlannerManager _trajectoryPlannerManager;
         private TMP_InputField[] _inputFields;
 
-        [SerializeField] private AccountsManager _accountsManager;
+        [SerializeField] private ExperimentManager _experimentManager;
         [SerializeField] private TMP_Dropdown _linkedExperimentDropdown;
 
         private TMP_InputField[] inputFields;
@@ -321,7 +321,7 @@ namespace TrajectoryPlanner
         }
         public void UpdateExperimentList()
         {
-            List<string> experiments = _accountsManager.GetExperiments();
+            List<string> experiments = _experimentManager.GetExperiments();
             _linkedExperimentDropdown.ClearOptions();
 
             List<TMP_Dropdown.OptionData> optList = new List<TMP_Dropdown.OptionData>();
@@ -336,10 +336,10 @@ namespace TrajectoryPlanner
             if (optIdx > 0)
             {
                 string optText = _linkedExperimentDropdown.options[optIdx].text;
-                _accountsManager.ChangeProbeExperiment(_probeManager.UUID, optText);
+                _experimentManager.ChangeProbeExperiment(_probeManager.UUID, optText);
             }
             else
-                _accountsManager.RemoveProbeExperiment(_probeManager.UUID);
+                _experimentManager.RemoveProbeExperiment(_probeManager.UUID);
         }
 
         #endregion

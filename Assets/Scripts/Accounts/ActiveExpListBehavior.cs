@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ActiveExpListBehavior : MonoBehaviour
 {
-    [SerializeField] private AccountsManager _accountsManager;
+    [SerializeField] private ExperimentManager _experimentManager;
 
     private TMP_Dropdown _optionList;
 
@@ -16,7 +16,7 @@ public class ActiveExpListBehavior : MonoBehaviour
 
     public void UpdateList()
     {
-        List<string> experimentList = _accountsManager.GetExperiments();
+        List<string> experimentList = _experimentManager.GetExperiments();
 
         List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
         foreach (string experiment in experimentList)
@@ -27,6 +27,6 @@ public class ActiveExpListBehavior : MonoBehaviour
 
     public void SelectExperiment(int optIdx)
     {
-        _accountsManager.SelectActiveExperiment(_optionList.options[optIdx].text);
+        _experimentManager.SelectActiveExperiment(_optionList.options[optIdx].text);
     }
 }

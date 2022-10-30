@@ -106,6 +106,11 @@ namespace TrajectoryPlanner
         // Track coen probe
         private EightShankProbeControl _coenProbe;
 
+        #region Accounts
+        [SerializeField] ExperimentManager _experimentManager;
+
+        #endregion
+
         #region Ephys Link
 
         private CommunicationManager _communicationManager;
@@ -232,7 +237,7 @@ namespace TrajectoryPlanner
                 if (!probeQuickSettings.IsFocused())
                     UpdateQuickSettings();
 
-                sliceRenderer.UpdateSlicePosition();
+                sliceRenderer.UpdateSlicePosition(activeProbe);
 
                 accountsManager.UpdateProbeData(activeProbe.UUID, Probe2ServerProbeInsertion(activeProbe));
             }
@@ -520,6 +525,10 @@ namespace TrajectoryPlanner
 
             spawnedThisFrame = true;
 
+            // If someone tries to create a probe while the question dialogue is open, pretend they hit No
+            if (qDialogue.gameObject.activeSelf)
+                qDialogue.NoCallback();
+
             return newProbe.GetComponent<ProbeManager>();
         }
         
@@ -704,6 +713,9 @@ namespace TrajectoryPlanner
             
             // Update probe quick settings
             probeQuickSettings.SetProbeManager(newActiveProbeManager);
+
+            // Update account settings
+            accountsManager.UpdateProbeData(activeProbe.UUID, Probe2ServerProbeInsertion(activeProbe));
         }
 
         public void UpdateQuickSettings()

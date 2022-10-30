@@ -23,9 +23,4 @@ public class PlayerDataFacet : Facet
 
         player.Save();
     }
-
-    public string Greeting()
-    {
-        return "Hello world";
-    }
 }

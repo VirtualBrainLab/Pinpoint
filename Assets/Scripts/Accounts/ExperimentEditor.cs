@@ -2,9 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Class that allows experiment editing behaviours
+/// </summary>
 public class ExperimentEditor : MonoBehaviour
 {
     [SerializeField] private AccountsManager _accountsManager;
+    [SerializeField] private ExperimentManager _experimentManager;
 
     [SerializeField] private GameObject experimentEditorGO;
 
@@ -13,12 +17,18 @@ public class ExperimentEditor : MonoBehaviour
 
     private List<string> experimentNames;
 
+    /// <summary>
+    /// Show the editor gameobject
+    /// </summary>
     public void ShowEditor()
     {
-        if (_accountsManager.Connected)
+        if (_accountsManager.connected)
             experimentEditorGO.SetActive(true);
     }
 
+    /// <summary>
+    /// Hide the editor gameobject
+    /// </summary>
     public void HideEditor()
     {
         experimentEditorGO.SetActive(false);
@@ -54,7 +64,7 @@ public class ExperimentEditor : MonoBehaviour
         foreach (Transform t in children)
             Destroy(t.gameObject);
 
-        experimentNames = _accountsManager.GetExperiments();
+        experimentNames = _experimentManager.GetExperiments();
 
         foreach (string experiment in experimentNames)
         {

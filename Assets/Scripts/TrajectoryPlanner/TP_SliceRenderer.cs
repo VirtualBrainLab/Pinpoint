@@ -111,7 +111,7 @@ public class TP_SliceRenderer : MonoBehaviour
     {
         Task<Texture3D> textureTask = inPlaneSlice.GetAnnotationDatasetGPUTexture();
         await textureTask;
-
+        Debug.Log("here");
         saggitalSliceMaterial.SetTexture("_Volume", textureTask.Result);
         coronalSliceMaterial.SetTexture("_Volume", textureTask.Result);
     }
@@ -142,9 +142,8 @@ public class TP_SliceRenderer : MonoBehaviour
     /// <summary>
     /// Shift the position of the sagittal and coronal slices to match the tip of the active probe
     /// </summary>
-    public void UpdateSlicePosition()
+    public void UpdateSlicePosition(ProbeManager activeProbeManager)
     {
-        ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
         if (activeProbeManager == null) return;
 
         // the actual tip
@@ -168,48 +167,38 @@ public class TP_SliceRenderer : MonoBehaviour
     private void UpdateCameraPosition()
     {
         Vector3 camPosition = Camera.main.transform.position;
-        bool changed = false;
         if (camXLeft && camPosition.x < 0)
-        {
             camXLeft = false;
-            changed = true;
-        }
         else if (!camXLeft && camPosition.x > 0)
-        {
             camXLeft = true;
-            changed = true;
-        }
         else if (camYBack && camPosition.z < 0)
-        {
             camYBack = false;
-            changed = true;
-        }
         else if (!camYBack && camPosition.z > 0)
-        {
             camYBack = true;
-            changed = true;
-        }
-        if (changed)
-            UpdateNodeModelSlicing();
     }
 
-        private void UpdateNodeModelSlicing()
+    private void UpdateNodeModelSlicing()
     {
-        // Update the renderers on the node objects
-        foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+        if (localPrefs.GetSlice3D() > 0)
         {
-            if (camYBack)
-                // clip from apPosition forward
-                node.SetShaderProperty("_APClip", new Vector2(0f, apWorldmm));
-            else
-                node.SetShaderProperty("_APClip", new Vector2(apWorldmm, 13.2f));
+            // Update the renderers on the node objects
+            foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+            {
+                if (camYBack)
+                    // clip from apPosition forward
+                    node.SetShaderProperty("_APClip", new Vector2(0f, apWorldmm));
+                else
+                    node.SetShaderProperty("_APClip", new Vector2(apWorldmm, 13.2f));
 
-            if (camXLeft)
-                // clip from mlPosition forward
-                node.SetShaderProperty("_MLClip", new Vector2(mlWorldmm, 11.4f));
-            else
-                node.SetShaderProperty("_MLClip", new Vector2(0f, mlWorldmm));
+                if (camXLeft)
+                    // clip from mlPosition forward
+                    node.SetShaderProperty("_MLClip", new Vector2(mlWorldmm, 11.4f));
+                else
+                    node.SetShaderProperty("_MLClip", new Vector2(0f, mlWorldmm));
+            }
         }
+        else
+            ClearNodeModelSlicing();
     }
 
     private void ClearNodeModelSlicing()
@@ -244,7 +233,6 @@ public class TP_SliceRenderer : MonoBehaviour
             //else if (sliceType == 2)
             //    SetActiveTextureIBLCoverage();
 
-            UpdateSlicePosition();
             UpdateCameraPosition();
         }
     }
