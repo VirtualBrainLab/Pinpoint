@@ -75,8 +75,8 @@ public class PlayerPrefs : MonoBehaviour
         _useAcronyms = LoadBoolPref("acronyms", true);
         acronymToggle.isOn = _useAcronyms;
 
-        _depthFromBrain = LoadBoolPref("depth", true);
-        depthToggle.isOn = _depthFromBrain;
+        //_depthFromBrain = LoadBoolPref("depth", true);
+        //depthToggle.isOn = _depthFromBrain;
 
         convertAPML2probeAxis = LoadBoolPref("probeaxis", false);
         probeAxisToggle.isOn = convertAPML2probeAxis;
