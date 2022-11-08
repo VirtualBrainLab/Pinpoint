@@ -132,7 +132,7 @@ namespace Settings
 
             // Select the option corresponding to the current manipulator id
             var indexOfId = _probeManager.IsConnectedToManipulator()
-                ? Math.Max(0, idOptions.IndexOf(_probeManager.GetManipulatorId().ToString()))
+                ? Math.Max(0, idOptions.IndexOf(_probeManager.GetManipulatorId()))
                 : 0;
             manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
         }

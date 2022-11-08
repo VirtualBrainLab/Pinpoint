@@ -537,7 +537,7 @@ namespace TrajectoryPlanner
                 probeManager.SetZeroCoordinateOffset(zeroCoordinateOffset);
                 probeManager.SetBrainSurfaceOffset(brainSurfaceOffset);
                 probeManager.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (!manipulatorId.Equals("0")) probeManager.SetEphysLinkMovement(true, manipulatorId);
+                if (!string.IsNullOrEmpty(manipulatorId)) probeManager.SetEphysLinkMovement(true, manipulatorId);
             }
 
             probeManager.GetProbeController().SetProbePosition(insertion);
@@ -550,11 +550,11 @@ namespace TrajectoryPlanner
             return probeManager;
         }
 
-        public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, string manipulatorId = "0",
+        public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, string manipulatorId,
             Vector4 zeroCoordinateOffset = new Vector4(), float brainSurfaceOffset = 0)
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            if (manipulatorId.Equals("0"))
+            if (string.IsNullOrEmpty(manipulatorId))
             {
                 Debug.LogError("TODO IMPLEMENT");
                 //StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(

@@ -521,14 +521,14 @@ public class ProbeManager : MonoBehaviour
     /// <param name="calibrated">Is the manipulator in real life calibrated</param>
     /// <param name="onSuccess">Callback function to handle a successful registration</param>
     /// <param name="onError">Callback function to handle a failed registration</param>
-    public void SetEphysLinkMovement(bool register, string manipulatorId = "0", bool calibrated = true,
+    public void SetEphysLinkMovement(bool register, string manipulatorId = null, bool calibrated = true,
         Action onSuccess = null, Action<string> onError = null)
     {
         // Exit early if this was an invalid call
         switch (register)
         {
             case true when IsConnectedToManipulator():
-            case true when manipulatorId.Equals("0"):
+            case true when string.IsNullOrEmpty(manipulatorId):
                 return;
         }
 
@@ -633,7 +633,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void ResetManipulatorProperties()
     {
-        _manipulatorId = "0";
+        _manipulatorId = null; 
         _zeroCoordinateOffset = Vector4.negativeInfinity;
         _brainSurfaceOffset = 0;
     }
@@ -644,7 +644,7 @@ public class ProbeManager : MonoBehaviour
     /// <returns>True if this probe is attached to a manipulator, false otherwise</returns>
     public bool IsConnectedToManipulator()
     {
-        return !_manipulatorId.Equals("0");
+        return !string.IsNullOrEmpty(_manipulatorId);
     }
 
     /// <summary>

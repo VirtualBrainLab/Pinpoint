@@ -175,8 +175,8 @@ namespace Settings
                 {
                     var manipulatorDropdownOptions = new List<string> { "-" };
                     manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
-                        id == probeConnectionSettingsPanel.GetProbeManager().GetManipulatorId() ||
-                        !usedManipulatorIds.Contains(id)).Select(id => id.ToString()));
+                        id.Equals(probeConnectionSettingsPanel.GetProbeManager().GetManipulatorId()) ||
+                        !usedManipulatorIds.Contains(id)));
 
                     probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
                 }

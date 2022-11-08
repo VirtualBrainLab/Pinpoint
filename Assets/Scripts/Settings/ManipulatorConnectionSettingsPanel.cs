@@ -27,7 +27,7 @@ namespace Settings
         public void SetManipulatorId(string manipulatorId)
         {
             _manipulatorId = manipulatorId;
-            manipulatorIdText.text = manipulatorId.ToString();
+            manipulatorIdText.text = manipulatorId;
             handednessDropdown.value = _trajectoryPlannerManager.IsManipulatorRightHanded(manipulatorId) ? 1 : 0;
         }
 
