@@ -72,7 +72,8 @@ namespace Settings
         private void FixedUpdate()
         {
             // Update probe panels whenever they change
-            if (_trajectoryPlannerManager.GetAllProbes().Count != _probeIdToProbeConnectionSettingsPanels.Count)
+            if (_trajectoryPlannerManager.GetAllProbes().Count(manager => !manager.IsGhost()) !=
+                _probeIdToProbeConnectionSettingsPanels.Count)
                 UpdateProbePanels();
         }
 
@@ -115,11 +116,10 @@ namespace Settings
 
         private void UpdateProbePanels()
         {
-            Debug.Log("Update probe panels");
             var handledProbeIds = new HashSet<int>();
 
             // Add any new probes in scene to list
-            foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes())
+            foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes().Where(manager => !manager.IsGhost()))
             {
                 var probeId = probeManager.GetID();
 
@@ -164,10 +164,8 @@ namespace Settings
         /// </summary>
         public void UpdateManipulatorPanelAndSelection()
         {
-            Debug.Log("Called to update manipulator selection");
             _communicationManager.GetManipulators(availableIds =>
             {
-                Debug.Log("Updating manipulator options: " + availableIds);
                 // Update probes with selectable options
                 var usedManipulatorIds = _trajectoryPlannerManager.GetAllProbes()
                     .Where(probeManager => probeManager.IsConnectedToManipulator())

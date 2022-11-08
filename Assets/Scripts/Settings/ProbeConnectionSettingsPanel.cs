@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
+using TrajectoryPlanner;
 using UnityEngine;
 
 namespace Settings
@@ -12,6 +13,11 @@ namespace Settings
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
         #region Unity
+
+        private void Awake()
+        {
+            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+        }
 
         /// <summary>
         ///     Update values as they change.
@@ -33,6 +39,10 @@ namespace Settings
             if (_probeManager.IsSetToDropToSurfaceWithDepth() != (brainSurfaceOffsetDirectionDropdown.value == 0))
                 brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(
                     _probeManager.IsSetToDropToSurfaceWithDepth() ? 0 : 1);
+            
+            // Enable/disable interactivity of brain surface offset axis
+            if (_probeManager.CanChangeBrainSurfaceOffsetAxis() != brainSurfaceOffsetDirectionDropdown.interactable)
+                brainSurfaceOffsetDirectionDropdown.interactable = _probeManager.CanChangeBrainSurfaceOffsetAxis();
 
             // Update display for brain surface offset
             if (!(Math.Abs(_probeManager.GetBrainSurfaceOffset() - _displayedBrainSurfaceOffset) > 0.001f)) return;
@@ -62,6 +72,7 @@ namespace Settings
 
         private ProbeManager _probeManager;
         private EphysLinkSettings _ephysLinkSettings;
+        private TrajectoryPlannerManager _trajectoryPlannerManager;
 
         #endregion
 
@@ -138,7 +149,14 @@ namespace Settings
                     if (index != 0)
                         AttachToManipulatorAndUpdateUI();
                     else
+                    {
                         _ephysLinkSettings.UpdateManipulatorPanelAndSelection();
+                        
+                        // Cleanup ghost prove stuff if applicable
+                        if (!_probeManager.HasGhost()) return;
+                        _trajectoryPlannerManager.DestroyProbe(_probeManager.GetGhostProbeManager());
+                        _probeManager.SetGhostProbeManager(null);
+                    }
                 });
             else
                 AttachToManipulatorAndUpdateUI();
