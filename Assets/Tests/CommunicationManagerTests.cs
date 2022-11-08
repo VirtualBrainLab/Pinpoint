@@ -12,7 +12,7 @@ namespace Tests
         #region Variables
 
         private CommunicationManager _communicationManager;
-        private int[] _manipulators;
+        private string[] _manipulators;
 
         private enum State
         {
@@ -133,8 +133,8 @@ namespace Tests
 
                 _communicationManager.RegisterManipulator(id, () => _communicationManager.SetCanWrite(id, true, 1, _ =>
                         _communicationManager.Calibrate(id, () =>
-                            _communicationManager.GotoPos(id, new Vector4(0, 0, 0, 0), 5000,
-                                _ => _communicationManager.GotoPos(id, new Vector4(10000, 10000, 10000, 10000), 5000,
+                            _communicationManager.GotoPos((string)id, new Vector4(0, 0, 0, 0), 5000,
+                                _ => _communicationManager.GotoPos((string)id, new Vector4(10000, 10000, 10000, 10000), 5000,
                                     _ => state = State.Success, _ => state = State.Failed5),
                                 _ => state = State.Failed4), _ => state = State.Failed3),
                     _ => state = State.Failed2), _ => state = State.Failed);
@@ -204,7 +204,7 @@ namespace Tests
                 _communicationManager.RegisterManipulator(id, () => _communicationManager.SetCanWrite(id, true, 1, _ =>
                     _communicationManager.BypassCalibration(id, () =>
                     {
-                        _communicationManager.GotoPos(id, Vector4.zero, 5000, _ => state = State.Failed4,
+                        _communicationManager.GotoPos((string)id, Vector4.zero, 5000, _ => state = State.Failed4,
                             _ => state = State.Failed4);
                         _communicationManager.Stop(_ => state = State.Success);
                     }, _ => state = State.Failed3), _ => state = State.Failed2), _ => state = State.Failed);

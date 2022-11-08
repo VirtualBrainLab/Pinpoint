@@ -46,7 +46,7 @@ namespace Settings
 
         // private readonly Dictionary<int, Tuple<ManipulatorConnectionSettingsPanel, GameObject>>
         //     _manipulatorIdToManipulatorConnectionSettingsPanel = new();
-        private readonly Dictionary<int, (ManipulatorConnectionSettingsPanel manipulatorConnectionSettingsPanel,
+        private readonly Dictionary<string, (ManipulatorConnectionSettingsPanel manipulatorConnectionSettingsPanel,
                 GameObject gameObject)>
             _manipulatorIdToManipulatorConnectionSettingsPanel = new();
 
@@ -182,7 +182,7 @@ namespace Settings
                 }
 
                 // Handle manipulator panels
-                var handledManipulatorIds = new HashSet<int>();
+                var handledManipulatorIds = new HashSet<string>();
 
                 // Add any new manipulators in scene to list
                 foreach (var manipulatorId in availableIds)

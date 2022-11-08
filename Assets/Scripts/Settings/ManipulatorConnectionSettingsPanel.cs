@@ -24,7 +24,7 @@ namespace Settings
         ///     Set the manipulator ID this panel is representing.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator this panel is representing</param>
-        public void SetManipulatorId(int manipulatorId)
+        public void SetManipulatorId(string manipulatorId)
         {
             _manipulatorId = manipulatorId;
             manipulatorIdText.text = manipulatorId.ToString();
@@ -62,7 +62,7 @@ namespace Settings
 
         #region Properties
 
-        private int _manipulatorId;
+        private string _manipulatorId;
 
         #endregion
 

@@ -109,7 +109,7 @@ namespace TrajectoryPlanner
         #region Ephys Link
 
         private CommunicationManager _communicationManager;
-        private HashSet<int> _rightHandedManipulatorIds = new();
+        private HashSet<string> _rightHandedManipulatorIds = new();
 
         #endregion
 
@@ -367,18 +367,18 @@ namespace TrajectoryPlanner
             return vdmanager.GetAnnotationDataset();
         }
 
-        public bool IsManipulatorRightHanded(int manipulatorId)
+        public bool IsManipulatorRightHanded(string manipulatorId)
         {
             return _rightHandedManipulatorIds.Contains(manipulatorId);
         }
         
-        public void AddRightHandedManipulator(int manipulatorId)
+        public void AddRightHandedManipulator(string manipulatorId)
         {
             _rightHandedManipulatorIds.Add(manipulatorId);
             PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
         }
         
-        public void RemoveRightHandedManipulator(int manipulatorId)
+        public void RemoveRightHandedManipulator(string manipulatorId)
         {
             if (!IsManipulatorRightHanded(manipulatorId)) return;
             _rightHandedManipulatorIds.Remove(manipulatorId);
@@ -412,7 +412,7 @@ namespace TrajectoryPlanner
         // Or maybe the probe coordinates should be an object that can be serialized?
         private ProbeInsertion _prevInsertion;
         private int _prevProbeType;
-        private int _prevManipulatorId;
+        private string _prevManipulatorId;
         private Vector4 _prevZeroCoordinateOffset;
         private float _prevBrainSurfaceOffset;
         private bool _restoredProbe = true; // Can't restore anything at start
@@ -524,7 +524,7 @@ namespace TrajectoryPlanner
         }
         
         public ProbeManager AddNewProbeTransformed(int probeType, ProbeInsertion insertion,
-            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+            string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
             string uuid = null, bool isGhost = false)
         {
             ProbeManager probeManager = AddNewProbe(probeType);
@@ -537,7 +537,7 @@ namespace TrajectoryPlanner
                 probeManager.SetZeroCoordinateOffset(zeroCoordinateOffset);
                 probeManager.SetBrainSurfaceOffset(brainSurfaceOffset);
                 probeManager.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (manipulatorId != 0) probeManager.SetEphysLinkMovement(true, manipulatorId);
+                if (!manipulatorId.Equals("0")) probeManager.SetEphysLinkMovement(true, manipulatorId);
             }
 
             probeManager.GetProbeController().SetProbePosition(insertion);
@@ -550,11 +550,11 @@ namespace TrajectoryPlanner
             return probeManager;
         }
 
-        public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, int manipulatorId = 0,
+        public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, string manipulatorId = "0",
             Vector4 zeroCoordinateOffset = new Vector4(), float brainSurfaceOffset = 0)
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            if (manipulatorId == 0)
+            if (manipulatorId.Equals("0"))
             {
                 Debug.LogError("TODO IMPLEMENT");
                 //StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(
@@ -1144,7 +1144,7 @@ namespace TrajectoryPlanner
             var nonGhostProbeManagers = allProbeManagers.Where(manager => !manager.IsGhost()).ToList();
             var probeCoordinates =
                 new (Vector3 apmldv, Vector3 angles, 
-                int type, int manipulatorId,
+                int type, string manipulatorId,
                 string coordinateSpace, string coordinateTransform,
                 Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
                 string uuid)[nonGhostProbeManagers.Count];
