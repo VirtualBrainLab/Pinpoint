@@ -132,7 +132,7 @@ namespace Settings
 
             // Select the option corresponding to the current manipulator id
             var indexOfId = _probeManager.IsConnectedToManipulator()
-                ? Math.Max(0, idOptions.IndexOf(_probeManager.GetManipulatorId().ToString()))
+                ? Math.Max(0, idOptions.IndexOf(_probeManager.GetManipulatorId()))
                 : 0;
             manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
         }
@@ -144,7 +144,7 @@ namespace Settings
         public void OnManipulatorDropdownValueChanged(int index)
         {
             if (_probeManager.IsConnectedToManipulator())
-                _probeManager.SetEphysLinkMovement(false, 0, false, () =>
+                _probeManager.SetEphysLinkMovement(false, "", false, () =>
                 {
                     if (index != 0)
                         AttachToManipulatorAndUpdateUI();
@@ -164,7 +164,7 @@ namespace Settings
             void AttachToManipulatorAndUpdateUI()
             {
                 _probeManager.SetEphysLinkMovement(true,
-                    int.Parse(manipulatorIdDropdown.options[index].text),
+                    manipulatorIdDropdown.options[index].text,
                     onSuccess: () => { _ephysLinkSettings.UpdateManipulatorPanelAndSelection(); });
             }
         }

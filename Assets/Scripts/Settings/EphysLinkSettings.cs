@@ -46,7 +46,7 @@ namespace Settings
 
         // private readonly Dictionary<int, Tuple<ManipulatorConnectionSettingsPanel, GameObject>>
         //     _manipulatorIdToManipulatorConnectionSettingsPanel = new();
-        private readonly Dictionary<int, (ManipulatorConnectionSettingsPanel manipulatorConnectionSettingsPanel,
+        private readonly Dictionary<string, (ManipulatorConnectionSettingsPanel manipulatorConnectionSettingsPanel,
                 GameObject gameObject)>
             _manipulatorIdToManipulatorConnectionSettingsPanel = new();
 
@@ -175,14 +175,14 @@ namespace Settings
                 {
                     var manipulatorDropdownOptions = new List<string> { "-" };
                     manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
-                        id == probeConnectionSettingsPanel.GetProbeManager().GetManipulatorId() ||
-                        !usedManipulatorIds.Contains(id)).Select(id => id.ToString()));
+                        id.Equals(probeConnectionSettingsPanel.GetProbeManager().GetManipulatorId()) ||
+                        !usedManipulatorIds.Contains(id)));
 
                     probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
                 }
 
                 // Handle manipulator panels
-                var handledManipulatorIds = new HashSet<int>();
+                var handledManipulatorIds = new HashSet<string>();
 
                 // Add any new manipulators in scene to list
                 foreach (var manipulatorId in availableIds)
