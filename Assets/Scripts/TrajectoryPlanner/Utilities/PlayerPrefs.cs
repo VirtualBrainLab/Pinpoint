@@ -99,7 +99,7 @@ public class PlayerPrefs : MonoBehaviour
         _ephysLinkServerIp = LoadStringPref("ephys_link_ip", "localhost");
         ephysLinkServerIpInput.text = _ephysLinkServerIp;
 
-        _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8080);
+        _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
         ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
 
         _axisControl = LoadBoolPref("axis_control", true);
