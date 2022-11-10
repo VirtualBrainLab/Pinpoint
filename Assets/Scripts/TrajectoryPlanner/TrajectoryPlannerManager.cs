@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -94,8 +93,7 @@ namespace TrajectoryPlanner
             brainCamController.SetControlBlock(state);
         }
 
-        private bool _movedThisFrame;
-        public bool MovedThisFrame { get { return _movedThisFrame; } set { _movedThisFrame = value; } }
+        public bool movedThisFrame { get; set; }
         private bool spawnedThisFrame = false;
 
         private int visibleProbePanels;
@@ -111,7 +109,7 @@ namespace TrajectoryPlanner
         #region Ephys Link
 
         private CommunicationManager _communicationManager;
-        private HashSet<int> _rightHandedManipulatorIds = new();
+        private HashSet<string> _rightHandedManipulatorIds = new();
 
         #endregion
 
@@ -194,14 +192,14 @@ namespace TrajectoryPlanner
                 if (Input.GetKeyDown(KeyCode.Backspace) && !CanvasParent.GetComponentsInChildren<TMP_InputField>()
                         .Any(inputField => inputField.isFocused))
                 {
-                    DestroyActiveProbeController();
+                    DestroyActiveProbeManager();
                     return;
                 }
 
                 // Check if mouse buttons are down, or if probe is under manual control
                 if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
                 {
-                    _movedThisFrame = localPrefs.GetCollisions() ? activeProbe.MoveProbe(true) : activeProbe.MoveProbe(false);
+                    movedThisFrame = localPrefs.GetCollisions() ? activeProbe.MoveProbe(true) : activeProbe.MoveProbe(false);
                 }
             }
 
@@ -220,9 +218,9 @@ namespace TrajectoryPlanner
 
         private void LateUpdate()
         {
-            if (_movedThisFrame && activeProbe != null)
+            if (movedThisFrame && activeProbe != null)
             {
-                _movedThisFrame = false;
+                movedThisFrame = false;
 
                 inPlaneSlice.UpdateInPlaneSlice();
 
@@ -233,6 +231,8 @@ namespace TrajectoryPlanner
 
                 if (!probeQuickSettings.IsFocused())
                     UpdateQuickSettings();
+
+                sliceRenderer.UpdateSlicePosition();
 
                 accountsManager.UpdateProbeData(activeProbe.UUID, Probe2ServerProbeInsertion(activeProbe));
             }
@@ -367,18 +367,18 @@ namespace TrajectoryPlanner
             return vdmanager.GetAnnotationDataset();
         }
 
-        public bool IsManipulatorRightHanded(int manipulatorId)
+        public bool IsManipulatorRightHanded(string manipulatorId)
         {
             return _rightHandedManipulatorIds.Contains(manipulatorId);
         }
         
-        public void AddRightHandedManipulator(int manipulatorId)
+        public void AddRightHandedManipulator(string manipulatorId)
         {
             _rightHandedManipulatorIds.Add(manipulatorId);
             PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
         }
         
-        public void RemoveRightHandedManipulator(int manipulatorId)
+        public void RemoveRightHandedManipulator(string manipulatorId)
         {
             if (!IsManipulatorRightHanded(manipulatorId)) return;
             _rightHandedManipulatorIds.Remove(manipulatorId);
@@ -412,37 +412,57 @@ namespace TrajectoryPlanner
         // Or maybe the probe coordinates should be an object that can be serialized?
         private ProbeInsertion _prevInsertion;
         private int _prevProbeType;
-        private int _prevManipulatorId;
+        private string _prevManipulatorId;
         private Vector4 _prevZeroCoordinateOffset;
         private float _prevBrainSurfaceOffset;
+        private bool _restoredProbe = true; // Can't restore anything at start
 
-        private void DestroyActiveProbeController()
+        public void DestroyProbe(ProbeManager probeManager)
         {
-            _prevProbeType = activeProbe.ProbeType;
-            _prevInsertion = activeProbe.GetProbeController().Insertion;
-            _prevManipulatorId = activeProbe.GetManipulatorId();
-            _prevZeroCoordinateOffset = activeProbe.GetZeroCoordinateOffset();
-            _prevBrainSurfaceOffset = activeProbe.GetBrainSurfaceOffset();
-
+            var isGhost = probeManager.IsGhost();
+            var isActiveProbe = activeProbe == probeManager;
+            
             Debug.Log("Destroying probe type " + _prevProbeType + " with coordinates");
 
-            Color returnColor = activeProbe.GetColor();
+            if (!isGhost)
+            {
+                _prevProbeType = probeManager.ProbeType;
+                _prevInsertion = probeManager.GetProbeController().Insertion;
+                _prevManipulatorId = probeManager.GetManipulatorId();
+                _prevZeroCoordinateOffset = probeManager.GetZeroCoordinateOffset();
+                _prevBrainSurfaceOffset = probeManager.GetBrainSurfaceOffset();
+            }
 
-            // Unregister manipulator probe is attached to
-            // if (_prevManipulatorId != 0) _communicationManager.UnregisterManipulator(_prevManipulatorId);
+            // Cannot restore a ghost probe, so we set restored to true
+            _restoredProbe = isGhost;
 
-            activeProbe.Destroy();
-            Destroy(activeProbe.gameObject);
-            allProbeManagers.Remove(activeProbe);
+            // Return color if not a ghost probe
+            if (probeManager.GetOriginalProbeManager() == null) ReturnProbeColor(probeManager.GetColor());
 
+            // Destroy probe
+            probeManager.Destroy();
+            Destroy(probeManager.gameObject);
+            allProbeManagers.Remove(probeManager);
+
+            // Cleanup UI if this was last probe in scene
             if (allProbeManagers.Count > 0)
             {
-                SetActiveProbe(allProbeManagers[^1]);
-                activeProbe.CheckCollisions(GetAllNonActiveColliders());
+                if (isActiveProbe)
+                {
+                    SetActiveProbe(allProbeManagers[^1]);
+                }
+
+                if (isGhost)
+                {
+                    UpdateQuickSettings();
+                }
+                
+                probeManager.CheckCollisions(GetAllNonActiveColliders());
             }
             else
             {
-                activeProbe = null;
+                // Invalidate activeProbe
+                if (probeManager == activeProbe) activeProbe = null;
                 probeQuickSettings.UpdateInteractable(true);
                 probeQuickSettings.SetProbeManager(null);
                 SetSurfaceDebugActive(false);
@@ -451,13 +471,28 @@ namespace TrajectoryPlanner
 
             // update colliders
             UpdateProbeColliders();
+        }
 
-            ReturnProbeColor(returnColor);
+        private void DestroyActiveProbeManager()
+        {
+            // Extra steps for destroying the active probe if it's a ghost probe
+            if (activeProbe.IsGhost())
+            {
+                // Remove ghost probe ref from original probe
+                activeProbe.GetOriginalProbeManager().SetGhostProbeManager(null);
+                // Disable control UI
+                probeQuickSettings.EnableAutomaticControlUI(false);
+            }
+
+            // Remove Probe
+            DestroyProbe(activeProbe);
         }
 
         private void RecoverActiveProbeController()
         {
+            if (_restoredProbe) return;
             AddNewProbe(_prevProbeType, _prevInsertion, _prevManipulatorId, _prevZeroCoordinateOffset, _prevBrainSurfaceOffset);
+            _restoredProbe = true;
         }
 
         #region Add Probe Functions
@@ -489,8 +524,8 @@ namespace TrajectoryPlanner
         }
         
         public ProbeManager AddNewProbeTransformed(int probeType, ProbeInsertion insertion,
-            int manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-            string uuid = null)
+            string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+            string uuid = null, bool isGhost = false)
         {
             ProbeManager probeManager = AddNewProbe(probeType);
 
@@ -502,21 +537,24 @@ namespace TrajectoryPlanner
                 probeManager.SetZeroCoordinateOffset(zeroCoordinateOffset);
                 probeManager.SetBrainSurfaceOffset(brainSurfaceOffset);
                 probeManager.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (manipulatorId != 0) probeManager.SetEphysLinkMovement(true, manipulatorId);
+                if (!string.IsNullOrEmpty(manipulatorId)) probeManager.SetEphysLinkMovement(true, manipulatorId);
             }
 
             probeManager.GetProbeController().SetProbePosition(insertion);
+            
+            // Set original probe manager early on
+            if (isGhost) probeManager.SetOriginalProbeManager(GetActiveProbeManager());
 
             spawnedThisFrame = true;
 
             return probeManager;
         }
 
-        public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, int manipulatorId = 0,
+        public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, string manipulatorId,
             Vector4 zeroCoordinateOffset = new Vector4(), float brainSurfaceOffset = 0)
         {
             ProbeManager probeController = AddNewProbe(probeType);
-            if (manipulatorId == 0)
+            if (string.IsNullOrEmpty(manipulatorId))
             {
                 Debug.LogError("TODO IMPLEMENT");
                 //StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(
@@ -549,12 +587,10 @@ namespace TrajectoryPlanner
         {
             CountProbePanels();
 
-            if (visibleProbePanels > 8)
-            {
-                // Increase the layout to have 8 columns and two rows
-                GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>().constraintCount = 8;
-            }
-            else if (visibleProbePanels > 4)
+            // Set number of columns based on whether we need 8 probes or more
+            GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>().constraintCount = (visibleProbePanels > 8) ? 8 : 4;
+
+            if (visibleProbePanels > 4)
             {
                 // Increase the layout to have two rows, by shrinking all the ProbePanel objects to be 500 pixels tall
                 GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
@@ -587,29 +623,25 @@ namespace TrajectoryPlanner
             ReOrderProbePanels();
         }
 
-        public void RegisterProbe(ProbeManager probeController)
+        public void RegisterProbe(ProbeManager probeManager)
         {
-            Debug.Log("Registering probe: " + probeController.gameObject.name);
-            allProbeManagers.Add(probeController);
+            Debug.Log("Registering probe: " + probeManager.gameObject.name);
+            allProbeManagers.Add(probeManager);
             
-            // Calculate an unused probe ID
-            HashSet<int> usedIds = new();
-            foreach (var probeId in allProbeManagers.Select(manager => manager.GetID() ))
-            {
-                usedIds.Add(probeId);
-            }
-
-            var thisProbeId = 1;
-            while (usedIds.Contains(thisProbeId))
-            {
-                thisProbeId++;
-            }
-            
-            probeController.RegisterProbeCallback(thisProbeId, NextProbeColor());
+            // Update collider records
             UpdateProbeColliders();
         }
 
-        private Color NextProbeColor()
+        public int GetNextProbeId()
+        {
+            var thisProbeId = 1;
+            HashSet<int> usedIds = new();
+            foreach (var probeId in allProbeManagers.Select(manager => manager.GetID())) usedIds.Add(probeId);
+            while (usedIds.Contains(thisProbeId)) thisProbeId++;
+            return thisProbeId;
+        }
+
+        public Color GetNextProbeColor()
         {
             Color next = probeColors[0];
             probeColors.RemoveAt(0);
@@ -640,20 +672,23 @@ namespace TrajectoryPlanner
             foreach (ProbeManager probeManager in allProbeManagers)
             {
                 // Check visibility
-                bool isActiveProbe = probeManager == activeProbe;
-                if (GetSetting_ShowAllProbePanels())
-                    probeManager.SetUIVisibility(true);
-                else
-                    probeManager.SetUIVisibility(isActiveProbe);
+                var isActiveProbe = probeManager == activeProbe;
+                probeManager.SetUIVisibility(GetSetting_ShowAllProbePanels() || isActiveProbe);
 
                 // Set active state for UI managers
                 foreach (ProbeUIManager puimanager in probeManager.GetProbeUIManagers())
                     puimanager.ProbeSelected(isActiveProbe);
 
-                if (GetSetting_GhostInactive() && !isActiveProbe && !probeManager.IsTransparent)
-                    probeManager.SetMaterialsTransparent();
-                else if (probeManager.IsTransparent)
+                // Update transparency for probe (if not ghost)
+                if (probeManager.IsGhost()) continue;
+                if (isActiveProbe)
+                {
                     probeManager.SetMaterialsDefault();
+                    continue;
+                }
+
+                if (GetSetting_GhostInactive()) probeManager.SetMaterialsTransparent();
+
             }
 
             // Change the height of the probe panels, if needed
@@ -675,6 +710,11 @@ namespace TrajectoryPlanner
         {
             probeQuickSettings.UpdateInteractable();
             probeQuickSettings.UpdateCoordinates();
+        }
+
+        public void UpdateQuickSettingsProbeIdText()
+        {
+            probeQuickSettings.UpdateProbeIdText();
         }
 
         public void ResetActiveProbe()
@@ -791,7 +831,7 @@ namespace TrajectoryPlanner
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
 
-            _movedThisFrame = true;
+            movedThisFrame = true;
         }
 
         ///
@@ -823,16 +863,41 @@ namespace TrajectoryPlanner
         }
 
         #region Player Preferences
+        public void SetSetting_GhostAreas(bool state)
+        {
+            localPrefs.SetGhostInactiveAreas(state);
+
+            if (state)
+            {
+                List<CCFTreeNode> activeAreas = searchControl.activeBrainAreas;
+                foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+                    if (!activeAreas.Contains(node))
+                        node.SetNodeModelVisibility();
+            }
+            else
+            {
+                foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+                    node.SetNodeModelVisibility(true);
+            }
+        }
+
+        public bool GetSetting_GhostAreas()
+        {
+            return localPrefs.GetGhostInactiveAreas();
+        }
 
         public void SetSetting_GhostInactive(bool state)
         {
             localPrefs.SetGhostInactiveProbes(state);
             foreach (ProbeManager probeManager in allProbeManagers)
             {
-                if (state && activeProbe != probeManager && !probeManager.IsTransparent)
-                    probeManager.SetMaterialsTransparent();
-                else if (probeManager.IsTransparent)
+                if (probeManager == activeProbe)
+                {
                     probeManager.SetMaterialsDefault();
+                    continue;
+                }
+
+                if (state) probeManager.SetMaterialsTransparent();
             }
         }
 
@@ -868,6 +933,7 @@ namespace TrajectoryPlanner
         public void SetSetting_UseBeryl(bool state)
         {
             localPrefs.SetUseBeryl(state);
+            modelControl.SetBeryl(state);
 
             foreach (ProbeManager probeController in allProbeManagers)
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
@@ -993,18 +1059,6 @@ namespace TrajectoryPlanner
             inPlaneSlice.UpdateInPlaneVisibility();
         }
 
-        public void SetSetting_InVivoMeshMorphState(bool state)
-        {
-            if (state)
-            {
-                Debug.LogWarning("not implemented");
-            }
-            else
-            {
-                Debug.LogWarning("not implemented");
-            }
-        }
-
         #endregion
 
         #region Setting Helper Functions
@@ -1087,16 +1141,17 @@ namespace TrajectoryPlanner
 
         private void OnApplicationQuit()
         {
+            var nonGhostProbeManagers = allProbeManagers.Where(manager => !manager.IsGhost()).ToList();
             var probeCoordinates =
                 new (Vector3 apmldv, Vector3 angles, 
-                int type, int manipulatorId,
+                int type, string manipulatorId,
                 string coordinateSpace, string coordinateTransform,
                 Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-                string uuid)[allProbeManagers.Count];
+                string uuid)[nonGhostProbeManagers.Count];
 
-            for (int i =0; i< allProbeManagers.Count; i++)
+            for (int i =0; i< nonGhostProbeManagers.Count; i++)
             {
-                ProbeManager probe = allProbeManagers[i];
+                ProbeManager probe = nonGhostProbeManagers[i];
                 ProbeInsertion probeInsertion = probe.GetProbeController().Insertion;
                 probeCoordinates[i] = (probeInsertion.apmldv, 
                     probeInsertion.angles,

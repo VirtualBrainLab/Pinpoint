@@ -1,6 +1,6 @@
 using TMPro;
-using UnityEngine;
 using TrajectoryPlanner;
+using UnityEngine;
 
 public class TP_CoordinateEntryPanel : MonoBehaviour
 {
@@ -137,6 +137,8 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
                 angles = Utils.IBL2World(angles);
 
             _linkedProbe.GetProbeController().SetProbeAngles(angles);
+            if (_linkedProbe.HasGhost())
+                _linkedProbe.GetGhostProbeManager().GetProbeController().SetProbeAngles(angles);
         }
         catch
         {

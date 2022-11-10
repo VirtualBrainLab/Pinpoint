@@ -22,10 +22,12 @@ public abstract class ProbeController : MonoBehaviour
 
     public abstract Transform ProbeTipT { get; }
 
-    public abstract (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorld();
+    public abstract (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorldU();
 
     public abstract (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld();
     public abstract (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld(Transform tipTransform);
+
+    public abstract float GetProbeDepth();
 
     public abstract void ResetInsertion();
 

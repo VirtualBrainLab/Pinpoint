@@ -52,6 +52,11 @@ public class PlaceholderProbeController : ProbeController
 
     #region Set Probe pos/angles
 
+    public override float GetProbeDepth()
+    {
+        throw new NotImplementedException();
+    }
+
     /// <summary>
     /// Set the probe position to the current apml/depth/phi/theta/spin values
     /// </summary>
@@ -104,7 +109,7 @@ public class PlaceholderProbeController : ProbeController
     /// Return the tip coordinates in **un-transformed** world coordinates
     /// </summary>
     /// <returns></returns>
-    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorld()
+    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorldU()
     {
         // not implemented
         return (Vector3.zero, Vector3.zero, Vector3.zero);
