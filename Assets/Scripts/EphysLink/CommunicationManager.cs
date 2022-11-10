@@ -23,9 +23,9 @@ namespace EphysLink
 
         #region Public
 
-        /**
-         * The current state of the connection to Ephys Link.
-         */
+        /// <summary>
+        ///     The current state of the connection to Ephys Link.
+        /// </summary>
         public bool IsConnected { get; private set; }
 
         #endregion
