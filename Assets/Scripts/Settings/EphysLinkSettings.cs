@@ -95,12 +95,12 @@ namespace Settings
         {
             // Connection UI
             connectionErrorText.text = "";
-            connectButtonText.text = _communicationManager.IsConnected() ? "Disconnect" : "Connect";
+            connectButtonText.text = _communicationManager.IsConnected ? "Disconnect" : "Connect";
             serverConnectedText.text =
-                (_communicationManager.IsConnected() ? "Connected" : "Connect") + " to server at";
+                (_communicationManager.IsConnected ? "Connected" : "Connect") + " to server at";
 
             // Update available manipulators and their panels
-            if (_communicationManager.IsConnected())
+            if (_communicationManager.IsConnected)
             {
                 UpdateManipulatorPanelAndSelection();
             }
@@ -221,7 +221,7 @@ namespace Settings
         /// </summary>
         public void OnConnectDisconnectPressed()
         {
-            if (!_communicationManager.IsConnected())
+            if (!_communicationManager.IsConnected)
             {
                 // Attempt to connect to server
                 try
