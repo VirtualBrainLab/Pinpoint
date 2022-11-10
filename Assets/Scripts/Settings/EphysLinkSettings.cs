@@ -132,7 +132,7 @@ namespace Settings
                         probeConnectionSettingsPanelGameObject.GetComponent<ProbeConnectionSettingsPanel>();
 
                     probeConnectionSettingsPanel.SetProbeManager(probeManager);
-                    probeConnectionSettingsPanel.SetEphysLinkSettings(this);
+                    probeConnectionSettingsPanel.EphysLinkSettings = this;
 
                     _probeIdToProbeConnectionSettingsPanels.Add(probeId,
                         new ValueTuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
@@ -175,7 +175,7 @@ namespace Settings
                 {
                     var manipulatorDropdownOptions = new List<string> { "-" };
                     manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
-                        id.Equals(probeConnectionSettingsPanel.GetProbeManager().GetManipulatorId()) ||
+                        id.Equals(probeConnectionSettingsPanel.ProbeManager.GetManipulatorId()) ||
                         !usedManipulatorIds.Contains(id)));
 
                     probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
