@@ -16,7 +16,7 @@ public class TP_Search : MonoBehaviour
     [SerializeField] int maxAreaPanels = 1;
 
     private List<GameObject> localAreaPanels;
-    private List<CCFTreeNode> activeBrainAreas;
+    public List<CCFTreeNode> activeBrainAreas { get; private set; }
 
     void Awake()
     {

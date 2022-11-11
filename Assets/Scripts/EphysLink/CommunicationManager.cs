@@ -155,7 +155,7 @@ namespace EphysLink
         /// </summary>
         /// <param name="onSuccessCallback">Callback function to handle incoming manipulator ID's</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GetManipulators(Action<int[]> onSuccessCallback, Action<string> onErrorCallback = null)
+        public void GetManipulators(Action<string[]> onSuccessCallback, Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<GetManipulatorsCallbackParameters>(data =>
             {
@@ -177,7 +177,7 @@ namespace EphysLink
         /// <param name="manipulatorId">The ID of the manipulator to register</param>
         /// <param name="onSuccessCallback">Callback function to handle a successful registration</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void RegisterManipulator(int manipulatorId, Action onSuccessCallback = null,
+        public void RegisterManipulator(string manipulatorId, Action onSuccessCallback = null,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
@@ -200,7 +200,7 @@ namespace EphysLink
         /// <param name="manipulatorId">The ID of the manipulator to unregister</param>
         /// <param name="onSuccessCallback">Callback function to handle a successful un-registration</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void UnregisterManipulator(int manipulatorId, Action onSuccessCallback = null,
+        public void UnregisterManipulator(string manipulatorId, Action onSuccessCallback = null,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
@@ -223,7 +223,8 @@ namespace EphysLink
         /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
         /// <param name="onSuccessCallback">Callback function to pass manipulator position to</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GetPos(int manipulatorId, Action<Vector4> onSuccessCallback, Action<string> onErrorCallback = null)
+        public void GetPos(string manipulatorId, Action<Vector4> onSuccessCallback,
+            Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(data =>
             {
@@ -249,7 +250,7 @@ namespace EphysLink
         /// <param name="speed">How fast to move the manipulator (in μm/s)</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GotoPos(int manipulatorId, Vector4 pos, int speed, Action<Vector4> onSuccessCallback,
+        public void GotoPos(string manipulatorId, Vector4 pos, int speed, Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(data =>
@@ -277,7 +278,7 @@ namespace EphysLink
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
         /// <exception cref="ArgumentException">If the given position is not in an array of 4 floats</exception>
-        public void GotoPos(int manipulatorId, float[] pos, int speed, Action<Vector4> onSuccessCallback,
+        public void GotoPos(string manipulatorId, float[] pos, int speed, Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             if (pos.Length != 4) throw new ArgumentException("Position array must be of length 4");
@@ -294,7 +295,7 @@ namespace EphysLink
         /// <param name="speed">How fast to drive the manipulator (in μm/s)</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void DriveToDepth(int manipulatorId, float depth, int speed, Action<float> onSuccessCallback,
+        public void DriveToDepth(string manipulatorId, float depth, int speed, Action<float> onSuccessCallback,
             Action<string> onErrorCallback)
         {
             _connectionManager.Socket.ExpectAcknowledgement<DriveToDepthCallbackParameters>(data =>
@@ -318,7 +319,7 @@ namespace EphysLink
         /// <param name="inside">State to set to</param>
         /// <param name="onSuccessCallback">Callback function to handle setting inside_brain state successfully</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void SetInsideBrain(int manipulatorId, bool inside, Action<bool> onSuccessCallback,
+        public void SetInsideBrain(string manipulatorId, bool inside, Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<StateCallbackParameters>(data =>
@@ -341,7 +342,7 @@ namespace EphysLink
         /// <param name="manipulatorId">ID of the manipulator to be calibrated</param>
         /// <param name="onSuccessCallback">Callback function to handle a successful calibration</param>
         /// <param name="onErrorCallback">Callback function to handle an unsuccessful calibration</param>
-        public void Calibrate(int manipulatorId, Action onSuccessCallback, Action<string> onErrorCallback = null)
+        public void Calibrate(string manipulatorId, Action onSuccessCallback, Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(errorMessage =>
             {
@@ -364,7 +365,7 @@ namespace EphysLink
         /// <param name="manipulatorId">ID of the manipulator to bypass calibration</param>
         /// <param name="onSuccessCallback">Callback function to handle a successful calibration bypass</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void BypassCalibration(int manipulatorId, Action onSuccessCallback,
+        public void BypassCalibration(string manipulatorId, Action onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
@@ -389,7 +390,7 @@ namespace EphysLink
         /// <param name="hours">How many hours a manipulator may have a write lease</param>
         /// <param name="onSuccessCallback">Callback function to handle successfully setting can_write state</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void SetCanWrite(int manipulatorId, bool canWrite, float hours, Action<bool> onSuccessCallback,
+        public void SetCanWrite(string manipulatorId, bool canWrite, float hours, Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<StateCallbackParameters>(data =>

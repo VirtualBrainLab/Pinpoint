@@ -133,11 +133,6 @@ public class TP_SliceRenderer : MonoBehaviour
         {
             // Check if the camera moved such that we have to flip the slice quads
             UpdateCameraPosition();
-
-            if (tpmanager.MovedThisFrame)
-            {
-                UpdateSlicePosition();
-            }
         }
     }
 
@@ -147,27 +142,30 @@ public class TP_SliceRenderer : MonoBehaviour
     /// <summary>
     /// Shift the position of the sagittal and coronal slices to match the tip of the active probe
     /// </summary>
-    private void UpdateSlicePosition()
+    public void UpdateSlicePosition()
     {
-        ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
-        if (activeProbeManager == null) return;
+        if (localPrefs.GetSlice3D() > 0)
+        {
+            ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
+            if (activeProbeManager == null) return;
 
-        // the actual tip
-        Vector3 probeTipWorld = activeProbeManager.GetProbeController().ProbeTipT.position;
-        // position the slices along the real tip in world space
-        coronalSliceGO.transform.position = new Vector3(0f, 0f, probeTipWorld.z);
-        sagittalSliceGO.transform.position = new Vector3(probeTipWorld.x, 0f, 0f);
+            // the actual tip
+            Vector3 probeTipWorld = activeProbeManager.GetProbeController().ProbeTipT.position;
+            // position the slices along the real tip in world space
+            coronalSliceGO.transform.position = new Vector3(0f, 0f, probeTipWorld.z);
+            sagittalSliceGO.transform.position = new Vector3(probeTipWorld.x, 0f, 0f);
 
-        // for CCF coordinates
-        (Vector3 tipCoordWorld, _, _) = activeProbeManager.GetProbeController().GetTipWorld();
+            // for CCF coordinates
+            (Vector3 tipCoordWorld, _, _) = activeProbeManager.GetProbeController().GetTipWorldU();
 
-        apWorldmm = tipCoordWorld.z + 6.6f;
-        coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / 13.2f);
+            apWorldmm = tipCoordWorld.z + 6.6f;
+            coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / 13.2f);
 
-        mlWorldmm = -(tipCoordWorld.x - 5.7f);
-        saggitalSliceMaterial.SetFloat("_SlicePosition", mlWorldmm / 11.4f);
+            mlWorldmm = -(tipCoordWorld.x - 5.7f);
+            saggitalSliceMaterial.SetFloat("_SlicePosition", mlWorldmm / 11.4f);
 
-        UpdateNodeModelSlicing();
+            UpdateNodeModelSlicing();
+        }
     }
 
     private void UpdateCameraPosition()
@@ -198,7 +196,7 @@ public class TP_SliceRenderer : MonoBehaviour
             UpdateNodeModelSlicing();
     }
 
-        private void UpdateNodeModelSlicing()
+    private void UpdateNodeModelSlicing()
     {
         // Update the renderers on the node objects
         foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
@@ -229,6 +227,7 @@ public class TP_SliceRenderer : MonoBehaviour
 
     public void ToggleSliceVisibility(int sliceType)
     {
+        Debug.Log(sliceType);
         localPrefs.SetSlice3D(sliceType);
 
         if (sliceType==0)
@@ -241,7 +240,6 @@ public class TP_SliceRenderer : MonoBehaviour
         else
         {
             // Standard sagittal/coronal slices
-            localPrefs.SetSlice3D(sliceType);
             sagittalSliceGO.SetActive(true);
             coronalSliceGO.SetActive(true);
 
