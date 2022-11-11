@@ -1,6 +1,6 @@
 {
     "TestSuite": "",
-    "Date": 1667951870819,
+    "Date": 1668148431388,
     "Player": {
         "Development": false,
         "ScreenWidth": 0,
@@ -10,7 +10,7 @@
         "Vsync": 0,
         "AntiAliasing": 0,
         "Batchmode": false,
-        "RenderThreadingMode": "GraphicsJobs",
+        "RenderThreadingMode": "MultiThreaded",
         "GpuSkinning": true,
         "Platform": "",
         "ColorSpace": "",
@@ -20,7 +20,7 @@
         "ScriptingBackend": "IL2CPP",
         "AndroidTargetSdkVersion": "AndroidApiLevelAuto",
         "AndroidBuildSystem": "Gradle",
-        "BuildTarget": "StandaloneWindows64",
+        "BuildTarget": "WebGL",
         "StereoRenderingPath": "MultiPass"
     },
     "Hardware": {
