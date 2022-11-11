@@ -40,11 +40,11 @@ namespace Settings
         /// </summary>
         private void FixedUpdate()
         {
-            if (!ProbeManager.IsConnectedToManipulator()) return;
+            if (!ProbeManager.IsEphysLinkControlled) return;
             // Update display for zero coordinate offset
-            if (ProbeManager.GetZeroCoordinateOffset() != _displayedZeroCoordinateOffset)
+            if (ProbeManager.ZeroCoordinateOffset != _displayedZeroCoordinateOffset)
             {
-                _displayedZeroCoordinateOffset = ProbeManager.GetZeroCoordinateOffset();
+                _displayedZeroCoordinateOffset = ProbeManager.ZeroCoordinateOffset;
                 xInputField.text = _displayedZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
                 yInputField.text = _displayedZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
                 zInputField.text = _displayedZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
@@ -52,17 +52,17 @@ namespace Settings
             }
 
             // Update brain surface offset drop direction dropdown
-            if (ProbeManager.IsSetToDropToSurfaceWithDepth() != (brainSurfaceOffsetDirectionDropdown.value == 0))
+            if (ProbeManager.IsSetToDropToSurfaceWithDepth != (brainSurfaceOffsetDirectionDropdown.value == 0))
                 brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(
-                    ProbeManager.IsSetToDropToSurfaceWithDepth() ? 0 : 1);
+                    ProbeManager.IsSetToDropToSurfaceWithDepth ? 0 : 1);
 
             // Enable/disable interactivity of brain surface offset axis
-            if (ProbeManager.CanChangeBrainSurfaceOffsetAxis() != brainSurfaceOffsetDirectionDropdown.interactable)
-                brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.CanChangeBrainSurfaceOffsetAxis();
+            if (ProbeManager.CanChangeBrainSurfaceOffsetAxis != brainSurfaceOffsetDirectionDropdown.interactable)
+                brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.CanChangeBrainSurfaceOffsetAxis;
 
             // Update display for brain surface offset
-            if (!(Math.Abs(ProbeManager.GetBrainSurfaceOffset() - _displayedBrainSurfaceOffset) > 0.001f)) return;
-            _displayedBrainSurfaceOffset = ProbeManager.GetBrainSurfaceOffset();
+            if (!(Math.Abs(ProbeManager.BrainSurfaceOffset - _displayedBrainSurfaceOffset) > 0.001f)) return;
+            _displayedBrainSurfaceOffset = ProbeManager.BrainSurfaceOffset;
             brainSurfaceOffsetInputField.text =
                 _displayedBrainSurfaceOffset.ToString(CultureInfo.CurrentCulture);
         }
@@ -113,8 +113,8 @@ namespace Settings
             manipulatorIdDropdown.AddOptions(idOptions);
 
             // Select the option corresponding to the current manipulator id
-            var indexOfId = ProbeManager.IsConnectedToManipulator()
-                ? Math.Max(0, idOptions.IndexOf(ProbeManager.GetManipulatorId()))
+            var indexOfId = ProbeManager.IsEphysLinkControlled
+                ? Math.Max(0, idOptions.IndexOf(ProbeManager.ManipulatorId))
                 : 0;
             manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
         }
@@ -125,8 +125,8 @@ namespace Settings
         /// <param name="index">Manipulator option index that was selected (0 = no manipulator)</param>
         public void OnManipulatorDropdownValueChanged(int index)
         {
-            if (ProbeManager.IsConnectedToManipulator())
-                ProbeManager.SetEphysLinkMovement(false, "", false, () =>
+            if (ProbeManager.IsEphysLinkControlled)
+                ProbeManager.SetIsEphysLinkControlled(false, "", false, () =>
                 {
                     if (index != 0)
                     {
@@ -137,9 +137,9 @@ namespace Settings
                         EphysLinkSettings.UpdateManipulatorPanelAndSelection();
 
                         // Cleanup ghost prove stuff if applicable
-                        if (!ProbeManager.HasGhost()) return;
-                        _trajectoryPlannerManager.DestroyProbe(ProbeManager.GetGhostProbeManager());
-                        ProbeManager.SetGhostProbeManager(null);
+                        if (!ProbeManager.HasGhost) return;
+                        _trajectoryPlannerManager.DestroyProbe(ProbeManager.GhostProbeManager);
+                        ProbeManager.GhostProbeManager = null;
                     }
                 });
             else
@@ -147,7 +147,7 @@ namespace Settings
 
             void AttachToManipulatorAndUpdateUI()
             {
-                ProbeManager.SetEphysLinkMovement(true,
+                ProbeManager.SetIsEphysLinkControlled(true,
                     manipulatorIdDropdown.options[index].text,
                     onSuccess: () => { EphysLinkSettings.UpdateManipulatorPanelAndSelection(); });
             }
@@ -204,7 +204,7 @@ namespace Settings
         /// <param name="value">Input field value</param>
         public void OnBrainSurfaceOffsetValueUpdated(string value)
         {
-            ProbeManager.SetBrainSurfaceOffset(float.Parse(value));
+            ProbeManager.BrainSurfaceOffset = float.Parse(value);
         }
 
         /// <summary>

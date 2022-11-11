@@ -137,8 +137,8 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
                 angles = Utils.IBL2World(angles);
 
             _linkedProbe.GetProbeController().SetProbeAngles(angles);
-            if (_linkedProbe.HasGhost())
-                _linkedProbe.GetGhostProbeManager().GetProbeController().SetProbeAngles(angles);
+            if (_linkedProbe.HasGhost)
+                _linkedProbe.GhostProbeManager.GetProbeController().SetProbeAngles(angles);
         }
         catch
         {

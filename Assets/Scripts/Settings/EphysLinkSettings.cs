@@ -72,7 +72,7 @@ namespace Settings
         private void FixedUpdate()
         {
             // Update probe panels whenever they change
-            if (_trajectoryPlannerManager.GetAllProbes().Count(manager => !manager.IsGhost()) !=
+            if (_trajectoryPlannerManager.GetAllProbes().Count(manager => !manager.IsGhost) !=
                 _probeIdToProbeConnectionSettingsPanels.Count)
                 UpdateProbePanels();
         }
@@ -119,7 +119,7 @@ namespace Settings
             var handledProbeIds = new HashSet<int>();
 
             // Add any new probes in scene to list
-            foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes().Where(manager => !manager.IsGhost()))
+            foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes().Where(manager => !manager.IsGhost))
             {
                 var probeId = probeManager.GetID();
 
@@ -168,14 +168,14 @@ namespace Settings
             {
                 // Update probes with selectable options
                 var usedManipulatorIds = _trajectoryPlannerManager.GetAllProbes()
-                    .Where(probeManager => probeManager.IsConnectedToManipulator())
-                    .Select(probeManager => probeManager.GetManipulatorId()).ToHashSet();
+                    .Where(probeManager => probeManager.IsEphysLinkControlled)
+                    .Select(probeManager => probeManager.ManipulatorId).ToHashSet();
                 foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
                              values => values.probeConnectionSettingsPanel))
                 {
                     var manipulatorDropdownOptions = new List<string> { "-" };
                     manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
-                        id.Equals(probeConnectionSettingsPanel.ProbeManager.GetManipulatorId()) ||
+                        id.Equals(probeConnectionSettingsPanel.ProbeManager.ManipulatorId) ||
                         !usedManipulatorIds.Contains(id)));
 
                     probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
@@ -248,8 +248,8 @@ namespace Settings
                 _questionDialogue.SetYesCallback(() =>
                 {
                     foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes()
-                                 .Where(probeManager => probeManager.IsConnectedToManipulator()))
-                        probeManager.SetEphysLinkMovement(false);
+                                 .Where(probeManager => probeManager.IsEphysLinkControlled))
+                        probeManager.SetIsEphysLinkControlled(false);
 
                     _communicationManager.DisconnectFromServer(UpdateConnectionUI);
                 });
