@@ -115,6 +115,12 @@ namespace TrajectoryPlanner
         
         public void EnableAutomaticManipulatorControlPanel(bool enable = true)
         {
+            // Set probe manager;
+            var handler = automaticControlPanelGameObject.GetComponent<AutomaticManipulatorControlHandler>();
+            handler.Probe1Manager = allProbeManagers.First(manager => manager.GetID() == 1);
+            handler.Probe2Manager = allProbeManagers.First(manager => manager.GetID() == 2);
+
+            // Enable panel
             automaticControlPanelGameObject.SetActive(enable);
         }
 
