@@ -27,6 +27,7 @@ namespace Settings
         // Manipulators
         [SerializeField] private GameObject manipulatorList;
         [SerializeField] private GameObject manipulatorConnectionPanelPrefab;
+        [SerializeField] private TMP_Text automaticControlButtonText;
 
         // Probes in scene
         [SerializeField] private GameObject probeList;
@@ -39,6 +40,12 @@ namespace Settings
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
         private TP_QuestionDialogue _questionDialogue;
+
+        #endregion
+
+        #region Properties
+
+        private bool _enableAutomaticControl;
 
         #endregion
 
@@ -257,6 +264,18 @@ namespace Settings
                 _questionDialogue.NewQuestion(
                     "Are you sure you want to disconnect?\nAll incomplete movements will be canceled.");
             }
+        }
+
+        /// <summary>
+        ///     Toggle automatic manipulator control panel
+        /// </summary>
+        public void ToggleAutomaticManipulatorControlPanel()
+        {
+            _enableAutomaticControl = !_enableAutomaticControl;
+            _trajectoryPlannerManager.EnableAutomaticManipulatorControlPanel(_enableAutomaticControl);
+            automaticControlButtonText.text = _enableAutomaticControl
+                ? "Disable Automatic Manipulator Control"
+                : "Enable Automatic Manipulator Control";
         }
 
         #endregion

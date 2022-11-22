@@ -108,8 +108,15 @@ namespace TrajectoryPlanner
 
         #region Ephys Link
 
+        [SerializeField] private GameObject automaticControlPanelGameObject;
+
         private CommunicationManager _communicationManager;
         private HashSet<string> _rightHandedManipulatorIds = new();
+        
+        public void EnableAutomaticManipulatorControlPanel(bool enable = true)
+        {
+            automaticControlPanelGameObject.SetActive(enable);
+        }
 
         #endregion
 
