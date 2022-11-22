@@ -1,10 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using CoordinateSpaces;
 
 public class DefaultProbeController : ProbeController
 {
@@ -469,7 +465,7 @@ public class DefaultProbeController : ProbeController
         if (EventSystem.current.IsPointerOverGameObject())
             return;
         // Cancel movement if being controlled by EphysLink
-        if (ProbeManager.GetEphysLinkMovement())
+        if (ProbeManager.IsEphysLinkControlled)
             return;
 
         TPManager.SetProbeControl(true);
@@ -511,7 +507,7 @@ public class DefaultProbeController : ProbeController
     public void DragMovementDrag()
     {
         // Cancel movement if being controlled by EphysLink
-        if (ProbeManager.GetEphysLinkMovement())
+        if (ProbeManager.IsEphysLinkControlled)
             return;
 
         CheckForSpeedKeys();

@@ -12,6 +12,22 @@ namespace Settings
     /// </summary>
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
+        #region Property Getters and Setters
+
+        /// <summary>
+        ///     Set probe manager reference attached to this panel.
+        /// </summary>
+        /// <param name="probeManager">This panel's probe's corresponding probe manager</param>
+        public void SetProbeManager(ProbeManager probeManager)
+        {
+            ProbeManager = probeManager;
+
+            probeIdText.text = probeManager.GetID().ToString();
+            probeIdText.color = probeManager.GetColor();
+        }
+
+        #endregion
+
         #region Unity
 
         private void Awake()
@@ -24,11 +40,11 @@ namespace Settings
         /// </summary>
         private void FixedUpdate()
         {
-            if (!_probeManager.IsConnectedToManipulator()) return;
+            if (!ProbeManager.IsEphysLinkControlled) return;
             // Update display for zero coordinate offset
-            if (_probeManager.GetZeroCoordinateOffset() != _displayedZeroCoordinateOffset)
+            if (ProbeManager.ZeroCoordinateOffset != _displayedZeroCoordinateOffset)
             {
-                _displayedZeroCoordinateOffset = _probeManager.GetZeroCoordinateOffset();
+                _displayedZeroCoordinateOffset = ProbeManager.ZeroCoordinateOffset;
                 xInputField.text = _displayedZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
                 yInputField.text = _displayedZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
                 zInputField.text = _displayedZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
@@ -36,17 +52,17 @@ namespace Settings
             }
 
             // Update brain surface offset drop direction dropdown
-            if (_probeManager.IsSetToDropToSurfaceWithDepth() != (brainSurfaceOffsetDirectionDropdown.value == 0))
+            if (ProbeManager.IsSetToDropToSurfaceWithDepth != (brainSurfaceOffsetDirectionDropdown.value == 0))
                 brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(
-                    _probeManager.IsSetToDropToSurfaceWithDepth() ? 0 : 1);
-            
+                    ProbeManager.IsSetToDropToSurfaceWithDepth ? 0 : 1);
+
             // Enable/disable interactivity of brain surface offset axis
-            if (_probeManager.CanChangeBrainSurfaceOffsetAxis() != brainSurfaceOffsetDirectionDropdown.interactable)
-                brainSurfaceOffsetDirectionDropdown.interactable = _probeManager.CanChangeBrainSurfaceOffsetAxis();
+            if (ProbeManager.CanChangeBrainSurfaceOffsetAxis != brainSurfaceOffsetDirectionDropdown.interactable)
+                brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.CanChangeBrainSurfaceOffsetAxis;
 
             // Update display for brain surface offset
-            if (!(Math.Abs(_probeManager.GetBrainSurfaceOffset() - _displayedBrainSurfaceOffset) > 0.001f)) return;
-            _displayedBrainSurfaceOffset = _probeManager.GetBrainSurfaceOffset();
+            if (!(Math.Abs(ProbeManager.BrainSurfaceOffset - _displayedBrainSurfaceOffset) > 0.001f)) return;
+            _displayedBrainSurfaceOffset = ProbeManager.BrainSurfaceOffset;
             brainSurfaceOffsetInputField.text =
                 _displayedBrainSurfaceOffset.ToString(CultureInfo.CurrentCulture);
         }
@@ -70,8 +86,8 @@ namespace Settings
 
         #endregion
 
-        private ProbeManager _probeManager;
-        private EphysLinkSettings _ephysLinkSettings;
+        public ProbeManager ProbeManager { get; private set; }
+        public EphysLinkSettings EphysLinkSettings { private get; set; }
         private TrajectoryPlannerManager _trajectoryPlannerManager;
 
         #endregion
@@ -82,40 +98,6 @@ namespace Settings
         private float _displayedBrainSurfaceOffset;
 
         #endregion
-
-        #endregion
-
-        #region Property Getters and Setters
-
-        /// <summary>
-        ///     Set probe manager reference attached to this panel.
-        /// </summary>
-        /// <param name="probeManager">This panel's probe's corresponding probe manager</param>
-        public void SetProbeManager(ProbeManager probeManager)
-        {
-            _probeManager = probeManager;
-
-            probeIdText.text = probeManager.GetID().ToString();
-            probeIdText.color = probeManager.GetColor();
-        }
-
-        /// <summary>
-        ///     Get the probe manager attached to this panel.
-        /// </summary>
-        /// <returns>This probe's probe manager</returns>
-        public ProbeManager GetProbeManager()
-        {
-            return _probeManager;
-        }
-
-        /// <summary>
-        ///     Set a reference to the Ephys Link settings panel.
-        /// </summary>
-        /// <param name="ephysLinkSettings">Reference to the Ephys Link settings menu.</param>
-        public void SetEphysLinkSettings(EphysLinkSettings ephysLinkSettings)
-        {
-            _ephysLinkSettings = ephysLinkSettings;
-        }
 
         #endregion
 
@@ -131,8 +113,8 @@ namespace Settings
             manipulatorIdDropdown.AddOptions(idOptions);
 
             // Select the option corresponding to the current manipulator id
-            var indexOfId = _probeManager.IsConnectedToManipulator()
-                ? Math.Max(0, idOptions.IndexOf(_probeManager.GetManipulatorId()))
+            var indexOfId = ProbeManager.IsEphysLinkControlled
+                ? Math.Max(0, idOptions.IndexOf(ProbeManager.ManipulatorId))
                 : 0;
             manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
         }
@@ -143,19 +125,21 @@ namespace Settings
         /// <param name="index">Manipulator option index that was selected (0 = no manipulator)</param>
         public void OnManipulatorDropdownValueChanged(int index)
         {
-            if (_probeManager.IsConnectedToManipulator())
-                _probeManager.SetEphysLinkMovement(false, "", false, () =>
+            if (ProbeManager.IsEphysLinkControlled)
+                ProbeManager.SetIsEphysLinkControlled(false, "", false, () =>
                 {
                     if (index != 0)
+                    {
                         AttachToManipulatorAndUpdateUI();
+                    }
                     else
                     {
-                        _ephysLinkSettings.UpdateManipulatorPanelAndSelection();
-                        
+                        EphysLinkSettings.UpdateManipulatorPanelAndSelection();
+
                         // Cleanup ghost prove stuff if applicable
-                        if (!_probeManager.HasGhost()) return;
-                        _trajectoryPlannerManager.DestroyProbe(_probeManager.GetGhostProbeManager());
-                        _probeManager.SetGhostProbeManager(null);
+                        if (!ProbeManager.HasGhost) return;
+                        _trajectoryPlannerManager.DestroyProbe(ProbeManager.GhostProbeManager);
+                        ProbeManager.GhostProbeManager = null;
                     }
                 });
             else
@@ -163,9 +147,9 @@ namespace Settings
 
             void AttachToManipulatorAndUpdateUI()
             {
-                _probeManager.SetEphysLinkMovement(true,
+                ProbeManager.SetIsEphysLinkControlled(true,
                     manipulatorIdDropdown.options[index].text,
-                    onSuccess: () => { _ephysLinkSettings.UpdateManipulatorPanelAndSelection(); });
+                    onSuccess: () => { EphysLinkSettings.UpdateManipulatorPanelAndSelection(); });
             }
         }
 
@@ -175,7 +159,7 @@ namespace Settings
         /// <param name="x">X coordinate</param>
         public void OnZeroCoordinateXInputFieldEndEdit(string x)
         {
-            _probeManager.SetZeroCoordinateOffsetX(float.Parse(x));
+            ProbeManager.SetZeroCoordinateOffsetX(float.Parse(x));
         }
 
         /// <summary>
@@ -184,7 +168,7 @@ namespace Settings
         /// <param name="y">Y coordinate</param>
         public void OnZeroCoordinateYInputFieldEndEdit(string y)
         {
-            _probeManager.SetZeroCoordinateOffsetY(float.Parse(y));
+            ProbeManager.SetZeroCoordinateOffsetY(float.Parse(y));
         }
 
         /// <summary>
@@ -193,7 +177,7 @@ namespace Settings
         /// <param name="z">Z coordinate</param>
         public void OnZeroCoordinateZInputFieldEndEdit(string z)
         {
-            _probeManager.SetZeroCoordinateOffsetZ(float.Parse(z));
+            ProbeManager.SetZeroCoordinateOffsetZ(float.Parse(z));
         }
 
         /// <summary>
@@ -202,7 +186,7 @@ namespace Settings
         /// <param name="d">Depth coordinate</param>
         public void OnZeroCoordinateDInputFieldEndEdit(string d)
         {
-            _probeManager.SetZeroCoordinateOffsetDepth(float.Parse(d));
+            ProbeManager.SetZeroCoordinateOffsetDepth(float.Parse(d));
         }
 
         /// <summary>
@@ -211,7 +195,7 @@ namespace Settings
         /// <param name="value">Selected direction: 0 = depth, 1 = DV</param>
         public void OnBrainSurfaceOffsetDirectionDropdownValueChanged(int value)
         {
-            _probeManager.SetDropToSurfaceWithDepth(value == 0);
+            ProbeManager.SetDropToSurfaceWithDepth(value == 0);
         }
 
         /// <summary>
@@ -220,7 +204,7 @@ namespace Settings
         /// <param name="value">Input field value</param>
         public void OnBrainSurfaceOffsetValueUpdated(string value)
         {
-            _probeManager.SetBrainSurfaceOffset(float.Parse(value));
+            ProbeManager.BrainSurfaceOffset = float.Parse(value);
         }
 
         /// <summary>
@@ -229,7 +213,7 @@ namespace Settings
         /// <param name="amount">Amount to increment by (negative numbers are valid)</param>
         public void IncrementBrainSurfaceOffset(float amount)
         {
-            _probeManager.IncrementBrainSurfaceOffset(amount);
+            ProbeManager.IncrementBrainSurfaceOffset(amount);
         }
 
         #endregion

@@ -234,7 +234,7 @@ namespace TrajectoryPlanner
 
                 sliceRenderer.UpdateSlicePosition();
 
-                accountsManager.UpdateProbeData(activeProbe.UUID, Probe2ServerProbeInsertion(activeProbe));
+                accountsManager.UpdateProbeData(activeProbe.Uuid, Probe2ServerProbeInsertion(activeProbe));
             }
 
             if (_coenProbe != null && _coenProbe.MovedThisFrame)
@@ -419,7 +419,7 @@ namespace TrajectoryPlanner
 
         public void DestroyProbe(ProbeManager probeManager)
         {
-            var isGhost = probeManager.IsGhost();
+            var isGhost = probeManager.IsGhost;
             var isActiveProbe = activeProbe == probeManager;
             
             Debug.Log("Destroying probe type " + _prevProbeType + " with coordinates");
@@ -428,16 +428,16 @@ namespace TrajectoryPlanner
             {
                 _prevProbeType = probeManager.ProbeType;
                 _prevInsertion = probeManager.GetProbeController().Insertion;
-                _prevManipulatorId = probeManager.GetManipulatorId();
-                _prevZeroCoordinateOffset = probeManager.GetZeroCoordinateOffset();
-                _prevBrainSurfaceOffset = probeManager.GetBrainSurfaceOffset();
+                _prevManipulatorId = probeManager.ManipulatorId;
+                _prevZeroCoordinateOffset = probeManager.ZeroCoordinateOffset;
+                _prevBrainSurfaceOffset = probeManager.BrainSurfaceOffset;
             }
 
             // Cannot restore a ghost probe, so we set restored to true
             _restoredProbe = isGhost;
 
             // Return color if not a ghost probe
-            if (probeManager.GetOriginalProbeManager() == null) ReturnProbeColor(probeManager.GetColor());
+            if (probeManager.IsOriginal) ReturnProbeColor(probeManager.GetColor());
 
             // Destroy probe
             probeManager.Destroy();
@@ -476,10 +476,10 @@ namespace TrajectoryPlanner
         private void DestroyActiveProbeManager()
         {
             // Extra steps for destroying the active probe if it's a ghost probe
-            if (activeProbe.IsGhost())
+            if (activeProbe.IsGhost)
             {
                 // Remove ghost probe ref from original probe
-                activeProbe.GetOriginalProbeManager().SetGhostProbeManager(null);
+                activeProbe.OriginalProbeManager.GhostProbeManager = null;
                 // Disable control UI
                 probeQuickSettings.EnableAutomaticControlUI(false);
             }
@@ -534,16 +534,16 @@ namespace TrajectoryPlanner
 
             if (!PlayerPrefs.IsLinkDataExpired())
             {
-                probeManager.SetZeroCoordinateOffset(zeroCoordinateOffset);
-                probeManager.SetBrainSurfaceOffset(brainSurfaceOffset);
+                probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
+                probeManager.BrainSurfaceOffset = brainSurfaceOffset;
                 probeManager.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (!string.IsNullOrEmpty(manipulatorId)) probeManager.SetEphysLinkMovement(true, manipulatorId);
+                if (!string.IsNullOrEmpty(manipulatorId)) probeManager.SetIsEphysLinkControlled(true, manipulatorId);
             }
 
             probeManager.GetProbeController().SetProbePosition(insertion);
             
             // Set original probe manager early on
-            if (isGhost) probeManager.SetOriginalProbeManager(GetActiveProbeManager());
+            if (isGhost) probeManager.OriginalProbeManager = GetActiveProbeManager();
 
             spawnedThisFrame = true;
 
@@ -564,9 +564,9 @@ namespace TrajectoryPlanner
             }
             else
             {
-                probeController.SetZeroCoordinateOffset(zeroCoordinateOffset);
-                probeController.SetBrainSurfaceOffset(brainSurfaceOffset);
-                probeController.SetEphysLinkMovement(true, manipulatorId);
+                probeController.ZeroCoordinateOffset = zeroCoordinateOffset;
+                probeController.BrainSurfaceOffset = brainSurfaceOffset;
+                probeController.SetIsEphysLinkControlled(true, manipulatorId);
             }
 
             spawnedThisFrame = true;
@@ -680,7 +680,7 @@ namespace TrajectoryPlanner
                     puimanager.ProbeSelected(isActiveProbe);
 
                 // Update transparency for probe (if not ghost)
-                if (probeManager.IsGhost()) continue;
+                if (probeManager.IsGhost) continue;
                 if (isActiveProbe)
                 {
                     probeManager.SetMaterialsDefault();
@@ -1141,7 +1141,7 @@ namespace TrajectoryPlanner
 
         private void OnApplicationQuit()
         {
-            var nonGhostProbeManagers = allProbeManagers.Where(manager => !manager.IsGhost()).ToList();
+            var nonGhostProbeManagers = allProbeManagers.Where(manager => !manager.IsGhost).ToList();
             var probeCoordinates =
                 new (Vector3 apmldv, Vector3 angles, 
                 int type, string manipulatorId,
@@ -1155,10 +1155,10 @@ namespace TrajectoryPlanner
                 ProbeInsertion probeInsertion = probe.GetProbeController().Insertion;
                 probeCoordinates[i] = (probeInsertion.apmldv, 
                     probeInsertion.angles,
-                    probe.ProbeType, probe.GetManipulatorId(),
+                    probe.ProbeType, probe.ManipulatorId,
                     probeInsertion.CoordinateSpace.Name, probeInsertion.CoordinateTransform.Name,
-                    probe.GetZeroCoordinateOffset(), probe.GetBrainSurfaceOffset(), probe.IsSetToDropToSurfaceWithDepth(),
-                    probe.UUID);
+                    probe.ZeroCoordinateOffset, probe.BrainSurfaceOffset, probe.IsSetToDropToSurfaceWithDepth,
+                    probe.Uuid);
             }
             localPrefs.SaveCurrentProbeData(probeCoordinates);
         }
