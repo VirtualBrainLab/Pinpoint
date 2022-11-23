@@ -299,14 +299,14 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 2
+  m_ContentType: 3
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 4
+  m_KeyboardType: 2
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 2
+  m_CharacterValidation: 3
   m_RegexValue: 
   m_GlobalPointSize: 20
   m_CharacterLimit: 0
@@ -361,7 +361,7 @@ GameObject:
   - component: {fileID: 7948589054076820889}
   - component: {fileID: 741216143171937219}
   m_Layer: 5
-  m_Name: Probe1Set
+  m_Name: Manipulator1Set
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -764,7 +764,7 @@ GameObject:
   - component: {fileID: 5032434690063124718}
   - component: {fileID: 13629612817592023}
   m_Layer: 5
-  m_Name: Probe2Text
+  m_Name: Manipulator2Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -918,7 +918,7 @@ GameObject:
   - component: {fileID: 1445278464082802303}
   - component: {fileID: 1445278464082802302}
   m_Layer: 5
-  m_Name: Probe1Set
+  m_Name: Manipulator1Set
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -983,7 +983,7 @@ GameObject:
   - component: {fileID: 1445278464255466322}
   - component: {fileID: 1445278464255466333}
   m_Layer: 5
-  m_Name: Probe2Set
+  m_Name: Manipulator2Set
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1126,7 +1126,7 @@ GameObject:
   - component: {fileID: 1445278464347465603}
   - component: {fileID: 2501873851239738502}
   m_Layer: 5
-  m_Name: Probe1Text
+  m_Name: Manipulator1Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1823,6 +1823,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1445278465348587320}
   - component: {fileID: 1445278465348587323}
+  - component: {fileID: 5483421187078802668}
   m_Layer: 5
   m_Name: AutomaticManipulatorControlPanel
   m_TagString: Untagged
@@ -1880,6 +1881,43 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &5483421187078802668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445278465348587321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d88c3882a5d335418c1360b640d50cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zeroCoordinatePanelCanvasGroup: {fileID: 3013020695642461156}
+  zeroCoordinatePanelText: {fileID: 1445278465210223968}
+  zeroCoordinateManipulator1ProbeText: {fileID: 1445278464347465603}
+  zeroCoordinateManipulator2ProbeText: {fileID: 1445278465789033471}
+  gotoPanelCanvasGroup: {fileID: 84557261823319585}
+  gotoPanelText: {fileID: 478385048297492083}
+  gotoManipulator1ProbeText: {fileID: 7069034683308539969}
+  gotoManipulator1XInputField: {fileID: 4546237684882588982}
+  gotoManipulator1YInputField: {fileID: 4086219826668955305}
+  gotoManipulator1ZInputField: {fileID: 9065161280606548470}
+  gotoManipulator1DInputField: {fileID: 6133734748204318026}
+  gotoManipulator2ProbeText: {fileID: 9104384255522487650}
+  gotoManipulator2XInputField: {fileID: 8495889951088366991}
+  gotoManipulator2YInputField: {fileID: 6389865582561570706}
+  gotoManipulator2ZInputField: {fileID: 1506359275044306144}
+  gotoManipulator2DInputField: {fileID: 8333966828524271298}
+  gotoMoveButtonText: {fileID: 4053248260008623874}
+  duraPanelCanvasGroup: {fileID: 1511422966337397656}
+  duraPanelText: {fileID: 8296755181428719015}
+  duraManipulator1ProbeText: {fileID: 8556400129747900743}
+  duraManipulator2ProbeText: {fileID: 5032434690063124718}
+  drivePanelCanvasGroup: {fileID: 3776968580408328783}
+  drivePanelText: {fileID: 1424320475779402751}
+  driveStatusText: {fileID: 2223006252685534017}
+  driveButtonText: {fileID: 6734418879176428203}
 --- !u!1 &1445278465789033469
 GameObject:
   m_ObjectHideFlags: 0
@@ -1893,7 +1931,7 @@ GameObject:
   - component: {fileID: 1445278465789033471}
   - component: {fileID: 8306324432148333314}
   m_Layer: 5
-  m_Name: Probe2Text
+  m_Name: Manipulator2Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2500,14 +2538,14 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 2
+  m_ContentType: 3
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 4
+  m_KeyboardType: 2
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 2
+  m_CharacterValidation: 3
   m_RegexValue: 
   m_GlobalPointSize: 20
   m_CharacterLimit: 0
@@ -2811,14 +2849,14 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 2
+  m_ContentType: 3
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 4
+  m_KeyboardType: 2
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 2
+  m_CharacterValidation: 3
   m_RegexValue: 
   m_GlobalPointSize: 20
   m_CharacterLimit: 0
@@ -3319,7 +3357,7 @@ GameObject:
   - component: {fileID: 8726668009257640298}
   - component: {fileID: 6113573447795749679}
   m_Layer: 5
-  m_Name: Probe1Set
+  m_Name: Manipulator1Set
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4105,14 +4143,14 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 2
+  m_ContentType: 3
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 4
+  m_KeyboardType: 2
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 2
+  m_CharacterValidation: 3
   m_RegexValue: 
   m_GlobalPointSize: 20
   m_CharacterLimit: 0
@@ -4379,7 +4417,7 @@ GameObject:
   - component: {fileID: 7069034683308539969}
   - component: {fileID: 3091672393800044391}
   m_Layer: 5
-  m_Name: Probe1Text
+  m_Name: Manipulator1Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5216,7 +5254,7 @@ GameObject:
   - component: {fileID: 9104384255522487650}
   - component: {fileID: 2188949766770170255}
   m_Layer: 5
-  m_Name: Probe2Text
+  m_Name: Manipulator2Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5485,14 +5523,14 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 2
+  m_ContentType: 3
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 4
+  m_KeyboardType: 2
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 2
+  m_CharacterValidation: 3
   m_RegexValue: 
   m_GlobalPointSize: 20
   m_CharacterLimit: 0
@@ -5954,14 +5992,14 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 2
+  m_ContentType: 3
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 4
+  m_KeyboardType: 2
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 2
+  m_CharacterValidation: 3
   m_RegexValue: 
   m_GlobalPointSize: 20
   m_CharacterLimit: 0
@@ -6130,14 +6168,14 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 2
+  m_ContentType: 3
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 4
+  m_KeyboardType: 2
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 2
+  m_CharacterValidation: 3
   m_RegexValue: 
   m_GlobalPointSize: 20
   m_CharacterLimit: 0
@@ -6348,7 +6386,7 @@ GameObject:
   - component: {fileID: 4013034306386566583}
   - component: {fileID: 1250576027866341459}
   m_Layer: 5
-  m_Name: Probe2Set
+  m_Name: Manipulator2Set
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7395,14 +7433,14 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 2
+  m_ContentType: 3
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 4
+  m_KeyboardType: 2
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 2
+  m_CharacterValidation: 3
   m_RegexValue: 
   m_GlobalPointSize: 20
   m_CharacterLimit: 0
@@ -8371,7 +8409,7 @@ GameObject:
   - component: {fileID: 2906047978183949729}
   - component: {fileID: 3568670914855445388}
   m_Layer: 5
-  m_Name: Probe2Set
+  m_Name: Manipulator2Set
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
