@@ -22,4 +22,6 @@ Mouse brain artwork from https://scidraw.io/drawing/286
 
 # Citing
 
-If this project is used as part of a research project you should cite this repository. Please email Dan (dbirman@uw.edu) and we can set up a DOI for the version you are using.
+[![DOI](https://zenodo.org/badge/439779355.svg)](https://zenodo.org/badge/latestdoi/439779355)
+
+If Pinpoint is used as part of a research project you should cite this repository. We've created a DOI for this purpose on Zenodo. Your citations will help us get grant support for this project in the future!

@@ -189,7 +189,7 @@ namespace TrajectoryPlanner
                 // Spawn ghost
                 var originalProbeManager = _probeManager;
                 var ghostProbeManager = _trajectoryPlannerManager.AddNewProbeTransformed(
-                    _probeManager.ProbeType, _probeManager.GetProbeController().Insertion, 0,
+                    _probeManager.ProbeType, _probeManager.GetProbeController().Insertion, "",
                     _probeManager.GetZeroCoordinateOffset(), _probeManager.GetBrainSurfaceOffset(),
                     _probeManager.IsSetToDropToSurfaceWithDepth(), null, true);
     
@@ -314,7 +314,7 @@ namespace TrajectoryPlanner
             _communicationManager.SetCanWrite(_probeManager.GetManipulatorId(), true, 1, canWrite =>
             {
                 if (canWrite)
-                    _communicationManager.GotoPos(_probeManager.GetManipulatorId(),
+                    _communicationManager.GotoPos((string)_probeManager.GetManipulatorId(),
                         zeroCoordinateOffsetPos, _probeManager.GetAutomaticMovementSpeed(), endPos => Destroy(lineObject),
                         Debug.LogError);
             }, Debug.LogError);
