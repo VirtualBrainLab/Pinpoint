@@ -54,7 +54,7 @@ namespace TrajectoryPlanner
         private void FixedUpdate()
         {
             if (!_probeManager) return;
-            if (_probeManager.IsConnectedToManipulator() == automaticMovementControlPanelGameObject.activeSelf) return;
+            if (_probeManager.IsEphysLinkControlled == automaticMovementControlPanelGameObject.activeSelf) return;
             UpdateAutomaticControlPanel();
         }
 
@@ -96,7 +96,7 @@ namespace TrajectoryPlanner
             else
             {
                 positionFields.interactable = false; // !_probeManager.GetEphysLinkMovement();
-                angleFields.interactable = _probeManager == null || !_probeManager.IsGhost();
+                angleFields.interactable = _probeManager == null || !_probeManager.IsGhost;
                 buttons.interactable = true;
             }
         }
@@ -115,19 +115,19 @@ namespace TrajectoryPlanner
         private void UpdateAutomaticControlPanel()
         {
             // Check if this probe can be controlled by EphysLink
-            if (_probeManager.IsConnectedToManipulator())
+            if (_probeManager.IsEphysLinkControlled)
             {
                 // Show the panel
                 automaticMovementControlPanelGameObject.SetActive(true);
                 
                 // Set enable status (based on if there is a ghost attached or not)
-                automaticMovementToggle.SetIsOnWithoutNotify(_probeManager.HasGhost());
+                automaticMovementToggle.SetIsOnWithoutNotify(_probeManager.HasGhost);
                 
                 // Enable/disable interaction based on if there is a ghost attached or not
-                EnableAutomaticControlUI(_probeManager.HasGhost());
+                EnableAutomaticControlUI(_probeManager.HasGhost);
                 
                 // Set value in speed input field
-                automaticMovementSpeedInputField.text = _probeManager.GetAutomaticMovementSpeed().ToString();
+                automaticMovementSpeedInputField.text = _probeManager.AutomaticMovementSpeed.ToString();
             }
             else
             {
@@ -157,10 +157,11 @@ namespace TrajectoryPlanner
         /// </summary>
         public void ResetZeroCoordinate()
         {
-            if (_probeManager.IsConnectedToManipulator())
+            if (_probeManager.IsEphysLinkControlled)
             {
-                _communicationManager.GetPos(_probeManager.GetManipulatorId(), _probeManager.SetZeroCoordinateOffset);
-                _probeManager.SetBrainSurfaceOffset(0);
+                _communicationManager.GetPos(_probeManager.ManipulatorId,
+                    zeroCoordinate => _probeManager.ZeroCoordinateOffset = zeroCoordinate);
+                _probeManager.BrainSurfaceOffset = 0;
             }
             else
             {
@@ -190,8 +191,8 @@ namespace TrajectoryPlanner
                 var originalProbeManager = _probeManager;
                 var ghostProbeManager = _trajectoryPlannerManager.AddNewProbeTransformed(
                     _probeManager.ProbeType, _probeManager.GetProbeController().Insertion, "",
-                    _probeManager.GetZeroCoordinateOffset(), _probeManager.GetBrainSurfaceOffset(),
-                    _probeManager.IsSetToDropToSurfaceWithDepth(), null, true);
+                    _probeManager.ZeroCoordinateOffset, _probeManager.BrainSurfaceOffset,
+                    _probeManager.IsSetToDropToSurfaceWithDepth, null, true);
     
                 // Configure ghost
                 var originalProbeInsertion = originalProbeManager.GetProbeController().Insertion;
@@ -205,7 +206,7 @@ namespace TrajectoryPlanner
                     originalProbeInsertion.spin, originalProbeInsertion.CoordinateSpace, originalProbeInsertion.CoordinateTransform));
                 
                 // Set references
-                originalProbeManager.SetGhostProbeManager(ghostProbeManager);
+                originalProbeManager.GhostProbeManager = ghostProbeManager;
                 ghostProbeManager.SetId(originalProbeManager.GetID());
                 ghostProbeManager.name = "GHOST_PROBE_" + originalProbeManager.GetID();
             }
@@ -214,9 +215,9 @@ namespace TrajectoryPlanner
                 // Disable UI
                 EnableAutomaticControlUI(false);
                 // Remove ghost
-                _trajectoryPlannerManager.DestroyProbe(_probeManager.GetGhostProbeManager());
+                _trajectoryPlannerManager.DestroyProbe(_probeManager.GhostProbeManager);
                 // Remove ghost probe manager reference
-                _probeManager.SetGhostProbeManager(null);
+                _probeManager.GhostProbeManager = null;
             }
         }
 
@@ -251,11 +252,11 @@ namespace TrajectoryPlanner
         public void AutomaticallyDriveManipulator()
         {
             // Gather info
-            var apmldv = _probeManager.GetGhostProbeManager().GetProbeController().Insertion.apmldv;
-            var depth = _probeManager.GetGhostProbeManager().GetProbeController().GetProbeDepth();
+            var apmldv = _probeManager.GhostProbeManager.GetProbeController().Insertion.apmldv;
+            var depth = _probeManager.GhostProbeManager.GetProbeController().GetProbeDepth();
 
             // Convert apmldv to world coordinate
-            var convertToWorld = _probeManager.GetGhostProbeManager().GetProbeController().Insertion
+            var convertToWorld = _probeManager.GhostProbeManager.GetProbeController().Insertion
                 .Transformed2WorldAxisChange(apmldv);
 
             // Flip axes to match manipulator
@@ -266,10 +267,10 @@ namespace TrajectoryPlanner
                 depth);
 
             // Apply brain surface offset
-            var brainSurfaceAdjustment = float.IsNaN(_probeManager.GetBrainSurfaceOffset())
+            var brainSurfaceAdjustment = float.IsNaN(_probeManager.BrainSurfaceOffset)
                 ? 0
-                : _probeManager.GetBrainSurfaceOffset();
-            if (_probeManager.IsSetToDropToSurfaceWithDepth())
+                : _probeManager.BrainSurfaceOffset;
+            if (_probeManager.IsSetToDropToSurfaceWithDepth)
                 posWithDepthAndCorrectAxes.w -= brainSurfaceAdjustment;
             else
                 posWithDepthAndCorrectAxes.z -= brainSurfaceAdjustment;
@@ -287,10 +288,11 @@ namespace TrajectoryPlanner
             
             // Apply axis negations
             posWithDepthAndCorrectAxes.z *= -1;
-            posWithDepthAndCorrectAxes.y *= _trajectoryPlannerManager.IsManipulatorRightHanded(_probeManager.GetManipulatorId()) ? 1 : -1;
+            posWithDepthAndCorrectAxes.y *=
+                _trajectoryPlannerManager.IsManipulatorRightHanded(_probeManager.ManipulatorId) ? 1 : -1;
 
             // Apply coordinate offsets
-            var zeroCoordinateOffsetPos = posWithDepthAndCorrectAxes + _probeManager.GetZeroCoordinateOffset();
+            var zeroCoordinateOffsetPos = posWithDepthAndCorrectAxes + _probeManager.ZeroCoordinateOffset;
 
             // Draw pathway
             var lineObject = new GameObject("AutoControlPath")
@@ -308,14 +310,14 @@ namespace TrajectoryPlanner
             lineRenderer.SetPosition(0, _probeManager.GetProbeController().ProbeTipT.position);
             // Set end position (ghost position)
             lineRenderer.SetPosition(1,
-                _probeManager.GetGhostProbeManager().GetProbeController().ProbeTipT.position);
+                _probeManager.GhostProbeManager.GetProbeController().ProbeTipT.position);
 
             // Send position to manipulator
-            _communicationManager.SetCanWrite(_probeManager.GetManipulatorId(), true, 1, canWrite =>
+            _communicationManager.SetCanWrite(_probeManager.ManipulatorId, true, 1, canWrite =>
             {
                 if (canWrite)
-                    _communicationManager.GotoPos((string)_probeManager.GetManipulatorId(),
-                        zeroCoordinateOffsetPos, _probeManager.GetAutomaticMovementSpeed(), endPos => Destroy(lineObject),
+                    _communicationManager.GotoPos(_probeManager.ManipulatorId,
+                        zeroCoordinateOffsetPos, _probeManager.AutomaticMovementSpeed, endPos => Destroy(lineObject),
                         Debug.LogError);
             }, Debug.LogError);
         }
@@ -336,10 +338,10 @@ namespace TrajectoryPlanner
             if (optIdx > 0)
             {
                 string optText = _linkedExperimentDropdown.options[optIdx].text;
-                _experimentManager.ChangeProbeExperiment(_probeManager.UUID, optText);
+                _accountsManager.ChangeProbeExperiment(_probeManager.Uuid, optText);
             }
             else
-                _experimentManager.RemoveProbeExperiment(_probeManager.UUID);
+                _accountsManager.RemoveProbeExperiment(_probeManager.Uuid);
         }
 
         #endregion

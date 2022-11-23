@@ -11,23 +11,50 @@ using UnityEngine;
 public class ProbeManager : MonoBehaviour
 {
     // Internal flags that track whether we are in manual control or drag/link control mode
-    private bool _ephysLinkMovement;
-    private string _uuid;
-    public string UUID { get { return _uuid; } }
+    public bool IsEphysLinkControlled { get; private set; }
+    public string Uuid { get; private set; }
 
     #region Ephys Link
 
     private CommunicationManager _ephysLinkCommunicationManager;
-    private string _manipulatorId;
+
+    /// <summary>
+    ///     Manipulator ID from Ephys Link
+    /// </summary>
+    public string ManipulatorId { get; private set; }
     private float _phiCos = 1f;
     private float _phiSin;
-    private Vector4 _zeroCoordinateOffset = Vector4.negativeInfinity;
-    private float _brainSurfaceOffset;
-    private bool _dropToSurfaceWithDepth = true;
+    public Vector4 ZeroCoordinateOffset { get; set; } = Vector4.negativeInfinity;
+    public float BrainSurfaceOffset { get; set; }
+    public bool CanChangeBrainSurfaceOffsetAxis => BrainSurfaceOffset == 0;
+    public bool IsSetToDropToSurfaceWithDepth { get; private set; } = true;
     private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
-    private int _automaticMovementSpeed = 500; // Default to 500 um/s
-    private ProbeManager _ghostProbeManager;
-    private ProbeManager _originalProbeManager;
+    public int AutomaticMovementSpeed { get; private set; } = 500; // Default to 500 um/s
+
+    /// <summary>
+    ///     Reference to probe manager of this probe's ghost
+    /// </summary>
+    public ProbeManager GhostProbeManager { get; set; }
+
+    /// <summary>
+    ///     Reference to probe manager of this probe's original probe (for if this is a ghost probe)
+    /// </summary>
+    public ProbeManager OriginalProbeManager { get; set; }
+
+    /// <summary>
+    ///     Getter property for if this probe is a ghost probe
+    /// </summary>
+    public bool IsGhost => OriginalProbeManager != null;
+
+    /// <summary>
+    ///     Getter property for if this probe is the original probe
+    /// </summary>
+    public bool IsOriginal => OriginalProbeManager == null;
+
+    /// <summary>
+    ///     Getter property for if this probe (an original) has a ghosting probe
+    /// </summary>
+    public bool HasGhost => GhostProbeManager != null;
 
     #endregion
 
@@ -118,7 +145,7 @@ public class ProbeManager : MonoBehaviour
 
     private void Awake()
     {
-        _uuid = Guid.NewGuid().ToString();
+        Uuid = Guid.NewGuid().ToString();
 
         defaultMaterials = new Dictionary<GameObject, Material>();
 
@@ -140,9 +167,9 @@ public class ProbeManager : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log($"New probe created with UUID: {_uuid}");
+        Debug.Log($"New probe created with UUID: {Uuid}");
         // Request for ID and color if this is a normal probe
-        if (_originalProbeManager == null)
+        if (IsOriginal)
         {
             probeID = tpmanager.GetNextProbeId();
             name = "PROBE_" + probeID;
@@ -174,9 +201,9 @@ public class ProbeManager : MonoBehaviour
             puimanager.Destroy();
         
         // Unregister this probe from the ephys link
-        if (IsConnectedToManipulator())
+        if (IsEphysLinkControlled)
         {
-            SetEphysLinkMovement(false);
+            SetIsEphysLinkControlled(false);
         }
     }
 
@@ -221,7 +248,7 @@ public class ProbeManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log(string.Format("Override UUID to {0}", newUUID));
 #endif
-        _uuid = newUUID;
+        Uuid = newUUID;
     }
 
     /// <summary>
@@ -245,7 +272,7 @@ public class ProbeManager : MonoBehaviour
     public bool MoveProbe(bool checkForCollisions = false)
     {
         // Cancel movement if being controlled by EphysLink
-        if (_ephysLinkMovement)
+        if (IsEphysLinkControlled)
             return false;
 
         return ((DefaultProbeController)probeController).MoveProbe_Keyboard(checkForCollisions);
@@ -502,16 +529,8 @@ public class ProbeManager : MonoBehaviour
 
     #region Ephys Link and Control
 
-    #region Property Getters and Setters
+    #region Property Manipulators
 
-    /// <summary>
-    /// Return if this probe is being controlled by the Ephys Link.
-    /// </summary>
-    /// <returns>True if movement is controlled by Ephys Link, False otherwise</returns>
-    public bool GetEphysLinkMovement()
-    {
-        return _ephysLinkMovement;
-    }
 
     /// <summary>
     /// (un)Register a probe and begin echoing position.
@@ -521,26 +540,26 @@ public class ProbeManager : MonoBehaviour
     /// <param name="calibrated">Is the manipulator in real life calibrated</param>
     /// <param name="onSuccess">Callback function to handle a successful registration</param>
     /// <param name="onError">Callback function to handle a failed registration</param>
-    public void SetEphysLinkMovement(bool register, string manipulatorId = null, bool calibrated = true,
+    public void SetIsEphysLinkControlled(bool register, string manipulatorId = null, bool calibrated = true,
         Action onSuccess = null, Action<string> onError = null)
     {
         // Exit early if this was an invalid call
         switch (register)
         {
-            case true when IsConnectedToManipulator():
+            case true when IsEphysLinkControlled:
             case true when string.IsNullOrEmpty(manipulatorId):
                 return;
         }
 
         // Set states
-        _ephysLinkMovement = register;
+        IsEphysLinkControlled = register;
         tpmanager.UpdateQuickSettings();
 
         if (register)
             _ephysLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
             {
                 Debug.Log("Manipulator Registered");
-                _manipulatorId = manipulatorId;
+                ManipulatorId = manipulatorId;
 
                 if (calibrated)
                     // Bypass calibration and start echoing
@@ -563,7 +582,7 @@ public class ProbeManager : MonoBehaviour
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
         else
-            _ephysLinkCommunicationManager.UnregisterManipulator(_manipulatorId, () =>
+            _ephysLinkCommunicationManager.UnregisterManipulator(ManipulatorId, () =>
             {
                 Debug.Log("Manipulator Unregistered");
                 ResetManipulatorProperties();
@@ -577,93 +596,22 @@ public class ProbeManager : MonoBehaviour
             // Read and start echoing position
             _ephysLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
             {
-                if (_zeroCoordinateOffset.Equals(Vector4.negativeInfinity)) _zeroCoordinateOffset = vector4;
+                if (ZeroCoordinateOffset.Equals(Vector4.negativeInfinity)) ZeroCoordinateOffset = vector4;
                 EchoPositionFromEphysLink(vector4);
             });
         }
     }
 
     /// <summary>
-    ///     Get attached manipulator ID.
-    /// </summary>
-    /// <returns>Attached manipulator ID, 0 if none are attached</returns>
-    public string GetManipulatorId()
-    {
-        return _manipulatorId;
-    }
-
-    /// <summary>
-    ///     Set a reference to the probe manager of the ghost probe for moving the manipulator tied to this probe.
-    /// </summary>
-    /// <param name="probeManager">probe manager of the ghost probe for this probe</param>
-    public void SetGhostProbeManager(ProbeManager probeManager)
-    {
-        _ghostProbeManager = probeManager;
-    }
-    
-    /// <summary>
-    /// Return ghost probe's probe manager
-    /// </summary>
-    /// <returns>Ghost probe's probe manager</returns>
-    public ProbeManager GetGhostProbeManager()
-    {
-        return _ghostProbeManager;
-    }
-
-    /// <summary>
-    /// For a ghost probe, set the original probe's probe manager
-    /// </summary>
-    /// <param name="probeManager">Original probe's probe manager</param>
-    public void SetOriginalProbeManager(ProbeManager probeManager)
-    {
-        _originalProbeManager = probeManager;
-    }
-    
-    /// <summary>
-    /// Get the original probe's probe manager
-    /// </summary>
-    /// <returns>Original probe's probe manager</returns>
-    public ProbeManager GetOriginalProbeManager()
-    {
-        return _originalProbeManager;
-    }
-
-    /// <summary>
     ///     Set manipulator properties such as ID and positional offsets back to defaults.
     /// </summary>
-    public void ResetManipulatorProperties()
+    private void ResetManipulatorProperties()
     {
-        _manipulatorId = null; 
-        _zeroCoordinateOffset = Vector4.negativeInfinity;
-        _brainSurfaceOffset = 0;
+        ManipulatorId = null;
+        ZeroCoordinateOffset = Vector4.negativeInfinity;
+        BrainSurfaceOffset = 0;
     }
 
-    /// <summary>
-    ///     Return if this probe is being controlled by the Ephys Link.
-    /// </summary>
-    /// <returns>True if this probe is attached to a manipulator, false otherwise</returns>
-    public bool IsConnectedToManipulator()
-    {
-        return !string.IsNullOrEmpty(_manipulatorId);
-    }
-
-    /// <summary>
-    ///     Return if this probe is a ghost of another probe
-    /// </summary>
-    /// <returns>True if this probe is a ghost, false otherwise</returns>
-    public bool IsGhost()
-    {
-        return _originalProbeManager != null;
-    }
-
-    /// <summary>
-    ///     Return if this probe has a ghost attached to it
-    /// </summary>
-    /// <returns>True if this probe has a ghost, false otherwise</returns>
-    public bool HasGhost()
-    {
-        return _ghostProbeManager != null;
-    }
 
     /// <summary>
     /// Set the automatic movement speed of this probe (when put under automatic control)
@@ -672,47 +620,23 @@ public class ProbeManager : MonoBehaviour
     public void SetAutomaticMovementSpeed(int speed)
     {
         // Ghosts don't have automatic movement speeds
-        if (IsGhost())
+        if (IsGhost)
         {
             return;
         }
-        _automaticMovementSpeed = speed;
+
+        AutomaticMovementSpeed = speed;
     }
     
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
-    public int GetAutomaticMovementSpeed()
-    {
-        return _automaticMovementSpeed;
-    }
-
-    /// <summary>
-    ///     Manipulator space offset to zero coordinate as X, Y, Z, Depth.
-    /// </summary>
-    /// <returns>Manipulator space offset to zero coordinate as X, Y, Z, Depth</returns>
-    public Vector4 GetZeroCoordinateOffset()
-    {
-        return _zeroCoordinateOffset;
-    }
-    
-    /// <summary>
-    ///     Set manipulator space offset to zero coordinate as X, Y, Z, Depth.
-    /// </summary>
-    /// <param name="zeroCoordinateOffset">Offset from zero coordinate as X, Y, Z, Depth</param>
-    public void SetZeroCoordinateOffset(Vector4 zeroCoordinateOffset)
-    {
-        _zeroCoordinateOffset = zeroCoordinateOffset;
-    }
-
     /// <summary>
     ///     Update x coordinate of manipulator space offset to zero coordinate.
     /// </summary>
     /// <param name="x">X coordinate</param>
     public void SetZeroCoordinateOffsetX(float x)
     {
-        _zeroCoordinateOffset.x = x;
+        var temp = ZeroCoordinateOffset;
+        temp.x = x;
+        ZeroCoordinateOffset = temp;
     }
 
     /// <summary>
@@ -721,7 +645,9 @@ public class ProbeManager : MonoBehaviour
     /// <param name="y">Y coordinate</param>
     public void SetZeroCoordinateOffsetY(float y)
     {
-        _zeroCoordinateOffset.y = y;
+        var temp = ZeroCoordinateOffset;
+        temp.y = y;
+        ZeroCoordinateOffset = temp;
     }
 
 
@@ -731,7 +657,9 @@ public class ProbeManager : MonoBehaviour
     /// <param name="z">Z coordinate</param>
     public void SetZeroCoordinateOffsetZ(float z)
     {
-        _zeroCoordinateOffset.z = z;
+        var temp = ZeroCoordinateOffset;
+        temp.z = z;
+        ZeroCoordinateOffset = temp;
     }
 
 
@@ -741,36 +669,11 @@ public class ProbeManager : MonoBehaviour
     /// <param name="depth">D coordinate</param>
     public void SetZeroCoordinateOffsetDepth(float depth)
     {
-        _zeroCoordinateOffset.w = depth;
-    }
-
-    /// <summary>
-    /// Get manipulator space offset from brain surface as Depth.
-    /// </summary>
-    /// <returns>Manipulator space offset to brain surface</returns>
-    public float GetBrainSurfaceOffset()
-    {
-        return _brainSurfaceOffset;
-    }
-
-    /// <summary>
-    /// Check if brain surface offset axis (Depth vs DV) is allowed to be changed
-    /// </summary>
-    /// <returns>True if the axis is allowed to be changed, false otherwise</returns>
-    public bool CanChangeBrainSurfaceOffsetAxis()
-    {
-        return _brainSurfaceOffset == 0;
+        var temp = ZeroCoordinateOffset;
+        temp.w = depth;
+        ZeroCoordinateOffset = temp;
     }
     
-    /// <summary>
-    ///     Set manipulator space offset from brain surface as Depth from input.
-    /// </summary>
-    /// <param name="brainSurfaceOffset">Offset from brain surface as Depth</param>
-    public void SetBrainSurfaceOffset(float brainSurfaceOffset)
-    {
-        _brainSurfaceOffset = brainSurfaceOffset;
-    }
-
     /// <summary>
     ///     Set manipulator space offset from brain surface as Depth from manipulator or probe coordinates.
     /// </summary>
@@ -779,9 +682,9 @@ public class ProbeManager : MonoBehaviour
         if (probeInBrain)
         {
             // Just calculate the distance from the probe tip position to the brain surface            
-            if (IsConnectedToManipulator())
+            if (IsEphysLinkControlled)
             {
-                _brainSurfaceOffset -= Vector3.Distance(brainSurface, probeController.Insertion.apmldv);
+                BrainSurfaceOffset -= Vector3.Distance(brainSurface, probeController.Insertion.apmldv);
             }
             else
             {
@@ -791,7 +694,8 @@ public class ProbeManager : MonoBehaviour
         else
         {
             // We need to calculate the surface coordinate ourselves
-            var tipExtensionDirection = _dropToSurfaceWithDepth ? probeController.GetTipWorldU().tipUpWorld : Vector3.up;
+            var tipExtensionDirection =
+                IsSetToDropToSurfaceWithDepth ? probeController.GetTipWorldU().tipUpWorld : Vector3.up;
 
             var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
                 annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorldU().tipCoordWorld - tipExtensionDirection * 5),
@@ -805,12 +709,12 @@ public class ProbeManager : MonoBehaviour
 
             var brainSurfaceToWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
 
-            if (IsConnectedToManipulator())
+            if (IsEphysLinkControlled)
             {
                 var depth = Vector3.Distance(probeController.Insertion.World2Transformed(brainSurfaceToWorld),
                     probeController.Insertion.apmldv);
-                _brainSurfaceOffset += depth;
-                print("Depth: " + depth + " Total: " + _brainSurfaceOffset);
+                BrainSurfaceOffset += depth;
+                print("Depth: " + depth + " Total: " + BrainSurfaceOffset);
             }
             else
             {
@@ -827,7 +731,7 @@ public class ProbeManager : MonoBehaviour
     /// <param name="increment">Amount to change the brain surface offset by</param>
     public void IncrementBrainSurfaceOffset(float increment)
     {
-        _brainSurfaceOffset += increment;
+        BrainSurfaceOffset += increment;
     }
 
     /// <summary>
@@ -837,19 +741,10 @@ public class ProbeManager : MonoBehaviour
     public void SetDropToSurfaceWithDepth(bool dropToSurfaceWithDepth)
     {
         // Only make changes to brain surface offset axis if the offset is 0
-        if (!CanChangeBrainSurfaceOffsetAxis()) return;
+        if (!CanChangeBrainSurfaceOffsetAxis) return;
         
         // Apply change (if eligible)
-        _dropToSurfaceWithDepth = dropToSurfaceWithDepth;
-    }
-
-    /// <summary>
-    ///     Return if this probe is currently set to drop to the surface using depth.
-    /// </summary>
-    /// <returns>True if dropping to surface via depth, false if using DV</returns>
-    public bool IsSetToDropToSurfaceWithDepth()
-    {
-        return _dropToSurfaceWithDepth;
+        IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
     }
 
     #endregion
@@ -868,11 +763,11 @@ public class ProbeManager : MonoBehaviour
             return;
         }
         // Apply zero coordinate offset
-        var zeroCoordinateAdjustedManipulatorPosition = pos - _zeroCoordinateOffset;
+        var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
         
         // Apply axis negations
         zeroCoordinateAdjustedManipulatorPosition.z *= -1;
-        zeroCoordinateAdjustedManipulatorPosition.y *= tpmanager.IsManipulatorRightHanded(_manipulatorId) ? 1 : -1;
+        zeroCoordinateAdjustedManipulatorPosition.y *= tpmanager.IsManipulatorRightHanded(ManipulatorId) ? 1 : -1;
 
         // Phi adjustment
         var probePhi = -probeController.Insertion.phi * Mathf.Deg2Rad;
@@ -892,8 +787,8 @@ public class ProbeManager : MonoBehaviour
         _lastManipulatorPosition = zeroCoordinateAdjustedManipulatorPosition;
         
         // Brain surface adjustment
-        var brainSurfaceAdjustment = float.IsNaN(_brainSurfaceOffset) ? 0 : _brainSurfaceOffset;
-        if (_dropToSurfaceWithDepth)
+        var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+        if (IsSetToDropToSurfaceWithDepth)
             zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
         else
             zeroCoordinateAdjustedManipulatorPosition.z -= brainSurfaceAdjustment;
@@ -910,8 +805,8 @@ public class ProbeManager : MonoBehaviour
 
 
         // Continue echoing position
-        if (_ephysLinkMovement)
-            _ephysLinkCommunicationManager.GetPos(_manipulatorId, EchoPositionFromEphysLink);
+        if (IsEphysLinkControlled)
+            _ephysLinkCommunicationManager.GetPos(ManipulatorId, EchoPositionFromEphysLink);
     }
 
     #endregion
@@ -942,7 +837,7 @@ public class ProbeManager : MonoBehaviour
             childRenderer.material = ghostMaterial;
 
             // Tint transparent material for non-ghost probes
-            if (!IsGhost()) childRenderer.material.color = currentColorTint;
+            if (!IsGhost) childRenderer.material.color = currentColorTint;
         }
     }
 

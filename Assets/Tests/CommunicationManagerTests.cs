@@ -43,7 +43,7 @@ namespace Tests
 
             // Connect to server
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
-            yield return new WaitUntil(_communicationManager.IsConnected);
+            yield return new WaitUntil(() => _communicationManager.IsConnected);
 
             // Get manipulators
             var state = State.None;

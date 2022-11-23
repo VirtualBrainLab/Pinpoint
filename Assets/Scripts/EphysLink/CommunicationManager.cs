@@ -21,9 +21,18 @@ namespace EphysLink
 
         #region Properties
 
+        /// <summary>
+        ///     The current state of the connection to Ephys Link.
+        /// </summary>
+        public bool IsConnected { get; private set; }
+
+
+        #region Private
+
         private string _serverIp;
         private int _serverPort;
-        private bool _isConnected;
+
+        #endregion
 
         #endregion
 
@@ -81,7 +90,7 @@ namespace EphysLink
                 Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
                 _serverIp = ip;
                 _serverPort = port;
-                _isConnected = true;
+                IsConnected = true;
                 PlayerPrefs.SaveEphysLinkConnectionData(ip, port);
                 onConnected?.Invoke();
             });
@@ -90,7 +99,7 @@ namespace EphysLink
                 var connectionErrorMessage =
                     "Error connecting to server at " + ip + ":" + port + ". Check server for details.";
                 Debug.LogWarning(connectionErrorMessage);
-                _isConnected = false;
+                IsConnected = false;
                 _connectionManager.Close();
                 _connectionManager = null;
                 _socket = null;
@@ -100,7 +109,7 @@ namespace EphysLink
             {
                 var connectionTimeoutMessage = "Connection to server at " + ip + ":" + port + " timed out";
                 Debug.LogWarning(connectionTimeoutMessage);
-                _isConnected = false;
+                IsConnected = false;
                 _connectionManager.Close();
                 _connectionManager = null;
                 _socket = null;
@@ -115,35 +124,8 @@ namespace EphysLink
         public void DisconnectFromServer(Action onDisconnected = null)
         {
             _connectionManager.Close();
-            _isConnected = false;
+            IsConnected = false;
             onDisconnected?.Invoke();
-        }
-
-        /// <summary>
-        ///     Return the stored server IP address.
-        /// </summary>
-        /// <returns>Stored server IP address (can be an empty string)</returns>
-        public string GetServerIp()
-        {
-            return _serverIp;
-        }
-
-        /// <summary>
-        ///     Return the stored server port.
-        /// </summary>
-        /// <returns>Stored server port (can be 0)</returns>
-        public int GetServerPort()
-        {
-            return _serverPort;
-        }
-
-        /// <summary>
-        ///     Return if the server is connected.
-        /// </summary>
-        /// <returns>True if the server is connected, false otherwise</returns>
-        public bool IsConnected()
-        {
-            return _isConnected;
         }
 
         #endregion
