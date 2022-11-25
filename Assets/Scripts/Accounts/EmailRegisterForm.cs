@@ -19,43 +19,43 @@ using UnityEngine.UI;
 
 public class EmailRegisterForm : MonoBehaviour
 {
-    public TMP_InputField emailField;
-    public TMP_InputField passwordField;
-    public TMP_InputField confirmPasswordField;
-    public Button registerButton;
-    public TMP_Text statusText;
+    public TMP_InputField EmailField;
+    public TMP_InputField PasswordField;
+    public TMP_InputField ConfirmPasswordField;
+    public Button RegisterButton;
+    public TMP_Text StatusText;
     
     void Start()
     {
-        if (emailField == null)
+        if (EmailField == null)
             throw new ArgumentException(
-                $"Link the '{nameof(emailField)}' in the inspector."
+                $"Link the '{nameof(EmailField)}' in the inspector."
             );
         
-        if (passwordField == null)
+        if (PasswordField == null)
             throw new ArgumentException(
-                $"Link the '{nameof(passwordField)}' in the inspector."
+                $"Link the '{nameof(PasswordField)}' in the inspector."
             );
         
-        if (confirmPasswordField == null)
+        if (ConfirmPasswordField == null)
             throw new ArgumentException(
-                $"Link the '{nameof(confirmPasswordField)}' in the inspector."
+                $"Link the '{nameof(ConfirmPasswordField)}' in the inspector."
             );
         
-        if (registerButton == null)
+        if (RegisterButton == null)
             throw new ArgumentException(
-                $"Link the '{nameof(registerButton)}' in the inspector."
+                $"Link the '{nameof(RegisterButton)}' in the inspector."
             );
         
-        if (statusText == null)
+        if (StatusText == null)
             throw new ArgumentException(
-                $"Link the '{nameof(statusText)}' in the inspector."
+                $"Link the '{nameof(StatusText)}' in the inspector."
             );
         
-        registerButton.onClick.AddListener(OnRegisterClicked);
+        RegisterButton.onClick.AddListener(OnRegisterClicked);
 
-        statusText.enabled = false;
-        registerButton.enabled = true;
+        StatusText.enabled = false;
+        RegisterButton.enabled = true;
     }
 
     public void Open()
@@ -70,30 +70,30 @@ public class EmailRegisterForm : MonoBehaviour
 
     public async void OnRegisterClicked()
     {
-        statusText.enabled = true;
-        statusText.text = "Registering...";
-        registerButton.enabled = false;
-        statusText.color = Color.yellow;
+        StatusText.enabled = true;
+        StatusText.text = "Registering...";
+        RegisterButton.enabled = false;
+        StatusText.color = Color.yellow;
 
-        if (passwordField.text != confirmPasswordField.text)
+        if (PasswordField.text != ConfirmPasswordField.text)
         {
-            statusText.text = "Password confirmation does not match";
-            statusText.color = Color.red;
+            StatusText.text = "Password confirmation does not match";
+            StatusText.color = Color.red;
             return;
         }
         
         var response = await OnFacet<EmailRegisterFacet>
             .CallAsync<EmailRegisterResponse>(
                 nameof(EmailRegisterFacet.Register),
-                emailField.text,
-                passwordField.text
+                EmailField.text,
+                PasswordField.text
             );
 
         switch (response)
         {
             case EmailRegisterResponse.Ok:
-                statusText.text = "Registration success";
-                statusText.color = Color.green;
+                StatusText.text = "Registration success";
+                StatusText.color = Color.green;
 
                 await Task.Delay(1000);
 
@@ -102,28 +102,28 @@ public class EmailRegisterForm : MonoBehaviour
                 break;
             
             case EmailRegisterResponse.EmailTaken:
-                statusText.text = "This email has already been registered";
-                statusText.color = Color.red;
-                registerButton.enabled = true;
+                StatusText.text = "This email has already been registered";
+                StatusText.color = Color.red;
+                RegisterButton.enabled = true;
                 break;
             
             case EmailRegisterResponse.InvalidEmail:
-                statusText.text = "This is not a valid email address";
-                statusText.color = Color.red;
-                registerButton.enabled = true;
+                StatusText.text = "This is not a valid email address";
+                StatusText.color = Color.red;
+                RegisterButton.enabled = true;
                 break;
             
             case EmailRegisterResponse.WeakPassword:
-                statusText.text = "Password needs to be at least 8 " +
+                StatusText.text = "Password needs to be at least 8 " +
                                   "characters long";
-                statusText.color = Color.red;
-                registerButton.enabled = true;
+                StatusText.color = Color.red;
+                RegisterButton.enabled = true;
                 break;
             
             default:
-                statusText.text = "Unknown response: " + response;
-                statusText.color = Color.yellow;
-                registerButton.enabled = true;
+                StatusText.text = "Unknown response: " + response;
+                StatusText.color = Color.yellow;
+                RegisterButton.enabled = true;
                 break;
         }
     }

@@ -19,47 +19,47 @@ public class EmailLoginForm : MonoBehaviour
 {
     [SerializeField] private AccountsManager _accountsManager;
 
-    public TMP_InputField _emailField;
-    public TMP_InputField _passwordField;
-    public Button _loginButton;
-    public TMP_Text _statusText;
+    public TMP_InputField EmailField;
+    public TMP_InputField PasswordField;
+    public Button LoginButton;
+    public TMP_Text StatusText;
 
     private bool loggedIn;
 
     void Start()
     {
-        if (_emailField == null)
+        if (EmailField == null)
             throw new ArgumentException(
-                $"Link the '{nameof(_emailField)}' in the inspector."
+                $"Link the '{nameof(EmailField)}' in the inspector."
             );
         
-        if (_passwordField == null)
+        if (PasswordField == null)
             throw new ArgumentException(
-                $"Link the '{nameof(_passwordField)}' in the inspector."
+                $"Link the '{nameof(PasswordField)}' in the inspector."
             );
         
-        if (_loginButton == null)
+        if (LoginButton == null)
             throw new ArgumentException(
-                $"Link the '{nameof(_loginButton)}' in the inspector."
+                $"Link the '{nameof(LoginButton)}' in the inspector."
             );
         
-        if (_statusText == null)
+        if (StatusText == null)
             throw new ArgumentException(
-                $"Link the '{nameof(_statusText)}' in the inspector."
+                $"Link the '{nameof(StatusText)}' in the inspector."
             );
         
-        _loginButton.onClick.AddListener(OnLoginClicked);
+        LoginButton.onClick.AddListener(OnLoginClicked);
 
-        _statusText.enabled = false;
+        StatusText.enabled = false;
     }
 
     public async void OnLoginClicked()
     {
         if (loggedIn)
         {
-            _statusText.enabled = false;
+            StatusText.enabled = false;
             loggedIn = false;
-            _loginButton.GetComponentInChildren<TMP_Text>().text = "Login";
+            LoginButton.GetComponentInChildren<TMP_Text>().text = "Login";
 
             var logoutResponse = await OnFacet<EmailLoginFacet>.CallAsync<bool>(nameof(EmailLoginFacet.Logout));
 
@@ -67,32 +67,32 @@ public class EmailLoginForm : MonoBehaviour
         }
 
 
-        _statusText.enabled = true;
-        _statusText.text = "Logging in...";
-        _statusText.color = Color.yellow;
+        StatusText.enabled = true;
+        StatusText.text = "Logging in...";
+        StatusText.color = Color.yellow;
         loggedIn = false;
 
         var loginResponse = await OnFacet<EmailLoginFacet>.CallAsync<bool>(
             nameof(EmailLoginFacet.Login),
-            _emailField.text,
-            _passwordField.text
+            EmailField.text,
+            PasswordField.text
         );
 
         if (loginResponse)
         {
-            _statusText.text = string.Format("Logged into: {0}",_emailField.text);
-            _statusText.color = Color.green;
+            StatusText.text = string.Format("Logged into: {0}",EmailField.text);
+            StatusText.color = Color.green;
 
             // setup logout logic
             loggedIn = true;
-            _loginButton.GetComponentInChildren<TMP_Text>().text = "Logout";
+            LoginButton.GetComponentInChildren<TMP_Text>().text = "Logout";
 
             _accountsManager.LoadPlayer();
         }
         else
         {
-            _statusText.text = "This account does not exist,\nor the password is not valid";
-            _statusText.color = Color.red;
+            StatusText.text = "This account does not exist,\nor the password is not valid";
+            StatusText.color = Color.red;
         }
     }
 }

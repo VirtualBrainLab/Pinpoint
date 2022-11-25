@@ -5,50 +5,50 @@ using UnityEngine.UI;
 
 public class ProbeUIManager : MonoBehaviour
 {
-    [SerializeField] private GameObject probePanelPrefab;
-    private GameObject probePanelGO;
-    private TP_ProbePanel probePanel;
+    [SerializeField] private GameObject _probePanelPrefab;
+    private GameObject _probePanelGO;
+    private TP_ProbePanel _probePanel;
 
-    [SerializeField] private ProbeManager probeManager;
-    private CCFModelControl modelControl;
+    [SerializeField] private ProbeManager _probeManager;
+    private CCFModelControl _modelControl;
 
-    [SerializeField] private GameObject electrodeBase;
-    [SerializeField] private int order;
+    [SerializeField] private GameObject _electrodeBase;
+    [SerializeField] private int _order;
 
-    private CCFAnnotationDataset annotationDataset;
+    private CCFAnnotationDataset _annotationDataset;
 
-    private TrajectoryPlannerManager tpmanager;
+    private TrajectoryPlannerManager _tpmanager;
 
-    private Color defaultColor;
-    private Color selectedColor;
+    private Color _defaultColor;
+    private Color _selectedColor;
 
-    private bool probeMovedDirty = false;
+    private bool _probeMovedDirty = false;
 
-    private float probePanelPxHeight;
-    private float pxStep;
+    private float _probePanelPxHeight;
+    private float _pxStep;
 
     private const int MINIMUM_AREA_PIXEL_HEIGHT = 7;
 
     private void Awake()
     {
-        Debug.Log("Adding puimanager: " + order);
+        Debug.Log("Adding puimanager: " + _order);
 
         // Add the probePanel
         Transform probePanelParentT = GameObject.Find("ProbePanelParent").transform;
-        probePanelGO = Instantiate(probePanelPrefab, probePanelParentT);
-        probePanel = probePanelGO.GetComponent<TP_ProbePanel>();
-        probePanel.RegisterProbeController(probeManager);
-        probePanel.RegisterProbeUIManager(this);
+        _probePanelGO = Instantiate(_probePanelPrefab, probePanelParentT);
+        _probePanel = _probePanelGO.GetComponent<TP_ProbePanel>();
+        _probePanel.RegisterProbeController(_probeManager);
+        _probePanel.RegisterProbeUIManager(this);
 
-        probePanelPxHeight = probePanel.GetPanelHeight();
-        pxStep = probePanelPxHeight / 10;
+        _probePanelPxHeight = _probePanel.GetPanelHeight();
+        _pxStep = _probePanelPxHeight / 10;
 
         GameObject main = GameObject.Find("main");
-        modelControl = main.GetComponent<CCFModelControl>();
+        _modelControl = main.GetComponent<CCFModelControl>();
 
         // Get the annotation dataset
-        tpmanager = main.GetComponent<TrajectoryPlannerManager>();
-        annotationDataset = tpmanager.GetAnnotationDataset();
+        _tpmanager = main.GetComponent<TrajectoryPlannerManager>();
+        _annotationDataset = _tpmanager.GetAnnotationDataset();
 
         // Set color properly
         UpdateColors();
@@ -59,69 +59,69 @@ public class ProbeUIManager : MonoBehaviour
 
     private void Update()
     {
-        if (probeMovedDirty)
+        if (_probeMovedDirty)
         {
             ProbedMovedHelper();
-            probeMovedDirty = false;
+            _probeMovedDirty = false;
         }
     }
 
     public void UpdateColors()
     {
-        defaultColor = probeManager.GetColor();
-        defaultColor.a = 0.5f;
+        _defaultColor = _probeManager.GetColor();
+        _defaultColor.a = 0.5f;
 
-        selectedColor = defaultColor;
-        selectedColor.a = 0.75f;
+        _selectedColor = _defaultColor;
+        _selectedColor.a = 0.75f;
 
-        ProbeSelected(tpmanager.GetActiveProbeManager() == probeManager);
+        ProbeSelected(_tpmanager.GetActiveProbeManager() == _probeManager);
     }
 
     public int GetOrder()
     {
-        return order;
+        return _order;
     }
 
     public void Destroy()
     {
-        Destroy(probePanelGO);
+        Destroy(_probePanelGO);
     }
 
     public void ProbeMoved()
     {
-        probeMovedDirty = true;
+        _probeMovedDirty = true;
     }
 
     public void UpdateName(string newName)
     {
-        probePanelGO.name = newName;
+        _probePanelGO.name = newName;
     }
 
     public TP_ProbePanel GetProbePanel()
     {
-        return probePanel;
+        return _probePanel;
     }
 
     public void SetProbePanelVisibility(bool state)
     {
-        probePanelGO.SetActive(state);
+        _probePanelGO.SetActive(state);
     }
 
     private void ProbedMovedHelper()
     {
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
-        (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)probeManager.GetProbeController()).GetRecordingRegionHeight();
+        (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)_probeManager.GetProbeController()).GetRecordingRegionHeight();
 
-        (Vector3 startCoordWorld, Vector3 endCoordWorld) = probeManager.GetProbeController().GetRecordingRegionWorld(electrodeBase.transform);
-        Vector3 startApdvlr25 = annotationDataset.CoordinateSpace.World2Space(startCoordWorld);
-        Vector3 endApdvlr25 = annotationDataset.CoordinateSpace.World2Space(endCoordWorld);
+        (Vector3 startCoordWorld, Vector3 endCoordWorld) = _probeManager.GetProbeController().GetRecordingRegionWorld(_electrodeBase.transform);
+        Vector3 startApdvlr25 = _annotationDataset.CoordinateSpace.World2Space(startCoordWorld);
+        Vector3 endApdvlr25 = _annotationDataset.CoordinateSpace.World2Space(endCoordWorld);
 
 
         List<int> mmTickPositions = new List<int>();
         List<int> tickIdxs = new List<int>();
         List<int> tickHeights = new List<int>(); // this will be calculated in the second step
 
-        if (tpmanager.GetSetting_ShowRecRegionOnly())
+        if (_tpmanager.GetSetting_ShowRecRegionOnly())
         {
             // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
             // we also want to save the mm tick positions
@@ -132,12 +132,12 @@ public class ProbeUIManager : MonoBehaviour
                 mmPos.Add(i); // this is the list of values we are going to have to assign a position to
 
             int idx = 0;
-            for (int y = 0; y < probePanelPxHeight; y++)
+            for (int y = 0; y < _probePanelPxHeight; y++)
             {
                 if (idx >= mmPos.Count)
                     break;
 
-                float um = mmStartPos + (y / probePanelPxHeight) * (mmEndPos - mmStartPos);
+                float um = mmStartPos + (y / _probePanelPxHeight) * (mmEndPos - mmStartPos);
                 if (um >= mmPos[idx])
                 {
                     mmTickPositions.Add(y);
@@ -157,11 +157,11 @@ public class ProbeUIManager : MonoBehaviour
         // Interpolate from the tip to the top, putting this data into the probe panel texture
         (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startApdvlr25, endApdvlr25);
 
-        probePanel.SetTipData(startApdvlr25, endApdvlr25, mmRecordingSize, tpmanager.GetSetting_ShowRecRegionOnly());
+        _probePanel.SetTipData(startApdvlr25, endApdvlr25, mmRecordingSize, _tpmanager.GetSetting_ShowRecRegionOnly());
 
-        if (tpmanager.GetSetting_ShowRecRegionOnly())
+        if (_tpmanager.GetSetting_ShowRecRegionOnly())
         {
-            for (int y = 0; y < probePanelPxHeight; y++)
+            for (int y = 0; y < _probePanelPxHeight; y++)
             {
                 // If the mm tick position matches with the position we're at, then add a depth line
                 bool depthLine = mmTickPositions.Contains(y);
@@ -178,20 +178,20 @@ public class ProbeUIManager : MonoBehaviour
         else
         {
             // set all the other pixels
-            for (int y = 0; y < probePanelPxHeight; y++)
+            for (int y = 0; y < _probePanelPxHeight; y++)
             {
-                bool depthLine = y > 0 && y < probePanelPxHeight && y % (int)pxStep == 0;
+                bool depthLine = y > 0 && y < _probePanelPxHeight && y % (int)_pxStep == 0;
 
                 if (depthLine)
                 {
                     tickHeights.Add(y);
-                    tickIdxs.Add(9 - y / (int)pxStep);
+                    tickIdxs.Add(9 - y / (int)_pxStep);
                 }
             }
         }
 
-        probePanel.UpdateTicks(tickHeights, tickIdxs);
-        probePanel.UpdateText(centerHeights, names, tpmanager.ProbePanelTextFS(tpmanager.GetSetting_UseAcronyms()));
+        _probePanel.UpdateTicks(tickHeights, tickIdxs);
+        _probePanel.UpdateText(centerHeights, names, _tpmanager.ProbePanelTextFS(_tpmanager.GetSetting_UseAcronyms()));
     }
 
     /// <summary>
@@ -210,24 +210,24 @@ public class ProbeUIManager : MonoBehaviour
         List<string> areaNames = new List<string>();
 
         int prevID = int.MinValue;
-        for (int i = 0; i < probePanelPxHeight; i++)
+        for (int i = 0; i < _probePanelPxHeight; i++)
         {
-            float perc = i / (probePanelPxHeight-1);
+            float perc = i / (_probePanelPxHeight-1);
             Vector3 interpolatedPosition = Vector3.Lerp(tipPosition, topPosition, perc);
             // Round to int
-            int ID = annotationDataset.ValueAtIndex(Mathf.RoundToInt(interpolatedPosition.x), Mathf.RoundToInt(interpolatedPosition.y), Mathf.RoundToInt(interpolatedPosition.z));
+            int ID = _annotationDataset.ValueAtIndex(Mathf.RoundToInt(interpolatedPosition.x), Mathf.RoundToInt(interpolatedPosition.y), Mathf.RoundToInt(interpolatedPosition.z));
             // convert to Beryl ID (if modelControl is set to do that)
-            ID = modelControl.RemapID(ID);
+            ID = _modelControl.RemapID(ID);
             //interpolated[i] = modelControl.GetCCFAreaColor(ID);
 
             if (ID != prevID)
             {
                 // We have arrived at a new area, get the name and height
                 heights.Add(i);
-                if (tpmanager.GetSetting_UseAcronyms())
-                    areaNames.Add(modelControl.ID2Acronym(ID));
+                if (_tpmanager.GetSetting_UseAcronyms())
+                    areaNames.Add(_modelControl.ID2Acronym(ID));
                 else
-                    areaNames.Add(modelControl.ID2AreaName(ID));
+                    areaNames.Add(_modelControl.ID2AreaName(ID));
 
                 prevID = ID;
             }
@@ -248,7 +248,7 @@ public class ProbeUIManager : MonoBehaviour
                 }
                 pixelHeight.Add(heights[heights.Count - 1] - heights[heights.Count - 2]);
             }
-            centerHeights.Add(Mathf.RoundToInt((heights[heights.Count - 1] + probePanelPxHeight) / 2f));
+            centerHeights.Add(Mathf.RoundToInt((heights[heights.Count - 1] + _probePanelPxHeight) / 2f));
         }
 
         // If there is only one value in the heights array, pixelHeight will be empty
@@ -272,16 +272,16 @@ public class ProbeUIManager : MonoBehaviour
     public void ProbeSelected(bool selected)
     {
         if (selected)
-            probePanelGO.GetComponent<Image>().color = selectedColor;
+            _probePanelGO.GetComponent<Image>().color = _selectedColor;
         else
-            probePanelGO.GetComponent<Image>().color = defaultColor;
+            _probePanelGO.GetComponent<Image>().color = _defaultColor;
     }
 
     public void ResizeProbePanel(int newPxHeight)
     {
-        probePanel.ResizeProbePanel(newPxHeight);
+        _probePanel.ResizeProbePanel(newPxHeight);
 
-        probePanelPxHeight = probePanel.GetPanelHeight();
-        pxStep = probePanelPxHeight / 10;
+        _probePanelPxHeight = _probePanel.GetPanelHeight();
+        _pxStep = _probePanelPxHeight / 10;
     }
 }

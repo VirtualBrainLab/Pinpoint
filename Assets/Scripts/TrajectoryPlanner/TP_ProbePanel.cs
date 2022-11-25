@@ -1,19 +1,19 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
-using UnityEngine;
 using TrajectoryPlanner;
+using UnityEngine;
 
 public class TP_ProbePanel : MonoBehaviour
 {
     //[SerializeField] private GameObject pixelsGO;
-    [SerializeField] private Renderer pixelsGPURenderer;
-    [SerializeField] private GameObject textPanelGO;
-    [SerializeField] private GameObject textPrefab;
-    [SerializeField] private List<GameObject> tickMarkGOs;
-    [SerializeField] private int probePanelPxHeight = 500;
+    [SerializeField] private Renderer _pixelsGPURenderer;
+    [SerializeField] private GameObject _textPanelGO;
+    [SerializeField] private GameObject _textPrefab;
+    [SerializeField] private List<GameObject> _tickMarkGOs;
+    [SerializeField] private int _probePanelPxHeight = 500;
 
-    TP_InPlaneSlice inPlaneSlice;
+    TP_InPlaneSlice _inPlaneSlice;
 
     private ProbeManager _probeController;
     private ProbeUIManager _probeUIManager;
@@ -28,29 +28,29 @@ public class TP_ProbePanel : MonoBehaviour
     private void Start()
     {
         // Because probe panels are never created early it is safe to wait to get the annotation dataset until this point
-        inPlaneSlice = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>().GetInPlaneSlice();
+        _inPlaneSlice = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>().GetInPlaneSlice();
         AsyncStart();
     }
 
     private async void AsyncStart()
     {
-        Task<Texture3D> textureTask = inPlaneSlice.GetAnnotationDatasetGPUTexture();
+        Task<Texture3D> textureTask = _inPlaneSlice.GetAnnotationDatasetGPUTexture();
         await textureTask;
 
-        pixelsGPURenderer.material.SetTexture("_AnnotationTexture", textureTask.Result);
+        _pixelsGPURenderer.material.SetTexture("_AnnotationTexture", textureTask.Result);
     }
 
     public void SetTipData(Vector3 tipPosition, Vector3 endPosition, float recordingHeight, bool recordingRegionOnly)
     {
-        pixelsGPURenderer.material.SetVector("_TipPosition", tipPosition);
-        pixelsGPURenderer.material.SetVector("_EndPosition", endPosition);
-        pixelsGPURenderer.material.SetFloat("_RecordingHeight", recordingHeight);
-        pixelsGPURenderer.material.SetFloat("_RecordingRegionOnly", recordingRegionOnly ? 1 : 0);
+        _pixelsGPURenderer.material.SetVector("_TipPosition", tipPosition);
+        _pixelsGPURenderer.material.SetVector("_EndPosition", endPosition);
+        _pixelsGPURenderer.material.SetFloat("_RecordingHeight", recordingHeight);
+        _pixelsGPURenderer.material.SetFloat("_RecordingRegionOnly", recordingRegionOnly ? 1 : 0);
     }
 
     public float GetPanelHeight()
     {
-        return probePanelPxHeight;
+        return _probePanelPxHeight;
     }
 
     public void RegisterProbeUIManager(ProbeUIManager probeUImanager)
@@ -83,19 +83,19 @@ public class TP_ProbePanel : MonoBehaviour
 
     public void UpdateTicks(List<int> heights, List<int> tickIdxs)
     {
-        foreach (GameObject go in tickMarkGOs)
+        foreach (GameObject go in _tickMarkGOs)
             go.SetActive(false);
 
         for (int i = 0; i < heights.Count; i++)
         {
-            tickMarkGOs[tickIdxs[i]].SetActive(true);
-            tickMarkGOs[tickIdxs[i]].transform.localPosition = new Vector3(4.5f, heights[i]);
+            _tickMarkGOs[tickIdxs[i]].SetActive(true);
+            _tickMarkGOs[tickIdxs[i]].transform.localPosition = new Vector3(4.5f, heights[i]);
         }
     }
 
     public void AddText(int pxHeight, string areaName, int fontSize)
     {
-        GameObject newText = Instantiate(textPrefab, textPanelGO.transform);
+        GameObject newText = Instantiate(_textPrefab, _textPanelGO.transform);
         newText.GetComponent<TextMeshProUGUI>().text = areaName;
         newText.GetComponent<TextMeshProUGUI>().fontSize = fontSize;
         textGOs.Add(newText);
@@ -104,7 +104,7 @@ public class TP_ProbePanel : MonoBehaviour
 
     public void ResizeProbePanel(int newPxHeight)
     {
-        probePanelPxHeight = newPxHeight;
-        pixelsGPURenderer.gameObject.transform.localScale = new Vector3(25, newPxHeight);
+        _probePanelPxHeight = newPxHeight;
+        _pixelsGPURenderer.gameObject.transform.localScale = new Vector3(25, newPxHeight);
     }
 }

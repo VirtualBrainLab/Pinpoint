@@ -121,7 +121,7 @@ namespace Settings
             // Add any new probes in scene to list
             foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes().Where(manager => !manager.IsGhost))
             {
-                var probeId = probeManager.GetID();
+                var probeId = probeManager.ProbeID;
 
                 // Create probe connection settings panel if the probe is new
                 if (!_probeIdToProbeConnectionSettingsPanels.ContainsKey(probeId))

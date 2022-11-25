@@ -4,12 +4,12 @@ using UnityEngine.EventSystems;
 
 public class DefaultProbeCollider : MonoBehaviour
 {
-    [SerializeField] ProbeManager probeManager;
-    private TrajectoryPlannerManager tpmanager;
+    [SerializeField] private ProbeManager _probeManager;
+    private TrajectoryPlannerManager _tpmanager;
 
     private void Start()
     {
-        tpmanager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+        _tpmanager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
     }
 
     // [TODO] Refactor these into UnityEvents so that we don't need to have access to tpmanager!!
@@ -19,19 +19,19 @@ public class DefaultProbeCollider : MonoBehaviour
         // If someone clicks on a probe, immediately make that the active probe and claim probe control
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-        tpmanager.SetActiveProbe(probeManager);
-        ((DefaultProbeController)probeManager.GetProbeController()).DragMovementClick();
+        _tpmanager.SetActiveProbe(_probeManager);
+        ((DefaultProbeController)_probeManager.GetProbeController()).DragMovementClick();
     }
 
     private void OnMouseDrag()
     {
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-        ((DefaultProbeController)probeManager.GetProbeController()).DragMovementDrag();
+        ((DefaultProbeController)_probeManager.GetProbeController()).DragMovementDrag();
     }
 
     private void OnMouseUp()
     {
-        ((DefaultProbeController)probeManager.GetProbeController()).DragMovementRelease();
+        ((DefaultProbeController)_probeManager.GetProbeController()).DragMovementRelease();
     }
 }

@@ -41,24 +41,24 @@ public class PlayerPrefs : MonoBehaviour
     private bool _ghostInactiveProbes;
     private bool _ghostInactiveAreas;
 
-    [SerializeField] Toggle collisionsToggle;
-    [SerializeField] Toggle recordingRegionToggle;
-    [SerializeField] Toggle acronymToggle;
-    [SerializeField] Toggle depthToggle;
-    [SerializeField] Toggle probeAxisToggle;
-    [SerializeField] TMP_Dropdown slice3dDropdown;
-    [SerializeField] Toggle inplaneToggle;
-    [SerializeField] TMP_Dropdown invivoDropdown;
-    [SerializeField] Toggle iblAngleToggle;
-    [SerializeField] Toggle surfaceToggle;
-    [SerializeField] TMP_InputField ephysLinkServerIpInput;
-    [SerializeField] TMP_InputField ephysLinkServerPortInput;
-    [SerializeField] Toggle axisControlToggle;
-    [SerializeField] Toggle showAllProbePanelsToggle;
-    [SerializeField] Toggle useBerylToggle;
-    [SerializeField] Toggle displayUmToggle;
-    [SerializeField] Toggle ghostInactiveProbesToggle;
-    [SerializeField] Toggle ghostInactiveAreasToggle;
+    [SerializeField] private Toggle _collisionsToggle;
+    [SerializeField] private Toggle _recordingRegionToggle;
+    [SerializeField] private Toggle _acronymToggle;
+    [SerializeField] private Toggle _depthToggle;
+    [SerializeField] private Toggle _probeAxisToggle;
+    [SerializeField] private TMP_Dropdown _slice3dDropdown;
+    [SerializeField] private Toggle _inplaneToggle;
+    [SerializeField] private TMP_Dropdown _invivoDropdown;
+    [SerializeField] private Toggle _iblAngleToggle;
+    [SerializeField] private Toggle _surfaceToggle;
+    [SerializeField] private TMP_InputField _ephysLinkServerIpInput;
+    [SerializeField] private TMP_InputField _ephysLinkServerPortInput;
+    [SerializeField] private Toggle _axisControlToggle;
+    [SerializeField] private Toggle _showAllProbePanelsToggle;
+    [SerializeField] private Toggle _useBerylToggle;
+    [SerializeField] private Toggle _displayUmToggle;
+    [SerializeField] private Toggle _ghostInactiveProbesToggle;
+    [SerializeField] private Toggle _ghostInactiveAreasToggle;
 
 
     /// <summary>
@@ -67,62 +67,62 @@ public class PlayerPrefs : MonoBehaviour
     void Awake()
     {
         _collisions = LoadBoolPref("collisions", true);
-        collisionsToggle.isOn = _collisions;
+        _collisionsToggle.isOn = _collisions;
 
         _recordingRegionOnly = LoadBoolPref("recording", true);
-        recordingRegionToggle.isOn = _recordingRegionOnly;
+        _recordingRegionToggle.isOn = _recordingRegionOnly;
 
         _useAcronyms = LoadBoolPref("acronyms", true);
-        acronymToggle.isOn = _useAcronyms;
+        _acronymToggle.isOn = _useAcronyms;
 
         //_depthFromBrain = LoadBoolPref("depth", true);
         //depthToggle.isOn = _depthFromBrain;
 
         convertAPML2probeAxis = LoadBoolPref("probeaxis", false);
-        probeAxisToggle.isOn = convertAPML2probeAxis;
+        _probeAxisToggle.isOn = convertAPML2probeAxis;
 
         slice3d = LoadIntPref("slice3d", 0);
-        slice3dDropdown.SetValueWithoutNotify(slice3d);
+        _slice3dDropdown.SetValueWithoutNotify(slice3d);
 
         _inplane = LoadBoolPref("inplane", true);
-        inplaneToggle.isOn = _inplane;
+        _inplaneToggle.isOn = _inplane;
 
         invivoTransform = LoadIntPref("stereotaxic", 1);
-        invivoDropdown.SetValueWithoutNotify(invivoTransform);
+        _invivoDropdown.SetValueWithoutNotify(invivoTransform);
 
         useIBLAngles = LoadBoolPref("iblangle", true);
-        iblAngleToggle.isOn = useIBLAngles;
+        _iblAngleToggle.isOn = useIBLAngles;
 
         showSurfaceCoord = LoadBoolPref("surface", true);
-        surfaceToggle.isOn = showSurfaceCoord;
+        _surfaceToggle.isOn = showSurfaceCoord;
 
         _ephysLinkServerIp = LoadStringPref("ephys_link_ip", "localhost");
-        ephysLinkServerIpInput.text = _ephysLinkServerIp;
+        _ephysLinkServerIpInput.text = _ephysLinkServerIp;
 
         _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
-        ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
+        _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
 
         _axisControl = LoadBoolPref("axis_control", true);
-        axisControlToggle.isOn = _axisControl;
+        _axisControlToggle.isOn = _axisControl;
 
         _showAllProbePanels = LoadBoolPref("show_all_probe_panels", true);
-        showAllProbePanelsToggle.isOn = _showAllProbePanels;
+        _showAllProbePanelsToggle.isOn = _showAllProbePanels;
 
         _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulator_ids", "");
 
         _useBeryl = LoadBoolPref("use_beryl", true);
-        useBerylToggle.isOn = _useBeryl;
+        _useBerylToggle.isOn = _useBeryl;
 
         _displayUM = LoadBoolPref("display_um", true);
-        displayUmToggle.isOn = _displayUM;
+        _displayUmToggle.isOn = _displayUM;
 
         _relCoord = LoadVector3Pref("rel_coord", new Vector3(5.4f, 5.7f, 0.332f));
 
         _ghostInactiveProbes = LoadBoolPref("ghost_inactive", false);
-        ghostInactiveProbesToggle.isOn = _ghostInactiveProbes;
+        _ghostInactiveProbesToggle.isOn = _ghostInactiveProbes;
 
         _ghostInactiveAreas = LoadBoolPref("ghost_areas", false);
-        ghostInactiveAreasToggle.isOn = _ghostInactiveAreas;
+        _ghostInactiveAreasToggle.isOn = _ghostInactiveAreas;
     }
 
     #region Getters/Setters
