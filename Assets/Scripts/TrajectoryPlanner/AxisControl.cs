@@ -4,35 +4,35 @@ using UnityEngine;
 
 public class AxisControl : MonoBehaviour
 {
-    [SerializeField] GameObject apGO;
-    [SerializeField] GameObject dvGO;
-    [SerializeField] GameObject mlGO;
-    [SerializeField] GameObject depthGO;
+    [SerializeField] GameObject _apGO;
+    [SerializeField] GameObject _dvGO;
+    [SerializeField] GameObject _mlGO;
+    [SerializeField] GameObject _depthGO;
 
     public void SetAxisPosition(Transform transform)
     {
         if (transform == null)
             return;
-        apGO.transform.position = transform.position;
-        dvGO.transform.position = transform.position;
-        mlGO.transform.position = transform.position;
-        depthGO.transform.position = transform.position;
-        depthGO.transform.rotation = transform.rotation;
+        _apGO.transform.position = transform.position;
+        _dvGO.transform.position = transform.position;
+        _mlGO.transform.position = transform.position;
+        _depthGO.transform.position = transform.position;
+        _depthGO.transform.rotation = transform.rotation;
     }
     public void SetAPVisibility(bool state)
     {
-        apGO.SetActive(state);
+        _apGO.SetActive(state);
     }
     public void SetDVVisibility(bool state)
     {
-        dvGO.SetActive(state);
+        _dvGO.SetActive(state);
     }
     public void SetMLVisibility(bool state)
     {
-        mlGO.SetActive(state);
+        _mlGO.SetActive(state);
     }
     public void SetDepthVisibility(bool state)
     {
-        depthGO.SetActive(state);
+        _depthGO.SetActive(state);
     }
 }

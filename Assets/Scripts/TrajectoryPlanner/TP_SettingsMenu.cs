@@ -7,12 +7,12 @@ namespace Settings
 {
     public class TP_SettingsMenu : MonoBehaviour
     {
-        [SerializeField] private GameObject settingsMenuGO;
+        [SerializeField] private GameObject _settingsMenuGO;
 
         public void ToggleSettingsMenu()
         {
-            if (!settingsMenuGO.activeSelf)
-                settingsMenuGO.SetActive(true);
+            if (!_settingsMenuGO.activeSelf)
+                _settingsMenuGO.SetActive(true);
             else
             {
                 // if the settings menu is active, we want to make sure the user isn't typing before we close the menu
@@ -21,7 +21,7 @@ namespace Settings
                     if (inputField.isFocused)
                         return;
                 }
-                settingsMenuGO.SetActive(false);
+                _settingsMenuGO.SetActive(false);
             }
         }
     }

@@ -4,22 +4,22 @@ using TrajectoryPlanner;
 
 public class TP_ToggleRigs : MonoBehaviour
 {
-    [SerializeField] TrajectoryPlannerManager tpmanager;
+    [SerializeField] TrajectoryPlannerManager _tpmanager;
 
     // Exposed the list of rigs
-    [SerializeField] List<GameObject> rigGOs;
+    [SerializeField] List<GameObject> _rigGOs;
 
     // Start is called before the first frame update
     void Start()
     {
-        foreach (GameObject go in rigGOs)
+        foreach (GameObject go in _rigGOs)
             go.SetActive(false);
     }
 
     public void ToggleRigVisibility(int rigIdx)
     {
-        rigGOs[rigIdx].SetActive(!rigGOs[rigIdx].activeSelf);
-        Collider[] colliders = rigGOs[rigIdx].transform.GetComponentsInChildren<Collider>();
-        tpmanager.UpdateRigColliders(colliders, rigGOs[rigIdx].activeSelf);
+        _rigGOs[rigIdx].SetActive(!_rigGOs[rigIdx].activeSelf);
+        Collider[] colliders = _rigGOs[rigIdx].transform.GetComponentsInChildren<Collider>();
+        _tpmanager.UpdateRigColliders(colliders, _rigGOs[rigIdx].activeSelf);
     }
 }

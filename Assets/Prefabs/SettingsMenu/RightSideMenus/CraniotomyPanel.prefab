@@ -299,7 +299,7 @@ GameObject:
   - component: {fileID: 6062745025640270801}
   - component: {fileID: 6062745025640270806}
   m_Layer: 5
-  m_Name: IBLToolsPanel
+  m_Name: CraniotomyPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

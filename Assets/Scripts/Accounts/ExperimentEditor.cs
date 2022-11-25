@@ -6,22 +6,22 @@ public class ExperimentEditor : MonoBehaviour
 {
     [SerializeField] private AccountsManager _accountsManager;
 
-    [SerializeField] private GameObject experimentEditorGO;
+    [SerializeField] private GameObject _experimentEditorGO;
 
-    [SerializeField] private GameObject editorListGO;
-    [SerializeField] private GameObject experimentListPrefab;
+    [SerializeField] private GameObject _editorListGO;
+    [SerializeField] private GameObject _experimentListPrefab;
 
-    private List<string> experimentNames;
+    private List<string> _experimentNames;
 
     public void ShowEditor()
     {
         if (_accountsManager.Connected)
-            experimentEditorGO.SetActive(true);
+            _experimentEditorGO.SetActive(true);
     }
 
     public void HideEditor()
     {
-        experimentEditorGO.SetActive(false);
+        _experimentEditorGO.SetActive(false);
     }
 
     public void AddExperiment()
@@ -48,23 +48,23 @@ public class ExperimentEditor : MonoBehaviour
     public void UpdateList()
     {
         Debug.Log("List update");
-        Transform[] children = new Transform[editorListGO.transform.childCount];
+        Transform[] children = new Transform[_editorListGO.transform.childCount];
         for (var i = 0; i < children.Length; i++)
-            children[i] = editorListGO.transform.GetChild(i);
+            children[i] = _editorListGO.transform.GetChild(i);
         foreach (Transform t in children)
             Destroy(t.gameObject);
 
-        experimentNames = _accountsManager.GetExperiments();
+        _experimentNames = _accountsManager.GetExperiments();
 
-        foreach (string experiment in experimentNames)
+        foreach (string experiment in _experimentNames)
         {
-            GameObject newExpItem = Instantiate(experimentListPrefab, editorListGO.transform);
+            GameObject newExpItem = Instantiate(_experimentListPrefab, _editorListGO.transform);
 
             ExperimentListPanelBehavior expListItem = newExpItem.GetComponent<ExperimentListPanelBehavior>();
             expListItem.ExperimentNameText.text = experiment;
             expListItem.ExperimentNameText.onEndEdit.AddListener(delegate
             {
-                string expName = experimentNames[expListItem.transform.GetSiblingIndex()];
+                string expName = _experimentNames[expListItem.transform.GetSiblingIndex()];
                 EditExperiment(expName, expListItem.ExperimentNameText.text);
             });
             expListItem.DeleteButton.onClick.AddListener(delegate { RemoveExperiment(expListItem.ExperimentNameText.text); });

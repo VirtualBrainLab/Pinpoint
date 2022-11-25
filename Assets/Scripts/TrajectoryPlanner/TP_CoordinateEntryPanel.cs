@@ -66,7 +66,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         }
 
         Vector3 apmldv;
-        Vector3 angles = _linkedProbe.GetProbeController().Insertion.angles;
+        Vector3 angles = _linkedProbe.GetProbeController().Insertion.Angles;
         float depth = float.NaN;
 
         if (_linkedProbe.IsProbeInBrain())
@@ -75,7 +75,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         }
         else
         {
-            apmldv = _linkedProbe.GetProbeController().Insertion.apmldv;
+            apmldv = _linkedProbe.GetProbeController().Insertion.APMLDV;
         }
 
         float mult = _tpmanager.GetSetting_DisplayUM() ? 1000f : 1f;
