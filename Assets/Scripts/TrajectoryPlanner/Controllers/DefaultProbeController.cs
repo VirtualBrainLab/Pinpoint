@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 public class DefaultProbeController : ProbeController
 {
@@ -56,8 +57,8 @@ public class DefaultProbeController : ProbeController
 
     // References
     [SerializeField] private Transform _probeTipT;
-    [SerializeField] private List<GameObject> recordingRegionGOs;
-    [SerializeField] private Transform rotateAround;
+    [FormerlySerializedAs("recordingRegionGOs")] [SerializeField] private List<GameObject> _recordingRegionGOs;
+    [FormerlySerializedAs("rotateAround")] [SerializeField] private Transform _rotateAround;
 
     public override Transform ProbeTipT { get { return _probeTipT; } }
 
@@ -658,7 +659,7 @@ public class DefaultProbeController : ProbeController
     {
         recordingRegionSizeY = newSize;
 
-        foreach (GameObject go in recordingRegionGOs)
+        foreach (GameObject go in _recordingRegionGOs)
         {
             // This is a little complicated if we want to do it right (since you can accidentally scale the recording region off the probe.
             // For now, we will just reset the y position to be back at the bottom of the probe.
@@ -680,7 +681,7 @@ public class DefaultProbeController : ProbeController
     private void ShiftRecordingRegion(float dir)
     {
         // Loop over recording regions to handle 4-shank (and 8-shank) probes
-        foreach (GameObject recordingRegion in recordingRegionGOs)
+        foreach (GameObject recordingRegion in _recordingRegionGOs)
         {
             Vector3 localPosition = recordingRegion.transform.localPosition;
             float localRecordHeightSpeed = Input.GetKey(KeyCode.LeftShift) ? REC_HEIGHT_SPEED * 2 : REC_HEIGHT_SPEED;
@@ -691,8 +692,8 @@ public class DefaultProbeController : ProbeController
 
     private void UpdateRecordingRegionVars()
     {
-        minRecordHeight = recordingRegionGOs[0].transform.localPosition.y;
-        maxRecordHeight = minRecordHeight + (10 - recordingRegionGOs[0].transform.localScale.y);
+        minRecordHeight = _recordingRegionGOs[0].transform.localPosition.y;
+        maxRecordHeight = minRecordHeight + (10 - _recordingRegionGOs[0].transform.localScale.y);
     }
 
     #endregion
@@ -749,9 +750,9 @@ public class DefaultProbeController : ProbeController
 
         // Manually adjust the coordinates and rotation
         transform.position += localInsertion.PositionWorld();
-        transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
-        transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
-        transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
+        transform.RotateAround(_rotateAround.position, transform.up, localInsertion.phi);
+        transform.RotateAround(_rotateAround.position, transform.forward, localInsertion.theta);
+        transform.RotateAround(_rotateAround.position, _rotateAround.up, localInsertion.spin);
 
         // Compute depth transform, if needed
         if (depth != 0f)
@@ -834,7 +835,7 @@ public class DefaultProbeController : ProbeController
     /// <returns>float array [0]=bottom, [1]=height</returns>
     public (float, float) GetRecordingRegionHeight()
     {
-        return (recordingRegionGOs[0].transform.localPosition.y - minRecordHeight, recordingRegionSizeY);
+        return (_recordingRegionGOs[0].transform.localPosition.y - minRecordHeight, recordingRegionSizeY);
     }
 
     /// <summary>
