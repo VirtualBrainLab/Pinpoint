@@ -1,6 +1,7 @@
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Settings
 {
@@ -27,8 +28,8 @@ namespace Settings
         public void SetManipulatorId(string manipulatorId)
         {
             _manipulatorId = manipulatorId;
-            manipulatorIdText.text = manipulatorId;
-            handednessDropdown.value = _trajectoryPlannerManager.IsManipulatorRightHanded(manipulatorId) ? 1 : 0;
+            _manipulatorIdText.text = manipulatorId;
+            _handednessDropdown.value = _trajectoryPlannerManager.IsManipulatorRightHanded(manipulatorId) ? 1 : 0;
         }
 
         #endregion
@@ -53,8 +54,8 @@ namespace Settings
 
         #region Components
 
-        [SerializeField] private TMP_Text manipulatorIdText;
-        [SerializeField] private TMP_Dropdown handednessDropdown;
+        [FormerlySerializedAs("manipulatorIdText")] [SerializeField] private TMP_Text _manipulatorIdText;
+        [FormerlySerializedAs("handednessDropdown")] [SerializeField] private TMP_Dropdown _handednessDropdown;
 
         private TrajectoryPlannerManager _trajectoryPlannerManager;
 
