@@ -109,14 +109,15 @@ namespace TrajectoryPlanner
 
         #region Ephys Link
 
-        [SerializeField] private GameObject automaticControlPanelGameObject;
+        [FormerlySerializedAs("automaticControlPanelGameObject")] [SerializeField] private GameObject _automaticControlPanelGameObject;
 
         private CommunicationManager _communicationManager;
         private HashSet<string> _rightHandedManipulatorIds = new();
-        
+        public HashSet<ProbeInsertion> TargetProbeInsertions { get; } = new();
+
         public void EnableAutomaticManipulatorControlPanel(bool enable = true)
         {
-            automaticControlPanelGameObject.SetActive(enable);
+            _automaticControlPanelGameObject.SetActive(enable);
         }
 
         #endregion
@@ -491,6 +492,9 @@ namespace TrajectoryPlanner
                 // Disable control UI
                 _probeQuickSettings.EnableAutomaticControlUI(false);
             }
+            
+            // Remove the probe's insertion from the list of insertions (does nothing if not found)
+            TargetProbeInsertions.Remove(activeProbe.GetProbeController().Insertion);
 
             // Remove Probe
             DestroyProbe(activeProbe);
@@ -525,6 +529,7 @@ namespace TrajectoryPlanner
 
             GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
             SetActiveProbe(newProbe.GetComponent<ProbeManager>());
+            TargetProbeInsertions.Add(newProbe.GetComponent<ProbeController>().Insertion);
 
             spawnedThisFrame = true;
 
