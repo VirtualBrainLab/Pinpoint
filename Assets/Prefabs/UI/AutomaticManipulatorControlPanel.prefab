@@ -1895,31 +1895,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d88c3882a5d335418c1360b640d50cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zeroCoordinatePanelCanvasGroup: {fileID: 3013020695642461156}
-  zeroCoordinatePanelText: {fileID: 1445278465210223968}
-  zeroCoordinateManipulator1ProbeText: {fileID: 1445278464347465603}
-  zeroCoordinateManipulator2ProbeText: {fileID: 1445278465789033471}
-  gotoPanelCanvasGroup: {fileID: 84557261823319585}
-  gotoPanelText: {fileID: 478385048297492083}
-  gotoManipulator1ProbeText: {fileID: 7069034683308539969}
-  gotoManipulator1XInputField: {fileID: 4546237684882588982}
-  gotoManipulator1YInputField: {fileID: 4086219826668955305}
-  gotoManipulator1ZInputField: {fileID: 9065161280606548470}
-  gotoManipulator1DInputField: {fileID: 6133734748204318026}
-  gotoManipulator2ProbeText: {fileID: 9104384255522487650}
-  gotoManipulator2XInputField: {fileID: 8495889951088366991}
-  gotoManipulator2YInputField: {fileID: 6389865582561570706}
-  gotoManipulator2ZInputField: {fileID: 1506359275044306144}
-  gotoManipulator2DInputField: {fileID: 8333966828524271298}
-  gotoMoveButtonText: {fileID: 4053248260008623874}
-  duraPanelCanvasGroup: {fileID: 1511422966337397656}
-  duraPanelText: {fileID: 8296755181428719015}
-  duraManipulator1ProbeText: {fileID: 8556400129747900743}
-  duraManipulator2ProbeText: {fileID: 5032434690063124718}
-  drivePanelCanvasGroup: {fileID: 3776968580408328783}
-  drivePanelText: {fileID: 1424320475779402751}
-  driveStatusText: {fileID: 2223006252685534017}
-  driveButtonText: {fileID: 6734418879176428203}
+  _zeroCoordinatePanelCanvasGroup: {fileID: 3013020695642461156}
+  _zeroCoordinatePanelText: {fileID: 1445278465210223968}
+  _zeroCoordinateManipulator1ProbeText: {fileID: 1445278464347465603}
+  _zeroCoordinateManipulator2ProbeText: {fileID: 1445278465789033471}
+  _gotoPanelCanvasGroup: {fileID: 84557261823319585}
+  _gotoPanelText: {fileID: 478385048297492083}
+  _gotoManipulator1ProbeText: {fileID: 7069034683308539969}
+  _gotoManipulator1XInputField: {fileID: 4546237684882588982}
+  _gotoManipulator1YInputField: {fileID: 4086219826668955305}
+  _gotoManipulator1ZInputField: {fileID: 9065161280606548470}
+  _gotoManipulator1DInputField: {fileID: 6133734748204318026}
+  _gotoManipulator2ProbeText: {fileID: 9104384255522487650}
+  _gotoManipulator2XInputField: {fileID: 8495889951088366991}
+  _gotoManipulator2YInputField: {fileID: 6389865582561570706}
+  _gotoManipulator2ZInputField: {fileID: 1506359275044306144}
+  _gotoManipulator2DInputField: {fileID: 8333966828524271298}
+  _gotoMoveButtonText: {fileID: 4053248260008623874}
+  _duraPanelCanvasGroup: {fileID: 1511422966337397656}
+  _duraPanelText: {fileID: 8296755181428719015}
+  _duraManipulator1ProbeText: {fileID: 8556400129747900743}
+  _duraManipulator2ProbeText: {fileID: 5032434690063124718}
+  _drivePanelCanvasGroup: {fileID: 3776968580408328783}
+  _drivePanelText: {fileID: 1424320475779402751}
+  _driveStatusText: {fileID: 2223006252685534017}
+  _driveButtonText: {fileID: 6734418879176428203}
 --- !u!1 &1445278465789033469
 GameObject:
   m_ObjectHideFlags: 0
