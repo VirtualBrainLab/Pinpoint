@@ -1,19 +1,20 @@
 using System.Collections.Generic;
 using TrajectoryPlanner;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ProbeUIManager : MonoBehaviour
 {
-    [SerializeField] private GameObject probePanelPrefab;
+    [FormerlySerializedAs("probePanelPrefab")] [SerializeField] private GameObject _probePanelPrefab;
     private GameObject probePanelGO;
     private TP_ProbePanel probePanel;
 
-    [SerializeField] private ProbeManager probeManager;
+    [FormerlySerializedAs("probeManager")] [SerializeField] private ProbeManager _probeManager;
     private CCFModelControl modelControl;
 
-    [SerializeField] private GameObject electrodeBase;
-    [SerializeField] private int order;
+    [FormerlySerializedAs("electrodeBase")] [SerializeField] private GameObject _electrodeBase;
+    [FormerlySerializedAs("order")] [SerializeField] private int _order;
 
     private CCFAnnotationDataset annotationDataset;
 
@@ -31,13 +32,13 @@ public class ProbeUIManager : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log("Adding puimanager: " + order);
+        Debug.Log("Adding puimanager: " + _order);
 
         // Add the probePanel
         Transform probePanelParentT = GameObject.Find("ProbePanelParent").transform;
-        probePanelGO = Instantiate(probePanelPrefab, probePanelParentT);
+        probePanelGO = Instantiate(_probePanelPrefab, probePanelParentT);
         probePanel = probePanelGO.GetComponent<TP_ProbePanel>();
-        probePanel.RegisterProbeController(probeManager);
+        probePanel.RegisterProbeController(_probeManager);
         probePanel.RegisterProbeUIManager(this);
 
         probePanelPxHeight = probePanel.GetPanelHeight();
@@ -68,18 +69,18 @@ public class ProbeUIManager : MonoBehaviour
 
     public void UpdateColors()
     {
-        defaultColor = probeManager.GetColor();
+        defaultColor = _probeManager.GetColor();
         defaultColor.a = 0.5f;
 
         selectedColor = defaultColor;
         selectedColor.a = 0.75f;
 
-        ProbeSelected(tpmanager.GetActiveProbeManager() == probeManager);
+        ProbeSelected(tpmanager.GetActiveProbeManager() == _probeManager);
     }
 
     public int GetOrder()
     {
-        return order;
+        return _order;
     }
 
     public void Destroy()
@@ -110,9 +111,9 @@ public class ProbeUIManager : MonoBehaviour
     private void ProbedMovedHelper()
     {
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
-        (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)probeManager.GetProbeController()).GetRecordingRegionHeight();
+        (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)_probeManager.GetProbeController()).GetRecordingRegionHeight();
 
-        (Vector3 startCoordWorld, Vector3 endCoordWorld) = probeManager.GetProbeController().GetRecordingRegionWorld(electrodeBase.transform);
+        (Vector3 startCoordWorld, Vector3 endCoordWorld) = _probeManager.GetProbeController().GetRecordingRegionWorld(_electrodeBase.transform);
         Vector3 startApdvlr25 = annotationDataset.CoordinateSpace.World2Space(startCoordWorld);
         Vector3 endApdvlr25 = annotationDataset.CoordinateSpace.World2Space(endCoordWorld);
 

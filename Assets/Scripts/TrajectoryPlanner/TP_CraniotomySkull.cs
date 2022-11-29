@@ -2,39 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TrajectoryPlanner;
+using UnityEngine.Serialization;
 
 public class TP_CraniotomySkull : MonoBehaviour
 {
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
-    [SerializeField] private GameObject skullMeshGO;
-    [SerializeField] private GameObject craniotomyGO;
+    [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
+    [FormerlySerializedAs("skullMeshGO")] [SerializeField] private GameObject _skullMeshGo;
+    [FormerlySerializedAs("craniotomyGO")] [SerializeField] private GameObject _craniotomyGo;
     private Renderer skullRenderer;
     private float craniotomySize = 1f;
 
     private void Awake()
     {
-        skullRenderer = skullMeshGO.GetComponent<Renderer>();
-        tpmanager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+        skullRenderer = _skullMeshGo.GetComponent<Renderer>();
+        _tpmanager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
     }
 
     public void UpdateVisibility()
     {
-        craniotomyGO.transform.localScale = new Vector3(craniotomySize, 1f, craniotomySize);
+        _craniotomyGo.transform.localScale = new Vector3(craniotomySize, 1f, craniotomySize);
 
         if (skullRenderer != null)
         {
-            skullRenderer.material.SetVector("_CraniotomyPosition_0", craniotomyGO.transform.position);
-            skullRenderer.material.SetVector("_CraniotomyUpAxis_0", craniotomyGO.transform.up);
+            skullRenderer.material.SetVector("_CraniotomyPosition_0", _craniotomyGo.transform.position);
+            skullRenderer.material.SetVector("_CraniotomyUpAxis_0", _craniotomyGo.transform.up);
             skullRenderer.material.SetFloat("_CraniotomySize_0", craniotomySize / 2);
         }
     }
 
     public void SetCraniotomyPosition(Vector3 apmldv)
     {
-        Vector3 world = tpmanager.GetCoordinateSpace().Space2World(apmldv);
+        Vector3 world = _tpmanager.GetCoordinateSpace().Space2World(apmldv);
         //Vector3 world = Utils.apmldv2world(apmldv) - tpmanager.GetCenterOffset();
 
-        craniotomyGO.transform.position = world;
+        _craniotomyGo.transform.position = world;
 
         UpdateVisibility();
     }
