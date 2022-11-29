@@ -1,10 +1,11 @@
 using UnityEngine;
 using TrajectoryPlanner;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 public class DefaultProbeCollider : MonoBehaviour
 {
-    [SerializeField] ProbeManager probeManager;
+    [FormerlySerializedAs("probeManager")] [SerializeField] private ProbeManager _probeManager;
     private TrajectoryPlannerManager tpmanager;
 
     private void Start()
@@ -19,19 +20,19 @@ public class DefaultProbeCollider : MonoBehaviour
         // If someone clicks on a probe, immediately make that the active probe and claim probe control
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-        tpmanager.SetActiveProbe(probeManager);
-        ((DefaultProbeController)probeManager.GetProbeController()).DragMovementClick();
+        tpmanager.SetActiveProbe(_probeManager);
+        ((DefaultProbeController)_probeManager.GetProbeController()).DragMovementClick();
     }
 
     private void OnMouseDrag()
     {
         if (EventSystem.current.IsPointerOverGameObject())
             return;
-        ((DefaultProbeController)probeManager.GetProbeController()).DragMovementDrag();
+        ((DefaultProbeController)_probeManager.GetProbeController()).DragMovementDrag();
     }
 
     private void OnMouseUp()
     {
-        ((DefaultProbeController)probeManager.GetProbeController()).DragMovementRelease();
+        ((DefaultProbeController)_probeManager.GetProbeController()).DragMovementRelease();
     }
 }

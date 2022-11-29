@@ -3,15 +3,16 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using TrajectoryPlanner;
+using UnityEngine.Serialization;
 
 public class TP_ProbePanel : MonoBehaviour
 {
     //[SerializeField] private GameObject pixelsGO;
-    [SerializeField] private Renderer pixelsGPURenderer;
-    [SerializeField] private GameObject textPanelGO;
-    [SerializeField] private GameObject textPrefab;
-    [SerializeField] private List<GameObject> tickMarkGOs;
-    [SerializeField] private int probePanelPxHeight = 500;
+    [FormerlySerializedAs("pixelsGPURenderer")] [SerializeField] private Renderer _pixelsGPURenderer;
+    [FormerlySerializedAs("textPanelGO")] [SerializeField] private GameObject _textPanelGo;
+    [FormerlySerializedAs("textPrefab")] [SerializeField] private GameObject _textPrefab;
+    [FormerlySerializedAs("tickMarkGOs")] [SerializeField] private List<GameObject> _tickMarkGOs;
+    [FormerlySerializedAs("probePanelPxHeight")] [SerializeField] private int _probePanelPxHeight = 500;
 
     TP_InPlaneSlice inPlaneSlice;
 
@@ -37,20 +38,20 @@ public class TP_ProbePanel : MonoBehaviour
         Task<Texture3D> textureTask = inPlaneSlice.GetAnnotationDatasetGPUTexture();
         await textureTask;
 
-        pixelsGPURenderer.material.SetTexture("_AnnotationTexture", textureTask.Result);
+        _pixelsGPURenderer.material.SetTexture("_AnnotationTexture", textureTask.Result);
     }
 
     public void SetTipData(Vector3 tipPosition, Vector3 endPosition, float recordingHeight, bool recordingRegionOnly)
     {
-        pixelsGPURenderer.material.SetVector("_TipPosition", tipPosition);
-        pixelsGPURenderer.material.SetVector("_EndPosition", endPosition);
-        pixelsGPURenderer.material.SetFloat("_RecordingHeight", recordingHeight);
-        pixelsGPURenderer.material.SetFloat("_RecordingRegionOnly", recordingRegionOnly ? 1 : 0);
+        _pixelsGPURenderer.material.SetVector("_TipPosition", tipPosition);
+        _pixelsGPURenderer.material.SetVector("_EndPosition", endPosition);
+        _pixelsGPURenderer.material.SetFloat("_RecordingHeight", recordingHeight);
+        _pixelsGPURenderer.material.SetFloat("_RecordingRegionOnly", recordingRegionOnly ? 1 : 0);
     }
 
     public float GetPanelHeight()
     {
-        return probePanelPxHeight;
+        return _probePanelPxHeight;
     }
 
     public void RegisterProbeUIManager(ProbeUIManager probeUImanager)
@@ -83,19 +84,19 @@ public class TP_ProbePanel : MonoBehaviour
 
     public void UpdateTicks(List<int> heights, List<int> tickIdxs)
     {
-        foreach (GameObject go in tickMarkGOs)
+        foreach (GameObject go in _tickMarkGOs)
             go.SetActive(false);
 
         for (int i = 0; i < heights.Count; i++)
         {
-            tickMarkGOs[tickIdxs[i]].SetActive(true);
-            tickMarkGOs[tickIdxs[i]].transform.localPosition = new Vector3(4.5f, heights[i]);
+            _tickMarkGOs[tickIdxs[i]].SetActive(true);
+            _tickMarkGOs[tickIdxs[i]].transform.localPosition = new Vector3(4.5f, heights[i]);
         }
     }
 
     public void AddText(int pxHeight, string areaName, int fontSize)
     {
-        GameObject newText = Instantiate(textPrefab, textPanelGO.transform);
+        GameObject newText = Instantiate(_textPrefab, _textPanelGo.transform);
         newText.GetComponent<TextMeshProUGUI>().text = areaName;
         newText.GetComponent<TextMeshProUGUI>().fontSize = fontSize;
         textGOs.Add(newText);
@@ -104,7 +105,7 @@ public class TP_ProbePanel : MonoBehaviour
 
     public void ResizeProbePanel(int newPxHeight)
     {
-        probePanelPxHeight = newPxHeight;
-        pixelsGPURenderer.gameObject.transform.localScale = new Vector3(25, newPxHeight);
+        _probePanelPxHeight = newPxHeight;
+        _pixelsGPURenderer.gameObject.transform.localScale = new Vector3(25, newPxHeight);
     }
 }

@@ -5,6 +5,7 @@ using EphysLink;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Settings
 {
@@ -18,20 +19,20 @@ namespace Settings
         #region Serialized Fields
 
         // Server connection
-        [SerializeField] private TMP_Text serverConnectedText;
-        [SerializeField] private TMP_InputField ipAddressInputField;
-        [SerializeField] private TMP_InputField portInputField;
-        [SerializeField] private TMP_Text connectionErrorText;
-        [SerializeField] private TMP_Text connectButtonText;
+        [FormerlySerializedAs("serverConnectedText")] [SerializeField] private TMP_Text _serverConnectedText;
+        [FormerlySerializedAs("ipAddressInputField")] [SerializeField] private TMP_InputField _ipAddressInputField;
+        [FormerlySerializedAs("portInputField")] [SerializeField] private TMP_InputField _portInputField;
+        [FormerlySerializedAs("connectionErrorText")] [SerializeField] private TMP_Text _connectionErrorText;
+        [FormerlySerializedAs("connectButtonText")] [SerializeField] private TMP_Text _connectButtonText;
 
         // Manipulators
-        [SerializeField] private GameObject manipulatorList;
-        [SerializeField] private GameObject manipulatorConnectionPanelPrefab;
-        [SerializeField] private TMP_Text automaticControlButtonText;
+        [FormerlySerializedAs("manipulatorList")] [SerializeField] private GameObject _manipulatorList;
+        [FormerlySerializedAs("manipulatorConnectionPanelPrefab")] [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
+        [SerializeField] private TMP_Text _automaticControlButtonText;
 
         // Probes in scene
-        [SerializeField] private GameObject probeList;
-        [SerializeField] private GameObject probeConnectionPanelPrefab;
+        [FormerlySerializedAs("probeList")] [SerializeField] private GameObject _probeList;
+        [FormerlySerializedAs("probeConnectionPanelPrefab")] [SerializeField] private GameObject _probeConnectionPanelPrefab;
 
         #endregion
 
@@ -101,9 +102,9 @@ namespace Settings
         private void UpdateConnectionUI()
         {
             // Connection UI
-            connectionErrorText.text = "";
-            connectButtonText.text = _communicationManager.IsConnected ? "Disconnect" : "Connect";
-            serverConnectedText.text =
+            _connectionErrorText.text = "";
+            _connectButtonText.text = _communicationManager.IsConnected ? "Disconnect" : "Connect";
+            _serverConnectedText.text =
                 (_communicationManager.IsConnected ? "Connected" : "Connect") + " to server at";
 
             // Update available manipulators and their panels
@@ -134,7 +135,7 @@ namespace Settings
                 if (!_probeIdToProbeConnectionSettingsPanels.ContainsKey(probeId))
                 {
                     var probeConnectionSettingsPanelGameObject =
-                        Instantiate(probeConnectionPanelPrefab, probeList.transform);
+                        Instantiate(_probeConnectionPanelPrefab, _probeList.transform);
                     var probeConnectionSettingsPanel =
                         probeConnectionSettingsPanelGameObject.GetComponent<ProbeConnectionSettingsPanel>();
 
@@ -198,7 +199,7 @@ namespace Settings
                     if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorId))
                     {
                         var manipulatorConnectionSettingsPanelGameObject =
-                            Instantiate(manipulatorConnectionPanelPrefab, manipulatorList.transform);
+                            Instantiate(_manipulatorConnectionPanelPrefab, _manipulatorList.transform);
                         var manipulatorConnectionSettingsPanel =
                             manipulatorConnectionSettingsPanelGameObject
                                 .GetComponent<ManipulatorConnectionSettingsPanel>();
@@ -233,20 +234,20 @@ namespace Settings
                 // Attempt to connect to server
                 try
                 {
-                    serverConnectedText.text = "Connecting to server at";
-                    connectButtonText.text = "Connecting...";
-                    _communicationManager.ConnectToServer(ipAddressInputField.text, int.Parse(portInputField.text),
+                    _serverConnectedText.text = "Connecting to server at";
+                    _connectButtonText.text = "Connecting...";
+                    _communicationManager.ConnectToServer(_ipAddressInputField.text, int.Parse(_portInputField.text),
                         UpdateConnectionUI, err =>
                         {
-                            serverConnectedText.text = "Connect to server at";
-                            connectionErrorText.text = err;
-                            connectButtonText.text = "Connect";
+                            _serverConnectedText.text = "Connect to server at";
+                            _connectionErrorText.text = err;
+                            _connectButtonText.text = "Connect";
                         }
                     );
                 }
                 catch (Exception e)
                 {
-                    connectionErrorText.text = e.Message;
+                    _connectionErrorText.text = e.Message;
                 }
             }
             else
@@ -273,7 +274,7 @@ namespace Settings
         {
             _enableAutomaticControl = !_enableAutomaticControl;
             _trajectoryPlannerManager.EnableAutomaticManipulatorControlPanel(_enableAutomaticControl);
-            automaticControlButtonText.text = _enableAutomaticControl
+            _automaticControlButtonText.text = _enableAutomaticControl
                 ? "Disable Automatic Manipulator Control"
                 : "Enable Automatic Manipulator Control";
         }

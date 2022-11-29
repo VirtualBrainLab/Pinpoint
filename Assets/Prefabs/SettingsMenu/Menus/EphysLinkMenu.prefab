@@ -3101,16 +3101,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67bac97c0532be84b862331a0bfec212, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serverConnectedText: {fileID: 2744773998711034318}
-  ipAddressInputField: {fileID: 7352076732546255983}
-  portInputField: {fileID: 1996066765123078317}
-  connectionErrorText: {fileID: 642282321731354649}
-  connectButtonText: {fileID: 4853871370759422342}
-  manipulatorList: {fileID: 7994738088484906322}
-  manipulatorConnectionPanelPrefab: {fileID: 8830734852478451222, guid: 19384593a545a404bbe8bd298659df46, type: 3}
-  automaticControlButtonText: {fileID: 3301958094514248686}
-  probeList: {fileID: 5170893513559919013}
-  probeConnectionPanelPrefab: {fileID: 8493186209703212129, guid: 4bda5f4e2e3ca69458cb983da56cf603, type: 3}
+  _serverConnectedText: {fileID: 2744773998711034318}
+  _ipAddressInputField: {fileID: 7352076732546255983}
+  _portInputField: {fileID: 1996066765123078317}
+  _connectionErrorText: {fileID: 642282321731354649}
+  _connectButtonText: {fileID: 4853871370759422342}
+  _manipulatorList: {fileID: 7994738088484906322}
+  _manipulatorConnectionPanelPrefab: {fileID: 8830734852478451222, guid: 19384593a545a404bbe8bd298659df46, type: 3}
+  _automaticControlButtonText: {fileID: 3301958094514248686}
+  _probeList: {fileID: 5170893513559919013}
+  _probeConnectionPanelPrefab: {fileID: 8493186209703212129, guid: 4bda5f4e2e3ca69458cb983da56cf603, type: 3}
 --- !u!1 &6634098708597508233
 GameObject:
   m_ObjectHideFlags: 0
