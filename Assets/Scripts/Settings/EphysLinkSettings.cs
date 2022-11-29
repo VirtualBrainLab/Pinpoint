@@ -5,7 +5,6 @@ using EphysLink;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Settings
 {
@@ -19,20 +18,20 @@ namespace Settings
         #region Serialized Fields
 
         // Server connection
-        [FormerlySerializedAs("serverConnectedText")] [SerializeField] private TMP_Text _serverConnectedText;
-        [FormerlySerializedAs("ipAddressInputField")] [SerializeField] private TMP_InputField _ipAddressInputField;
-        [FormerlySerializedAs("portInputField")] [SerializeField] private TMP_InputField _portInputField;
-        [FormerlySerializedAs("connectionErrorText")] [SerializeField] private TMP_Text _connectionErrorText;
-        [FormerlySerializedAs("connectButtonText")] [SerializeField] private TMP_Text _connectButtonText;
+        [SerializeField] private TMP_Text _serverConnectedText;
+        [SerializeField] private TMP_InputField _ipAddressInputField;
+        [SerializeField] private TMP_InputField _portInputField;
+        [SerializeField] private TMP_Text _connectionErrorText;
+        [SerializeField] private TMP_Text _connectButtonText;
 
         // Manipulators
-        [FormerlySerializedAs("manipulatorList")] [SerializeField] private GameObject _manipulatorList;
-        [FormerlySerializedAs("manipulatorConnectionPanelPrefab")] [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
+        [SerializeField] private GameObject _manipulatorList;
+        [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
         [SerializeField] private TMP_Text _automaticControlButtonText;
 
         // Probes in scene
-        [FormerlySerializedAs("probeList")] [SerializeField] private GameObject _probeList;
-        [FormerlySerializedAs("probeConnectionPanelPrefab")] [SerializeField] private GameObject _probeConnectionPanelPrefab;
+        [SerializeField] private GameObject _probeList;
+        [SerializeField] private GameObject _probeConnectionPanelPrefab;
 
         #endregion
 
