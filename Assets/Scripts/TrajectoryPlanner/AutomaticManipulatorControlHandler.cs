@@ -1,8 +1,8 @@
+using System.Collections.Generic;
 using System.Globalization;
 using EphysLink;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace TrajectoryPlanner
 {
@@ -24,11 +24,13 @@ namespace TrajectoryPlanner
         [SerializeField] private CanvasGroup _gotoPanelCanvasGroup;
         [SerializeField] private TMP_Text _gotoPanelText;
         [SerializeField] private TMP_Text _gotoManipulator1ProbeText;
+        [SerializeField] private TMP_Dropdown _gotoManipulator1TargetInsertionDropdown;
         [SerializeField] private TMP_InputField _gotoManipulator1XInputField;
         [SerializeField] private TMP_InputField _gotoManipulator1YInputField;
         [SerializeField] private TMP_InputField _gotoManipulator1ZInputField;
         [SerializeField] private TMP_InputField _gotoManipulator1DInputField;
         [SerializeField] private TMP_Text _gotoManipulator2ProbeText;
+        [SerializeField] private TMP_Dropdown _gotoManipulator2TargetInsertionDropdown;
         [SerializeField] private TMP_InputField _gotoManipulator2XInputField;
         [SerializeField] private TMP_InputField _gotoManipulator2YInputField;
         [SerializeField] private TMP_InputField _gotoManipulator2ZInputField;
@@ -60,9 +62,11 @@ namespace TrajectoryPlanner
         #endregion
 
         #region Properties
-        
+
         public ProbeManager Probe1Manager { private get; set; }
-        public ProbeManager Probe2Manager {private get; set; }
+        public ProbeManager Probe2Manager { private get; set; }
+        
+        public HashSet<ProbeInsertion> TargetProbeInsertions { private get; set; }
 
         private uint _step = 1;
 
@@ -110,6 +114,8 @@ namespace TrajectoryPlanner
 
         #region Internal UI Functions
 
+        #region Step 1
+
         private void UpdateManipulator1ZeroCoordinateFields()
         {
             _gotoManipulator1XInputField.text =
@@ -145,8 +151,28 @@ namespace TrajectoryPlanner
             probeManager.BrainSurfaceOffset = 0;
 
             // Enable step 2 (if needed)
-            _step = _step == 1 ? 2 : _step;
+            if (_step != 1) return;
+            _step = 2;
+            EnableStep2();
         }
+
+        #endregion
+
+        #region Step 2
+
+        private void EnableStep2()
+        {
+            // Enable UI
+            _gotoPanelCanvasGroup.alpha = 1;
+            _gotoPanelCanvasGroup.interactable = true;
+            _gotoPanelText.color = Color.green;
+            _zeroCoordinatePanelText.color = Color.white;
+            
+            // Update insertion options
+            print(TargetProbeInsertions);
+        }
+
+        #endregion
 
         #endregion
 

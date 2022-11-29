@@ -122,6 +122,7 @@ namespace TrajectoryPlanner
                 allProbeManagers.Find(manager => manager.ManipulatorId == "1");
             _automaticManipulatorControlHandler.Probe2Manager =
                 allProbeManagers.Find(manager => manager.ManipulatorId == "2");
+            _automaticManipulatorControlHandler.TargetProbeInsertions = TargetProbeInsertions;
             
             _automaticControlPanelGameObject.SetActive(enable);
         }
@@ -537,6 +538,7 @@ namespace TrajectoryPlanner
             GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
             SetActiveProbe(newProbe.GetComponent<ProbeManager>());
             TargetProbeInsertions.Add(newProbe.GetComponent<ProbeController>().Insertion);
+            print("Added insertion into list. Count: "+TargetProbeInsertions.Count);
 
             spawnedThisFrame = true;
 
