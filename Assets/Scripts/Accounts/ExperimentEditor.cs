@@ -1,27 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class ExperimentEditor : MonoBehaviour
 {
     [SerializeField] private AccountsManager _accountsManager;
 
-    [SerializeField] private GameObject experimentEditorGO;
+    [FormerlySerializedAs("experimentEditorGO")] [SerializeField] private GameObject _experimentEditorGo;
 
-    [SerializeField] private GameObject editorListGO;
-    [SerializeField] private GameObject experimentListPrefab;
+    [FormerlySerializedAs("editorListGO")] [SerializeField] private GameObject _editorListGo;
+    [FormerlySerializedAs("experimentListPrefab")] [SerializeField] private GameObject _experimentListPrefab;
 
     private List<string> experimentNames;
 
     public void ShowEditor()
     {
         if (_accountsManager.Connected)
-            experimentEditorGO.SetActive(true);
+            _experimentEditorGo.SetActive(true);
     }
 
     public void HideEditor()
     {
-        experimentEditorGO.SetActive(false);
+        _experimentEditorGo.SetActive(false);
     }
 
     public void AddExperiment()
@@ -48,9 +49,9 @@ public class ExperimentEditor : MonoBehaviour
     public void UpdateList()
     {
         Debug.Log("List update");
-        Transform[] children = new Transform[editorListGO.transform.childCount];
+        Transform[] children = new Transform[_editorListGo.transform.childCount];
         for (var i = 0; i < children.Length; i++)
-            children[i] = editorListGO.transform.GetChild(i);
+            children[i] = _editorListGo.transform.GetChild(i);
         foreach (Transform t in children)
             Destroy(t.gameObject);
 
@@ -58,7 +59,7 @@ public class ExperimentEditor : MonoBehaviour
 
         foreach (string experiment in experimentNames)
         {
-            GameObject newExpItem = Instantiate(experimentListPrefab, editorListGO.transform);
+            GameObject newExpItem = Instantiate(_experimentListPrefab, _editorListGo.transform);
 
             ExperimentListPanelBehavior expListItem = newExpItem.GetComponent<ExperimentListPanelBehavior>();
             expListItem.ExperimentNameText.text = experiment;

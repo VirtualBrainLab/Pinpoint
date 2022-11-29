@@ -9,20 +9,21 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 using TrajectoryPlanner;
+using UnityEngine.Serialization;
 
 public class TP_InPlaneSlice : MonoBehaviour
 {
     // In plane slice handling
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
-    [SerializeField] private GameObject inPlaneSliceUIGO;
-    [SerializeField] private CCFModelControl modelControl;
-    [SerializeField] private PlayerPrefs localPrefs;
+    [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
+    [FormerlySerializedAs("inPlaneSliceUIGO")] [SerializeField] private GameObject _inPlaneSliceUigo;
+    [FormerlySerializedAs("modelControl")] [SerializeField] private CCFModelControl _modelControl;
+    [FormerlySerializedAs("localPrefs")] [SerializeField] private PlayerPrefs _localPrefs;
 
-    [SerializeField] private TextMeshProUGUI areaText;
-    [SerializeField] private TMP_Text textX;
-    [SerializeField] private TMP_Text textY;
+    [FormerlySerializedAs("areaText")] [SerializeField] private TextMeshProUGUI _areaText;
+    [FormerlySerializedAs("textX")] [SerializeField] private TMP_Text _textX;
+    [FormerlySerializedAs("textY")] [SerializeField] private TMP_Text _textY;
 
-    [SerializeField] private GameObject gpuInPlaneSliceGO;
+    [FormerlySerializedAs("gpuInPlaneSliceGO")] [SerializeField] private GameObject _gpuInPlaneSliceGo;
     private Renderer gpuSliceRenderer;
 
     private CCFAnnotationDataset annotationDataset;
@@ -49,7 +50,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuTextureLoadedSource = new TaskCompletionSource<bool>();
         gpuTextureLoadedTask = gpuTextureLoadedSource.Task;
 
-        gpuSliceRenderer = gpuInPlaneSliceGO.GetComponent<Renderer>();
+        gpuSliceRenderer = _gpuInPlaneSliceGo.GetComponent<Renderer>();
 
         ResetRendererParameters();
     }
@@ -88,7 +89,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     public void StartAnnotationDataset()
     {
-        annotationDataset = tpmanager.GetAnnotationDataset();
+        annotationDataset = _tpmanager.GetAnnotationDataset();
         Debug.Log("(in-plane slice) Annotation data set");
     }
 
@@ -100,14 +101,14 @@ public class TP_InPlaneSlice : MonoBehaviour
     // *** INPLANE SLICE CODE *** //
     public void UpdateInPlaneVisibility()
     {
-        inPlaneSliceUIGO.SetActive(localPrefs.GetInplane());
+        _inPlaneSliceUigo.SetActive(_localPrefs.GetInplane());
     }
 
     public void UpdateInPlaneSlice()
     {
-        if (!localPrefs.GetInplane()) return;
+        if (!_localPrefs.GetInplane()) return;
 
-        ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
+        ProbeManager activeProbeManager = _tpmanager.GetActiveProbeManager();
 
         if (activeProbeManager == null)
         {
@@ -145,8 +146,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuSliceRenderer.material.SetFloat("_Scale", inPlaneScale);
         float roundedMmRecSize = Mathf.Round(mmRecordingSize * 1.5f * 100) / 100;
         string formatted = string.Format("<- {0} mm ->", roundedMmRecSize);
-        textX.text = formatted;
-        textY.text = formatted;
+        _textX.text = formatted;
+        _textY.text = formatted;
     }
 
     public void InPlaneSliceHover(Vector2 pointerData)
@@ -154,18 +155,18 @@ public class TP_InPlaneSlice : MonoBehaviour
         Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
         int annotation = annotationDataset.ValueAtIndex(Mathf.RoundToInt(inPlanePosition.x), Mathf.RoundToInt(inPlanePosition.y), Mathf.RoundToInt(inPlanePosition.z));
-        annotation = modelControl.RemapID(annotation);
+        annotation = _modelControl.RemapID(annotation);
 
         if (Input.GetMouseButtonDown(0))
         {
             if (annotation > 0)
-                tpmanager.TargetSearchArea(annotation);
+                _tpmanager.TargetSearchArea(annotation);
         }
 
-        if (tpmanager.GetSetting_UseAcronyms())
-            areaText.text = modelControl.ID2Acronym(annotation);
+        if (_tpmanager.GetSetting_UseAcronyms())
+            _areaText.text = _modelControl.ID2Acronym(annotation);
         else
-            areaText.text = modelControl.ID2AreaName(annotation);
+            _areaText.text = _modelControl.ID2AreaName(annotation);
     }
 
     private Vector3 CalculateInPlanePosition(Vector2 pointerData)

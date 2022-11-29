@@ -4,6 +4,7 @@ using EphysLink;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// 3D space control for Neuropixels probes in the Trajectory Planner scene
@@ -59,15 +60,15 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
     // Exposed fields to collect links to other components inside of the Probe prefab
-    [SerializeField] private List<Collider> probeColliders;
-    [SerializeField] private List<ProbeUIManager> probeUIManagers;
-    [SerializeField] private Renderer probeRenderer;
+    [FormerlySerializedAs("probeColliders")] [SerializeField] private List<Collider> _probeColliders;
+    [FormerlySerializedAs("probeUIManagers")] [SerializeField] private List<ProbeUIManager> _probeUIManagers;
+    [FormerlySerializedAs("probeRenderer")] [SerializeField] private Renderer _probeRenderer;
     [SerializeField] private int _probeType;
-    public int ProbeType { get { return _probeType; } }
+    public int ProbeType => _probeType;
 
-    [SerializeField] private ProbeController probeController;
+    [FormerlySerializedAs("probeController")] [SerializeField] private ProbeController _probeController;
 
-    [SerializeField] private Material ghostMaterial;
+    [FormerlySerializedAs("ghostMaterial")] [SerializeField] private Material _ghostMaterial;
     private Dictionary<GameObject, Material> defaultMaterials;
 
     private TrajectoryPlannerManager tpmanager;
@@ -106,16 +107,16 @@ public class ProbeManager : MonoBehaviour
 
     public Color GetColor()
     {
-        return probeRenderer.material.color;
+        return _probeRenderer.material.color;
     }
     public List<Collider> GetProbeColliders()
     {
-        return probeColliders;
+        return _probeColliders;
     }
 
     public void DisableAllColliders()
     {
-        foreach (var probeCollider in probeColliders)
+        foreach (var probeCollider in _probeColliders)
         {
             probeCollider.enabled = false;
         }
@@ -127,7 +128,7 @@ public class ProbeManager : MonoBehaviour
     /// <returns>Reference to this probe's controller</returns>
     public ProbeController GetProbeController()
     {
-        return probeController;
+        return _probeController;
     }
 
     /// <summary>
@@ -136,7 +137,7 @@ public class ProbeManager : MonoBehaviour
     /// <returns>list of probe panel UI managers</returns>
     public List<ProbeUIManager> GetProbeUIManagers()
     {
-        return probeUIManagers;
+        return _probeUIManagers;
     }
 
     #endregion
@@ -153,7 +154,7 @@ public class ProbeManager : MonoBehaviour
         GameObject main = GameObject.Find("main");
         tpmanager = main.GetComponent<TrajectoryPlannerManager>();
         tpmanager.RegisterProbe(this);
-        probeController.Register(tpmanager, this);
+        _probeController.Register(tpmanager, this);
 
         // Pull ephys link communication manager
         _ephysLinkCommunicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
@@ -173,7 +174,7 @@ public class ProbeManager : MonoBehaviour
         {
             probeID = tpmanager.GetNextProbeId();
             name = "PROBE_" + probeID;
-            probeRenderer.material.color = tpmanager.GetNextProbeColor();
+            _probeRenderer.material.color = tpmanager.GetNextProbeColor();
             
             // Record default materials
             foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
@@ -182,7 +183,7 @@ public class ProbeManager : MonoBehaviour
             }
         }
 
-        foreach (var probeUIManager in probeUIManagers)
+        foreach (var probeUIManager in _probeUIManagers)
         {
             probeUIManager.UpdateColors();
         }
@@ -197,7 +198,7 @@ public class ProbeManager : MonoBehaviour
     public void Destroy()
     {
         // Delete this gameObject
-        foreach (ProbeUIManager puimanager in probeUIManagers)
+        foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.Destroy();
         
         // Unregister this probe from the ephys link
@@ -214,7 +215,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetActive()
     {
-        if (probeController.Insertion.CoordinateTransform != tpmanager.GetActiveCoordinateTransform())
+        if (_probeController.Insertion.CoordinateTransform != tpmanager.GetActiveCoordinateTransform())
         {
             TP_QuestionDialogue questionDialogue = tpmanager.GetQuestionDialogue();
             questionDialogue.SetYesCallback(ChangeTransform);
@@ -224,21 +225,21 @@ public class ProbeManager : MonoBehaviour
 
     private void ChangeTransform()
     {
-        ProbeInsertion originalInsertion = probeController.Insertion;
+        ProbeInsertion originalInsertion = _probeController.Insertion;
         Debug.LogWarning("Insertion coordinates are not being transformed!! This might not be expected behavior");
-        probeController.SetProbePosition(new ProbeInsertion(originalInsertion.apmldv, originalInsertion.angles, tpmanager.GetCoordinateSpace(), tpmanager.GetActiveCoordinateTransform()));
+        _probeController.SetProbePosition(new ProbeInsertion(originalInsertion.apmldv, originalInsertion.angles, tpmanager.GetCoordinateSpace(), tpmanager.GetActiveCoordinateTransform()));
     }
 
     public void UpdateUI()
     {
         // Reset our probe UI panels
-        foreach (ProbeUIManager puimanager in probeUIManagers)
+        foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.ProbeMoved();
     }
 
     public void SetUIVisibility(bool state)
     {
-        foreach (ProbeUIManager puimanager in probeUIManagers)
+        foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.SetProbePanelVisibility(state);
     }
 
@@ -257,7 +258,7 @@ public class ProbeManager : MonoBehaviour
     /// <param name="newSize">New size of recording region in mm</param>
     public void ChangeRecordingRegionSize(float newSize)
     {
-        ((DefaultProbeController)probeController).ChangeRecordingRegionSize(newSize);
+        ((DefaultProbeController)_probeController).ChangeRecordingRegionSize(newSize);
 
         // Update all the UI panels
         UpdateUI();
@@ -275,7 +276,7 @@ public class ProbeManager : MonoBehaviour
         if (IsEphysLinkControlled)
             return false;
 
-        return ((DefaultProbeController)probeController).MoveProbe_Keyboard(checkForCollisions);
+        return ((DefaultProbeController)_probeController).MoveProbe_Keyboard(checkForCollisions);
     }
 
 
@@ -312,7 +313,7 @@ public class ProbeManager : MonoBehaviour
     /// <returns></returns>
     private bool CheckCollisionsHelper(List<Collider> otherColliders)
     {
-        foreach (Collider activeCollider in probeColliders)
+        foreach (Collider activeCollider in _probeColliders)
         {
             foreach (Collider otherCollider in otherColliders)
             {
@@ -374,7 +375,7 @@ public class ProbeManager : MonoBehaviour
         string dvStr;
         string depthStr;
 
-        ProbeInsertion insertion = probeController.Insertion;
+        ProbeInsertion insertion = _probeController.Insertion;
         string prefix = insertion.CoordinateTransform.Prefix;
 
         // If we are using the 
@@ -426,7 +427,7 @@ public class ProbeManager : MonoBehaviour
     {
         probeID = ID;
         name = "PROBE_" + probeID;
-        probeRenderer.material.color = probeColor;
+        _probeRenderer.material.color = probeColor;
     }
 
 
@@ -445,7 +446,7 @@ public class ProbeManager : MonoBehaviour
     /// <param name="newPxHeight">Set the probe panels of this probe to a new height</param>
     public void ResizeProbePanel(int newPxHeight)
     {
-        foreach (ProbeUIManager puimanager in probeUIManagers)
+        foreach (ProbeUIManager puimanager in _probeUIManagers)
         {
             puimanager.ResizeProbePanel(newPxHeight);
             puimanager.ProbeMoved();
@@ -460,7 +461,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateSurfacePosition()
     {
-        (Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = probeController.GetTipWorldU();
+        (Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = _probeController.GetTipWorldU();
 
         Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(annotationDataset.CoordinateSpace.World2Space(tipCoordWorld),
             annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipUpWorld));
@@ -479,14 +480,14 @@ public class ProbeManager : MonoBehaviour
             probeInBrain = true;
             brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(surfacePos25);
             brainSurfaceWorldT = tpmanager.WorldU2WorldT(brainSurfaceWorld);
-            brainSurface = probeController.Insertion.World2Transformed(brainSurfaceWorld);
+            brainSurface = _probeController.Insertion.World2Transformed(brainSurfaceWorld);
         }
     }
 
 
     public (Vector3 surfaceCoordinateT, float depthT) GetSurfaceCoordinateT()
     {
-        return (brainSurface, Vector3.Distance(probeController.Insertion.apmldv, brainSurface));
+        return (brainSurface, Vector3.Distance(_probeController.Insertion.apmldv, brainSurface));
     }
 
     public Vector3 GetSurfaceCoordinateWorldT()
@@ -684,21 +685,21 @@ public class ProbeManager : MonoBehaviour
             // Just calculate the distance from the probe tip position to the brain surface            
             if (IsEphysLinkControlled)
             {
-                BrainSurfaceOffset -= Vector3.Distance(brainSurface, probeController.Insertion.apmldv);
+                BrainSurfaceOffset -= Vector3.Distance(brainSurface, _probeController.Insertion.apmldv);
             }
             else
             {
-                probeController.SetProbePosition(brainSurface);
+                _probeController.SetProbePosition(brainSurface);
             }
         }
         else
         {
             // We need to calculate the surface coordinate ourselves
             var tipExtensionDirection =
-                IsSetToDropToSurfaceWithDepth ? probeController.GetTipWorldU().tipUpWorld : Vector3.up;
+                IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorld : Vector3.up;
 
             var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
-                annotationDataset.CoordinateSpace.World2Space(probeController.GetTipWorldU().tipCoordWorld - tipExtensionDirection * 5),
+                annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorld - tipExtensionDirection * 5),
                 annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipExtensionDirection));
 
             if (float.IsNaN(brainSurfaceAPDVLR.x))
@@ -711,14 +712,14 @@ public class ProbeManager : MonoBehaviour
 
             if (IsEphysLinkControlled)
             {
-                var depth = Vector3.Distance(probeController.Insertion.World2Transformed(brainSurfaceToWorld),
-                    probeController.Insertion.apmldv);
+                var depth = Vector3.Distance(_probeController.Insertion.World2Transformed(brainSurfaceToWorld),
+                    _probeController.Insertion.apmldv);
                 BrainSurfaceOffset += depth;
                 print("Depth: " + depth + " Total: " + BrainSurfaceOffset);
             }
             else
             {
-                probeController.SetProbePosition(probeController.Insertion.World2Transformed(brainSurfaceToWorld));
+                _probeController.SetProbePosition(_probeController.Insertion.World2Transformed(brainSurfaceToWorld));
             }
         }
         
@@ -758,7 +759,7 @@ public class ProbeManager : MonoBehaviour
     private void EchoPositionFromEphysLink(Vector4 pos)
     {
         // Quit early if the probe has been removed
-        if (probeController == null)
+        if (_probeController == null)
         {
             return;
         }
@@ -770,7 +771,7 @@ public class ProbeManager : MonoBehaviour
         zeroCoordinateAdjustedManipulatorPosition.y *= tpmanager.IsManipulatorRightHanded(ManipulatorId) ? 1 : -1;
 
         // Phi adjustment
-        var probePhi = -probeController.Insertion.phi * Mathf.Deg2Rad;
+        var probePhi = -_probeController.Insertion.phi * Mathf.Deg2Rad;
         _phiCos = Mathf.Cos(probePhi);
         _phiSin = Mathf.Sin(probePhi);
         var phiAdjustedX = zeroCoordinateAdjustedManipulatorPosition.x * _phiCos -
@@ -799,8 +800,8 @@ public class ProbeManager : MonoBehaviour
             zeroCoordinateAdjustedManipulatorPosition.w);
 
         // Set probe position (change axes to match probe)
-        var zeroCoordinateApmldv = probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
-        probeController.SetProbePosition(new Vector4(zeroCoordinateApmldv.x, zeroCoordinateApmldv.y,
+        var zeroCoordinateApmldv = _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
+        _probeController.SetProbePosition(new Vector4(zeroCoordinateApmldv.x, zeroCoordinateApmldv.y,
             zeroCoordinateApmldv.z, zeroCoordinateAdjustedWorldPosition.w));
 
 
@@ -817,7 +818,7 @@ public class ProbeManager : MonoBehaviour
 
     public void SetAxisVisibility(bool AP, bool ML, bool DV, bool depth)
     {
-        Transform tipT = probeController.ProbeTipT;
+        Transform tipT = _probeController.ProbeTipT;
         tpmanager.SetAxisVisibility(AP, ML, DV, depth, tipT);
     }
 
@@ -834,7 +835,7 @@ public class ProbeManager : MonoBehaviour
         var currentColorTint = new Color(GetColor().r, GetColor().g, GetColor().b, .2f);
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
-            childRenderer.material = ghostMaterial;
+            childRenderer.material = _ghostMaterial;
 
             // Tint transparent material for non-ghost probes
             if (!IsGhost) childRenderer.material.color = currentColorTint;

@@ -2,12 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using static TMPro.TMP_Dropdown;
 
 public class ExperimentManager : MonoBehaviour
 {
-    [SerializeField] TMP_Dropdown quickSettingsDropdown;
-    [SerializeField] TMP_Dropdown activeExperimentDropdown;
+    [FormerlySerializedAs("quickSettingsDropdown")] [SerializeField]
+    private TMP_Dropdown _quickSettingsDropdown;
+    [FormerlySerializedAs("activeExperimentDropdown")] [SerializeField]
+    private TMP_Dropdown _activeExperimentDropdown;
 
     //private Dictionary<ProbeManager, string> probeExperiments = new();
 
@@ -24,7 +27,7 @@ public class ExperimentManager : MonoBehaviour
 
     public void UpdateQuickSettingDropdown()
     {
-        quickSettingsDropdown.ClearOptions();
+        _quickSettingsDropdown.ClearOptions();
 
         List<OptionData> options = new List<OptionData>();
         options.Add(new OptionData("Not saved"));
@@ -33,12 +36,12 @@ public class ExperimentManager : MonoBehaviour
             options.Add(new OptionData(experimentName));
         }
 
-        quickSettingsDropdown.options = options;
+        _quickSettingsDropdown.options = options;
     }
 
     public void UpdateActiveExperimentDropdown()
     {
-        activeExperimentDropdown.ClearOptions();
+        _activeExperimentDropdown.ClearOptions();
 
         List<OptionData> options = new List<OptionData>();
         foreach (string experimentName in accountExperiments.Keys)
@@ -49,7 +52,7 @@ public class ExperimentManager : MonoBehaviour
 
     public void ChangeActiveExperiment(int activeExpIdx)
     {
-        activeExperiment = activeExperimentDropdown.options[activeExpIdx].text;
+        activeExperiment = _activeExperimentDropdown.options[activeExpIdx].text;
     }
 
     public void SetAccountExperiments(Dictionary<string, Dictionary<string, ServerProbeInsertion>> newExperiments)

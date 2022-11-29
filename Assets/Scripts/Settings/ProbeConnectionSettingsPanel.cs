@@ -4,6 +4,7 @@ using System.Globalization;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Settings
 {
@@ -22,8 +23,8 @@ namespace Settings
         {
             ProbeManager = probeManager;
 
-            probeIdText.text = probeManager.GetID().ToString();
-            probeIdText.color = probeManager.GetColor();
+            _probeIdText.text = probeManager.GetID().ToString();
+            _probeIdText.color = probeManager.GetColor();
         }
 
         #endregion
@@ -45,25 +46,25 @@ namespace Settings
             if (ProbeManager.ZeroCoordinateOffset != _displayedZeroCoordinateOffset)
             {
                 _displayedZeroCoordinateOffset = ProbeManager.ZeroCoordinateOffset;
-                xInputField.text = _displayedZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
-                yInputField.text = _displayedZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
-                zInputField.text = _displayedZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
-                dInputField.text = _displayedZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
+                _xInputField.text = _displayedZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
+                _yInputField.text = _displayedZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
+                _zInputField.text = _displayedZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
+                _dInputField.text = _displayedZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
             }
 
             // Update brain surface offset drop direction dropdown
-            if (ProbeManager.IsSetToDropToSurfaceWithDepth != (brainSurfaceOffsetDirectionDropdown.value == 0))
-                brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(
+            if (ProbeManager.IsSetToDropToSurfaceWithDepth != (_brainSurfaceOffsetDirectionDropdown.value == 0))
+                _brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(
                     ProbeManager.IsSetToDropToSurfaceWithDepth ? 0 : 1);
 
             // Enable/disable interactivity of brain surface offset axis
-            if (ProbeManager.CanChangeBrainSurfaceOffsetAxis != brainSurfaceOffsetDirectionDropdown.interactable)
-                brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.CanChangeBrainSurfaceOffsetAxis;
+            if (ProbeManager.CanChangeBrainSurfaceOffsetAxis != _brainSurfaceOffsetDirectionDropdown.interactable)
+                _brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.CanChangeBrainSurfaceOffsetAxis;
 
             // Update display for brain surface offset
             if (!(Math.Abs(ProbeManager.BrainSurfaceOffset - _displayedBrainSurfaceOffset) > 0.001f)) return;
             _displayedBrainSurfaceOffset = ProbeManager.BrainSurfaceOffset;
-            brainSurfaceOffsetInputField.text =
+            _brainSurfaceOffsetInputField.text =
                 _displayedBrainSurfaceOffset.ToString(CultureInfo.CurrentCulture);
         }
 
@@ -75,14 +76,14 @@ namespace Settings
 
         #region Serialized
 
-        [SerializeField] private TMP_Text probeIdText;
-        [SerializeField] private TMP_Dropdown manipulatorIdDropdown;
-        [SerializeField] private TMP_InputField xInputField;
-        [SerializeField] private TMP_InputField yInputField;
-        [SerializeField] private TMP_InputField zInputField;
-        [SerializeField] private TMP_InputField dInputField;
-        [SerializeField] private TMP_Dropdown brainSurfaceOffsetDirectionDropdown;
-        [SerializeField] private TMP_InputField brainSurfaceOffsetInputField;
+        [FormerlySerializedAs("probeIdText")] [SerializeField] private TMP_Text _probeIdText;
+        [FormerlySerializedAs("manipulatorIdDropdown")] [SerializeField] private TMP_Dropdown _manipulatorIdDropdown;
+        [FormerlySerializedAs("xInputField")] [SerializeField] private TMP_InputField _xInputField;
+        [FormerlySerializedAs("yInputField")] [SerializeField] private TMP_InputField _yInputField;
+        [FormerlySerializedAs("zInputField")] [SerializeField] private TMP_InputField _zInputField;
+        [FormerlySerializedAs("dInputField")] [SerializeField] private TMP_InputField _dInputField;
+        [FormerlySerializedAs("brainSurfaceOffsetDirectionDropdown")] [SerializeField] private TMP_Dropdown _brainSurfaceOffsetDirectionDropdown;
+        [FormerlySerializedAs("brainSurfaceOffsetInputField")] [SerializeField] private TMP_InputField _brainSurfaceOffsetInputField;
 
         #endregion
 
@@ -109,14 +110,14 @@ namespace Settings
         /// <param name="idOptions">Available manipulators to pick from</param>
         public void SetManipulatorIdDropdownOptions(List<string> idOptions)
         {
-            manipulatorIdDropdown.ClearOptions();
-            manipulatorIdDropdown.AddOptions(idOptions);
+            _manipulatorIdDropdown.ClearOptions();
+            _manipulatorIdDropdown.AddOptions(idOptions);
 
             // Select the option corresponding to the current manipulator id
             var indexOfId = ProbeManager.IsEphysLinkControlled
                 ? Math.Max(0, idOptions.IndexOf(ProbeManager.ManipulatorId))
                 : 0;
-            manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
+            _manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
         }
 
         /// <summary>
@@ -148,7 +149,7 @@ namespace Settings
             void AttachToManipulatorAndUpdateUI()
             {
                 ProbeManager.SetIsEphysLinkControlled(true,
-                    manipulatorIdDropdown.options[index].text,
+                    _manipulatorIdDropdown.options[index].text,
                     onSuccess: () => { EphysLinkSettings.UpdateManipulatorPanelAndSelection(); });
             }
         }
