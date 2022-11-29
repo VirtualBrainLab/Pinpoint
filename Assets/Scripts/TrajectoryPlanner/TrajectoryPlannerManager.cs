@@ -110,6 +110,7 @@ namespace TrajectoryPlanner
         #region Ephys Link
 
         [FormerlySerializedAs("automaticControlPanelGameObject")] [SerializeField] private GameObject _automaticControlPanelGameObject;
+        private AutomaticManipulatorControlHandler _automaticManipulatorControlHandler;
 
         private CommunicationManager _communicationManager;
         private HashSet<string> _rightHandedManipulatorIds = new();
@@ -117,6 +118,11 @@ namespace TrajectoryPlanner
 
         public void EnableAutomaticManipulatorControlPanel(bool enable = true)
         {
+            _automaticManipulatorControlHandler.Probe1Manager =
+                allProbeManagers.Find(manager => manager.ManipulatorId == "1");
+            _automaticManipulatorControlHandler.Probe2Manager =
+                allProbeManagers.Find(manager => manager.ManipulatorId == "2");
+            
             _automaticControlPanelGameObject.SetActive(enable);
         }
 
@@ -150,6 +156,7 @@ namespace TrajectoryPlanner
             //Physics.autoSyncTransforms = true;
 
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
+            _automaticManipulatorControlHandler = _automaticControlPanelGameObject.GetComponent<AutomaticManipulatorControlHandler>();
         }
 
 

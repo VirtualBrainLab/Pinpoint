@@ -55,15 +55,14 @@ namespace TrajectoryPlanner
 
         #endregion
 
-        private TrajectoryPlannerManager _trajectoryPlannerManager;
         private CommunicationManager _communicationManager;
 
         #endregion
 
         #region Properties
-
-        private ProbeManager _probe1Manager;
-        private ProbeManager _probe2Manager;
+        
+        public ProbeManager Probe1Manager { private get; set; }
+        public ProbeManager Probe2Manager {private get; set; }
 
         private uint _step = 1;
 
@@ -73,42 +72,35 @@ namespace TrajectoryPlanner
 
         private void Awake()
         {
-            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
         }
 
         private void OnEnable()
         {
-            // Get probes connected to manipulators 1 and 2
-            _probe1Manager = _trajectoryPlannerManager.GetAllProbes().Find(manager => manager.ManipulatorId == "1");
-            _probe2Manager = _trajectoryPlannerManager.GetAllProbes().Find(manager => manager.ManipulatorId == "2");
-
-            // Update UI elements
-
-            if (_probe1Manager)
+            if (Probe1Manager)
             {
-                var probeText = "Probe #" + _probe1Manager.GetID();
+                var probeText = "Probe #" + Probe1Manager.GetID();
                 _zeroCoordinateManipulator1ProbeText.text = probeText;
                 _gotoManipulator1ProbeText.text = probeText;
                 _duraManipulator1ProbeText.text = probeText;
 
-                _zeroCoordinateManipulator1ProbeText.color = _probe1Manager.GetColor();
-                _gotoManipulator1ProbeText.color = _probe1Manager.GetColor();
-                _duraManipulator1ProbeText.color = _probe1Manager.GetColor();
+                _zeroCoordinateManipulator1ProbeText.color = Probe1Manager.GetColor();
+                _gotoManipulator1ProbeText.color = Probe1Manager.GetColor();
+                _duraManipulator1ProbeText.color = Probe1Manager.GetColor();
 
                 UpdateManipulator1ZeroCoordinateFields();
             }
 
-            if (!_probe2Manager) return;
+            if (!Probe2Manager) return;
             {
-                var probeText = "Probe #" + _probe2Manager.GetID();
+                var probeText = "Probe #" + Probe2Manager.GetID();
                 _zeroCoordinateManipulator2ProbeText.text = probeText;
                 _gotoManipulator2ProbeText.text = probeText;
                 _duraManipulator2ProbeText.text = probeText;
 
-                _zeroCoordinateManipulator2ProbeText.color = _probe2Manager.GetColor();
-                _gotoManipulator2ProbeText.color = _probe2Manager.GetColor();
-                _duraManipulator2ProbeText.color = _probe2Manager.GetColor();
+                _zeroCoordinateManipulator2ProbeText.color = Probe2Manager.GetColor();
+                _gotoManipulator2ProbeText.color = Probe2Manager.GetColor();
+                _duraManipulator2ProbeText.color = Probe2Manager.GetColor();
 
                 UpdateManipulator2ZeroCoordinateFields();
             }
@@ -121,25 +113,25 @@ namespace TrajectoryPlanner
         private void UpdateManipulator1ZeroCoordinateFields()
         {
             _gotoManipulator1XInputField.text =
-                _probe1Manager.ZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
+                Probe1Manager.ZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
             _gotoManipulator1YInputField.text =
-                _probe1Manager.ZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
+                Probe1Manager.ZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
             _gotoManipulator1ZInputField.text =
-                _probe1Manager.ZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
+                Probe1Manager.ZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
             _gotoManipulator1DInputField.text =
-                _probe1Manager.ZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
+                Probe1Manager.ZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
         }
 
         private void UpdateManipulator2ZeroCoordinateFields()
         {
             _gotoManipulator2XInputField.text =
-                _probe2Manager.ZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
+                Probe2Manager.ZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
             _gotoManipulator2YInputField.text =
-                _probe2Manager.ZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
+                Probe2Manager.ZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
             _gotoManipulator2ZInputField.text =
-                _probe2Manager.ZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
+                Probe2Manager.ZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
             _gotoManipulator2DInputField.text =
-                _probe2Manager.ZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
+                Probe2Manager.ZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
         }
 
         private void ResetManipulatorZeroCoordinate(ProbeManager probeManager)
@@ -162,12 +154,12 @@ namespace TrajectoryPlanner
 
         public void ResetManipulator1ZeroCoordinate()
         {
-            ResetManipulatorZeroCoordinate(_probe1Manager);
+            ResetManipulatorZeroCoordinate(Probe1Manager);
         }
 
         public void ResetManipulator2ZeroCoordinate()
         {
-            ResetManipulatorZeroCoordinate(_probe2Manager);
+            ResetManipulatorZeroCoordinate(Probe2Manager);
         }
 
         #endregion
