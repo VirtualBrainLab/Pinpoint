@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class TP_QuestionDialogue : MonoBehaviour
 {
-    [SerializeField] private TMP_Text questionText;
+    [FormerlySerializedAs("questionText")] [SerializeField] private TMP_Text _questionText;
 
     private Action yesCallback;
     private Action noCallback;
@@ -28,7 +29,7 @@ public class TP_QuestionDialogue : MonoBehaviour
     public void NewQuestion(string newText)
     {
         gameObject.SetActive(true);
-        questionText.text = newText;
+        _questionText.text = newText;
     }
 
     public void SetYesCallback(Action newCallback)

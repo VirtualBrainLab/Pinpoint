@@ -2,17 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Settings
 {
     public class TP_SettingsMenu : MonoBehaviour
     {
-        [SerializeField] private GameObject settingsMenuGO;
+        [FormerlySerializedAs("settingsMenuGO")] [SerializeField] private GameObject _settingsMenuGo;
 
         public void ToggleSettingsMenu()
         {
-            if (!settingsMenuGO.activeSelf)
-                settingsMenuGO.SetActive(true);
+            if (!_settingsMenuGo.activeSelf)
+                _settingsMenuGo.SetActive(true);
             else
             {
                 // if the settings menu is active, we want to make sure the user isn't typing before we close the menu
@@ -21,7 +22,7 @@ namespace Settings
                     if (inputField.isFocused)
                         return;
                 }
-                settingsMenuGO.SetActive(false);
+                _settingsMenuGo.SetActive(false);
             }
         }
     }
