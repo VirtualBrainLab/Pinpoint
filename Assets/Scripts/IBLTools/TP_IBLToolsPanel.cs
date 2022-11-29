@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using TrajectoryPlanner;
+using UnityEngine.Serialization;
 
 namespace IBLTools
 {
 
     public class TP_IBLToolsPanel : MonoBehaviour
     {
-        [SerializeField] TMP_Text apText;
-        [SerializeField] TMP_Text mlText;
-        [SerializeField] TMP_Text rText;
+        [FormerlySerializedAs("apText")] [SerializeField]
+        private TMP_Text _apText;
+        [FormerlySerializedAs("mlText")] [SerializeField]
+        private TMP_Text _mlText;
+        [FormerlySerializedAs("rText")] [SerializeField]
+        private TMP_Text _rText;
 
-        [SerializeField] TrajectoryPlannerManager tpmanager;
+        [FormerlySerializedAs("tpmanager")] [SerializeField]
+        private TrajectoryPlannerManager _tpmanager;
 
         //5.4f, 5.739f, 0.332f
         // start the craniotomy at bregma
@@ -22,7 +27,7 @@ namespace IBLTools
         private float size = 1f;
         private float disabledSize = -1f;
 
-        [SerializeField] TP_CraniotomySkull craniotomySkull;
+        [FormerlySerializedAs("craniotomySkull")] [SerializeField] private TP_CraniotomySkull _craniotomySkull;
 
         private void Start()
         {
@@ -66,19 +71,19 @@ namespace IBLTools
 
         private void UpdateText()
         {
-            Vector3 pos = tpmanager.GetSetting_InVivoTransformActive() ? tpmanager.CoordinateTransformFromCCF(position) : position;
+            Vector3 pos = _tpmanager.GetSetting_InVivoTransformActive() ? _tpmanager.CoordinateTransformFromCCF(position) : position;
 
-            apText.text = "AP: " + Mathf.RoundToInt(pos.x * 1000f);
-            mlText.text = "ML: " + Mathf.RoundToInt(pos.y * 1000f);
-            rText.text = "r: " + Mathf.RoundToInt(size * 1000f);
+            _apText.text = "AP: " + Mathf.RoundToInt(pos.x * 1000f);
+            _mlText.text = "ML: " + Mathf.RoundToInt(pos.y * 1000f);
+            _rText.text = "r: " + Mathf.RoundToInt(size * 1000f);
         }
 
         private void UpdateCraniotomy()
         {
-            if (craniotomySkull != null)
+            if (_craniotomySkull != null)
             {
-                craniotomySkull.SetCraniotomyPosition(position);
-                craniotomySkull.SetCraniotomySize(size);
+                _craniotomySkull.SetCraniotomyPosition(position);
+                _craniotomySkull.SetCraniotomySize(size);
             }
         }
     }
