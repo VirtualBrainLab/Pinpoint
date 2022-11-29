@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unisave.Facades;
 using System;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Handles connection with the Unisave system, and passing data back-and-forth with the TPManager
@@ -10,9 +11,9 @@ public class AccountsManager : MonoBehaviour
 {
     private const float UPDATE_RATE = 60f;
 
-    [SerializeField] private GameObject registerPanelGO;
-    [SerializeField] private ExperimentEditor experimentEditor;
-    [SerializeField] private ActiveExpListBehavior activeExpListBehavior;
+    [FormerlySerializedAs("registerPanelGO")] [SerializeField] private GameObject _registerPanelGo;
+    [FormerlySerializedAs("experimentEditor")] [SerializeField] private ExperimentEditor _experimentEditor;
+    [FormerlySerializedAs("activeExpListBehavior")] [SerializeField] private ActiveExpListBehavior _activeExpListBehavior;
 
     #region current player data
     private PlayerEntity player;
@@ -79,8 +80,8 @@ public class AccountsManager : MonoBehaviour
     {
         SavePlayer();
 
-        experimentEditor.UpdateList();
-        activeExpListBehavior.UpdateList();
+        _experimentEditor.UpdateList();
+        _activeExpListBehavior.UpdateList();
 
         if (updateCallback != null)
             updateCallback();
@@ -163,7 +164,7 @@ public class AccountsManager : MonoBehaviour
 
     public void ShowRegisterPanel()
     {
-        registerPanelGO.SetActive(true);
+        _registerPanelGo.SetActive(true);
     }
 
     public List<string> GetExperiments()
