@@ -169,7 +169,7 @@ namespace TrajectoryPlanner
             _zeroCoordinatePanelText.color = Color.white;
             
             // Update insertion options
-            print(TargetProbeInsertions);
+            print("Auto TargetProbeInsertions: "+TargetProbeInsertions.Count);
         }
 
         #endregion
