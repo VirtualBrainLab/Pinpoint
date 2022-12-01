@@ -65,8 +65,8 @@ namespace TrajectoryPlanner
 
         public ProbeManager Probe1Manager { private get; set; }
         public ProbeManager Probe2Manager { private get; set; }
-        
-        public HashSet<ProbeInsertion> TargetProbeInsertions { private get; set; }
+
+        public HashSet<ProbeInsertion> TargetProbeInsertionsReference { private get; set; }
 
         private uint _step = 1;
 
@@ -114,7 +114,19 @@ namespace TrajectoryPlanner
 
         #region Internal UI Functions
 
-        #region Step 1
+        #region Step 2
+
+        private void EnableStep2()
+        {
+            // Enable UI
+            _gotoPanelCanvasGroup.alpha = 1;
+            _gotoPanelCanvasGroup.interactable = true;
+            _gotoPanelText.color = Color.green;
+            _zeroCoordinatePanelText.color = Color.white;
+
+            // Update insertion options
+            foreach (var probeInsertion in TargetProbeInsertionsReference) print(probeInsertion);
+        }
 
         private void UpdateManipulator1ZeroCoordinateFields()
         {
@@ -140,53 +152,38 @@ namespace TrajectoryPlanner
                 Probe2Manager.ZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
         }
 
-        private void ResetManipulatorZeroCoordinate(ProbeManager probeManager)
-        {
-            // Check if manipulator is connected
-            if (!probeManager || !probeManager.IsEphysLinkControlled) return;
-
-            // Reset zero coordinate
-            _communicationManager.GetPos(probeManager.ManipulatorId,
-                zeroCoordinate => probeManager.ZeroCoordinateOffset = zeroCoordinate);
-            probeManager.BrainSurfaceOffset = 0;
-
-            // Enable step 2 (if needed)
-            if (_step != 1) return;
-            _step = 2;
-            EnableStep2();
-        }
-
-        #endregion
-
-        #region Step 2
-
-        private void EnableStep2()
-        {
-            // Enable UI
-            _gotoPanelCanvasGroup.alpha = 1;
-            _gotoPanelCanvasGroup.interactable = true;
-            _gotoPanelText.color = Color.green;
-            _zeroCoordinatePanelText.color = Color.white;
-            
-            // Update insertion options
-            print("Auto TargetProbeInsertions: "+TargetProbeInsertions.Count);
-        }
-
         #endregion
 
         #endregion
 
         #region UI Functions
 
-        public void ResetManipulator1ZeroCoordinate()
+        #region Step 1
+
+        public void ResetManipulatorZeroCoordinate(int manipulatorID)
         {
-            ResetManipulatorZeroCoordinate(Probe1Manager);
+            var probeManager = manipulatorID == 1 ? Probe1Manager : Probe2Manager;
+            
+            // Check if manipulator is connected
+            if (!probeManager || !probeManager.IsEphysLinkControlled) return;
+
+            // Reset zero coordinate
+            _communicationManager.GetPos(probeManager.ManipulatorId,
+                zeroCoordinate =>
+                {
+                    probeManager.ZeroCoordinateOffset = zeroCoordinate;
+
+                    probeManager.BrainSurfaceOffset = 0;
+
+                    // Enable step 2 (if needed)
+                    if (_step != 1) return;
+                    _step = 2;
+                    EnableStep2();
+                }, Debug.LogError
+            );
         }
 
-        public void ResetManipulator2ZeroCoordinate()
-        {
-            ResetManipulatorZeroCoordinate(Probe2Manager);
-        }
+        #endregion
 
         #endregion
     }

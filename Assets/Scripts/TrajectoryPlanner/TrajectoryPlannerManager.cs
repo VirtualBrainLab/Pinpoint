@@ -122,7 +122,7 @@ namespace TrajectoryPlanner
                 allProbeManagers.Find(manager => manager.ManipulatorId == "1");
             _automaticManipulatorControlHandler.Probe2Manager =
                 allProbeManagers.Find(manager => manager.ManipulatorId == "2");
-            _automaticManipulatorControlHandler.TargetProbeInsertions = TargetProbeInsertions;
+            _automaticManipulatorControlHandler.TargetProbeInsertionsReference = TargetProbeInsertions;
             
             _automaticControlPanelGameObject.SetActive(enable);
         }
