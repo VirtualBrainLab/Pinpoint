@@ -9,6 +9,57 @@ namespace TrajectoryPlanner
 {
     public class AutomaticManipulatorControlHandler : MonoBehaviour
     {
+        #region Internal UI Functions
+
+        #region Step 2
+
+        private void EnableStep2()
+        {
+            // Enable UI
+            _gotoPanelCanvasGroup.alpha = 1;
+            _gotoPanelCanvasGroup.interactable = true;
+            _gotoPanelText.color = Color.green;
+            _zeroCoordinatePanelText.color = Color.white;
+
+            // Update insertion options
+            var insertionOptions = new List<string> { "Choose an insertion..." };
+            insertionOptions.AddRange(TargetProbeInsertionsReference.Select(insertion => insertion.PositionToString()));
+
+            _gotoManipulator1TargetInsertionDropdown.ClearOptions();
+            _gotoManipulator1TargetInsertionDropdown.AddOptions(insertionOptions.ToList());
+            _manipulator1TargetProbeInsertionOptions = TargetProbeInsertionsReference.ToList();
+
+            _gotoManipulator2TargetInsertionDropdown.ClearOptions();
+            _gotoManipulator2TargetInsertionDropdown.AddOptions(insertionOptions.ToList());
+            _manipulator2TargetProbeInsertionOptions = TargetProbeInsertionsReference.ToList();
+        }
+
+        private void UpdateManipulatorZeroCoordinateFields(int dropdownValue, int manipulatorID)
+        {
+            var insertionInputFields = manipulatorID == 1
+                ? _gotoManipulator1InsertionInputFields
+                : _gotoManipulator2InsertionInputFields;
+            var insertionOptions = manipulatorID == 1
+                ? _manipulator1TargetProbeInsertionOptions
+                : _manipulator2TargetProbeInsertionOptions;
+
+            if (dropdownValue == 0)
+            {
+                foreach (var insertionInputField in insertionInputFields) insertionInputField.text = "";
+            }
+            else
+            {
+                var selectedInsertion = insertionOptions[dropdownValue - 1];
+                insertionInputFields[0].text = selectedInsertion.ap.ToString(CultureInfo.CurrentCulture);
+                insertionInputFields[1].text = selectedInsertion.ml.ToString(CultureInfo.CurrentCulture);
+                insertionInputFields[2].text = selectedInsertion.dv.ToString(CultureInfo.CurrentCulture);
+            }
+        }
+
+        #endregion
+
+        #endregion
+
         #region UI Functions
 
         #region Step 1
@@ -34,6 +85,20 @@ namespace TrajectoryPlanner
                     EnableStep2();
                 }, Debug.LogError
             );
+        }
+
+        #endregion
+
+        #region Step 2
+
+        public void UpdateManipulator1ZeroCoordinateFields(int dropdownValue)
+        {
+            UpdateManipulatorZeroCoordinateFields(dropdownValue, 1);
+        }
+
+        public void UpdateManipulator2ZeroCoordinateFields(int dropdownValue)
+        {
+            UpdateManipulatorZeroCoordinateFields(dropdownValue, 2);
         }
 
         #endregion
@@ -67,6 +132,9 @@ namespace TrajectoryPlanner
         [SerializeField] private TMP_InputField _gotoManipulator2DVInputField;
         [SerializeField] private TMP_Text _gotoMoveButtonText;
 
+        private List<TMP_InputField> _gotoManipulator1InsertionInputFields;
+        private List<TMP_InputField> _gotoManipulator2InsertionInputFields;
+
         #endregion
 
         #region Step 3
@@ -97,6 +165,8 @@ namespace TrajectoryPlanner
         public ProbeManager Probe2Manager { private get; set; }
 
         public HashSet<ProbeInsertion> TargetProbeInsertionsReference { private get; set; }
+        private List<ProbeInsertion> _manipulator1TargetProbeInsertionOptions;
+        private List<ProbeInsertion> _manipulator2TargetProbeInsertionOptions;
 
         private uint _step = 1;
 
@@ -107,6 +177,11 @@ namespace TrajectoryPlanner
         private void Awake()
         {
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
+
+            _gotoManipulator1InsertionInputFields = new List<TMP_InputField>
+                { _gotoManipulator1APInputField, _gotoManipulator1MLInputField, _gotoManipulator1DVInputField };
+            _gotoManipulator2InsertionInputFields = new List<TMP_InputField>
+                { _gotoManipulator2APInputField, _gotoManipulator2MLInputField, _gotoManipulator2DVInputField };
         }
 
         private void OnEnable()
@@ -122,7 +197,7 @@ namespace TrajectoryPlanner
                 _gotoManipulator1ProbeText.color = Probe1Manager.GetColor();
                 _duraManipulator1ProbeText.color = Probe1Manager.GetColor();
 
-                UpdateManipulator1ZeroCoordinateFields();
+                UpdateManipulatorZeroCoordinateFields(_gotoManipulator1TargetInsertionDropdown.value, 1);
             }
 
             if (!Probe2Manager) return;
@@ -136,56 +211,9 @@ namespace TrajectoryPlanner
                 _gotoManipulator2ProbeText.color = Probe2Manager.GetColor();
                 _duraManipulator2ProbeText.color = Probe2Manager.GetColor();
 
-                UpdateManipulator2ZeroCoordinateFields();
+                UpdateManipulatorZeroCoordinateFields(_gotoManipulator2TargetInsertionDropdown.value, 2);
             }
         }
-
-        #endregion
-
-        #region Internal UI Functions
-
-        #region Step 2
-
-        private void EnableStep2()
-        {
-            // Enable UI
-            _gotoPanelCanvasGroup.alpha = 1;
-            _gotoPanelCanvasGroup.interactable = true;
-            _gotoPanelText.color = Color.green;
-            _zeroCoordinatePanelText.color = Color.white;
-
-            // Update insertion options
-            var insertionOptions = new List<string> { "Choose an insertion..." };
-            insertionOptions.AddRange(TargetProbeInsertionsReference.Select(insertion => insertion.PositionToString()));
-
-            _gotoManipulator1TargetInsertionDropdown.ClearOptions();
-            _gotoManipulator1TargetInsertionDropdown.AddOptions(insertionOptions.ToList());
-
-            _gotoManipulator2TargetInsertionDropdown.ClearOptions();
-            _gotoManipulator2TargetInsertionDropdown.AddOptions(insertionOptions.ToList());
-        }
-
-        private void UpdateManipulator1ZeroCoordinateFields()
-        {
-            _gotoManipulator1APInputField.text =
-                Probe1Manager.ZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
-            _gotoManipulator1MLInputField.text =
-                Probe1Manager.ZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
-            _gotoManipulator1DVInputField.text =
-                Probe1Manager.ZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
-        }
-
-        private void UpdateManipulator2ZeroCoordinateFields()
-        {
-            _gotoManipulator2APInputField.text =
-                Probe2Manager.ZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
-            _gotoManipulator2MLInputField.text =
-                Probe2Manager.ZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
-            _gotoManipulator2DVInputField.text =
-                Probe2Manager.ZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
-        }
-
-        #endregion
 
         #endregion
     }

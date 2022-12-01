@@ -5679,7 +5679,20 @@ MonoBehaviour:
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5483421187078802668}
+        m_TargetAssemblyTypeName: TrajectoryPlanner.AutomaticManipulatorControlHandler,
+          trajectoryplanner.core
+        m_MethodName: UpdateManipulator2ZeroCoordinateFields
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_AlphaFadeSpeed: 0.15
 --- !u!1 &4531732015379225257
 GameObject:
@@ -8885,7 +8898,20 @@ MonoBehaviour:
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5483421187078802668}
+        m_TargetAssemblyTypeName: TrajectoryPlanner.AutomaticManipulatorControlHandler,
+          trajectoryplanner.core
+        m_MethodName: UpdateManipulator1ZeroCoordinateFields
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_AlphaFadeSpeed: 0.15
 --- !u!1 &7811655724383415557
 GameObject:
