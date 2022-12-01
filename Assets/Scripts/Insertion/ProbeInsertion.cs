@@ -136,4 +136,9 @@ public class ProbeInsertion
     {
         return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, phi, theta, spin, _coordinateSpace.ToString(), _coordinateTransform.ToString());
     }
+
+    public string PositionToString()
+    {
+        return $"AP: {ap} ML: {ml} DV: {dv}";
+    }
 }

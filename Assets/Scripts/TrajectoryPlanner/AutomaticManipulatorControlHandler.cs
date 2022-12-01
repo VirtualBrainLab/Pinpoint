@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using EphysLink;
 using TMPro;
 using UnityEngine;
@@ -8,6 +9,37 @@ namespace TrajectoryPlanner
 {
     public class AutomaticManipulatorControlHandler : MonoBehaviour
     {
+        #region UI Functions
+
+        #region Step 1
+
+        public void ResetManipulatorZeroCoordinate(int manipulatorID)
+        {
+            var probeManager = manipulatorID == 1 ? Probe1Manager : Probe2Manager;
+
+            // Check if manipulator is connected
+            if (!probeManager || !probeManager.IsEphysLinkControlled) return;
+
+            // Reset zero coordinate
+            _communicationManager.GetPos(probeManager.ManipulatorId,
+                zeroCoordinate =>
+                {
+                    probeManager.ZeroCoordinateOffset = zeroCoordinate;
+
+                    probeManager.BrainSurfaceOffset = 0;
+
+                    // Enable step 2 (if needed)
+                    if (_step != 1) return;
+                    _step = 2;
+                    EnableStep2();
+                }, Debug.LogError
+            );
+        }
+
+        #endregion
+
+        #endregion
+
         #region Components
 
         #region Step 1
@@ -25,16 +57,14 @@ namespace TrajectoryPlanner
         [SerializeField] private TMP_Text _gotoPanelText;
         [SerializeField] private TMP_Text _gotoManipulator1ProbeText;
         [SerializeField] private TMP_Dropdown _gotoManipulator1TargetInsertionDropdown;
-        [SerializeField] private TMP_InputField _gotoManipulator1XInputField;
-        [SerializeField] private TMP_InputField _gotoManipulator1YInputField;
-        [SerializeField] private TMP_InputField _gotoManipulator1ZInputField;
-        [SerializeField] private TMP_InputField _gotoManipulator1DInputField;
+        [SerializeField] private TMP_InputField _gotoManipulator1APInputField;
+        [SerializeField] private TMP_InputField _gotoManipulator1MLInputField;
+        [SerializeField] private TMP_InputField _gotoManipulator1DVInputField;
         [SerializeField] private TMP_Text _gotoManipulator2ProbeText;
         [SerializeField] private TMP_Dropdown _gotoManipulator2TargetInsertionDropdown;
-        [SerializeField] private TMP_InputField _gotoManipulator2XInputField;
-        [SerializeField] private TMP_InputField _gotoManipulator2YInputField;
-        [SerializeField] private TMP_InputField _gotoManipulator2ZInputField;
-        [SerializeField] private TMP_InputField _gotoManipulator2DInputField;
+        [SerializeField] private TMP_InputField _gotoManipulator2APInputField;
+        [SerializeField] private TMP_InputField _gotoManipulator2MLInputField;
+        [SerializeField] private TMP_InputField _gotoManipulator2DVInputField;
         [SerializeField] private TMP_Text _gotoMoveButtonText;
 
         #endregion
@@ -125,62 +155,34 @@ namespace TrajectoryPlanner
             _zeroCoordinatePanelText.color = Color.white;
 
             // Update insertion options
-            foreach (var probeInsertion in TargetProbeInsertionsReference) print(probeInsertion);
+            var insertionOptions = new List<string> { "Choose an insertion..." };
+            insertionOptions.AddRange(TargetProbeInsertionsReference.Select(insertion => insertion.PositionToString()));
+
+            _gotoManipulator1TargetInsertionDropdown.ClearOptions();
+            _gotoManipulator1TargetInsertionDropdown.AddOptions(insertionOptions.ToList());
+
+            _gotoManipulator2TargetInsertionDropdown.ClearOptions();
+            _gotoManipulator2TargetInsertionDropdown.AddOptions(insertionOptions.ToList());
         }
 
         private void UpdateManipulator1ZeroCoordinateFields()
         {
-            _gotoManipulator1XInputField.text =
+            _gotoManipulator1APInputField.text =
                 Probe1Manager.ZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
-            _gotoManipulator1YInputField.text =
+            _gotoManipulator1MLInputField.text =
                 Probe1Manager.ZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
-            _gotoManipulator1ZInputField.text =
+            _gotoManipulator1DVInputField.text =
                 Probe1Manager.ZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
-            _gotoManipulator1DInputField.text =
-                Probe1Manager.ZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
         }
 
         private void UpdateManipulator2ZeroCoordinateFields()
         {
-            _gotoManipulator2XInputField.text =
+            _gotoManipulator2APInputField.text =
                 Probe2Manager.ZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
-            _gotoManipulator2YInputField.text =
+            _gotoManipulator2MLInputField.text =
                 Probe2Manager.ZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
-            _gotoManipulator2ZInputField.text =
+            _gotoManipulator2DVInputField.text =
                 Probe2Manager.ZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
-            _gotoManipulator2DInputField.text =
-                Probe2Manager.ZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
-        }
-
-        #endregion
-
-        #endregion
-
-        #region UI Functions
-
-        #region Step 1
-
-        public void ResetManipulatorZeroCoordinate(int manipulatorID)
-        {
-            var probeManager = manipulatorID == 1 ? Probe1Manager : Probe2Manager;
-            
-            // Check if manipulator is connected
-            if (!probeManager || !probeManager.IsEphysLinkControlled) return;
-
-            // Reset zero coordinate
-            _communicationManager.GetPos(probeManager.ManipulatorId,
-                zeroCoordinate =>
-                {
-                    probeManager.ZeroCoordinateOffset = zeroCoordinate;
-
-                    probeManager.BrainSurfaceOffset = 0;
-
-                    // Enable step 2 (if needed)
-                    if (_step != 1) return;
-                    _step = 2;
-                    EnableStep2();
-                }, Debug.LogError
-            );
         }
 
         #endregion
