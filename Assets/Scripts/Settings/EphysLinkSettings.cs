@@ -5,6 +5,7 @@ using EphysLink;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Settings
 {
@@ -27,6 +28,7 @@ namespace Settings
         // Manipulators
         [SerializeField] private GameObject _manipulatorList;
         [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
+        [SerializeField] private Button _automaticControlButton;
         [SerializeField] private TMP_Text _automaticControlButtonText;
 
         // Probes in scene
@@ -45,7 +47,7 @@ namespace Settings
 
         #region Properties
 
-        private bool _enableAutomaticControl;
+        private bool AutomaticControlIsEnabled => _automaticControlButtonText.text.Contains("Disable");
 
         #endregion
 
@@ -220,6 +222,13 @@ namespace Settings
                     Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].gameObject);
                     _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
                 }
+
+                // Enable or disable automatic control depending on whether any manipulators are used
+                _automaticControlButton.interactable = usedManipulatorIds.Count > 0;
+
+                // Close automatic control panel if no manipulators are used
+                if (usedManipulatorIds.Count == 0 && AutomaticControlIsEnabled)
+                    _automaticControlButton.onClick.Invoke();
             });
         }
 
@@ -271,11 +280,10 @@ namespace Settings
         /// </summary>
         public void ToggleAutomaticManipulatorControlPanel()
         {
-            _enableAutomaticControl = !_enableAutomaticControl;
-            _trajectoryPlannerManager.EnableAutomaticManipulatorControlPanel(_enableAutomaticControl);
-            _automaticControlButtonText.text = _enableAutomaticControl
+            _automaticControlButtonText.text = !AutomaticControlIsEnabled
                 ? "Disable Automatic Manipulator Control"
                 : "Enable Automatic Manipulator Control";
+            _trajectoryPlannerManager.EnableAutomaticManipulatorControlPanel(AutomaticControlIsEnabled);
         }
 
         #endregion

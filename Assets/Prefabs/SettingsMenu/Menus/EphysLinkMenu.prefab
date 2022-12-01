@@ -3108,6 +3108,7 @@ MonoBehaviour:
   _connectButtonText: {fileID: 4853871370759422342}
   _manipulatorList: {fileID: 7994738088484906322}
   _manipulatorConnectionPanelPrefab: {fileID: 8830734852478451222, guid: 19384593a545a404bbe8bd298659df46, type: 3}
+  _automaticControlButton: {fileID: 1693939986521514926}
   _automaticControlButtonText: {fileID: 3301958094514248686}
   _probeList: {fileID: 5170893513559919013}
   _probeConnectionPanelPrefab: {fileID: 8493186209703212129, guid: 4bda5f4e2e3ca69458cb983da56cf603, type: 3}
