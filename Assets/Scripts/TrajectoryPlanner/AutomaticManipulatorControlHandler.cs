@@ -76,7 +76,6 @@ namespace TrajectoryPlanner
                 zeroCoordinate =>
                 {
                     probeManager.ZeroCoordinateOffset = zeroCoordinate;
-
                     probeManager.BrainSurfaceOffset = 0;
 
                     // Enable step 2 (if needed)
@@ -93,6 +92,7 @@ namespace TrajectoryPlanner
 
         public void UpdateManipulator1ZeroCoordinateFields(int dropdownValue)
         {
+            
             UpdateManipulatorZeroCoordinateFields(dropdownValue, 1);
         }
 
@@ -165,6 +165,9 @@ namespace TrajectoryPlanner
         public ProbeManager Probe2Manager { private get; set; }
 
         public HashSet<ProbeInsertion> TargetProbeInsertionsReference { private get; set; }
+        private ProbeInsertion _manipulator1SelectedTargetProbeInsertion;
+        private ProbeInsertion _manipulator2SelectedTargetProbeInsertion;
+        // TODO: Switch to using the full list minus selected
         private List<ProbeInsertion> _manipulator1TargetProbeInsertionOptions;
         private List<ProbeInsertion> _manipulator2TargetProbeInsertionOptions;
 
