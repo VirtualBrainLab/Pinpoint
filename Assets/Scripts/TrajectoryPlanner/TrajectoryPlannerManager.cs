@@ -536,9 +536,9 @@ namespace TrajectoryPlanner
                 return null;
 
             GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
-            SetActiveProbe(newProbe.GetComponent<ProbeManager>());
-            TargetProbeInsertions.Add(newProbe.GetComponent<ProbeController>().Insertion);
-            print("Added insertion into list. Count: "+TargetProbeInsertions.Count);
+            var newProbeManager = newProbe.GetComponent<ProbeManager>();
+            SetActiveProbe(newProbeManager);
+            TargetProbeInsertions.Add(newProbeManager.GetProbeController().Insertion);
 
             spawnedThisFrame = true;
 
@@ -554,15 +554,21 @@ namespace TrajectoryPlanner
             if (uuid != null)
                 probeManager.OverrideUUID(uuid);
 
+            // Update insertion and record of it
+            TargetProbeInsertions.Remove(probeManager.GetProbeController().Insertion);
+            probeManager.GetProbeController().SetProbePosition(insertion);
+            TargetProbeInsertions.Add(probeManager.GetProbeController().Insertion);
+
+            // Repopulate Ephys Link information
             if (!PlayerPrefs.IsLinkDataExpired())
             {
                 probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
                 probeManager.BrainSurfaceOffset = brainSurfaceOffset;
                 probeManager.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (!string.IsNullOrEmpty(manipulatorId)) probeManager.SetIsEphysLinkControlled(true, manipulatorId);
+                if (!string.IsNullOrEmpty(manipulatorId))
+                    probeManager.SetIsEphysLinkControlled(true, manipulatorId, true, null,
+                        _ => probeManager.SetIsEphysLinkControlled(false));
             }
-
-            probeManager.GetProbeController().SetProbePosition(insertion);
             
             // Set original probe manager early on
             if (isGhost) probeManager.OriginalProbeManager = GetActiveProbeManager();
@@ -575,7 +581,7 @@ namespace TrajectoryPlanner
         public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, string manipulatorId,
             Vector4 zeroCoordinateOffset = new Vector4(), float brainSurfaceOffset = 0)
         {
-            ProbeManager probeController = AddNewProbe(probeType);
+            var probeManager = AddNewProbe(probeType);
             if (string.IsNullOrEmpty(manipulatorId))
             {
                 Debug.LogError("TODO IMPLEMENT");
@@ -586,14 +592,15 @@ namespace TrajectoryPlanner
             }
             else
             {
-                probeController.ZeroCoordinateOffset = zeroCoordinateOffset;
-                probeController.BrainSurfaceOffset = brainSurfaceOffset;
-                probeController.SetIsEphysLinkControlled(true, manipulatorId);
+                probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
+                probeManager.BrainSurfaceOffset = brainSurfaceOffset;
+                probeManager.SetIsEphysLinkControlled(true, manipulatorId, true, null,
+                    _ => probeManager.SetIsEphysLinkControlled(false));
             }
 
             spawnedThisFrame = true;
 
-            return probeController;
+            return probeManager;
         }
 
         #endregion
