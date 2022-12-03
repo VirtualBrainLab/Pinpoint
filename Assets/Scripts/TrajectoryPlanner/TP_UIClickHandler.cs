@@ -8,15 +8,15 @@ using TrajectoryPlanner;
 public class TP_UIClickHandler : MonoBehaviour
 {
     // Raycaster
-    private GraphicRaycaster _raycaster;
-    [SerializeField] private TrajectoryPlannerManager _tpmanager;
-    [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
+    private GraphicRaycaster raycaster;
+    [SerializeField] private TrajectoryPlannerManager tpmanager;
+    [SerializeField] private TP_InPlaneSlice inPlaneSlice;
     //[SerializeField] private UM_CameraController cameraController;
 
     // Start is called before the first frame update
     void Start()
     {
-        _raycaster = GetComponent<GraphicRaycaster>();
+        raycaster = GetComponent<GraphicRaycaster>();
     }
 
     // Update is called once per frame
@@ -37,8 +37,8 @@ public class TP_UIClickHandler : MonoBehaviour
                 // check if this is the in-plane slice panel
                 if (uiTarget.name == "InPlaneSlicePanel")
                 {
-                    if (_tpmanager.GetActiveProbeManager() != null)
-                        _inPlaneSlice.InPlaneSliceHover(pointerData.position);
+                    if (tpmanager.GetActiveProbeManager() != null)
+                        inPlaneSlice.InPlaneSliceHover(pointerData.position);
                 }
                 else
                 {
@@ -48,10 +48,10 @@ public class TP_UIClickHandler : MonoBehaviour
                         switch (uiTarget.tag)
                         {
                             case "ProbePanel":
-                                _tpmanager.SetActiveProbe(uiTarget.GetComponent<TP_ProbePanel>().GetProbeController());
+                                tpmanager.SetActiveProbe(uiTarget.GetComponent<TP_ProbePanel>().GetProbeController());
                                 break;
                             case "AreaPanel":
-                                _tpmanager.ClickSearchArea(uiTarget);
+                                tpmanager.ClickSearchArea(uiTarget);
                                 break;
                         }
                     }
@@ -66,7 +66,7 @@ public class TP_UIClickHandler : MonoBehaviour
 
         //Raycast using the Graphics Raycaster and mouse click position
         pointerData.position = Input.mousePosition;
-        _raycaster.Raycast(pointerData, results);
+        raycaster.Raycast(pointerData, results);
 
         if (results.Count == 1)
         {

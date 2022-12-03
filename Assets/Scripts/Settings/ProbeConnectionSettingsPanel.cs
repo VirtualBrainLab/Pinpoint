@@ -22,7 +22,7 @@ namespace Settings
         {
             ProbeManager = probeManager;
 
-            probeIdText.text = probeManager.ProbeID.ToString();
+            probeIdText.text = probeManager.GetID().ToString();
             probeIdText.color = probeManager.GetColor();
         }
 

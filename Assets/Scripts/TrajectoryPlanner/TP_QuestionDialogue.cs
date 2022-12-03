@@ -4,38 +4,38 @@ using UnityEngine;
 
 public class TP_QuestionDialogue : MonoBehaviour
 {
-    [SerializeField] private TMP_Text _questionText;
+    [SerializeField] private TMP_Text questionText;
 
-    private Action _yesCallback;
-    private Action _noCallback;
+    private Action yesCallback;
+    private Action noCallback;
 
     public void YesCallback()
     {
-        if (_yesCallback != null)
-            _yesCallback();
+        if (yesCallback != null)
+            yesCallback();
         gameObject.SetActive(false);
     }
 
     public void NoCallback()
     {
-        if (_noCallback != null)
-            _noCallback();
+        if (noCallback != null)
+            noCallback();
         gameObject.SetActive(false);
     }
 
     public void NewQuestion(string newText)
     {
         gameObject.SetActive(true);
-        _questionText.text = newText;
+        questionText.text = newText;
     }
 
     public void SetYesCallback(Action newCallback)
     {
-        _yesCallback = newCallback;
+        yesCallback = newCallback;
     }
 
     public void SetNoCallback(Action newCallback)
     {
-        _noCallback = newCallback;
+        noCallback = newCallback;
     }
 }

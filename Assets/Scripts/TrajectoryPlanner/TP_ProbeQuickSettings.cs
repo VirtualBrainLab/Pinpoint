@@ -11,15 +11,15 @@ namespace TrajectoryPlanner
     {
         #region Components
 
-        [SerializeField] private TMP_Text _probeIdText;
-        [SerializeField] private TP_CoordinateEntryPanel _coordinatePanel;
-        [SerializeField] private CanvasGroup _positionFields;
-        [SerializeField] private CanvasGroup _angleFields;
-        [SerializeField] private CanvasGroup _buttons;
-        [SerializeField] private Toggle _automaticMovementToggle;
-        [SerializeField] private TMP_InputField _automaticMovementSpeedInputField;
-        [SerializeField] private GameObject _automaticMovementControlPanelGameObject;
-        [SerializeField] private Button _automaticMovementGoButton;
+        [SerializeField] private TMP_Text probeIdText;
+        [SerializeField] private TP_CoordinateEntryPanel coordinatePanel;
+        [SerializeField] private CanvasGroup positionFields;
+        [SerializeField] private CanvasGroup angleFields;
+        [SerializeField] private CanvasGroup buttons;
+        [SerializeField] private Toggle automaticMovementToggle;
+        [SerializeField] private TMP_InputField automaticMovementSpeedInputField;
+        [SerializeField] private GameObject automaticMovementControlPanelGameObject;
+        [SerializeField] private Button automaticMovementGoButton;
         
         private ProbeManager _probeManager;
         private CommunicationManager _communicationManager;
@@ -28,6 +28,8 @@ namespace TrajectoryPlanner
 
         [SerializeField] private ExperimentManager _experimentManager;
         [SerializeField] private TMP_Dropdown _linkedExperimentDropdown;
+
+        private TMP_InputField[] inputFields;
 
         #endregion
 
@@ -52,7 +54,7 @@ namespace TrajectoryPlanner
         private void FixedUpdate()
         {
             if (!_probeManager) return;
-            if (_probeManager.IsEphysLinkControlled == _automaticMovementControlPanelGameObject.activeSelf) return;
+            if (_probeManager.IsEphysLinkControlled == automaticMovementControlPanelGameObject.activeSelf) return;
             UpdateAutomaticControlPanel();
         }
 
@@ -75,7 +77,7 @@ namespace TrajectoryPlanner
 
                 UpdateProbeIdText();
 
-                _coordinatePanel.LinkProbe(probeManager);
+                coordinatePanel.LinkProbe(probeManager);
                 
                 UpdateInteractable();
                 UpdateCoordinates();
@@ -87,27 +89,27 @@ namespace TrajectoryPlanner
         {
             if (disableAll)
             {
-                _positionFields.interactable = false;
-                _angleFields.interactable = false;
-                _buttons.interactable = false;
+                positionFields.interactable = false;
+                angleFields.interactable = false;
+                buttons.interactable = false;
             }
             else
             {
-                _positionFields.interactable = false; // !_probeManager.GetEphysLinkMovement();
-                _angleFields.interactable = _probeManager == null || !_probeManager.IsGhost;
-                _buttons.interactable = true;
+                positionFields.interactable = false; // !_probeManager.GetEphysLinkMovement();
+                angleFields.interactable = _probeManager == null || !_probeManager.IsGhost;
+                buttons.interactable = true;
             }
         }
 
         public void UpdateCoordinates()
         {
-            _coordinatePanel.UpdateText();
+            coordinatePanel.UpdateText();
         }
 
         public void UpdateProbeIdText()
         {
-            _probeIdText.text = _probeManager.ProbeID.ToString();
-            _probeIdText.color = _probeManager.GetColor();
+            probeIdText.text = _probeManager.GetID().ToString();
+            probeIdText.color = _probeManager.GetColor();
         }
 
         private void UpdateAutomaticControlPanel()
@@ -116,28 +118,28 @@ namespace TrajectoryPlanner
             if (_probeManager.IsEphysLinkControlled)
             {
                 // Show the panel
-                _automaticMovementControlPanelGameObject.SetActive(true);
+                automaticMovementControlPanelGameObject.SetActive(true);
                 
                 // Set enable status (based on if there is a ghost attached or not)
-                _automaticMovementToggle.SetIsOnWithoutNotify(_probeManager.HasGhost);
+                automaticMovementToggle.SetIsOnWithoutNotify(_probeManager.HasGhost);
                 
                 // Enable/disable interaction based on if there is a ghost attached or not
                 EnableAutomaticControlUI(_probeManager.HasGhost);
                 
                 // Set value in speed input field
-                _automaticMovementSpeedInputField.text = _probeManager.AutomaticMovementSpeed.ToString();
+                automaticMovementSpeedInputField.text = _probeManager.AutomaticMovementSpeed.ToString();
             }
             else
             {
                 // Hide the panel
-                _automaticMovementControlPanelGameObject.SetActive(false);
+                automaticMovementControlPanelGameObject.SetActive(false);
             }
         }
 
         public void EnableAutomaticControlUI(bool enable)
         {
-            _automaticMovementSpeedInputField.interactable = enable;
-            _automaticMovementGoButton.interactable = enable;
+            automaticMovementSpeedInputField.interactable = enable;
+            automaticMovementGoButton.interactable = enable;
         }
 
         /// <summary>
@@ -199,14 +201,14 @@ namespace TrajectoryPlanner
                 ghostProbeManager.DisableAllColliders();
     
                 // Deep copy overwrite the positions and angles of the insertion
-                ghostProbeManager.GetProbeController().SetProbePosition(new ProbeInsertion(originalProbeInsertion.AP,
-                    originalProbeInsertion.ML, originalProbeInsertion.DV, originalProbeInsertion.Phi, originalProbeInsertion.Theta,
-                    originalProbeInsertion.Spin, originalProbeInsertion.CoordinateSpace, originalProbeInsertion.CoordinateTransform));
+                ghostProbeManager.GetProbeController().SetProbePosition(new ProbeInsertion(originalProbeInsertion.ap,
+                    originalProbeInsertion.ml, originalProbeInsertion.dv, originalProbeInsertion.phi, originalProbeInsertion.theta,
+                    originalProbeInsertion.spin, originalProbeInsertion.CoordinateSpace, originalProbeInsertion.CoordinateTransform));
                 
                 // Set references
                 originalProbeManager.GhostProbeManager = ghostProbeManager;
-                ghostProbeManager.ProbeID = originalProbeManager.ProbeID;
-                ghostProbeManager.name = "GHOST_PROBE_" + originalProbeManager.ProbeID;
+                ghostProbeManager.SetId(originalProbeManager.GetID());
+                ghostProbeManager.name = "GHOST_PROBE_" + originalProbeManager.GetID();
             }
             else
             {
@@ -233,15 +235,15 @@ namespace TrajectoryPlanner
             switch (int.Parse(input))
             {
                 case <= 0:
-                    _automaticMovementSpeedInputField.SetTextWithoutNotify("1");
+                    automaticMovementSpeedInputField.SetTextWithoutNotify("1");
                     break;
                 case > 8000:
-                    _automaticMovementSpeedInputField.SetTextWithoutNotify("8000");
+                    automaticMovementSpeedInputField.SetTextWithoutNotify("8000");
                     break;
             }
             
             // Set speed to probe
-            _probeManager.SetAutomaticMovementSpeed(int.Parse(_automaticMovementSpeedInputField.text));
+            _probeManager.SetAutomaticMovementSpeed(int.Parse(automaticMovementSpeedInputField.text));
         }
 
         /// <summary>
@@ -250,7 +252,7 @@ namespace TrajectoryPlanner
         public void AutomaticallyDriveManipulator()
         {
             // Gather info
-            var apmldv = _probeManager.GhostProbeManager.GetProbeController().Insertion.APMLDV;
+            var apmldv = _probeManager.GhostProbeManager.GetProbeController().Insertion.apmldv;
             var depth = _probeManager.GhostProbeManager.GetProbeController().GetProbeDepth();
 
             // Convert apmldv to world coordinate
@@ -274,7 +276,7 @@ namespace TrajectoryPlanner
                 posWithDepthAndCorrectAxes.z -= brainSurfaceAdjustment;
 
             // Adjust for phi
-            var probePhi = _probeManager.GetProbeController().Insertion.Phi * Mathf.Deg2Rad;
+            var probePhi = _probeManager.GetProbeController().Insertion.phi * Mathf.Deg2Rad;
             var phiCos = Mathf.Cos(probePhi);
             var phiSin = Mathf.Sin(probePhi);
             var phiAdjustedX = posWithDepthAndCorrectAxes.x * phiCos -
@@ -336,10 +338,10 @@ namespace TrajectoryPlanner
             if (optIdx > 0)
             {
                 string optText = _linkedExperimentDropdown.options[optIdx].text;
-                _accountsManager.ChangeProbeExperiment(_probeManager.UUID, optText);
+                _accountsManager.ChangeProbeExperiment(_probeManager.Uuid, optText);
             }
             else
-                _accountsManager.RemoveProbeExperiment(_probeManager.UUID);
+                _accountsManager.RemoveProbeExperiment(_probeManager.Uuid);
         }
 
         #endregion

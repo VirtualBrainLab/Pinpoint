@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class TP_SearchAreaPanel : MonoBehaviour
 {
-    public CCFTreeNode Node { get; private set; }
+    private CCFTreeNode node;
 
     public void SetNode(CCFTreeNode node)
     {
-        Node = node;
+        this.node = node;
+    }
+
+    public CCFTreeNode GetNode()
+    {
+        return node;
     }
 }

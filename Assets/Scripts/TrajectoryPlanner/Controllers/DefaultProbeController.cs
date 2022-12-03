@@ -21,65 +21,65 @@ public class DefaultProbeController : ProbeController
     #endregion
 
     #region Key hold flags
-    private bool _keyFast = false;
-    private bool _keySlow = false;
-    private bool _keyHeld = false; // If a key is held, we will skip re-checking the key hold delay for any other keys that are added
-    private float _keyPressTime = 0f;
-    private const float _keyHoldDelay = 0.300f;
+    private bool keyFast = false;
+    private bool keySlow = false;
+    private bool keyHeld = false; // If a key is held, we will skip re-checking the key hold delay for any other keys that are added
+    private float keyPressTime = 0f;
+    private const float keyHoldDelay = 0.300f;
     #endregion
 
     #region Angle limits
-    private const float _minTheta = -90f;
-    private const float _maxTheta = 0f;
+    private const float minTheta = -90f;
+    private const float maxTheta = 0f;
     #endregion
 
     #region Recording region
-    private float _minRecordHeight;
-    private float _maxRecordHeight; // get this by measuring the height of the recording rectangle and subtracting from 10
-    private float _recordingRegionSizeY;
+    private float minRecordHeight;
+    private float maxRecordHeight; // get this by measuring the height of the recording rectangle and subtracting from 10
+    private float recordingRegionSizeY;
     #endregion
 
     #region Defaults
     // in ap/ml/dv
-    private Vector3 _defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
-    private float _defaultDepth = 0f;
-    private Vector2 _defaultAngles = new Vector2(-90f, 0f); // 0 phi is forward, default theta is 90 degrees down from horizontal, but internally this is a value of 0f
+    private Vector3 defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
+    private float defaultDepth = 0f;
+    private Vector2 defaultAngles = new Vector2(-90f, 0f); // 0 phi is forward, default theta is 90 degrees down from horizontal, but internally this is a value of 0f
     #endregion
 
     private Vector3 _initialPosition;
     private Quaternion _initialRotation;
-    private float _depth;
+    private float depth;
 
     // Offset vectors
-    private GameObject _probeTipOffset;
-    private GameObject _probeTipTop;
+    private GameObject probeTipOffset;
+    private GameObject probeTipTop;
 
     // References
     [SerializeField] private Transform _probeTipT;
-    [SerializeField] private List<GameObject> _recordingRegionGOs;
-    [SerializeField] private Transform _rotateAround;
+    [SerializeField] private List<GameObject> recordingRegionGOs;
+    [SerializeField] private Transform rotateAround;
 
     public override Transform ProbeTipT { get { return _probeTipT; } }
 
     private void Awake()
     {
         // Create two points offset from the tip that we'll use to interpolate where we are on the probe
-        _probeTipOffset = new GameObject(name + "TipOffset");
-        _probeTipOffset.transform.parent = _probeTipT;
-        _probeTipOffset.transform.position = _probeTipT.position + _probeTipT.up * 0.2f;
+        probeTipOffset = new GameObject(name + "TipOffset");
+        probeTipOffset.transform.parent = _probeTipT;
+        probeTipOffset.transform.position = _probeTipT.position + _probeTipT.up * 0.2f;
 
-        _probeTipTop = new GameObject(name + "TipTop");
-        _probeTipTop.transform.parent = _probeTipT;
-        _probeTipTop.transform.position = _probeTipT.position + _probeTipT.up * 10.2f;
+        probeTipTop = new GameObject(name + "TipTop");
+        probeTipTop.transform.parent = _probeTipT;
+        probeTipTop.transform.position = _probeTipT.position + _probeTipT.up * 10.2f;
 
-        _depth = _defaultDepth;
+        depth = defaultDepth;
 
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
 
         UpdateRecordingRegionVars();
 
-        Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, TPManager.GetCoordinateSpace(), TPManager.GetActiveCoordinateTransform());
+        Insertion = new ProbeInsertion(defaultStart, defaultAngles, TPManager.GetCoordinateSpace(), TPManager.GetActiveCoordinateTransform());
     }
 
     private void Start()
@@ -99,20 +99,20 @@ public class DefaultProbeController : ProbeController
 
     public override void ResetPosition()
     {
-        Insertion.APMLDV = _defaultStart;
+        Insertion.apmldv = defaultStart;
     }
 
     public override void ResetAngles()
     {
-        Insertion.Angles = _defaultAngles;
+        Insertion.angles = defaultAngles;
     }
 
     #region Keyboard movement
 
     private void CheckForSpeedKeys()
     {
-        _keyFast = Input.GetKey(KeyCode.LeftShift);
-        _keySlow = Input.GetKey(KeyCode.LeftControl);
+        keyFast = Input.GetKey(KeyCode.LeftShift);
+        keySlow = Input.GetKey(KeyCode.LeftControl);
     }
 
     public bool MoveProbe_Keyboard(bool checkForCollisions)
@@ -122,7 +122,7 @@ public class DefaultProbeController : ProbeController
             return false;
 
         bool moved = false;
-        bool keyHoldDelayPassed = (Time.realtimeSinceStartup - _keyPressTime) > _keyHoldDelay;
+        bool keyHoldDelayPassed = (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay;
 
         CheckForSpeedKeys();
         // Handle click inputs
@@ -142,223 +142,223 @@ public class DefaultProbeController : ProbeController
         if (Input.GetKeyDown(KeyCode.W))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             MoveProbeXYZ(0f, 0f, -1f, true);
         }
-        else if (Input.GetKey(KeyCode.W) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.W) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             MoveProbeXYZ(0f, 0f, -1f, false);
         }
         if (Input.GetKeyUp(KeyCode.W))
-            _keyHeld = false;
+            keyHeld = false;
 
         if (Input.GetKeyDown(KeyCode.S))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             MoveProbeXYZ(0f, 0f, 1f, true);
         }
-        else if (Input.GetKey(KeyCode.S) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.S) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             MoveProbeXYZ(0f, 0f, 1f, false);
         }
         if (Input.GetKeyUp(KeyCode.S))
-            _keyHeld = false;
+            keyHeld = false;
 
         if (Input.GetKeyDown(KeyCode.D))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             MoveProbeXYZ(-1f, 0f, 0f, true);
         }
-        else if (Input.GetKey(KeyCode.D) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.D) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             MoveProbeXYZ(-1f, 0f, 0f, false);
         }
         if (Input.GetKeyUp(KeyCode.D))
-            _keyHeld = false;
+            keyHeld = false;
 
         if (Input.GetKeyDown(KeyCode.A))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             MoveProbeXYZ(1f, 0f, 0f, true);
         }
-        else if (Input.GetKey(KeyCode.A) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.A) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             MoveProbeXYZ(1f, 0f, 0f, false);
         }
         if (Input.GetKeyUp(KeyCode.A))
-            _keyHeld = false;
+            keyHeld = false;
 
         // DV movement
 
         if (Input.GetKeyDown(KeyCode.Q))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             ProbeManager.SetDropToSurfaceWithDepth(false);
             MoveProbeXYZ(0f, -1f, 0f, true);
         }
-        else if (Input.GetKey(KeyCode.Q) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.Q) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             MoveProbeXYZ(0f, -1f, 0f, false);
         }
         if (Input.GetKeyUp(KeyCode.Q))
-            _keyHeld = false;
+            keyHeld = false;
 
         if (Input.GetKeyDown(KeyCode.E))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             ProbeManager.SetDropToSurfaceWithDepth(false);
             MoveProbeXYZ(0f, 1f, 0f, true);
         }
-        else if (Input.GetKey(KeyCode.E) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.E) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             MoveProbeXYZ(0f, 1f, 0f, false);
         }
         if (Input.GetKeyUp(KeyCode.E))
-            _keyHeld = false;
+            keyHeld = false;
 
         // Depth movement
 
         if (Input.GetKeyDown(KeyCode.Z))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             ProbeManager.SetDropToSurfaceWithDepth(true);
             MoveProbeDepth(1f, true);
         }
-        else if (Input.GetKey(KeyCode.Z) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             MoveProbeDepth(1f, false);
         }
         if (Input.GetKeyUp(KeyCode.Z))
-            _keyHeld = false;
+            keyHeld = false;
 
         if (Input.GetKeyDown(KeyCode.X))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             ProbeManager.SetDropToSurfaceWithDepth(true);
             MoveProbeDepth(-1f, true);
         }
-        else if (Input.GetKey(KeyCode.X) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             MoveProbeDepth(-1f, false);
         }
         if (Input.GetKeyUp(KeyCode.X))
-            _keyHeld = false;
+            keyHeld = false;
 
         // Rotations
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             RotateProbe(-1f, 0f, true);
         }
-        else if (Input.GetKey(KeyCode.Alpha1) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.Alpha1) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             RotateProbe(-1f, 0f, false);
         }
         if (Input.GetKeyUp(KeyCode.Alpha1))
-            _keyHeld = false;
+            keyHeld = false;
 
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             RotateProbe(1f, 0f, true);
         }
-        else if (Input.GetKey(KeyCode.Alpha3) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.Alpha3) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             RotateProbe(1f, 0f, false);
         }
         if (Input.GetKeyUp(KeyCode.Alpha3))
-            _keyHeld = false;
+            keyHeld = false;
 
         if (Input.GetKeyDown(KeyCode.R))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             RotateProbe(0f, 1f, true);
         }
-        else if (Input.GetKey(KeyCode.R) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.R) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             RotateProbe(0f, 1f, false);
         }
         if (Input.GetKeyUp(KeyCode.R))
-            _keyHeld = false;
+            keyHeld = false;
 
         if (Input.GetKeyDown(KeyCode.F))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             RotateProbe(0f, -1f, true);
         }
-        else if (Input.GetKey(KeyCode.F) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.F) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             RotateProbe(0f, -1f, false);
         }
         if (Input.GetKeyUp(KeyCode.F))
-            _keyHeld = false;
+            keyHeld = false;
 
         // Spin controls
         if (Input.GetKeyDown(KeyCode.Comma))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             SpinProbe(-1f, true);
         }
-        else if (Input.GetKey(KeyCode.Comma) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.Comma) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             SpinProbe(-1f, false);
         }
         if (Input.GetKeyUp(KeyCode.Comma))
-            _keyHeld = false;
+            keyHeld = false;
 
         if (Input.GetKeyDown(KeyCode.Period))
         {
             moved = true;
-            _keyPressTime = Time.realtimeSinceStartup;
+            keyPressTime = Time.realtimeSinceStartup;
             SpinProbe(1f, true);
         }
-        else if (Input.GetKey(KeyCode.Period) && (_keyHeld || keyHoldDelayPassed))
+        else if (Input.GetKey(KeyCode.Period) && (keyHeld || keyHoldDelayPassed))
         {
-            _keyHeld = true;
+            keyHeld = true;
             moved = true;
             SpinProbe(1f, false);
         }
         if (Input.GetKeyUp(KeyCode.Period))
-            _keyHeld = false;
+            keyHeld = false;
 
         // Recording region controls
         if (Input.GetKey(KeyCode.T))
@@ -401,41 +401,41 @@ public class DefaultProbeController : ProbeController
     public void MoveProbeXYZ(float x, float y, float z, bool pressed)
     {
         float speed = pressed ?
-            _keyFast ? MOVE_INCREMENT_TAP_FAST : _keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
-            _keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : _keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
+            keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
+            keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
         // Get the xyz transformation
         Vector3 xyz = new Vector3(x, y, z) * speed;
         // Rotate to match the probe axis directions
-        Insertion.APMLDV += Insertion.World2TransformedAxisChange(xyz);
+        Insertion.apmldv += Insertion.World2TransformedAxisChange(xyz);
     }
 
     public void MoveProbeDepth(float depth, bool pressed)
     {
         float speed = pressed ?
-            _keyFast ? MOVE_INCREMENT_TAP_FAST : _keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
-            _keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : _keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
+            keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
+            keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
-        this._depth += depth * speed;
+        this.depth += depth * speed;
     }
 
     public void RotateProbe(float phi, float theta, bool pressed)
     {
         float speed = pressed ?
-            _keyFast ? ROT_INCREMENT_TAP_FAST : _keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
-            _keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : _keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
+            keyFast ? ROT_INCREMENT_TAP_FAST : keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
+            keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
 
-        Insertion.Phi += phi * speed;
-        Insertion.Theta = Mathf.Clamp(Insertion.Theta + theta * speed, _minTheta, _maxTheta);
+        Insertion.phi += phi * speed;
+        Insertion.theta = Mathf.Clamp(Insertion.theta + theta * speed, minTheta, maxTheta);
     }
 
     public void SpinProbe(float spin, bool pressed)
     {
         float speed = pressed ?
-            _keyFast ? ROT_INCREMENT_TAP_FAST : _keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
-            _keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : _keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
+            keyFast ? ROT_INCREMENT_TAP_FAST : keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
+            keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
 
-        Insertion.Spin += spin * speed;
+        Insertion.spin += spin * speed;
     }
 
     // Drag movement variables
@@ -477,9 +477,9 @@ public class DefaultProbeController : ProbeController
         axisLockTheta = false;
         axisLockPhi = false;
 
-        origAPMLDV = Insertion.APMLDV;
-        origPhi = Insertion.Phi;
-        origTheta = Insertion.Theta;
+        origAPMLDV = Insertion.apmldv;
+        origPhi = Insertion.phi;
+        origTheta = Insertion.theta;
         // Note: depth is special since it gets absorbed into the probe position on each frame
 
         // Track the screenPoint that was initially clicked
@@ -603,25 +603,25 @@ public class DefaultProbeController : ProbeController
 
         if (moved)
         {
-            Insertion.APMLDV = origAPMLDV + Insertion.World2TransformedAxisChange(newXYZ);
+            Insertion.apmldv = origAPMLDV + Insertion.World2TransformedAxisChange(newXYZ);
         }
 
         if (axisLockDepth)
         {
             worldOffset = curScreenPointWorld - lastClickPositionWorld;
             lastClickPositionWorld = curScreenPointWorld;
-            _depth = -1.5f * worldOffset.y;
+            depth = -1.5f * worldOffset.y;
             moved = true;
         }
 
         if (axisLockTheta)
         {
-            Insertion.Theta = Mathf.Clamp(origTheta + 3f * worldOffset.y, _minTheta, _maxTheta);
+            Insertion.theta = Mathf.Clamp(origTheta + 3f * worldOffset.y, minTheta, maxTheta);
             moved = true;
         }
         if (axisLockPhi)
         {
-            Insertion.Phi = origPhi - 3f * worldOffset.x;
+            Insertion.phi = origPhi - 3f * worldOffset.x;
             moved = true;
         }
 
@@ -635,7 +635,7 @@ public class DefaultProbeController : ProbeController
 
             ProbeManager.UpdateUI();
 
-            TPManager.MovedThisFrame = true;
+            TPManager.movedThisFrame = true;
         }
 
     }
@@ -656,9 +656,9 @@ public class DefaultProbeController : ProbeController
     #region Recording region UI
     public void ChangeRecordingRegionSize(float newSize)
     {
-        _recordingRegionSizeY = newSize;
+        recordingRegionSizeY = newSize;
 
-        foreach (GameObject go in _recordingRegionGOs)
+        foreach (GameObject go in recordingRegionGOs)
         {
             // This is a little complicated if we want to do it right (since you can accidentally scale the recording region off the probe.
             // For now, we will just reset the y position to be back at the bottom of the probe.
@@ -680,19 +680,19 @@ public class DefaultProbeController : ProbeController
     private void ShiftRecordingRegion(float dir)
     {
         // Loop over recording regions to handle 4-shank (and 8-shank) probes
-        foreach (GameObject recordingRegion in _recordingRegionGOs)
+        foreach (GameObject recordingRegion in recordingRegionGOs)
         {
             Vector3 localPosition = recordingRegion.transform.localPosition;
             float localRecordHeightSpeed = Input.GetKey(KeyCode.LeftShift) ? REC_HEIGHT_SPEED * 2 : REC_HEIGHT_SPEED;
-            localPosition.y = Mathf.Clamp(localPosition.y + dir * localRecordHeightSpeed, _minRecordHeight, _maxRecordHeight);
+            localPosition.y = Mathf.Clamp(localPosition.y + dir * localRecordHeightSpeed, minRecordHeight, maxRecordHeight);
             recordingRegion.transform.localPosition = localPosition;
         }
     }
 
     private void UpdateRecordingRegionVars()
     {
-        _minRecordHeight = _recordingRegionGOs[0].transform.localPosition.y;
-        _maxRecordHeight = _minRecordHeight + (10 - _recordingRegionGOs[0].transform.localScale.y);
+        minRecordHeight = recordingRegionGOs[0].transform.localPosition.y;
+        maxRecordHeight = minRecordHeight + (10 - recordingRegionGOs[0].transform.localScale.y);
     }
 
     #endregion
@@ -701,7 +701,7 @@ public class DefaultProbeController : ProbeController
     
     public override float GetProbeDepth()
     {
-        return _depth;
+        return depth;
     }
 
     /// <summary>
@@ -714,26 +714,26 @@ public class DefaultProbeController : ProbeController
 
     public void SetProbePosition(float depthOverride)
     {
-        _depth = depthOverride;
+        depth = depthOverride;
         SetProbePosition();
     }
 
     public override void SetProbePosition(Vector3 position)
     {
-        Insertion.APMLDV = position;
+        Insertion.apmldv = position;
         SetProbePosition();
     }
 
     public override void SetProbePosition(Vector4 positionDepth)
     {
-        Insertion.APMLDV = positionDepth;
-        _depth = positionDepth.w;
+        Insertion.apmldv = positionDepth;
+        depth = positionDepth.w;
         SetProbePosition();
     }
 
     public override void SetProbeAngles(Vector3 angles)
     {
-        Insertion.Angles = angles;
+        Insertion.angles = angles;
         SetProbePosition();
     }
 
@@ -749,18 +749,18 @@ public class DefaultProbeController : ProbeController
 
         // Manually adjust the coordinates and rotation
         transform.position += localInsertion.PositionWorld();
-        transform.RotateAround(_rotateAround.position, transform.up, localInsertion.Phi);
-        transform.RotateAround(_rotateAround.position, transform.forward, localInsertion.Theta);
-        transform.RotateAround(_rotateAround.position, _rotateAround.up, localInsertion.Spin);
+        transform.RotateAround(rotateAround.position, transform.up, localInsertion.phi);
+        transform.RotateAround(rotateAround.position, transform.forward, localInsertion.theta);
+        transform.RotateAround(rotateAround.position, rotateAround.up, localInsertion.spin);
 
         // Compute depth transform, if needed
-        if (_depth != 0f)
+        if (depth != 0f)
         {
-            transform.position += -transform.up * _depth;
-            Vector3 depthAdjustment = Insertion.World2TransformedAxisChange(-transform.up) * _depth;
+            transform.position += -transform.up * depth;
+            Vector3 depthAdjustment = Insertion.World2TransformedAxisChange(-transform.up) * depth;
 
-            localInsertion.APMLDV += depthAdjustment;
-            _depth = 0f;
+            localInsertion.apmldv += depthAdjustment;
+            depth = 0f;
         }
 
         // save the data
@@ -770,7 +770,7 @@ public class DefaultProbeController : ProbeController
         ProbeManager.UpdateSurfacePosition();
 
         // Tell the tpmanager we moved and update the UI elements
-        TPManager.MovedThisFrame = true;
+        TPManager.movedThisFrame = true;
         ProbeManager.UpdateUI();
     }
 
@@ -803,7 +803,7 @@ public class DefaultProbeController : ProbeController
 
     public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld()
     {
-        return GetRecordingRegionWorld(_probeTipOffset.transform);
+        return GetRecordingRegionWorld(probeTipOffset.transform);
     }
 
     public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld(Transform tipTransform)
@@ -834,7 +834,7 @@ public class DefaultProbeController : ProbeController
     /// <returns>float array [0]=bottom, [1]=height</returns>
     public (float, float) GetRecordingRegionHeight()
     {
-        return (_recordingRegionGOs[0].transform.localPosition.y - _minRecordHeight, _recordingRegionSizeY);
+        return (recordingRegionGOs[0].transform.localPosition.y - minRecordHeight, recordingRegionSizeY);
     }
 
     /// <summary>
@@ -843,7 +843,7 @@ public class DefaultProbeController : ProbeController
     /// <returns>size of the recording region</returns>
     public float GetRecordingRegionSize()
     {
-        return _recordingRegionSizeY;
+        return recordingRegionSizeY;
     }
 
     #endregion

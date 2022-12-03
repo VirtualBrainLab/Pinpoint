@@ -7,38 +7,38 @@ using TrajectoryPlanner;
 
 public class TP_RecRegionSlider : MonoBehaviour
 {
-    [SerializeField] private TrajectoryPlannerManager _tpmanager;
-    [SerializeField] private Slider _uiSlider;
-    [SerializeField] private TextMeshProUGUI _recRegionSizeText;
+    [SerializeField] private TrajectoryPlannerManager tpmanager;
+    [SerializeField] private Slider uiSlider;
+    [SerializeField] private TextMeshProUGUI recRegionSizeText;
 
-    private float[] _np1Range = { 3.84f, 7.68f };
-    private float[] _np2Range = { 2.88f, 5.76f };
-    private float[] _np24Range = { 0.72f, 1.44f, 2.88f, 5.76f };
-    private List<float[]> _ranges;
-    private int[] _type2index = { -1, 0, 1, -1, 2, -1, -1, -1, 2 };
+    private float[] np1Range = { 3.84f, 7.68f };
+    private float[] np2Range = { 2.88f, 5.76f };
+    private float[] np24Range = { 0.72f, 1.44f, 2.88f, 5.76f };
+    private List<float[]> ranges;
+    private int[] type2index = { -1, 0, 1, -1, 2, -1, -1, -1, 2 };
 
     public TP_RecRegionSlider()
     {
-        _ranges = new List<float[]>();
-        _ranges.Add(_np1Range);
-        _ranges.Add(_np2Range);
-        _ranges.Add(_np24Range);
+        ranges = new List<float[]>();
+        ranges.Add(np1Range);
+        ranges.Add(np2Range);
+        ranges.Add(np24Range);
     }
 
     public void SliderValueChanged(float value)
     {
-        ProbeManager probeManager = _tpmanager.GetActiveProbeManager();
+        ProbeManager probeManager = tpmanager.GetActiveProbeManager();
         if (probeManager != null)
         {
             // Get active probe type from tpmanager
             Debug.Log(probeManager.ProbeType);
-            float[] range = _ranges[_type2index[probeManager.ProbeType]];
-            _uiSlider.value = Round2Nearest(value, range);
-            probeManager.ChangeRecordingRegionSize(_uiSlider.value);
+            float[] range = ranges[type2index[probeManager.ProbeType]];
+            uiSlider.value = Round2Nearest(value, range);
+            probeManager.ChangeRecordingRegionSize(uiSlider.value);
 
-            _tpmanager.MovedThisFrame = true;
+            tpmanager.movedThisFrame = true;
 
-            _recRegionSizeText.text = "Recording region size: " + _uiSlider.value;
+            recRegionSizeText.text = "Recording region size: " + uiSlider.value;
         }
     }
 

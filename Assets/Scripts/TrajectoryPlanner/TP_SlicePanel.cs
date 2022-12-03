@@ -6,16 +6,16 @@ using UnityEngine.UI;
 
 public class SlicePanel : MonoBehaviour
 {
-    [SerializeField] private RawImage _panelImage;
-    [SerializeField] private TextMeshProUGUI _panelText;
+    [SerializeField] private RawImage panelImage;
+    [SerializeField] private TextMeshProUGUI panelText;
 
     public void SetImageColor(Color color)
     {
-        _panelImage.color = color;
+        panelImage.color = color;
     }
 
     public void SetText(string newText)
     {
-        _panelText.text = newText;
+        panelText.text = newText;
     }
 }

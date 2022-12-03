@@ -8,29 +8,29 @@ using TrajectoryPlanner;
 
 public class TP_Search : MonoBehaviour
 {
-    [SerializeField] private TrajectoryPlannerManager _tpmanager;
-    [SerializeField] private CCFModelControl _modelControl;
+    [SerializeField] TrajectoryPlannerManager tpmanager;
+    [SerializeField] CCFModelControl modelControl;
 
-    [SerializeField] private GameObject _areaPanelsParentGO;
-    [SerializeField] private GameObject _areaPanelPrefab;
-    [SerializeField] private int _maxAreaPanels = 1;
+    [SerializeField] GameObject areaPanelsParentGO;
+    [SerializeField] GameObject areaPanelPrefab;
+    [SerializeField] int maxAreaPanels = 1;
 
-    private List<GameObject> _localAreaPanels;
-    public List<CCFTreeNode> _activeBrainAreas { get; private set; }
+    private List<GameObject> localAreaPanels;
+    public List<CCFTreeNode> activeBrainAreas { get; private set; }
 
     void Awake()
     {
-        _localAreaPanels = new List<GameObject>();
-        _activeBrainAreas = new List<CCFTreeNode>();
+        localAreaPanels = new List<GameObject>();
+        activeBrainAreas = new List<CCFTreeNode>();
 
-        for (int i =0; i< _maxAreaPanels; i++)
+        for (int i =0; i< maxAreaPanels; i++)
         {
-            GameObject areaPanel = Instantiate(_areaPanelPrefab, _areaPanelsParentGO.transform);
+            GameObject areaPanel = Instantiate(areaPanelPrefab, areaPanelsParentGO.transform);
             areaPanel.GetComponentInChildren<Button>().onClick.AddListener(() =>
             {
-                _tpmanager.SetProbeTipPositionToCCFNode(areaPanel.GetComponent<TP_SearchAreaPanel>().Node);
+                tpmanager.SetProbeTipPositionToCCFNode(areaPanel.GetComponent<TP_SearchAreaPanel>().GetNode());
             });
-            _localAreaPanels.Add(areaPanel);
+            localAreaPanels.Add(areaPanel);
             areaPanel.SetActive(false);
         }
     }
@@ -48,31 +48,31 @@ public class TP_Search : MonoBehaviour
         // if empty, hide all panels
         if (searchString.Length==0)
         {
-            foreach (GameObject panel in _localAreaPanels)
+            foreach (GameObject panel in localAreaPanels)
                 panel.SetActive(false);
             return;
         }
         // otherwise do the search
 
         // Find all areas in the CCF that match this search string
-        List<int> matchingAreas = _modelControl.AreasMatchingAcronym(searchString);
+        List<int> matchingAreas = modelControl.AreasMatchingAcronym(searchString);
         if (matchingAreas.Contains(997))
             matchingAreas.Remove(997);
 
-        if (!_tpmanager.GetSetting_UseAcronyms())
+        if (!tpmanager.GetSetting_UseAcronyms())
         {
-            List<int> areasMatchingName = _modelControl.AreasMatchingName(searchString);
+            List<int> areasMatchingName = modelControl.AreasMatchingName(searchString);
             matchingAreas = matchingAreas.Union(areasMatchingName).ToList();
         }
 
         // if the matching areas is larger than the number of max panels, we'll sort the list
-        if (matchingAreas.Count > _maxAreaPanels)
+        if (matchingAreas.Count > maxAreaPanels)
         {
             Debug.Log("Searching for matched searches, bumping these");
             for (int i = 0; i < matchingAreas.Count; i++)
             {
                 int id = matchingAreas[i];
-                CCFTreeNode areaNode = _modelControl.tree.findNode(id);
+                CCFTreeNode areaNode = modelControl.tree.findNode(id);
                 if (areaNode.ShortName.ToLower().Equals(searchString) || areaNode.Name.ToLower().Equals(searchString))
                 {
                     matchingAreas.RemoveAt(i);
@@ -82,13 +82,13 @@ public class TP_Search : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < _maxAreaPanels; i++)
+        for (int i = 0; i < maxAreaPanels; i++)
         {
-            GameObject areaPanel = _localAreaPanels[i];
+            GameObject areaPanel = localAreaPanels[i];
             if (i < matchingAreas.Count)
             {
-                CCFTreeNode areaNode = _modelControl.tree.findNode(matchingAreas[i]);
-                if (_tpmanager.GetSetting_UseAcronyms())
+                CCFTreeNode areaNode = modelControl.tree.findNode(matchingAreas[i]);
+                if (tpmanager.GetSetting_UseAcronyms())
                     areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.ShortName;
                 else
                     areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.Name;
@@ -103,33 +103,33 @@ public class TP_Search : MonoBehaviour
 
     public void ClickArea(GameObject target)
     {
-        CCFTreeNode targetNode = target.GetComponent<TP_SearchAreaPanel>().Node;
+        CCFTreeNode targetNode = target.GetComponent<TP_SearchAreaPanel>().GetNode();
         // Depending on whether the node is in the base set or not we will load it temporarily or just set it to have a different material
         SelectBrainArea(targetNode);
     }
 
     public void ClickArea(int annotationID)
     {
-        SelectBrainArea(_modelControl.GetNode(annotationID));
+        SelectBrainArea(modelControl.GetNode(annotationID));
     }
 
 
     public void SelectBrainArea(CCFTreeNode targetNode)
     {
         // if this is an active node, just make it transparent again
-        if (_activeBrainAreas.Contains(targetNode))
+        if (activeBrainAreas.Contains(targetNode))
         {
-            if (_modelControl.InDefaults(targetNode.ID))
-                _modelControl.ChangeMaterial(targetNode, "default");
+            if (modelControl.InDefaults(targetNode.ID))
+                modelControl.ChangeMaterial(targetNode, "default");
             else
                 targetNode.SetNodeModelVisibility(false);
-            _activeBrainAreas.Remove(targetNode);
+            activeBrainAreas.Remove(targetNode);
         }
         else
         {
 
-            if (_modelControl.InDefaults(targetNode.ID))
-                _modelControl.ChangeMaterial(targetNode, "lit");
+            if (modelControl.InDefaults(targetNode.ID))
+                modelControl.ChangeMaterial(targetNode, "lit");
             else
             {
                 if (!targetNode.IsLoaded(true))
@@ -137,27 +137,27 @@ public class TP_Search : MonoBehaviour
                 else
                 {
                     targetNode.SetNodeModelVisibility(true);
-                    _modelControl.ChangeMaterial(targetNode, "lit");
+                    modelControl.ChangeMaterial(targetNode, "lit");
                 }
             }
-            _activeBrainAreas.Add(targetNode);
+            activeBrainAreas.Add(targetNode);
         }
     }
 
     public void ClearAllAreas()
     {
-        foreach (CCFTreeNode targetNode in _activeBrainAreas)
+        foreach (CCFTreeNode targetNode in activeBrainAreas)
         {
-            if (_modelControl.InDefaults(targetNode.ID))
+            if (modelControl.InDefaults(targetNode.ID))
             {
-                _modelControl.ChangeMaterial(targetNode, "default");
+                modelControl.ChangeMaterial(targetNode, "default");
             }
             else
             {
                 targetNode.SetNodeModelVisibility(false);
             }
         }
-        _activeBrainAreas = new List<CCFTreeNode>();
+        activeBrainAreas = new List<CCFTreeNode>();
     }
 
     private async void LoadSearchNode(CCFTreeNode node)
@@ -167,13 +167,13 @@ public class TP_Search : MonoBehaviour
         node.GetNodeTransform().localPosition = Vector3.zero;
         node.GetNodeTransform().localRotation = Quaternion.identity;
         node.SetNodeModelVisibility(true);
-        _tpmanager.WarpNode(node);
-        _modelControl.ChangeMaterial(node, "lit");
+        tpmanager.WarpNode(node);
+        modelControl.ChangeMaterial(node, "lit");
     }
 
     public void ChangeWarp()
     {
-        foreach (CCFTreeNode node in _activeBrainAreas)
-            _tpmanager.WarpNode(node);
+        foreach (CCFTreeNode node in activeBrainAreas)
+            tpmanager.WarpNode(node);
     }
 }

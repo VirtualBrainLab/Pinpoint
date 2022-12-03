@@ -4,26 +4,27 @@ using UnityEngine;
 
 public class EightShankProbeControl : MonoBehaviour
 {
-    [SerializeField] private GameObject _secondProbeGO;
-    public bool MovedThisFrame { get; private set; }
+    [SerializeField] GameObject SecondProbeGO;
+    private bool _movedThisFrame;
+    public bool MovedThisFrame { get { return _movedThisFrame; } }
 
     // Update is called once per frame
     void Update()
     {
-        MovedThisFrame = false;
+        _movedThisFrame = false;
         if (Input.GetKeyDown(KeyCode.LeftBracket) && Input.GetKey(KeyCode.LeftControl))
         {
-            Vector3 pos = _secondProbeGO.transform.localPosition;
+            Vector3 pos = SecondProbeGO.transform.localPosition;
             pos.x += 0.1f;
-            _secondProbeGO.transform.localPosition = pos;
-            MovedThisFrame = true;
+            SecondProbeGO.transform.localPosition = pos;
+            _movedThisFrame = true;
         }
         else if (Input.GetKeyDown(KeyCode.RightBracket) && Input.GetKey(KeyCode.LeftControl))
         {
-            Vector3 pos = _secondProbeGO.transform.localPosition;
+            Vector3 pos = SecondProbeGO.transform.localPosition;
             pos.x -= 0.1f;
-            _secondProbeGO.transform.localPosition = pos;
-            MovedThisFrame = true;
+            SecondProbeGO.transform.localPosition = pos;
+            _movedThisFrame = true;
         }
     }
 }

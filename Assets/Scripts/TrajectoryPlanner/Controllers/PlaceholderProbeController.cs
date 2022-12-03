@@ -10,8 +10,8 @@ public class PlaceholderProbeController : ProbeController
 {
     #region Defaults
     // in ap/ml/dv
-    private Vector3 _defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
-    private Vector2 _defaultAngles = new Vector2(-90f, 0f); // 0 phi is forward, default theta is 90 degrees down from horizontal, but internally this is a value of 0f
+    private Vector3 defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
+    private Vector2 defaultAngles = new Vector2(-90f, 0f); // 0 phi is forward, default theta is 90 degrees down from horizontal, but internally this is a value of 0f
     #endregion
 
     private Vector3 _initialPosition;
@@ -26,7 +26,7 @@ public class PlaceholderProbeController : ProbeController
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
 
-        Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, new CCFSpace(), new CoordinateTransforms.CCFTransform());
+        Insertion = new ProbeInsertion(defaultStart, defaultAngles, new CCFSpace(), new CoordinateTransforms.CCFTransform());
     }
 
     /// <summary>
@@ -41,12 +41,12 @@ public class PlaceholderProbeController : ProbeController
 
     public override void ResetPosition()
     {
-        Insertion.APMLDV = _defaultStart;
+        Insertion.apmldv = defaultStart;
     }
 
     public override void ResetAngles()
     {
-        Insertion.Angles = _defaultAngles;
+        Insertion.angles = defaultAngles;
     }
 
 
@@ -93,9 +93,9 @@ public class PlaceholderProbeController : ProbeController
 
         // Manually adjust the coordinates and rotation
         transform.position += localInsertion.PositionWorld();
-        transform.RotateAround(_probeTipT.position, transform.up, localInsertion.Phi);
-        transform.RotateAround(_probeTipT.position, transform.forward, localInsertion.Theta);
-        transform.RotateAround(_probeTipT.position, _probeTipT.up, localInsertion.Spin);
+        transform.RotateAround(_probeTipT.position, transform.up, localInsertion.phi);
+        transform.RotateAround(_probeTipT.position, transform.forward, localInsertion.theta);
+        transform.RotateAround(_probeTipT.position, _probeTipT.up, localInsertion.spin);
 
         // save the data
         Insertion = localInsertion;

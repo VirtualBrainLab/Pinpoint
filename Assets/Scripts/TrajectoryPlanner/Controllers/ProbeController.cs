@@ -5,14 +5,19 @@ using UnityEngine;
 
 public abstract class ProbeController : MonoBehaviour
 {
-    public TrajectoryPlannerManager TPManager { get; private set; }
-    public ProbeManager ProbeManager { get; private set; }
-    public ProbeInsertion Insertion { get; set; }
+    private TrajectoryPlannerManager _tpmanager;
+    public TrajectoryPlannerManager TPManager { get { return _tpmanager; } }
+
+    private ProbeManager _probeManager;
+    public ProbeManager ProbeManager { get { return _probeManager; } }
+
+    private ProbeInsertion _insertion;
+    public ProbeInsertion Insertion { get { return _insertion; } set { _insertion = value; } }
 
     public void Register(TrajectoryPlannerManager tpmanager, ProbeManager probeManager)
     {
-        TPManager = tpmanager;
-        ProbeManager = probeManager;
+        this._tpmanager = tpmanager;
+        this._probeManager = probeManager;
     }
 
     public abstract Transform ProbeTipT { get; }
