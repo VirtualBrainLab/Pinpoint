@@ -357,8 +357,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34c6695fa002e184e834db86e72a3674, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tpmanager: {fileID: 2108153954}
-  inPlaneSlice: {fileID: 672548778}
+  _tpmanager: {fileID: 2108153954}
+  _inPlaneSlice: {fileID: 672548778}
 --- !u!114 &211792540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -371,7 +371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f8a0b09213cb54493d9abbd31be079, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settingsMenuGO: {fileID: 377388756}
+  _settingsMenuGo: {fileID: 377388756}
 --- !u!114 &211792541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -384,7 +384,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4a3d6e14bd798242ac5159cd10937f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputField: {fileID: 940018089}
+  _inputField: {fileID: 940018089}
 --- !u!1 &225749178
 GameObject:
   m_ObjectHideFlags: 0
@@ -1575,8 +1575,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dfc634b667ed8342a5f7f28d08b0d9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  quickSettingsDropdown: {fileID: 538605290}
-  activeExperimentDropdown: {fileID: 98805196}
+  _quickSettingsDropdown: {fileID: 538605290}
+  _activeExperimentDropdown: {fileID: 98805196}
+--- !u!114 &2108153961 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8016510558008620336, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+  m_PrefabInstance: {fileID: 8016510559444948309}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1093918038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e87526a9529a5046892704c80bce5ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!20 &2118380573 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 1302158968582126518, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
@@ -3610,19 +3621,19 @@ PrefabInstance:
       objectReference: {fileID: 2108153954}
     - target: {fileID: 3412951401384689765, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401384689765, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401384689765, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 354.84
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401384689765, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -15
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401577521294, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3662,15 +3673,15 @@ PrefabInstance:
       objectReference: {fileID: 2108153954}
     - target: {fileID: 3412951401717916581, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401717916581, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401717916581, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 169.88
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401779554079, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3686,19 +3697,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401780577586, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401780577586, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401780577586, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 384.91998
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401780577586, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -15
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3412951401896794032, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -4887,6 +4898,18 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1766544453}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _acronymToggle
+      value: 
+      objectReference: {fileID: 1234619114}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _inplaneToggle
+      value: 
+      objectReference: {fileID: 602476454}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _surfaceToggle
+      value: 
+      objectReference: {fileID: 1766544453}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: iblAngleToggle
       value: 
       objectReference: {fileID: 499537228}
@@ -4896,6 +4919,18 @@ PrefabInstance:
       objectReference: {fileID: 611159662}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: useBerylToggle
+      value: 
+      objectReference: {fileID: 1397446698413376553}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _iblAngleToggle
+      value: 
+      objectReference: {fileID: 499537228}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _invivoDropdown
+      value: 
+      objectReference: {fileID: 611159662}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _useBerylToggle
       value: 
       objectReference: {fileID: 1397446698413376553}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
@@ -4911,7 +4946,23 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1307370777}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _displayUmToggle
+      value: 
+      objectReference: {fileID: 1501715917}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _probeAxisToggle
+      value: 
+      objectReference: {fileID: 2091902236}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _slice3dDropdown
+      value: 
+      objectReference: {fileID: 1307370777}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: collisionsToggle
+      value: 
+      objectReference: {fileID: 1377288554}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _collisionsToggle
       value: 
       objectReference: {fileID: 1377288554}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
@@ -4919,11 +4970,23 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1397446698413376552}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _axisControlToggle
+      value: 
+      objectReference: {fileID: 1397446698413376552}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: recordingRegionToggle
       value: 
       objectReference: {fileID: 1307773803}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _recordingRegionToggle
+      value: 
+      objectReference: {fileID: 1307773803}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ephysLinkServerIpInput
+      value: 
+      objectReference: {fileID: 109261099}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _ephysLinkServerIpInput
       value: 
       objectReference: {fileID: 109261099}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
@@ -4939,6 +5002,18 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 795364364}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _ephysLinkServerPortInput
+      value: 
+      objectReference: {fileID: 466331096}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _ghostInactiveAreasToggle
+      value: 
+      objectReference: {fileID: 1593103045}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _showAllProbePanelsToggle
+      value: 
+      objectReference: {fileID: 795364364}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ghostInactiveProbesToggle
       value: 
       objectReference: {fileID: 1719348668}
@@ -4946,6 +5021,10 @@ PrefabInstance:
       propertyPath: sensapexLinkServerIpInput
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _ghostInactiveProbesToggle
+      value: 
+      objectReference: {fileID: 1719348668}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: sensapexLinkServerPortInput
       value: 
@@ -5023,6 +5102,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 69148256}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _acontrol
+      value: 
+      objectReference: {fileID: 69148256}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: qDialogue
       value: 
       objectReference: {fileID: 1550119012}
@@ -5031,7 +5114,19 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1687814895}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _qDialogue
+      value: 
+      objectReference: {fileID: 1550119012}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _vdmanager
+      value: 
+      objectReference: {fileID: 2108153961}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: brainModel
+      value: 
+      objectReference: {fileID: 1877060505}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _brainModel
       value: 
       objectReference: {fileID: 1877060505}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
@@ -5047,9 +5142,29 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 211792534}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _ccfCollider
+      value: 
+      objectReference: {fileID: 1859818792}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _searchInput
+      value: 
+      objectReference: {fileID: 1047957689}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: inPlaneSlice
       value: 
       objectReference: {fileID: 672548778}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _canvasParent
+      value: 
+      objectReference: {fileID: 211792534}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _inPlaneSlice
+      value: 
+      objectReference: {fileID: 672548778}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _modelControl
+      value: 
+      objectReference: {fileID: 2108153952}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: searchControl
       value: 
@@ -5067,6 +5182,18 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1818483223}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _searchControl
+      value: 
+      objectReference: {fileID: 1369876173}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _settingsPanel
+      value: 
+      objectReference: {fileID: 211792540}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _sliceRenderer
+      value: 
+      objectReference: {fileID: 379075881}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: meshCenterText
       value: 
       objectReference: {fileID: 4900000, guid: 63042fff291626647a6f1f7fdc6e8a84, type: 3}
@@ -5078,6 +5205,14 @@ PrefabInstance:
       propertyPath: IBLTrajectoryGO
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _meshCenterText
+      value: 
+      objectReference: {fileID: 4900000, guid: 63042fff291626647a6f1f7fdc6e8a84, type: 3}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _surfaceDebugGo
+      value: 
+      objectReference: {fileID: 1537967822}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: accountsManager
       value: 
@@ -5091,19 +5226,47 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2085964517}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _accountsManager
+      value: 
+      objectReference: {fileID: 809984607}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _recRegionSlider
+      value: 
+      objectReference: {fileID: 1509006805}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CraniotomyToolsGO
       value: 
       objectReference: {fileID: 1687814895}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _collisionPanelGo
+      value: 
+      objectReference: {fileID: 2085964517}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ProbePanelParentGO
       value: 
       objectReference: {fileID: 1669998831}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _craniotomyToolsGo
+      value: 
+      objectReference: {fileID: 1687814895}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: brainCamController
       value: 
       objectReference: {fileID: 1445581475}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: probeQuickSettings
+      value: 
+      objectReference: {fileID: 716699760}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _brainCamController
+      value: 
+      objectReference: {fileID: 1445581475}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _probePanelParentGo
+      value: 
+      objectReference: {fileID: 1669998831}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _probeQuickSettings
       value: 
       objectReference: {fileID: 716699760}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
@@ -5131,7 +5294,23 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 267608534}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _whiteUIText.Array.data[0]
+      value: 
+      objectReference: {fileID: 382584097}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _whiteUIText.Array.data[1]
+      value: 
+      objectReference: {fileID: 871760447}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _whiteUIText.Array.data[2]
+      value: 
+      objectReference: {fileID: 267608534}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: probePrefabs.Array.data[3]
+      value: 
+      objectReference: {fileID: 8943063119080654577, guid: 9adfbf39d76a6644d884c44a708ee70a, type: 3}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _probePrefabs.Array.data[3]
       value: 
       objectReference: {fileID: 8943063119080654577, guid: 9adfbf39d76a6644d884c44a708ee70a, type: 3}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}

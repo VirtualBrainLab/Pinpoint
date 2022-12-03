@@ -16,9 +16,9 @@ namespace TrajectoryPlanner
     public class TrajectoryPlannerManager : MonoBehaviour
     {
         // Managers and accessors
-        [FormerlySerializedAs("modelControl")] [SerializeField] private CCFModelControl _modelControl;
-        [FormerlySerializedAs("vdmanager")] [SerializeField] private VolumeDatasetManager _vdmanager;
-        [FormerlySerializedAs("localPrefs")] [SerializeField] private PlayerPrefs _localPrefs;
+        [SerializeField] private CCFModelControl _modelControl;
+        [SerializeField] private VolumeDatasetManager _vdmanager;
+        [SerializeField] private PlayerPrefs _localPrefs;
         [FormerlySerializedAs("brainModel")] [SerializeField] private Transform _brainModel;
         [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
         [FormerlySerializedAs("acontrol")] [SerializeField] private AxisControl _acontrol;
