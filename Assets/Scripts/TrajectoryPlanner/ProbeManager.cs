@@ -13,7 +13,7 @@ public class ProbeManager : MonoBehaviour
 {
     // Internal flags that track whether we are in manual control or drag/link control mode
     public bool IsEphysLinkControlled { get; private set; }
-    public string Uuid { get; private set; }
+    public string UUID { get; private set; }
 
     #region Ephys Link
 
@@ -146,7 +146,7 @@ public class ProbeManager : MonoBehaviour
 
     private void Awake()
     {
-        Uuid = Guid.NewGuid().ToString();
+        UUID = Guid.NewGuid().ToString();
 
         defaultMaterials = new Dictionary<GameObject, Material>();
 
@@ -168,7 +168,7 @@ public class ProbeManager : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log($"New probe created with UUID: {Uuid}");
+        Debug.Log($"New probe created with UUID: {UUID}");
         // Request for ID and color if this is a normal probe
         if (IsOriginal)
         {
@@ -249,7 +249,7 @@ public class ProbeManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log(string.Format("Override UUID to {0}", newUUID));
 #endif
-        Uuid = newUUID;
+        UUID = newUUID;
     }
 
     /// <summary>
