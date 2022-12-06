@@ -16,9 +16,9 @@ namespace TrajectoryPlanner
     public class TrajectoryPlannerManager : MonoBehaviour
     {
         // Managers and accessors
-        [FormerlySerializedAs("modelControl")] [SerializeField] private CCFModelControl _modelControl;
-        [FormerlySerializedAs("vdmanager")] [SerializeField] private VolumeDatasetManager _vdmanager;
-        [FormerlySerializedAs("localPrefs")] [SerializeField] private PlayerPrefs _localPrefs;
+        [SerializeField] private CCFModelControl _modelControl;
+        [SerializeField] private VolumeDatasetManager _vdmanager;
+        [SerializeField] private PlayerPrefs _localPrefs;
         [FormerlySerializedAs("brainModel")] [SerializeField] private Transform _brainModel;
         [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
         [FormerlySerializedAs("acontrol")] [SerializeField] private AxisControl _acontrol;
@@ -251,7 +251,7 @@ namespace TrajectoryPlanner
 
                 _sliceRenderer.UpdateSlicePosition();
 
-                _accountsManager.UpdateProbeData(activeProbe.Uuid, Probe2ServerProbeInsertion(activeProbe));
+                _accountsManager.UpdateProbeData(activeProbe.UUID, Probe2ServerProbeInsertion(activeProbe));
             }
 
             if (_coenProbe != null && _coenProbe.MovedThisFrame)
@@ -405,7 +405,7 @@ namespace TrajectoryPlanner
 
         public bool InputsFocused()
         {
-            return _searchInput.isFocused || _probeQuickSettings.IsFocused();
+            return _searchInput.isFocused || _probeQuickSettings.IsFocused() || _accountsManager.IsFocused();
         }
 
         public List<ProbeManager> GetAllProbes()
@@ -733,6 +733,10 @@ namespace TrajectoryPlanner
             
             // Update probe quick settings
             _probeQuickSettings.SetProbeManager(newActiveProbeManager);
+
+            // Let the experiment manager know the active probe UUID
+            _accountsManager.ActiveProbeUUID = newActiveProbeManager.UUID;
+            _accountsManager.UpdateProbeData(activeProbe.UUID, Probe2ServerProbeInsertion(activeProbe));
         }
 
         public void UpdateQuickSettings()
@@ -1187,7 +1191,7 @@ namespace TrajectoryPlanner
                     probe.ProbeType, probe.ManipulatorId,
                     probeInsertion.CoordinateSpace.Name, probeInsertion.CoordinateTransform.Name,
                     probe.ZeroCoordinateOffset, probe.BrainSurfaceOffset, probe.IsSetToDropToSurfaceWithDepth,
-                    probe.Uuid);
+                    probe.UUID);
             }
             _localPrefs.SaveCurrentProbeData(probeCoordinates);
         }
@@ -1286,11 +1290,12 @@ namespace TrajectoryPlanner
 
         #region Accounts
 
-        private (Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName) Probe2ServerProbeInsertion(ProbeManager probeManager)
+        private (Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) Probe2ServerProbeInsertion(ProbeManager probeManager)
         {
             ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
             return (insertion.apmldv, insertion.angles,
-                probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name);
+                probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
+                probeManager.UUID);
            
         }
 

@@ -32,6 +32,11 @@ public class ExperimentEditor : MonoBehaviour
         UpdateList();
     }
 
+    public bool IsFocused()
+    {
+        return _experimentEditorGo.activeSelf;
+    }
+
     public void EditExperiment(string origExpName, string newExpName)
     {
         Debug.Log("Edit");

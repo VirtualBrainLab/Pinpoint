@@ -87,7 +87,7 @@ public class EmailLoginForm : MonoBehaviour
             loggedIn = true;
             _loginButton.GetComponentInChildren<TMP_Text>().text = "Logout";
 
-            _accountsManager.LoadPlayer();
+            _accountsManager.Login();
         }
         else
         {

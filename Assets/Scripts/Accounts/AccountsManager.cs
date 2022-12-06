@@ -3,6 +3,7 @@ using UnityEngine;
 using Unisave.Facades;
 using System;
 using UnityEngine.Serialization;
+using TMPro;
 
 /// <summary>
 /// Handles connection with the Unisave system, and passing data back-and-forth with the TPManager
@@ -15,6 +16,17 @@ public class AccountsManager : MonoBehaviour
     [FormerlySerializedAs("experimentEditor")] [SerializeField] private ExperimentEditor _experimentEditor;
     [FormerlySerializedAs("activeExpListBehavior")] [SerializeField] private ActiveExpListBehavior _activeExpListBehavior;
 
+    [SerializeField] private QuickSettingExpList _quickSettingsExperimentList;
+
+
+    #region Insertion variables
+    [SerializeField] private Transform _insertionPrefabParentT;
+    [SerializeField] private GameObject _insertionPrefabGO;
+
+    // callback set by TPManager
+    public Action<string> SetActiveProbeCallback { get; set; }
+    #endregion
+
     #region current player data
     private PlayerEntity player;
     public bool Connected { get { return player != null; } }
@@ -24,18 +36,22 @@ public class AccountsManager : MonoBehaviour
     private Dictionary<string, string> probeUUID2experiment;
     private Action updateCallback;
 
-    private bool dirty;
+    public bool Dirty { get; private set; }
     private float lastSave;
+
+    public string ActiveProbeUUID { get; set; }
+    public string ActiveExperiment { get; private set; }
     #endregion
 
     private void Awake()
     {
         probeUUID2experiment = new Dictionary<string, string>();
+        lastSave = Time.realtimeSinceStartup;
     }
 
     private void Update()
     {
-        if (dirty && (Time.realtimeSinceStartup - lastSave) >= UPDATE_RATE)
+        if (Dirty && (Time.realtimeSinceStartup - lastSave) >= UPDATE_RATE)
             SaveAndUpdate();
     }
 
@@ -44,24 +60,29 @@ public class AccountsManager : MonoBehaviour
         updateCallback = callback;
     }
 
-    public void UpdateProbeData(string UUID, (Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName) data)
+    public void UpdateProbeData(string UUID, (Vector3 apmldv, Vector3 angles, 
+        int type, string spaceName, string transformName, string UUID) data)
     {
-        //dirty = true;
+        if (player != null)
+        {
+            Dirty = true;
 
-        //ServerProbeInsertion serverProbeInsertion = player.experiments[probeUUID2experiment[UUID]][UUID];
-        //serverProbeInsertion.ap = data.apmldv.x;
-        //serverProbeInsertion.ml = data.apmldv.y;
-        //serverProbeInsertion.dv = data.apmldv.z;
-        //serverProbeInsertion.phi = data.angles.x;
-        //serverProbeInsertion.theta = data.angles.y;
-        //serverProbeInsertion.spin = data.angles.z;
-        //serverProbeInsertion.coordinateSpaceName = data.spaceName;
-        //serverProbeInsertion.coordinateTransformName = data.transformName;
+            ServerProbeInsertion serverProbeInsertion = player.experiments[probeUUID2experiment[UUID]][UUID];
+            serverProbeInsertion.ap = data.apmldv.x;
+            serverProbeInsertion.ml = data.apmldv.y;
+            serverProbeInsertion.dv = data.apmldv.z;
+            serverProbeInsertion.phi = data.angles.x;
+            serverProbeInsertion.theta = data.angles.y;
+            serverProbeInsertion.spin = data.angles.z;
+            serverProbeInsertion.coordinateSpaceName = data.spaceName;
+            serverProbeInsertion.coordinateTransformName = data.transformName;
+            serverProbeInsertion.UUID = data.UUID;
 
-        //player.experiments[probeUUID2experiment[UUID]][UUID] = serverProbeInsertion;
+            player.experiments[probeUUID2experiment[UUID]][UUID] = serverProbeInsertion;
+        }
     }
 
-    public void LoadPlayer()
+    public void Login()
     {
         OnFacet<PlayerDataFacet>
             .Call<PlayerEntity>(nameof(PlayerDataFacet.LoadPlayerEntity))
@@ -76,19 +97,33 @@ public class AccountsManager : MonoBehaviour
         SaveAndUpdate();
     }
 
-    private void SaveAndUpdate()
+    public void Logout()
     {
-        SavePlayer();
-
+        player = null;
+        Dirty = true;
         _experimentEditor.UpdateList();
         _activeExpListBehavior.UpdateList();
+    }
 
-        if (updateCallback != null)
-            updateCallback();
+    private void SaveAndUpdate()
+    {
+        if (player != null)
+        {
+            SavePlayer();
+
+            _experimentEditor.UpdateList();
+            _activeExpListBehavior.UpdateList();
+            _quickSettingsExperimentList.UpdateExperimentList();
+            UpdateExperimentInsertions();
+
+            if (updateCallback != null)
+                updateCallback();
+        }
     }
 
     private void SavePlayer()
     {
+        Debug.Log("(AccountsManager) Saving data");
         OnFacet<PlayerDataFacet>
             .Call(nameof(PlayerDataFacet.SavePlayerEntity),player).Done();
     }
@@ -98,6 +133,7 @@ public class AccountsManager : MonoBehaviour
     public void AddExperiment()
     {
         player.experiments.Add(string.Format("Experiment {0}", player.experiments.Count), new Dictionary<string, ServerProbeInsertion>());
+        // Immediately update, so that user can see effect
         SaveAndUpdate();
     }
 
@@ -110,6 +146,7 @@ public class AccountsManager : MonoBehaviour
         }
         else
             Debug.LogError(string.Format("Experiment {0} does not exist", origName));
+        // Immediately update, so that user can see effect
         SaveAndUpdate();
     }
 
@@ -121,6 +158,7 @@ public class AccountsManager : MonoBehaviour
         }
         else
             Debug.LogError(string.Format("Experiment {0} does not exist", expName));
+        // Immediately update, so that user can see effect
         SaveAndUpdate();
     }
 
@@ -151,7 +189,8 @@ public class AccountsManager : MonoBehaviour
         else
             Debug.LogError(string.Format("Can't move {0} to {1}, experiment does not exist", UUID, newExperiment));
 
-        SaveAndUpdate();
+        Dirty = true;
+        UpdateExperimentInsertions();
     }
 
     public void RemoveProbeExperiment(string probeUUID)
@@ -169,24 +208,90 @@ public class AccountsManager : MonoBehaviour
 
     public List<string> GetExperiments()
     {
-        return new List<string>(player.experiments.Keys);
+        if (player != null)
+            return new List<string>(player.experiments.Keys);
+        else
+            return new List<string>();
     }
 
     public Dictionary<string, ServerProbeInsertion> GetExperimentData(string experiment)
     {
-        return player.experiments[experiment];
+        if (player != null)
+            return player.experiments[experiment];
+        else
+            return new Dictionary<string, ServerProbeInsertion>();
     }
 
     public void SaveRigList(List<int> visibleRigParts) {
         player.visibleRigParts = visibleRigParts;
     }
 
-    #region Active experiment list
-
-    public void SelectActiveExperiment(string experiment)
+    public void ActiveExperimentChanged(string experiment)
     {
-        Debug.Log(string.Format("Changing active experiment to {0}", experiment));
+        Debug.Log(string.Format("Selected experiment: {0}", experiment));
+        ActiveExperiment = experiment;
+        UpdateExperimentInsertions();
+    }
+
+    #region Input window focus
+
+    [SerializeField] private List<TMP_InputField> _focusableInputs;
+
+    /// <summary>
+    /// Return true when any input field on the account manager is actively focused
+    /// </summary>
+    public bool IsFocused()
+    {
+        if (_experimentEditor.IsFocused())
+            return true;
+
+        foreach (TMP_InputField input in _focusableInputs)
+            if (input.isFocused)
+                return true;
+
+        return false;
     }
 
     #endregion
+
+    #region Insertions
+
+    public void UpdateExperimentInsertions()
+    {
+        Debug.Log("Updating insertions");
+        // [TODO: This is inefficient, better to keep prefabs that have been created and just hide extras]
+
+        // Destroy all children
+        for (int i = _insertionPrefabParentT.childCount - 1; i >= 0; i--)
+            Destroy(_insertionPrefabParentT.GetChild(i).gameObject);
+
+        // Add new child prefabs that have the properties matched to the current experiment
+        int j = 0;
+        var experimentData = GetExperimentData(ActiveExperiment);
+        foreach (var insertion in experimentData.Values)
+        {
+            // Create a new prefab
+            GameObject insertionPrefab = Instantiate(_insertionPrefabGO, _insertionPrefabParentT);
+            ServerProbeInsertionUI insertionUI = insertionPrefab.GetComponent<ServerProbeInsertionUI>();
+
+            insertionUI.SetInsertionData(this, insertion.UUID);
+            insertionUI.UpdateName(j++);
+            insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
+                insertion.ap, insertion.ml, insertion.dv,
+                insertion.phi, insertion.theta, insertion.spin));
+        }
+    }
+    
+    public void ChangeInsertionVisibility(int insertionIdx, bool visible)
+    {
+        // Somehow, tell TPManager that we need to create or destroy a new probe... tbd
+        Debug.Log(string.Format("Insertion {0} wants to become {1}", insertionIdx, visible));
+    }
+
+    #endregion
+
+    public void SetActiveProbe(string UUID)
+    {
+        SetActiveProbeCallback(UUID);
+    }
 }

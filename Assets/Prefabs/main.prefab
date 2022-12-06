@@ -32,6 +32,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 39.71585, y: -14.86908, z: 20.29161}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -48,8 +49,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d93ba8ff78b44b64b806ea677c9151d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ontologyContentPanel: {fileID: 0}
-  ontologyTogglePrefab: {fileID: 0}
   heightPerToggle: 20
   loadBerylDepth: 0
   overrideNetwork: 1
@@ -76,41 +75,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e3da6b77c935b441931d7f2baa3b435, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelControl: {fileID: 8016510558008620341}
-  vdmanager: {fileID: 8016510558008620336}
-  localPrefs: {fileID: 8016510558008620337}
-  brainModel: {fileID: 0}
-  util: {fileID: 8016510558008620342}
-  acontrol: {fileID: 0}
-  probePrefabs:
+  _modelControl: {fileID: 0}
+  _vdmanager: {fileID: 0}
+  _localPrefs: {fileID: 8016510558008620337}
+  _brainModel: {fileID: 0}
+  _util: {fileID: 8016510558008620342}
+  _acontrol: {fileID: 0}
+  _accountsManager: {fileID: 0}
+  _probePrefabs:
   - {fileID: 4368194536080577051, guid: 61b9881781d2c0844a324a8271642e17, type: 3}
   - {fileID: 4456597164778458636, guid: 5a989b1f005f06940b1c2a2cdfbfd705, type: 3}
   - {fileID: 8943063119080654577, guid: c6cbe13bba479184aa05bff7d11023f5, type: 3}
   - {fileID: 8943063119080654577, guid: ff3683f32bd116e439d7151532626d56, type: 3}
-  probePrefabIDs: 01000000020000000400000008000000
-  recRegionSlider: {fileID: 0}
-  ccfCollider: {fileID: 0}
-  inPlaneSlice: {fileID: 0}
-  probeQuickSettings: {fileID: 0}
-  sliceRenderer: {fileID: 0}
-  searchControl: {fileID: 0}
-  searchInput: {fileID: 0}
-  CollisionPanelGO: {fileID: 0}
-  collisionMaterial: {fileID: 2100000, guid: 1ea6edd2a7b9f3f4195eb54f7d735bb7, type: 2}
-  ProbePanelParentGO: {fileID: 0}
-  IBLToolsGO: {fileID: 0}
-  IBLTrajectoryGO: {fileID: 0}
-  brainCamController: {fileID: 0}
-  qDialogue: {fileID: 0}
-  surfaceDebugGO: {fileID: 0}
-  whiteUIText:
+  _probePrefabIDs: 01000000020000000400000008000000
+  _recRegionSlider: {fileID: 0}
+  _ccfCollider: {fileID: 0}
+  _inPlaneSlice: {fileID: 0}
+  _probeQuickSettings: {fileID: 0}
+  _relCoordPanel: {fileID: 0}
+  _sliceRenderer: {fileID: 0}
+  _searchControl: {fileID: 0}
+  _searchInput: {fileID: 0}
+  _settingsPanel: {fileID: 0}
+  _collisionPanelGo: {fileID: 0}
+  _collisionMaterial: {fileID: 2100000, guid: 1ea6edd2a7b9f3f4195eb54f7d735bb7, type: 2}
+  _probePanelParentGo: {fileID: 0}
+  _craniotomyToolsGo: {fileID: 0}
+  _brainCamController: {fileID: 0}
+  _meshCenterText: {fileID: 0}
+  _canvasParent: {fileID: 0}
+  _qDialogue: {fileID: 0}
+  _surfaceDebugGo: {fileID: 0}
+  _whiteUIText:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  annotationAcronymDropdown: {fileID: 0}
-  probePanelAcronymTextFontSize: 24
-  probePanelAreaTextFontSize: 14
-  manualCoordinatePanel: {fileID: 0}
+  _probePanelAcronymTextFontSize: 24
+  _probePanelAreaTextFontSize: 14
 --- !u!114 &8016510558008620342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,11 +124,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13968967245d3674eb77f631223a57f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  flatironInfoAsset:
-    m_AssetGUID: cc9c563dcae3923469f616c5ff125232
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
 --- !u!114 &8016510558008620337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,19 +136,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3be5cd9dbb4d7c4db370319d9dc170a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collisionsToggle: {fileID: 0}
-  recordingRegionToggle: {fileID: 0}
-  acronymToggle: {fileID: 0}
-  depthToggle: {fileID: 0}
-  probeAxisToggle: {fileID: 0}
-  slice3dDropdown: {fileID: 0}
-  inplaneToggle: {fileID: 0}
-  invivoDropdown: {fileID: 0}
-  iblAngleToggle: {fileID: 0}
-  surfaceToggle: {fileID: 0}
-  sensapexLinkServerIpInput: {fileID: 0}
-  sensapexLinkServerPortInput: {fileID: 0}
-  axisControlToggle: {fileID: 0}
+  _collisionsToggle: {fileID: 0}
+  _recordingRegionToggle: {fileID: 0}
+  _acronymToggle: {fileID: 0}
+  _depthToggle: {fileID: 0}
+  _probeAxisToggle: {fileID: 0}
+  _slice3dDropdown: {fileID: 0}
+  _inplaneToggle: {fileID: 0}
+  _invivoDropdown: {fileID: 0}
+  _iblAngleToggle: {fileID: 0}
+  _surfaceToggle: {fileID: 0}
+  _ephysLinkServerIpInput: {fileID: 0}
+  _ephysLinkServerPortInput: {fileID: 0}
+  _axisControlToggle: {fileID: 0}
+  _showAllProbePanelsToggle: {fileID: 0}
+  _useBerylToggle: {fileID: 0}
+  _displayUmToggle: {fileID: 0}
+  _ghostInactiveProbesToggle: {fileID: 0}
+  _ghostInactiveAreasToggle: {fileID: 0}
 --- !u!114 &8016510558008620336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,11 +166,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e87526a9529a5046892704c80bce5ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coverageIndexes:
-    m_AssetGUID: 2124a773640cd7a4ab491730a80306a1
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
 --- !u!114 &8016510558008620339
 MonoBehaviour:
   m_ObjectHideFlags: 0

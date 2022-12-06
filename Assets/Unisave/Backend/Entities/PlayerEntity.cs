@@ -54,4 +54,5 @@ public class ServerProbeInsertion
     public string coordinateTransformName;
     public bool active;
     public bool recorded;
+    public string UUID;
 }

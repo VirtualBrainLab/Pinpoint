@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00273564}
+  m_AnchoredPosition: {x: 0, y: 0.000033160177}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &3334122130198401453
@@ -1003,7 +1003,7 @@ GameObject:
   - component: {fileID: 6199416904501349059}
   - component: {fileID: 448205385354402018}
   m_Layer: 5
-  m_Name: ServerConnection
+  m_Name: ServerConnectionPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1543,7 +1543,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0.999992}
+  m_AnchorMax: {x: 1, y: 0.9999924}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1966,9 +1966,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _accountsManager: {fileID: 0}
-  experimentEditorGO: {fileID: 8352566750145799394}
-  editorListGO: {fileID: 0}
-  experimentListPrefab: {fileID: 0}
+  _experimentEditorGo: {fileID: 8352566750145799394}
+  _editorListGo: {fileID: 0}
+  _experimentListPrefab: {fileID: 0}
 --- !u!1 &3614724520646927941
 GameObject:
   m_ObjectHideFlags: 0
@@ -3757,7 +3757,7 @@ GameObject:
   - component: {fileID: 8410210822020136890}
   - component: {fileID: 9203130145305643635}
   m_Layer: 5
-  m_Name: Scroll View
+  m_Name: ExperimentInsertionsPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4035,7 +4035,7 @@ GameObject:
   - component: {fileID: 8288276401495959811}
   - component: {fileID: 8476467108530220434}
   m_Layer: 5
-  m_Name: HorizontalLayout
+  m_Name: ActiveExperimentPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

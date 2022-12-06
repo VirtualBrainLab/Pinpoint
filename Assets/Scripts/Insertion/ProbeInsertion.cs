@@ -13,11 +13,8 @@ using CoordinateTransforms;
 public class ProbeInsertion
 {
     #region Coordinate vars
-    private CoordinateSpace _coordinateSpace;
-    private CoordinateTransform _coordinateTransform;
-
-    public CoordinateSpace CoordinateSpace { get { return _coordinateSpace; } }
-    public CoordinateTransform CoordinateTransform { get { return _coordinateTransform; } }
+    public CoordinateSpace CoordinateSpace { get; private set; }
+    public CoordinateTransform CoordinateTransform { get; private set; }
     #endregion
 
     #region pos/angle vars
@@ -66,8 +63,8 @@ public class ProbeInsertion
         this.phi = phi;
         this.theta = theta;
         this.spin = spin;
-        _coordinateSpace = coordSpace;
-        _coordinateTransform = coordTransform;
+        CoordinateSpace = coordSpace;
+        CoordinateTransform = coordTransform;
     }
 
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
@@ -75,8 +72,8 @@ public class ProbeInsertion
     {
         apmldv = tipPosition;
         this.angles = angles;
-        _coordinateSpace = coordSpace;
-        _coordinateTransform = coordTransform;
+        CoordinateSpace = coordSpace;
+        CoordinateTransform = coordTransform;
     }
 
     #endregion
@@ -87,7 +84,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionSpace()
     {
-        return _coordinateTransform.Transform2Space(apmldv);
+        return CoordinateTransform.Transform2Space(apmldv);
     }
 
     /// <summary>
@@ -96,7 +93,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorld()
     {
-        return _coordinateSpace.Space2World(_coordinateTransform.Transform2SpaceAxisChange(apmldv));
+        return CoordinateSpace.Space2World(CoordinateTransform.Transform2SpaceAxisChange(apmldv));
     }
 
     /// <summary>
@@ -105,7 +102,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 GetPositionWorldUnTransformed()
     {
-        return _coordinateSpace.Space2World(PositionSpace());
+        return CoordinateSpace.Space2World(PositionSpace());
     }
 
     /// <summary>
@@ -115,26 +112,26 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 World2Transformed(Vector3 coordWorld)
     {
-        return _coordinateTransform.Space2Transform(_coordinateSpace.World2Space(coordWorld));
+        return CoordinateTransform.Space2Transform(CoordinateSpace.World2Space(coordWorld));
     }
 
     public Vector3 World2TransformedAxisChange(Vector3 coordWorld)
     {
-        return _coordinateTransform.Space2TransformAxisChange(_coordinateSpace.World2SpaceAxisChange(coordWorld));
+        return CoordinateTransform.Space2TransformAxisChange(CoordinateSpace.World2SpaceAxisChange(coordWorld));
     }
 
     public Vector3 Transformed2World(Vector3 coordTransformed)
     {
-        return _coordinateSpace.Space2World(_coordinateTransform.Transform2Space(coordTransformed));
+        return CoordinateSpace.Space2World(CoordinateTransform.Transform2Space(coordTransformed));
     }
     public Vector3 Transformed2WorldAxisChange(Vector3 coordTransformed)
     {
-        return _coordinateSpace.Space2WorldAxisChange(_coordinateTransform.Transform2SpaceAxisChange(coordTransformed));
+        return CoordinateSpace.Space2WorldAxisChange(CoordinateTransform.Transform2SpaceAxisChange(coordTransformed));
     }
 
     public override string ToString()
     {
-        return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, phi, theta, spin, _coordinateSpace.ToString(), _coordinateTransform.ToString());
+        return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, phi, theta, spin, CoordinateSpace.ToString(), CoordinateTransform.ToString());
     }
 
     public string PositionToString()
