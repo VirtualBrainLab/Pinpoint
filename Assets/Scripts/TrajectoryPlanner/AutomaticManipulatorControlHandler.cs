@@ -4,6 +4,7 @@ using System.Linq;
 using EphysLink;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TrajectoryPlanner
 {
@@ -36,8 +37,8 @@ namespace TrajectoryPlanner
         {
             UpdateManipulatorInsertionInputFields(dropdownValue, manipulatorID);
             UpdateInsertionDropdownOptions();
-            ComputeMovementBreakdown(manipulatorID);
             DrawPath(manipulatorID);
+            UpdateMoveButtonInteractable();
         }
 
         private void UpdateManipulatorInsertionInputFields(int dropdownValue, int manipulatorID)
@@ -46,8 +47,8 @@ namespace TrajectoryPlanner
                 ? _gotoManipulator1InsertionInputFields
                 : _gotoManipulator2InsertionInputFields;
             var insertionOptions = manipulatorID == 1
-                ? Manipulator1TargetInsertionOptions
-                : Manipulator2TargetInsertionOptions;
+                ? Manipulator1TargetProbeInsertionOptions
+                : Manipulator2TargetProbeInsertionOptions;
 
             if (dropdownValue == 0)
             {
@@ -88,20 +89,20 @@ namespace TrajectoryPlanner
             _gotoManipulator2TargetInsertionDropdown.options.Add(baseOption);
 
             // Add other options
-            _gotoManipulator1TargetInsertionDropdown.AddOptions(Manipulator1TargetInsertionOptions
+            _gotoManipulator1TargetInsertionDropdown.AddOptions(Manipulator1TargetProbeInsertionOptions
                 .Select(insertion => insertion.PositionToString()).ToList());
-            _gotoManipulator2TargetInsertionDropdown.AddOptions(Manipulator2TargetInsertionOptions
+            _gotoManipulator2TargetInsertionDropdown.AddOptions(Manipulator2TargetProbeInsertionOptions
                 .Select(insertion => insertion.PositionToString()).ToList());
 
             // Restore selection option (if possible)
             _gotoManipulator1TargetInsertionDropdown.SetValueWithoutNotify(
-                Manipulator1TargetInsertionOptions.IndexOf(_manipulator1SelectedTargetProbeInsertion) + 1);
+                Manipulator1TargetProbeInsertionOptions.IndexOf(_manipulator1SelectedTargetProbeInsertion) + 1);
 
             _gotoManipulator2TargetInsertionDropdown.SetValueWithoutNotify(
-                Manipulator2TargetInsertionOptions.IndexOf(_manipulator2SelectedTargetProbeInsertion) + 1);
+                Manipulator2TargetProbeInsertionOptions.IndexOf(_manipulator2SelectedTargetProbeInsertion) + 1);
         }
 
-        private void ComputeMovementBreakdown(int manipulatorID)
+        private void DrawPath(int manipulatorID)
         {
             var targetProbe = manipulatorID == 1
                 ? Probe1Manager
@@ -109,6 +110,12 @@ namespace TrajectoryPlanner
             var targetInsertion = manipulatorID == 1
                 ? _manipulator1SelectedTargetProbeInsertion
                 : _manipulator2SelectedTargetProbeInsertion;
+
+            // Exit early if there is no target insertion selected
+            if (targetInsertion == null)
+            {
+                return;
+            }
 
             // DV axis
             var dvInsertion = new ProbeInsertion(targetProbe.GetProbeController().Insertion)
@@ -141,17 +148,12 @@ namespace TrajectoryPlanner
                 _manipulator2MovementAxesInsertions.ml = mlInsertion;
                 _manipulator2MovementAxesInsertions.dv = dvInsertion;
             }
-        }
-
-        private void DrawPath(int manipulatorID)
-        {
-            var targetProbe = manipulatorID == 1
-                ? Probe1Manager
-                : Probe2Manager;
+            
+            // Pickup axes to use
             var axesInsertions = manipulatorID == 1
                 ? _manipulator1MovementAxesInsertions
                 : _manipulator2MovementAxesInsertions;
-
+            
             // Create line objects and renderers
             (GameObject ap, GameObject ml, GameObject dv) lineObjects = (new GameObject("APLine") { layer = 5 },
                 new GameObject("MLLine") { layer = 5 }, new GameObject("DVLine") { layer = 5 });
@@ -194,6 +196,12 @@ namespace TrajectoryPlanner
 
             lineRenderers.ml.SetPosition(0, axesInsertions.ap.PositionWorld());
             lineRenderers.ml.SetPosition(1, axesInsertions.ml.PositionWorld());
+        }
+
+        private void UpdateMoveButtonInteractable()
+        {
+            _gotoMoveButton.interactable = _manipulator1SelectedTargetProbeInsertion != null ||
+                                           _manipulator2SelectedTargetProbeInsertion != null;
         }
 
         #endregion
@@ -269,6 +277,7 @@ namespace TrajectoryPlanner
         [SerializeField] private TMP_InputField _gotoManipulator2APInputField;
         [SerializeField] private TMP_InputField _gotoManipulator2MLInputField;
         [SerializeField] private TMP_InputField _gotoManipulator2DVInputField;
+        [SerializeField] private Button _gotoMoveButton;
         [SerializeField] private TMP_Text _gotoMoveButtonText;
 
         private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv) _gotoManipulator1InsertionInputFields;
@@ -311,10 +320,10 @@ namespace TrajectoryPlanner
         private ProbeInsertion _manipulator1SelectedTargetProbeInsertion;
         private ProbeInsertion _manipulator2SelectedTargetProbeInsertion;
 
-        private List<ProbeInsertion> Manipulator1TargetInsertionOptions => TargetProbeInsertionsReference
+        private List<ProbeInsertion> Manipulator1TargetProbeInsertionOptions => TargetProbeInsertionsReference
             .Where(insertion => insertion != _manipulator2SelectedTargetProbeInsertion).ToList();
 
-        private List<ProbeInsertion> Manipulator2TargetInsertionOptions => TargetProbeInsertionsReference
+        private List<ProbeInsertion> Manipulator2TargetProbeInsertionOptions => TargetProbeInsertionsReference
             .Where(insertion => insertion != _manipulator1SelectedTargetProbeInsertion).ToList();
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _manipulator1MovementAxesInsertions;
