@@ -19,7 +19,7 @@ namespace TrajectoryPlanner
         [SerializeField] private CCFModelControl _modelControl;
         [SerializeField] private VolumeDatasetManager _vdmanager;
         [SerializeField] private PlayerPrefs _localPrefs;
-        [FormerlySerializedAs("brainModel")] [SerializeField] private Transform _brainModel;
+        [SerializeField] private Transform _brainModel;
         [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
         [FormerlySerializedAs("acontrol")] [SerializeField] private AxisControl _acontrol;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private AccountsManager _accountsManager;
