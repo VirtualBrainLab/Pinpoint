@@ -36,14 +36,16 @@ namespace TrajectoryPlanner
 
             if (dropdownValue == 0)
             {
-                foreach (var insertionInputField in insertionInputFields) insertionInputField.text = "";
+                insertionInputFields.ap.text = "";
+                insertionInputFields.ml.text = "";
+                insertionInputFields.dv.text = "";
             }
             else
             {
                 var selectedInsertion = insertionOptions[dropdownValue - 1];
-                insertionInputFields[0].text = selectedInsertion.ap.ToString(CultureInfo.CurrentCulture);
-                insertionInputFields[1].text = selectedInsertion.ml.ToString(CultureInfo.CurrentCulture);
-                insertionInputFields[2].text = selectedInsertion.dv.ToString(CultureInfo.CurrentCulture);
+                insertionInputFields.ap.text = selectedInsertion.ap.ToString(CultureInfo.CurrentCulture);
+                insertionInputFields.ml.text = selectedInsertion.ml.ToString(CultureInfo.CurrentCulture);
+                insertionInputFields.dv.text = selectedInsertion.dv.ToString(CultureInfo.CurrentCulture);
             }
         }
 
@@ -161,8 +163,8 @@ namespace TrajectoryPlanner
         [SerializeField] private TMP_InputField _gotoManipulator2DVInputField;
         [SerializeField] private TMP_Text _gotoMoveButtonText;
 
-        private List<TMP_InputField> _gotoManipulator1InsertionInputFields;
-        private List<TMP_InputField> _gotoManipulator2InsertionInputFields;
+        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv) _gotoManipulator1InsertionInputFields;
+        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv) _gotoManipulator2InsertionInputFields;
 
         #endregion
 
@@ -215,10 +217,10 @@ namespace TrajectoryPlanner
         {
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
 
-            _gotoManipulator1InsertionInputFields = new List<TMP_InputField>
-                { _gotoManipulator1APInputField, _gotoManipulator1MLInputField, _gotoManipulator1DVInputField };
-            _gotoManipulator2InsertionInputFields = new List<TMP_InputField>
-                { _gotoManipulator2APInputField, _gotoManipulator2MLInputField, _gotoManipulator2DVInputField };
+            _gotoManipulator1InsertionInputFields = (_gotoManipulator1APInputField, _gotoManipulator1MLInputField,
+                _gotoManipulator1DVInputField);
+            _gotoManipulator2InsertionInputFields = (_gotoManipulator2APInputField, _gotoManipulator2MLInputField,
+                _gotoManipulator2DVInputField);
         }
 
         private void OnEnable()
