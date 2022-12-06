@@ -9,6 +9,13 @@ namespace TrajectoryPlanner
 {
     public class AutomaticManipulatorControlHandler : MonoBehaviour
     {
+        #region Constants
+
+        private const float LINE_WIDTH = 0.1f;
+        private const int NUM_SEGMENTS = 2;
+
+        #endregion
+
         #region Internal UI Functions
 
         #region Step 2
@@ -23,6 +30,14 @@ namespace TrajectoryPlanner
 
             // Update insertion options
             UpdateInsertionDropdownOptions();
+        }
+
+        private void UpdateManipulatorInsertionSelection(int dropdownValue, int manipulatorID)
+        {
+            UpdateManipulatorInsertionInputFields(dropdownValue, manipulatorID);
+            UpdateInsertionDropdownOptions();
+            ComputeMovementBreakdown(manipulatorID);
+            DrawPath(manipulatorID);
         }
 
         private void UpdateManipulatorInsertionInputFields(int dropdownValue, int manipulatorID)
@@ -86,6 +101,101 @@ namespace TrajectoryPlanner
                 Manipulator2TargetInsertionOptions.IndexOf(_manipulator2SelectedTargetProbeInsertion) + 1);
         }
 
+        private void ComputeMovementBreakdown(int manipulatorID)
+        {
+            var targetProbe = manipulatorID == 1
+                ? Probe1Manager
+                : Probe2Manager;
+            var targetInsertion = manipulatorID == 1
+                ? _manipulator1SelectedTargetProbeInsertion
+                : _manipulator2SelectedTargetProbeInsertion;
+
+            // DV axis
+            var dvInsertion = new ProbeInsertion(targetProbe.GetProbeController().Insertion)
+            {
+                dv = -10
+            };
+
+            // AP axis
+            var apInsertion = new ProbeInsertion(dvInsertion)
+            {
+                ap = targetInsertion.ap
+            };
+
+            // ML axis
+            var mlInsertion = new ProbeInsertion(apInsertion)
+            {
+                ml = targetInsertion.ml
+            };
+
+            // Apply to insertion
+            if (manipulatorID == 1)
+            {
+                _manipulator1MovementAxesInsertions.ap = apInsertion;
+                _manipulator1MovementAxesInsertions.ml = mlInsertion;
+                _manipulator1MovementAxesInsertions.dv = dvInsertion;
+            }
+            else
+            {
+                _manipulator2MovementAxesInsertions.ap = apInsertion;
+                _manipulator2MovementAxesInsertions.ml = mlInsertion;
+                _manipulator2MovementAxesInsertions.dv = dvInsertion;
+            }
+        }
+
+        private void DrawPath(int manipulatorID)
+        {
+            var targetProbe = manipulatorID == 1
+                ? Probe1Manager
+                : Probe2Manager;
+            var axesInsertions = manipulatorID == 1
+                ? _manipulator1MovementAxesInsertions
+                : _manipulator2MovementAxesInsertions;
+
+            // Create line objects and renderers
+            (GameObject ap, GameObject ml, GameObject dv) lineObjects = (new GameObject("APLine") { layer = 5 },
+                new GameObject("MLLine") { layer = 5 }, new GameObject("DVLine") { layer = 5 });
+            (LineRenderer ap, LineRenderer ml, LineRenderer dv) lineRenderers = (
+                lineObjects.ap.AddComponent<LineRenderer>(),
+                lineObjects.ml.AddComponent<LineRenderer>(), lineObjects.dv.AddComponent<LineRenderer>());
+
+            // Setup line renderers
+            lineRenderers.ap.material = new Material(Shader.Find("Sprites/Default"))
+            {
+                color = Color.magenta
+            };
+            lineRenderers.ml.material = new Material(Shader.Find("Sprites/Default"))
+            {
+                color = Color.green
+            };
+            lineRenderers.dv.material = new Material(Shader.Find("Sprites/Default"))
+            {
+                color = Color.cyan
+            };
+
+            lineRenderers.ap.startWidth = LINE_WIDTH;
+            lineRenderers.ml.startWidth = LINE_WIDTH;
+            lineRenderers.dv.startWidth = LINE_WIDTH;
+
+            lineRenderers.ap.endWidth = LINE_WIDTH;
+            lineRenderers.ml.endWidth = LINE_WIDTH;
+            lineRenderers.dv.endWidth = LINE_WIDTH;
+
+            lineRenderers.ap.positionCount = NUM_SEGMENTS;
+            lineRenderers.ml.positionCount = NUM_SEGMENTS;
+            lineRenderers.dv.positionCount = NUM_SEGMENTS;
+
+            // Set line positions
+            lineRenderers.dv.SetPosition(0, targetProbe.GetProbeController().ProbeTipT.position);
+            lineRenderers.dv.SetPosition(1, axesInsertions.dv.PositionWorld());
+
+            lineRenderers.ap.SetPosition(0, axesInsertions.dv.PositionWorld());
+            lineRenderers.ap.SetPosition(1, axesInsertions.ap.PositionWorld());
+
+            lineRenderers.ml.SetPosition(0, axesInsertions.ap.PositionWorld());
+            lineRenderers.ml.SetPosition(1, axesInsertions.ml.PositionWorld());
+        }
+
         #endregion
 
         #endregion
@@ -122,14 +232,12 @@ namespace TrajectoryPlanner
 
         public void UpdateManipulator1InsertionInputFields(int dropdownValue)
         {
-            UpdateManipulatorInsertionInputFields(dropdownValue, 1);
-            UpdateInsertionDropdownOptions();
+            UpdateManipulatorInsertionSelection(dropdownValue, 1);
         }
 
         public void UpdateManipulator2InsertionInputFields(int dropdownValue)
         {
-            UpdateManipulatorInsertionInputFields(dropdownValue, 2);
-            UpdateInsertionDropdownOptions();
+            UpdateManipulatorInsertionSelection(dropdownValue, 2);
         }
 
         #endregion
@@ -192,22 +300,27 @@ namespace TrajectoryPlanner
 
         #region Properties
 
+        private uint _step = 1;
+
         public ProbeManager Probe1Manager { private get; set; }
         public ProbeManager Probe2Manager { private get; set; }
 
+        #region Step 2
+
         public HashSet<ProbeInsertion> TargetProbeInsertionsReference { private get; set; }
         private ProbeInsertion _manipulator1SelectedTargetProbeInsertion;
-
         private ProbeInsertion _manipulator2SelectedTargetProbeInsertion;
 
-        // TODO: Switch to using the full list minus selected
         private List<ProbeInsertion> Manipulator1TargetInsertionOptions => TargetProbeInsertionsReference
             .Where(insertion => insertion != _manipulator2SelectedTargetProbeInsertion).ToList();
 
         private List<ProbeInsertion> Manipulator2TargetInsertionOptions => TargetProbeInsertionsReference
             .Where(insertion => insertion != _manipulator1SelectedTargetProbeInsertion).ToList();
 
-        private uint _step = 1;
+        private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _manipulator1MovementAxesInsertions;
+        private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _manipulator2MovementAxesInsertions;
+
+        #endregion
 
         #endregion
 

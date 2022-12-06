@@ -76,6 +76,14 @@ public class ProbeInsertion
         CoordinateTransform = coordTransform;
     }
 
+    public ProbeInsertion(ProbeInsertion otherInsertion)
+    {
+        apmldv = otherInsertion.apmldv;
+        angles = otherInsertion.angles;
+        CoordinateSpace = otherInsertion.CoordinateSpace;
+        CoordinateTransform = otherInsertion.CoordinateTransform;
+    }
+
     #endregion
 
     /// <summary>
