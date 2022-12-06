@@ -22,26 +22,17 @@ namespace TrajectoryPlanner
             _zeroCoordinatePanelText.color = Color.white;
 
             // Update insertion options
-            var insertionOptions = new List<string> { "Choose an insertion..." };
-            insertionOptions.AddRange(TargetProbeInsertionsReference.Select(insertion => insertion.PositionToString()));
-
-            _gotoManipulator1TargetInsertionDropdown.ClearOptions();
-            _gotoManipulator1TargetInsertionDropdown.AddOptions(insertionOptions.ToList());
-            _manipulator1TargetProbeInsertionOptions = TargetProbeInsertionsReference.ToList();
-
-            _gotoManipulator2TargetInsertionDropdown.ClearOptions();
-            _gotoManipulator2TargetInsertionDropdown.AddOptions(insertionOptions.ToList());
-            _manipulator2TargetProbeInsertionOptions = TargetProbeInsertionsReference.ToList();
+            UpdateInsertionDropdownOptions();
         }
 
-        private void UpdateManipulatorZeroCoordinateFields(int dropdownValue, int manipulatorID)
+        private void UpdateManipulatorInsertionInputFields(int dropdownValue, int manipulatorID)
         {
             var insertionInputFields = manipulatorID == 1
                 ? _gotoManipulator1InsertionInputFields
                 : _gotoManipulator2InsertionInputFields;
             var insertionOptions = manipulatorID == 1
-                ? _manipulator1TargetProbeInsertionOptions
-                : _manipulator2TargetProbeInsertionOptions;
+                ? Manipulator1TargetInsertionOptions
+                : Manipulator2TargetInsertionOptions;
 
             if (dropdownValue == 0)
             {
@@ -54,6 +45,43 @@ namespace TrajectoryPlanner
                 insertionInputFields[1].text = selectedInsertion.ml.ToString(CultureInfo.CurrentCulture);
                 insertionInputFields[2].text = selectedInsertion.dv.ToString(CultureInfo.CurrentCulture);
             }
+        }
+
+        private void UpdateInsertionDropdownOptions()
+        {
+            // Save currently selected option
+            _manipulator1SelectedTargetProbeInsertion = _gotoManipulator1TargetInsertionDropdown.value > 0
+                ? TargetProbeInsertionsReference.First(insertion =>
+                    insertion.PositionToString().Equals(_gotoManipulator1TargetInsertionDropdown
+                        .options[_gotoManipulator1TargetInsertionDropdown.value].text))
+                : null;
+            _manipulator2SelectedTargetProbeInsertion = _gotoManipulator2TargetInsertionDropdown.value > 0
+                ? TargetProbeInsertionsReference.First(insertion =>
+                    insertion.PositionToString().Equals(_gotoManipulator2TargetInsertionDropdown
+                        .options[_gotoManipulator2TargetInsertionDropdown.value].text))
+                : null;
+
+            // Clear options
+            _gotoManipulator1TargetInsertionDropdown.ClearOptions();
+            _gotoManipulator2TargetInsertionDropdown.ClearOptions();
+
+            // Add base option
+            var baseOption = new TMP_Dropdown.OptionData("Choose an insertion...");
+            _gotoManipulator1TargetInsertionDropdown.options.Add(baseOption);
+            _gotoManipulator2TargetInsertionDropdown.options.Add(baseOption);
+
+            // Add other options
+            _gotoManipulator1TargetInsertionDropdown.AddOptions(Manipulator1TargetInsertionOptions
+                .Select(insertion => insertion.PositionToString()).ToList());
+            _gotoManipulator2TargetInsertionDropdown.AddOptions(Manipulator2TargetInsertionOptions
+                .Select(insertion => insertion.PositionToString()).ToList());
+
+            // Restore selection option (if possible)
+            _gotoManipulator1TargetInsertionDropdown.SetValueWithoutNotify(
+                Manipulator1TargetInsertionOptions.IndexOf(_manipulator1SelectedTargetProbeInsertion) + 1);
+
+            _gotoManipulator2TargetInsertionDropdown.SetValueWithoutNotify(
+                Manipulator2TargetInsertionOptions.IndexOf(_manipulator2SelectedTargetProbeInsertion) + 1);
         }
 
         #endregion
@@ -90,15 +118,16 @@ namespace TrajectoryPlanner
 
         #region Step 2
 
-        public void UpdateManipulator1ZeroCoordinateFields(int dropdownValue)
+        public void UpdateManipulator1InsertionInputFields(int dropdownValue)
         {
-            
-            UpdateManipulatorZeroCoordinateFields(dropdownValue, 1);
+            UpdateManipulatorInsertionInputFields(dropdownValue, 1);
+            UpdateInsertionDropdownOptions();
         }
 
-        public void UpdateManipulator2ZeroCoordinateFields(int dropdownValue)
+        public void UpdateManipulator2InsertionInputFields(int dropdownValue)
         {
-            UpdateManipulatorZeroCoordinateFields(dropdownValue, 2);
+            UpdateManipulatorInsertionInputFields(dropdownValue, 2);
+            UpdateInsertionDropdownOptions();
         }
 
         #endregion
@@ -166,10 +195,15 @@ namespace TrajectoryPlanner
 
         public HashSet<ProbeInsertion> TargetProbeInsertionsReference { private get; set; }
         private ProbeInsertion _manipulator1SelectedTargetProbeInsertion;
+
         private ProbeInsertion _manipulator2SelectedTargetProbeInsertion;
+
         // TODO: Switch to using the full list minus selected
-        private List<ProbeInsertion> _manipulator1TargetProbeInsertionOptions;
-        private List<ProbeInsertion> _manipulator2TargetProbeInsertionOptions;
+        private List<ProbeInsertion> Manipulator1TargetInsertionOptions => TargetProbeInsertionsReference
+            .Where(insertion => insertion != _manipulator2SelectedTargetProbeInsertion).ToList();
+
+        private List<ProbeInsertion> Manipulator2TargetInsertionOptions => TargetProbeInsertionsReference
+            .Where(insertion => insertion != _manipulator1SelectedTargetProbeInsertion).ToList();
 
         private uint _step = 1;
 
@@ -200,7 +234,7 @@ namespace TrajectoryPlanner
                 _gotoManipulator1ProbeText.color = Probe1Manager.GetColor();
                 _duraManipulator1ProbeText.color = Probe1Manager.GetColor();
 
-                UpdateManipulatorZeroCoordinateFields(_gotoManipulator1TargetInsertionDropdown.value, 1);
+                UpdateManipulatorInsertionInputFields(_gotoManipulator1TargetInsertionDropdown.value, 1);
             }
 
             if (!Probe2Manager) return;
@@ -214,7 +248,7 @@ namespace TrajectoryPlanner
                 _gotoManipulator2ProbeText.color = Probe2Manager.GetColor();
                 _duraManipulator2ProbeText.color = Probe2Manager.GetColor();
 
-                UpdateManipulatorZeroCoordinateFields(_gotoManipulator2TargetInsertionDropdown.value, 2);
+                UpdateManipulatorInsertionInputFields(_gotoManipulator2TargetInsertionDropdown.value, 2);
             }
         }
 

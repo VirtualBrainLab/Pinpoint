@@ -5683,7 +5683,7 @@ MonoBehaviour:
       - m_Target: {fileID: 5483421187078802668}
         m_TargetAssemblyTypeName: TrajectoryPlanner.AutomaticManipulatorControlHandler,
           trajectoryplanner.core
-        m_MethodName: UpdateManipulator2ZeroCoordinateFields
+        m_MethodName: UpdateManipulator2InsertionInputFields
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8902,7 +8902,7 @@ MonoBehaviour:
       - m_Target: {fileID: 5483421187078802668}
         m_TargetAssemblyTypeName: TrajectoryPlanner.AutomaticManipulatorControlHandler,
           trajectoryplanner.core
-        m_MethodName: UpdateManipulator1ZeroCoordinateFields
+        m_MethodName: UpdateManipulator1InsertionInputFields
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
