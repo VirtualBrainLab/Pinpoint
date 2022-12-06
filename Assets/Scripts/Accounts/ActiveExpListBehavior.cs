@@ -23,10 +23,11 @@ public class ActiveExpListBehavior : MonoBehaviour
             options.Add(new TMP_Dropdown.OptionData(experiment));
         _optionList.ClearOptions();
         _optionList.AddOptions(options);
+        SelectExperiment(0);
     }
 
     public void SelectExperiment(int optIdx)
     {
-        _accountsManager.SelectActiveExperiment(_optionList.options[optIdx].text);
+        _accountsManager.ActiveExperimentChanged(_optionList.options[optIdx].text);
     }
 }
