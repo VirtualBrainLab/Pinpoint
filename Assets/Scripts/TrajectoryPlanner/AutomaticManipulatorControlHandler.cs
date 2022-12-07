@@ -271,20 +271,19 @@ namespace TrajectoryPlanner
                                            _expectedMovements != _completedMovements;
         }
 
-        private Vector4 ConvertInsertionToManipulatorPosition(ProbeInsertion insertion, int manipulatorID)
+        private Vector4 ConvertInsertionToManipulatorPosition(ProbeInsertion insertion, string manipulatorID)
         {
-            var probeManager = manipulatorID == 1 ? Probe1Manager : Probe2Manager;
+            var probeManager = manipulatorID == "1" ? Probe1Manager : Probe2Manager;
             var isManipulatorRightHanded =
-                manipulatorID == 1 ? IsProbe1ManipulatorRightHanded : IsProbe2ManipulatorRightHanded;
+                manipulatorID == "1" ? IsProbe1ManipulatorRightHanded : IsProbe2ManipulatorRightHanded;
 
             // Gather info
             var apmldv = insertion.apmldv;
             const float depth = 0;
 
             // Convert apmldv to world coordinate
-            // var convertToWorld = probeManager.GhostProbeManager.GetProbeController().Insertion
-            //     .Transformed2WorldAxisChange(apmldv);
-            var convertToWorld = insertion.PositionWorld();
+            var convertToWorld = insertion.Transformed2WorldAxisChange(apmldv);
+            // var convertToWorld = insertion.PositionWorld();
 
             // Flip axes to match manipulator
             var posWithDepthAndCorrectAxes = new Vector4(
@@ -380,6 +379,38 @@ namespace TrajectoryPlanner
 
                 // Reset completed movements
                 _completedMovements = 0;
+
+                // Move probe 1
+                if (_probe1SelectedTargetProbeInsertion != null)
+                    _communicationManager.SetCanWrite(Probe1Manager.ManipulatorId, true, 1, canWrite =>
+                    {
+                        if (canWrite)
+                            _communicationManager.GotoPos(Probe1Manager.ManipulatorId,
+                                ConvertInsertionToManipulatorPosition(_probe1MovementAxesInsertions.dv,
+                                    Probe1Manager.ManipulatorId), Probe1Manager.AutomaticMovementSpeed,
+                                _ =>
+                                {
+                                    print("Moved DV!");
+                                    _completedMovements++;
+                                    UpdateMoveButtonInteractable();
+                                });
+                    });
+                
+                // Move probe 2
+                if (_probe2SelectedTargetProbeInsertion != null)
+                    _communicationManager.SetCanWrite(Probe2Manager.ManipulatorId, true, 1, canWrite =>
+                    {
+                        if (canWrite)
+                            _communicationManager.GotoPos(Probe2Manager.ManipulatorId,
+                                ConvertInsertionToManipulatorPosition(_probe2MovementAxesInsertions.dv,
+                                    Probe2Manager.ManipulatorId), Probe2Manager.AutomaticMovementSpeed,
+                                _ =>
+                                {
+                                    print("Moved DV!");
+                                    _completedMovements++;
+                                    UpdateMoveButtonInteractable();
+                                });
+                    });
             }
             else
             {
