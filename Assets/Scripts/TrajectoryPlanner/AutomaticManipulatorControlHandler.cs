@@ -320,6 +320,39 @@ namespace TrajectoryPlanner
             return posWithDepthAndCorrectAxes + probeManager.ZeroCoordinateOffset;
         }
 
+        private void CheckCompletionState()
+        {
+            if (_expectedMovements == _completedMovements)
+            {
+                // Reset button text
+                _gotoMoveButtonText.text =
+                    "Move Manipulators into Position";
+
+                // Reset movement counters
+                _expectedMovements = 0;
+                _completedMovements = 0;
+
+                // Enable step 3
+                EnableStep3();
+            }
+
+            // Update button intractability (might do nothing)
+            UpdateMoveButtonInteractable();
+        }
+
+        #endregion
+
+        #region Step 3
+
+        private void EnableStep3()
+        {
+            // Enable UI
+            _duraPanelCanvasGroup.alpha = 1;
+            _duraPanelCanvasGroup.interactable = true;
+            _duraPanelText.color = Color.green;
+            _gotoPanelText.color = Color.white;
+        }
+
         #endregion
 
         #endregion
@@ -383,6 +416,9 @@ namespace TrajectoryPlanner
                 // Move probe 1
                 if (_probe1SelectedTargetProbeInsertion != null)
                 {
+                    // Change text color to show movement is happening
+                    _gotoPanelText.color = Color.cyan;
+
                     // Calculate movement
                     var manipulatorID = Probe1Manager.ManipulatorId;
                     var automaticMovementSpeed = Probe1Manager.AutomaticMovementSpeed;
@@ -407,19 +443,16 @@ namespace TrajectoryPlanner
                                                 {
                                                     _communicationManager.SetCanWrite(manipulatorID, false, 1, _ =>
                                                     {
-                                                        // Increment movement counter
-                                                        _completedMovements++;
-                                                        if (_expectedMovements == _completedMovements)
-                                                            _gotoMoveButtonText.text =
-                                                                "Move Manipulators into Position";
-
-                                                        // Update button intractability (might do nothing)
-                                                        UpdateMoveButtonInteractable();
-
                                                         // Hide lines
                                                         _probe1LineGameObjects.ap.SetActive(false);
                                                         _probe1LineGameObjects.ml.SetActive(false);
                                                         _probe1LineGameObjects.dv.SetActive(false);
+
+                                                        // Increment movement counter
+                                                        _completedMovements++;
+
+                                                        // Check completion state
+                                                        CheckCompletionState();
                                                     }, Debug.LogError);
                                                 }, Debug.LogError);
                                         }, Debug.LogError);
@@ -430,6 +463,9 @@ namespace TrajectoryPlanner
                 // Move probe 2
                 if (_probe2SelectedTargetProbeInsertion == null) return;
                 {
+                    // Change text color to show movement is happening
+                    _gotoPanelText.color = Color.cyan;
+
                     // Calculate movement
                     var manipulatorID = Probe2Manager.ManipulatorId;
                     var automaticMovementSpeed = Probe2Manager.AutomaticMovementSpeed;
@@ -454,19 +490,16 @@ namespace TrajectoryPlanner
                                                 {
                                                     _communicationManager.SetCanWrite(manipulatorID, false, 1, _ =>
                                                     {
-                                                        // Increment movement counter
-                                                        _completedMovements++;
-                                                        if (_expectedMovements == _completedMovements)
-                                                            _gotoMoveButtonText.text =
-                                                                "Move Manipulators into Position";
-
-                                                        // Update button intractability (might do nothing)
-                                                        UpdateMoveButtonInteractable();
-
                                                         // Hide lines
                                                         _probe2LineGameObjects.ap.SetActive(false);
                                                         _probe2LineGameObjects.ml.SetActive(false);
                                                         _probe2LineGameObjects.dv.SetActive(false);
+
+                                                        // Increment movement counter
+                                                        _completedMovements++;
+
+                                                        // Check completion state
+                                                        CheckCompletionState();
                                                     }, Debug.LogError);
                                                 }, Debug.LogError);
                                         }, Debug.LogError);
