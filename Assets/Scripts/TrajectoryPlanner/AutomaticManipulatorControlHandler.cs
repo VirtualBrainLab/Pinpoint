@@ -407,8 +407,19 @@ namespace TrajectoryPlanner
                                                 {
                                                     _communicationManager.SetCanWrite(manipulatorID, false, 1, _ =>
                                                     {
+                                                        // Increment movement counter
                                                         _completedMovements++;
+                                                        if (_expectedMovements == _completedMovements)
+                                                            _gotoMoveButtonText.text =
+                                                                "Move Manipulators into Position";
+
+                                                        // Update button intractability (might do nothing)
                                                         UpdateMoveButtonInteractable();
+
+                                                        // Hide lines
+                                                        _probe1LineGameObjects.ap.SetActive(false);
+                                                        _probe1LineGameObjects.ml.SetActive(false);
+                                                        _probe1LineGameObjects.dv.SetActive(false);
                                                     }, Debug.LogError);
                                                 }, Debug.LogError);
                                         }, Debug.LogError);
@@ -443,8 +454,19 @@ namespace TrajectoryPlanner
                                                 {
                                                     _communicationManager.SetCanWrite(manipulatorID, false, 1, _ =>
                                                     {
+                                                        // Increment movement counter
                                                         _completedMovements++;
+                                                        if (_expectedMovements == _completedMovements)
+                                                            _gotoMoveButtonText.text =
+                                                                "Move Manipulators into Position";
+
+                                                        // Update button intractability (might do nothing)
                                                         UpdateMoveButtonInteractable();
+
+                                                        // Hide lines
+                                                        _probe2LineGameObjects.ap.SetActive(false);
+                                                        _probe2LineGameObjects.ml.SetActive(false);
+                                                        _probe2LineGameObjects.dv.SetActive(false);
                                                     }, Debug.LogError);
                                                 }, Debug.LogError);
                                         }, Debug.LogError);
