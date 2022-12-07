@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -26,12 +25,12 @@ namespace TrajectoryPlanner
         {
             // Create hosting game objects
             _probe1LineGameObjects = (
-                new GameObject("APLine1") { layer = 5}, new GameObject("MLLine1") { layer = 5 },
+                new GameObject("APLine1") { layer = 5 }, new GameObject("MLLine1") { layer = 5 },
                 new GameObject("DVLine1") { layer = 5 });
             _probe2LineGameObjects = (
                 new GameObject("APLine2") { layer = 5 }, new GameObject("MLLine2") { layer = 5 },
                 new GameObject("DVLine2") { layer = 5 });
-            
+
             // Default game objects to hidden
             _probe1LineGameObjects.ap.SetActive(false);
             _probe2LineGameObjects.ap.SetActive(false);
@@ -39,12 +38,14 @@ namespace TrajectoryPlanner
             _probe2LineGameObjects.ml.SetActive(false);
             _probe1LineGameObjects.dv.SetActive(false);
             _probe2LineGameObjects.dv.SetActive(false);
-            
+
             // Create line renderer components
             _probe1LineRenderers = (_probe1LineGameObjects.ap.AddComponent<LineRenderer>(),
-                _probe1LineGameObjects.ml.AddComponent<LineRenderer>(), _probe1LineGameObjects.dv.AddComponent<LineRenderer>());
+                _probe1LineGameObjects.ml.AddComponent<LineRenderer>(),
+                _probe1LineGameObjects.dv.AddComponent<LineRenderer>());
             _probe2LineRenderers = (_probe2LineGameObjects.ap.AddComponent<LineRenderer>(),
-                _probe2LineGameObjects.ml.AddComponent<LineRenderer>(), _probe2LineGameObjects.dv.AddComponent<LineRenderer>());
+                _probe2LineGameObjects.ml.AddComponent<LineRenderer>(),
+                _probe2LineGameObjects.dv.AddComponent<LineRenderer>());
 
             // Set materials
             var apMaterial = new Material(Shader.Find("Sprites/Default"))
@@ -196,6 +197,7 @@ namespace TrajectoryPlanner
                     _probe2LineGameObjects.ml.SetActive(false);
                     _probe2LineGameObjects.dv.SetActive(false);
                 }
+
                 return;
             }
 
@@ -236,7 +238,7 @@ namespace TrajectoryPlanner
                 ? _probe1MovementAxesInsertions
                 : _probe2MovementAxesInsertions;
             var lineRenderer = manipulatorID == 1 ? _probe1LineRenderers : _probe2LineRenderers;
-            
+
             // Enable game objects
             if (manipulatorID == 1)
             {
@@ -265,7 +267,8 @@ namespace TrajectoryPlanner
         private void UpdateMoveButtonInteractable()
         {
             _gotoMoveButton.interactable = _probe1SelectedTargetProbeInsertion != null ||
-                                           _probe2SelectedTargetProbeInsertion != null;
+                                           _probe2SelectedTargetProbeInsertion != null ||
+                                           _expectedMovements != _completedMovements;
         }
 
         #endregion
@@ -310,6 +313,40 @@ namespace TrajectoryPlanner
         public void UpdateManipulator2InsertionInputFields(int dropdownValue)
         {
             UpdateManipulatorInsertionSelection(dropdownValue, 2);
+        }
+
+        public void MoveOrStopProbeToInsertionTarget()
+        {
+            if (_expectedMovements == _completedMovements)
+            {
+                // All movements completed
+                
+                // Set button text
+                _gotoMoveButtonText.text = "Moving... Press Again to Stop";
+                
+                // Compute the number of expected movements
+                _expectedMovements += _probe1SelectedTargetProbeInsertion != null ? 1 : 0;
+                _expectedMovements += _probe2SelectedTargetProbeInsertion != null ? 1 : 0;
+                
+                // Reset completed movements
+                _completedMovements = 0;
+            }
+            else
+            {
+                // Movement in progress
+                
+                // Stop all movements
+                _communicationManager.Stop(state =>
+                {
+                    if (!state) return;
+                    // Reset expected movements and completed movements
+                    _expectedMovements = 0;
+                    _completedMovements = 0;
+                        
+                    // Reset text
+                    _gotoMoveButtonText.text = "Move Manipulators into Position";
+                });
+            }
         }
 
         #endregion
@@ -399,6 +436,9 @@ namespace TrajectoryPlanner
 
         private (LineRenderer ap, LineRenderer ml, LineRenderer dv) _probe1LineRenderers;
         private (LineRenderer ap, LineRenderer ml, LineRenderer dv) _probe2LineRenderers;
+
+        private int _expectedMovements;
+        private int _completedMovements;
 
         #endregion
 
