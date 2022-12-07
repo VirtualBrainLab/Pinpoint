@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -20,6 +21,75 @@ namespace TrajectoryPlanner
         #region Internal UI Functions
 
         #region Step 2
+
+        private void InitializeLineRenderers()
+        {
+            // Create hosting game objects
+            _probe1LineGameObjects = (
+                new GameObject("APLine1") { layer = 5}, new GameObject("MLLine1") { layer = 5 },
+                new GameObject("DVLine1") { layer = 5 });
+            _probe2LineGameObjects = (
+                new GameObject("APLine2") { layer = 5 }, new GameObject("MLLine2") { layer = 5 },
+                new GameObject("DVLine2") { layer = 5 });
+            
+            // Default game objects to hidden
+            _probe1LineGameObjects.ap.SetActive(false);
+            _probe2LineGameObjects.ap.SetActive(false);
+            _probe1LineGameObjects.ml.SetActive(false);
+            _probe2LineGameObjects.ml.SetActive(false);
+            _probe1LineGameObjects.dv.SetActive(false);
+            _probe2LineGameObjects.dv.SetActive(false);
+            
+            // Create line renderer components
+            _probe1LineRenderers = (_probe1LineGameObjects.ap.AddComponent<LineRenderer>(),
+                _probe1LineGameObjects.ml.AddComponent<LineRenderer>(), _probe1LineGameObjects.dv.AddComponent<LineRenderer>());
+            _probe2LineRenderers = (_probe2LineGameObjects.ap.AddComponent<LineRenderer>(),
+                _probe2LineGameObjects.ml.AddComponent<LineRenderer>(), _probe2LineGameObjects.dv.AddComponent<LineRenderer>());
+
+            // Set materials
+            var apMaterial = new Material(Shader.Find("Sprites/Default"))
+            {
+                color = Color.green
+            };
+            var mlMaterial = new Material(Shader.Find("Sprites/Default"))
+            {
+                color = Color.magenta
+            };
+            var dvMaterial = new Material(Shader.Find("Sprites/Default"))
+            {
+                color = Color.cyan
+            };
+
+            _probe1LineRenderers.ap.material = apMaterial;
+            _probe2LineRenderers.ap.material = apMaterial;
+            _probe1LineRenderers.ml.material = mlMaterial;
+            _probe2LineRenderers.ml.material = mlMaterial;
+            _probe1LineRenderers.dv.material = dvMaterial;
+            _probe2LineRenderers.dv.material = dvMaterial;
+
+            // Set line width
+            _probe1LineRenderers.ap.startWidth = LINE_WIDTH;
+            _probe2LineRenderers.ap.startWidth = LINE_WIDTH;
+            _probe1LineRenderers.ml.startWidth = LINE_WIDTH;
+            _probe2LineRenderers.ml.startWidth = LINE_WIDTH;
+            _probe1LineRenderers.dv.startWidth = LINE_WIDTH;
+            _probe2LineRenderers.dv.startWidth = LINE_WIDTH;
+
+            _probe1LineRenderers.ap.endWidth = LINE_WIDTH;
+            _probe2LineRenderers.ap.endWidth = LINE_WIDTH;
+            _probe1LineRenderers.ml.endWidth = LINE_WIDTH;
+            _probe2LineRenderers.ml.endWidth = LINE_WIDTH;
+            _probe1LineRenderers.dv.endWidth = LINE_WIDTH;
+            _probe2LineRenderers.dv.endWidth = LINE_WIDTH;
+
+            // Set segment count
+            _probe1LineRenderers.ap.positionCount = NUM_SEGMENTS;
+            _probe2LineRenderers.ap.positionCount = NUM_SEGMENTS;
+            _probe1LineRenderers.ml.positionCount = NUM_SEGMENTS;
+            _probe2LineRenderers.ml.positionCount = NUM_SEGMENTS;
+            _probe1LineRenderers.dv.positionCount = NUM_SEGMENTS;
+            _probe2LineRenderers.dv.positionCount = NUM_SEGMENTS;
+        }
 
         private void EnableStep2()
         {
@@ -47,8 +117,8 @@ namespace TrajectoryPlanner
                 ? _gotoManipulator1InsertionInputFields
                 : _gotoManipulator2InsertionInputFields;
             var insertionOptions = manipulatorID == 1
-                ? Manipulator1TargetProbeInsertionOptions
-                : Manipulator2TargetProbeInsertionOptions;
+                ? Probe1TargetProbeInsertionOptions
+                : Probe2TargetProbeInsertionOptions;
 
             if (dropdownValue == 0)
             {
@@ -68,12 +138,12 @@ namespace TrajectoryPlanner
         private void UpdateInsertionDropdownOptions()
         {
             // Save currently selected option
-            _manipulator1SelectedTargetProbeInsertion = _gotoManipulator1TargetInsertionDropdown.value > 0
+            _probe1SelectedTargetProbeInsertion = _gotoManipulator1TargetInsertionDropdown.value > 0
                 ? TargetProbeInsertionsReference.First(insertion =>
                     insertion.PositionToString().Equals(_gotoManipulator1TargetInsertionDropdown
                         .options[_gotoManipulator1TargetInsertionDropdown.value].text))
                 : null;
-            _manipulator2SelectedTargetProbeInsertion = _gotoManipulator2TargetInsertionDropdown.value > 0
+            _probe2SelectedTargetProbeInsertion = _gotoManipulator2TargetInsertionDropdown.value > 0
                 ? TargetProbeInsertionsReference.First(insertion =>
                     insertion.PositionToString().Equals(_gotoManipulator2TargetInsertionDropdown
                         .options[_gotoManipulator2TargetInsertionDropdown.value].text))
@@ -89,17 +159,17 @@ namespace TrajectoryPlanner
             _gotoManipulator2TargetInsertionDropdown.options.Add(baseOption);
 
             // Add other options
-            _gotoManipulator1TargetInsertionDropdown.AddOptions(Manipulator1TargetProbeInsertionOptions
+            _gotoManipulator1TargetInsertionDropdown.AddOptions(Probe1TargetProbeInsertionOptions
                 .Select(insertion => insertion.PositionToString()).ToList());
-            _gotoManipulator2TargetInsertionDropdown.AddOptions(Manipulator2TargetProbeInsertionOptions
+            _gotoManipulator2TargetInsertionDropdown.AddOptions(Probe2TargetProbeInsertionOptions
                 .Select(insertion => insertion.PositionToString()).ToList());
 
             // Restore selection option (if possible)
             _gotoManipulator1TargetInsertionDropdown.SetValueWithoutNotify(
-                Manipulator1TargetProbeInsertionOptions.IndexOf(_manipulator1SelectedTargetProbeInsertion) + 1);
+                Probe1TargetProbeInsertionOptions.IndexOf(_probe1SelectedTargetProbeInsertion) + 1);
 
             _gotoManipulator2TargetInsertionDropdown.SetValueWithoutNotify(
-                Manipulator2TargetProbeInsertionOptions.IndexOf(_manipulator2SelectedTargetProbeInsertion) + 1);
+                Probe2TargetProbeInsertionOptions.IndexOf(_probe2SelectedTargetProbeInsertion) + 1);
         }
 
         private void DrawPath(int manipulatorID)
@@ -108,19 +178,31 @@ namespace TrajectoryPlanner
                 ? Probe1Manager
                 : Probe2Manager;
             var targetInsertion = manipulatorID == 1
-                ? _manipulator1SelectedTargetProbeInsertion
-                : _manipulator2SelectedTargetProbeInsertion;
+                ? _probe1SelectedTargetProbeInsertion
+                : _probe2SelectedTargetProbeInsertion;
 
             // Exit early if there is no target insertion selected
             if (targetInsertion == null)
             {
+                if (manipulatorID == 1)
+                {
+                    _probe1LineGameObjects.ap.SetActive(false);
+                    _probe1LineGameObjects.ml.SetActive(false);
+                    _probe1LineGameObjects.dv.SetActive(false);
+                }
+                else
+                {
+                    _probe2LineGameObjects.ap.SetActive(false);
+                    _probe2LineGameObjects.ml.SetActive(false);
+                    _probe2LineGameObjects.dv.SetActive(false);
+                }
                 return;
             }
 
             // DV axis
             var dvInsertion = new ProbeInsertion(targetProbe.GetProbeController().Insertion)
             {
-                dv = -10
+                dv = -0.5f
             };
 
             // AP axis
@@ -138,70 +220,52 @@ namespace TrajectoryPlanner
             // Apply to insertion
             if (manipulatorID == 1)
             {
-                _manipulator1MovementAxesInsertions.ap = apInsertion;
-                _manipulator1MovementAxesInsertions.ml = mlInsertion;
-                _manipulator1MovementAxesInsertions.dv = dvInsertion;
+                _probe1MovementAxesInsertions.ap = apInsertion;
+                _probe1MovementAxesInsertions.ml = mlInsertion;
+                _probe1MovementAxesInsertions.dv = dvInsertion;
             }
             else
             {
-                _manipulator2MovementAxesInsertions.ap = apInsertion;
-                _manipulator2MovementAxesInsertions.ml = mlInsertion;
-                _manipulator2MovementAxesInsertions.dv = dvInsertion;
+                _probe2MovementAxesInsertions.ap = apInsertion;
+                _probe2MovementAxesInsertions.ml = mlInsertion;
+                _probe2MovementAxesInsertions.dv = dvInsertion;
             }
-            
+
             // Pickup axes to use
             var axesInsertions = manipulatorID == 1
-                ? _manipulator1MovementAxesInsertions
-                : _manipulator2MovementAxesInsertions;
+                ? _probe1MovementAxesInsertions
+                : _probe2MovementAxesInsertions;
+            var lineRenderer = manipulatorID == 1 ? _probe1LineRenderers : _probe2LineRenderers;
             
-            // Create line objects and renderers
-            (GameObject ap, GameObject ml, GameObject dv) lineObjects = (new GameObject("APLine") { layer = 5 },
-                new GameObject("MLLine") { layer = 5 }, new GameObject("DVLine") { layer = 5 });
-            (LineRenderer ap, LineRenderer ml, LineRenderer dv) lineRenderers = (
-                lineObjects.ap.AddComponent<LineRenderer>(),
-                lineObjects.ml.AddComponent<LineRenderer>(), lineObjects.dv.AddComponent<LineRenderer>());
-
-            // Setup line renderers
-            lineRenderers.ap.material = new Material(Shader.Find("Sprites/Default"))
+            // Enable game objects
+            if (manipulatorID == 1)
             {
-                color = Color.magenta
-            };
-            lineRenderers.ml.material = new Material(Shader.Find("Sprites/Default"))
+                _probe1LineGameObjects.ap.SetActive(true);
+                _probe1LineGameObjects.ml.SetActive(true);
+                _probe1LineGameObjects.dv.SetActive(true);
+            }
+            else
             {
-                color = Color.green
-            };
-            lineRenderers.dv.material = new Material(Shader.Find("Sprites/Default"))
-            {
-                color = Color.cyan
-            };
-
-            lineRenderers.ap.startWidth = LINE_WIDTH;
-            lineRenderers.ml.startWidth = LINE_WIDTH;
-            lineRenderers.dv.startWidth = LINE_WIDTH;
-
-            lineRenderers.ap.endWidth = LINE_WIDTH;
-            lineRenderers.ml.endWidth = LINE_WIDTH;
-            lineRenderers.dv.endWidth = LINE_WIDTH;
-
-            lineRenderers.ap.positionCount = NUM_SEGMENTS;
-            lineRenderers.ml.positionCount = NUM_SEGMENTS;
-            lineRenderers.dv.positionCount = NUM_SEGMENTS;
+                _probe2LineGameObjects.ap.SetActive(true);
+                _probe2LineGameObjects.ml.SetActive(true);
+                _probe2LineGameObjects.dv.SetActive(true);
+            }
 
             // Set line positions
-            lineRenderers.dv.SetPosition(0, targetProbe.GetProbeController().ProbeTipT.position);
-            lineRenderers.dv.SetPosition(1, axesInsertions.dv.PositionWorld());
+            lineRenderer.dv.SetPosition(0, targetProbe.GetProbeController().ProbeTipT.position);
+            lineRenderer.dv.SetPosition(1, axesInsertions.dv.PositionWorld());
 
-            lineRenderers.ap.SetPosition(0, axesInsertions.dv.PositionWorld());
-            lineRenderers.ap.SetPosition(1, axesInsertions.ap.PositionWorld());
+            lineRenderer.ap.SetPosition(0, axesInsertions.dv.PositionWorld());
+            lineRenderer.ap.SetPosition(1, axesInsertions.ap.PositionWorld());
 
-            lineRenderers.ml.SetPosition(0, axesInsertions.ap.PositionWorld());
-            lineRenderers.ml.SetPosition(1, axesInsertions.ml.PositionWorld());
+            lineRenderer.ml.SetPosition(0, axesInsertions.ap.PositionWorld());
+            lineRenderer.ml.SetPosition(1, axesInsertions.ml.PositionWorld());
         }
 
         private void UpdateMoveButtonInteractable()
         {
-            _gotoMoveButton.interactable = _manipulator1SelectedTargetProbeInsertion != null ||
-                                           _manipulator2SelectedTargetProbeInsertion != null;
+            _gotoMoveButton.interactable = _probe1SelectedTargetProbeInsertion != null ||
+                                           _probe2SelectedTargetProbeInsertion != null;
         }
 
         #endregion
@@ -317,17 +381,24 @@ namespace TrajectoryPlanner
         #region Step 2
 
         public HashSet<ProbeInsertion> TargetProbeInsertionsReference { private get; set; }
-        private ProbeInsertion _manipulator1SelectedTargetProbeInsertion;
-        private ProbeInsertion _manipulator2SelectedTargetProbeInsertion;
+        private ProbeInsertion _probe1SelectedTargetProbeInsertion;
+        private ProbeInsertion _probe2SelectedTargetProbeInsertion;
 
-        private List<ProbeInsertion> Manipulator1TargetProbeInsertionOptions => TargetProbeInsertionsReference
-            .Where(insertion => insertion != _manipulator2SelectedTargetProbeInsertion).ToList();
+        private List<ProbeInsertion> Probe1TargetProbeInsertionOptions => TargetProbeInsertionsReference
+            .Where(insertion => insertion != _probe2SelectedTargetProbeInsertion).ToList();
 
-        private List<ProbeInsertion> Manipulator2TargetProbeInsertionOptions => TargetProbeInsertionsReference
-            .Where(insertion => insertion != _manipulator1SelectedTargetProbeInsertion).ToList();
+        private List<ProbeInsertion> Probe2TargetProbeInsertionOptions => TargetProbeInsertionsReference
+            .Where(insertion => insertion != _probe1SelectedTargetProbeInsertion).ToList();
 
-        private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _manipulator1MovementAxesInsertions;
-        private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _manipulator2MovementAxesInsertions;
+        private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _probe1MovementAxesInsertions;
+        private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _probe2MovementAxesInsertions;
+
+        private (GameObject ap, GameObject ml, GameObject dv) _probe1LineGameObjects;
+
+        private (GameObject ap, GameObject ml, GameObject dv) _probe2LineGameObjects;
+
+        private (LineRenderer ap, LineRenderer ml, LineRenderer dv) _probe1LineRenderers;
+        private (LineRenderer ap, LineRenderer ml, LineRenderer dv) _probe2LineRenderers;
 
         #endregion
 
@@ -339,10 +410,14 @@ namespace TrajectoryPlanner
         {
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
 
+            // Input field access
             _gotoManipulator1InsertionInputFields = (_gotoManipulator1APInputField, _gotoManipulator1MLInputField,
                 _gotoManipulator1DVInputField);
             _gotoManipulator2InsertionInputFields = (_gotoManipulator2APInputField, _gotoManipulator2MLInputField,
                 _gotoManipulator2DVInputField);
+
+            // Initialize line renderers
+            InitializeLineRenderers();
         }
 
         private void OnEnable()
