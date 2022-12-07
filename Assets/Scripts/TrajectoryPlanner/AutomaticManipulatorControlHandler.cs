@@ -271,6 +271,56 @@ namespace TrajectoryPlanner
                                            _expectedMovements != _completedMovements;
         }
 
+        private Vector4 ConvertInsertionToManipulatorPosition(ProbeInsertion insertion, int manipulatorID)
+        {
+            var probeManager = manipulatorID == 1 ? Probe1Manager : Probe2Manager;
+            var isManipulatorRightHanded =
+                manipulatorID == 1 ? IsProbe1ManipulatorRightHanded : IsProbe2ManipulatorRightHanded;
+
+            // Gather info
+            var apmldv = insertion.apmldv;
+            const float depth = 0;
+
+            // Convert apmldv to world coordinate
+            // var convertToWorld = probeManager.GhostProbeManager.GetProbeController().Insertion
+            //     .Transformed2WorldAxisChange(apmldv);
+            var convertToWorld = insertion.PositionWorld();
+
+            // Flip axes to match manipulator
+            var posWithDepthAndCorrectAxes = new Vector4(
+                -convertToWorld.z,
+                convertToWorld.x,
+                convertToWorld.y,
+                depth);
+
+            // Apply brain surface offset
+            var brainSurfaceAdjustment = float.IsNaN(probeManager.BrainSurfaceOffset)
+                ? 0
+                : probeManager.BrainSurfaceOffset;
+            if (probeManager.IsSetToDropToSurfaceWithDepth)
+                posWithDepthAndCorrectAxes.w -= brainSurfaceAdjustment;
+            else
+                posWithDepthAndCorrectAxes.z -= brainSurfaceAdjustment;
+
+            // Adjust for phi
+            var probePhi = probeManager.GetProbeController().Insertion.phi * Mathf.Deg2Rad;
+            var phiCos = Mathf.Cos(probePhi);
+            var phiSin = Mathf.Sin(probePhi);
+            var phiAdjustedX = posWithDepthAndCorrectAxes.x * phiCos -
+                               posWithDepthAndCorrectAxes.y * phiSin;
+            var phiAdjustedY = posWithDepthAndCorrectAxes.x * phiSin +
+                               posWithDepthAndCorrectAxes.y * phiCos;
+            posWithDepthAndCorrectAxes.x = phiAdjustedX;
+            posWithDepthAndCorrectAxes.y = phiAdjustedY;
+
+            // Apply axis negations
+            posWithDepthAndCorrectAxes.z *= -1;
+            posWithDepthAndCorrectAxes.y *= isManipulatorRightHanded ? 1 : -1;
+
+            // Apply coordinate offsets and return result
+            return posWithDepthAndCorrectAxes + probeManager.ZeroCoordinateOffset;
+        }
+
         #endregion
 
         #endregion
@@ -320,21 +370,21 @@ namespace TrajectoryPlanner
             if (_expectedMovements == _completedMovements)
             {
                 // All movements completed
-                
+
                 // Set button text
                 _gotoMoveButtonText.text = "Moving... Press Again to Stop";
-                
+
                 // Compute the number of expected movements
                 _expectedMovements += _probe1SelectedTargetProbeInsertion != null ? 1 : 0;
                 _expectedMovements += _probe2SelectedTargetProbeInsertion != null ? 1 : 0;
-                
+
                 // Reset completed movements
                 _completedMovements = 0;
             }
             else
             {
                 // Movement in progress
-                
+
                 // Stop all movements
                 _communicationManager.Stop(state =>
                 {
@@ -342,9 +392,12 @@ namespace TrajectoryPlanner
                     // Reset expected movements and completed movements
                     _expectedMovements = 0;
                     _completedMovements = 0;
-                        
+
                     // Reset text
                     _gotoMoveButtonText.text = "Move Manipulators into Position";
+
+                    // Update button interactable
+                    UpdateMoveButtonInteractable();
                 });
             }
         }
@@ -416,6 +469,9 @@ namespace TrajectoryPlanner
         public ProbeManager Probe2Manager { private get; set; }
 
         #region Step 2
+
+        public bool IsProbe1ManipulatorRightHanded { private get; set; }
+        public bool IsProbe2ManipulatorRightHanded { private get; set; }
 
         public HashSet<ProbeInsertion> TargetProbeInsertionsReference { private get; set; }
         private ProbeInsertion _probe1SelectedTargetProbeInsertion;
