@@ -382,35 +382,75 @@ namespace TrajectoryPlanner
 
                 // Move probe 1
                 if (_probe1SelectedTargetProbeInsertion != null)
-                    _communicationManager.SetCanWrite(Probe1Manager.ManipulatorId, true, 1, canWrite =>
+                {
+                    // Calculate movement
+                    var manipulatorID = Probe1Manager.ManipulatorId;
+                    var automaticMovementSpeed = Probe1Manager.AutomaticMovementSpeed;
+                    var apPosition =
+                        ConvertInsertionToManipulatorPosition(_probe1MovementAxesInsertions.ap, manipulatorID);
+                    var mlPosition =
+                        ConvertInsertionToManipulatorPosition(_probe1MovementAxesInsertions.ml, manipulatorID);
+                    var dvPosition =
+                        ConvertInsertionToManipulatorPosition(_probe1MovementAxesInsertions.dv, manipulatorID);
+
+                    _communicationManager.SetCanWrite(manipulatorID, true, 1, canWrite =>
                     {
                         if (canWrite)
-                            _communicationManager.GotoPos(Probe1Manager.ManipulatorId,
-                                ConvertInsertionToManipulatorPosition(_probe1MovementAxesInsertions.dv,
-                                    Probe1Manager.ManipulatorId), Probe1Manager.AutomaticMovementSpeed,
-                                _ =>
+                            _communicationManager.GotoPos(manipulatorID, dvPosition,
+                                automaticMovementSpeed, _ =>
                                 {
-                                    print("Moved DV!");
-                                    _completedMovements++;
-                                    UpdateMoveButtonInteractable();
+                                    _communicationManager.GotoPos(manipulatorID, apPosition,
+                                        automaticMovementSpeed, _ =>
+                                        {
+                                            _communicationManager.GotoPos(manipulatorID, mlPosition,
+                                                automaticMovementSpeed, _ =>
+                                                {
+                                                    _communicationManager.SetCanWrite(manipulatorID, false, 1, _ =>
+                                                    {
+                                                        _completedMovements++;
+                                                        UpdateMoveButtonInteractable();
+                                                    }, Debug.LogError);
+                                                }, Debug.LogError);
+                                        }, Debug.LogError);
                                 });
                     });
-                
+                }
+
                 // Move probe 2
-                if (_probe2SelectedTargetProbeInsertion != null)
-                    _communicationManager.SetCanWrite(Probe2Manager.ManipulatorId, true, 1, canWrite =>
+                if (_probe2SelectedTargetProbeInsertion == null) return;
+                {
+                    // Calculate movement
+                    var manipulatorID = Probe2Manager.ManipulatorId;
+                    var automaticMovementSpeed = Probe2Manager.AutomaticMovementSpeed;
+                    var apPosition =
+                        ConvertInsertionToManipulatorPosition(_probe2MovementAxesInsertions.ap, manipulatorID);
+                    var mlPosition =
+                        ConvertInsertionToManipulatorPosition(_probe2MovementAxesInsertions.ml, manipulatorID);
+                    var dvPosition =
+                        ConvertInsertionToManipulatorPosition(_probe2MovementAxesInsertions.dv, manipulatorID);
+
+                    _communicationManager.SetCanWrite(manipulatorID, true, 1, canWrite =>
                     {
                         if (canWrite)
-                            _communicationManager.GotoPos(Probe2Manager.ManipulatorId,
-                                ConvertInsertionToManipulatorPosition(_probe2MovementAxesInsertions.dv,
-                                    Probe2Manager.ManipulatorId), Probe2Manager.AutomaticMovementSpeed,
-                                _ =>
+                            _communicationManager.GotoPos(manipulatorID, dvPosition,
+                                automaticMovementSpeed, _ =>
                                 {
-                                    print("Moved DV!");
-                                    _completedMovements++;
-                                    UpdateMoveButtonInteractable();
+                                    _communicationManager.GotoPos(manipulatorID, apPosition,
+                                        automaticMovementSpeed, _ =>
+                                        {
+                                            _communicationManager.GotoPos(manipulatorID, mlPosition,
+                                                automaticMovementSpeed, _ =>
+                                                {
+                                                    _communicationManager.SetCanWrite(manipulatorID, false, 1, _ =>
+                                                    {
+                                                        _completedMovements++;
+                                                        UpdateMoveButtonInteractable();
+                                                    }, Debug.LogError);
+                                                }, Debug.LogError);
+                                        }, Debug.LogError);
                                 });
                     });
+                }
             }
             else
             {
