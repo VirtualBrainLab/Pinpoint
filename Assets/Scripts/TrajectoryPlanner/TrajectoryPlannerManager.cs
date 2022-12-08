@@ -659,6 +659,12 @@ namespace TrajectoryPlanner
             probeColors.Insert(0, returnColor);
         }
 
+        public void SetActiveProbe(string UUID)
+        {
+            // Search for the probemanager corresponding to this UUID
+            
+        }
+
         public void SetActiveProbe(ProbeManager newActiveProbeManager)
         {
             if (activeProbe == newActiveProbeManager)

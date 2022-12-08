@@ -52,7 +52,10 @@ public class AccountsManager : MonoBehaviour
     private void Update()
     {
         if (Dirty && (Time.realtimeSinceStartup - lastSave) >= UPDATE_RATE)
+        {
+            Dirty = false;
             SaveAndUpdate();
+        }
     }
 
     public void RegisterUpdateCallback(Action callback)
