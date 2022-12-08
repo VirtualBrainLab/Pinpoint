@@ -333,6 +333,8 @@ namespace TrajectoryPlanner
                 _completedMovements = 0;
 
                 // Enable step 3
+                if (_step != 2) return;
+                _step = 3;
                 EnableStep3();
             }
 
@@ -351,6 +353,19 @@ namespace TrajectoryPlanner
             _duraPanelCanvasGroup.interactable = true;
             _duraPanelText.color = Color.green;
             _gotoPanelText.color = Color.white;
+        }
+
+        #endregion
+
+        #region Step 4
+
+        private void EnableStep4()
+        {
+            // Enable UI
+            _drivePanelCanvasGroup.alpha = 1;
+            _drivePanelCanvasGroup.interactable = true;
+            _duraPanelText.color = Color.white;
+            _drivePanelText.color = Color.green;
         }
 
         #endregion
@@ -526,6 +541,33 @@ namespace TrajectoryPlanner
                     UpdateMoveButtonInteractable();
                 });
             }
+        }
+
+        #endregion
+
+        #region Step 3
+
+        public void ZeroDepth(int manipulatorID)
+        {
+            switch (manipulatorID)
+            {
+                case 1:
+                    Probe1Manager.SetBrainSurfaceOffset();
+                    break;
+                case 2:
+                    Probe2Manager.SetBrainSurfaceOffset();
+                    break;
+                default:
+                    Debug.LogError("Unknown manipulator ID: " + manipulatorID);
+                    
+                    // Exit rest of function if failed
+                    return;
+            }
+
+            // Enable Step 4 (if needed)
+            if (_step != 3) return;
+            _step = 4;
+            EnableStep4();
         }
 
         #endregion
