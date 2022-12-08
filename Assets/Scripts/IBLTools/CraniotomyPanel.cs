@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 namespace IBLTools
 {
 
-    public class TP_IBLToolsPanel : MonoBehaviour
+    public class CraniotomyPanel : MonoBehaviour
     {
         [FormerlySerializedAs("apText")] [SerializeField]
         private TMP_Text _apText;
@@ -32,7 +32,7 @@ namespace IBLTools
         private void Start()
         {
             // Start with craniotomy disabled
-            UpdateSize(0);
+            UpdateSize(1);
             UpdateCraniotomy();
         }
 
@@ -52,7 +52,7 @@ namespace IBLTools
 
         public void UpdateAP(float ap)
         {
-            position.x = ap;
+            position.x = -ap;
             UpdateCraniotomy();
             UpdateText();
         }
@@ -71,10 +71,8 @@ namespace IBLTools
 
         private void UpdateText()
         {
-            Vector3 pos = _tpmanager.GetSetting_InVivoTransformActive() ? _tpmanager.CoordinateTransformFromCCF(position) : position;
-
-            _apText.text = "AP: " + Mathf.RoundToInt(pos.x * 1000f);
-            _mlText.text = "ML: " + Mathf.RoundToInt(pos.y * 1000f);
+            _apText.text = "AP: " + Mathf.RoundToInt(-position.x * 1000f);
+            _mlText.text = "ML: " + Mathf.RoundToInt(position.y * 1000f);
             _rText.text = "r: " + Mathf.RoundToInt(size * 1000f);
         }
 
