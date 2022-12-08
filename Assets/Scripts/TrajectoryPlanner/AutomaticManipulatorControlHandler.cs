@@ -102,6 +102,21 @@ namespace TrajectoryPlanner
 
             // Update insertion options
             UpdateInsertionDropdownOptions();
+
+            foreach (var probeInsertion in TargetProbeInsertionsReference)
+            {
+                var lineStart = probeInsertion.PositionWorld();
+                var dir = Quaternion.Euler(probeInsertion.spin, probeInsertion.phi - 90, probeInsertion.theta) * Vector3.up;
+                const int length = 2;
+                var endInsertion = new ProbeInsertion(probeInsertion);
+                var endPos = endInsertion.World2Transformed(lineStart + dir * length);
+                endInsertion.ap = endPos.x;
+                endInsertion.ml = endPos.y;
+                endInsertion.dv = endPos.z;
+                print("Start position: " + lineStart+"; end position: "+endInsertion.PositionWorld());
+                // Debug.DrawRay(probeInsertion.PositionWorld(), dir * length, Color.red, 60);
+                Debug.DrawLine(probeInsertion.PositionWorld(), endInsertion.PositionWorld(), Color.red, 60);
+            }
         }
 
         private void UpdateManipulatorInsertionSelection(int dropdownValue, int manipulatorID)
@@ -416,7 +431,7 @@ namespace TrajectoryPlanner
         {
             if (_expectedMovements == _completedMovements)
             {
-                // All movements completed
+                // All movements completed, pressing means start a new movement set
 
                 // Set button text
                 _gotoMoveButtonText.text = "Moving... Press Again to Stop";
@@ -559,7 +574,7 @@ namespace TrajectoryPlanner
                     break;
                 default:
                     Debug.LogError("Unknown manipulator ID: " + manipulatorID);
-                    
+
                     // Exit rest of function if failed
                     return;
             }
