@@ -144,7 +144,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuSliceRenderer.material.SetVector("_UpDirection", upWorld);
         gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize * 1000f / 25f);
         gpuSliceRenderer.material.SetFloat("_Scale", inPlaneScale);
-        float roundedMmRecSize = Mathf.Round(mmRecordingSize * 1.5f * 100) / 100;
+        float roundedMmRecSize = Mathf.Round(mmRecordingSize * 1.5f * zoomFactor * 100) / 100;
         string formatted = string.Format("<- {0} mm ->", roundedMmRecSize);
         _textX.text = formatted;
         _textY.text = formatted;
