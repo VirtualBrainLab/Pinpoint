@@ -106,10 +106,22 @@ namespace TrajectoryPlanner
             foreach (var probeInsertion in TargetProbeInsertionsReference)
             {
                 var lineStart = probeInsertion.PositionWorld();
+                
+                var targetHeight = probeInsertion.PositionWorld();
+                targetHeight.y = 4;
+                Debug.DrawLine(probeInsertion.PositionWorld(), targetHeight, Color.yellow, 60);
+                
                 var dir = Quaternion.Euler(probeInsertion.spin, probeInsertion.phi - 90, probeInsertion.theta) * Vector3.up;
-                const int length = 2;
+                
+                var angle = Vector3.Angle(targetHeight - lineStart, dir);
+                print("Angle: " + angle);
+                
+                var length = targetHeight.magnitude / Mathf.Cos(angle * Mathf.Deg2Rad);
+                print("Length: " + length);
+                
                 var endInsertion = new ProbeInsertion(probeInsertion);
                 var endPos = endInsertion.World2Transformed(lineStart + dir * length);
+                print("EndPos: " + (lineStart + dir * length));
                 endInsertion.ap = endPos.x;
                 endInsertion.ml = endPos.y;
                 endInsertion.dv = endPos.z;
