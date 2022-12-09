@@ -142,6 +142,8 @@ namespace TrajectoryPlanner
             //Physics.autoSyncTransforms = true;
 
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
+
+            _accountsManager.RegisterUpdateCallback(AccountsProbeStatusUpdatedCallback);
         }
 
 
@@ -1275,6 +1277,16 @@ namespace TrajectoryPlanner
                 probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
                 probeManager.UUID);
            
+        }
+
+        /// <summary>
+        /// Called by the AccountsManager class when a probe's visibility is updated
+        /// 
+        /// TPManager then requests a list of all active probes and updates the scene appropriately
+        /// </summary>
+        public void AccountsProbeStatusUpdatedCallback()
+        {
+            Debug.Log("Callback called");
         }
 
         #endregion

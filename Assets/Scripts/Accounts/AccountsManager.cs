@@ -28,16 +28,16 @@ public class AccountsManager : MonoBehaviour
     #endregion
 
     #region current player data
-    private PlayerEntity player;
-    public bool Connected { get { return player != null; } }
+    private PlayerEntity _player;
+    public bool Connected { get { return _player != null; } }
     #endregion
 
     #region tracking variables
-    private Dictionary<string, string> probeUUID2experiment;
-    private Action updateCallback;
+    private Dictionary<string, string> _probeUUID2experiment;
+    private Action _updateCallback;
 
     public bool Dirty { get; private set; }
-    private float lastSave;
+    private float _lastSave;
 
     public string ActiveProbeUUID { get; set; }
     public string ActiveExperiment { get; private set; }
@@ -45,13 +45,13 @@ public class AccountsManager : MonoBehaviour
 
     private void Awake()
     {
-        probeUUID2experiment = new Dictionary<string, string>();
-        lastSave = Time.realtimeSinceStartup;
+        _probeUUID2experiment = new Dictionary<string, string>();
+        _lastSave = Time.realtimeSinceStartup;
     }
 
     private void Update()
     {
-        if (Dirty && (Time.realtimeSinceStartup - lastSave) >= UPDATE_RATE)
+        if (Dirty && (Time.realtimeSinceStartup - _lastSave) >= UPDATE_RATE)
         {
             Dirty = false;
             SaveAndUpdate();
@@ -60,17 +60,17 @@ public class AccountsManager : MonoBehaviour
 
     public void RegisterUpdateCallback(Action callback)
     {
-        updateCallback = callback;
+        _updateCallback = callback;
     }
 
     public void UpdateProbeData(string UUID, (Vector3 apmldv, Vector3 angles, 
         int type, string spaceName, string transformName, string UUID) data)
     {
-        if (player != null)
+        if (_player != null)
         {
             Dirty = true;
 
-            ServerProbeInsertion serverProbeInsertion = player.experiments[probeUUID2experiment[UUID]][UUID];
+            ServerProbeInsertion serverProbeInsertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
             serverProbeInsertion.ap = data.apmldv.x;
             serverProbeInsertion.ml = data.apmldv.y;
             serverProbeInsertion.dv = data.apmldv.z;
@@ -81,7 +81,7 @@ public class AccountsManager : MonoBehaviour
             serverProbeInsertion.coordinateTransformName = data.transformName;
             serverProbeInsertion.UUID = data.UUID;
 
-            player.experiments[probeUUID2experiment[UUID]][UUID] = serverProbeInsertion;
+            _player.experiments[_probeUUID2experiment[UUID]][UUID] = serverProbeInsertion;
         }
     }
 
@@ -95,14 +95,14 @@ public class AccountsManager : MonoBehaviour
 
     private void LoadPlayerCallback(PlayerEntity player)
     {
-        this.player = player;
+        this._player = player;
         Debug.Log("Loaded player data: " + player.email);
         SaveAndUpdate();
     }
 
     public void Logout()
     {
-        player = null;
+        _player = null;
         Dirty = true;
         _experimentEditor.UpdateList();
         _activeExpListBehavior.UpdateList();
@@ -110,7 +110,7 @@ public class AccountsManager : MonoBehaviour
 
     private void SaveAndUpdate()
     {
-        if (player != null)
+        if (_player != null)
         {
             SavePlayer();
 
@@ -119,8 +119,8 @@ public class AccountsManager : MonoBehaviour
             _quickSettingsExperimentList.UpdateExperimentList();
             UpdateExperimentInsertions();
 
-            if (updateCallback != null)
-                updateCallback();
+            if (_updateCallback != null)
+                _updateCallback();
         }
     }
 
@@ -128,24 +128,24 @@ public class AccountsManager : MonoBehaviour
     {
         Debug.Log("(AccountsManager) Saving data");
         OnFacet<PlayerDataFacet>
-            .Call(nameof(PlayerDataFacet.SavePlayerEntity),player).Done();
+            .Call(nameof(PlayerDataFacet.SavePlayerEntity),_player).Done();
     }
 
     #region Experiment editor
 
     public void AddExperiment()
     {
-        player.experiments.Add(string.Format("Experiment {0}", player.experiments.Count), new Dictionary<string, ServerProbeInsertion>());
+        _player.experiments.Add(string.Format("Experiment {0}", _player.experiments.Count), new Dictionary<string, ServerProbeInsertion>());
         // Immediately update, so that user can see effect
         SaveAndUpdate();
     }
 
     public void EditExperiment(string origName, string newName)
     {
-        if (player.experiments.ContainsKey(origName))
+        if (_player.experiments.ContainsKey(origName))
         {
-            player.experiments.Add(newName, player.experiments[origName]);
-            player.experiments.Remove(origName);
+            _player.experiments.Add(newName, _player.experiments[origName]);
+            _player.experiments.Remove(origName);
         }
         else
             Debug.LogError(string.Format("Experiment {0} does not exist", origName));
@@ -155,9 +155,9 @@ public class AccountsManager : MonoBehaviour
 
     public void RemoveExperiment(string expName)
     {
-        if (player.experiments.ContainsKey(expName))
+        if (_player.experiments.ContainsKey(expName))
         {
-            player.experiments.Remove(expName);
+            _player.experiments.Remove(expName);
         }
         else
             Debug.LogError(string.Format("Experiment {0} does not exist", expName));
@@ -170,22 +170,22 @@ public class AccountsManager : MonoBehaviour
     #region Quick settings panel
     public void ChangeProbeExperiment(string UUID, string newExperiment)
     {
-        if (player.experiments.ContainsKey(newExperiment))
+        if (_player.experiments.ContainsKey(newExperiment))
         {
-            if (probeUUID2experiment.ContainsKey(UUID))
+            if (_probeUUID2experiment.ContainsKey(UUID))
             {
                 // just update the experiment
-                ServerProbeInsertion insertionData = player.experiments[probeUUID2experiment[UUID]][UUID];
-                player.experiments[probeUUID2experiment[UUID]].Remove(UUID);
+                ServerProbeInsertion insertionData = _player.experiments[_probeUUID2experiment[UUID]][UUID];
+                _player.experiments[_probeUUID2experiment[UUID]].Remove(UUID);
 
-                probeUUID2experiment[UUID] = newExperiment;
-                player.experiments[newExperiment].Add(UUID, insertionData);
+                _probeUUID2experiment[UUID] = newExperiment;
+                _player.experiments[newExperiment].Add(UUID, insertionData);
             }
             else
             {
                 // this is a totally new probe being added
-                probeUUID2experiment.Add(UUID, newExperiment);
-                player.experiments[newExperiment].Add(UUID, new ServerProbeInsertion());
+                _probeUUID2experiment.Add(UUID, newExperiment);
+                _player.experiments[newExperiment].Add(UUID, new ServerProbeInsertion());
 
             }
         }
@@ -198,8 +198,8 @@ public class AccountsManager : MonoBehaviour
 
     public void RemoveProbeExperiment(string probeUUID)
     {
-        if (probeUUID2experiment[probeUUID].Contains(probeUUID))
-            player.experiments[probeUUID2experiment[probeUUID]].Remove(probeUUID);
+        if (_probeUUID2experiment[probeUUID].Contains(probeUUID))
+            _player.experiments[_probeUUID2experiment[probeUUID]].Remove(probeUUID);
     }
 
     #endregion
@@ -211,22 +211,22 @@ public class AccountsManager : MonoBehaviour
 
     public List<string> GetExperiments()
     {
-        if (player != null)
-            return new List<string>(player.experiments.Keys);
+        if (_player != null)
+            return new List<string>(_player.experiments.Keys);
         else
             return new List<string>();
     }
 
     public Dictionary<string, ServerProbeInsertion> GetExperimentData(string experiment)
     {
-        if (player != null)
-            return player.experiments[experiment];
+        if (_player != null)
+            return _player.experiments[experiment];
         else
             return new Dictionary<string, ServerProbeInsertion>();
     }
 
     public void SaveRigList(List<int> visibleRigParts) {
-        player.visibleRigParts = visibleRigParts;
+        _player.visibleRigParts = visibleRigParts;
     }
 
     public void ActiveExperimentChanged(string experiment)
@@ -289,6 +289,7 @@ public class AccountsManager : MonoBehaviour
     {
         // Somehow, tell TPManager that we need to create or destroy a new probe... tbd
         Debug.Log(string.Format("Insertion {0} wants to become {1}", insertionIdx, visible));
+        _updateCallback();
     }
 
     #endregion
@@ -297,4 +298,45 @@ public class AccountsManager : MonoBehaviour
     {
         SetActiveProbeCallback(UUID);
     }
+
+    #region Data communication
+
+    public (Vector3 pos, Vector3 angles, string cSpaceName, string cTransformName) GetProbeInsertionData(string UUID)
+    {
+        if (_probeUUID2experiment.ContainsKey(UUID))
+        {
+            ServerProbeInsertion serverProbeInsertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
+            // convert to a regular probe insertion
+            var probeData = (new Vector3(serverProbeInsertion.ap, serverProbeInsertion.ml, serverProbeInsertion.dv),
+                new Vector3(serverProbeInsertion.phi, serverProbeInsertion.theta, serverProbeInsertion.spin),
+                serverProbeInsertion.coordinateSpaceName, serverProbeInsertion.coordinateTransformName);
+
+            return probeData;
+        }
+        else
+            return (Vector3.zero, Vector3.zero, null, null);
+    }
+
+    /// <summary>
+    /// Return a list of all probe insertions that are in the current experiment
+    /// </summary>
+    /// <returns></returns>
+    public List<(string UUID, Vector3 pos, Vector3 angles, string cSpaceName, string cTransformName)> GetActiveProbeInsertions()
+    {
+        var probeDataList = new List<(string UUID, Vector3 pos, Vector3 angles, string cSpaceName, string cTransformName)>();
+
+        foreach (var probe in _player.experiments[ActiveExperiment])
+        {
+            ServerProbeInsertion serverProbeInsertion = probe.Value;
+            probeDataList.Add((probe.Key,
+                new Vector3(serverProbeInsertion.ap, serverProbeInsertion.ml, serverProbeInsertion.dv),
+                new Vector3(serverProbeInsertion.phi, serverProbeInsertion.theta, serverProbeInsertion.spin),
+                probe.Value.coordinateSpaceName,
+                probe.Value.coordinateTransformName));
+        }
+
+        return probeDataList;
+    } 
+
+    #endregion
 }
