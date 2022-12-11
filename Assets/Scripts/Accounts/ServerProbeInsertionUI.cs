@@ -10,11 +10,11 @@ public class ServerProbeInsertionUI : MonoBehaviour
     [SerializeField] private TMP_Text _insertionDescriptionText;
     [SerializeField] private Toggle _insertionActiveToggle;
 
-    private AccountsManager _accountsManager;
+    private UnisaveAccountsManager _accountsManager;
     private int _index;
     private string _UUID;
 
-    public void SetInsertionData(AccountsManager accountsManager, string UUID)
+    public void SetInsertionData(UnisaveAccountsManager accountsManager, string UUID)
     {
         _accountsManager = accountsManager;
         _UUID = UUID;

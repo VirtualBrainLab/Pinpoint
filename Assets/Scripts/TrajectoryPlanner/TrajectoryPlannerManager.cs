@@ -22,7 +22,7 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("brainModel")] [SerializeField] private Transform _brainModel;
         [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
         [FormerlySerializedAs("acontrol")] [SerializeField] private AxisControl _acontrol;
-        [FormerlySerializedAs("accountsManager")] [SerializeField] private AccountsManager _accountsManager;
+        [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
 
         // Settings
         [FormerlySerializedAs("probePrefabs")] [SerializeField] private List<GameObject> _probePrefabs;

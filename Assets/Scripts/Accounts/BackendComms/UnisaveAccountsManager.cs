@@ -8,7 +8,7 @@ using TMPro;
 /// <summary>
 /// Handles connection with the Unisave system, and passing data back-and-forth with the TPManager
 /// </summary>
-public class AccountsManager : MonoBehaviour
+public class UnisaveAccountsManager : AccountsManager
 {
     private const float UPDATE_RATE = 60f;
 

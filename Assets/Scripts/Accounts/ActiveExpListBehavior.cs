@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ActiveExpListBehavior : MonoBehaviour
 {
-    [SerializeField] private AccountsManager _accountsManager;
+    [SerializeField] private UnisaveAccountsManager _accountsManager;
 
     private TMP_Dropdown _optionList;
 

@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using TrajectoryPlanner;
 using UnityEngine;
 
+/// <summary>
+/// This class handles communicating data between probes that are in the scene and the AccountsManager class
+/// that handles saving/loading data from the Unisave database. 
+/// </summary>
 public class ExperimentProbeVisibilityManager : MonoBehaviour
 {
-    [SerializeField] private AccountsManager _accountsManager;
+    [SerializeField] private UnisaveAccountsManager _accountsManager;
     [SerializeField] private TrajectoryPlannerManager _tpmanager;
 
     // Track active probe gameobjects by UUID

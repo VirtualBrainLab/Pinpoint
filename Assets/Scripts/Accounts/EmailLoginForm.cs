@@ -17,7 +17,7 @@ using UnityEngine.UI;
 
 public class EmailLoginForm : MonoBehaviour
 {
-    [SerializeField] private AccountsManager _accountsManager;
+    [SerializeField] private UnisaveAccountsManager _accountsManager;
 
     public TMP_InputField _emailField;
     public TMP_InputField _passwordField;
