@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using TrajectoryPlanner;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace IBLTools
 {
@@ -17,17 +15,18 @@ namespace IBLTools
         [FormerlySerializedAs("rText")] [SerializeField]
         private TMP_Text _rText;
 
-        [FormerlySerializedAs("tpmanager")] [SerializeField]
-        private TrajectoryPlannerManager _tpmanager;
+        [SerializeField] private Slider _apSlider;
+        [SerializeField] private Slider _mlSlider;
+        [SerializeField] private Slider _rSlider;
 
         //5.4f, 5.739f, 0.332f
         // start the craniotomy at bregma
         private Vector3 position = Vector3.zero;
+        private float size = 0f;
 
-        private float size = 1f;
-        private float disabledSize = -1f;
+        private int _lastCraniotomyIdx = 0;
 
-        [FormerlySerializedAs("craniotomySkull")] [SerializeField] private TP_CraniotomySkull _craniotomySkull;
+        [FormerlySerializedAs("craniotomySkull")] [SerializeField] private CraniotomySkull _craniotomySkull;
 
         private void Start()
         {
@@ -36,29 +35,26 @@ namespace IBLTools
             UpdateCraniotomy();
         }
 
-        public void OnDisable()
+        private void OnEnable()
         {
-            disabledSize = size;
-            UpdateSize(0);
+            _craniotomySkull.Enable();
+            UpdateCraniotomyIdx(_lastCraniotomyIdx);
         }
 
-        public void OnEnable()
+        private void OnDisable()
         {
-            if (disabledSize >= 0f)
-                UpdateSize(disabledSize);
-            else
-                UpdateSize(size);
+            _craniotomySkull.Disable();
         }
 
         public void UpdateAP(float ap)
         {
-            position.x = -ap;
+            position.y = -ap;
             UpdateCraniotomy();
             UpdateText();
         }
         public void UpdateML(float ml)
         {
-            position.y = ml;
+            position.x = -ml;
             UpdateCraniotomy();
             UpdateText();
         }
@@ -69,15 +65,34 @@ namespace IBLTools
             UpdateText();
         }
 
+        public void UpdateCraniotomyIdx(int craniotomyIdx)
+        {
+            _lastCraniotomyIdx = craniotomyIdx;
+            _craniotomySkull.SetActiveCraniotomy(craniotomyIdx);
+            position = _craniotomySkull.GetCraniotomyPosition();
+            size = _craniotomySkull.GetCraniotomySize();
+            UpdateText();
+            UpdateSliders();
+        }
+
+        private void UpdateSliders()
+        {
+            _apSlider.value = position.x;
+            _mlSlider.value = position.y;
+            _rSlider.value = size;
+        }
+
         private void UpdateText()
         {
-            _apText.text = "AP: " + Mathf.RoundToInt(-position.x * 1000f);
-            _mlText.text = "ML: " + Mathf.RoundToInt(position.y * 1000f);
+            _apText.text = "AP: " + Mathf.RoundToInt(-position.y * 1000f);
+            _mlText.text = "ML: " + Mathf.RoundToInt(-position.x * 1000f);
             _rText.text = "r: " + Mathf.RoundToInt(size * 1000f);
         }
 
         private void UpdateCraniotomy()
         {
+            // We need to rotate the x/y coordinates into the current transformed space... TODO
+
             if (_craniotomySkull != null)
             {
                 _craniotomySkull.SetCraniotomyPosition(position);
