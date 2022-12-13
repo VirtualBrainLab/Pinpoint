@@ -1495,6 +1495,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3412951402913294930, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
   m_PrefabInstance: {fileID: 3412951401243568317}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1687814896 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3412951402913294921, guid: a845e935ace78824095cdcafdc73cec3, type: 3}
+  m_PrefabInstance: {fileID: 3412951401243568317}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687814895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b93ed338214a2814199aac6c673c7137, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1703646459 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
@@ -6011,6 +6022,10 @@ PrefabInstance:
       propertyPath: _accountsManager
       value: 
       objectReference: {fileID: 809984607}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _craniotomyPanel
+      value: 
+      objectReference: {fileID: 1687814896}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _recRegionSlider
       value: 
