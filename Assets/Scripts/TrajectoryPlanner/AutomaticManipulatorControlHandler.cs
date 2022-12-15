@@ -105,29 +105,13 @@ namespace TrajectoryPlanner
 
             foreach (var probeInsertion in TargetProbeInsertionsReference)
             {
-                var lineStart = probeInsertion.PositionWorld();
-                
-                var targetHeight = probeInsertion.PositionWorld();
-                targetHeight.y = 4;
-                Debug.DrawLine(probeInsertion.PositionWorld(), targetHeight, Color.yellow, 60);
-                
-                var dir = Quaternion.Euler(probeInsertion.spin, probeInsertion.phi - 90, probeInsertion.theta) * Vector3.up;
-                
-                var angle = Vector3.Angle(targetHeight - lineStart, dir);
-                print("Angle: " + angle);
-                
-                var length = targetHeight.magnitude / Mathf.Cos(angle * Mathf.Deg2Rad);
-                print("Length: " + length);
-                
-                var endInsertion = new ProbeInsertion(probeInsertion);
-                var endPos = endInsertion.World2Transformed(lineStart + dir * length);
-                print("EndPos: " + (lineStart + dir * length));
-                endInsertion.ap = endPos.x;
-                endInsertion.ml = endPos.y;
-                endInsertion.dv = endPos.z;
-                print("Start position: " + lineStart+"; end position: "+endInsertion.PositionWorld());
-                // Debug.DrawRay(probeInsertion.PositionWorld(), dir * length, Color.red, 60);
-                Debug.DrawLine(probeInsertion.PositionWorld(), endInsertion.PositionWorld(), Color.red, 60);
+                var brainSurfaceCoordinate = CCFAnnotationDataset.FindSurfaceCoordinate(
+                    CCFAnnotationDataset.CoordinateSpace.World2Space(probeInsertion.PositionWorld()),
+                    CCFAnnotationDataset.CoordinateSpace.World2SpaceAxisChange(Probe1Manager.GetProbeController()
+                        .GetTipWorldU().tipUpWorld));
+                var brainSurfaceWorld = CCFAnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
+
+                Debug.DrawLine(probeInsertion.PositionWorld(), brainSurfaceWorld, Color.red, 1000);
             }
         }
 
@@ -135,7 +119,7 @@ namespace TrajectoryPlanner
         {
             UpdateManipulatorInsertionInputFields(dropdownValue, manipulatorID);
             UpdateInsertionDropdownOptions();
-            DrawPath(manipulatorID);
+            CalculateAndDrawPath(manipulatorID);
             UpdateMoveButtonInteractable();
         }
 
@@ -200,7 +184,7 @@ namespace TrajectoryPlanner
                 Probe2TargetProbeInsertionOptions.IndexOf(_probe2SelectedTargetProbeInsertion) + 1);
         }
 
-        private void DrawPath(int manipulatorID)
+        private void CalculateAndDrawPath(int manipulatorID)
         {
             var targetProbe = manipulatorID == 1
                 ? Probe1Manager
@@ -662,6 +646,8 @@ namespace TrajectoryPlanner
 
         public ProbeManager Probe1Manager { private get; set; }
         public ProbeManager Probe2Manager { private get; set; }
+
+        public CCFAnnotationDataset CCFAnnotationDataset { private get; set; }
 
         #region Step 2
 
