@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1707433610485865029}
   - component: {fileID: 1605693455753573167}
+  - component: {fileID: 7322927038169379772}
   m_Layer: 5
   m_Name: Coordinates
   m_TagString: Untagged
@@ -66,6 +67,26 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &7322927038169379772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 35952524030295500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: 30
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &210590518525005671
 GameObject:
   m_ObjectHideFlags: 0
@@ -5567,6 +5588,7 @@ GameObject:
   - component: {fileID: 2396507901471075135}
   - component: {fileID: 6736950730480475088}
   - component: {fileID: 7364135176395761223}
+  - component: {fileID: 6147189816002050847}
   m_Layer: 5
   m_Name: Manipulator2TargetInsertionDropdown
   m_TagString: Untagged
@@ -5708,6 +5730,26 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   m_AlphaFadeSpeed: 0.15
+--- !u!114 &6147189816002050847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4496888202446018140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: 30
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &4531732015379225257
 GameObject:
   m_ObjectHideFlags: 0
@@ -8221,6 +8263,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4469812917384061573}
   - component: {fileID: 4100570391569738873}
+  - component: {fileID: 1112505072800968453}
   m_Layer: 5
   m_Name: Coordinates
   m_TagString: Untagged
@@ -8277,6 +8320,26 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1112505072800968453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6746005066068571729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: 30
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &6858374406569641455
 GameObject:
   m_ObjectHideFlags: 0
@@ -8787,6 +8850,7 @@ GameObject:
   - component: {fileID: 1626565361928829144}
   - component: {fileID: 5060469352689668951}
   - component: {fileID: 1154275699181521729}
+  - component: {fileID: 84105569345319863}
   m_Layer: 5
   m_Name: Manipulator1TargetInsertionDropdown
   m_TagString: Untagged
@@ -8928,6 +8992,26 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   m_AlphaFadeSpeed: 0.15
+--- !u!114 &84105569345319863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7755698034707210185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: 30
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &7811655724383415557
 GameObject:
   m_ObjectHideFlags: 0

@@ -659,10 +659,12 @@ namespace TrajectoryPlanner
         private ProbeInsertion _probe2SelectedTargetProbeInsertion;
 
         private List<ProbeInsertion> Probe1TargetProbeInsertionOptions => TargetProbeInsertionsReference
-            .Where(insertion => insertion != _probe2SelectedTargetProbeInsertion).ToList();
+            .Where(insertion => insertion != _probe2SelectedTargetProbeInsertion &&
+                                insertion.angles == Probe1Manager.GetProbeController().Insertion.angles).ToList();
 
         private List<ProbeInsertion> Probe2TargetProbeInsertionOptions => TargetProbeInsertionsReference
-            .Where(insertion => insertion != _probe1SelectedTargetProbeInsertion).ToList();
+            .Where(insertion => insertion != _probe1SelectedTargetProbeInsertion &&
+                                insertion.angles == Probe2Manager.GetProbeController().Insertion.angles).ToList();
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _probe1MovementAxesInsertions;
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _probe2MovementAxesInsertions;
