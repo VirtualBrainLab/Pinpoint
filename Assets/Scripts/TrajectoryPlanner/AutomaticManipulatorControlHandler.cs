@@ -14,7 +14,7 @@ namespace TrajectoryPlanner
 
         private const float LINE_WIDTH = 0.1f;
         private const int NUM_SEGMENTS = 2;
-        private const float PRE_DEPTH_DRIVE_BREGMA_OFFSET = -0.5f;
+        private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0,0.5f,0);
 
         #endregion
 
@@ -205,7 +205,7 @@ namespace TrajectoryPlanner
             // DV axis
             var dvInsertion = new ProbeInsertion(targetProbe.GetProbeController().Insertion)
             {
-                dv = PRE_DEPTH_DRIVE_BREGMA_OFFSET
+                dv = targetProbe.GetProbeController().Insertion.World2TransformedAxisChange(PRE_DEPTH_DRIVE_BREGMA_OFFSET_W).z
             };
 
             // Recalculate AP and ML based on pre-depth-drive DV
