@@ -14,6 +14,7 @@ namespace TrajectoryPlanner
 
         private const float LINE_WIDTH = 0.1f;
         private const int NUM_SEGMENTS = 2;
+        private const float PRE_DEPTH_DRIVE_BREGMA_OFFSET = -0.5f;
 
         #endregion
 
@@ -102,17 +103,6 @@ namespace TrajectoryPlanner
 
             // Update insertion options
             UpdateInsertionDropdownOptions();
-
-            foreach (var probeInsertion in TargetProbeInsertionsReference)
-            {
-                var brainSurfaceCoordinate = CCFAnnotationDataset.FindSurfaceCoordinate(
-                    CCFAnnotationDataset.CoordinateSpace.World2Space(probeInsertion.PositionWorld()),
-                    CCFAnnotationDataset.CoordinateSpace.World2SpaceAxisChange(Probe1Manager.GetProbeController()
-                        .GetTipWorldU().tipUpWorld));
-                var brainSurfaceWorld = CCFAnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
-
-                Debug.DrawLine(probeInsertion.PositionWorld(), brainSurfaceWorld, Color.red, 1000);
-            }
         }
 
         private void UpdateManipulatorInsertionSelection(int dropdownValue, int manipulatorID)
@@ -215,19 +205,27 @@ namespace TrajectoryPlanner
             // DV axis
             var dvInsertion = new ProbeInsertion(targetProbe.GetProbeController().Insertion)
             {
-                dv = -0.5f
+                dv = PRE_DEPTH_DRIVE_BREGMA_OFFSET
             };
+
+            // Recalculate AP and ML based on pre-depth-drive DV
+            var brainSurfaceCoordinate = CCFAnnotationDataset.FindSurfaceCoordinate(
+                CCFAnnotationDataset.CoordinateSpace.World2Space(targetInsertion.PositionWorldU()),
+                CCFAnnotationDataset.CoordinateSpace.World2SpaceAxisChange(targetProbe.GetProbeController()
+                    .GetTipWorldU().tipUpWorld));
+            var brainSurfaceWorld = CCFAnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
+            var brainSurfaceTransformed = dvInsertion.World2Transformed(brainSurfaceWorld);
 
             // AP axis
             var apInsertion = new ProbeInsertion(dvInsertion)
             {
-                ap = targetInsertion.ap
+                ap = brainSurfaceTransformed.x
             };
 
             // ML axis
             var mlInsertion = new ProbeInsertion(apInsertion)
             {
-                ml = targetInsertion.ml
+                ml = brainSurfaceTransformed.y
             };
 
             // Apply to insertion
@@ -266,13 +264,13 @@ namespace TrajectoryPlanner
 
             // Set line positions
             lineRenderer.dv.SetPosition(0, targetProbe.GetProbeController().ProbeTipT.position);
-            lineRenderer.dv.SetPosition(1, axesInsertions.dv.PositionWorld());
+            lineRenderer.dv.SetPosition(1, axesInsertions.dv.PositionWorldT());
 
-            lineRenderer.ap.SetPosition(0, axesInsertions.dv.PositionWorld());
-            lineRenderer.ap.SetPosition(1, axesInsertions.ap.PositionWorld());
+            lineRenderer.ap.SetPosition(0, axesInsertions.dv.PositionWorldT());
+            lineRenderer.ap.SetPosition(1, axesInsertions.ap.PositionWorldT());
 
-            lineRenderer.ml.SetPosition(0, axesInsertions.ap.PositionWorld());
-            lineRenderer.ml.SetPosition(1, axesInsertions.ml.PositionWorld());
+            lineRenderer.ml.SetPosition(0, axesInsertions.ap.PositionWorldT());
+            lineRenderer.ml.SetPosition(1, axesInsertions.ml.PositionWorldT());
         }
 
         private void UpdateMoveButtonInteractable()

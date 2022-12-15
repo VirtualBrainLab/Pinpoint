@@ -99,7 +99,7 @@ public class ProbeInsertion
     /// Get the corresponding **transformed** coordinate in World
     /// </summary>
     /// <returns></returns>
-    public Vector3 PositionWorld()
+    public Vector3 PositionWorldT()
     {
         return CoordinateSpace.Space2World(CoordinateTransform.Transform2SpaceAxisChange(apmldv));
     }
@@ -108,7 +108,7 @@ public class ProbeInsertion
     /// Get the corresponding **un-transformed** coordinate in World
     /// </summary>
     /// <returns></returns>
-    public Vector3 GetPositionWorldUnTransformed()
+    public Vector3 PositionWorldU()
     {
         return CoordinateSpace.Space2World(PositionSpace());
     }
