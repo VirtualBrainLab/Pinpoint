@@ -179,5 +179,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   addressablesStorageRemotePath: https://data.virtualbrainlab.org/AddressablesStorage
-  buildVersion: 0.1.1
+  buildVersion: 0.2.2
   delayCatalogLoad: 0

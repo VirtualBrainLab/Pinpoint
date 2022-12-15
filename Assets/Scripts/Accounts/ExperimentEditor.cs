@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 
 public class ExperimentEditor : MonoBehaviour
 {
-    [SerializeField] private AccountsManager _accountsManager;
+    [SerializeField] private UnisaveAccountsManager _accountsManager;
 
     [FormerlySerializedAs("experimentEditorGO")] [SerializeField] private GameObject _experimentEditorGo;
 

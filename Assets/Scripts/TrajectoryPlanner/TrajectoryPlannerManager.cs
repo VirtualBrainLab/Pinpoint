@@ -22,7 +22,7 @@ namespace TrajectoryPlanner
         [SerializeField] private Transform _brainModel;
         [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
         [FormerlySerializedAs("acontrol")] [SerializeField] private AxisControl _acontrol;
-        [FormerlySerializedAs("accountsManager")] [SerializeField] private AccountsManager _accountsManager;
+        [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
 
         // Settings
         [FormerlySerializedAs("probePrefabs")] [SerializeField] private List<GameObject> _probePrefabs;
@@ -60,6 +60,9 @@ namespace TrajectoryPlanner
 
         // Text objects that need to stay visible when the background changes
         [FormerlySerializedAs("whiteUIText")] [SerializeField] private List<TMP_Text> _whiteUIText;
+
+        // Craniotomy
+        [SerializeField] private CraniotomyPanel _craniotomyPanel;
 
         // Coordinate system information
         private Dictionary<string, CoordinateSpace> coordinateSpaceOpts;
@@ -162,6 +165,7 @@ namespace TrajectoryPlanner
 
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
             _automaticManipulatorControlHandler = _automaticControlPanelGameObject.GetComponent<AutomaticManipulatorControlHandler>();
+            _accountsManager.RegisterUpdateCallback(AccountsProbeStatusUpdatedCallback);
         }
 
 
@@ -816,6 +820,22 @@ namespace TrajectoryPlanner
             return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2Space(_activeCoordinateTransform.Space2TransformAxisChange(_activeCoordinateSpace.World2Space(coordWorldT))));
         }
 
+        /// <summary>
+        /// Helper function
+        /// Convert a world coordinate into a transformed coordinate using the reference coordinate and the axis change
+        /// </summary>
+        /// <param name="coordWorld"></param>
+        /// <returns></returns>
+        public Vector3 World2TransformedAxisChange(Vector3 coordWorld)
+        {
+            return _activeCoordinateTransform.Space2TransformAxisChange(_activeCoordinateSpace.World2Space(coordWorld));
+        }
+
+        public Vector3 Transformed2WorldAxisChange(Vector3 coordTransformed)
+        {
+            return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2SpaceAxisChange(coordTransformed));
+        }
+
         #endregion
 
         #region Colliders
@@ -1071,6 +1091,12 @@ namespace TrajectoryPlanner
             _activeCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
             WarpBrain();
 
+            // Update the warp functions in the craniotomy control panel
+            //_craniotomyPanel.World2Space = _activeCoordinateSpace.World2Space;
+            //_craniotomyPanel.Space2World = _activeCoordinateSpace.Space2World;
+            _craniotomyPanel.World2Space = World2TransformedAxisChange;
+            _craniotomyPanel.Space2World = Transformed2WorldAxisChange;
+
             // Check if active probe is a mis-match
             if (activeProbe != null)
                 activeProbe.SetActive();
@@ -1307,6 +1333,16 @@ namespace TrajectoryPlanner
                 probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
                 probeManager.UUID);
            
+        }
+
+        /// <summary>
+        /// Called by the AccountsManager class when a probe's visibility is updated
+        /// 
+        /// TPManager then requests a list of all active probes and updates the scene appropriately
+        /// </summary>
+        public void AccountsProbeStatusUpdatedCallback()
+        {
+            Debug.Log("Callback called");
         }
 
         #endregion

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class QuickSettingExpList : MonoBehaviour
 {
-    [SerializeField] private AccountsManager _accountsManager;
+    [SerializeField] private UnisaveAccountsManager _accountsManager;
     private TMP_Dropdown _experimentDropdown;
 
     private void Awake()
