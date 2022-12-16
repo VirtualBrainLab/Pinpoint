@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -378,6 +380,52 @@ namespace TrajectoryPlanner
             _drivePanelText.color = Color.green;
         }
 
+        private void CalculateAndStartTime()
+        {
+            // Compute furthest depth drive
+            var probe1Distance = Vector3.Distance(_probe1SelectedTargetProbeInsertion.apmldv,
+                Probe1Manager.GetProbeController().Insertion.apmldv) * 1000f + 200;
+            var probe2Distance = Vector3.Distance(_probe2SelectedTargetProbeInsertion.apmldv,
+                Probe2Manager.GetProbeController().Insertion.apmldv) * 1000f + 200;
+            var distance = Mathf.Max(probe1Distance, probe2Distance);
+            
+            // Time to move manipulator to 200 µm past target @ 5 µm/s
+            _driveDuration = distance / 5f;
+
+            // Time to move back to target at 5 µm/s
+            _driveDuration += 40;
+            
+            // Time to let settle (at least 2 minutes, or total distance / 1000 µm minutes)
+            _driveDuration += Math.Max(120, distance / 1000f * 60f);
+
+            // Start timer
+            StartCoroutine(CountDownTimer());
+        }
+
+        private IEnumerator CountDownTimer()
+        {
+            // Set timer text
+            _driveTimerText.text = $"{Math.Floor(_driveDuration/60)}:{Math.Round(_driveDuration % 60)}";
+
+            // Wait for 1 second
+            yield return new WaitForSeconds(1);
+
+            // Decrement timer
+            _driveDuration--;
+
+            // Check if timer is done
+            if (_driveDuration > 0)
+            {
+                // Start next timer
+                StartCoroutine(CountDownTimer());
+            }
+            else
+            {
+                // Set timer text
+                _driveTimerText.text = "Done!";
+            }
+        }
+
         #endregion
 
         #endregion
@@ -605,12 +653,22 @@ namespace TrajectoryPlanner
                 _driveButtonText.text = "Stop";
                 _isDriving = true;
                 
-                // 1. Drive to 200 µm past target @ 5 µm/s
+                // 1. Compute time and messages
+                CalculateAndStartTime();
+                
+                // 2. Begin drive chain
+                
+                // 2. Drive to 200 µm past target @ 5 µm/s
                 _driveStatusText.text = "Driving to 200 µm past target";
+
+                // Compute depth traversal
                 
-                // 2. Bring back up to target @ 5 µm/s
+
+                // 3. Bring back up to target @ 5 µm/s
+
+                // 4. Wait max(2, depth/1000) minutes
+                // _driveButtonText.text = "Waiting...";
                 
-                // 3. Wait max(2, depth/1000) minutes 
             }
         }
 
@@ -665,6 +723,7 @@ namespace TrajectoryPlanner
         [SerializeField] private CanvasGroup _drivePanelCanvasGroup;
         [SerializeField] private TMP_Text _drivePanelText;
         [SerializeField] private TMP_Text _driveStatusText;
+        [SerializeField] private TMP_Text _driveTimerText;
         [SerializeField] private TMP_Text _driveButtonText;
 
         #endregion
@@ -718,6 +777,7 @@ namespace TrajectoryPlanner
 
         private readonly bool[] _probeAtDura = { false, false };
         private bool _isDriving;
+        private float _driveDuration;
 
         #endregion
 
