@@ -17,6 +17,7 @@ namespace TrajectoryPlanner
         private const float LINE_WIDTH = 0.1f;
         private const int NUM_SEGMENTS = 2;
         private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0, 0.5f, 0);
+        private const int DEPTH_DRIVE_SPEED = 5;
 
         #endregion
 
@@ -378,33 +379,50 @@ namespace TrajectoryPlanner
             _drivePanelCanvasGroup.interactable = true;
             _duraPanelText.color = Color.white;
             _drivePanelText.color = Color.green;
+            _driveStatusText.text = "Ready to Drive";
         }
 
-        private void CalculateAndStartTime()
+        private void StartDriveChain()
         {
-            // Compute furthest depth drive
-            float probe1Distance = 0;
-            float probe2Distance = 0;
+            _communicationManager.GetPos("1", manipulator1Pos =>
+            {
+                _communicationManager.GetPos("2", manipulator2Pos =>
+                {
+                    // Compute furthest depth drive distance
+                    var probe1MaxTravelDistance = _probeAtDura[0]
+                        ? Vector3.Distance(_probe1SelectedTargetProbeInsertion.apmldv,
+                            Probe1Manager.GetProbeController().Insertion.apmldv) + .2f
+                        : 0;
+                    var probe2MaxTravelDistance = _probeAtDura[1]
+                        ? Vector3.Distance(_probe2SelectedTargetProbeInsertion.apmldv,
+                            Probe2Manager.GetProbeController().Insertion.apmldv) + .2f
+                        : 0;
+                    var maxTravelDistance = Math.Max(probe1MaxTravelDistance, probe2MaxTravelDistance);
 
-            if (_probeAtDura[0])
-                probe1Distance = Vector3.Distance(_probe1SelectedTargetProbeInsertion.apmldv,
-                    Probe1Manager.GetProbeController().Insertion.apmldv) * 1000f + 200;
-            if (_probeAtDura[1])
-                probe2Distance = Vector3.Distance(_probe2SelectedTargetProbeInsertion.apmldv,
-                    Probe2Manager.GetProbeController().Insertion.apmldv) * 1000f + 200;
-            var distance = Mathf.Max(probe1Distance, probe2Distance);
+                    // Apply to target depth location
+                    _probeTargetDepth[0] = manipulator1Pos.w + probe1MaxTravelDistance - .2f;
+                    _probeTargetDepth[1] = manipulator2Pos.w + probe2MaxTravelDistance - .2f;
 
-            // Time to move manipulator to 200 µm past target @ 5 µm/s
-            _driveDuration = distance / 5f;
+                    print("Current depth 1: " + manipulator1Pos.w + "; Target depth: " + _probeTargetDepth[0]);
+                    print("Current depth 2: " + manipulator2Pos.w + "; Target depth: " + _probeTargetDepth[1]);
 
-            // Time to move back to target at 5 µm/s
-            _driveDuration += 40;
+                    // Compute drive time:
+                    // Time to move manipulator to 200 µm past target @ 5 µm/s
+                    _driveDuration = maxTravelDistance * 1000f / DEPTH_DRIVE_SPEED;
 
-            // Time to let settle (at least 2 minutes, or total distance / 1000 µm minutes)
-            _driveDuration += Math.Max(120, distance / 1000f * 60f);
+                    // Time to move back to target at 5 µm/s
+                    _driveDuration += 40;
 
-            // Start timer
-            StartCoroutine(CountDownTimer());
+                    // Time to let settle (at least 2 minutes, or total distance / 1000 µm per minute)
+                    _driveDuration += Math.Max(120, maxTravelDistance * 60f);
+
+                    // Start timer
+                    StartCoroutine(CountDownTimer());
+
+                    // Start drive chain
+                    Drive200PastTarget();
+                });
+            });
         }
 
         private IEnumerator CountDownTimer()
@@ -419,7 +437,7 @@ namespace TrajectoryPlanner
             _driveDuration--;
 
             // Check if timer is done
-            if (_driveDuration > 0)
+            if (_driveDuration > 0 && _isDriving)
                 // Start next timer
             {
                 StartCoroutine(CountDownTimer());
@@ -446,19 +464,17 @@ namespace TrajectoryPlanner
                 // ID as string
                 var idString = manipulatorId.ToString();
 
-                // Get target insertion
-                var targetInsertion = manipulatorId == 1
-                    ? _probe1SelectedTargetProbeInsertion
-                    : _probe2SelectedTargetProbeInsertion;
+                // Get target depth
+                var targetDepth = _probeTargetDepth[manipulatorId - 1];
 
                 // Start driving
                 _communicationManager.SetCanWrite(idString, true, 1, canWrite =>
                 {
                     if (canWrite)
-                        _communicationManager.SetInsideBrain(idString, true, setInside =>
+                        _communicationManager.SetInsideBrain(idString, true, _ =>
                         {
                             _communicationManager.DriveToDepth(idString,
-                                ConvertInsertionToManipulatorPosition(targetInsertion, idString).w + 200, 5, _ =>
+                                targetDepth + .2f, DEPTH_DRIVE_SPEED, _ =>
                                 {
                                     // Drive back up to target
                                     DriveBackToTarget(idString);
@@ -474,13 +490,11 @@ namespace TrajectoryPlanner
             _driveStatusText.text = "Driving back to target...";
 
             // Get target insertion
-            var targetInsertion = manipulatorID == "1"
-                ? _probe1SelectedTargetProbeInsertion
-                : _probe2SelectedTargetProbeInsertion;
+            var targetDepth = _probeTargetDepth[int.Parse(manipulatorID) - 1];
 
             // Drive
             _communicationManager.DriveToDepth(manipulatorID,
-                ConvertInsertionToManipulatorPosition(targetInsertion, manipulatorID).w, 5, _ =>
+                targetDepth, DEPTH_DRIVE_SPEED, _ =>
                 {
                     // Finished movement, and is now settling
                     _probeAtTarget[manipulatorID == "1" ? 0 : 1] = true;
@@ -710,6 +724,7 @@ namespace TrajectoryPlanner
                     if (!state) return;
                     _driveButtonText.text = "Drive";
                     _driveStatusText.text = "Ready to Drive";
+                    _driveTimerText.text = "";
                     _isDriving = false;
                 });
             }
@@ -718,11 +733,8 @@ namespace TrajectoryPlanner
                 _driveButtonText.text = "Stop";
                 _isDriving = true;
 
-                // 1. Compute time and messages
-                CalculateAndStartTime();
-
-                // 2. Begin drive chain
-                Drive200PastTarget();
+                // Run drive chain
+                StartDriveChain();
             }
         }
 
@@ -831,6 +843,7 @@ namespace TrajectoryPlanner
 
         private readonly bool[] _probeAtDura = { false, false };
         private readonly bool[] _probeAtTarget = { false, false };
+        private readonly float[] _probeTargetDepth = { 0, 0 };
         private bool _isDriving;
         private float _driveDuration;
 
