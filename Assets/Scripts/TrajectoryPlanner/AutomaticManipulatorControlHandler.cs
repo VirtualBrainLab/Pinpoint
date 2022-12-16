@@ -130,13 +130,15 @@ namespace TrajectoryPlanner
                 insertionInputFields.ap.text = "";
                 insertionInputFields.ml.text = "";
                 insertionInputFields.dv.text = "";
+                insertionInputFields.depth.text = "";
             }
             else
             {
                 var selectedInsertion = insertionOptions[dropdownValue - 1];
-                insertionInputFields.ap.text = selectedInsertion.ap.ToString(CultureInfo.CurrentCulture);
-                insertionInputFields.ml.text = selectedInsertion.ml.ToString(CultureInfo.CurrentCulture);
-                insertionInputFields.dv.text = selectedInsertion.dv.ToString(CultureInfo.CurrentCulture);
+                insertionInputFields.ap.text = (selectedInsertion.ap * 1000).ToString(CultureInfo.CurrentCulture);
+                insertionInputFields.ml.text = (selectedInsertion.ml * 1000).ToString(CultureInfo.CurrentCulture);
+                insertionInputFields.dv.text = (selectedInsertion.dv * 1000).ToString(CultureInfo.CurrentCulture);
+                insertionInputFields.depth.text = "0";
             }
         }
 
@@ -213,11 +215,11 @@ namespace TrajectoryPlanner
             };
 
             // Recalculate AP and ML based on pre-depth-drive DV
-            var brainSurfaceCoordinate = CCFAnnotationDataset.FindSurfaceCoordinate(
-                CCFAnnotationDataset.CoordinateSpace.World2Space(targetInsertion.PositionWorldU()),
-                CCFAnnotationDataset.CoordinateSpace.World2SpaceAxisChange(targetProbe.GetProbeController()
+            var brainSurfaceCoordinate = AnnotationDataset.FindSurfaceCoordinate(
+                AnnotationDataset.CoordinateSpace.World2Space(targetInsertion.PositionWorldU()),
+                AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(targetProbe.GetProbeController()
                     .GetTipWorldU().tipUpWorld));
-            var brainSurfaceWorld = CCFAnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
+            var brainSurfaceWorld = AnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
             var brainSurfaceTransformed = dvInsertion.World2Transformed(brainSurfaceWorld);
 
             // AP axis
@@ -403,9 +405,6 @@ namespace TrajectoryPlanner
                     _probeTargetDepth[0] = manipulator1Pos.w + probe1MaxTravelDistance - .2f;
                     _probeTargetDepth[1] = manipulator2Pos.w + probe2MaxTravelDistance - .2f;
 
-                    print("Current depth 1: " + manipulator1Pos.w + "; Target depth: " + _probeTargetDepth[0]);
-                    print("Current depth 2: " + manipulator2Pos.w + "; Target depth: " + _probeTargetDepth[1]);
-
                     // Compute drive time:
                     // Time to move manipulator to 200 µm past target @ 5 µm/s
                     _driveDuration = maxTravelDistance * 1000f / DEPTH_DRIVE_SPEED;
@@ -428,7 +427,7 @@ namespace TrajectoryPlanner
         private IEnumerator CountDownTimer()
         {
             // Set timer text
-            _driveTimerText.text = $"{Math.Floor(_driveDuration / 60)}:{Math.Round(_driveDuration % 60)}";
+            _driveTimerText.text = TimeSpan.FromSeconds(_driveDuration).ToString(@"mm\:ss");
 
             // Wait for 1 second
             yield return new WaitForSeconds(1);
@@ -447,6 +446,8 @@ namespace TrajectoryPlanner
                 // Set timer text
                 _driveStatusText.text = "Drive Complete!";
                 _driveTimerText.text = "Ready for Experiment";
+                _driveButtonText.text = "Drive";
+                _drivePanelText.color = Color.white;
             }
         }
 
@@ -499,9 +500,14 @@ namespace TrajectoryPlanner
                     // Finished movement, and is now settling
                     _probeAtTarget[manipulatorID == "1" ? 0 : 1] = true;
 
+                    // Reset manipulator drive states
+                    _communicationManager.SetInsideBrain(manipulatorID, false,
+                        _ => { _communicationManager.SetCanWrite(manipulatorID, false, 1, _ => { }, Debug.LogError); },
+                        Debug.LogError);
+
                     // Update status text if both are done
-                    if (_probeAtTarget[0] && _probeAtTarget[1])
-                        _driveStatusText.text = "Settling... Please wait...";
+                    if (!_probeAtTarget[0] || !_probeAtTarget[1]) return;
+                    _driveStatusText.text = "Settling... Please wait...";
                 }, Debug.LogError);
         }
 
@@ -725,12 +731,14 @@ namespace TrajectoryPlanner
                     _driveButtonText.text = "Drive";
                     _driveStatusText.text = "Ready to Drive";
                     _driveTimerText.text = "";
+                    _drivePanelText.color = Color.white;
                     _isDriving = false;
                 });
             }
             else
             {
                 _driveButtonText.text = "Stop";
+                _drivePanelText.color = Color.yellow;
                 _isDriving = true;
 
                 // Run drive chain
@@ -746,7 +754,6 @@ namespace TrajectoryPlanner
 
         #region Step 1
 
-        [SerializeField] private CanvasGroup _zeroCoordinatePanelCanvasGroup;
         [SerializeField] private TMP_Text _zeroCoordinatePanelText;
         [SerializeField] private TMP_Text _zeroCoordinateManipulator1ProbeText;
         [SerializeField] private TMP_Text _zeroCoordinateManipulator2ProbeText;
@@ -762,16 +769,18 @@ namespace TrajectoryPlanner
         [SerializeField] private TMP_InputField _gotoManipulator1APInputField;
         [SerializeField] private TMP_InputField _gotoManipulator1MLInputField;
         [SerializeField] private TMP_InputField _gotoManipulator1DVInputField;
+        [SerializeField] private TMP_InputField _gotoManipulator1DepthInputField;
         [SerializeField] private TMP_Text _gotoManipulator2ProbeText;
         [SerializeField] private TMP_Dropdown _gotoManipulator2TargetInsertionDropdown;
         [SerializeField] private TMP_InputField _gotoManipulator2APInputField;
         [SerializeField] private TMP_InputField _gotoManipulator2MLInputField;
         [SerializeField] private TMP_InputField _gotoManipulator2DVInputField;
+        [SerializeField] private TMP_InputField _gotoManipulator2DepthInputField;
         [SerializeField] private Button _gotoMoveButton;
         [SerializeField] private TMP_Text _gotoMoveButtonText;
 
-        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv) _gotoManipulator1InsertionInputFields;
-        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv) _gotoManipulator2InsertionInputFields;
+        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv, TMP_InputField depth) _gotoManipulator1InsertionInputFields;
+        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv, TMP_InputField depth) _gotoManipulator2InsertionInputFields;
 
         #endregion
 
@@ -805,7 +814,7 @@ namespace TrajectoryPlanner
         public ProbeManager Probe1Manager { private get; set; }
         public ProbeManager Probe2Manager { private get; set; }
 
-        public CCFAnnotationDataset CCFAnnotationDataset { private get; set; }
+        public CCFAnnotationDataset AnnotationDataset { private get; set; }
 
         #region Step 2
 
@@ -859,9 +868,9 @@ namespace TrajectoryPlanner
 
             // Input field access
             _gotoManipulator1InsertionInputFields = (_gotoManipulator1APInputField, _gotoManipulator1MLInputField,
-                _gotoManipulator1DVInputField);
+                _gotoManipulator1DVInputField, _gotoManipulator1DepthInputField);
             _gotoManipulator2InsertionInputFields = (_gotoManipulator2APInputField, _gotoManipulator2MLInputField,
-                _gotoManipulator2DVInputField);
+                _gotoManipulator2DVInputField, _gotoManipulator2DepthInputField);
 
             // Initialize line renderers
             InitializeLineRenderers();

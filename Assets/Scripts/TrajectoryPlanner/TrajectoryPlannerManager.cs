@@ -125,7 +125,7 @@ namespace TrajectoryPlanner
                 allProbeManagers.Find(manager => manager.ManipulatorId == "1");
             _automaticManipulatorControlHandler.Probe2Manager =
                 allProbeManagers.Find(manager => manager.ManipulatorId == "2");
-            _automaticManipulatorControlHandler.CCFAnnotationDataset = GetAnnotationDataset();
+            _automaticManipulatorControlHandler.AnnotationDataset = GetAnnotationDataset();
             _automaticManipulatorControlHandler.IsProbe1ManipulatorRightHanded =
                 _rightHandedManipulatorIds.Contains("1");
             _automaticManipulatorControlHandler.IsProbe2ManipulatorRightHanded =
