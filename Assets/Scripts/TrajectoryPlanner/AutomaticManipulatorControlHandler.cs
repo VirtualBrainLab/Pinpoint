@@ -403,9 +403,6 @@ namespace TrajectoryPlanner
                     _probeTargetDepth[0] = manipulator1Pos.w + probe1MaxTravelDistance - .2f;
                     _probeTargetDepth[1] = manipulator2Pos.w + probe2MaxTravelDistance - .2f;
 
-                    print("Current depth 1: " + manipulator1Pos.w + "; Target depth: " + _probeTargetDepth[0]);
-                    print("Current depth 2: " + manipulator2Pos.w + "; Target depth: " + _probeTargetDepth[1]);
-
                     // Compute drive time:
                     // Time to move manipulator to 200 µm past target @ 5 µm/s
                     _driveDuration = maxTravelDistance * 1000f / DEPTH_DRIVE_SPEED;
@@ -428,7 +425,7 @@ namespace TrajectoryPlanner
         private IEnumerator CountDownTimer()
         {
             // Set timer text
-            _driveTimerText.text = $"{Math.Floor(_driveDuration / 60)}:{Math.Round(_driveDuration % 60)}";
+            _driveTimerText.text = TimeSpan.FromSeconds(_driveDuration).ToString(@"mm\:ss");
 
             // Wait for 1 second
             yield return new WaitForSeconds(1);
@@ -447,6 +444,8 @@ namespace TrajectoryPlanner
                 // Set timer text
                 _driveStatusText.text = "Drive Complete!";
                 _driveTimerText.text = "Ready for Experiment";
+                _driveButtonText.text = "Drive";
+                _drivePanelText.color = Color.white;
             }
         }
 
@@ -499,9 +498,14 @@ namespace TrajectoryPlanner
                     // Finished movement, and is now settling
                     _probeAtTarget[manipulatorID == "1" ? 0 : 1] = true;
 
+                    // Reset manipulator drive states
+                    _communicationManager.SetInsideBrain(manipulatorID, false,
+                        _ => { _communicationManager.SetCanWrite(manipulatorID, false, 1, _ => { }, Debug.LogError); },
+                        Debug.LogError);
+
                     // Update status text if both are done
-                    if (_probeAtTarget[0] && _probeAtTarget[1])
-                        _driveStatusText.text = "Settling... Please wait...";
+                    if (!_probeAtTarget[0] || !_probeAtTarget[1]) return;
+                    _driveStatusText.text = "Settling... Please wait...";
                 }, Debug.LogError);
         }
 
@@ -725,12 +729,14 @@ namespace TrajectoryPlanner
                     _driveButtonText.text = "Drive";
                     _driveStatusText.text = "Ready to Drive";
                     _driveTimerText.text = "";
+                    _drivePanelText.color = Color.white;
                     _isDriving = false;
                 });
             }
             else
             {
                 _driveButtonText.text = "Stop";
+                _drivePanelText.color = Color.yellow;
                 _isDriving = true;
 
                 // Run drive chain
