@@ -54,15 +54,15 @@ namespace TrajectoryPlanner
             // Set materials
             var apMaterial = new Material(Shader.Find("Sprites/Default"))
             {
-                color = Color.green
+                color = _apColor
             };
             var mlMaterial = new Material(Shader.Find("Sprites/Default"))
             {
-                color = Color.magenta
+                color = _mlColor
             };
             var dvMaterial = new Material(Shader.Find("Sprites/Default"))
             {
-                color = Color.cyan
+                color = _dvColor
             };
 
             _probe1LineRenderers.ap.material = apMaterial;
@@ -101,7 +101,7 @@ namespace TrajectoryPlanner
             // Enable UI
             _gotoPanelCanvasGroup.alpha = 1;
             _gotoPanelCanvasGroup.interactable = true;
-            _gotoPanelText.color = Color.green;
+            _gotoPanelText.color = _readyColor;
             _zeroCoordinatePanelText.color = Color.white;
 
             // Update insertion options
@@ -339,9 +339,10 @@ namespace TrajectoryPlanner
         {
             if (_expectedMovements == _completedMovements)
             {
-                // Reset button text
+                // Reset text states
                 _gotoMoveButtonText.text =
                     "Move Manipulators into Position";
+                _gotoPanelText.color = Color.white;
 
                 // Reset movement counters
                 _expectedMovements = 0;
@@ -575,7 +576,7 @@ namespace TrajectoryPlanner
                 if (_probe1SelectedTargetProbeInsertion != null)
                 {
                     // Change text color to show movement is happening
-                    _gotoPanelText.color = Color.cyan;
+                    _gotoPanelText.color = _workingColor;
 
                     // Calculate movement
                     var manipulatorID = Probe1Manager.ManipulatorId;
@@ -622,7 +623,7 @@ namespace TrajectoryPlanner
                 if (_probe2SelectedTargetProbeInsertion == null) return;
                 {
                     // Change text color to show movement is happening
-                    _gotoPanelText.color = Color.cyan;
+                    _gotoPanelText.color = _workingColor;
 
                     // Calculate movement
                     var manipulatorID = Probe2Manager.ManipulatorId;
@@ -738,7 +739,7 @@ namespace TrajectoryPlanner
             else
             {
                 _driveButtonText.text = "Stop";
-                _drivePanelText.color = Color.yellow;
+                _drivePanelText.color = _workingColor;
                 _isDriving = true;
 
                 // Run drive chain
@@ -751,6 +752,16 @@ namespace TrajectoryPlanner
         #endregion
 
         #region Components
+
+        #region Colors
+
+        [SerializeField] private Color _apColor;
+        [SerializeField] private Color _mlColor;
+        [SerializeField] private Color _dvColor;
+        [SerializeField] private Color _readyColor;
+        [SerializeField] private Color _workingColor;
+
+        #endregion
 
         #region Step 1
 

@@ -2139,6 +2139,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d88c3882a5d335418c1360b640d50cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _apColor: {r: 1, g: 0.32156864, b: 0.32156864, a: 1}
+  _mlColor: {r: 0.2, g: 0.8509804, b: 0.69803923, a: 1}
+  _dvColor: {r: 1, g: 0.85490197, b: 0.4745098, a: 1}
+  _readyColor: {r: 0.19999999, g: 0.8509804, b: 0.39529407, a: 1}
+  _workingColor: {r: 1, g: 0.69411767, b: 0.25882354, a: 1}
   _zeroCoordinatePanelText: {fileID: 1445278465210223968}
   _zeroCoordinateManipulator1ProbeText: {fileID: 1445278464347465603}
   _zeroCoordinateManipulator2ProbeText: {fileID: 1445278465789033471}
