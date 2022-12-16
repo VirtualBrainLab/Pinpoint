@@ -14,7 +14,7 @@ namespace TrajectoryPlanner
 
         private const float LINE_WIDTH = 0.1f;
         private const int NUM_SEGMENTS = 2;
-        private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0,0.5f,0);
+        private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0, 0.5f, 0);
 
         #endregion
 
@@ -205,7 +205,8 @@ namespace TrajectoryPlanner
             // DV axis
             var dvInsertion = new ProbeInsertion(targetProbe.GetProbeController().Insertion)
             {
-                dv = targetProbe.GetProbeController().Insertion.World2TransformedAxisChange(PRE_DEPTH_DRIVE_BREGMA_OFFSET_W).z
+                dv = targetProbe.GetProbeController().Insertion
+                    .World2TransformedAxisChange(PRE_DEPTH_DRIVE_BREGMA_OFFSET_W).z
             };
 
             // Recalculate AP and ML based on pre-depth-drive DV
@@ -573,10 +574,44 @@ namespace TrajectoryPlanner
                     return;
             }
 
+            // Update whether a probe has been set to Dura
+            _probeAtDura[manipulatorID - 1] = true;
+
             // Enable Step 4 (if needed)
             if (_step != 3) return;
             _step = 4;
             EnableStep4();
+        }
+
+        #endregion
+
+        #region Step 4
+
+        public void DriveOrStopDepth()
+        {
+            if (_isDriving)
+            {
+                // Stop all movements
+                _communicationManager.Stop(state =>
+                {
+                    if (!state) return;
+                    _driveButtonText.text = "Drive";
+                    _driveStatusText.text = "Ready to Drive";
+                    _isDriving = false;
+                });
+            }
+            else
+            {
+                _driveButtonText.text = "Stop";
+                _isDriving = true;
+                
+                // 1. Drive to 200 µm past target @ 5 µm/s
+                _driveStatusText.text = "Driving to 200 µm past target";
+                
+                // 2. Bring back up to target @ 5 µm/s
+                
+                // 3. Wait max(2, depth/1000) minutes 
+            }
         }
 
         #endregion
@@ -676,6 +711,13 @@ namespace TrajectoryPlanner
 
         private int _expectedMovements;
         private int _completedMovements;
+
+        #endregion
+
+        #region Step 4
+
+        private readonly bool[] _probeAtDura = { false, false };
+        private bool _isDriving;
 
         #endregion
 
