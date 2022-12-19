@@ -562,6 +562,9 @@ public class ProbeManager : MonoBehaviour
                 Debug.Log("Manipulator Registered");
                 ManipulatorId = manipulatorId;
 
+                // Remove insertion from targeting options
+                tpmanager.TargetProbeInsertions.Remove(_probeController.Insertion);
+
                 if (calibrated)
                     // Bypass calibration and start echoing
                     _ephysLinkCommunicationManager.BypassCalibration(manipulatorId, StartEchoing);
@@ -576,7 +579,7 @@ public class ProbeManager : MonoBehaviour
                                 {
                                     // Disable write and start echoing
                                     _ephysLinkCommunicationManager.SetCanWrite(manipulatorId, false, 0,
-                                        _ => onSuccess?.Invoke());
+                                        _ => StartEchoing());
                                 });
                         });
 
@@ -698,17 +701,17 @@ public class ProbeManager : MonoBehaviour
             var tipExtensionDirection =
                 IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorld : Vector3.up;
 
-            var brainSurfaceAPDVLR = annotationDataset.FindSurfaceCoordinate(
+            var brainSurfaceCoordinate = annotationDataset.FindSurfaceCoordinate(
                 annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorld - tipExtensionDirection * 5),
                 annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipExtensionDirection));
 
-            if (float.IsNaN(brainSurfaceAPDVLR.x))
+            if (float.IsNaN(brainSurfaceCoordinate.x))
             {
                 Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
                 return;
             }
 
-            var brainSurfaceToWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceAPDVLR);
+            var brainSurfaceToWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
 
             if (IsEphysLinkControlled)
             {

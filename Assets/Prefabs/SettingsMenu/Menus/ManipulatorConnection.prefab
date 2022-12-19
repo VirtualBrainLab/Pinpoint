@@ -1870,8 +1870,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b624fd80a479eab4896281bce1335614, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manipulatorIdText: {fileID: 8699707721372442200}
-  handednessDropdown: {fileID: 5621560955300893446}
+  _manipulatorIdText: {fileID: 8699707721372442200}
+  _handednessDropdown: {fileID: 5621560955300893446}
 --- !u!1 &8999800724767590326
 GameObject:
   m_ObjectHideFlags: 0

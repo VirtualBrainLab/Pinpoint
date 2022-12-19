@@ -749,7 +749,7 @@ public class DefaultProbeController : ProbeController
         transform.rotation = _initialRotation;
 
         // Manually adjust the coordinates and rotation
-        transform.position += localInsertion.PositionWorld();
+        transform.position += localInsertion.PositionWorldT();
         transform.RotateAround(_rotateAround.position, transform.up, localInsertion.phi);
         transform.RotateAround(_rotateAround.position, transform.forward, localInsertion.theta);
         transform.RotateAround(_rotateAround.position, _rotateAround.up, localInsertion.spin);

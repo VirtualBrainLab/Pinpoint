@@ -5630,14 +5630,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9309070b4d6d7e42840f7d8f5b91a30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  probeIdText: {fileID: 8641100640964580399}
-  manipulatorIdDropdown: {fileID: 4707109006791072113}
-  xInputField: {fileID: 1668615215982147208}
-  yInputField: {fileID: 9091926706535809354}
-  zInputField: {fileID: 1231566595776954545}
-  dInputField: {fileID: 7137367603451024916}
-  brainSurfaceOffsetDirectionDropdown: {fileID: 6553004650412414985}
-  brainSurfaceOffsetInputField: {fileID: 7675920397701253991}
+  _probeIdText: {fileID: 8641100640964580399}
+  _manipulatorIdDropdown: {fileID: 4707109006791072113}
+  _xInputField: {fileID: 1668615215982147208}
+  _yInputField: {fileID: 9091926706535809354}
+  _zInputField: {fileID: 1231566595776954545}
+  _dInputField: {fileID: 7137367603451024916}
+  _brainSurfaceOffsetDirectionDropdown: {fileID: 6553004650412414985}
+  _brainSurfaceOffsetInputField: {fileID: 7675920397701253991}
 --- !u!1 &8513213231911886465
 GameObject:
   m_ObjectHideFlags: 0

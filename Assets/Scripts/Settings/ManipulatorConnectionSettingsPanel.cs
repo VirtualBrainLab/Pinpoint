@@ -1,7 +1,6 @@
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Settings
 {
@@ -54,8 +53,8 @@ namespace Settings
 
         #region Components
 
-        [FormerlySerializedAs("manipulatorIdText")] [SerializeField] private TMP_Text _manipulatorIdText;
-        [FormerlySerializedAs("handednessDropdown")] [SerializeField] private TMP_Dropdown _handednessDropdown;
+        [SerializeField] private TMP_Text _manipulatorIdText;
+        [SerializeField] private TMP_Dropdown _handednessDropdown;
 
         private TrajectoryPlannerManager _trajectoryPlannerManager;
 

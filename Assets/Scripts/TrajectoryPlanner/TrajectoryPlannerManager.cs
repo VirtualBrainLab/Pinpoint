@@ -19,7 +19,7 @@ namespace TrajectoryPlanner
         [SerializeField] private CCFModelControl _modelControl;
         [SerializeField] private VolumeDatasetManager _vdmanager;
         [SerializeField] private PlayerPrefs _localPrefs;
-        [FormerlySerializedAs("brainModel")] [SerializeField] private Transform _brainModel;
+        [SerializeField] private Transform _brainModel;
         [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
         [FormerlySerializedAs("acontrol")] [SerializeField] private AxisControl _acontrol;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
@@ -112,8 +112,28 @@ namespace TrajectoryPlanner
 
         #region Ephys Link
 
+        [FormerlySerializedAs("automaticControlPanelGameObject")] [SerializeField] private GameObject _automaticControlPanelGameObject;
+        private AutomaticManipulatorControlHandler _automaticManipulatorControlHandler;
+
         private CommunicationManager _communicationManager;
         private HashSet<string> _rightHandedManipulatorIds = new();
+        public HashSet<ProbeInsertion> TargetProbeInsertions { get; } = new();
+
+        public void EnableAutomaticManipulatorControlPanel(bool enable = true)
+        {
+            _automaticManipulatorControlHandler.Probe1Manager =
+                allProbeManagers.Find(manager => manager.ManipulatorId == "1");
+            _automaticManipulatorControlHandler.Probe2Manager =
+                allProbeManagers.Find(manager => manager.ManipulatorId == "2");
+            _automaticManipulatorControlHandler.AnnotationDataset = GetAnnotationDataset();
+            _automaticManipulatorControlHandler.IsProbe1ManipulatorRightHanded =
+                _rightHandedManipulatorIds.Contains("1");
+            _automaticManipulatorControlHandler.IsProbe2ManipulatorRightHanded =
+                _rightHandedManipulatorIds.Contains("2");
+            _automaticManipulatorControlHandler.TargetProbeInsertionsReference = TargetProbeInsertions;
+            
+            _automaticControlPanelGameObject.SetActive(enable);
+        }
 
         #endregion
 
@@ -145,7 +165,7 @@ namespace TrajectoryPlanner
             //Physics.autoSyncTransforms = true;
 
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
-
+            _automaticManipulatorControlHandler = _automaticControlPanelGameObject.GetComponent<AutomaticManipulatorControlHandler>();
             _accountsManager.RegisterUpdateCallback(AccountsProbeStatusUpdatedCallback);
         }
 
@@ -489,6 +509,9 @@ namespace TrajectoryPlanner
                 // Disable control UI
                 _probeQuickSettings.EnableAutomaticControlUI(false);
             }
+            
+            // Remove the probe's insertion from the list of insertions (does nothing if not found)
+            TargetProbeInsertions.Remove(activeProbe.GetProbeController().Insertion);
 
             // Remove Probe
             DestroyProbe(activeProbe);
@@ -522,7 +545,9 @@ namespace TrajectoryPlanner
                 return null;
 
             GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
-            SetActiveProbe(newProbe.GetComponent<ProbeManager>());
+            var newProbeManager = newProbe.GetComponent<ProbeManager>();
+            SetActiveProbe(newProbeManager);
+            TargetProbeInsertions.Add(newProbeManager.GetProbeController().Insertion);
 
             spawnedThisFrame = true;
 
@@ -538,15 +563,21 @@ namespace TrajectoryPlanner
             if (uuid != null)
                 probeManager.OverrideUUID(uuid);
 
+            // Update insertion and record of it
+            TargetProbeInsertions.Remove(probeManager.GetProbeController().Insertion);
+            probeManager.GetProbeController().SetProbePosition(insertion);
+            TargetProbeInsertions.Add(probeManager.GetProbeController().Insertion);
+
+            // Repopulate Ephys Link information
             if (!PlayerPrefs.IsLinkDataExpired())
             {
                 probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
                 probeManager.BrainSurfaceOffset = brainSurfaceOffset;
                 probeManager.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (!string.IsNullOrEmpty(manipulatorId)) probeManager.SetIsEphysLinkControlled(true, manipulatorId);
+                if (!string.IsNullOrEmpty(manipulatorId))
+                    probeManager.SetIsEphysLinkControlled(true, manipulatorId, true, null,
+                        _ => probeManager.SetIsEphysLinkControlled(false));
             }
-
-            probeManager.GetProbeController().SetProbePosition(insertion);
             
             // Set original probe manager early on
             if (isGhost) probeManager.OriginalProbeManager = GetActiveProbeManager();
@@ -559,7 +590,7 @@ namespace TrajectoryPlanner
         public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, string manipulatorId,
             Vector4 zeroCoordinateOffset = new Vector4(), float brainSurfaceOffset = 0)
         {
-            ProbeManager probeController = AddNewProbe(probeType);
+            var probeManager = AddNewProbe(probeType);
             if (string.IsNullOrEmpty(manipulatorId))
             {
                 Debug.LogError("TODO IMPLEMENT");
@@ -570,14 +601,15 @@ namespace TrajectoryPlanner
             }
             else
             {
-                probeController.ZeroCoordinateOffset = zeroCoordinateOffset;
-                probeController.BrainSurfaceOffset = brainSurfaceOffset;
-                probeController.SetIsEphysLinkControlled(true, manipulatorId);
+                probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
+                probeManager.BrainSurfaceOffset = brainSurfaceOffset;
+                probeManager.SetIsEphysLinkControlled(true, manipulatorId, true, null,
+                    _ => probeManager.SetIsEphysLinkControlled(false));
             }
 
             spawnedThisFrame = true;
 
-            return probeController;
+            return probeManager;
         }
 
         #endregion

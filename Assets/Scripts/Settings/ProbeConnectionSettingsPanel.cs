@@ -4,7 +4,6 @@ using System.Globalization;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Settings
 {
@@ -76,14 +75,14 @@ namespace Settings
 
         #region Serialized
 
-        [FormerlySerializedAs("probeIdText")] [SerializeField] private TMP_Text _probeIdText;
-        [FormerlySerializedAs("manipulatorIdDropdown")] [SerializeField] private TMP_Dropdown _manipulatorIdDropdown;
-        [FormerlySerializedAs("xInputField")] [SerializeField] private TMP_InputField _xInputField;
-        [FormerlySerializedAs("yInputField")] [SerializeField] private TMP_InputField _yInputField;
-        [FormerlySerializedAs("zInputField")] [SerializeField] private TMP_InputField _zInputField;
-        [FormerlySerializedAs("dInputField")] [SerializeField] private TMP_InputField _dInputField;
-        [FormerlySerializedAs("brainSurfaceOffsetDirectionDropdown")] [SerializeField] private TMP_Dropdown _brainSurfaceOffsetDirectionDropdown;
-        [FormerlySerializedAs("brainSurfaceOffsetInputField")] [SerializeField] private TMP_InputField _brainSurfaceOffsetInputField;
+        [SerializeField] private TMP_Text _probeIdText;
+        [SerializeField] private TMP_Dropdown _manipulatorIdDropdown;
+        [SerializeField] private TMP_InputField _xInputField;
+        [SerializeField] private TMP_InputField _yInputField;
+        [SerializeField] private TMP_InputField _zInputField;
+        [SerializeField] private TMP_InputField _dInputField;
+        [SerializeField] private TMP_Dropdown _brainSurfaceOffsetDirectionDropdown;
+        [SerializeField] private TMP_InputField _brainSurfaceOffsetInputField;
 
         #endregion
 

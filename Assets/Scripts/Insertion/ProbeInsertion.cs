@@ -76,6 +76,14 @@ public class ProbeInsertion
         CoordinateTransform = coordTransform;
     }
 
+    public ProbeInsertion(ProbeInsertion otherInsertion)
+    {
+        apmldv = otherInsertion.apmldv;
+        angles = otherInsertion.angles;
+        CoordinateSpace = otherInsertion.CoordinateSpace;
+        CoordinateTransform = otherInsertion.CoordinateTransform;
+    }
+
     #endregion
 
     /// <summary>
@@ -91,7 +99,7 @@ public class ProbeInsertion
     /// Get the corresponding **transformed** coordinate in World
     /// </summary>
     /// <returns></returns>
-    public Vector3 PositionWorld()
+    public Vector3 PositionWorldT()
     {
         return CoordinateSpace.Space2World(CoordinateTransform.Transform2SpaceAxisChange(apmldv));
     }
@@ -100,7 +108,7 @@ public class ProbeInsertion
     /// Get the corresponding **un-transformed** coordinate in World
     /// </summary>
     /// <returns></returns>
-    public Vector3 GetPositionWorldUnTransformed()
+    public Vector3 PositionWorldU()
     {
         return CoordinateSpace.Space2World(PositionSpace());
     }
@@ -132,5 +140,10 @@ public class ProbeInsertion
     public override string ToString()
     {
         return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, phi, theta, spin, CoordinateSpace.ToString(), CoordinateTransform.ToString());
+    }
+
+    public string PositionToString()
+    {
+        return $"AP: {Math.Round(ap*1000)} ML: {Math.Round(ml*1000)} DV: {Math.Round(dv*1000)}";
     }
 }
