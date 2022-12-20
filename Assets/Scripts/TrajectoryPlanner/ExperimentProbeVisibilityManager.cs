@@ -38,6 +38,6 @@ public class ExperimentProbeVisibilityManager : MonoBehaviour
         }
 
         // Add ProbeManagers for all the insertions that are in this experiment
-
+        Debug.Log("here");
     }
 }

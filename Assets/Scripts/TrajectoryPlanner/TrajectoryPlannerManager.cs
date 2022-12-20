@@ -146,7 +146,8 @@ namespace TrajectoryPlanner
 
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
 
-            _accountsManager.RegisterUpdateCallback(AccountsProbeStatusUpdatedCallback);
+            _accountsManager.UpdateCallback = AccountsProbeStatusUpdatedCallback;
+            _accountsManager.SetActiveProbeCallback = SetActiveProbeByUUID;
         }
 
 
@@ -1298,6 +1299,9 @@ namespace TrajectoryPlanner
         private (Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) Probe2ServerProbeInsertion(ProbeManager probeManager)
         {
             ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
+            Debug.Log((insertion.apmldv, insertion.angles,
+                probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
+                probeManager.UUID));
             return (insertion.apmldv, insertion.angles,
                 probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
                 probeManager.UUID);
@@ -1309,9 +1313,25 @@ namespace TrajectoryPlanner
         /// 
         /// TPManager then requests a list of all active probes and updates the scene appropriately
         /// </summary>
-        public void AccountsProbeStatusUpdatedCallback()
+        private void AccountsProbeStatusUpdatedCallback()
         {
-            Debug.Log("Callback called");
+            Debug.Log("Probe status update called");
+        }
+
+        /// <summary>
+        /// Change the active probe according to the probe UUID
+        /// </summary>
+        /// <param name="uuid"></param>
+        private void SetActiveProbeByUUID(string uuid)
+        {
+            foreach (ProbeManager probeManager in allProbeManagers)
+                if (probeManager.UUID.Equals(uuid))
+                {
+                    SetActiveProbe(probeManager);
+                    return;
+                }
+            // if we get here we didn't find an active probe
+            Debug.LogWarning($"Probe {uuid} doesn't exist in the scene");
         }
 
         #endregion

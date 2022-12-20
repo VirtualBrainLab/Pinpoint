@@ -23,8 +23,9 @@ public class UnisaveAccountsManager : AccountsManager
     [SerializeField] private Transform _insertionPrefabParentT;
     [SerializeField] private GameObject _insertionPrefabGO;
 
-    // callback set by TPManager
+    // callbacks set by TPManager
     public Action<string> SetActiveProbeCallback { get; set; }
+    public Action UpdateCallback { get; set; }
     #endregion
 
     #region current player data
@@ -34,7 +35,6 @@ public class UnisaveAccountsManager : AccountsManager
 
     #region tracking variables
     private Dictionary<string, string> _probeUUID2experiment;
-    private Action _updateCallback;
 
     public bool Dirty { get; private set; }
     private float _lastSave;
@@ -43,6 +43,7 @@ public class UnisaveAccountsManager : AccountsManager
     public string ActiveExperiment { get; private set; }
     #endregion
 
+    #region Unity
     private void Awake()
     {
         _probeUUID2experiment = new Dictionary<string, string>();
@@ -58,10 +59,12 @@ public class UnisaveAccountsManager : AccountsManager
         }
     }
 
-    public void RegisterUpdateCallback(Action callback)
+    private void OnApplicationQuit()
     {
-        _updateCallback = callback;
+        SavePlayer();
     }
+
+    #endregion
 
     public void UpdateProbeData(string UUID, (Vector3 apmldv, Vector3 angles, 
         int type, string spaceName, string transformName, string UUID) data)
@@ -70,7 +73,18 @@ public class UnisaveAccountsManager : AccountsManager
         {
             Dirty = true;
 
-            ServerProbeInsertion serverProbeInsertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
+            ServerProbeInsertion serverProbeInsertion;
+            if (!_probeUUID2experiment.ContainsKey(UUID))
+            {
+                // this is the first time we've seen this probe, add all of its information
+                _probeUUID2experiment.Add(UUID, ActiveExperiment);
+                serverProbeInsertion = new ServerProbeInsertion();
+            }
+            else
+            {
+                serverProbeInsertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
+            }
+
             serverProbeInsertion.ap = data.apmldv.x;
             serverProbeInsertion.ml = data.apmldv.y;
             serverProbeInsertion.dv = data.apmldv.z;
@@ -102,6 +116,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void Logout()
     {
+        SavePlayer();
         _player = null;
         Dirty = true;
         _experimentEditor.UpdateList();
@@ -119,8 +134,8 @@ public class UnisaveAccountsManager : AccountsManager
             _quickSettingsExperimentList.UpdateExperimentList();
             UpdateExperimentInsertions();
 
-            if (_updateCallback != null)
-                _updateCallback();
+            if (UpdateCallback != null)
+                UpdateCallback();
         }
     }
 
@@ -198,11 +213,16 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void RemoveProbeExperiment(string probeUUID)
     {
-        if (_probeUUID2experiment[probeUUID].Contains(probeUUID))
+#if UNITY_EDITOR
+        Debug.Log($"Removing probe {probeUUID} from its active experiment");
+#endif
+        if (_probeUUID2experiment.ContainsKey(probeUUID))
+        {
             _player.experiments[_probeUUID2experiment[probeUUID]].Remove(probeUUID);
+            UpdateExperimentInsertions();
+        }
     }
-
-    #endregion
+#endregion
 
     public void ShowRegisterPanel()
     {
@@ -231,9 +251,12 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void ActiveExperimentChanged(string experiment)
     {
+#if UNITY_EDITOR
         Debug.Log(string.Format("Selected experiment: {0}", experiment));
+#endif
         ActiveExperiment = experiment;
         UpdateExperimentInsertions();
+        _quickSettingsExperimentList.UpdateExperimentList();
     }
 
     #region Input window focus
@@ -269,27 +292,26 @@ public class UnisaveAccountsManager : AccountsManager
             Destroy(_insertionPrefabParentT.GetChild(i).gameObject);
 
         // Add new child prefabs that have the properties matched to the current experiment
-        int j = 0;
         var experimentData = GetExperimentData(ActiveExperiment);
-        foreach (var insertion in experimentData.Values)
+        
+        foreach (ServerProbeInsertion insertion in experimentData.Values)
         {
             // Create a new prefab
             GameObject insertionPrefab = Instantiate(_insertionPrefabGO, _insertionPrefabParentT);
             ServerProbeInsertionUI insertionUI = insertionPrefab.GetComponent<ServerProbeInsertionUI>();
 
             insertionUI.SetInsertionData(this, insertion.UUID);
-            insertionUI.UpdateName(j++);
             insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
                 insertion.ap, insertion.ml, insertion.dv,
                 insertion.phi, insertion.theta, insertion.spin));
         }
     }
     
-    public void ChangeInsertionVisibility(int insertionIdx, bool visible)
+    public void ChangeInsertionVisibility(string UUID, bool visible)
     {
         // Somehow, tell TPManager that we need to create or destroy a new probe... tbd
-        Debug.Log(string.Format("Insertion {0} wants to become {1}", insertionIdx, visible));
-        _updateCallback();
+        Debug.Log(string.Format("Insertion {0} wants to become {1}", UUID, visible));
+        UpdateCallback();
     }
 
     #endregion
