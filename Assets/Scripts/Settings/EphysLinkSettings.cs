@@ -5,7 +5,7 @@ using EphysLink;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace Settings
 {
@@ -19,19 +19,21 @@ namespace Settings
         #region Serialized Fields
 
         // Server connection
-        [FormerlySerializedAs("serverConnectedText")] [SerializeField] private TMP_Text _serverConnectedText;
-        [FormerlySerializedAs("ipAddressInputField")] [SerializeField] private TMP_InputField _ipAddressInputField;
-        [FormerlySerializedAs("portInputField")] [SerializeField] private TMP_InputField _portInputField;
-        [FormerlySerializedAs("connectionErrorText")] [SerializeField] private TMP_Text _connectionErrorText;
-        [FormerlySerializedAs("connectButtonText")] [SerializeField] private TMP_Text _connectButtonText;
+        [SerializeField] private TMP_Text _serverConnectedText;
+        [SerializeField] private TMP_InputField _ipAddressInputField;
+        [SerializeField] private TMP_InputField _portInputField;
+        [SerializeField] private TMP_Text _connectionErrorText;
+        [SerializeField] private TMP_Text _connectButtonText;
 
         // Manipulators
-        [FormerlySerializedAs("manipulatorList")] [SerializeField] private GameObject _manipulatorList;
-        [FormerlySerializedAs("manipulatorConnectionPanelPrefab")] [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
+        [SerializeField] private GameObject _manipulatorList;
+        [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
+        [SerializeField] private Button _automaticControlButton;
+        [SerializeField] private TMP_Text _automaticControlButtonText;
 
         // Probes in scene
-        [FormerlySerializedAs("probeList")] [SerializeField] private GameObject _probeList;
-        [FormerlySerializedAs("probeConnectionPanelPrefab")] [SerializeField] private GameObject _probeConnectionPanelPrefab;
+        [SerializeField] private GameObject _probeList;
+        [SerializeField] private GameObject _probeConnectionPanelPrefab;
 
         #endregion
 
@@ -40,6 +42,12 @@ namespace Settings
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
         private TP_QuestionDialogue _questionDialogue;
+
+        #endregion
+
+        #region Properties
+
+        private bool AutomaticControlIsEnabled => _automaticControlButtonText.text.Contains("Disable");
 
         #endregion
 
@@ -214,6 +222,13 @@ namespace Settings
                     Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].gameObject);
                     _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
                 }
+
+                // Enable or disable automatic control depending on whether any manipulators are used
+                _automaticControlButton.interactable = usedManipulatorIds.Count > 0;
+
+                // Close automatic control panel if no manipulators are used
+                if (usedManipulatorIds.Count == 0 && AutomaticControlIsEnabled)
+                    _automaticControlButton.onClick.Invoke();
             });
         }
 
@@ -258,6 +273,17 @@ namespace Settings
                 _questionDialogue.NewQuestion(
                     "Are you sure you want to disconnect?\nAll incomplete movements will be canceled.");
             }
+        }
+
+        /// <summary>
+        ///     Toggle automatic manipulator control panel
+        /// </summary>
+        public void ToggleAutomaticManipulatorControlPanel()
+        {
+            _automaticControlButtonText.text = !AutomaticControlIsEnabled
+                ? "Disable Automatic Manipulator Control"
+                : "Enable Automatic Manipulator Control";
+            _trajectoryPlannerManager.EnableAutomaticManipulatorControlPanel(AutomaticControlIsEnabled);
         }
 
         #endregion

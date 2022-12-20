@@ -317,7 +317,7 @@ namespace TrajectoryPlanner
             {
                 if (canWrite)
                     _communicationManager.GotoPos(_probeManager.ManipulatorId,
-                        zeroCoordinateOffsetPos, _probeManager.AutomaticMovementSpeed, endPos => Destroy(lineObject),
+                        zeroCoordinateOffsetPos, _probeManager.AutomaticMovementSpeed, _ => Destroy(lineObject),
                         Debug.LogError);
             }, Debug.LogError);
         }
