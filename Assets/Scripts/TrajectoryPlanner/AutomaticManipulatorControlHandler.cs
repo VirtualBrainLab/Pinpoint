@@ -891,7 +891,7 @@ namespace TrajectoryPlanner
         {
             if (Probe1Manager)
             {
-                var probeText = "Probe #" + Probe1Manager.GetID();
+                var probeText = "Probe #" + Probe1Manager.ID;
                 _zeroCoordinateManipulator1ProbeText.text = probeText;
                 _gotoManipulator1ProbeText.text = probeText;
                 _duraManipulator1ProbeText.text = probeText;
@@ -905,7 +905,7 @@ namespace TrajectoryPlanner
 
             if (!Probe2Manager) return;
             {
-                var probeText = "Probe #" + Probe2Manager.GetID();
+                var probeText = "Probe #" + Probe2Manager.ID;
                 _zeroCoordinateManipulator2ProbeText.text = probeText;
                 _gotoManipulator2ProbeText.text = probeText;
                 _duraManipulator2ProbeText.text = probeText;

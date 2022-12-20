@@ -676,7 +676,7 @@ namespace TrajectoryPlanner
         {
             var thisProbeId = 1;
             HashSet<int> usedIds = new();
-            foreach (var probeId in allProbeManagers.Select(manager => manager.GetID())) usedIds.Add(probeId);
+            foreach (var probeId in allProbeManagers.Select(manager => manager.ID)) usedIds.Add(probeId);
             while (usedIds.Contains(thisProbeId)) thisProbeId++;
             return thisProbeId;
         }

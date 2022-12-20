@@ -108,7 +108,7 @@ namespace TrajectoryPlanner
 
         public void UpdateProbeIdText()
         {
-            _probeIdText.text = _probeManager.GetID().ToString();
+            _probeIdText.text = _probeManager.ID.ToString();
             _probeIdText.color = _probeManager.GetColor();
         }
 
@@ -207,8 +207,8 @@ namespace TrajectoryPlanner
                 
                 // Set references
                 originalProbeManager.GhostProbeManager = ghostProbeManager;
-                ghostProbeManager.SetId(originalProbeManager.GetID());
-                ghostProbeManager.name = "GHOST_PROBE_" + originalProbeManager.GetID();
+                ghostProbeManager.ID = (originalProbeManager.ID);
+                ghostProbeManager.name = "GHOST_PROBE_" + originalProbeManager.ID;
             }
             else
             {

@@ -74,7 +74,7 @@ public class ProbeManager : MonoBehaviour
     private TrajectoryPlannerManager tpmanager;
 
     // Text
-    private int probeID;
+    public int ID { get; set; }
     private TextMeshProUGUI textUI;
     private const float minPhi = -180;
     private const float maxPhi = 180f;
@@ -93,17 +93,6 @@ public class ProbeManager : MonoBehaviour
     private Dictionary<GameObject, Material> visibleOtherColliders;
 
     #region Accessors
-
-
-    public int GetID()
-    {
-        return probeID;
-    }
-
-    public void SetId(int id)
-    {
-        probeID = id;
-    }
 
     public Color GetColor()
     {
@@ -172,8 +161,8 @@ public class ProbeManager : MonoBehaviour
         // Request for ID and color if this is a normal probe
         if (IsOriginal)
         {
-            probeID = tpmanager.GetNextProbeId();
-            name = "PROBE_" + probeID;
+            ID = tpmanager.GetNextProbeId();
+            name = "PROBE_" + ID;
             _probeRenderer.material.color = tpmanager.GetNextProbeColor();
             
             // Record default materials
@@ -411,7 +400,7 @@ public class ProbeManager : MonoBehaviour
             " Angles: (Az:{7}, El:{8}, Sp:{9})" + 
             " Depth: {10}:{11}" + 
             " Tip coordinate: (ccfAP:{12}, ccfML: {13}, ccfDV:{14})",
-            probeID, 
+            ID, 
             apStr, round0(entryCoordTranformed.x * mult), mlStr, round0(entryCoordTranformed.y * mult), dvStr, round0(entryCoordTranformed.z * mult), 
             round2(Utils.CircDeg(angles.x, minPhi, maxPhi)), round2(angles.y), round2(Utils.CircDeg(angles.z, minSpin, maxSpin)),
             depthStr, round0(depthTransformed * mult),
@@ -425,8 +414,8 @@ public class ProbeManager : MonoBehaviour
 
     public void RegisterProbeCallback(int ID, Color probeColor)
     {
-        probeID = ID;
-        name = "PROBE_" + probeID;
+        this.ID = ID;
+        name = "PROBE_" + this.ID;
         _probeRenderer.material.color = probeColor;
     }
 
