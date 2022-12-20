@@ -763,8 +763,8 @@ namespace TrajectoryPlanner
 
         private class ZeroCoordinatePanelComponents: MonoBehaviour
         {
-            public GameObject ResetZeroCoordinatePanelPrefab;
             public TMP_Text PanelText;
+            public GameObject ResetZeroCoordinatePanelPrefab;
             public GameObject ManipulatorScrollView;
             public GameObject ManipulatorScrollViewContent;
             public GameObject ManipulatorsAttachedText;
@@ -788,8 +788,9 @@ namespace TrajectoryPlanner
         
         private class GotoPanelComponents: MonoBehaviour
         {
-            public GameObject InsertionSelectionPanelPrefab;
+            public CanvasGroup CanvasGroup;
             public TMP_Text PanelText;
+            public GameObject InsertionSelectionPanelPrefab;
             public GameObject ManipulatorScrollView;
             public GameObject ManipulatorScrollViewContent;
             public GameObject ManipulatorsZeroedText;
@@ -834,8 +835,9 @@ namespace TrajectoryPlanner
         
         private class DuraOffsetPanelComponents: MonoBehaviour
         {
-            public GameObject ResetDuraOffsetPanelPrefab;
+            public CanvasGroup CanvasGroup;
             public TMP_Text PanelText;
+            public GameObject ResetDuraOffsetPanelPrefab;
             public GameObject ManipulatorScrollView;
             public GameObject ManipulatorScrollViewContent;
             public GameObject ManipulatorsDrivenText;
@@ -844,10 +846,10 @@ namespace TrajectoryPlanner
         [ContextMenu("Add Dura Offset Panel Components")]
         private void AddDuraOffsetPanelComponents()
         {
-            _duraOffsetPanelComponents = gameObject.AddComponent<DuraOffsetPanelComponents>();
+            _duraOffsetPanel = gameObject.AddComponent<DuraOffsetPanelComponents>();
         }
 
-        private DuraOffsetPanelComponents _duraOffsetPanelComponents;
+        private DuraOffsetPanelComponents _duraOffsetPanel;
 
         [SerializeField] private CanvasGroup _duraPanelCanvasGroup;
         [SerializeField] private TMP_Text _duraPanelText;
@@ -857,6 +859,23 @@ namespace TrajectoryPlanner
         #endregion
 
         #region Step 4
+        
+        private class DrivePanelComponents: MonoBehaviour
+        {
+            public CanvasGroup CanvasGroup;
+            public TMP_Text PanelText;
+            public TMP_Text StatusText;
+            public TMP_Text TimerText;
+            public TMP_Text ButtonText;
+        }
+        
+        [ContextMenu("Add Drive Panel Components")]
+        private void AddDrivePanelComponents()
+        {
+            _drivePanel = gameObject.AddComponent<DrivePanelComponents>();
+        }
+        
+        private DrivePanelComponents _drivePanel;
 
         [SerializeField] private CanvasGroup _drivePanelCanvasGroup;
         [SerializeField] private TMP_Text _drivePanelText;

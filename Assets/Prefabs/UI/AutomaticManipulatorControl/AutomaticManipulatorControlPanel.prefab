@@ -579,7 +579,10 @@ GameObject:
   - component: {fileID: 1445278465348587320}
   - component: {fileID: 1445278465348587323}
   - component: {fileID: 5483421187078802668}
-  - component: {fileID: 4468696491293463093}
+  - component: {fileID: 1009412048994963882}
+  - component: {fileID: 8294606732543975007}
+  - component: {fileID: 5457183681257155393}
+  - component: {fileID: 1877593749518193321}
   m_Layer: 5
   m_Name: AutomaticManipulatorControlPanel
   m_TagString: Untagged
@@ -654,11 +657,7 @@ MonoBehaviour:
   _dvColor: {r: 1, g: 0.85490197, b: 0.4745098, a: 1}
   _readyColor: {r: 0.19999999, g: 0.8509804, b: 0.39529407, a: 1}
   _workingColor: {r: 1, g: 0.69411767, b: 0.25882354, a: 1}
-  _zeroCoordinatePanelResetPanelPrefab: {fileID: 0}
   _zeroCoordinatePanelText: {fileID: 1445278465210223968}
-  _zeroCoordinatePanelManipulatorScrollView: {fileID: 0}
-  _zeroCoordinatePanelManipulatorScrollViewContent: {fileID: 0}
-  _zeroCoordinatePanelNoManipulatorsAttachedText: {fileID: 0}
   _zeroCoordinateManipulator1ProbeText: {fileID: 0}
   _zeroCoordinateManipulator2ProbeText: {fileID: 0}
   _gotoPanelCanvasGroup: {fileID: 84557261823319585}
@@ -686,7 +685,7 @@ MonoBehaviour:
   _driveStatusText: {fileID: 2223006252685534017}
   _driveTimerText: {fileID: 60887063825852520}
   _driveButtonText: {fileID: 6734418879176428203}
---- !u!114 &4468696491293463093
+--- !u!114 &1009412048994963882
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -698,8 +697,66 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: 
   m_EditorClassIdentifier: 
-  _resetPanelPrefab: {fileID: 0}
-  _panelText: {fileID: 0}
+  PanelText: {fileID: 1445278465210223968}
+  ResetZeroCoordinatePanelPrefab: {fileID: 8263761920505935187, guid: 8e78152cb80513c45b3c35cb5a96432f, type: 3}
+  ManipulatorScrollView: {fileID: 2904017589487271391}
+  ManipulatorScrollViewContent: {fileID: 7072317697882447797}
+  ManipulatorsAttachedText: {fileID: 6265186558322449932}
+--- !u!114 &8294606732543975007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445278465348587321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CanvasGroup: {fileID: 84557261823319585}
+  PanelText: {fileID: 478385048297492083}
+  InsertionSelectionPanelPrefab: {fileID: 4424500575015542408, guid: 3c4cf558240cec14abf3dd9882eba899, type: 3}
+  ManipulatorScrollView: {fileID: 687500095747171540}
+  ManipulatorScrollViewContent: {fileID: 7125810125362052674}
+  ManipulatorsZeroedText: {fileID: 7700696361368721311}
+  MoveButton: {fileID: 2379779624633991439}
+  MoveButtonText: {fileID: 4053248260008623874}
+--- !u!114 &5457183681257155393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445278465348587321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CanvasGroup: {fileID: 1511422966337397656}
+  PanelText: {fileID: 8296755181428719015}
+  ResetDuraOffsetPanelPrefab: {fileID: 8263761920505935187, guid: b9c529c14db0a5043baffd6a8baecaf4, type: 3}
+  ManipulatorScrollView: {fileID: 6248915284573402155}
+  ManipulatorScrollViewContent: {fileID: 8370024288020303656}
+  ManipulatorsDrivenText: {fileID: 2276162925081394005}
+--- !u!114 &1877593749518193321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445278465348587321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CanvasGroup: {fileID: 3776968580408328783}
+  PanelText: {fileID: 1424320475779402751}
+  StatusText: {fileID: 2223006252685534017}
+  TimerText: {fileID: 60887063825852520}
+  ButtonText: {fileID: 6734418879176428203}
 --- !u!1 &1445278465893963707
 GameObject:
   m_ObjectHideFlags: 0
