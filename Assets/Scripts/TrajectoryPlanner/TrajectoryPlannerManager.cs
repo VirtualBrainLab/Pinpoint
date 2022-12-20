@@ -1332,9 +1332,6 @@ namespace TrajectoryPlanner
         private (Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) Probe2ServerProbeInsertion(ProbeManager probeManager)
         {
             ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
-            Debug.Log((insertion.apmldv, insertion.angles,
-                probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
-                probeManager.UUID));
             return (insertion.apmldv, insertion.angles,
                 probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
                 probeManager.UUID);
