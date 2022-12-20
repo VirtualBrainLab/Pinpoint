@@ -81,7 +81,6 @@ public class ProbeManager : MonoBehaviour
 
     // Text
     public int ID { get; set; }
-    private TextMeshProUGUI textUI;
     private const float minPhi = -180;
     private const float maxPhi = 180f;
     private const float minSpin = -180f;
