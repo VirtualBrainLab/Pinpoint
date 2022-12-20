@@ -11,6 +11,12 @@ using UnityEngine.Serialization;
 /// </summary>
 public class ProbeManager : MonoBehaviour
 {
+    #region Static fields
+    public static List<ProbeManager> instances = new List<ProbeManager>();
+    void OnEnable() => instances.Add(this);
+    void OnDisable() => instances.Remove(this);
+    #endregion
+
     // Internal flags that track whether we are in manual control or drag/link control mode
     public bool IsEphysLinkControlled { get; private set; }
     public string UUID { get; private set; }

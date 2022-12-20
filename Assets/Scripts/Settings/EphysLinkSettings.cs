@@ -81,7 +81,7 @@ namespace Settings
         private void FixedUpdate()
         {
             // Update probe panels whenever they change
-            if (_trajectoryPlannerManager.GetAllProbes().Count(manager => !manager.IsGhost) !=
+            if (ProbeManager.instances.Count(manager => !manager.IsGhost) !=
                 _probeIdToProbeConnectionSettingsPanels.Count)
                 UpdateProbePanels();
         }
@@ -128,7 +128,7 @@ namespace Settings
             var handledProbeIds = new HashSet<int>();
 
             // Add any new probes in scene to list
-            foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes().Where(manager => !manager.IsGhost))
+            foreach (var probeManager in ProbeManager.instances.Where(manager => !manager.IsGhost))
             {
                 var probeId = probeManager.ID;
 
@@ -176,7 +176,7 @@ namespace Settings
             _communicationManager.GetManipulators(availableIds =>
             {
                 // Update probes with selectable options
-                var usedManipulatorIds = _trajectoryPlannerManager.GetAllProbes()
+                var usedManipulatorIds = ProbeManager.instances
                     .Where(probeManager => probeManager.IsEphysLinkControlled)
                     .Select(probeManager => probeManager.ManipulatorId).ToHashSet();
                 foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
@@ -263,7 +263,7 @@ namespace Settings
                 // Disconnect from server
                 _questionDialogue.SetYesCallback(() =>
                 {
-                    foreach (var probeManager in _trajectoryPlannerManager.GetAllProbes()
+                    foreach (var probeManager in ProbeManager.instances
                                  .Where(probeManager => probeManager.IsEphysLinkControlled))
                         probeManager.SetIsEphysLinkControlled(false);
 
