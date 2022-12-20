@@ -378,7 +378,7 @@ GameObject:
   - component: {fileID: 8263761920505935184}
   - component: {fileID: 8263761920505935185}
   m_Layer: 5
-  m_Name: ResetDepthPanel
+  m_Name: ResetDuraOffsetPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

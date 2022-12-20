@@ -579,6 +579,7 @@ GameObject:
   - component: {fileID: 1445278465348587320}
   - component: {fileID: 1445278465348587323}
   - component: {fileID: 5483421187078802668}
+  - component: {fileID: 4468696491293463093}
   m_Layer: 5
   m_Name: AutomaticManipulatorControlPanel
   m_TagString: Untagged
@@ -653,7 +654,11 @@ MonoBehaviour:
   _dvColor: {r: 1, g: 0.85490197, b: 0.4745098, a: 1}
   _readyColor: {r: 0.19999999, g: 0.8509804, b: 0.39529407, a: 1}
   _workingColor: {r: 1, g: 0.69411767, b: 0.25882354, a: 1}
+  _zeroCoordinatePanelResetPanelPrefab: {fileID: 0}
   _zeroCoordinatePanelText: {fileID: 1445278465210223968}
+  _zeroCoordinatePanelManipulatorScrollView: {fileID: 0}
+  _zeroCoordinatePanelManipulatorScrollViewContent: {fileID: 0}
+  _zeroCoordinatePanelNoManipulatorsAttachedText: {fileID: 0}
   _zeroCoordinateManipulator1ProbeText: {fileID: 0}
   _zeroCoordinateManipulator2ProbeText: {fileID: 0}
   _gotoPanelCanvasGroup: {fileID: 84557261823319585}
@@ -681,6 +686,20 @@ MonoBehaviour:
   _driveStatusText: {fileID: 2223006252685534017}
   _driveTimerText: {fileID: 60887063825852520}
   _driveButtonText: {fileID: 6734418879176428203}
+--- !u!114 &4468696491293463093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445278465348587321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _resetPanelPrefab: {fileID: 0}
+  _panelText: {fileID: 0}
 --- !u!1 &1445278465893963707
 GameObject:
   m_ObjectHideFlags: 0

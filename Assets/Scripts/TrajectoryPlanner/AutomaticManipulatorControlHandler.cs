@@ -755,15 +755,28 @@ namespace TrajectoryPlanner
 
         #region Colors
 
-        [SerializeField] private Color _apColor;
-        [SerializeField] private Color _mlColor;
-        [SerializeField] private Color _dvColor;
-        [SerializeField] private Color _readyColor;
-        [SerializeField] private Color _workingColor;
+        [SerializeField] private Color _apColor, _mlColor,_dvColor,_readyColor,_workingColor;
 
         #endregion
 
         #region Step 1
+
+        private class ZeroCoordinatePanelComponents: MonoBehaviour
+        {
+            public GameObject ResetZeroCoordinatePanelPrefab;
+            public TMP_Text PanelText;
+            public GameObject ManipulatorScrollView;
+            public GameObject ManipulatorScrollViewContent;
+            public GameObject ManipulatorsAttachedText;
+        }
+        
+        [ContextMenu("Add Zero Coordinate Panel Components")]
+        private void AddZeroCoordinatePanelComponents()
+        {
+            _zeroCoordinatePanel = gameObject.AddComponent<ZeroCoordinatePanelComponents>();
+        }
+
+        private ZeroCoordinatePanelComponents _zeroCoordinatePanel;
 
         [SerializeField] private TMP_Text _zeroCoordinatePanelText;
         [SerializeField] private TMP_Text _zeroCoordinateManipulator1ProbeText;
@@ -772,6 +785,25 @@ namespace TrajectoryPlanner
         #endregion
 
         #region Step 2
+        
+        private class GotoPanelComponents: MonoBehaviour
+        {
+            public GameObject InsertionSelectionPanelPrefab;
+            public TMP_Text PanelText;
+            public GameObject ManipulatorScrollView;
+            public GameObject ManipulatorScrollViewContent;
+            public GameObject ManipulatorsZeroedText;
+            public Button MoveButton;
+            public TMP_Text MoveButtonText;
+        }
+        
+        [ContextMenu("Add Goto Panel Components")]
+        private void AddGotoPanelComponents()
+        {
+            _gotoPanel = gameObject.AddComponent<GotoPanelComponents>();
+        }
+        
+        private GotoPanelComponents _gotoPanel;
 
         [SerializeField] private CanvasGroup _gotoPanelCanvasGroup;
         [SerializeField] private TMP_Text _gotoPanelText;
@@ -790,12 +822,32 @@ namespace TrajectoryPlanner
         [SerializeField] private Button _gotoMoveButton;
         [SerializeField] private TMP_Text _gotoMoveButtonText;
 
-        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv, TMP_InputField depth) _gotoManipulator1InsertionInputFields;
-        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv, TMP_InputField depth) _gotoManipulator2InsertionInputFields;
+        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv, TMP_InputField depth)
+            _gotoManipulator1InsertionInputFields;
+
+        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv, TMP_InputField depth)
+            _gotoManipulator2InsertionInputFields;
 
         #endregion
 
         #region Step 3
+        
+        private class DuraOffsetPanelComponents: MonoBehaviour
+        {
+            public GameObject ResetDuraOffsetPanelPrefab;
+            public TMP_Text PanelText;
+            public GameObject ManipulatorScrollView;
+            public GameObject ManipulatorScrollViewContent;
+            public GameObject ManipulatorsDrivenText;
+        }
+        
+        [ContextMenu("Add Dura Offset Panel Components")]
+        private void AddDuraOffsetPanelComponents()
+        {
+            _duraOffsetPanelComponents = gameObject.AddComponent<DuraOffsetPanelComponents>();
+        }
+
+        private DuraOffsetPanelComponents _duraOffsetPanelComponents;
 
         [SerializeField] private CanvasGroup _duraPanelCanvasGroup;
         [SerializeField] private TMP_Text _duraPanelText;
