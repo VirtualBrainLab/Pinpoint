@@ -73,7 +73,6 @@ namespace TrajectoryPlanner
 
         // Local tracking variables
         private ProbeManager activeProbe;
-        private List<ProbeManager> allProbeManagers;
         private List<Collider> inactiveProbeColliders;
         private List<Collider> allProbeColliders;
         private List<Collider> rigColliders;
@@ -122,9 +121,9 @@ namespace TrajectoryPlanner
         public void EnableAutomaticManipulatorControlPanel(bool enable = true)
         {
             _automaticManipulatorControlHandler.Probe1Manager =
-                allProbeManagers.Find(manager => manager.ManipulatorId == "1");
+                ProbeManager.instances.Find(manager => manager.ManipulatorId == "1");
             _automaticManipulatorControlHandler.Probe2Manager =
-                allProbeManagers.Find(manager => manager.ManipulatorId == "2");
+                ProbeManager.instances.Find(manager => manager.ManipulatorId == "2");
             _automaticManipulatorControlHandler.AnnotationDataset = GetAnnotationDataset();
             _automaticManipulatorControlHandler.IsProbe1ManipulatorRightHanded =
                 _rightHandedManipulatorIds.Contains("1");
@@ -155,7 +154,6 @@ namespace TrajectoryPlanner
 
             visibleProbePanels = 0;
 
-            allProbeManagers = new List<ProbeManager>();
             allProbeColliders = new List<Collider>();
             inactiveProbeColliders = new List<Collider>();
             rigColliders = new List<Collider>();
@@ -419,11 +417,6 @@ namespace TrajectoryPlanner
             return _searchInput.isFocused || _probeQuickSettings.IsFocused() || _accountsManager.IsFocused();
         }
 
-        public List<ProbeManager> GetAllProbes()
-        {
-            return allProbeManagers;
-        }
-
         public List<Collider> GetAllNonActiveColliders()
         {
             return allNonActiveColliders;
@@ -470,14 +463,13 @@ namespace TrajectoryPlanner
             // Destroy probe
             probeManager.Destroy();
             Destroy(probeManager.gameObject);
-            allProbeManagers.Remove(probeManager);
 
             // Cleanup UI if this was last probe in scene
-            if (allProbeManagers.Count > 0)
+            if (ProbeManager.instances.Count > 0)
             {
                 if (isActiveProbe)
                 {
-                    SetActiveProbe(allProbeManagers[^1]);
+                    SetActiveProbe(ProbeManager.instances[^1]);
                 }
 
                 if (isGhost)
@@ -619,7 +611,7 @@ namespace TrajectoryPlanner
         private void CountProbePanels()
         {
             visibleProbePanels = 0;
-            foreach (ProbeManager probeManager in allProbeManagers)
+            foreach (ProbeManager probeManager in ProbeManager.instances)
                 visibleProbePanels += probeManager.GetProbeUIManagers().Count;
         }
 
@@ -639,9 +631,9 @@ namespace TrajectoryPlanner
                 probePanelParent.cellSize = cellSize;
 
                 // now resize all existing probeUIs to be 700 tall
-                foreach (ProbeManager probeController in allProbeManagers)
+                foreach (ProbeManager probeManager in ProbeManager.instances)
                 {
-                    probeController.ResizeProbePanel(700);
+                    probeManager.ResizeProbePanel(700);
                 }
             }
             else if (visibleProbePanels <= 4)
@@ -653,9 +645,9 @@ namespace TrajectoryPlanner
                 cellSize.y = 1400;
                 probePanelParent.cellSize = cellSize;
 
-                foreach (ProbeManager probeController in allProbeManagers)
+                foreach (ProbeManager probeManager in ProbeManager.instances)
                 {
-                    probeController.ResizeProbePanel(1400);
+                    probeManager.ResizeProbePanel(1400);
                 }
             }
 
@@ -666,7 +658,6 @@ namespace TrajectoryPlanner
         public void RegisterProbe(ProbeManager probeManager)
         {
             Debug.Log("Registering probe: " + probeManager.gameObject.name);
-            allProbeManagers.Add(probeManager);
             
             // Update collider records
             UpdateProbeColliders();
@@ -676,7 +667,7 @@ namespace TrajectoryPlanner
         {
             var thisProbeId = 1;
             HashSet<int> usedIds = new();
-            foreach (var probeId in allProbeManagers.Select(manager => manager.ID)) usedIds.Add(probeId);
+            foreach (var probeId in ProbeManager.instances.Select(manager => manager.ID)) usedIds.Add(probeId);
             while (usedIds.Contains(thisProbeId)) thisProbeId++;
             return thisProbeId;
         }
@@ -715,7 +706,7 @@ namespace TrajectoryPlanner
             activeProbe = newActiveProbeManager;
             activeProbe.SetActive();
 
-            foreach (ProbeManager probeManager in allProbeManagers)
+            foreach (ProbeManager probeManager in ProbeManager.instances)
             {
                 // Check visibility
                 var isActiveProbe = probeManager == activeProbe;
@@ -847,7 +838,7 @@ namespace TrajectoryPlanner
         {
             // Collect *all* colliders from all probes
             allProbeColliders.Clear();
-            foreach (ProbeManager probeManager in allProbeManagers)
+            foreach (ProbeManager probeManager in ProbeManager.instances)
             {
                 foreach (Collider collider in probeManager.GetProbeColliders())
                     allProbeColliders.Add(collider);
@@ -893,7 +884,7 @@ namespace TrajectoryPlanner
 
         private void MoveAllProbes()
         {
-            foreach (ProbeManager probeController in allProbeManagers)
+            foreach (ProbeManager probeController in ProbeManager.instances)
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
 
@@ -955,7 +946,7 @@ namespace TrajectoryPlanner
         public void SetSetting_GhostInactive(bool state)
         {
             _localPrefs.SetGhostInactiveProbes(state);
-            foreach (ProbeManager probeManager in allProbeManagers)
+            foreach (ProbeManager probeManager in ProbeManager.instances)
             {
                 if (probeManager == activeProbe)
                 {
@@ -1001,7 +992,7 @@ namespace TrajectoryPlanner
             _localPrefs.SetUseBeryl(state);
             _modelControl.SetBeryl(state);
 
-            foreach (ProbeManager probeController in allProbeManagers)
+            foreach (ProbeManager probeController in ProbeManager.instances)
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
                     puimanager.ProbeMoved();
         }
@@ -1015,10 +1006,10 @@ namespace TrajectoryPlanner
         {
             _localPrefs.SetShowAllProbePanels(state);
             if (state)
-                foreach (ProbeManager probeManager in allProbeManagers)
+                foreach (ProbeManager probeManager in ProbeManager.instances)
                     probeManager.SetUIVisibility(true);
             else
-                foreach (ProbeManager probeManager in allProbeManagers)
+                foreach (ProbeManager probeManager in ProbeManager.instances)
                     probeManager.SetUIVisibility(activeProbe == probeManager);
 
             RecalculateProbePanels();
@@ -1167,7 +1158,7 @@ namespace TrajectoryPlanner
             // first, sort probes so that np2.4 probes go first
             List<ProbeManager> np24Probes = new List<ProbeManager>();
             List<ProbeManager> otherProbes = new List<ProbeManager>();
-            foreach (ProbeManager pcontroller in allProbeManagers)
+            foreach (ProbeManager pcontroller in ProbeManager.instances)
                 if (pcontroller.ProbeType == 4)
                     np24Probes.Add(pcontroller);
                 else
@@ -1213,7 +1204,7 @@ namespace TrajectoryPlanner
 
         private void OnApplicationQuit()
         {
-            var nonGhostProbeManagers = allProbeManagers.Where(manager => !manager.IsGhost).ToList();
+            var nonGhostProbeManagers = ProbeManager.instances.Where(manager => !manager.IsGhost).ToList();
             var probeCoordinates =
                 new (Vector3 apmldv, Vector3 angles, 
                 int type, string manipulatorId,
@@ -1357,7 +1348,7 @@ namespace TrajectoryPlanner
         /// <param name="uuid"></param>
         private void SetActiveProbeByUUID(string uuid)
         {
-            foreach (ProbeManager probeManager in allProbeManagers)
+            foreach (ProbeManager probeManager in ProbeManager.instances)
                 if (probeManager.UUID.Equals(uuid))
                 {
                     SetActiveProbe(probeManager);
