@@ -15,7 +15,7 @@ namespace EphysLink
 
         private SocketManager _connectionManager;
         private Socket _socket;
-        private PlayerPrefs _playerPrefs;
+        [SerializeField] private PlayerPrefs _playerPrefs;
 
         #endregion
 
@@ -39,14 +39,6 @@ namespace EphysLink
         #endregion
 
         #region Unity
-
-        /// <summary>
-        ///     Initialize components
-        /// </summary>
-        private void Awake()
-        {
-            _playerPrefs = GameObject.Find("main").GetComponent<PlayerPrefs>();
-        }
 
         /// <summary>
         ///     Populate data and connect to the server.
