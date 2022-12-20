@@ -4,6 +4,7 @@ using Unisave.Facades;
 using System;
 using UnityEngine.Serialization;
 using TMPro;
+using UnityEngine.Events;
 
 /// <summary>
 /// Handles connection with the Unisave system, and passing data back-and-forth with the TPManager
@@ -24,7 +25,8 @@ public class UnisaveAccountsManager : AccountsManager
     [SerializeField] private GameObject _insertionPrefabGO;
 
     // callbacks set by TPManager
-    public Action<string> SetActiveProbeCallback { get; set; }
+
+    public UnityEvent<string> SetActiveProbeCallback;
     public Action UpdateCallback { get; set; }
     #endregion
 
@@ -109,7 +111,14 @@ public class UnisaveAccountsManager : AccountsManager
 
     private void LoadPlayerCallback(PlayerEntity player)
     {
-        this._player = player;
+        Debug.Log("Logged in");
+        _player = player;
+        // populate the uuid2experiment list
+        foreach (var kvp in _player.experiments)
+        {
+            foreach (string UUID in kvp.Value.Keys)
+                _probeUUID2experiment.Add(kvp.Key, UUID);
+        }
         Debug.Log("Loaded player data: " + player.email);
         SaveAndUpdate();
     }
@@ -218,6 +227,7 @@ public class UnisaveAccountsManager : AccountsManager
 #endif
         if (_probeUUID2experiment.ContainsKey(probeUUID))
         {
+            Debug.Log("Found probe, removing");
             _player.experiments[_probeUUID2experiment[probeUUID]].Remove(probeUUID);
             UpdateExperimentInsertions();
         }
@@ -318,7 +328,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void SetActiveProbe(string UUID)
     {
-        SetActiveProbeCallback(UUID);
+        SetActiveProbeCallback.Invoke(UUID);
     }
 
     #region Data communication
