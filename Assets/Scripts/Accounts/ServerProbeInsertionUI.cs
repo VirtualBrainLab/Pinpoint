@@ -22,6 +22,8 @@ public class ServerProbeInsertionUI : MonoBehaviour
             _UUID.Substring(0, 8) :
             "";
         _insertionNameText.text = _displayString;
+
+        GetComponent<Button>().onClick.AddListener(ActivateProbe);
     }
 
     public void UpdateDescription(string desc)

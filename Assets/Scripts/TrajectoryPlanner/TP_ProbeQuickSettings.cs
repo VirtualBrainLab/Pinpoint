@@ -189,7 +189,7 @@ namespace TrajectoryPlanner
             {
                 // Spawn ghost
                 var originalProbeManager = _probeManager;
-                var ghostProbeManager = _trajectoryPlannerManager.AddNewProbeTransformed(
+                var ghostProbeManager = _trajectoryPlannerManager.AddNewProbe(
                     _probeManager.ProbeType, _probeManager.GetProbeController().Insertion, "",
                     _probeManager.ZeroCoordinateOffset, _probeManager.BrainSurfaceOffset,
                     _probeManager.IsSetToDropToSurfaceWithDepth, null, true);

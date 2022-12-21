@@ -17,7 +17,6 @@ public class ActiveExpListBehavior : MonoBehaviour
     public void UpdateList()
     {
         List<string> experimentList = _accountsManager.GetExperiments();
-
         List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
         foreach (string experiment in experimentList)
             options.Add(new TMP_Dropdown.OptionData(experiment));
@@ -28,6 +27,7 @@ public class ActiveExpListBehavior : MonoBehaviour
 
     public void SelectExperiment(int optIdx)
     {
-        _accountsManager.ActiveExperimentChanged(_optionList.options[optIdx].text);
+        if (_optionList.options.Count > optIdx)
+            _accountsManager.ActiveExperimentChanged(_optionList.options[optIdx].text);
     }
 }

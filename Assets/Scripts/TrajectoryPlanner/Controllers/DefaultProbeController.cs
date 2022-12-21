@@ -710,7 +710,7 @@ public class DefaultProbeController : ProbeController
     /// </summary>
     public override void SetProbePosition()
     {
-        SetProbePosition(Insertion);
+        SetProbePositionHelper(Insertion);
     }
 
     public void SetProbePosition(float depthOverride)
@@ -742,7 +742,7 @@ public class DefaultProbeController : ProbeController
     /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
     /// </summary>
     /// <param name="localInsertion">new insertion position</param>
-    public override void SetProbePosition(ProbeInsertion localInsertion)
+    private void SetProbePositionHelper(ProbeInsertion localInsertion)
     {
         // Reset everything
         transform.position = _initialPosition;
@@ -773,6 +773,13 @@ public class DefaultProbeController : ProbeController
         // Tell the tpmanager we moved and update the UI elements
         TPManager.movedThisFrame = true;
         ProbeManager.UpdateUI();
+    }
+
+    public override void SetProbePosition(ProbeInsertion localInsertion)
+    {
+        // localInsertion gets copied to Insertion
+        Insertion.apmldv = localInsertion.apmldv;
+        Insertion.angles = localInsertion.angles;
     }
 
     #endregion

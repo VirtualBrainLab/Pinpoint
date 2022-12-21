@@ -162,7 +162,9 @@ public class ProbeManager : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log($"New probe created with UUID: {UUID}");
+#if UNITY_EDITOR
+        Debug.Log($"(ProbeManager) New probe created with UUID: {UUID}");
+#endif
         // Request for ID and color if this is a normal probe
         if (IsOriginal)
         {
@@ -240,9 +242,6 @@ public class ProbeManager : MonoBehaviour
 
     public void OverrideUUID(string newUUID)
     {
-#if UNITY_EDITOR
-        Debug.Log(string.Format("Override UUID to {0}", newUUID));
-#endif
         UUID = newUUID;
     }
 
