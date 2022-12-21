@@ -8,7 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TrajectoryPlanner
+namespace AutomaticManipulatorControl
 {
     public class AutomaticManipulatorControlHandler : MonoBehaviour
     {
@@ -378,11 +378,11 @@ namespace TrajectoryPlanner
         private void EnableStep4()
         {
             // Enable UI
-            _drivePanelCanvasGroup.alpha = 1;
-            _drivePanelCanvasGroup.interactable = true;
+            _drivePanel.CanvasGroup.alpha = 1;
+            _drivePanel.CanvasGroup.interactable = true;
             _duraPanelText.color = Color.white;
-            _drivePanelText.color = Color.green;
-            _driveStatusText.text = "Ready to Drive";
+            _drivePanel.PanelText.color = Color.green;
+            _drivePanel.StatusText.text = "Ready to Drive";
         }
 
         private void StartDriveChain()
@@ -428,7 +428,7 @@ namespace TrajectoryPlanner
         private IEnumerator CountDownTimer()
         {
             // Set timer text
-            _driveTimerText.text = TimeSpan.FromSeconds(_driveDuration).ToString(@"mm\:ss");
+            _drivePanel.TimerText.text = TimeSpan.FromSeconds(_driveDuration).ToString(@"mm\:ss");
 
             // Wait for 1 second
             yield return new WaitForSeconds(1);
@@ -445,17 +445,17 @@ namespace TrajectoryPlanner
             else
             {
                 // Set timer text
-                _driveStatusText.text = "Drive Complete!";
-                _driveTimerText.text = "Ready for Experiment";
-                _driveButtonText.text = "Drive";
-                _drivePanelText.color = Color.white;
+                _drivePanel.StatusText.text = "Drive Complete!";
+                _drivePanel.TimerText.text = "Ready for Experiment";
+                _drivePanel.ButtonText.text = "Drive";
+                _drivePanel.PanelText.color = Color.white;
             }
         }
 
         private void Drive200PastTarget()
         {
             // Set drive status
-            _driveStatusText.text = "Driving to 200 µm past target...";
+            _drivePanel.StatusText.text = "Driving to 200 µm past target...";
 
             // Drive
             for (var manipulatorId = 1; manipulatorId <= 2; manipulatorId++)
@@ -489,7 +489,7 @@ namespace TrajectoryPlanner
         private void DriveBackToTarget(string manipulatorID)
         {
             // Set drive status
-            _driveStatusText.text = "Driving back to target...";
+            _drivePanel.StatusText.text = "Driving back to target...";
 
             // Get target insertion
             var targetDepth = _probeTargetDepth[int.Parse(manipulatorID) - 1];
@@ -508,7 +508,7 @@ namespace TrajectoryPlanner
 
                     // Update status text if both are done
                     if (!_probeAtTarget[0] || !_probeAtTarget[1]) return;
-                    _driveStatusText.text = "Settling... Please wait...";
+                    _drivePanel.StatusText.text = "Settling... Please wait...";
                 }, Debug.LogError);
         }
 
@@ -729,17 +729,17 @@ namespace TrajectoryPlanner
                 _communicationManager.Stop(state =>
                 {
                     if (!state) return;
-                    _driveButtonText.text = "Drive";
-                    _driveStatusText.text = "Ready to Drive";
-                    _driveTimerText.text = "";
-                    _drivePanelText.color = Color.white;
+                    _drivePanel.ButtonText.text = "Drive";
+                    _drivePanel.StatusText.text = "Ready to Drive";
+                    _drivePanel.TimerText.text = "";
+                    _drivePanel.PanelText.color = Color.white;
                     _isDriving = false;
                 });
             }
             else
             {
-                _driveButtonText.text = "Stop";
-                _drivePanelText.color = _workingColor;
+                _drivePanel.ButtonText.text = "Stop";
+                _drivePanel.PanelText.color = _workingColor;
                 _isDriving = true;
 
                 // Run drive chain
@@ -876,12 +876,6 @@ namespace TrajectoryPlanner
         }
         
         private DrivePanelComponents _drivePanel;
-
-        [SerializeField] private CanvasGroup _drivePanelCanvasGroup;
-        [SerializeField] private TMP_Text _drivePanelText;
-        [SerializeField] private TMP_Text _driveStatusText;
-        [SerializeField] private TMP_Text _driveTimerText;
-        [SerializeField] private TMP_Text _driveButtonText;
 
         #endregion
 
