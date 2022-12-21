@@ -25,18 +25,26 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Step 1
 
+        private void EnableStep1()
+        {
+            if (!ProbeManagers.Any()) return;
+            _zeroCoordinatePanel.PanelScrollView.SetActive(true);
+            _zeroCoordinatePanel.ManipulatorsAttachedText.SetActive(false);
+            foreach (var probeManager in ProbeManagers) AddResetZeroCoordinatePanel(probeManager);
+        }
+
         private void AddResetZeroCoordinatePanel(ProbeManager probeManager)
         {
             // Instantiate
             var resetZeroCoordinatePanelGameObject = Instantiate(
                 _zeroCoordinatePanel.ResetZeroCoordinatePanelPrefab,
-                _zeroCoordinatePanel.ManipulatorScrollViewContent.transform);
+                _zeroCoordinatePanel.PanelScrollViewContent.transform);
             var resetZeroCoordinatePanelHandler =
                 resetZeroCoordinatePanelGameObject.GetComponent<ResetZeroCoordinatePanelHandler>();
 
             // Setup
             resetZeroCoordinatePanelHandler.ProbeManager = probeManager;
-            resetZeroCoordinatePanelHandler.ResetZeroCoordinateCallback = AddGotoPanel;
+            resetZeroCoordinatePanelHandler.ResetZeroCoordinateCallback = AddInsertionSelectionPanel;
             resetZeroCoordinatePanelHandler.CommunicationManager = _communicationManager;
         }
 
@@ -128,13 +136,20 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             _zeroCoordinatePanel.PanelText.color = Color.white;
 
             // Update insertion options
-            UpdateInsertionDropdownOptions();
+            // UpdateInsertionDropdownOptions();
         }
 
-        private void AddGotoPanel(ProbeManager probeManager)
+        private void AddInsertionSelectionPanel(ProbeManager probeManager)
         {
             // Enable step 2 (automatically checks if needed)
             EnableStep2();
+
+            // Instantiate
+            var insertionSelectionPanelGameObject = Instantiate(_gotoPanel.InsertionSelectionPanelPrefab,
+                _gotoPanel.PanelScrollViewContent.transform);
+            var insertionSelectionPanelHandler =
+                insertionSelectionPanelGameObject.GetComponent<InsertionSelectionPanelHandler>();
+
 
             // var gotoPanelGameObject = Instantiate(
             //     _gotoPanel.GotoPanelPrefab,
@@ -801,40 +816,31 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         {
             public TMP_Text PanelText;
             public GameObject ResetZeroCoordinatePanelPrefab;
-            public GameObject ManipulatorScrollView;
-            public GameObject ManipulatorScrollViewContent;
+            public GameObject PanelScrollView;
+            public GameObject PanelScrollViewContent;
             public GameObject ManipulatorsAttachedText;
         }
 
         [SerializeField] private ZeroCoordinatePanelComponents _zeroCoordinatePanel;
 
-        [SerializeField] private TMP_Text _zeroCoordinatePanelText;
-        [SerializeField] private TMP_Text _zeroCoordinateManipulator1ProbeText;
-        [SerializeField] private TMP_Text _zeroCoordinateManipulator2ProbeText;
-
         #endregion
 
         #region Step 2
 
-        private class GotoPanelComponents : MonoBehaviour
+        [Serializable]
+        private class GotoPanelComponents
         {
             public CanvasGroup CanvasGroup;
             public TMP_Text PanelText;
             public GameObject InsertionSelectionPanelPrefab;
-            public GameObject ManipulatorScrollView;
-            public GameObject ManipulatorScrollViewContent;
+            public GameObject PanelScrollView;
+            public GameObject PanelScrollViewContent;
             public GameObject ManipulatorsZeroedText;
             public Button MoveButton;
             public TMP_Text MoveButtonText;
         }
 
-        [ContextMenu("Add Goto Panel Components")]
-        private void AddGotoPanelComponents()
-        {
-            _gotoPanel = gameObject.AddComponent<GotoPanelComponents>();
-        }
-
-        private GotoPanelComponents _gotoPanel;
+        [SerializeField] private GotoPanelComponents _gotoPanel;
 
         [SerializeField] private CanvasGroup _gotoPanelCanvasGroup;
         [SerializeField] private TMP_Text _gotoPanelText;
@@ -863,23 +869,18 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Step 3
 
-        private class DuraOffsetPanelComponents : MonoBehaviour
+        [Serializable]
+        private class DuraOffsetPanelComponents
         {
             public CanvasGroup CanvasGroup;
             public TMP_Text PanelText;
             public GameObject ResetDuraOffsetPanelPrefab;
-            public GameObject ManipulatorScrollView;
-            public GameObject ManipulatorScrollViewContent;
+            public GameObject PanelScrollView;
+            public GameObject PanelScrollViewContent;
             public GameObject ManipulatorsDrivenText;
         }
 
-        [ContextMenu("Add Dura Offset Panel Components")]
-        private void AddDuraOffsetPanelComponents()
-        {
-            _duraOffsetPanel = gameObject.AddComponent<DuraOffsetPanelComponents>();
-        }
-
-        private DuraOffsetPanelComponents _duraOffsetPanel;
+        [SerializeField] private DuraOffsetPanelComponents _duraOffsetPanel;
 
         [SerializeField] private CanvasGroup _duraPanelCanvasGroup;
         [SerializeField] private TMP_Text _duraPanelText;
@@ -890,7 +891,8 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Step 4
 
-        private class DrivePanelComponents : MonoBehaviour
+        [Serializable]
+        private class DrivePanelComponents
         {
             public CanvasGroup CanvasGroup;
             public TMP_Text PanelText;
@@ -899,13 +901,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             public TMP_Text ButtonText;
         }
 
-        [ContextMenu("Add Drive Panel Components")]
-        private void AddDrivePanelComponents()
-        {
-            _drivePanel = gameObject.AddComponent<DrivePanelComponents>();
-        }
-
-        private DrivePanelComponents _drivePanel;
+        [SerializeField] private DrivePanelComponents _drivePanel;
 
         #endregion
 
@@ -988,27 +984,8 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         private void OnEnable()
         {
-            // Initialize step 1
-            if (ProbeManagers.Any())
-            {
-                _zeroCoordinatePanel.ManipulatorScrollView.SetActive(true);
-                _zeroCoordinatePanel.ManipulatorsAttachedText.SetActive(false);
-                foreach (var probeManager in ProbeManagers) AddResetZeroCoordinatePanel(probeManager);
-            }
-
-            if (Probe1Manager)
-            {
-                var probeText = "Probe #" + Probe1Manager.ID;
-                _zeroCoordinateManipulator1ProbeText.text = probeText;
-                _gotoManipulator1ProbeText.text = probeText;
-                _duraManipulator1ProbeText.text = probeText;
-
-                _zeroCoordinateManipulator1ProbeText.color = Probe1Manager.GetColor();
-                _gotoManipulator1ProbeText.color = Probe1Manager.GetColor();
-                _duraManipulator1ProbeText.color = Probe1Manager.GetColor();
-
-                UpdateManipulatorInsertionInputFields(_gotoManipulator1TargetInsertionDropdown.value, 1);
-            }
+            // Enable step 1
+            EnableStep1();
         }
 
         #endregion

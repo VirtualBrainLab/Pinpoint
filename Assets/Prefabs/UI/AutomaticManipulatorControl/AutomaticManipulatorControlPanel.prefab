@@ -656,12 +656,18 @@ MonoBehaviour:
   _zeroCoordinatePanel:
     PanelText: {fileID: 1445278465210223968}
     ResetZeroCoordinatePanelPrefab: {fileID: 8263761920505935187, guid: 8e78152cb80513c45b3c35cb5a96432f, type: 3}
-    ManipulatorScrollView: {fileID: 2904017589487271391}
-    ManipulatorScrollViewContent: {fileID: 7072317697882447797}
+    PanelScrollView: {fileID: 2904017589487271391}
+    PanelScrollViewContent: {fileID: 7072317697882447797}
     ManipulatorsAttachedText: {fileID: 6265186558322449932}
-  _zeroCoordinatePanelText: {fileID: 1445278465210223968}
-  _zeroCoordinateManipulator1ProbeText: {fileID: 0}
-  _zeroCoordinateManipulator2ProbeText: {fileID: 0}
+  _gotoPanel:
+    CanvasGroup: {fileID: 84557261823319585}
+    PanelText: {fileID: 478385048297492083}
+    InsertionSelectionPanelPrefab: {fileID: 4424500575015542408, guid: 3c4cf558240cec14abf3dd9882eba899, type: 3}
+    PanelScrollView: {fileID: 687500095747171540}
+    PanelScrollViewContent: {fileID: 7125810125362052674}
+    ManipulatorsZeroedText: {fileID: 7700696361368721311}
+    MoveButton: {fileID: 2379779624633991439}
+    MoveButtonText: {fileID: 4053248260008623874}
   _gotoPanelCanvasGroup: {fileID: 84557261823319585}
   _gotoPanelText: {fileID: 478385048297492083}
   _gotoManipulator1ProbeText: {fileID: 0}
@@ -678,10 +684,23 @@ MonoBehaviour:
   _gotoManipulator2DepthInputField: {fileID: 0}
   _gotoMoveButton: {fileID: 2379779624633991439}
   _gotoMoveButtonText: {fileID: 4053248260008623874}
+  _duraOffsetPanel:
+    CanvasGroup: {fileID: 1511422966337397656}
+    PanelText: {fileID: 8296755181428719015}
+    ResetDuraOffsetPanelPrefab: {fileID: 8263761920505935187, guid: b9c529c14db0a5043baffd6a8baecaf4, type: 3}
+    PanelScrollView: {fileID: 6248915284573402155}
+    PanelScrollViewContent: {fileID: 8370024288020303656}
+    ManipulatorsDrivenText: {fileID: 2276162925081394005}
   _duraPanelCanvasGroup: {fileID: 1511422966337397656}
   _duraPanelText: {fileID: 8296755181428719015}
   _duraManipulator1ProbeText: {fileID: 0}
   _duraManipulator2ProbeText: {fileID: 0}
+  _drivePanel:
+    CanvasGroup: {fileID: 3776968580408328783}
+    PanelText: {fileID: 1424320475779402751}
+    StatusText: {fileID: 2223006252685534017}
+    TimerText: {fileID: 60887063825852520}
+    ButtonText: {fileID: 6734418879176428203}
 --- !u!1 &1445278465893963707
 GameObject:
   m_ObjectHideFlags: 0
