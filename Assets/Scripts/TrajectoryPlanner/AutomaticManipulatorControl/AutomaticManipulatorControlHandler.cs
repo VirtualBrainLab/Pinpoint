@@ -755,13 +755,13 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Colors
 
-        [SerializeField] private Color _apColor, _mlColor,_dvColor,_readyColor,_workingColor;
+        [SerializeField] private Color _apColor, _mlColor, _dvColor, _readyColor, _workingColor;
 
         #endregion
 
         #region Step 1
 
-        private class ZeroCoordinatePanelComponents: MonoBehaviour
+        private class ZeroCoordinatePanelComponents : MonoBehaviour
         {
             public TMP_Text PanelText;
             public GameObject ResetZeroCoordinatePanelPrefab;
@@ -769,7 +769,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             public GameObject ManipulatorScrollViewContent;
             public GameObject ManipulatorsAttachedText;
         }
-        
+
         [ContextMenu("Add Zero Coordinate Panel Components")]
         private void AddZeroCoordinatePanelComponents()
         {
@@ -785,8 +785,8 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         #endregion
 
         #region Step 2
-        
-        private class GotoPanelComponents: MonoBehaviour
+
+        private class GotoPanelComponents : MonoBehaviour
         {
             public CanvasGroup CanvasGroup;
             public TMP_Text PanelText;
@@ -797,13 +797,13 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             public Button MoveButton;
             public TMP_Text MoveButtonText;
         }
-        
+
         [ContextMenu("Add Goto Panel Components")]
         private void AddGotoPanelComponents()
         {
             _gotoPanel = gameObject.AddComponent<GotoPanelComponents>();
         }
-        
+
         private GotoPanelComponents _gotoPanel;
 
         [SerializeField] private CanvasGroup _gotoPanelCanvasGroup;
@@ -832,8 +832,8 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         #endregion
 
         #region Step 3
-        
-        private class DuraOffsetPanelComponents: MonoBehaviour
+
+        private class DuraOffsetPanelComponents : MonoBehaviour
         {
             public CanvasGroup CanvasGroup;
             public TMP_Text PanelText;
@@ -842,7 +842,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             public GameObject ManipulatorScrollViewContent;
             public GameObject ManipulatorsDrivenText;
         }
-        
+
         [ContextMenu("Add Dura Offset Panel Components")]
         private void AddDuraOffsetPanelComponents()
         {
@@ -859,8 +859,8 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         #endregion
 
         #region Step 4
-        
-        private class DrivePanelComponents: MonoBehaviour
+
+        private class DrivePanelComponents : MonoBehaviour
         {
             public CanvasGroup CanvasGroup;
             public TMP_Text PanelText;
@@ -868,13 +868,13 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             public TMP_Text TimerText;
             public TMP_Text ButtonText;
         }
-        
+
         [ContextMenu("Add Drive Panel Components")]
         private void AddDrivePanelComponents()
         {
             _drivePanel = gameObject.AddComponent<DrivePanelComponents>();
         }
-        
+
         private DrivePanelComponents _drivePanel;
 
         #endregion

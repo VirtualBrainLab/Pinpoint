@@ -30,9 +30,8 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         private ProbeManager _probeManager;
 
-        public CommunicationManager CommunicationManager { private get; set; }
-        
         private Action _onResetZeroCoordinate;
+        public CommunicationManager CommunicationManager { private get; set; }
 
         #endregion
     }
