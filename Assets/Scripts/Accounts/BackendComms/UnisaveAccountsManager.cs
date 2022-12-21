@@ -27,7 +27,7 @@ public class UnisaveAccountsManager : AccountsManager
     // callbacks set by TPManager
 
     public UnityEvent<string> SetActiveProbeCallback;
-    public Action UpdateCallback { get; set; }
+    public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID),bool> UpdateCallback { get; set; }
     #endregion
 
     #region current player data
@@ -101,6 +101,23 @@ public class UnisaveAccountsManager : AccountsManager
         }
     }
 
+    private void LoadPlayerCallback(PlayerEntity player)
+    {
+        _player = player;
+        // populate the uuid2experiment list
+        foreach (var kvp in _player.experiments)
+        {
+            Debug.Log(kvp.Key);
+            foreach (string UUID in kvp.Value.Keys)
+            {
+                _probeUUID2experiment.Add(UUID, kvp.Key);
+                Debug.Log(UUID);
+            }
+        }
+        Debug.Log("(AccountsManager) Loaded player data: " + player.email);
+        UpdateUI();
+    }
+
     public void Login()
     {
         OnFacet<PlayerDataFacet>
@@ -109,51 +126,38 @@ public class UnisaveAccountsManager : AccountsManager
             .Done();
     }
 
-    private void LoadPlayerCallback(PlayerEntity player)
+    public void LogoutCleanup()
     {
-        Debug.Log("Logged in");
-        _player = player;
-        // populate the uuid2experiment list
-        foreach (var kvp in _player.experiments)
-        {
-            foreach (string UUID in kvp.Value.Keys)
-                _probeUUID2experiment.Add(kvp.Key, UUID);
-        }
-        Debug.Log("Loaded player data: " + player.email);
-        SaveAndUpdate();
-    }
-
-    public void Logout()
-    {
-        SavePlayer();
         _player = null;
-        Dirty = true;
-        _experimentEditor.UpdateList();
-        _activeExpListBehavior.UpdateList();
+        UpdateUI();
     }
 
+    #region Save and Update
     private void SaveAndUpdate()
     {
-        if (_player != null)
-        {
-            SavePlayer();
-
-            _experimentEditor.UpdateList();
-            _activeExpListBehavior.UpdateList();
-            _quickSettingsExperimentList.UpdateExperimentList();
-            UpdateExperimentInsertions();
-
-            if (UpdateCallback != null)
-                UpdateCallback();
-        }
+        SavePlayer();
+        UpdateUI();
     }
 
-    private void SavePlayer()
+    public void SavePlayer()
     {
+        if (_player == null)
+            return;
         Debug.Log("(AccountsManager) Saving data");
         OnFacet<PlayerDataFacet>
-            .Call(nameof(PlayerDataFacet.SavePlayerEntity),_player).Done();
+            .Call(nameof(PlayerDataFacet.SavePlayerEntity), _player).Done();
     }
+
+    private void UpdateUI()
+    {
+        _experimentEditor.UpdateList();
+        _activeExpListBehavior.UpdateList();
+        _quickSettingsExperimentList.UpdateExperimentList();
+        UpdateExperimentInsertions();
+    }
+
+    #endregion
+
 
     #region Experiment editor
 
@@ -227,7 +231,6 @@ public class UnisaveAccountsManager : AccountsManager
 #endif
         if (_probeUUID2experiment.ContainsKey(probeUUID))
         {
-            Debug.Log("Found probe, removing");
             _player.experiments[_probeUUID2experiment[probeUUID]].Remove(probeUUID);
             UpdateExperimentInsertions();
         }
@@ -262,7 +265,7 @@ public class UnisaveAccountsManager : AccountsManager
     public void ActiveExperimentChanged(string experiment)
     {
 #if UNITY_EDITOR
-        Debug.Log(string.Format("Selected experiment: {0}", experiment));
+        Debug.Log(string.Format("(AccountsManager) Selected experiment: {0}", experiment));
 #endif
         ActiveExperiment = experiment;
         UpdateExperimentInsertions();
@@ -294,12 +297,14 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void UpdateExperimentInsertions()
     {
-        Debug.Log("Updating insertions");
+        Debug.Log("(AccountsManager) Updating insertions");
         // [TODO: This is inefficient, better to keep prefabs that have been created and just hide extras]
 
         // Destroy all children
         for (int i = _insertionPrefabParentT.childCount - 1; i >= 0; i--)
             Destroy(_insertionPrefabParentT.GetChild(i).gameObject);
+
+        Debug.Log("All insertion prefabs destroyed");
 
         // Add new child prefabs that have the properties matched to the current experiment
         var experimentData = GetExperimentData(ActiveExperiment);
@@ -320,33 +325,43 @@ public class UnisaveAccountsManager : AccountsManager
     public void ChangeInsertionVisibility(string UUID, bool visible)
     {
         // Somehow, tell TPManager that we need to create or destroy a new probe... tbd
-        Debug.Log(string.Format("Insertion {0} wants to become {1}", UUID, visible));
-        UpdateCallback();
+        Debug.Log(string.Format("(AccountsManager) Insertion {0} wants to become {1}", UUID, visible));
+        ServerProbeInsertion insertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
+        UpdateCallback(GetProbeInsertionData(UUID), visible);
     }
 
     #endregion
 
     public void SetActiveProbe(string UUID)
     {
+        Debug.Log(UUID);
         SetActiveProbeCallback.Invoke(UUID);
     }
 
     #region Data communication
 
-    public (Vector3 pos, Vector3 angles, string cSpaceName, string cTransformName) GetProbeInsertionData(string UUID)
+    /// <summary>
+    /// Handle anything that needs to be updated when a new probe is added to the scene
+    /// </summary>
+    public void AddNewProbe()
+    {
+        _quickSettingsExperimentList.UpdateExperimentList();
+    }
+
+    public (Vector3 pos, Vector3 angles, int type, string cSpaceName, string cTransformName, string UUID) GetProbeInsertionData(string UUID)
     {
         if (_probeUUID2experiment.ContainsKey(UUID))
         {
             ServerProbeInsertion serverProbeInsertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
             // convert to a regular probe insertion
-            var probeData = (new Vector3(serverProbeInsertion.ap, serverProbeInsertion.ml, serverProbeInsertion.dv),
+            return (new Vector3(serverProbeInsertion.ap, serverProbeInsertion.ml, serverProbeInsertion.dv),
                 new Vector3(serverProbeInsertion.phi, serverProbeInsertion.theta, serverProbeInsertion.spin),
-                serverProbeInsertion.coordinateSpaceName, serverProbeInsertion.coordinateTransformName);
-
-            return probeData;
+                serverProbeInsertion.probeType,
+                serverProbeInsertion.coordinateSpaceName, serverProbeInsertion.coordinateTransformName,
+                UUID);
         }
         else
-            return (Vector3.zero, Vector3.zero, null, null);
+            return (Vector3.zero, Vector3.zero, -1, null, null, null);
     }
 
     /// <summary>

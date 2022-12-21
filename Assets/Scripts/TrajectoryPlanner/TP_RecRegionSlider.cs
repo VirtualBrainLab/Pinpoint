@@ -28,6 +28,9 @@ public class TP_RecRegionSlider : MonoBehaviour
 
     public void SliderValueChanged(float value)
     {
+        if (_tpmanager.InputsFocused())
+            return;
+
         ProbeManager probeManager = _tpmanager.GetActiveProbeManager();
         if (probeManager != null)
         {

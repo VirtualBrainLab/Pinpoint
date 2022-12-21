@@ -167,7 +167,6 @@ namespace TrajectoryPlanner
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
 
             _accountsManager.UpdateCallback = AccountsProbeStatusUpdatedCallback;
-            //_accountsManager.SetActiveProbeCallback = SetActiveProbeByUUID;
             
             _automaticManipulatorControlHandler = _automaticControlPanelGameObject.GetComponent<AutomaticManipulatorControlHandler>();
         }
@@ -279,7 +278,7 @@ namespace TrajectoryPlanner
             {
                 if (UnityEngine.PlayerPrefs.GetInt("probecount", 0) > 0)
                 {
-                    var questionString = PlayerPrefs.IsLinkDataExpired()
+                    var questionString = PlayerPrefs.IsEphysLinkDataExpired()
                         ? "Load previously saved probes?"
                         : "Restore previous session?";
                     
@@ -297,7 +296,7 @@ namespace TrajectoryPlanner
             {
                 var probeInsertion = new ProbeInsertion(savedProbe.apmldv, savedProbe.angles, 
                     coordinateSpaceOpts[savedProbe.coordinateSpaceName], coordinateTransformOpts[savedProbe.coordinateTransformName]);
-                AddNewProbeTransformed(savedProbe.type, probeInsertion,
+                AddNewProbe(savedProbe.type, probeInsertion,
                     savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
                     savedProbe.dropToSurfaceWithDepth, savedProbe.uuid);
             }
@@ -439,6 +438,7 @@ namespace TrajectoryPlanner
         private Vector4 _prevZeroCoordinateOffset;
         private float _prevBrainSurfaceOffset;
         private bool _restoredProbe = true; // Can't restore anything at start
+        private string _prevUUID;
 
         public void DestroyProbe(ProbeManager probeManager)
         {
@@ -454,6 +454,7 @@ namespace TrajectoryPlanner
                 _prevManipulatorId = probeManager.ManipulatorId;
                 _prevZeroCoordinateOffset = probeManager.ZeroCoordinateOffset;
                 _prevBrainSurfaceOffset = probeManager.BrainSurfaceOffset;
+                _prevUUID = probeManager.UUID;
             }
 
             // Cannot restore a ghost probe, so we set restored to true
@@ -516,7 +517,8 @@ namespace TrajectoryPlanner
         private void RecoverActiveProbeController()
         {
             if (_restoredProbe) return;
-            AddNewProbe(_prevProbeType, _prevInsertion, _prevManipulatorId, _prevZeroCoordinateOffset, _prevBrainSurfaceOffset);
+            AddNewProbe(_prevProbeType, _prevInsertion, _prevManipulatorId, _prevZeroCoordinateOffset, _prevBrainSurfaceOffset,
+                false, _prevUUID);
             _restoredProbe = true;
         }
 
@@ -546,26 +548,39 @@ namespace TrajectoryPlanner
             TargetProbeInsertions.Add(newProbeManager.GetProbeController().Insertion);
 
             spawnedThisFrame = true;
+            _accountsManager.AddNewProbe();
 
             return newProbe.GetComponent<ProbeManager>();
         }
-        
-        public ProbeManager AddNewProbeTransformed(int probeType, ProbeInsertion insertion,
-            string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-            string uuid = null, bool isGhost = false)
+
+        public ProbeManager AddNewProbe(int probeType, ProbeInsertion insertion, string UUID = null)
         {
             ProbeManager probeManager = AddNewProbe(probeType);
 
-            if (uuid != null)
-                probeManager.OverrideUUID(uuid);
+            if (UUID != null)
+                probeManager.OverrideUUID(UUID);
 
-            // Update insertion and record of it
-            TargetProbeInsertions.Remove(probeManager.GetProbeController().Insertion);
             probeManager.GetProbeController().SetProbePosition(insertion);
-            TargetProbeInsertions.Add(probeManager.GetProbeController().Insertion);
+
+            spawnedThisFrame = true;
+            _accountsManager.AddNewProbe();
+
+            return probeManager;
+        }
+        
+        public ProbeManager AddNewProbe(int probeType, ProbeInsertion insertion,
+            string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+            string UUID = null, bool isGhost = false)
+        {
+            ProbeManager probeManager = AddNewProbe(probeType);
+
+            if (UUID != null)
+                probeManager.OverrideUUID(UUID);
+
+            probeManager.GetProbeController().SetProbePosition(insertion);
 
             // Repopulate Ephys Link information
-            if (!PlayerPrefs.IsLinkDataExpired())
+            if (!PlayerPrefs.IsEphysLinkDataExpired())
             {
                 probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
                 probeManager.BrainSurfaceOffset = brainSurfaceOffset;
@@ -579,31 +594,7 @@ namespace TrajectoryPlanner
             if (isGhost) probeManager.OriginalProbeManager = GetActiveProbeManager();
 
             spawnedThisFrame = true;
-
-            return probeManager;
-        }
-
-        public ProbeManager AddNewProbe(int probeType, ProbeInsertion localInsertion, string manipulatorId,
-            Vector4 zeroCoordinateOffset = new Vector4(), float brainSurfaceOffset = 0)
-        {
-            var probeManager = AddNewProbe(probeType);
-            if (string.IsNullOrEmpty(manipulatorId))
-            {
-                Debug.LogError("TODO IMPLEMENT");
-                //StartCoroutine(probeController.GetProbeController().SetProbeInsertionTransformed_Delayed(
-                //    localInsertion.ap, localInsertion.ml, localInsertion.dv, 
-                //    localInsertion.phi, localInsertion.theta, localInsertion.spin,
-                //    0.05f));
-            }
-            else
-            {
-                probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
-                probeManager.BrainSurfaceOffset = brainSurfaceOffset;
-                probeManager.SetIsEphysLinkControlled(true, manipulatorId, true, null,
-                    _ => probeManager.SetIsEphysLinkControlled(false));
-            }
-
-            spawnedThisFrame = true;
+            _accountsManager.AddNewProbe();
 
             return probeManager;
         }
@@ -1335,7 +1326,6 @@ namespace TrajectoryPlanner
             return (insertion.apmldv, insertion.angles,
                 probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
                 probeManager.UUID);
-           
         }
 
         /// <summary>
@@ -1343,9 +1333,31 @@ namespace TrajectoryPlanner
         /// 
         /// TPManager then requests a list of all active probes and updates the scene appropriately
         /// </summary>
-        private void AccountsProbeStatusUpdatedCallback()
+        private void AccountsProbeStatusUpdatedCallback((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) data,
+            bool visible)
         {
-            Debug.Log("Probe status update called");
+            if (!visible)
+            {
+                // just make the probe disappear
+            }
+            else
+            {
+                if (data.spaceName != _activeCoordinateSpace.Name || data.transformName != _activeCoordinateTransform.Name)
+                {
+                    // We have a coordiante space/transform mis-match
+                    _qDialogue.SetYesCallback(new Action(delegate { AccountsNewProbeHelper(data); }));
+                    _qDialogue.NewQuestion($"The saved insertion uses {data.spaceName}/{data.transformName} while you are using {_activeCoordinateSpace.Name}/{_activeCoordinateTransform.Name}. Creating a new probe will override these settings with the active ones.");
+                }
+                else
+                    AccountsNewProbeHelper(data);
+            }
+
+            
+        }
+
+        private void AccountsNewProbeHelper((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) data)
+        {
+            AddNewProbe(data.type, new ProbeInsertion(data.apmldv, data.angles, _activeCoordinateSpace, _activeCoordinateTransform), data.UUID);
         }
 
         #endregion

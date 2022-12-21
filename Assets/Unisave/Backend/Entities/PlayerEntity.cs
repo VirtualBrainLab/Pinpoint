@@ -49,7 +49,7 @@ public class ServerProbeInsertion
     public float phi;
     public float theta;
     public float spin;
-    public float probeType;
+    public int probeType;
     public string coordinateSpaceName;
     public string coordinateTransformName;
     public bool active;

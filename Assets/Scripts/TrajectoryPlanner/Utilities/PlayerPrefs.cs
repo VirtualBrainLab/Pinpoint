@@ -348,7 +348,7 @@ public class PlayerPrefs : MonoBehaviour
     ///     Return if it has been more than 24 hours since the last launch.
     /// </summary>
     /// <returns>If it has been more than 24 hours since the last launch</returns>
-    public static bool IsLinkDataExpired()
+    public static bool IsEphysLinkDataExpired()
     {
         var timestampString = UnityEngine.PlayerPrefs.GetString("timestamp");
         if (timestampString == "") return false;
