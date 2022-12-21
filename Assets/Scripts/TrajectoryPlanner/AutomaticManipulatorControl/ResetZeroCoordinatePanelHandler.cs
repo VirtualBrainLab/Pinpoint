@@ -19,6 +19,9 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region UI Functions
 
+        /// <summary>
+        ///     Reset zero coordinate of the manipulator
+        /// </summary>
         public void ResetZeroCoordinate()
         {
             CommunicationManager.GetPos(ProbeManager.ManipulatorId, zeroCoordinate =>
@@ -33,13 +36,17 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Components
 
+        #region Shared
+
+        public static Action<ProbeManager> ResetZeroCoordinateCallback { private get; set; }
+
+        public static CommunicationManager CommunicationManager { private get; set; }
+
+        #endregion
+
         [SerializeField] private TMP_Text _manipulatorIDText;
 
         public ProbeManager ProbeManager { private get; set; }
-
-        public Action<ProbeManager> ResetZeroCoordinateCallback { private get; set; }
-
-        public CommunicationManager CommunicationManager { private get; set; }
 
         #endregion
     }

@@ -6,6 +6,7 @@ using System.Linq;
 using EphysLink;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace TrajectoryPlanner.AutomaticManipulatorControl
@@ -44,8 +45,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
             // Setup
             resetZeroCoordinatePanelHandler.ProbeManager = probeManager;
-            resetZeroCoordinatePanelHandler.ResetZeroCoordinateCallback = AddInsertionSelectionPanel;
-            resetZeroCoordinatePanelHandler.CommunicationManager = _communicationManager;
         }
 
         #endregion
@@ -134,9 +133,8 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             _gotoPanel.CanvasGroup.interactable = true;
             _gotoPanel.PanelText.color = _readyColor;
             _zeroCoordinatePanel.PanelText.color = Color.white;
-
-            // Update insertion options
-            // UpdateInsertionDropdownOptions();
+            _gotoPanel.PanelScrollView.SetActive(true);
+            _gotoPanel.ManipulatorsZeroedText.SetActive(false);
         }
 
         private void AddInsertionSelectionPanel(ProbeManager probeManager)
@@ -150,12 +148,10 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             var insertionSelectionPanelHandler =
                 insertionSelectionPanelGameObject.GetComponent<InsertionSelectionPanelHandler>();
 
-
-            // var gotoPanelGameObject = Instantiate(
-            //     _gotoPanel.GotoPanelPrefab,
-            //     _gotoPanel.ManipulatorScrollViewContent.transform);
-            // var gotoPanelHandler = gotoPanelGameObject.GetComponent<GotoPanelHandler>();
-            // gotoPanelHandler.Setup(_probeManager, _probe1LineRenderers, _probe2LineRenderers, EnableStep3);
+            // Setup
+            insertionSelectionPanelHandler.ProbeManager = probeManager;
+            _shouldUpdateTargetInsertionOptions.AddListener(insertionSelectionPanelHandler
+                .UpdateTargetInsertionOptions);
         }
 
         private void UpdateManipulatorInsertionSelection(int dropdownValue, int manipulatorID)
@@ -196,12 +192,12 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         {
             // Save currently selected option
             _probe1SelectedTargetProbeInsertion = _gotoManipulator1TargetInsertionDropdown.value > 0
-                ? TargetProbeInsertionsReference.First(insertion =>
+                ? TargetInsertionsReference.First(insertion =>
                     insertion.PositionToString().Equals(_gotoManipulator1TargetInsertionDropdown
                         .options[_gotoManipulator1TargetInsertionDropdown.value].text))
                 : null;
             _probe2SelectedTargetProbeInsertion = _gotoManipulator2TargetInsertionDropdown.value > 0
-                ? TargetProbeInsertionsReference.First(insertion =>
+                ? TargetInsertionsReference.First(insertion =>
                     insertion.PositionToString().Equals(_gotoManipulator2TargetInsertionDropdown
                         .options[_gotoManipulator2TargetInsertionDropdown.value].text))
                 : null;
@@ -915,7 +911,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         public List<ProbeManager> ProbeManagers { private get; set; }
 
-        public HashSet<string> RightHandedManipulatorIDs { private get; set; }
 
         public ProbeManager Probe1Manager { private get; set; }
         public ProbeManager Probe2Manager { private get; set; }
@@ -924,20 +919,23 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Step 2
 
+        public HashSet<string> RightHandedManipulatorIDs { private get; set; }
         public bool IsProbe1ManipulatorRightHanded { private get; set; }
         public bool IsProbe2ManipulatorRightHanded { private get; set; }
 
-        public HashSet<ProbeInsertion> TargetProbeInsertionsReference { private get; set; }
+        public HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
         private ProbeInsertion _probe1SelectedTargetProbeInsertion;
         private ProbeInsertion _probe2SelectedTargetProbeInsertion;
 
-        private List<ProbeInsertion> Probe1TargetProbeInsertionOptions => TargetProbeInsertionsReference
+        private List<ProbeInsertion> Probe1TargetProbeInsertionOptions => TargetInsertionsReference
             .Where(insertion => insertion != _probe2SelectedTargetProbeInsertion &&
                                 insertion.angles == Probe1Manager.GetProbeController().Insertion.angles).ToList();
 
-        private List<ProbeInsertion> Probe2TargetProbeInsertionOptions => TargetProbeInsertionsReference
+        private List<ProbeInsertion> Probe2TargetProbeInsertionOptions => TargetInsertionsReference
             .Where(insertion => insertion != _probe1SelectedTargetProbeInsertion &&
                                 insertion.angles == Probe2Manager.GetProbeController().Insertion.angles).ToList();
+
+        private UnityEvent _shouldUpdateTargetInsertionOptions;
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _probe1MovementAxesInsertions;
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _probe2MovementAxesInsertions;
@@ -984,6 +982,14 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         private void OnEnable()
         {
+            // Populate static fields
+            ResetZeroCoordinatePanelHandler.ResetZeroCoordinateCallback = AddInsertionSelectionPanel;
+            ResetZeroCoordinatePanelHandler.CommunicationManager = _communicationManager;
+
+            InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
+            InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent =
+                _shouldUpdateTargetInsertionOptions;
+
             // Enable step 1
             EnableStep1();
         }

@@ -117,7 +117,7 @@ namespace TrajectoryPlanner
         private AutomaticManipulatorControlHandler _automaticManipulatorControlHandler;
 
         private HashSet<string> _rightHandedManipulatorIds = new();
-        public HashSet<ProbeInsertion> TargetProbeInsertions { get; } = new();
+        public HashSet<ProbeInsertion> TargetInsertions { get; } = new();
 
         public void EnableAutomaticManipulatorControlPanel(bool enable = true)
         {
@@ -125,7 +125,7 @@ namespace TrajectoryPlanner
                 ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
             _automaticManipulatorControlHandler.RightHandedManipulatorIDs = _rightHandedManipulatorIds;
             _automaticManipulatorControlHandler.AnnotationDataset = GetAnnotationDataset();
-            _automaticManipulatorControlHandler.TargetProbeInsertionsReference = TargetProbeInsertions;
+            _automaticManipulatorControlHandler.TargetInsertionsReference = TargetInsertions;
             
             _automaticControlPanelGameObject.SetActive(enable);
         }
@@ -500,7 +500,7 @@ namespace TrajectoryPlanner
             }
             
             // Remove the probe's insertion from the list of insertions (does nothing if not found)
-            TargetProbeInsertions.Remove(activeProbe.GetProbeController().Insertion);
+            TargetInsertions.Remove(activeProbe.GetProbeController().Insertion);
 
             // Remove Probe
             DestroyProbe(activeProbe);
@@ -537,7 +537,7 @@ namespace TrajectoryPlanner
             GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
             SetActiveProbe(newProbeManager);
-            TargetProbeInsertions.Add(newProbeManager.GetProbeController().Insertion);
+            TargetInsertions.Add(newProbeManager.GetProbeController().Insertion);
 
             spawnedThisFrame = true;
             _accountsManager.AddNewProbe();

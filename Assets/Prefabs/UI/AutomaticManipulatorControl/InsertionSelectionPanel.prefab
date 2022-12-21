@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6235165258273775828}
   - component: {fileID: 2196160103224389618}
   m_Layer: 5
-  m_Name: ProbeIDText
+  m_Name: ManipulatorIDText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1432,6 +1432,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5103970214871766003}
   - component: {fileID: 6544451480568003852}
+  - component: {fileID: 6020112440439880645}
   m_Layer: 5
   m_Name: InsertionSelectionPanel
   m_TagString: Untagged
@@ -1488,6 +1489,24 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &6020112440439880645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4424500575015542408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66546e8c42fac0c4980a77df5f56e15d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _manipulatorIDText: {fileID: 6235165258273775828}
+  _targetInsertionDropdown: {fileID: 2637226961668336596}
+  _apInputField: {fileID: 831753356370093475}
+  _mlInputField: {fileID: 876138261419165244}
+  _dvInputField: {fileID: 5282841611714941283}
+  _depthInputField: {fileID: 6821077568314275510}
 --- !u!1 &5350147386769723515
 GameObject:
   m_ObjectHideFlags: 0
@@ -2274,10 +2293,10 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TrajectoryPlanner.AutomaticManipulatorControlHandler,
+      - m_Target: {fileID: 6020112440439880645}
+        m_TargetAssemblyTypeName: TrajectoryPlanner.AutomaticManipulatorControl.InsertionSelectionPanelHandler,
           trajectoryplanner.core
-        m_MethodName: UpdateManipulator1InsertionInputFields
+        m_MethodName: OnTargetInsertionDropdownValueChanged
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
