@@ -8,7 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AutomaticManipulatorControl
+namespace TrajectoryPlanner.AutomaticManipulatorControl
 {
     public class AutomaticManipulatorControlHandler : MonoBehaviour
     {
