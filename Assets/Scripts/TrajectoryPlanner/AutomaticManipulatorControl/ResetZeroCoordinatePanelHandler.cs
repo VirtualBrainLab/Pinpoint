@@ -17,7 +17,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             });
         }
 
-        public void SetupResetZeroCoordinatePanel(ProbeManager probeManager, Action onResetZeroCoordinate)
+        public void Setup(ProbeManager probeManager, Action onResetZeroCoordinate)
         {
             _probeManager = probeManager;
             _onResetZeroCoordinate = onResetZeroCoordinate;
