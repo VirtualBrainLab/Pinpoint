@@ -7,30 +7,38 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 {
     public class ResetZeroCoordinatePanelHandler : MonoBehaviour
     {
+        #region Unity
+
+        private void Start()
+        {
+            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
+            _manipulatorIDText.color = ProbeManager.GetColor();
+        }
+
+        #endregion
+
+        #region UI Functions
+
         public void ResetZeroCoordinate()
         {
-            CommunicationManager.GetPos(_probeManager.ManipulatorId, zeroCoordinate =>
+            CommunicationManager.GetPos(ProbeManager.ManipulatorId, zeroCoordinate =>
             {
-                _probeManager.ZeroCoordinateOffset = zeroCoordinate;
-                _probeManager.BrainSurfaceOffset = 0;
-                _onResetZeroCoordinate.Invoke();
+                ProbeManager.ZeroCoordinateOffset = zeroCoordinate;
+                ProbeManager.BrainSurfaceOffset = 0;
+                ResetZeroCoordinateCallback.Invoke(ProbeManager);
             });
         }
 
-        public void Setup(ProbeManager probeManager, Action onResetZeroCoordinate)
-        {
-            _probeManager = probeManager;
-            _onResetZeroCoordinate = onResetZeroCoordinate;
-            _manipulatorIDText.text = "Manipulator " + probeManager.ManipulatorId;
-        }
+        #endregion
 
         #region Components
 
         [SerializeField] private TMP_Text _manipulatorIDText;
 
-        private ProbeManager _probeManager;
+        public ProbeManager ProbeManager { private get; set; }
 
-        private Action _onResetZeroCoordinate;
+        public Action<ProbeManager> ResetZeroCoordinateCallback { private get; set; }
+
         public CommunicationManager CommunicationManager { private get; set; }
 
         #endregion

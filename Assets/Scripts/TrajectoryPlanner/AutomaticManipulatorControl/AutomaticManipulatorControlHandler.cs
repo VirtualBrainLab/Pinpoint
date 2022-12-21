@@ -23,6 +23,25 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Internal UI Functions
 
+        #region Step 1
+
+        private void AddResetZeroCoordinatePanel(ProbeManager probeManager)
+        {
+            // Instantiate
+            var resetZeroCoordinatePanelGameObject = Instantiate(
+                _zeroCoordinatePanel.ResetZeroCoordinatePanelPrefab,
+                _zeroCoordinatePanel.ManipulatorScrollViewContent.transform);
+            var resetZeroCoordinatePanelHandler =
+                resetZeroCoordinatePanelGameObject.GetComponent<ResetZeroCoordinatePanelHandler>();
+
+            // Setup
+            resetZeroCoordinatePanelHandler.ProbeManager = probeManager;
+            resetZeroCoordinatePanelHandler.ResetZeroCoordinateCallback = AddGotoPanel;
+            resetZeroCoordinatePanelHandler.CommunicationManager = _communicationManager;
+        }
+
+        #endregion
+
         #region Step 2
 
         private void InitializeLineRenderers()
@@ -98,14 +117,30 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         private void EnableStep2()
         {
+            // Check if needed
+            if (_step != 1) return;
+            _step = 2;
+
             // Enable UI
-            _gotoPanelCanvasGroup.alpha = 1;
-            _gotoPanelCanvasGroup.interactable = true;
-            _gotoPanelText.color = _readyColor;
-            _zeroCoordinatePanelText.color = Color.white;
+            _gotoPanel.CanvasGroup.alpha = 1;
+            _gotoPanel.CanvasGroup.interactable = true;
+            _gotoPanel.PanelText.color = _readyColor;
+            _zeroCoordinatePanel.PanelText.color = Color.white;
 
             // Update insertion options
             UpdateInsertionDropdownOptions();
+        }
+
+        private void AddGotoPanel(ProbeManager probeManager)
+        {
+            // Enable step 2 (automatically checks if needed)
+            EnableStep2();
+
+            // var gotoPanelGameObject = Instantiate(
+            //     _gotoPanel.GotoPanelPrefab,
+            //     _gotoPanel.ManipulatorScrollViewContent.transform);
+            // var gotoPanelHandler = gotoPanelGameObject.GetComponent<GotoPanelHandler>();
+            // gotoPanelHandler.Setup(_probeManager, _probe1LineRenderers, _probe2LineRenderers, EnableStep3);
         }
 
         private void UpdateManipulatorInsertionSelection(int dropdownValue, int manipulatorID)
@@ -761,7 +796,8 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Step 1
 
-        private class ZeroCoordinatePanelComponents : MonoBehaviour
+        [Serializable]
+        private class ZeroCoordinatePanelComponents
         {
             public TMP_Text PanelText;
             public GameObject ResetZeroCoordinatePanelPrefab;
@@ -770,13 +806,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             public GameObject ManipulatorsAttachedText;
         }
 
-        [ContextMenu("Add Zero Coordinate Panel Components")]
-        private void AddZeroCoordinatePanelComponents()
-        {
-            _zeroCoordinatePanel = gameObject.AddComponent<ZeroCoordinatePanelComponents>();
-        }
-
-        private ZeroCoordinatePanelComponents _zeroCoordinatePanel;
+        [SerializeField] private ZeroCoordinatePanelComponents _zeroCoordinatePanel;
 
         [SerializeField] private TMP_Text _zeroCoordinatePanelText;
         [SerializeField] private TMP_Text _zeroCoordinateManipulator1ProbeText;
@@ -887,6 +917,10 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         private uint _step = 1;
 
+        public List<ProbeManager> ProbeManagers { private get; set; }
+
+        public HashSet<string> RightHandedManipulatorIDs { private get; set; }
+
         public ProbeManager Probe1Manager { private get; set; }
         public ProbeManager Probe2Manager { private get; set; }
 
@@ -954,6 +988,14 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         private void OnEnable()
         {
+            // Initialize step 1
+            if (ProbeManagers.Any())
+            {
+                _zeroCoordinatePanel.ManipulatorScrollView.SetActive(true);
+                _zeroCoordinatePanel.ManipulatorsAttachedText.SetActive(false);
+                foreach (var probeManager in ProbeManagers) AddResetZeroCoordinatePanel(probeManager);
+            }
+
             if (Probe1Manager)
             {
                 var probeText = "Probe #" + Probe1Manager.ID;
@@ -966,20 +1008,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                 _duraManipulator1ProbeText.color = Probe1Manager.GetColor();
 
                 UpdateManipulatorInsertionInputFields(_gotoManipulator1TargetInsertionDropdown.value, 1);
-            }
-
-            if (!Probe2Manager) return;
-            {
-                var probeText = "Probe #" + Probe2Manager.ID;
-                _zeroCoordinateManipulator2ProbeText.text = probeText;
-                _gotoManipulator2ProbeText.text = probeText;
-                _duraManipulator2ProbeText.text = probeText;
-
-                _zeroCoordinateManipulator2ProbeText.color = Probe2Manager.GetColor();
-                _gotoManipulator2ProbeText.color = Probe2Manager.GetColor();
-                _duraManipulator2ProbeText.color = Probe2Manager.GetColor();
-
-                UpdateManipulatorInsertionInputFields(_gotoManipulator2TargetInsertionDropdown.value, 2);
             }
         }
 

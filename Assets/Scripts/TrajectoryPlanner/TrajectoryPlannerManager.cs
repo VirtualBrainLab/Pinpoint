@@ -116,21 +116,15 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("automaticControlPanelGameObject")] [SerializeField] private GameObject _automaticControlPanelGameObject;
         private AutomaticManipulatorControlHandler _automaticManipulatorControlHandler;
 
-        private CommunicationManager _communicationManager;
         private HashSet<string> _rightHandedManipulatorIds = new();
         public HashSet<ProbeInsertion> TargetProbeInsertions { get; } = new();
 
         public void EnableAutomaticManipulatorControlPanel(bool enable = true)
         {
-            _automaticManipulatorControlHandler.Probe1Manager =
-                ProbeManager.instances.Find(manager => manager.ManipulatorId == "1");
-            _automaticManipulatorControlHandler.Probe2Manager =
-                ProbeManager.instances.Find(manager => manager.ManipulatorId == "2");
+            _automaticManipulatorControlHandler.ProbeManagers =
+                ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
+            _automaticManipulatorControlHandler.RightHandedManipulatorIDs = _rightHandedManipulatorIds;
             _automaticManipulatorControlHandler.AnnotationDataset = GetAnnotationDataset();
-            _automaticManipulatorControlHandler.IsProbe1ManipulatorRightHanded =
-                _rightHandedManipulatorIds.Contains("1");
-            _automaticManipulatorControlHandler.IsProbe2ManipulatorRightHanded =
-                _rightHandedManipulatorIds.Contains("2");
             _automaticManipulatorControlHandler.TargetProbeInsertionsReference = TargetProbeInsertions;
             
             _automaticControlPanelGameObject.SetActive(enable);
@@ -163,8 +157,6 @@ namespace TrajectoryPlanner
             meshCenters = new Dictionary<int, Vector3>();
             LoadMeshData();
             //Physics.autoSyncTransforms = true;
-
-            _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
 
             _accountsManager.UpdateCallback = AccountsProbeStatusUpdatedCallback;
             
