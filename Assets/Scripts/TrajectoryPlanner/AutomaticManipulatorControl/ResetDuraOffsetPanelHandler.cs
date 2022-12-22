@@ -7,20 +7,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 {
     public class ResetDuraOffsetPanelHandler : MonoBehaviour
     {
-        #region Components
-
-        [SerializeField] private TMP_Text _manipulatorIDText;
-        public ProbeManager ProbeManager { private get; set; }
-
-        #endregion
-
-        #region Properties
-
-        public static HashSet<string> ProbesAtDura { private get; set; }
-        public static Action EnableStep4Callback { private get; set; }
-
-        #endregion
-
         #region Unity
 
         private void Start()
@@ -33,17 +19,34 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region UI Functions
 
+        /// <summary>
+        ///     Reset the dura offset of the probe and enable the next step
+        /// </summary>
         public void ResetDuraOffset()
         {
             // Reset dura offset
             ProbeManager.SetBrainSurfaceOffset();
-            
+
             // Add probe to list of probes at dura
             ProbesAtDura.Add(ProbeManager.ManipulatorId);
-            
+
             // Enable next step
             EnableStep4Callback.Invoke();
         }
+
+        #endregion
+
+        #region Components
+
+        [SerializeField] private TMP_Text _manipulatorIDText;
+        public ProbeManager ProbeManager { private get; set; }
+
+        #endregion
+
+        #region Properties
+
+        public static HashSet<string> ProbesAtDura { private get; set; }
+        public static Action EnableStep4Callback { private get; set; }
 
         #endregion
     }
