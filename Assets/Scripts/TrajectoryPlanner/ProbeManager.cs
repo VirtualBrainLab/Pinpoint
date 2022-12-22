@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using EphysLink;
 using TMPro;
 using TrajectoryPlanner;
@@ -11,6 +12,13 @@ using UnityEngine.Serialization;
 /// </summary>
 public class ProbeManager : MonoBehaviour
 {
+    #region Webgl only
+#if UNITY_WEBGL
+    [DllImport("__Internal")]
+    private static extern void Copy2Clipboard(string str);
+#endif
+    #endregion
+
     #region Static fields
     public static List<ProbeManager> instances = new List<ProbeManager>();
     void OnEnable() => instances.Add(this);
@@ -410,10 +418,14 @@ public class ProbeManager : MonoBehaviour
             depthStr, round0(depthTransformed * mult),
             round0(apmldvS.x * mult), round0(apmldvS.y * mult), round0(apmldvS.z * mult));
 
+#if UNITY_WEBGL
+        Copy2Clipboard(updateStr);
+#else
         GUIUtility.systemCopyBuffer = updateStr;
+#endif
     }
 
-    #endregion
+#endregion
 
 
     public void RegisterProbeCallback(int ID, Color probeColor)
@@ -446,7 +458,7 @@ public class ProbeManager : MonoBehaviour
         }
     }
 
-    #region Brain surface coordinate
+#region Brain surface coordinate
 
     /// <summary>
     /// Check whether the probe is in the brain.
@@ -511,7 +523,7 @@ public class ProbeManager : MonoBehaviour
         return probeInBrain;
     }
 
-    #endregion
+#endregion
 
     /// <summary>
     /// to implement 
@@ -521,9 +533,9 @@ public class ProbeManager : MonoBehaviour
 
     }
 
-    #region Ephys Link and Control
+#region Ephys Link and Control
 
-    #region Property Manipulators
+#region Property Manipulators
 
 
     /// <summary>
@@ -744,9 +756,9 @@ public class ProbeManager : MonoBehaviour
         IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
     }
 
-    #endregion
+#endregion
 
-    #region Actions
+#region Actions
 
     /// <summary>
     ///     Echo given position in needles transform space to the probe.
@@ -806,11 +818,11 @@ public class ProbeManager : MonoBehaviour
             _ephysLinkCommunicationManager.GetPos(ManipulatorId, EchoPositionFromEphysLink);
     }
 
-    #endregion
+#endregion
 
-    #endregion
+#endregion
 
-    #region AxisControl
+#region AxisControl
 
     public void SetAxisVisibility(bool AP, bool ML, bool DV, bool depth)
     {
@@ -818,9 +830,9 @@ public class ProbeManager : MonoBehaviour
         tpmanager.SetAxisVisibility(AP, ML, DV, depth, tipT);
     }
 
-    #endregion AxisControl
+#endregion AxisControl
 
-    #region Materials
+#region Materials
 
 
     /// <summary>
@@ -848,5 +860,5 @@ public class ProbeManager : MonoBehaviour
                 childRenderer.material = defaultMaterials[childRenderer.gameObject];
     }
 
-    #endregion
+#endregion
 }
