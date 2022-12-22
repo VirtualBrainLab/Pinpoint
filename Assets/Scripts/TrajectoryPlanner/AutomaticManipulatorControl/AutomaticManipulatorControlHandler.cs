@@ -66,6 +66,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
             InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent.AddListener(
                 UpdateMoveButtonInteractable);
+            InsertionSelectionPanelHandler.AddResetDuraOffsetPanelCallback = AddResetDuraOffsetPanel;
 
             // Enable UI
             _gotoPanel.CanvasGroup.alpha = 1;
@@ -124,6 +125,21 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             _duraPanelCanvasGroup.interactable = true;
             _duraPanelText.color = Color.green;
             _gotoPanelText.color = Color.white;
+        }
+
+        private void AddResetDuraOffsetPanel(ProbeManager probeManager)
+        {
+            // Show scroll view
+            _duraOffsetPanel.PanelScrollView.SetActive(true);
+            _duraOffsetPanel.ManipulatorsDrivenText.SetActive(false);
+            
+            // Instantiate
+            var resetDuraPanelGameObject = Instantiate(_duraOffsetPanel.ResetDuraOffsetPanelPrefab,
+                _duraOffsetPanel.PanelScrollViewContent.transform);
+            var resetDuraPanelHandler = resetDuraPanelGameObject.GetComponent<ResetDuraOffsetPanelHandler>();
+
+            // Setup
+            resetDuraPanelHandler.ProbeManager = probeManager;
         }
 
         #endregion

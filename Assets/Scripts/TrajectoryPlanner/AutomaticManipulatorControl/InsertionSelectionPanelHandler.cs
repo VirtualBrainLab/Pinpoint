@@ -157,6 +157,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         public static CCFAnnotationDataset AnnotationDataset { private get; set; }
         public static readonly Dictionary<string, ProbeInsertion> SelectedTargetInsertion = new();
         private static uint completedMovements;
+        public static Action<ProbeManager> AddResetDuraOffsetPanelCallback { private get; set; }
         public static bool Moving { get; private set; }
         public static readonly UnityEvent<string> ShouldUpdateTargetInsertionOptionsEvent = new();
 
@@ -328,6 +329,9 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
                                                 // Increment movement counter
                                                 completedMovements++;
+                                                
+                                                // Add a dura offset panel
+                                                AddResetDuraOffsetPanelCallback.Invoke(ProbeManager);
 
                                                 // Check and invoke totally complete callback
                                                 if (completedMovements != SelectedTargetInsertion.Count) return;
