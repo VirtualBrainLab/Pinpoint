@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
             _manipulatorIDText.color = ProbeManager.GetColor();
 
-            _shouldUpdateTargetInsertionOptionsEvent.AddListener(UpdateTargetInsertionOptions);
+            ShouldUpdateTargetInsertionOptionsEvent.AddListener(UpdateTargetInsertionOptions);
             UpdateTargetInsertionOptions("-1");
         }
 
@@ -38,7 +39,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         private IEnumerable<ProbeInsertion> _targetInsertionOptions => TargetInsertionsReference
             .Where(insertion =>
-                !_selectedTargetInsertion.Where(pair => pair.Key != ProbeManager.ManipulatorId)
+                !SelectedTargetInsertion.Where(pair => pair.Key != ProbeManager.ManipulatorId)
                     .Select(pair => pair.Value).Contains(insertion) &&
                 insertion.angles == ProbeManager.GetProbeController().Insertion.angles);
 
@@ -46,8 +47,8 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         #region Shared
 
         public static HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
-        private static readonly Dictionary<string, ProbeInsertion> _selectedTargetInsertion = new();
-        private static readonly UnityEvent<string> _shouldUpdateTargetInsertionOptionsEvent = new();
+        public static readonly Dictionary<string, ProbeInsertion> SelectedTargetInsertion = new();
+        public static readonly UnityEvent<string> ShouldUpdateTargetInsertionOptionsEvent = new();
 
         #endregion
 
@@ -62,15 +63,35 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         /// <param name="value">Selected index</param>
         public void OnTargetInsertionDropdownValueChanged(int value)
         {
-            // Update selection record
-            _selectedTargetInsertion[ProbeManager.ManipulatorId] = value > 0
+            // Get selection as insertion
+            var insertion = value > 0
                 ? TargetInsertionsReference.First(insertion =>
                     insertion.PositionToString()
                         .Equals(_targetInsertionDropdown.options[_targetInsertionDropdown.value].text))
                 : null;
 
+            // Update selection record and text fields
+            if (insertion == null)
+            {
+                SelectedTargetInsertion.Remove(ProbeManager.ManipulatorId);
+                
+                _apInputField.text = "";
+                _mlInputField.text = "";
+                _dvInputField.text = "";
+                _depthInputField.text = "";
+            }
+            else
+            {
+                SelectedTargetInsertion[ProbeManager.ManipulatorId] = insertion;
+                
+                _apInputField.text = (insertion.ap * 1000).ToString(CultureInfo.CurrentCulture);
+                _mlInputField.text = (insertion.ml * 1000).ToString(CultureInfo.CurrentCulture);
+                _dvInputField.text = (insertion.dv * 1000).ToString(CultureInfo.CurrentCulture);
+                _depthInputField.text = "0";
+            }
+
             // Update dropdown options
-            _shouldUpdateTargetInsertionOptionsEvent.Invoke(ProbeManager.ManipulatorId);
+            ShouldUpdateTargetInsertionOptionsEvent.Invoke(ProbeManager.ManipulatorId);
         }
 
         /// <summary>
@@ -95,7 +116,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             // Restore selection (if possible)
             _targetInsertionDropdown.SetValueWithoutNotify(
                 _targetInsertionOptions.ToList()
-                    .IndexOf(_selectedTargetInsertion.GetValueOrDefault(ProbeManager.ManipulatorId, null)) + 1
+                    .IndexOf(SelectedTargetInsertion.GetValueOrDefault(ProbeManager.ManipulatorId, null)) + 1
             );
         }
 

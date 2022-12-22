@@ -150,78 +150,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             // Setup
             insertionSelectionPanelHandler.ProbeManager = probeManager;
         }
-
-        private void UpdateManipulatorInsertionSelection(int dropdownValue, int manipulatorID)
-        {
-            UpdateManipulatorInsertionInputFields(dropdownValue, manipulatorID);
-            UpdateInsertionDropdownOptions();
-            CalculateAndDrawPath(manipulatorID);
-            UpdateMoveButtonInteractable();
-        }
-
-        private void UpdateManipulatorInsertionInputFields(int dropdownValue, int manipulatorID)
-        {
-            var insertionInputFields = manipulatorID == 1
-                ? _gotoManipulator1InsertionInputFields
-                : _gotoManipulator2InsertionInputFields;
-            var insertionOptions = manipulatorID == 1
-                ? Probe1TargetProbeInsertionOptions
-                : Probe2TargetProbeInsertionOptions;
-
-            if (dropdownValue == 0)
-            {
-                insertionInputFields.ap.text = "";
-                insertionInputFields.ml.text = "";
-                insertionInputFields.dv.text = "";
-                insertionInputFields.depth.text = "";
-            }
-            else
-            {
-                var selectedInsertion = insertionOptions[dropdownValue - 1];
-                insertionInputFields.ap.text = (selectedInsertion.ap * 1000).ToString(CultureInfo.CurrentCulture);
-                insertionInputFields.ml.text = (selectedInsertion.ml * 1000).ToString(CultureInfo.CurrentCulture);
-                insertionInputFields.dv.text = (selectedInsertion.dv * 1000).ToString(CultureInfo.CurrentCulture);
-                insertionInputFields.depth.text = "0";
-            }
-        }
-
-        private void UpdateInsertionDropdownOptions()
-        {
-            // Save currently selected option
-            _probe1SelectedTargetProbeInsertion = _gotoManipulator1TargetInsertionDropdown.value > 0
-                ? TargetInsertionsReference.First(insertion =>
-                    insertion.PositionToString().Equals(_gotoManipulator1TargetInsertionDropdown
-                        .options[_gotoManipulator1TargetInsertionDropdown.value].text))
-                : null;
-            _probe2SelectedTargetProbeInsertion = _gotoManipulator2TargetInsertionDropdown.value > 0
-                ? TargetInsertionsReference.First(insertion =>
-                    insertion.PositionToString().Equals(_gotoManipulator2TargetInsertionDropdown
-                        .options[_gotoManipulator2TargetInsertionDropdown.value].text))
-                : null;
-
-            // Clear options
-            _gotoManipulator1TargetInsertionDropdown.ClearOptions();
-            _gotoManipulator2TargetInsertionDropdown.ClearOptions();
-
-            // Add base option
-            var baseOption = new TMP_Dropdown.OptionData("Choose an insertion...");
-            _gotoManipulator1TargetInsertionDropdown.options.Add(baseOption);
-            _gotoManipulator2TargetInsertionDropdown.options.Add(baseOption);
-
-            // Add other options
-            _gotoManipulator1TargetInsertionDropdown.AddOptions(Probe1TargetProbeInsertionOptions
-                .Select(insertion => insertion.PositionToString()).ToList());
-            _gotoManipulator2TargetInsertionDropdown.AddOptions(Probe2TargetProbeInsertionOptions
-                .Select(insertion => insertion.PositionToString()).ToList());
-
-            // Restore selection option (if possible)
-            _gotoManipulator1TargetInsertionDropdown.SetValueWithoutNotify(
-                Probe1TargetProbeInsertionOptions.IndexOf(_probe1SelectedTargetProbeInsertion) + 1);
-
-            _gotoManipulator2TargetInsertionDropdown.SetValueWithoutNotify(
-                Probe2TargetProbeInsertionOptions.IndexOf(_probe2SelectedTargetProbeInsertion) + 1);
-        }
-
         private void CalculateAndDrawPath(int manipulatorID)
         {
             var targetProbe = manipulatorID == 1
@@ -322,11 +250,9 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             lineRenderer.ml.SetPosition(1, axesInsertions.ml.PositionWorldT());
         }
 
-        private void UpdateMoveButtonInteractable()
+        private void UpdateMoveButtonInteractable(string _)
         {
-            _gotoMoveButton.interactable = _probe1SelectedTargetProbeInsertion != null ||
-                                           _probe2SelectedTargetProbeInsertion != null ||
-                                           _expectedMovements != _completedMovements;
+            _gotoMoveButton.interactable = InsertionSelectionPanelHandler.SelectedTargetInsertion.Count > 0;
         }
 
         private Vector4 ConvertInsertionToManipulatorPosition(ProbeInsertion insertion, string manipulatorID)
@@ -398,7 +324,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             }
 
             // Update button intractability (might do nothing)
-            UpdateMoveButtonInteractable();
+            UpdateMoveButtonInteractable("");
         }
 
         #endregion
@@ -589,16 +515,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Step 2
 
-        public void UpdateManipulator1InsertionInputFields(int dropdownValue)
-        {
-            UpdateManipulatorInsertionSelection(dropdownValue, 1);
-        }
-
-        public void UpdateManipulator2InsertionInputFields(int dropdownValue)
-        {
-            UpdateManipulatorInsertionSelection(dropdownValue, 2);
-        }
-
         public void MoveOrStopProbeToInsertionTarget()
         {
             if (_expectedMovements == _completedMovements)
@@ -725,7 +641,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                     _gotoMoveButtonText.text = "Move Manipulators into Position";
 
                     // Update button interactable
-                    UpdateMoveButtonInteractable();
+                    UpdateMoveButtonInteractable("");
                 });
             }
         }
@@ -982,6 +898,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             ResetZeroCoordinatePanelHandler.CommunicationManager = _communicationManager;
 
             InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
+            InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent.AddListener(UpdateMoveButtonInteractable);
 
             // Enable step 1
             EnableStep1();
