@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using EphysLink;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -61,6 +63,51 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                 _lineRenderers.ml.positionCount = _lineRenderers.dv.positionCount = NUM_SEGMENTS;
         }
 
+        private Vector4 ConvertInsertionToManipulatorPosition(ProbeInsertion insertion)
+        {
+            // Gather info
+            var apmldv = insertion.apmldv;
+            const float depth = 0;
+
+            // Convert apmldv to world coordinate
+            var convertToWorld = insertion.Transformed2WorldAxisChange(apmldv);
+            // var convertToWorld = insertion.PositionWorld();
+
+            // Flip axes to match manipulator
+            var posWithDepthAndCorrectAxes = new Vector4(
+                -convertToWorld.z,
+                convertToWorld.x,
+                convertToWorld.y,
+                depth);
+
+            // Apply brain surface offset
+            var brainSurfaceAdjustment = float.IsNaN(ProbeManager.BrainSurfaceOffset)
+                ? 0
+                : ProbeManager.BrainSurfaceOffset;
+            if (ProbeManager.IsSetToDropToSurfaceWithDepth)
+                posWithDepthAndCorrectAxes.w -= brainSurfaceAdjustment;
+            else
+                posWithDepthAndCorrectAxes.z -= brainSurfaceAdjustment;
+
+            // Adjust for phi
+            var probePhi = ProbeManager.GetProbeController().Insertion.phi * Mathf.Deg2Rad;
+            var phiCos = Mathf.Cos(probePhi);
+            var phiSin = Mathf.Sin(probePhi);
+            var phiAdjustedX = posWithDepthAndCorrectAxes.x * phiCos -
+                               posWithDepthAndCorrectAxes.y * phiSin;
+            var phiAdjustedY = posWithDepthAndCorrectAxes.x * phiSin +
+                               posWithDepthAndCorrectAxes.y * phiCos;
+            posWithDepthAndCorrectAxes.x = phiAdjustedX;
+            posWithDepthAndCorrectAxes.y = phiAdjustedY;
+
+            // Apply axis negations
+            posWithDepthAndCorrectAxes.z *= -1;
+            posWithDepthAndCorrectAxes.y *= RightHandedManipulatorIDs.Contains(ProbeManager.ManipulatorId) ? 1 : -1;
+
+            // Apply coordinate offsets and return result
+            return posWithDepthAndCorrectAxes + ProbeManager.ZeroCoordinateOffset;
+        }
+
         #endregion
 
         #region Constants
@@ -68,19 +115,16 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         private const float LINE_WIDTH = 0.1f;
         private const int NUM_SEGMENTS = 2;
         private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0, 0.5f, 0);
-        private const int DEPTH_DRIVE_SPEED = 5;
 
         #endregion
 
         #region Components
 
-        [Header("Colors")] [SerializeField] private Color _apColor;
-
+        [SerializeField] private Color _apColor;
         [SerializeField] private Color _mlColor;
         [SerializeField] private Color _dvColor;
 
-        [Header("UI")] [SerializeField] private TMP_Text _manipulatorIDText;
-
+        [SerializeField] private TMP_Text _manipulatorIDText;
         [SerializeField] private TMP_Dropdown _targetInsertionDropdown;
         [SerializeField] private TMP_InputField _apInputField;
         [SerializeField] private TMP_InputField _mlInputField;
@@ -108,15 +152,19 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         #region Shared
 
         public static HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
+        public static HashSet<string> RightHandedManipulatorIDs { private get; set; }
+        public static CommunicationManager CommunicationManager { private get; set; }
         public static CCFAnnotationDataset AnnotationDataset { private get; set; }
         public static readonly Dictionary<string, ProbeInsertion> SelectedTargetInsertion = new();
+        private static uint completedMovements;
+        public static bool Moving { get; private set; }
         public static readonly UnityEvent<string> ShouldUpdateTargetInsertionOptionsEvent = new();
 
         #endregion
 
         #endregion
 
-        #region UI Functions
+        #region Public Functions
 
         /// <summary>
         ///     Update record of selected target insertion for this panel.
@@ -236,6 +284,69 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                 _targetInsertionOptions.ToList()
                     .IndexOf(SelectedTargetInsertion.GetValueOrDefault(ProbeManager.ManipulatorId, null)) + 1
             );
+        }
+
+        /// <summary>
+        ///     Move to target insertion and handle callback when all movements are done
+        /// </summary>
+        /// <param name="totallyCompleteCallback">Callback function to report back when all movements have completed</param>
+        public void MoveToTargetInsertion(Action totallyCompleteCallback)
+        {
+            // Check if a target insertion is selected
+            if (!SelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorId)) return;
+
+            // Setup and compute movement
+            Moving = true;
+            var manipulatorID = ProbeManager.ManipulatorId;
+            var automaticMovementSpeed = ProbeManager.AutomaticMovementSpeed;
+            var apPosition =
+                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ap);
+            var mlPosition =
+                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ml);
+            var dvPosition =
+                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.dv);
+
+            // Move
+            CommunicationManager.SetCanWrite(manipulatorID, true, 1, canWrite =>
+            {
+                if (canWrite)
+                    CommunicationManager.GotoPos(manipulatorID, dvPosition,
+                        automaticMovementSpeed, _ =>
+                        {
+                            CommunicationManager.GotoPos(manipulatorID, apPosition,
+                                automaticMovementSpeed, _ =>
+                                {
+                                    CommunicationManager.GotoPos(manipulatorID, mlPosition,
+                                        automaticMovementSpeed, _ =>
+                                        {
+                                            CommunicationManager.SetCanWrite(manipulatorID, false, 1, _ =>
+                                            {
+                                                // Hide lines
+                                                _lineGameObjects.ap.SetActive(false);
+                                                _lineGameObjects.ml.SetActive(false);
+                                                _lineGameObjects.dv.SetActive(false);
+
+                                                // Increment movement counter
+                                                completedMovements++;
+
+                                                // Check and invoke totally complete callback
+                                                if (completedMovements != SelectedTargetInsertion.Count) return;
+                                                Moving = false;
+                                                totallyCompleteCallback.Invoke();
+                                            }, Debug.LogError);
+                                        }, Debug.LogError);
+                                }, Debug.LogError);
+                        });
+            });
+        }
+
+        /// <summary>
+        ///     Reset state function for when a stop is requested
+        /// </summary>
+        public static void MovementStopped()
+        {
+            completedMovements = 0;
+            Moving = false;
         }
 
         #endregion
