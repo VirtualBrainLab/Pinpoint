@@ -123,11 +123,11 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TrajectoryPlanner.AutomaticManipulatorControlHandler,
+      - m_Target: {fileID: 1860861080109653869}
+        m_TargetAssemblyTypeName: TrajectoryPlanner.AutomaticManipulatorControl.ResetDuraOffsetPanelHandler,
           trajectoryplanner.core
-        m_MethodName: ResetManipulatorZeroCoordinate
-        m_Mode: 3
+        m_MethodName: ResetDuraOffset
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -445,3 +445,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6a97e40490079f4aaed6bc2102f0984, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _manipulatorIDText: {fileID: 8263761920268002476}

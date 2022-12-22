@@ -106,8 +106,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             _gotoPanel.PanelText.color = Color.white;
 
             // Enable step 3
-            if (_step != 2) return;
-            _step = 3;
             EnableStep3();
 
             // Update button intractability
@@ -120,11 +118,19 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         private void EnableStep3()
         {
+            // Check if needed
+            if (_step != 2) return;
+            _step = 3;
+            
+            // Setup shared resources
+            ResetDuraOffsetPanelHandler.ProbesAtDura = _probesAtDura;
+            ResetDuraOffsetPanelHandler.EnableStep4Callback = EnableStep4;
+            
             // Enable UI
-            _duraPanelCanvasGroup.alpha = 1;
-            _duraPanelCanvasGroup.interactable = true;
-            _duraPanelText.color = Color.green;
-            _gotoPanelText.color = Color.white;
+            _duraOffsetPanel.CanvasGroup.alpha = 1;
+            _duraOffsetPanel.CanvasGroup.interactable = true;
+            _duraOffsetPanel.PanelText.color = Color.green;
+            _gotoPanel.PanelText.color = Color.white;
         }
 
         private void AddResetDuraOffsetPanel(ProbeManager probeManager)
@@ -151,7 +157,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             // Enable UI
             _drivePanel.CanvasGroup.alpha = 1;
             _drivePanel.CanvasGroup.interactable = true;
-            _duraPanelText.color = Color.white;
+            _duraOffsetPanel.PanelText.color = Color.white;
             _drivePanel.PanelText.color = Color.green;
             _drivePanel.StatusText.text = "Ready to Drive";
         }
@@ -298,7 +304,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                 // No movements completed. Pressing means start a new movement set
 
                 // Set button text
-                _gotoMoveButtonText.text = "Moving... Press Again to Stop";
+                _gotoPanel.MoveButtonText.text = "Moving... Press Again to Stop";
 
                 // Trigger movement
                 _moveToTargetInsertionEvent.Invoke(PostMovementActions);
@@ -315,7 +321,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                     InsertionSelectionPanelHandler.MovementStopped();
 
                     // Reset text
-                    _gotoMoveButtonText.text = "Move Manipulators into Position";
+                    _gotoPanel.MoveButtonText.text = "Move Manipulators into Position";
 
                     // Update button interactable
                     UpdateMoveButtonInteractable("");
@@ -428,9 +434,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         [SerializeField] private GotoPanelComponents _gotoPanel;
 
-        [SerializeField] private TMP_Text _gotoPanelText;
-        [SerializeField] private TMP_Text _gotoMoveButtonText;
-
         #endregion
 
         #region Step 3
@@ -447,9 +450,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         }
 
         [SerializeField] private DuraOffsetPanelComponents _duraOffsetPanel;
-
-        [SerializeField] private CanvasGroup _duraPanelCanvasGroup;
-        [SerializeField] private TMP_Text _duraPanelText;
 
         #endregion
 
@@ -513,6 +513,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         #region Step 4
 
         private readonly bool[] _probeAtDura = { false, false };
+        private readonly HashSet<string> _probesAtDura = new();
         private readonly bool[] _probeAtTarget = { false, false };
         private readonly float[] _probeTargetDepth = { 0, 0 };
         private bool _isDriving;
