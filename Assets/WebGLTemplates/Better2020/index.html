@@ -97,6 +97,10 @@
         });
       };
       document.body.appendChild(script);
+
+      function copy2clipboard(str) {
+        navigator.clipboard.writeText(str);
+      }
     </script>
   </body>
 </html>
