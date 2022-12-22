@@ -14,6 +14,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
     {
         #region Constants
 
+        private const float DRIVE_PAST_TARGET_DISTANCE = 0.2f;
         private const int DEPTH_DRIVE_SPEED = 5;
 
         #endregion
@@ -121,11 +122,12 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             // Check if needed
             if (_step != 2) return;
             _step = 3;
-            
+
             // Setup shared resources
-            ResetDuraOffsetPanelHandler.ProbesAtDura = _probesAtDura;
             ResetDuraOffsetPanelHandler.EnableStep4Callback = EnableStep4;
-            
+            ResetDuraOffsetPanelHandler.ProbesTargetDepth = _probesTargetDepth;
+            ResetDuraOffsetPanelHandler.CommunicationManager = _communicationManager;
+
             // Enable UI
             _duraOffsetPanel.CanvasGroup.alpha = 1;
             _duraOffsetPanel.CanvasGroup.interactable = true;
@@ -138,7 +140,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             // Show scroll view
             _duraOffsetPanel.PanelScrollView.SetActive(true);
             _duraOffsetPanel.ManipulatorsDrivenText.SetActive(false);
-            
+
             // Instantiate
             var resetDuraPanelGameObject = Instantiate(_duraOffsetPanel.ResetDuraOffsetPanelPrefab,
                 _duraOffsetPanel.PanelScrollViewContent.transform);
@@ -164,42 +166,38 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         private void StartDriveChain()
         {
-            _communicationManager.GetPos("1", manipulator1Pos =>
+            // Compute furthest depth drive distance
+            var maxTravelDistance = 0f;
+            foreach (var manipulatorID in _probesTargetDepth.Keys)
             {
-                _communicationManager.GetPos("2", manipulator2Pos =>
-                {
-                    // Compute furthest depth drive distance
-                    var probe1MaxTravelDistance = _probeAtDura[0]
-                        ? Vector3.Distance(_probe1SelectedTargetProbeInsertion.apmldv,
-                            Probe1Manager.GetProbeController().Insertion.apmldv) + .2f
-                        : 0;
-                    var probe2MaxTravelDistance = _probeAtDura[1]
-                        ? Vector3.Distance(_probe2SelectedTargetProbeInsertion.apmldv,
-                            Probe2Manager.GetProbeController().Insertion.apmldv) + .2f
-                        : 0;
-                    var maxTravelDistance = Math.Max(probe1MaxTravelDistance, probe2MaxTravelDistance);
+                // Compute max travel distance for this probe
+                var distance = Vector3.Distance(
+                    InsertionSelectionPanelHandler.SelectedTargetInsertion[manipulatorID].apmldv,
+                    ProbeManagers.Find(manager => manager.ManipulatorId == manipulatorID).GetProbeController()
+                        .Insertion.apmldv);
 
-                    // Apply to target depth location
-                    _probeTargetDepth[0] = manipulator1Pos.w + probe1MaxTravelDistance - .2f;
-                    _probeTargetDepth[1] = manipulator2Pos.w + probe2MaxTravelDistance - .2f;
+                // Update target depth for probe
+                _probesTargetDepth[manipulatorID] += distance;
 
-                    // Compute drive time:
-                    // Time to move manipulator to 200 µm past target @ 5 µm/s
-                    _driveDuration = maxTravelDistance * 1000f / DEPTH_DRIVE_SPEED;
+                // Update overall max travel distance
+                maxTravelDistance = Math.Max(maxTravelDistance, distance + DRIVE_PAST_TARGET_DISTANCE);
+            }
 
-                    // Time to move back to target at 5 µm/s
-                    _driveDuration += 40;
+            // Compute drive time:
+            // Time to move manipulator to 200 µm past target @ 5 µm/s
+            _driveDuration = maxTravelDistance * 1000f / DEPTH_DRIVE_SPEED;
 
-                    // Time to let settle (at least 2 minutes, or total distance / 1000 µm per minute)
-                    _driveDuration += Math.Max(120, maxTravelDistance * 60f);
+            // Time to move back to target at 5 µm/s
+            _driveDuration += 40;
 
-                    // Start timer
-                    StartCoroutine(CountDownTimer());
+            // Time to let settle (at least 2 minutes, or total distance / 1000 µm per minute)
+            _driveDuration += Math.Max(120, maxTravelDistance * 60f);
 
-                    // Start drive chain
-                    Drive200PastTarget();
-                });
-            });
+            // Start timer
+            StartCoroutine(CountDownTimer());
+
+            // Start drive chain
+            Drive200PastTarget();
         }
 
         private IEnumerator CountDownTimer()
@@ -235,32 +233,21 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             _drivePanel.StatusText.text = "Driving to 200 µm past target...";
 
             // Drive
-            for (var manipulatorId = 1; manipulatorId <= 2; manipulatorId++)
-            {
-                // Skip probe if not at dura
-                if (!_probeAtDura[manipulatorId - 1]) continue;
-
-                // ID as string
-                var idString = manipulatorId.ToString();
-
-                // Get target depth
-                var targetDepth = _probeTargetDepth[manipulatorId - 1];
-
+            foreach (var kvp in _probesTargetDepth)
                 // Start driving
-                _communicationManager.SetCanWrite(idString, true, 1, canWrite =>
+                _communicationManager.SetCanWrite(kvp.Key, true, 1, canWrite =>
                 {
                     if (canWrite)
-                        _communicationManager.SetInsideBrain(idString, true, _ =>
+                        _communicationManager.SetInsideBrain(kvp.Key, true, _ =>
                         {
-                            _communicationManager.DriveToDepth(idString,
-                                targetDepth + .2f, DEPTH_DRIVE_SPEED, _ =>
+                            _communicationManager.DriveToDepth(kvp.Key,
+                                kvp.Value + DRIVE_PAST_TARGET_DISTANCE, DEPTH_DRIVE_SPEED, _ =>
                                 {
                                     // Drive back up to target
-                                    DriveBackToTarget(idString);
+                                    DriveBackToTarget(kvp.Key);
                                 }, Debug.LogError);
                         });
                 });
-            }
         }
 
         private void DriveBackToTarget(string manipulatorID)
@@ -268,15 +255,12 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             // Set drive status
             _drivePanel.StatusText.text = "Driving back to target...";
 
-            // Get target insertion
-            var targetDepth = _probeTargetDepth[int.Parse(manipulatorID) - 1];
-
             // Drive
             _communicationManager.DriveToDepth(manipulatorID,
-                targetDepth, DEPTH_DRIVE_SPEED, _ =>
+                _probesTargetDepth[manipulatorID], DEPTH_DRIVE_SPEED, _ =>
                 {
                     // Finished movement, and is now settling
-                    _probeAtTarget[manipulatorID == "1" ? 0 : 1] = true;
+                    _probesAtTarget.Add(manipulatorID);
 
                     // Reset manipulator drive states
                     _communicationManager.SetInsideBrain(manipulatorID, false,
@@ -284,7 +268,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                         Debug.LogError);
 
                     // Update status text if both are done
-                    if (!_probeAtTarget[0] || !_probeAtTarget[1]) return;
+                    if (_probeAtTarget.Length != _probesTargetDepth.Keys.Count) return;
                     _drivePanel.StatusText.text = "Settling... Please wait...";
                 }, Debug.LogError);
         }
@@ -513,9 +497,10 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         #region Step 4
 
         private readonly bool[] _probeAtDura = { false, false };
-        private readonly HashSet<string> _probesAtDura = new();
         private readonly bool[] _probeAtTarget = { false, false };
         private readonly float[] _probeTargetDepth = { 0, 0 };
+        private readonly Dictionary<string, float> _probesTargetDepth = new();
+        private readonly HashSet<string> _probesAtTarget = new();
         private bool _isDriving;
         private float _driveDuration;
 

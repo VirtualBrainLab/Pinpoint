@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using EphysLink;
 using TMPro;
 using UnityEngine;
 
@@ -27,11 +28,15 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             // Reset dura offset
             ProbeManager.SetBrainSurfaceOffset();
 
-            // Add probe to list of probes at dura
-            ProbesAtDura.Add(ProbeManager.ManipulatorId);
+            // Record current position and mark down as at dura
+            CommunicationManager.GetPos(ProbeManager.ManipulatorId, position =>
+            {
+                // Record depth for this probe
+                ProbesTargetDepth[ProbeManager.ManipulatorId] = position.w;
 
-            // Enable next step
-            EnableStep4Callback.Invoke();
+                // Enable next step (may do nothing)
+                EnableStep4Callback.Invoke();
+            });
         }
 
         #endregion
@@ -45,8 +50,9 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Properties
 
-        public static HashSet<string> ProbesAtDura { private get; set; }
+        public static Dictionary<string, float> ProbesTargetDepth { private get; set; }
         public static Action EnableStep4Callback { private get; set; }
+        public static CommunicationManager CommunicationManager { private get; set; }
 
         #endregion
     }
