@@ -751,28 +751,17 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         [SerializeField] private GotoPanelComponents _gotoPanel;
 
-        [SerializeField] private CanvasGroup _gotoPanelCanvasGroup;
         [SerializeField] private TMP_Text _gotoPanelText;
-        [SerializeField] private TMP_Text _gotoManipulator1ProbeText;
-        [SerializeField] private TMP_Dropdown _gotoManipulator1TargetInsertionDropdown;
         [SerializeField] private TMP_InputField _gotoManipulator1APInputField;
         [SerializeField] private TMP_InputField _gotoManipulator1MLInputField;
         [SerializeField] private TMP_InputField _gotoManipulator1DVInputField;
         [SerializeField] private TMP_InputField _gotoManipulator1DepthInputField;
-        [SerializeField] private TMP_Text _gotoManipulator2ProbeText;
-        [SerializeField] private TMP_Dropdown _gotoManipulator2TargetInsertionDropdown;
         [SerializeField] private TMP_InputField _gotoManipulator2APInputField;
         [SerializeField] private TMP_InputField _gotoManipulator2MLInputField;
         [SerializeField] private TMP_InputField _gotoManipulator2DVInputField;
         [SerializeField] private TMP_InputField _gotoManipulator2DepthInputField;
         [SerializeField] private Button _gotoMoveButton;
         [SerializeField] private TMP_Text _gotoMoveButtonText;
-
-        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv, TMP_InputField depth)
-            _gotoManipulator1InsertionInputFields;
-
-        private (TMP_InputField ap, TMP_InputField ml, TMP_InputField dv, TMP_InputField depth)
-            _gotoManipulator2InsertionInputFields;
 
         #endregion
 
@@ -881,12 +870,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         {
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
 
-            // Input field access
-            _gotoManipulator1InsertionInputFields = (_gotoManipulator1APInputField, _gotoManipulator1MLInputField,
-                _gotoManipulator1DVInputField, _gotoManipulator1DepthInputField);
-            _gotoManipulator2InsertionInputFields = (_gotoManipulator2APInputField, _gotoManipulator2MLInputField,
-                _gotoManipulator2DVInputField, _gotoManipulator2DepthInputField);
-
             // Initialize line renderers
             InitializeLineRenderers();
         }
@@ -898,6 +881,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             ResetZeroCoordinatePanelHandler.CommunicationManager = _communicationManager;
 
             InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
+            InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
             InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent.AddListener(UpdateMoveButtonInteractable);
 
             // Enable step 1

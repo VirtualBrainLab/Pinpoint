@@ -1501,6 +1501,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66546e8c42fac0c4980a77df5f56e15d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _apColor: {r: 1, g: 0.32156864, b: 0.32156864, a: 1}
+  _mlColor: {r: 0.20392157, g: 0.6745098, b: 0.8784314, a: 1}
+  _dvColor: {r: 1, g: 0.85490197, b: 0.4745098, a: 1}
   _manipulatorIDText: {fileID: 6235165258273775828}
   _targetInsertionDropdown: {fileID: 2637226961668336596}
   _apInputField: {fileID: 831753356370093475}

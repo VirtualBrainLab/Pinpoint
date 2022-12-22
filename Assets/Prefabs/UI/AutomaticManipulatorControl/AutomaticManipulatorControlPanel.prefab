@@ -668,16 +668,11 @@ MonoBehaviour:
     ManipulatorsZeroedText: {fileID: 7700696361368721311}
     MoveButton: {fileID: 2379779624633991439}
     MoveButtonText: {fileID: 4053248260008623874}
-  _gotoPanelCanvasGroup: {fileID: 84557261823319585}
   _gotoPanelText: {fileID: 478385048297492083}
-  _gotoManipulator1ProbeText: {fileID: 0}
-  _gotoManipulator1TargetInsertionDropdown: {fileID: 0}
   _gotoManipulator1APInputField: {fileID: 0}
   _gotoManipulator1MLInputField: {fileID: 0}
   _gotoManipulator1DVInputField: {fileID: 0}
   _gotoManipulator1DepthInputField: {fileID: 0}
-  _gotoManipulator2ProbeText: {fileID: 0}
-  _gotoManipulator2TargetInsertionDropdown: {fileID: 0}
   _gotoManipulator2APInputField: {fileID: 0}
   _gotoManipulator2MLInputField: {fileID: 0}
   _gotoManipulator2DVInputField: {fileID: 0}
