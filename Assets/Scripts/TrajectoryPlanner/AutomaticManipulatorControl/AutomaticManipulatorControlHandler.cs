@@ -6,7 +6,6 @@ using System.Linq;
 using EphysLink;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace TrajectoryPlanner.AutomaticManipulatorControl
@@ -150,8 +149,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
             // Setup
             insertionSelectionPanelHandler.ProbeManager = probeManager;
-            _shouldUpdateTargetInsertionOptions.AddListener(insertionSelectionPanelHandler
-                .UpdateTargetInsertionOptions);
         }
 
         private void UpdateManipulatorInsertionSelection(int dropdownValue, int manipulatorID)
@@ -935,8 +932,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             .Where(insertion => insertion != _probe1SelectedTargetProbeInsertion &&
                                 insertion.angles == Probe2Manager.GetProbeController().Insertion.angles).ToList();
 
-        private UnityEvent _shouldUpdateTargetInsertionOptions;
-
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _probe1MovementAxesInsertions;
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _probe2MovementAxesInsertions;
 
@@ -987,8 +982,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
             ResetZeroCoordinatePanelHandler.CommunicationManager = _communicationManager;
 
             InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
-            InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent =
-                _shouldUpdateTargetInsertionOptions;
 
             // Enable step 1
             EnableStep1();

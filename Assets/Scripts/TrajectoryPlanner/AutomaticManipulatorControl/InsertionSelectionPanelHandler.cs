@@ -14,7 +14,9 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         {
             _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
             _manipulatorIDText.color = ProbeManager.GetColor();
-            UpdateTargetInsertionOptions();
+
+            _shouldUpdateTargetInsertionOptionsEvent.AddListener(UpdateTargetInsertionOptions);
+            UpdateTargetInsertionOptions("-1");
         }
 
         #endregion
@@ -35,15 +37,17 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         #region Properties
 
         private IEnumerable<ProbeInsertion> _targetInsertionOptions => TargetInsertionsReference
-            .Where(insertion => !_selectedTargetInsertion.Values.Contains(insertion) &&
-                                insertion.angles == ProbeManager.GetProbeController().Insertion.angles);
+            .Where(insertion =>
+                !_selectedTargetInsertion.Where(pair => pair.Key != ProbeManager.ManipulatorId)
+                    .Select(pair => pair.Value).Contains(insertion) &&
+                insertion.angles == ProbeManager.GetProbeController().Insertion.angles);
 
 
         #region Shared
 
         public static HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
         private static readonly Dictionary<string, ProbeInsertion> _selectedTargetInsertion = new();
-        public static UnityEvent ShouldUpdateTargetInsertionOptionsEvent { private get; set; }
+        private static readonly UnityEvent<string> _shouldUpdateTargetInsertionOptionsEvent = new();
 
         #endregion
 
@@ -66,15 +70,18 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                 : null;
 
             // Update dropdown options
-            ShouldUpdateTargetInsertionOptionsEvent.Invoke();
+            _shouldUpdateTargetInsertionOptionsEvent.Invoke(ProbeManager.ManipulatorId);
         }
 
         /// <summary>
         ///     Update the target insertion dropdown options.
         ///     Try to maintain/restore previous selection
         /// </summary>
-        public void UpdateTargetInsertionOptions()
+        public void UpdateTargetInsertionOptions(string fromManipulatorID)
         {
+            // Skip if called from self
+            if (fromManipulatorID == ProbeManager.ManipulatorId) return;
+
             // Clear options
             _targetInsertionDropdown.ClearOptions();
 
@@ -86,8 +93,10 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                 .Select(insertion => insertion.PositionToString()).ToList());
 
             // Restore selection (if possible)
-            _targetInsertionDropdown.SetValueWithoutNotify(_targetInsertionOptions.ToList()
-                .IndexOf(_selectedTargetInsertion[ProbeManager.ManipulatorId]) + 1);
+            _targetInsertionDropdown.SetValueWithoutNotify(
+                _targetInsertionOptions.ToList()
+                    .IndexOf(_selectedTargetInsertion.GetValueOrDefault(ProbeManager.ManipulatorId, null)) + 1
+            );
         }
 
         #endregion
