@@ -90,7 +90,8 @@ public class ProbeInsertion
         this.spin = spin;
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
-        Instances.Add(this);
+        if (targetable)
+            Instances.Add(this);
     }
 
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
@@ -100,21 +101,24 @@ public class ProbeInsertion
         this.angles = angles;
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
-        Instances.Add(this);
+        if (targetable)
+            Instances.Add(this);
     }
 
-    public ProbeInsertion(ProbeInsertion otherInsertion)
+    public ProbeInsertion(ProbeInsertion otherInsertion, bool targetable = true)
     {
         apmldv = otherInsertion.apmldv;
         angles = otherInsertion.angles;
         CoordinateSpace = otherInsertion.CoordinateSpace;
         CoordinateTransform = otherInsertion.CoordinateTransform;
-        Instances.Add(this);
+        if (targetable)
+            Instances.Add(this);
     }
 
     ~ProbeInsertion()
     {
-        Instances.Remove(this);
+        if (Instances.Contains(this))
+            Instances.Remove(this);
     }
 
     #endregion
