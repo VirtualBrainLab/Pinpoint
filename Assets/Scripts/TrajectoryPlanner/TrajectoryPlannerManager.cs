@@ -109,7 +109,6 @@ namespace TrajectoryPlanner
         private AutomaticManipulatorControlHandler _automaticManipulatorControlHandler;
 
         private HashSet<string> _rightHandedManipulatorIds = new();
-        public HashSet<ProbeInsertion> TargetInsertions { get; } = new();
 
         public void EnableAutomaticManipulatorControlPanel(bool enable = true)
         {
@@ -117,7 +116,7 @@ namespace TrajectoryPlanner
                 ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
             _automaticManipulatorControlHandler.RightHandedManipulatorIDs = _rightHandedManipulatorIds;
             _automaticManipulatorControlHandler.AnnotationDataset = GetAnnotationDataset();
-            _automaticManipulatorControlHandler.TargetInsertionsReference = TargetInsertions;
+            _automaticManipulatorControlHandler.TargetInsertionsReference = ProbeInsertion.TargetableInstances;
             
             _automaticControlPanelGameObject.SetActive(enable);
         }
@@ -485,9 +484,9 @@ namespace TrajectoryPlanner
                 // Disable control UI
                 _probeQuickSettings.EnableAutomaticControlUI(false);
             }
-            
+
             // Remove the probe's insertion from the list of insertions (does nothing if not found)
-            TargetInsertions.Remove(activeProbe.GetProbeController().Insertion);
+            activeProbe.GetProbeController().Insertion.Targetable = false;
 
             // Remove Probe
             DestroyProbe(activeProbe);
@@ -525,7 +524,7 @@ namespace TrajectoryPlanner
             GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
             SetActiveProbe(newProbeManager);
-            TargetInsertions.Add(newProbeManager.GetProbeController().Insertion);
+            newProbeManager.GetProbeController().Insertion.Targetable = true;
 
             spawnedThisFrame = true;
             _accountsManager.AddNewProbe();
@@ -629,16 +628,6 @@ namespace TrajectoryPlanner
             // Finally, re-order panels if needed to put 2.4 probes first followed by 1.0 / 2.0
             ReOrderProbePanels();
         }
-
-        public int GetNextProbeId()
-        {
-            var thisProbeId = 1;
-            HashSet<int> usedIds = new();
-            foreach (var probeId in ProbeManager.instances.Select(manager => manager.ID)) usedIds.Add(probeId);
-            while (usedIds.Contains(thisProbeId)) thisProbeId++;
-            return thisProbeId;
-        }
-
 
         public Material GetCollisionMaterial()
         {

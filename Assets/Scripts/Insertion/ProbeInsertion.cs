@@ -14,8 +14,8 @@ using System.Collections.Generic;
 public class ProbeInsertion
 {
     #region Static instances
-    public static List<ProbeInsertion> Instances = new List<ProbeInsertion>();
-    public static List<ProbeInsertion> TargetableInstances = new List<ProbeInsertion>();
+    public static HashSet<ProbeInsertion> Instances = new HashSet<ProbeInsertion>();
+    public static HashSet<ProbeInsertion> TargetableInstances = new HashSet<ProbeInsertion>();
     #endregion
 
     #region Coordinate vars
