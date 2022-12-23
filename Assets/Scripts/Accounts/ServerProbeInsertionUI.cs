@@ -14,7 +14,7 @@ public class ServerProbeInsertionUI : MonoBehaviour
     private string _UUID;
     private string _displayString;
 
-    public void SetInsertionData(UnisaveAccountsManager accountsManager, string UUID)
+    public void SetInsertionData(UnisaveAccountsManager accountsManager, string UUID, bool active)
     {
         _accountsManager = accountsManager;
         _UUID = UUID;
@@ -22,6 +22,8 @@ public class ServerProbeInsertionUI : MonoBehaviour
             _UUID.Substring(0, 8) :
             "";
         _insertionNameText.text = _displayString;
+
+        _insertionActiveToggle.isOn = active;
 
         GetComponent<Button>().onClick.AddListener(ActivateProbe);
     }

@@ -19,7 +19,6 @@ public class UnisaveAccountsManager : AccountsManager
 
     [SerializeField] private QuickSettingExpList _quickSettingsExperimentList;
 
-
     #region Insertion variables
     [SerializeField] private Transform _insertionPrefabParentT;
     [SerializeField] private GameObject _insertionPrefabGO;
@@ -73,19 +72,17 @@ public class UnisaveAccountsManager : AccountsManager
     {
         if (_player != null)
         {
-            Dirty = true;
-
-            ServerProbeInsertion serverProbeInsertion;
+            // If this probe isn't in an experiment, ignore it
             if (!_probeUUID2experiment.ContainsKey(UUID))
-            {
-                // this is the first time we've seen this probe, add all of its information
-                _probeUUID2experiment.Add(UUID, ActiveExperiment);
-                serverProbeInsertion = new ServerProbeInsertion();
-            }
-            else
-            {
-                serverProbeInsertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
-            }
+                return;
+            //{
+            //    // this is the first time we've seen this probe, add all of its information
+            //    _probeUUID2experiment.Add(UUID, ActiveExperiment);
+            //    serverProbeInsertion = new ServerProbeInsertion();
+            //}
+
+            // The probe does exist, so 
+            ServerProbeInsertion serverProbeInsertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
 
             serverProbeInsertion.ap = data.apmldv.x;
             serverProbeInsertion.ml = data.apmldv.y;
@@ -98,6 +95,8 @@ public class UnisaveAccountsManager : AccountsManager
             serverProbeInsertion.UUID = data.UUID;
 
             _player.experiments[_probeUUID2experiment[UUID]][UUID] = serverProbeInsertion;
+
+            Dirty = true;
         }
     }
 
@@ -315,7 +314,12 @@ public class UnisaveAccountsManager : AccountsManager
             GameObject insertionPrefab = Instantiate(_insertionPrefabGO, _insertionPrefabParentT);
             ServerProbeInsertionUI insertionUI = insertionPrefab.GetComponent<ServerProbeInsertionUI>();
 
-            insertionUI.SetInsertionData(this, insertion.UUID);
+            // Insertions should be marked as active if they already exist in the scene
+            bool active;
+
+            // Check if each UUID exists in ProbeManager.instances -- need access to ProbeManager here
+
+            insertionUI.SetInsertionData(this, insertion.UUID, false);
             insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
                 insertion.ap, insertion.ml, insertion.dv,
                 insertion.phi, insertion.theta, insertion.spin));
@@ -334,7 +338,6 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void SetActiveProbe(string UUID)
     {
-        Debug.Log(UUID);
         SetActiveProbeCallback.Invoke(UUID);
     }
 

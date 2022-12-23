@@ -35,7 +35,6 @@ public class TP_RecRegionSlider : MonoBehaviour
         if (probeManager != null)
         {
             // Get active probe type from tpmanager
-            Debug.Log(probeManager.ProbeType);
             float[] range = ranges[type2index[probeManager.ProbeType]];
             _uiSlider.value = Round2Nearest(value, range);
             probeManager.ChangeRecordingRegionSize(_uiSlider.value);
