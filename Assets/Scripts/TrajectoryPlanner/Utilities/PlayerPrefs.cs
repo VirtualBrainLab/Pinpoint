@@ -21,26 +21,26 @@ using UnityEngine.UI;
 public class PlayerPrefs : MonoBehaviour
 {
     // Settings
-    private bool _collisions;
-    private bool _recordingRegionOnly;
-    private bool _useAcronyms;
-    private bool _depthFromBrain;
-    private bool convertAPML2probeAxis;
-    private int slice3d;
-    private bool _inplane;
-    private int invivoTransform;
-    private bool useIBLAngles;
-    private bool showSurfaceCoord;
-    private string _ephysLinkServerIp;
-    private int _ephysLinkServerPort;
-    private bool _axisControl;
-    private bool _showAllProbePanels;
-    private string _rightHandedManipulatorIds;
-    private bool _useBeryl;
-    private bool _displayUM;
-    private Vector3 _relCoord;
-    private bool _ghostInactiveProbes;
-    private bool _ghostInactiveAreas;
+    private static bool _collisions;
+    private static bool _recordingRegionOnly;
+    private static bool _useAcronyms;
+    private static bool _depthFromBrain;
+    private static bool convertAPML2probeAxis;
+    private static int slice3d;
+    private static bool _inplane;
+    private static int invivoTransform;
+    private static bool useIBLAngles;
+    private static bool showSurfaceCoord;
+    private static string _ephysLinkServerIp;
+    private static int _ephysLinkServerPort;
+    private static bool _axisControl;
+    private static bool _showAllProbePanels;
+    private static string _rightHandedManipulatorIds;
+    private static bool _useBeryl;
+    private static bool _displayUM;
+    private static Vector3 _relCoord;
+    private static bool _ghostInactiveProbes;
+    private static bool _ghostInactiveAreas;
 
     [FormerlySerializedAs("collisionsToggle")] [SerializeField] private Toggle _collisionsToggle;
     [FormerlySerializedAs("recordingRegionToggle")] [SerializeField] private Toggle _recordingRegionToggle;
@@ -128,189 +128,189 @@ public class PlayerPrefs : MonoBehaviour
 
     #region Getters/Setters
 
-    public void SetGhostInactiveAreas(bool ghostInactive)
+    public static void SetGhostInactiveAreas(bool ghostInactive)
     {
         _ghostInactiveAreas = ghostInactive;
         UnityEngine.PlayerPrefs.SetInt("ghost_areas", _ghostInactiveAreas ? 1 : 0);
     }
 
-    public bool GetGhostInactiveAreas()
+    public static bool GetGhostInactiveAreas()
     {
         return _ghostInactiveAreas;
     }
 
-    public void SetGhostInactiveProbes(bool ghostInactive)
+    public static void SetGhostInactiveProbes(bool ghostInactive)
     {
         _ghostInactiveProbes = ghostInactive;
         UnityEngine.PlayerPrefs.SetInt("ghost_inactive", _ghostInactiveProbes ? 1 : 0);
     }
 
-    public bool GetGhostInactiveProbes()
+    public static bool GetGhostInactiveProbes()
     {
         return _ghostInactiveProbes;
     }
 
-    public void SetRelCoord(Vector3 coord)
+    public static void SetRelCoord(Vector3 coord)
     {
         _relCoord = coord;
         SaveVector3Pref("rel_coord", _relCoord);
     }
 
-    public Vector3 GetRelCoord()
+    public static Vector3 GetRelCoord()
     {
         return _relCoord;
     }
 
-    public void SetDisplayUm(bool state)
+    public static void SetDisplayUm(bool state)
     {
         _displayUM = state;
         UnityEngine.PlayerPrefs.SetInt("display_um", _displayUM ? 1 : 0);
     }
 
-    public bool GetDisplayUm()
+    public static bool GetDisplayUm()
     {
         return _displayUM;
     }
 
-    public void SetUseBeryl(bool state)
+    public static void SetUseBeryl(bool state)
     {
         _useBeryl = state;
         UnityEngine.PlayerPrefs.SetInt("use_beryl", _useBeryl ? 1 : 0);
     }
 
-    public bool GetUseBeryl()
+    public static bool GetUseBeryl()
     {
         return _useBeryl;
     }
 
-    public void SetShowAllProbePanels(bool state)
+    public static void SetShowAllProbePanels(bool state)
     {
         _showAllProbePanels = state;
         UnityEngine.PlayerPrefs.SetInt("show_all_probe_panels", _showAllProbePanels ? 1 : 0);
     }
 
-    public bool GetShowAllProbePanels()
+    public static bool GetShowAllProbePanels()
     {
         return _showAllProbePanels;
     }
 
-    public void SetAxisControl(bool state)
+    public static void SetAxisControl(bool state)
     {
         _axisControl = state;
         UnityEngine.PlayerPrefs.SetInt("axis_control", _axisControl ? 1 : 0);
     }
 
-    public bool GetAxisControl()
+    public static bool GetAxisControl()
     {
         return _axisControl;
     }
 
-    public void SetSurfaceCoord(bool state)
+    public static void SetSurfaceCoord(bool state)
     {
         showSurfaceCoord = state;
         UnityEngine.PlayerPrefs.SetInt("surface", showSurfaceCoord ? 1 : 0);
     }
 
-    public bool GetSurfaceCoord()
+    public static bool GetSurfaceCoord()
     {
         return showSurfaceCoord;
     }
 
-    public void SetUseIBLAngles(bool state)
+    public static void SetUseIBLAngles(bool state)
     {
         useIBLAngles = state;
         UnityEngine.PlayerPrefs.SetInt("iblangle", useIBLAngles ? 1 : 0);
     }
 
-    public bool GetUseIBLAngles()
+    public static bool GetUseIBLAngles()
     {
         return useIBLAngles;
     }
 
-    public void SetStereotaxic(int state)
+    public static void SetStereotaxic(int state)
     {
         invivoTransform = state;
         UnityEngine.PlayerPrefs.SetInt("stereotaxic", invivoTransform);
     }
 
-    public int GetStereotaxic()
+    public static int GetStereotaxic()
     {
         return invivoTransform;
     }
 
-    public void SetInplane(bool state)
+    public static void SetInplane(bool state)
     {
         _inplane = state;
         UnityEngine.PlayerPrefs.SetInt("inplane", _inplane ? 1 : 0);
     }
 
-    public bool GetInplane()
+    public static bool GetInplane()
     {
         return _inplane;
     }
 
-    public void SetSlice3D(int state)
+    public static void SetSlice3D(int state)
     {
         slice3d = state;
         UnityEngine.PlayerPrefs.SetInt("slice3d", slice3d);
     }
 
-    public int GetSlice3D()
+    public static int GetSlice3D()
     {
         return slice3d;
     }
 
-    public void SetAPML2ProbeAxis(bool state)
+    public static void SetAPML2ProbeAxis(bool state)
     {
         convertAPML2probeAxis = state;
         UnityEngine.PlayerPrefs.SetInt("probeaxis", convertAPML2probeAxis ? 1 : 0);
     }
 
-    public bool GetAPML2ProbeAxis()
+    public static bool GetAPML2ProbeAxis()
     {
         return convertAPML2probeAxis;
     }
 
-    public void SetDepthFromBrain(bool state)
+    public static void SetDepthFromBrain(bool state)
     {
         _depthFromBrain = state;
         UnityEngine.PlayerPrefs.SetInt("depth", _depthFromBrain ? 1 : 0);
     }
 
-    public bool GetDepthFromBrain()
+    public static bool GetDepthFromBrain()
     {
         return _depthFromBrain;
     }
 
-    public void SetAcronyms(bool state)
+    public static void SetAcronyms(bool state)
     {
         _useAcronyms = state;
         UnityEngine.PlayerPrefs.SetInt("acronyms", _recordingRegionOnly ? 1 : 0);
     }
 
-    public bool GetAcronyms()
+    public static bool GetAcronyms()
     {
         return _useAcronyms;
     }
 
-    public void SetRecordingRegionOnly(bool state)
+    public static void SetRecordingRegionOnly(bool state)
     {
         _recordingRegionOnly = state;
         UnityEngine.PlayerPrefs.SetInt("recording", _recordingRegionOnly ? 1 : 0);
     }
 
-    public bool GetRecordingRegionOnly()
+    public static bool GetRecordingRegionOnly()
     {
         return _recordingRegionOnly;
     }
 
-    public void SetCollisions(bool toggleCollisions)
+    public static void SetCollisions(bool toggleCollisions)
     {
         _collisions = toggleCollisions;
         UnityEngine.PlayerPrefs.SetInt("collisions", _collisions ? 1 : 0);
     }
 
-    public bool GetCollisions()
+    public static bool GetCollisions()
     {
         return _collisions;
     }
@@ -319,7 +319,7 @@ public class PlayerPrefs : MonoBehaviour
     ///     Return the saved Ephys Link server IP address.
     /// </summary>
     /// <returns>Saved IP address of the Ephys Link server</returns>
-    public string GetServerIp()
+    public static string GetServerIp()
     {
         return _ephysLinkServerIp;
     }
@@ -328,7 +328,7 @@ public class PlayerPrefs : MonoBehaviour
     ///     Return the saved Ephys Link server port.
     /// </summary>
     /// <returns>Saved server port of the Ephys Link server</returns>
-    public int GetServerPort()
+    public static int GetServerPort()
     {
         return _ephysLinkServerPort;
     }
@@ -337,7 +337,7 @@ public class PlayerPrefs : MonoBehaviour
     ///     Return the saved IDs of right handed manipulators.
     /// </summary>
     /// <returns>Saved IDs of right handed manipulators</returns>
-    public HashSet<string> GetRightHandedManipulatorIds()
+    public static HashSet<string> GetRightHandedManipulatorIds()
     {
         return _rightHandedManipulatorIds == ""
             ? new HashSet<string>()
@@ -407,7 +407,7 @@ public class PlayerPrefs : MonoBehaviour
             return defaultValue;
     }
 
-    private void SaveVector3Pref(string prefStr, Vector3 value)
+    private static void SaveVector3Pref(string prefStr, Vector3 value)
     {
         UnityEngine.PlayerPrefs.SetFloat(prefStr + "_x", value.x);
         UnityEngine.PlayerPrefs.SetFloat(prefStr + "_y", value.y);
@@ -422,7 +422,7 @@ public class PlayerPrefs : MonoBehaviour
     /// Return an array with information about the positions of probes that were saved from the last session
     /// </summary>
     /// <returns></returns>
-    public (Vector3 apmldv, Vector3 angles, int type, string manipulatorId, string coordinateSpaceName, string
+    public static (Vector3 apmldv, Vector3 angles, int type, string manipulatorId, string coordinateSpaceName, string
         coordinateTransformName, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
         string uuid)[] LoadSavedProbeData()
     {

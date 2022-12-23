@@ -20,7 +20,6 @@ namespace TrajectoryPlanner
         // Managers and accessors
         [SerializeField] private CCFModelControl _modelControl;
         [SerializeField] private VolumeDatasetManager _vdmanager;
-        [SerializeField] private PlayerPrefs _localPrefs;
         [SerializeField] private Transform _brainModel;
         [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
         [FormerlySerializedAs("acontrol")] [SerializeField] private AxisControl _acontrol;
@@ -172,12 +171,12 @@ namespace TrajectoryPlanner
             CheckForSavedProbes(annotationDatasetLoadTask);
 
             // Pull settings from PlayerPrefs
-            SetSetting_UseAcronyms(_localPrefs.GetAcronyms());
-            SetSetting_InPlanePanelVisibility(_localPrefs.GetInplane());
-            SetSetting_UseIBLAngles(_localPrefs.GetUseIBLAngles());
-            SetSetting_SurfaceDebugSphereVisibility(_localPrefs.GetSurfaceCoord());
-            SetSetting_RelCoord(_localPrefs.GetRelCoord());
-            _rightHandedManipulatorIds = _localPrefs.GetRightHandedManipulatorIds();
+            SetSetting_UseAcronyms(PlayerPrefs.GetAcronyms());
+            SetSetting_InPlanePanelVisibility(PlayerPrefs.GetInplane());
+            SetSetting_UseIBLAngles(PlayerPrefs.GetUseIBLAngles());
+            SetSetting_SurfaceDebugSphereVisibility(PlayerPrefs.GetSurfaceCoord());
+            SetSetting_RelCoord(PlayerPrefs.GetRelCoord());
+            _rightHandedManipulatorIds = PlayerPrefs.GetRightHandedManipulatorIds();
         }
 
         void Update()
@@ -209,7 +208,7 @@ namespace TrajectoryPlanner
                 // Check if mouse buttons are down, or if probe is under manual control
                 if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
                 {
-                    movedThisFrame = _localPrefs.GetCollisions() ? activeProbe.MoveProbe(true) : activeProbe.MoveProbe(false);
+                    movedThisFrame = PlayerPrefs.GetCollisions() ? activeProbe.MoveProbe(true) : activeProbe.MoveProbe(false);
                 }
             }
 
@@ -273,7 +272,7 @@ namespace TrajectoryPlanner
 
         private void LoadSavedProbes()
         {
-            var savedProbes = _localPrefs.LoadSavedProbeData();
+            var savedProbes = PlayerPrefs.LoadSavedProbeData();
 
             foreach (var savedProbe in savedProbes)
             {
@@ -303,7 +302,7 @@ namespace TrajectoryPlanner
             }
 
             // Set the warp setting
-            SetSetting_InVivoTransformState(_localPrefs.GetStereotaxic());
+            SetSetting_InVivoTransformState(PlayerPrefs.GetStereotaxic());
         }
 
         /// <summary>
@@ -403,7 +402,7 @@ namespace TrajectoryPlanner
 
         public bool GetCollisions()
         {
-            return _localPrefs.GetCollisions();
+            return PlayerPrefs.GetCollisions();
         }
 
         // DESTROY AND REPLACE PROBES
@@ -833,7 +832,7 @@ namespace TrajectoryPlanner
         #region Player Preferences
         public void SetSetting_GhostAreas(bool state)
         {
-            _localPrefs.SetGhostInactiveAreas(state);
+            PlayerPrefs.SetGhostInactiveAreas(state);
 
             if (state)
             {
@@ -851,12 +850,12 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_GhostAreas()
         {
-            return _localPrefs.GetGhostInactiveAreas();
+            return PlayerPrefs.GetGhostInactiveAreas();
         }
 
         public void SetSetting_GhostInactive(bool state)
         {
-            _localPrefs.SetGhostInactiveProbes(state);
+            PlayerPrefs.SetGhostInactiveProbes(state);
             foreach (ProbeManager probeManager in ProbeManager.instances)
             {
                 if (probeManager == activeProbe)
@@ -871,36 +870,36 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_GhostInactive()
         {
-            return _localPrefs.GetGhostInactiveProbes();
+            return PlayerPrefs.GetGhostInactiveProbes();
         }
 
         public void SetSetting_RelCoord(Vector3 coord)
         {
-            _localPrefs.SetRelCoord(coord);
+            PlayerPrefs.SetRelCoord(coord);
             CoordinateSpaceManager.ActiveCoordinateSpace.RelativeOffset = coord;
             _relCoordPanel.SetRelativeCoordinateText(coord);
         }
 
         public Vector3 GetSetting_RelCoord()
         {
-            return _localPrefs.GetRelCoord();
+            return PlayerPrefs.GetRelCoord();
         }
         
         public void SetSetting_DisplayUM(bool state)
         {
-            _localPrefs.SetDisplayUm(state);
+            PlayerPrefs.SetDisplayUm(state);
 
             UpdateQuickSettings();
         }
 
         public bool GetSetting_DisplayUM()
         {
-            return _localPrefs.GetDisplayUm();
+            return PlayerPrefs.GetDisplayUm();
         }
         
         public void SetSetting_UseBeryl(bool state)
         {
-            _localPrefs.SetUseBeryl(state);
+            PlayerPrefs.SetUseBeryl(state);
             _modelControl.SetBeryl(state);
 
             foreach (ProbeManager probeController in ProbeManager.instances)
@@ -910,12 +909,12 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_UseBeryl()
         {
-            return _localPrefs.GetUseBeryl();
+            return PlayerPrefs.GetUseBeryl();
         }
         
         public void SetSetting_ShowAllProbePanels(bool state)
         {
-            _localPrefs.SetShowAllProbePanels(state);
+            PlayerPrefs.SetShowAllProbePanels(state);
             if (state)
                 foreach (ProbeManager probeManager in ProbeManager.instances)
                     probeManager.SetUIVisibility(true);
@@ -928,23 +927,23 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_ShowAllProbePanels()
         {
-            return _localPrefs.GetShowAllProbePanels();
+            return PlayerPrefs.GetShowAllProbePanels();
         }
 
         public void SetSetting_ShowRecRegionOnly(bool state)
         {
-            _localPrefs.SetRecordingRegionOnly(state);
+            PlayerPrefs.SetRecordingRegionOnly(state);
             MoveAllProbes();
         }
 
         public bool GetSetting_ShowRecRegionOnly()
         {
-            return _localPrefs.GetRecordingRegionOnly();
+            return PlayerPrefs.GetRecordingRegionOnly();
         }
 
         public void SetSetting_UseAcronyms(bool state)
         {
-            _localPrefs.SetAcronyms(state);
+            PlayerPrefs.SetAcronyms(state);
             _searchControl.RefreshSearchWindow();
             // move probes to update state
             MoveAllProbes();
@@ -952,45 +951,45 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_UseAcronyms()
         {
-            return _localPrefs.GetAcronyms();
+            return PlayerPrefs.GetAcronyms();
         }
 
         public void SetSetting_UseIBLAngles(bool state)
         {
-            _localPrefs.SetUseIBLAngles(state);
+            PlayerPrefs.SetUseIBLAngles(state);
             UpdateQuickSettings();
         }
 
         public bool GetSetting_UseIBLAngles()
         {
-            return _localPrefs.GetUseIBLAngles();
+            return PlayerPrefs.GetUseIBLAngles();
         }
 
 
         public void SetSetting_GetDepthFromBrain(bool state)
         {
-            _localPrefs.SetDepthFromBrain(state);
+            PlayerPrefs.SetDepthFromBrain(state);
             UpdateQuickSettings();
         }
         public bool GetSetting_GetDepthFromBrain()
         {
-            return _localPrefs.GetDepthFromBrain();
+            return PlayerPrefs.GetDepthFromBrain();
         }
 
         public void SetSetting_ConvertAPMLAxis2Probe(bool state)
         {
-            _localPrefs.SetAPML2ProbeAxis(state);
+            PlayerPrefs.SetAPML2ProbeAxis(state);
             UpdateQuickSettings();
         }
 
         public bool GetSetting_ConvertAPMLAxis2Probe()
         {
-            return _localPrefs.GetAPML2ProbeAxis();
+            return PlayerPrefs.GetAPML2ProbeAxis();
         }
 
         public void SetSetting_InVivoTransformState(int invivoOption)
         {
-            _localPrefs.SetStereotaxic(invivoOption);
+            PlayerPrefs.SetStereotaxic(invivoOption);
 
             Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
             CoordinateSpaceManager.ActiveCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
@@ -1011,25 +1010,25 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_InVivoTransformActive()
         {
-            return _localPrefs.GetStereotaxic() > 0;
+            return PlayerPrefs.GetStereotaxic() > 0;
         }
 
         public void SetSetting_SurfaceDebugSphereVisibility(bool state)
         {
-            _localPrefs.SetSurfaceCoord(state);
+            PlayerPrefs.SetSurfaceCoord(state);
             SetSurfaceDebugActive(state);
         }
 
         public void SetSetting_CollisionInfoVisibility(bool toggleCollisions)
         {
-            _localPrefs.SetCollisions(toggleCollisions);
+            PlayerPrefs.SetCollisions(toggleCollisions);
             if (activeProbe != null)
                 activeProbe.CheckCollisions(GetAllNonActiveColliders());
         }
 
         public void SetSetting_InPlanePanelVisibility(bool state)
         {
-            _localPrefs.SetInplane(state);
+            PlayerPrefs.SetInplane(state);
             _inPlaneSlice.UpdateInPlaneVisibility();
         }
 
@@ -1040,7 +1039,7 @@ namespace TrajectoryPlanner
 
         public void SetSurfaceDebugActive(bool active)
         {
-            if (_localPrefs.GetSurfaceCoord() && activeProbe != null)
+            if (PlayerPrefs.GetSurfaceCoord() && activeProbe != null)
                 _surfaceDebugGo.SetActive(active);
             else
                 _surfaceDebugGo.SetActive(false);
@@ -1134,7 +1133,7 @@ namespace TrajectoryPlanner
                     probe.ZeroCoordinateOffset, probe.BrainSurfaceOffset, probe.IsSetToDropToSurfaceWithDepth,
                     probe.UUID);
             }
-            _localPrefs.SaveCurrentProbeData(probeCoordinates);
+            PlayerPrefs.SaveCurrentProbeData(probeCoordinates);
         }
 
 
@@ -1142,12 +1141,12 @@ namespace TrajectoryPlanner
 
         public bool GetAxisControlEnabled()
         {
-            return _localPrefs.GetAxisControl();
+            return PlayerPrefs.GetAxisControl();
         }
 
         public void SetAxisControlEnabled(bool state)
         {
-            _localPrefs.SetAxisControl(state);
+            PlayerPrefs.SetAxisControl(state);
             if (!state)
                 SetAxisVisibility(false, false, false, false, null);
         }

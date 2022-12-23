@@ -15,7 +15,6 @@ namespace EphysLink
 
         private SocketManager _connectionManager;
         private Socket _socket;
-        [SerializeField] private PlayerPrefs _playerPrefs;
 
         #endregion
 
@@ -25,14 +24,6 @@ namespace EphysLink
         ///     The current state of the connection to Ephys Link.
         /// </summary>
         public bool IsConnected { get; private set; }
-
-
-        #region Private
-
-        private string _serverIp;
-        private int _serverPort;
-
-        #endregion
 
         #endregion
 
@@ -45,11 +36,8 @@ namespace EphysLink
         /// </summary>
         private void Start()
         {
-            _serverIp = _playerPrefs.GetServerIp();
-            _serverPort = _playerPrefs.GetServerPort();
-
             // Connect to last known server
-            ConnectToServer(_serverIp, _serverPort);
+            ConnectToServer(PlayerPrefs.GetServerIp(), PlayerPrefs.GetServerPort());
         }
 
         #endregion
@@ -80,8 +68,6 @@ namespace EphysLink
             _socket.Once("connect", () =>
             {
                 Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
-                _serverIp = ip;
-                _serverPort = port;
                 IsConnected = true;
                 PlayerPrefs.SaveEphysLinkConnectionData(ip, port);
                 onConnected?.Invoke();

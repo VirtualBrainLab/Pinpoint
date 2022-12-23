@@ -5,12 +5,12 @@ using UnityEngine.Serialization;
 
 public class AxisControl : MonoBehaviour
 {
-    [FormerlySerializedAs("apGO")] [SerializeField] private GameObject _apGo;
-    [FormerlySerializedAs("dvGO")] [SerializeField] private GameObject _dvGo;
-    [FormerlySerializedAs("mlGO")] [SerializeField] private GameObject _mlGo;
-    [FormerlySerializedAs("depthGO")] [SerializeField] private GameObject _depthGo;
+    [FormerlySerializedAs("apGO")] [SerializeField] private static GameObject _apGo;
+    [FormerlySerializedAs("dvGO")] [SerializeField] private static GameObject _dvGo;
+    [FormerlySerializedAs("mlGO")] [SerializeField] private static GameObject _mlGo;
+    [FormerlySerializedAs("depthGO")] [SerializeField] private static GameObject _depthGo;
 
-    public void SetAxisPosition(Transform transform)
+    public static void SetAxisPosition(Transform transform)
     {
         if (transform == null)
             return;
@@ -20,19 +20,19 @@ public class AxisControl : MonoBehaviour
         _depthGo.transform.position = transform.position;
         _depthGo.transform.rotation = transform.rotation;
     }
-    public void SetAPVisibility(bool state)
+    public static void SetAPVisibility(bool state)
     {
         _apGo.SetActive(state);
     }
-    public void SetDVVisibility(bool state)
+    public static void SetDVVisibility(bool state)
     {
         _dvGo.SetActive(state);
     }
-    public void SetMLVisibility(bool state)
+    public static void SetMLVisibility(bool state)
     {
         _mlGo.SetActive(state);
     }
-    public void SetDepthVisibility(bool state)
+    public static void SetDepthVisibility(bool state)
     {
         _depthGo.SetActive(state);
     }

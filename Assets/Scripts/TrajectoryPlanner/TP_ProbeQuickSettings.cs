@@ -108,7 +108,7 @@ namespace TrajectoryPlanner
 
         public void UpdateProbeIdText()
         {
-            _probeIdText.text = _probeManager.ID.ToString();
+            _probeIdText.text = _probeManager.UUID.Substring(0, 8);
             _probeIdText.color = _probeManager.GetColor();
         }
 
