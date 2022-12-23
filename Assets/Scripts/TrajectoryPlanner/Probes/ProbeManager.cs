@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using EphysLink;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 /// <summary>
@@ -23,6 +24,12 @@ public class ProbeManager : MonoBehaviour
     void OnDisable() => instances.Remove(this);
 
     public static HashSet<string> RightHandedManipulatorIDs { get; set; } = new();
+    #endregion
+
+    #region Events
+
+    public UnityEvent ProbeUIUpdateEvent;
+
     #endregion
 
     // Internal flags that track whether we are in manual control or drag/link control mode
@@ -99,7 +106,7 @@ public class ProbeManager : MonoBehaviour
     private Vector3 brainSurfaceWorldT;
 
     // Colliders
-    private List<GameObject> visibleProbeColliders;
+    public HashSet<Collider> ProbeColliders { get; private set; }
     private Dictionary<GameObject, Material> visibleOtherColliders;
 
     #region Accessors
@@ -107,10 +114,6 @@ public class ProbeManager : MonoBehaviour
     public Color GetColor()
     {
         return _probeRenderer.material.color;
-    }
-    public List<Collider> GetProbeColliders()
-    {
-        return _probeColliders;
     }
 
     public void DisableAllColliders()
@@ -162,7 +165,7 @@ public class ProbeManager : MonoBehaviour
         // Get access to the annotation dataset and world-space boundaries
         annotationDataset = VolumeDatasetManager.AnnotationDataset;
 
-        visibleProbeColliders = new List<GameObject>();
+        ProbeColliders = new HashSet<Collider>();
         visibleOtherColliders = new Dictionary<GameObject, Material>();
     }
 
@@ -187,7 +190,6 @@ public class ProbeManager : MonoBehaviour
         {
             probeUIManager.UpdateColors();
         }
-        tpmanager.UpdateQuickSettingsProbeIdText();
     }
 
     /// <summary>
@@ -219,9 +221,8 @@ public class ProbeManager : MonoBehaviour
     {
         if (_probeController.Insertion.CoordinateTransform != CoordinateSpaceManager.ActiveCoordinateTransform)
         {
-            TP_QuestionDialogue questionDialogue = tpmanager.GetQuestionDialogue();
-            questionDialogue.SetYesCallback(ChangeTransform);
-            questionDialogue.NewQuestion("The coordinate transform in the scene is mis-matched with the transform in this Probe insertion. Do you want to replace the transform?");
+            QuestionDialogue.SetYesCallback(ChangeTransform);
+            QuestionDialogue.NewQuestion("The coordinate transform in the scene is mis-matched with the transform in this Probe insertion. Do you want to replace the transform?");
         }
     }
 
@@ -269,13 +270,13 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     /// <param name="checkForCollisions">Set to true to check for collisions with rig colliders and other probes</param>
     /// <returns>Whether or not the probe moved on this frame</returns>
-    public bool MoveProbe(bool checkForCollisions = false)
+    public bool MoveProbe()
     {
         // Cancel movement if being controlled by EphysLink
         if (IsEphysLinkControlled)
             return false;
 
-        return ((DefaultProbeController)_probeController).MoveProbe_Keyboard(checkForCollisions);
+        return ((DefaultProbeController)_probeController).MoveProbe_Keyboard();
     }
 
 
@@ -284,7 +285,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     /// <param name="otherColliders">colliders to check against</param>
     /// <returns></returns>
-    public void CheckCollisions(List<Collider> otherColliders)
+    public void CheckCollisions(HashSet<Collider> otherColliders)
     {
         if (PlayerPrefs.GetCollisions())
         {
@@ -310,7 +311,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     /// <param name="otherColliders"></param>
     /// <returns></returns>
-    private bool CheckCollisionsHelper(List<Collider> otherColliders)
+    private bool CheckCollisionsHelper(HashSet<Collider> otherColliders)
     {
         foreach (Collider activeCollider in _probeColliders)
         {
@@ -336,9 +337,9 @@ public class ProbeManager : MonoBehaviour
     /// <param name="otherCollider"></param>
     private void CreateCollisionMesh(Collider activeCollider, Collider otherCollider)
     {
-        if (!visibleProbeColliders.Contains(activeCollider.gameObject))
+        if (!ProbeColliders.Contains(activeCollider))
         {
-            visibleProbeColliders.Add(activeCollider.gameObject);
+            ProbeColliders.Add(activeCollider);
             activeCollider.gameObject.GetComponent<Renderer>().enabled = true;
         }
 
@@ -353,14 +354,14 @@ public class ProbeManager : MonoBehaviour
     // Clear probe colliders by disabling the renderers and then clear the other colliders by swapping back their materials
     private void ClearCollisionMesh()
     {
-        if (visibleProbeColliders.Count > 0 || visibleOtherColliders.Count > 0)
+        if (ProbeColliders.Count > 0 || visibleOtherColliders.Count > 0)
         {
-            foreach (GameObject probeColliderGO in visibleProbeColliders)
-                probeColliderGO.GetComponent<Renderer>().enabled = false;
+            foreach (Collider probeCollider in ProbeColliders)
+                probeCollider.gameObject.GetComponent<Renderer>().enabled = false;
             foreach (KeyValuePair<GameObject, Material> kvp in visibleOtherColliders)
                 kvp.Key.GetComponent<Renderer>().material = kvp.Value;
 
-            visibleProbeColliders.Clear();
+            ProbeColliders.Clear();
             visibleOtherColliders.Clear();
         }
     }
@@ -548,7 +549,7 @@ public class ProbeManager : MonoBehaviour
 
         // Set states
         IsEphysLinkControlled = register;
-        tpmanager.UpdateQuickSettings();
+        ProbeUIUpdateEvent.Invoke();
 
         if (register)
             _ephysLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
@@ -765,7 +766,7 @@ public class ProbeManager : MonoBehaviour
         
         // Apply axis negations
         zeroCoordinateAdjustedManipulatorPosition.z *= -1;
-        zeroCoordinateAdjustedManipulatorPosition.y *= tpmanager.IsManipulatorRightHanded(ManipulatorId) ? 1 : -1;
+        zeroCoordinateAdjustedManipulatorPosition.y *= RightHandedManipulatorIDs.Contains(ManipulatorId) ? 1 : -1;
 
         // Phi adjustment
         var probePhi = -_probeController.Insertion.phi * Mathf.Deg2Rad;

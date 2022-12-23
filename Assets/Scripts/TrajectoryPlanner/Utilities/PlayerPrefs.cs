@@ -469,7 +469,7 @@ public class PlayerPrefs : MonoBehaviour
     /// Save the data about all of the probes passed in through allProbeData
     /// </summary>
     /// <param name="allProbeData">tip position, angles, and type for probes</param>
-    public void SaveCurrentProbeData(
+    public static void SaveCurrentProbeData(
         (Vector3 apmldv, Vector3 angles, int type, string manipulatorId, string coordinateSpace, string
             coordinateTransform, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
             string uuid)[] allProbeData)

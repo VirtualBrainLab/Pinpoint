@@ -116,7 +116,7 @@ public class DefaultProbeController : ProbeController
         keySlow = Input.GetKey(KeyCode.LeftControl);
     }
 
-    public bool MoveProbe_Keyboard(bool checkForCollisions)
+    public bool MoveProbe_Keyboard()
     {
         // drag movement takes precedence
         if (dragging)
@@ -380,8 +380,8 @@ public class DefaultProbeController : ProbeController
             SetProbePosition();
 
             // Check collisions if we need to
-            if (checkForCollisions)
-                ProbeManager.CheckCollisions(TPManager.GetAllNonActiveColliders());
+            if (PlayerPrefs.GetCollisions())
+                ProbeManager.CheckCollisions(ColliderManager.InactiveColliderInstances);
 
             // Update all the UI panels
             ProbeManager.UpdateUI();
@@ -469,7 +469,7 @@ public class DefaultProbeController : ProbeController
         if (ProbeManager.IsEphysLinkControlled)
             return;
 
-        TPManager.SetProbeControl(true);
+        BrainCameraController.BlockBrainControl = true;
 
         axisLockZ = false;
         axisLockY = false;
@@ -631,12 +631,12 @@ public class DefaultProbeController : ProbeController
         {
             SetProbePosition();
 
-            if (TPManager.GetCollisions())
-                ProbeManager.CheckCollisions(TPManager.GetAllNonActiveColliders());
+            if (PlayerPrefs.GetCollisions())
+                ProbeManager.CheckCollisions(ColliderManager.InactiveColliderInstances);
 
             ProbeManager.UpdateUI();
 
-            TPManager.movedThisFrame = true;
+            MovedThisFrameEvent.Invoke();
         }
 
     }
@@ -649,7 +649,7 @@ public class DefaultProbeController : ProbeController
         // release probe control
         dragging = false;
         ProbeManager.SetAxisVisibility(false, false, false, false);
-        TPManager.SetProbeControl(false);
+        BrainCameraController.BlockBrainControl = false;
     }
 
     #endregion
@@ -771,7 +771,7 @@ public class DefaultProbeController : ProbeController
         ProbeManager.UpdateSurfacePosition();
 
         // Tell the tpmanager we moved and update the UI elements
-        TPManager.movedThisFrame = true;
+        MovedThisFrameEvent.Invoke();
         ProbeManager.UpdateUI();
     }
 
@@ -816,7 +816,7 @@ public class DefaultProbeController : ProbeController
 
     public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld(Transform tipTransform)
     {
-        if (TPManager.GetSetting_ShowRecRegionOnly())
+        if (PlayerPrefs.GetRecordingRegionOnly())
         {
             // only rec region
             (float mmStartPos, float mmRecordingSize) = GetRecordingRegionHeight();

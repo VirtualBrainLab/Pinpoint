@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using TrajectoryPlanner;
 using UnityEngine;
+using UnityEngine.Events;
 
 public abstract class ProbeController : MonoBehaviour
 {
@@ -13,6 +11,8 @@ public abstract class ProbeController : MonoBehaviour
     {
         ProbeManager = probeManager;
     }
+
+    public UnityEvent MovedThisFrameEvent;
 
     public abstract Transform ProbeTipT { get; }
 

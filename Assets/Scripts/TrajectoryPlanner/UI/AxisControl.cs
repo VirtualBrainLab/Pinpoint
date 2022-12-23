@@ -10,6 +10,8 @@ public class AxisControl : MonoBehaviour
     [FormerlySerializedAs("mlGO")] [SerializeField] private static GameObject _mlGo;
     [FormerlySerializedAs("depthGO")] [SerializeField] private static GameObject _depthGo;
 
+    public static bool Enabled;
+
     public static void SetAxisPosition(Transform transform)
     {
         if (transform == null)
@@ -35,5 +37,14 @@ public class AxisControl : MonoBehaviour
     public static void SetDepthVisibility(bool state)
     {
         _depthGo.SetActive(state);
+    }
+
+    public static void SetAxisVisibility(bool AP, bool ML, bool DV, bool depth, Transform transform)
+    {
+        SetAxisPosition(transform);
+        SetAPVisibility(AP);
+        SetMLVisibility(ML);
+        SetDVVisibility(DV);
+        SetDepthVisibility(depth);
     }
 }

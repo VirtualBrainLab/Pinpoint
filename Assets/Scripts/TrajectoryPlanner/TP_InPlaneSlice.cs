@@ -3,11 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.UI;
 using TrajectoryPlanner;
 using UnityEngine.Serialization;
 
@@ -17,7 +13,6 @@ public class TP_InPlaneSlice : MonoBehaviour
     [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
     [FormerlySerializedAs("inPlaneSliceUIGO")] [SerializeField] private GameObject _inPlaneSliceUigo;
     [FormerlySerializedAs("modelControl")] [SerializeField] private CCFModelControl _modelControl;
-    [FormerlySerializedAs("localPrefs")] [SerializeField] private PlayerPrefs _localPrefs;
 
     [FormerlySerializedAs("areaText")] [SerializeField] private TextMeshProUGUI _areaText;
     [FormerlySerializedAs("textX")] [SerializeField] private TMP_Text _textX;
@@ -25,8 +20,6 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     [FormerlySerializedAs("gpuInPlaneSliceGO")] [SerializeField] private GameObject _gpuInPlaneSliceGo;
     private Renderer gpuSliceRenderer;
-
-    private CCFAnnotationDataset annotationDataset;
 
     private float probeWidth = 70; // probes are 70um wide
     private int zoomLevel = 0;
@@ -87,12 +80,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         return annotationDatasetGPUTexture;
     }
 
-    public void StartAnnotationDataset()
-    {
-        annotationDataset = _tpmanager.GetAnnotationDataset();
-        Debug.Log("(in-plane slice) Annotation data set");
-    }
-
     public Task GetGPUTextureTask()
     {
         return gpuTextureLoadedTask;
@@ -101,12 +88,12 @@ public class TP_InPlaneSlice : MonoBehaviour
     // *** INPLANE SLICE CODE *** //
     public void UpdateInPlaneVisibility()
     {
-        _inPlaneSliceUigo.SetActive(_localPrefs.GetInplane());
+        _inPlaneSliceUigo.SetActive(PlayerPrefs.GetInplane());
     }
 
     public void UpdateInPlaneSlice()
     {
-        if (!_localPrefs.GetInplane()) return;
+        if (!PlayerPrefs.GetInplane()) return;
 
         ProbeManager activeProbeManager = _tpmanager.GetActiveProbeManager();
 
@@ -131,9 +118,9 @@ public class TP_InPlaneSlice : MonoBehaviour
         int type = activeProbeManager.ProbeType;
         bool fourShank = type == 4 || type == 8;
 
-        recordingRegionCenterPosition = fourShank ? 
-            annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2 + forwardWorld * 0.375f) :
-            annotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2);
+        recordingRegionCenterPosition = fourShank ?
+            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2 + forwardWorld * 0.375f) :
+            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2);
 
         gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 
@@ -154,7 +141,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
-        int annotation = annotationDataset.ValueAtIndex(Mathf.RoundToInt(inPlanePosition.x), Mathf.RoundToInt(inPlanePosition.y), Mathf.RoundToInt(inPlanePosition.z));
+        int annotation = VolumeDatasetManager.AnnotationDataset.ValueAtIndex(Mathf.RoundToInt(inPlanePosition.x), Mathf.RoundToInt(inPlanePosition.y), Mathf.RoundToInt(inPlanePosition.z));
         annotation = _modelControl.RemapID(annotation);
 
         if (Input.GetMouseButtonDown(0))
@@ -173,7 +160,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
         // Take the tip transform and go out according to the in plane percentage 
-        Vector3 inPlanePosition = recordingRegionCenterPosition + (annotationDataset.CoordinateSpace.World2SpaceAxisChange(forwardWorld) * -inPlanePosNorm.x + annotationDataset.CoordinateSpace.World2SpaceAxisChange(upWorld) * inPlanePosNorm.y);
+        Vector3 inPlanePosition = recordingRegionCenterPosition + (VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(forwardWorld) * -inPlanePosNorm.x + VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(upWorld) * inPlanePosNorm.y);
         return inPlanePosition;
     }
 

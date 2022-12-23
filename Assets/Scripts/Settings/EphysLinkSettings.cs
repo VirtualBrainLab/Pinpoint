@@ -41,7 +41,7 @@ namespace Settings
 
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
-        private TP_QuestionDialogue _questionDialogue;
+        private QuestionDialogue _questionDialogue;
 
         #endregion
 
@@ -59,7 +59,7 @@ namespace Settings
                 GameObject gameObject)>
             _manipulatorIdToManipulatorConnectionSettingsPanel = new();
 
-        private readonly Dictionary<int, (ProbeConnectionSettingsPanel probeConnectionSettingsPanel, GameObject
+        private readonly Dictionary<string, (ProbeConnectionSettingsPanel probeConnectionSettingsPanel, GameObject
                 gameObject)>
             _probeIdToProbeConnectionSettingsPanels = new();
 
@@ -75,7 +75,7 @@ namespace Settings
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
             _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
             _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
-                .GetComponent<TP_QuestionDialogue>();
+                .GetComponent<QuestionDialogue>();
         }
 
         private void FixedUpdate()
@@ -125,12 +125,12 @@ namespace Settings
 
         private void UpdateProbePanels()
         {
-            var handledProbeIds = new HashSet<int>();
+            var handledProbeIds = new HashSet<string>();
 
             // Add any new probes in scene to list
             foreach (var probeManager in ProbeManager.instances.Where(manager => !manager.IsGhost))
             {
-                var probeId = probeManager.ID;
+                var probeId = probeManager.UUID;
 
                 // Create probe connection settings panel if the probe is new
                 if (!_probeIdToProbeConnectionSettingsPanels.ContainsKey(probeId))
@@ -261,7 +261,7 @@ namespace Settings
             else
             {
                 // Disconnect from server
-                _questionDialogue.SetYesCallback(() =>
+                QuestionDialogue.SetYesCallback(() =>
                 {
                     foreach (var probeManager in ProbeManager.instances
                                  .Where(probeManager => probeManager.IsEphysLinkControlled))
@@ -270,7 +270,7 @@ namespace Settings
                     _communicationManager.DisconnectFromServer(UpdateConnectionUI);
                 });
 
-                _questionDialogue.NewQuestion(
+                QuestionDialogue.NewQuestion(
                     "Are you sure you want to disconnect?\nAll incomplete movements will be canceled.");
             }
         }

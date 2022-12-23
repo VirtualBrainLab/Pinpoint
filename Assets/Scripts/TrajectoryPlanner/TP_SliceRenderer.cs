@@ -15,13 +15,10 @@ public class TP_SliceRenderer : MonoBehaviour
     [FormerlySerializedAs("coronalSliceGO")] [SerializeField] private GameObject _coronalSliceGo;
     [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
     [FormerlySerializedAs("modelControl")] [SerializeField] private CCFModelControl _modelControl;
-    [FormerlySerializedAs("localPrefs")] [SerializeField] private PlayerPrefs _localPrefs;
     [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
     [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
     [FormerlySerializedAs("dropdownMenu")] [SerializeField] private TMP_Dropdown _dropdownMenu;
     [FormerlySerializedAs("iblCoverageTextureAssetRef")] [SerializeField] private AssetReference _iblCoverageTextureAssetRef;
-
-    private int[] baseSize = { 528, 320, 456 };
 
     private bool loaded;
 
@@ -48,7 +45,7 @@ public class TP_SliceRenderer : MonoBehaviour
         await _modelControl.GetDefaultLoadedTask();
 
         Debug.Log("(SliceRenderer) Loading 3D texture");
-        ToggleSliceVisibility(_localPrefs.GetSlice3D());
+        ToggleSliceVisibility(PlayerPrefs.GetSlice3D());
 
         if (_dropdownMenu.value == 1)
             SetActiveTextureAnnotation();
@@ -130,7 +127,7 @@ public class TP_SliceRenderer : MonoBehaviour
 
     private void Update()
     {
-        if (_localPrefs.GetSlice3D()>0 && loaded)
+        if (PlayerPrefs.GetSlice3D()>0 && loaded)
         {
             // Check if the camera moved such that we have to flip the slice quads
             UpdateCameraPosition();
@@ -145,7 +142,7 @@ public class TP_SliceRenderer : MonoBehaviour
     /// </summary>
     public void UpdateSlicePosition()
     {
-        if (_localPrefs.GetSlice3D() > 0)
+        if (PlayerPrefs.GetSlice3D() > 0)
         {
             ProbeManager activeProbeManager = _tpmanager.GetActiveProbeManager();
             if (activeProbeManager == null) return;
@@ -228,8 +225,7 @@ public class TP_SliceRenderer : MonoBehaviour
 
     public void ToggleSliceVisibility(int sliceType)
     {
-        Debug.Log(sliceType);
-        _localPrefs.SetSlice3D(sliceType);
+        PlayerPrefs.SetSlice3D(sliceType);
 
         if (sliceType==0)
         {

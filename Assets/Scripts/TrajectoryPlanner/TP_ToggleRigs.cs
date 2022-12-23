@@ -22,6 +22,6 @@ public class TP_ToggleRigs : MonoBehaviour
         _rigGOs[rigIdx].SetActive(!_rigGOs[rigIdx].activeSelf);
         Collider[] colliders = _rigGOs[rigIdx].transform.GetComponentsInChildren<Collider>();
         _tpmanager.UpdateRigColliders(colliders, _rigGOs[rigIdx].activeSelf);
-        _tpmanager.GetActiveProbeManager().CheckCollisions(_tpmanager.GetAllNonActiveColliders());
+        _tpmanager.GetActiveProbeManager().CheckCollisions(ColliderManager.InactiveColliderInstances);
     }
 }

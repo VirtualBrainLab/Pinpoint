@@ -22,7 +22,6 @@ namespace TrajectoryPlanner
         [SerializeField] private VolumeDatasetManager _vdmanager;
         [SerializeField] private Transform _brainModel;
         [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
-        [FormerlySerializedAs("acontrol")] [SerializeField] private AxisControl _acontrol;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
 
         // Settings
@@ -54,7 +53,7 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("CanvasParent")] [SerializeField] private GameObject _canvasParent;
 
         // UI 
-        [FormerlySerializedAs("qDialogue")] [SerializeField] TP_QuestionDialogue _qDialogue;
+        [FormerlySerializedAs("qDialogue")] [SerializeField] QuestionDialogue _qDialogue;
 
         // Debug graphics
         [FormerlySerializedAs("surfaceDebugGO")] [SerializeField] private GameObject _surfaceDebugGo;
@@ -71,10 +70,9 @@ namespace TrajectoryPlanner
 
         // Local tracking variables
         private ProbeManager activeProbe;
-        private List<Collider> inactiveProbeColliders;
-        private List<Collider> allProbeColliders;
         private List<Collider> rigColliders;
         private List<Collider> allNonActiveColliders;
+        private bool _movedThisFrame;
 
         // Values
         [FormerlySerializedAs("probePanelAcronymTextFontSize")] [SerializeField] private int _probePanelAcronymTextFontSize = 14;
@@ -89,7 +87,6 @@ namespace TrajectoryPlanner
             _brainCamController.SetControlBlock(state);
         }
 
-        public bool movedThisFrame { get; set; }
         private bool spawnedThisFrame = false;
 
         private int visibleProbePanels;
@@ -107,10 +104,13 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("automaticControlPanelGameObject")] [SerializeField] private GameObject _automaticControlPanelGameObject;
         private AutomaticManipulatorControlHandler _automaticManipulatorControlHandler;
 
+        private HashSet<string> _rightHandedManipulatorIds = new();
+
         public void EnableAutomaticManipulatorControlPanel(bool enable = true)
         {
             _automaticManipulatorControlHandler.ProbeManagers =
                 ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
+            _automaticManipulatorControlHandler.RightHandedManipulatorIDs = _rightHandedManipulatorIds;
             _automaticManipulatorControlHandler.AnnotationDataset = GetAnnotationDataset();
             _automaticManipulatorControlHandler.TargetInsertionsReference = ProbeInsertion.TargetableInstances;
             
@@ -137,8 +137,6 @@ namespace TrajectoryPlanner
 
             visibleProbePanels = 0;
 
-            allProbeColliders = new List<Collider>();
-            inactiveProbeColliders = new List<Collider>();
             rigColliders = new List<Collider>();
             allNonActiveColliders = new List<Collider>();
             meshCenters = new Dictionary<int, Vector3>();
@@ -160,9 +158,7 @@ namespace TrajectoryPlanner
             DelayedModelControlStart();
 
             // Startup the volume textures
-            List<Action> callbacks = new List<Action>();
-            callbacks.Add(_inPlaneSlice.StartAnnotationDataset);
-            annotationDatasetLoadTask = _vdmanager.LoadAnnotationDataset(callbacks);
+            annotationDatasetLoadTask = _vdmanager.LoadAnnotationDataset();
 
             // After annotation loads, check if the user wants to load previously used probes
             CheckForSavedProbes(annotationDatasetLoadTask);
@@ -173,7 +169,7 @@ namespace TrajectoryPlanner
             SetSetting_UseIBLAngles(PlayerPrefs.GetUseIBLAngles());
             SetSetting_SurfaceDebugSphereVisibility(PlayerPrefs.GetSurfaceCoord());
             SetSetting_RelCoord(PlayerPrefs.GetRelCoord());
-            ProbeManager.RightHandedManipulatorIDs = PlayerPrefs.GetRightHandedManipulatorIds();
+            _rightHandedManipulatorIds = PlayerPrefs.GetRightHandedManipulatorIds();
         }
 
         void Update()
@@ -205,7 +201,7 @@ namespace TrajectoryPlanner
                 // Check if mouse buttons are down, or if probe is under manual control
                 if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
                 {
-                    movedThisFrame = PlayerPrefs.GetCollisions() ? activeProbe.MoveProbe(true) : activeProbe.MoveProbe(false);
+                    activeProbe.MoveProbe();
                 }
             }
 
@@ -224,9 +220,9 @@ namespace TrajectoryPlanner
 
         private void LateUpdate()
         {
-            if (movedThisFrame && activeProbe != null)
+            if (_movedThisFrame && activeProbe != null)
             {
-                movedThisFrame = false;
+                _movedThisFrame = false;
 
                 _inPlaneSlice.UpdateInPlaneSlice();
 
@@ -247,6 +243,11 @@ namespace TrajectoryPlanner
                 activeProbe.UpdateUI();
         }
 
+        public void SetMovedThisFrame()
+        {
+            _movedThisFrame = true;
+        }
+
         #endregion
 
         public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
@@ -260,9 +261,9 @@ namespace TrajectoryPlanner
                     var questionString = PlayerPrefs.IsEphysLinkDataExpired()
                         ? "Load previously saved probes?"
                         : "Restore previous session?";
-                    
-                    _qDialogue.NewQuestion(questionString);
-                    _qDialogue.SetYesCallback(this.LoadSavedProbes);
+
+                    QuestionDialogue.SetYesCallback(LoadSavedProbes);
+                    QuestionDialogue.NewQuestion(questionString);
                 }
             }
         }
@@ -348,7 +349,7 @@ namespace TrajectoryPlanner
             return _probeQuickSettings;
         }
         
-        public TP_QuestionDialogue GetQuestionDialogue()
+        public QuestionDialogue GetQuestionDialogue()
         {
             return _qDialogue;
         }
@@ -367,6 +368,25 @@ namespace TrajectoryPlanner
         {
             return _vdmanager.GetAnnotationDataset();
         }
+
+        public bool IsManipulatorRightHanded(string manipulatorId)
+        {
+            return _rightHandedManipulatorIds.Contains(manipulatorId);
+        }
+        
+        public void AddRightHandedManipulator(string manipulatorId)
+        {
+            _rightHandedManipulatorIds.Add(manipulatorId);
+            PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
+        }
+        
+        public void RemoveRightHandedManipulator(string manipulatorId)
+        {
+            if (!IsManipulatorRightHanded(manipulatorId)) return;
+            _rightHandedManipulatorIds.Remove(manipulatorId);
+            PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
+        }
+
 
         public bool InputsFocused()
         {
@@ -435,7 +455,7 @@ namespace TrajectoryPlanner
                     UpdateQuickSettings();
                 }
                 
-                probeManager.CheckCollisions(GetAllNonActiveColliders());
+                probeManager.CheckCollisions(ColliderManager.InactiveColliderInstances);
             }
             else
             {
@@ -507,6 +527,10 @@ namespace TrajectoryPlanner
             _accountsManager.AddNewProbe();
 
             UpdateProbeColliders();
+            UpdateQuickSettingsProbeIdText();
+
+            newProbeManager.ProbeUIUpdateEvent.AddListener(UpdateQuickSettings);
+            newProbeManager.GetProbeController().MovedThisFrameEvent.AddListener(SetMovedThisFrame);
 
             return newProbe.GetComponent<ProbeManager>();
         }
@@ -733,47 +757,17 @@ namespace TrajectoryPlanner
         public void UpdateProbeColliders()
         {
             // Collect *all* colliders from all probes
-            allProbeColliders.Clear();
             foreach (ProbeManager probeManager in ProbeManager.instances)
-            {
-                foreach (Collider collider in probeManager.GetProbeColliders())
-                    allProbeColliders.Add(collider);
-            }
-
-            // Sort out which colliders are active vs inactive
-            inactiveProbeColliders.Clear();
-
-            List<Collider> activeProbeColliders = (activeProbe != null) ?
-                activeProbe.GetProbeColliders() :
-                new List<Collider>();
-
-            foreach (Collider collider in allProbeColliders)
-                if (!activeProbeColliders.Contains(collider))
-                    inactiveProbeColliders.Add(collider);
-
-            // Re-build the list of inactive colliders (which includes both probe + rig colliders)
-            UpdateNonActiveColliders();
+                ColliderManager.AddProbeColliderInstances(probeManager.ProbeColliders, activeProbe == probeManager);
         }
 
         public void UpdateRigColliders(IEnumerable<Collider> newRigColliders, bool keep)
         {
             if (keep)
-                foreach (Collider collider in newRigColliders)
-                    rigColliders.Add(collider);
+                ColliderManager.AddRigColliderInstances(newRigColliders);
             else
                 foreach (Collider collider in newRigColliders)
                     rigColliders.Remove(collider);
-            UpdateNonActiveColliders();
-        }
-
-
-        private void UpdateNonActiveColliders()
-        {
-            allNonActiveColliders.Clear();
-            foreach (Collider collider in inactiveProbeColliders)
-                allNonActiveColliders.Add(collider);
-            foreach (Collider collider in rigColliders)
-                allNonActiveColliders.Add(collider);
         }
 
         #endregion
@@ -782,9 +776,7 @@ namespace TrajectoryPlanner
         {
             foreach (ProbeManager probeController in ProbeManager.instances)
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
-                    puimanager.ProbeMoved();
-
-            movedThisFrame = true;
+                    puimanager.ProbeMoved();        
         }
 
         ///
@@ -1001,7 +993,7 @@ namespace TrajectoryPlanner
         {
             PlayerPrefs.SetCollisions(toggleCollisions);
             if (activeProbe != null)
-                activeProbe.CheckCollisions(GetAllNonActiveColliders());
+                activeProbe.CheckCollisions(ColliderManager.InactiveColliderInstances);
         }
 
         public void SetSetting_InPlanePanelVisibility(bool state)
@@ -1126,19 +1118,7 @@ namespace TrajectoryPlanner
         {
             PlayerPrefs.SetAxisControl(state);
             if (!state)
-                SetAxisVisibility(false, false, false, false, null);
-        }
-
-        public void SetAxisVisibility(bool AP, bool ML, bool DV, bool depth, Transform transform)
-        {
-            if (GetAxisControlEnabled())
-            {
-                _acontrol.SetAxisPosition(transform);
-                _acontrol.SetAPVisibility(AP);
-                _acontrol.SetMLVisibility(ML);
-                _acontrol.SetDVVisibility(DV);
-                _acontrol.SetDepthVisibility(depth);
-            }
+                AxisControl.SetAxisVisibility(false, false, false, false, null);
         }
 
         #endregion
@@ -1231,8 +1211,8 @@ namespace TrajectoryPlanner
                 if (data.spaceName != CoordinateSpaceManager.ActiveCoordinateSpace.Name || data.transformName != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
                 {
                     // We have a coordiante space/transform mis-match
-                    _qDialogue.SetYesCallback(new Action(delegate { AccountsNewProbeHelper(data); }));
-                    _qDialogue.NewQuestion($"The saved insertion uses {data.spaceName}/{data.transformName} while you are using {CoordinateSpaceManager.ActiveCoordinateSpace.Name}/{CoordinateSpaceManager.ActiveCoordinateTransform.Name}. Creating a new probe will override these settings with the active ones.");
+                    QuestionDialogue.SetYesCallback(new Action(delegate { AccountsNewProbeHelper(data); }));
+                    QuestionDialogue.NewQuestion($"The saved insertion uses {data.spaceName}/{data.transformName} while you are using {CoordinateSpaceManager.ActiveCoordinateSpace.Name}/{CoordinateSpaceManager.ActiveCoordinateTransform.Name}. Creating a new probe will override these settings with the active ones.");
                 }
                 else
                     AccountsNewProbeHelper(data);

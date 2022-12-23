@@ -39,7 +39,7 @@ public class TP_RecRegionSlider : MonoBehaviour
             _uiSlider.value = Round2Nearest(value, range);
             probeManager.ChangeRecordingRegionSize(_uiSlider.value);
 
-            _tpmanager.movedThisFrame = true;
+            probeManager.UpdateUI();
 
             _recRegionSizeText.text = "Recording region size: " + _uiSlider.value;
         }
