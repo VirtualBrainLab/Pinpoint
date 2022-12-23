@@ -69,9 +69,6 @@ namespace TrajectoryPlanner
         // Coordinate system information
         private Dictionary<string, CoordinateSpace> coordinateSpaceOpts;
         private Dictionary<string, CoordinateTransform> coordinateTransformOpts;
-        // tracking
-        private CoordinateSpace _activeCoordinateSpace;
-        private CoordinateTransform _activeCoordinateTransform;
 
         // Local tracking variables
         private ProbeManager activeProbe;
@@ -140,7 +137,7 @@ namespace TrajectoryPlanner
             // Deal with coordinate spaces and transforms
             coordinateSpaceOpts = new Dictionary<string, CoordinateSpace>();
             coordinateSpaceOpts.Add("CCF", new CCFSpace());
-            _activeCoordinateSpace = coordinateSpaceOpts["CCF"];
+            CoordinateSpaceManager.ActiveCoordinateSpace = coordinateSpaceOpts["CCF"];
 
             coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
             coordinateTransformOpts.Add("CCF", new CCFTransform());
@@ -322,8 +319,8 @@ namespace TrajectoryPlanner
         /// <returns></returns>
         public Vector3 CoordinateTransformToCCF(Vector3 fromCoord)
         {
-            if (_activeCoordinateTransform != null)
-                return _activeCoordinateTransform.Transform2Space(fromCoord);
+            if (CoordinateSpaceManager.ActiveCoordinateTransform != null)
+                return CoordinateSpaceManager.ActiveCoordinateTransform.Transform2Space(fromCoord);
             else
                 return fromCoord;
         }
@@ -335,15 +332,10 @@ namespace TrajectoryPlanner
         /// <returns></returns>
         public Vector3 CoordinateTransformFromCCF(Vector3 ccfCoord)
         {
-            if (_activeCoordinateTransform != null)
-                return _activeCoordinateTransform.Space2Transform(ccfCoord);
+            if (CoordinateSpaceManager.ActiveCoordinateTransform != null)
+                return CoordinateSpaceManager.ActiveCoordinateTransform.Space2Transform(ccfCoord);
             else
                 return ccfCoord;
-        }
-
-        public CoordinateTransform GetActiveCoordinateTransform()
-        {
-            return _activeCoordinateTransform;
         }
 
         public void ClickSearchArea(GameObject target)
@@ -775,7 +767,7 @@ namespace TrajectoryPlanner
 #if UNITY_EDITOR
             Debug.Log(string.Format("Transforming node {0}", node.Name));
 #endif
-            node.TransformVertices(WorldU2WorldT, true);
+            node.TransformVertices(CoordinateSpaceManager.WorldU2WorldT, true);
         }
 
         public void UnwarpBrain()
@@ -786,36 +778,7 @@ namespace TrajectoryPlanner
             }
         }
 
-        /// <summary>
-        /// Convert a world coordinate into the corresponding world coordinate after transformation
-        /// </summary>
-        /// <param name="coordWorld"></param>
-        /// <returns></returns>
-        public Vector3 WorldU2WorldT(Vector3 coordWorld)
-        {
-            return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2SpaceAxisChange(_activeCoordinateTransform.Space2Transform(_activeCoordinateSpace.World2Space(coordWorld))));
-        }
 
-        public Vector3 WorldT2WorldU(Vector3 coordWorldT)
-        {
-            return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2Space(_activeCoordinateTransform.Space2TransformAxisChange(_activeCoordinateSpace.World2Space(coordWorldT))));
-        }
-
-        /// <summary>
-        /// Helper function
-        /// Convert a world coordinate into a transformed coordinate using the reference coordinate and the axis change
-        /// </summary>
-        /// <param name="coordWorld"></param>
-        /// <returns></returns>
-        public Vector3 World2TransformedAxisChange(Vector3 coordWorld)
-        {
-            return _activeCoordinateTransform.Space2TransformAxisChange(_activeCoordinateSpace.World2Space(coordWorld));
-        }
-
-        public Vector3 Transformed2WorldAxisChange(Vector3 coordTransformed)
-        {
-            return _activeCoordinateSpace.Space2World(_activeCoordinateTransform.Transform2SpaceAxisChange(coordTransformed));
-        }
 
         #endregion
 
@@ -953,7 +916,7 @@ namespace TrajectoryPlanner
         public void SetSetting_RelCoord(Vector3 coord)
         {
             _localPrefs.SetRelCoord(coord);
-            _activeCoordinateSpace.RelativeOffset = coord;
+            CoordinateSpaceManager.ActiveCoordinateSpace.RelativeOffset = coord;
             _relCoordPanel.SetRelativeCoordinateText(coord);
         }
 
@@ -1069,14 +1032,14 @@ namespace TrajectoryPlanner
             _localPrefs.SetStereotaxic(invivoOption);
 
             Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
-            _activeCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
+            CoordinateSpaceManager.ActiveCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
             WarpBrain();
 
             // Update the warp functions in the craniotomy control panel
             //_craniotomyPanel.World2Space = _activeCoordinateSpace.World2Space;
             //_craniotomyPanel.Space2World = _activeCoordinateSpace.Space2World;
-            _craniotomyPanel.World2Space = World2TransformedAxisChange;
-            _craniotomyPanel.Space2World = Transformed2WorldAxisChange;
+            _craniotomyPanel.World2Space = CoordinateSpaceManager.World2TransformedAxisChange;
+            _craniotomyPanel.Space2World = CoordinateSpaceManager.Transformed2WorldAxisChange;
 
             // Check if active probe is a mis-match
             if (activeProbe != null)
@@ -1129,7 +1092,7 @@ namespace TrajectoryPlanner
 
         public string GetInVivoPrefix()
         {
-            return _activeCoordinateTransform.Prefix;
+            return CoordinateSpaceManager.ActiveCoordinateTransform.Prefix;
         }
 
         #endregion
@@ -1242,12 +1205,6 @@ namespace TrajectoryPlanner
 
         #endregion
 
-        #region Coordinate spaces
-
-        public CoordinateSpace GetCoordinateSpace() { return _activeCoordinateSpace; }
-        public void SetCoordinateSpace(CoordinateSpace newSpace) { _activeCoordinateSpace = newSpace; }
-        #endregion
-
         #region Mesh centers
 
         private int prevTipID;
@@ -1288,7 +1245,7 @@ namespace TrajectoryPlanner
                 prevTipSideLeft = true;
             }
 
-            apmldv = activeProbe.GetProbeController().Insertion.CoordinateTransform.Space2Transform(apmldv - _activeCoordinateSpace.RelativeOffset);
+            apmldv = activeProbe.GetProbeController().Insertion.CoordinateTransform.Space2Transform(apmldv - CoordinateSpaceManager.ActiveCoordinateSpace.RelativeOffset);
             activeProbe.GetProbeController().SetProbePosition(apmldv);
 
             prevTipID = berylID;
@@ -1333,11 +1290,11 @@ namespace TrajectoryPlanner
             }
             else
             {
-                if (data.spaceName != _activeCoordinateSpace.Name || data.transformName != _activeCoordinateTransform.Name)
+                if (data.spaceName != CoordinateSpaceManager.ActiveCoordinateSpace.Name || data.transformName != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
                 {
                     // We have a coordiante space/transform mis-match
                     _qDialogue.SetYesCallback(new Action(delegate { AccountsNewProbeHelper(data); }));
-                    _qDialogue.NewQuestion($"The saved insertion uses {data.spaceName}/{data.transformName} while you are using {_activeCoordinateSpace.Name}/{_activeCoordinateTransform.Name}. Creating a new probe will override these settings with the active ones.");
+                    _qDialogue.NewQuestion($"The saved insertion uses {data.spaceName}/{data.transformName} while you are using {CoordinateSpaceManager.ActiveCoordinateSpace.Name}/{CoordinateSpaceManager.ActiveCoordinateTransform.Name}. Creating a new probe will override these settings with the active ones.");
                 }
                 else
                     AccountsNewProbeHelper(data);
@@ -1348,7 +1305,7 @@ namespace TrajectoryPlanner
 
         private void AccountsNewProbeHelper((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) data)
         {
-            AddNewProbe(data.type, new ProbeInsertion(data.apmldv, data.angles, _activeCoordinateSpace, _activeCoordinateTransform), data.UUID);
+            AddNewProbe(data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
         }
 
         public void SendActiveProbeDataToAccounts()
