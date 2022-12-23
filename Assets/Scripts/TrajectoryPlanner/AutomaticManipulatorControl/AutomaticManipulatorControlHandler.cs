@@ -168,7 +168,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         {
             // Compute furthest depth drive distance
             var maxTravelDistance = 0f;
-            foreach (var manipulatorID in _probesTargetDepth.Keys)
+            foreach (var manipulatorID in _probesTargetDepth.Keys.ToList())
             {
                 // Compute max travel distance for this probe
                 var distance = Vector3.Distance(
@@ -224,6 +224,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                 _drivePanel.TimerText.text = "Ready for Experiment";
                 _drivePanel.ButtonText.text = "Drive";
                 _drivePanel.PanelText.color = Color.white;
+                _probesAtTarget.Clear();
             }
         }
 
@@ -268,7 +269,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                         Debug.LogError);
 
                     // Update status text if both are done
-                    if (_probeAtTarget.Length != _probesTargetDepth.Keys.Count) return;
+                    if (_probesAtTarget.Count != _probesTargetDepth.Keys.Count) return;
                     _drivePanel.StatusText.text = "Settling... Please wait...";
                 }, Debug.LogError);
         }
@@ -315,35 +316,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #endregion
 
-        #region Step 3
-
-        public void ZeroDepth(int manipulatorID)
-        {
-            switch (manipulatorID)
-            {
-                case 1:
-                    Probe1Manager.SetBrainSurfaceOffset();
-                    break;
-                case 2:
-                    Probe2Manager.SetBrainSurfaceOffset();
-                    break;
-                default:
-                    Debug.LogError("Unknown manipulator ID: " + manipulatorID);
-
-                    // Exit rest of function if failed
-                    return;
-            }
-
-            // Update whether a probe has been set to Dura
-            _probeAtDura[manipulatorID - 1] = true;
-
-            // Enable Step 4 (if needed)
-            if (_step != 3) return;
-            _step = 4;
-            EnableStep4();
-        }
-
-        #endregion
 
         #region Step 4
 
@@ -360,6 +332,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                     _drivePanel.TimerText.text = "";
                     _drivePanel.PanelText.color = Color.white;
                     _isDriving = false;
+                    _probesAtTarget.Clear();
                 });
             }
             else
@@ -462,43 +435,18 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         private uint _step = 1;
 
         public List<ProbeManager> ProbeManagers { private get; set; }
-
-
-        public ProbeManager Probe1Manager { private get; set; }
-        public ProbeManager Probe2Manager { private get; set; }
-
         public CCFAnnotationDataset AnnotationDataset { private get; set; }
 
         #region Step 2
 
         public HashSet<string> RightHandedManipulatorIDs { private get; set; }
-        public bool IsProbe1ManipulatorRightHanded { private get; set; }
-        public bool IsProbe2ManipulatorRightHanded { private get; set; }
-
         public HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
-        private ProbeInsertion _probe1SelectedTargetProbeInsertion;
-        private ProbeInsertion _probe2SelectedTargetProbeInsertion;
-
-
-        private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _probe1MovementAxesInsertions;
-        private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _probe2MovementAxesInsertions;
-
-        private (GameObject ap, GameObject ml, GameObject dv) _probe1LineGameObjects;
-
-        private (GameObject ap, GameObject ml, GameObject dv) _probe2LineGameObjects;
-
-        private int _expectedMovements;
-        private int _completedMovements;
-
         private readonly UnityEvent<Action> _moveToTargetInsertionEvent = new();
 
         #endregion
 
         #region Step 4
 
-        private readonly bool[] _probeAtDura = { false, false };
-        private readonly bool[] _probeAtTarget = { false, false };
-        private readonly float[] _probeTargetDepth = { 0, 0 };
         private readonly Dictionary<string, float> _probesTargetDepth = new();
         private readonly HashSet<string> _probesAtTarget = new();
         private bool _isDriving;
