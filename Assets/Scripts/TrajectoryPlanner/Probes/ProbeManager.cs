@@ -21,6 +21,8 @@ public class ProbeManager : MonoBehaviour
     public static List<ProbeManager> instances = new List<ProbeManager>();
     void OnEnable() => instances.Add(this);
     void OnDisable() => instances.Remove(this);
+
+    public static HashSet<string> RightHandedManipulatorIDs { get; set; } = new();
     #endregion
 
     // Internal flags that track whether we are in manual control or drag/link control mode

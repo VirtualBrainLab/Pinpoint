@@ -102,7 +102,7 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
             // Apply axis negations
             posWithDepthAndCorrectAxes.z *= -1;
-            posWithDepthAndCorrectAxes.y *= RightHandedManipulatorIDs.Contains(ProbeManager.ManipulatorId) ? 1 : -1;
+            posWithDepthAndCorrectAxes.y *= ProbeManager.RightHandedManipulatorIDs.Contains(ProbeManager.ManipulatorId) ? 1 : -1;
 
             // Apply coordinate offsets and return result
             return posWithDepthAndCorrectAxes + ProbeManager.ZeroCoordinateOffset;
@@ -152,7 +152,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
         #region Shared
 
         public static HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
-        public static HashSet<string> RightHandedManipulatorIDs { private get; set; }
         public static CommunicationManager CommunicationManager { private get; set; }
         public static CCFAnnotationDataset AnnotationDataset { private get; set; }
         public static readonly Dictionary<string, ProbeInsertion> SelectedTargetInsertion = new();

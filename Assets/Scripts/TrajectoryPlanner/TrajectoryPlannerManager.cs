@@ -107,13 +107,10 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("automaticControlPanelGameObject")] [SerializeField] private GameObject _automaticControlPanelGameObject;
         private AutomaticManipulatorControlHandler _automaticManipulatorControlHandler;
 
-        private HashSet<string> _rightHandedManipulatorIds = new();
-
         public void EnableAutomaticManipulatorControlPanel(bool enable = true)
         {
             _automaticManipulatorControlHandler.ProbeManagers =
                 ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
-            _automaticManipulatorControlHandler.RightHandedManipulatorIDs = _rightHandedManipulatorIds;
             _automaticManipulatorControlHandler.AnnotationDataset = GetAnnotationDataset();
             _automaticManipulatorControlHandler.TargetInsertionsReference = ProbeInsertion.TargetableInstances;
             
@@ -176,7 +173,7 @@ namespace TrajectoryPlanner
             SetSetting_UseIBLAngles(PlayerPrefs.GetUseIBLAngles());
             SetSetting_SurfaceDebugSphereVisibility(PlayerPrefs.GetSurfaceCoord());
             SetSetting_RelCoord(PlayerPrefs.GetRelCoord());
-            _rightHandedManipulatorIds = PlayerPrefs.GetRightHandedManipulatorIds();
+            ProbeManager.RightHandedManipulatorIDs = PlayerPrefs.GetRightHandedManipulatorIds();
         }
 
         void Update()
@@ -370,25 +367,6 @@ namespace TrajectoryPlanner
         {
             return _vdmanager.GetAnnotationDataset();
         }
-
-        public bool IsManipulatorRightHanded(string manipulatorId)
-        {
-            return _rightHandedManipulatorIds.Contains(manipulatorId);
-        }
-        
-        public void AddRightHandedManipulator(string manipulatorId)
-        {
-            _rightHandedManipulatorIds.Add(manipulatorId);
-            PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
-        }
-        
-        public void RemoveRightHandedManipulator(string manipulatorId)
-        {
-            if (!IsManipulatorRightHanded(manipulatorId)) return;
-            _rightHandedManipulatorIds.Remove(manipulatorId);
-            PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
-        }
-
 
         public bool InputsFocused()
         {

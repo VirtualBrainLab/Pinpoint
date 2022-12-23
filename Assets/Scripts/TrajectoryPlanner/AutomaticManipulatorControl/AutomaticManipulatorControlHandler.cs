@@ -62,7 +62,6 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
             // Setup shared resources
             InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
-            InsertionSelectionPanelHandler.RightHandedManipulatorIDs = RightHandedManipulatorIDs;
             InsertionSelectionPanelHandler.CommunicationManager = _communicationManager;
             InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
             InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent.AddListener(

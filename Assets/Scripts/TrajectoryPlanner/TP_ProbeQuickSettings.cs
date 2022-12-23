@@ -289,7 +289,7 @@ namespace TrajectoryPlanner
             // Apply axis negations
             posWithDepthAndCorrectAxes.z *= -1;
             posWithDepthAndCorrectAxes.y *=
-                _trajectoryPlannerManager.IsManipulatorRightHanded(_probeManager.ManipulatorId) ? 1 : -1;
+                ProbeManager.RightHandedManipulatorIDs.Contains(_probeManager.ManipulatorId) ? 1 : -1;
 
             // Apply coordinate offsets
             var zeroCoordinateOffsetPos = posWithDepthAndCorrectAxes + _probeManager.ZeroCoordinateOffset;

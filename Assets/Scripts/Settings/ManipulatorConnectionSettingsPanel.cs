@@ -28,7 +28,7 @@ namespace Settings
         {
             _manipulatorId = manipulatorId;
             _manipulatorIdText.text = manipulatorId;
-            _handednessDropdown.value = _trajectoryPlannerManager.IsManipulatorRightHanded(manipulatorId) ? 1 : 0;
+            _handednessDropdown.value = ProbeManager.RightHandedManipulatorIDs.Contains(manipulatorId) ? 1 : 0;
         }
 
         #endregion
@@ -42,9 +42,12 @@ namespace Settings
         public void OnManipulatorHandednessValueChanged(int value)
         {
             if (value == 1)
-                _trajectoryPlannerManager.AddRightHandedManipulator(_manipulatorId);
+                ProbeManager.RightHandedManipulatorIDs.Add(_manipulatorId);
             else
-                _trajectoryPlannerManager.RemoveRightHandedManipulator(_manipulatorId);
+                ProbeManager.RightHandedManipulatorIDs.Remove(_manipulatorId);
+            
+            // Save changes
+            PlayerPrefs.SaveRightHandedManipulatorIds(ProbeManager.RightHandedManipulatorIDs);
         }
 
         #endregion
