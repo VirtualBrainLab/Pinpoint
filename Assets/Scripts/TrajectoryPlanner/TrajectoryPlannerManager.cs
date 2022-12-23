@@ -77,11 +77,6 @@ namespace TrajectoryPlanner
         private List<Collider> rigColliders;
         private List<Collider> allNonActiveColliders;
 
-        private static List<Color> probeColors = new List<Color> { ColorFromRGB(114, 87, 242), ColorFromRGB(240, 144, 96), ColorFromRGB(71, 147, 240), ColorFromRGB(240, 217, 48), ColorFromRGB(60, 240, 227),
-                                    ColorFromRGB(180, 0, 0), ColorFromRGB(0, 180, 0), ColorFromRGB(0, 0, 180), ColorFromRGB(180, 180, 0), ColorFromRGB(0, 180, 180),
-                                    ColorFromRGB(180, 0, 180), ColorFromRGB(240, 144, 96), ColorFromRGB(71, 147, 240), ColorFromRGB(240, 217, 48), ColorFromRGB(60, 240, 227),
-                                    ColorFromRGB(114, 87, 242), ColorFromRGB(255, 255, 255), ColorFromRGB(0, 125, 125), ColorFromRGB(125, 0, 125), ColorFromRGB(125, 125, 0)};
-
         // Values
         [FormerlySerializedAs("probePanelAcronymTextFontSize")] [SerializeField] private int _probePanelAcronymTextFontSize = 14;
         [FormerlySerializedAs("probePanelAreaTextFontSize")] [SerializeField] private int _probePanelAreaTextFontSize = 10;
@@ -445,7 +440,7 @@ namespace TrajectoryPlanner
             _restoredProbe = isGhost;
 
             // Return color if not a ghost probe
-            if (probeManager.IsOriginal) ReturnProbeColor(probeManager.GetColor());
+            if (probeManager.IsOriginal) ProbeProperties.ReturnProbeColor(probeManager.GetColor());
 
             // Destroy probe
             probeManager.Destroy();
@@ -644,21 +639,10 @@ namespace TrajectoryPlanner
             return thisProbeId;
         }
 
-        public Color GetNextProbeColor()
-        {
-            Color next = probeColors[0];
-            probeColors.RemoveAt(0);
-            return next;
-        }
 
         public Material GetCollisionMaterial()
         {
             return _collisionMaterial;
-        }
-
-        public void ReturnProbeColor(Color returnColor)
-        {
-            probeColors.Insert(0, returnColor);
         }
 
         public void SetActiveProbe(string UUID)
@@ -743,10 +727,6 @@ namespace TrajectoryPlanner
                 activeProbe.GetProbeController().ResetInsertion();
         }
 
-        public Color GetProbeColor(int probeID)
-        {
-            return probeColors[probeID];
-        }
 
         public ProbeManager GetActiveProbeManager()
         {
@@ -839,14 +819,6 @@ namespace TrajectoryPlanner
                     puimanager.ProbeMoved();
 
             movedThisFrame = true;
-        }
-
-        ///
-        /// HELPER FUNCTIONS
-        /// 
-        public static Color ColorFromRGB(int r, int g, int b)
-        {
-            return new Color(r / 255f, g / 255f, b / 255f, 1f);
         }
 
         ///

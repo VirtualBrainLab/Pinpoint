@@ -80,7 +80,7 @@ public class DefaultProbeController : ProbeController
 
         UpdateRecordingRegionVars();
 
-        Insertion = new ProbeInsertion(defaultStart, defaultAngles, TPManager.GetCoordinateSpace(), TPManager.GetActiveCoordinateTransform());
+        Insertion = new ProbeInsertion(defaultStart, defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
 
     private void Start()
