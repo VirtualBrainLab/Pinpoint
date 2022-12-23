@@ -282,6 +282,9 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Step 2
 
+        /// <summary>
+        ///     Move probes with selected target insertions. Stop in progress movement.
+        /// </summary>
         public void MoveOrStopProbeToInsertionTarget()
         {
             if (!InsertionSelectionPanelHandler.Moving)
@@ -319,11 +322,15 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         #region Step 4
 
+        /// <summary>
+        ///     Drive manipulators to 200 µm past target insertion, bring back up to target, and let settle.
+        ///     Stops in progress drive.
+        /// </summary>
         public void DriveOrStopDepth()
         {
             if (_isDriving)
             {
-                // Stop all movements
+                // Stop all movements and reset UI
                 _communicationManager.Stop(state =>
                 {
                     if (!state) return;
@@ -332,14 +339,15 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
                     _drivePanel.TimerText.text = "";
                     _drivePanel.PanelText.color = Color.white;
                     _isDriving = false;
-                    _probesAtTarget.Clear();
                 });
             }
             else
             {
+                // Set UI for driving
                 _drivePanel.ButtonText.text = "Stop";
                 _drivePanel.PanelText.color = _workingColor;
                 _isDriving = true;
+                _probesAtTarget.Clear();
 
                 // Run drive chain
                 StartDriveChain();
