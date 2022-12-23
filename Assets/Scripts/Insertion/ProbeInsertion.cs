@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using CoordinateSpaces;
 using CoordinateTransforms;
+using System.Collections.Generic;
 
 /// <summary>
 /// Representation of a probe insertion in a native CoordinateSpace and CoordinateTransform
@@ -12,6 +13,11 @@ using CoordinateTransforms;
 /// </summary>
 public class ProbeInsertion
 {
+    #region Static instances
+    public static List<ProbeInsertion> Instances = new List<ProbeInsertion>();
+    public static List<ProbeInsertion> TargetableInstances = new List<ProbeInsertion>();
+    #endregion
+
     #region Coordinate vars
     public CoordinateSpace CoordinateSpace { get; private set; }
     public CoordinateTransform CoordinateTransform { get; private set; }
@@ -52,10 +58,29 @@ public class ProbeInsertion
     }
     #endregion
 
+    #region other vars
+    public bool Targetable {
+        get
+        {
+            return Targetable;
+        }
+
+        set
+        {
+            if (value)
+                TargetableInstances.Add(this);
+            else if (TargetableInstances.Contains(this))
+                TargetableInstances.Remove(this);
+            Targetable = value;
+        }
+    }
+
+    #endregion
+
     #region constructor
 
     public ProbeInsertion(float ap, float ml, float dv, float phi, float theta, float spin, 
-        CoordinateSpace coordSpace, CoordinateTransform coordTransform)
+        CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
     {
         this.ap = ap;
         this.ml = ml;
@@ -65,15 +90,17 @@ public class ProbeInsertion
         this.spin = spin;
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
+        Instances.Add(this);
     }
 
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
-        CoordinateSpace coordSpace, CoordinateTransform coordTransform)
+        CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
     {
         apmldv = tipPosition;
         this.angles = angles;
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
+        Instances.Add(this);
     }
 
     public ProbeInsertion(ProbeInsertion otherInsertion)
@@ -82,6 +109,12 @@ public class ProbeInsertion
         angles = otherInsertion.angles;
         CoordinateSpace = otherInsertion.CoordinateSpace;
         CoordinateTransform = otherInsertion.CoordinateTransform;
+        Instances.Add(this);
+    }
+
+    ~ProbeInsertion()
+    {
+        Instances.Remove(this);
     }
 
     #endregion
