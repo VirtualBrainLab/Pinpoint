@@ -568,7 +568,7 @@ public class ProbeManager : MonoBehaviour
                 ManipulatorId = manipulatorId;
 
                 // Remove insertion from targeting options
-                tpmanager.TargetProbeInsertions.Remove(_probeController.Insertion);
+                tpmanager.TargetInsertions.Remove(_probeController.Insertion);
 
                 if (calibrated)
                     // Bypass calibration and start echoing

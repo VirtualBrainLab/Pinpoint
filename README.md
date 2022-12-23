@@ -24,4 +24,4 @@ Mouse brain artwork from https://scidraw.io/drawing/286
 
 [![DOI](https://zenodo.org/badge/439779355.svg)](https://zenodo.org/badge/latestdoi/439779355)
 
-If Pinpoint is used as part of a research project you should cite this repository. We've created a DOI for this purpose on Zenodo. Your citations will help us get grant support for this project in the future!
+Your citations are critical for making it possible to get grant funding for Pinpoint in the future.

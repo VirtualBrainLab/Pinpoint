@@ -7,6 +7,7 @@ using CoordinateTransforms;
 using EphysLink;
 using Settings;
 using TMPro;
+using TrajectoryPlanner.AutomaticManipulatorControl;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -115,22 +116,16 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("automaticControlPanelGameObject")] [SerializeField] private GameObject _automaticControlPanelGameObject;
         private AutomaticManipulatorControlHandler _automaticManipulatorControlHandler;
 
-        private CommunicationManager _communicationManager;
         private HashSet<string> _rightHandedManipulatorIds = new();
-        public HashSet<ProbeInsertion> TargetProbeInsertions { get; } = new();
+        public HashSet<ProbeInsertion> TargetInsertions { get; } = new();
 
         public void EnableAutomaticManipulatorControlPanel(bool enable = true)
         {
-            _automaticManipulatorControlHandler.Probe1Manager =
-                ProbeManager.instances.Find(manager => manager.ManipulatorId == "1");
-            _automaticManipulatorControlHandler.Probe2Manager =
-                ProbeManager.instances.Find(manager => manager.ManipulatorId == "2");
+            _automaticManipulatorControlHandler.ProbeManagers =
+                ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
+            _automaticManipulatorControlHandler.RightHandedManipulatorIDs = _rightHandedManipulatorIds;
             _automaticManipulatorControlHandler.AnnotationDataset = GetAnnotationDataset();
-            _automaticManipulatorControlHandler.IsProbe1ManipulatorRightHanded =
-                _rightHandedManipulatorIds.Contains("1");
-            _automaticManipulatorControlHandler.IsProbe2ManipulatorRightHanded =
-                _rightHandedManipulatorIds.Contains("2");
-            _automaticManipulatorControlHandler.TargetProbeInsertionsReference = TargetProbeInsertions;
+            _automaticManipulatorControlHandler.TargetInsertionsReference = TargetInsertions;
             
             _automaticControlPanelGameObject.SetActive(enable);
         }
@@ -162,8 +157,6 @@ namespace TrajectoryPlanner
             meshCenters = new Dictionary<int, Vector3>();
             LoadMeshData();
             //Physics.autoSyncTransforms = true;
-
-            _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
 
             _accountsManager.UpdateCallback = AccountsProbeStatusUpdatedCallback;
             
@@ -507,7 +500,7 @@ namespace TrajectoryPlanner
             }
             
             // Remove the probe's insertion from the list of insertions (does nothing if not found)
-            TargetProbeInsertions.Remove(activeProbe.GetProbeController().Insertion);
+            TargetInsertions.Remove(activeProbe.GetProbeController().Insertion);
 
             // Remove Probe
             DestroyProbe(activeProbe);
@@ -544,7 +537,7 @@ namespace TrajectoryPlanner
             GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
             SetActiveProbe(newProbeManager);
-            TargetProbeInsertions.Add(newProbeManager.GetProbeController().Insertion);
+            TargetInsertions.Add(newProbeManager.GetProbeController().Insertion);
 
             spawnedThisFrame = true;
             _accountsManager.AddNewProbe();
