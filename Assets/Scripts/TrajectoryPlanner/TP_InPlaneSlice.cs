@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -50,16 +47,13 @@ public class TP_InPlaneSlice : MonoBehaviour
     // Start is called before the first frame update
     private async void Start()
     {
+        await VolumeDatasetManager.Texture3DLoaded();
 
-        Task<Texture3D> textureTask = AddressablesRemoteLoader.LoadAnnotationTexture();
-        await textureTask;
+        annotationDatasetGPUTexture = VolumeDatasetManager.AnnotationDatasetTexture3D;
 
-        annotationDatasetGPUTexture = textureTask.Result;
         gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
         gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
         gpuTextureLoadedSource.SetResult(true);
-
-        Debug.Log("(InPlaneSlice) Annotation dataset texture loaded");
     }
 
     private void ResetRendererParameters()

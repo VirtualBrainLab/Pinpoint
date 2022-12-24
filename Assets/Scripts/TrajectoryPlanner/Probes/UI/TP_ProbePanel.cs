@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using TrajectoryPlanner;
 using UnityEngine.Serialization;
 
 public class TP_ProbePanel : MonoBehaviour
@@ -13,8 +12,6 @@ public class TP_ProbePanel : MonoBehaviour
     [FormerlySerializedAs("textPrefab")] [SerializeField] private GameObject _textPrefab;
     [FormerlySerializedAs("tickMarkGOs")] [SerializeField] private List<GameObject> _tickMarkGOs;
     [FormerlySerializedAs("probePanelPxHeight")] [SerializeField] private int _probePanelPxHeight = 500;
-
-    TP_InPlaneSlice inPlaneSlice;
 
     private ProbeManager _probeController;
     private ProbeUIManager _probeUIManager;
@@ -29,16 +26,14 @@ public class TP_ProbePanel : MonoBehaviour
     private void Start()
     {
         // Because probe panels are never created early it is safe to wait to get the annotation dataset until this point
-        inPlaneSlice = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>().GetInPlaneSlice();
         AsyncStart();
     }
 
     private async void AsyncStart()
     {
-        Task<Texture3D> textureTask = inPlaneSlice.GetAnnotationDatasetGPUTexture();
-        await textureTask;
+        await VolumeDatasetManager.Texture3DLoaded();
 
-        _pixelsGPURenderer.material.SetTexture("_AnnotationTexture", textureTask.Result);
+        _pixelsGPURenderer.material.SetTexture("_AnnotationTexture", VolumeDatasetManager.AnnotationDatasetTexture3D);
     }
 
     public void SetTipData(Vector3 tipPosition, Vector3 endPosition, float recordingHeight, bool recordingRegionOnly)

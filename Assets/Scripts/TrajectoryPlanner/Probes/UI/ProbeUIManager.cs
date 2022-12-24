@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -16,10 +15,6 @@ public class ProbeUIManager : MonoBehaviour
     [FormerlySerializedAs("electrodeBase")] [SerializeField] private GameObject _electrodeBase;
     [FormerlySerializedAs("order")] [SerializeField] private int _order;
 
-    private CCFAnnotationDataset annotationDataset;
-
-    private TrajectoryPlannerManager tpmanager;
-
     private Color defaultColor;
     private Color selectedColor;
 
@@ -29,6 +24,9 @@ public class ProbeUIManager : MonoBehaviour
     private float pxStep;
 
     private const int MINIMUM_AREA_PIXEL_HEIGHT = 7;
+    // Values
+    private const int FONT_SIZE_ACRONYM = 14;
+    private const int FONT_SIZE_AREA = 10;
 
     private void Awake()
     {
@@ -47,10 +45,6 @@ public class ProbeUIManager : MonoBehaviour
         GameObject main = GameObject.Find("main");
         modelControl = main.GetComponent<CCFModelControl>();
 
-        // Get the annotation dataset
-        tpmanager = main.GetComponent<TrajectoryPlannerManager>();
-        annotationDataset = tpmanager.GetAnnotationDataset();
-
         // Set color properly
         UpdateColors();
 
@@ -67,15 +61,13 @@ public class ProbeUIManager : MonoBehaviour
         }
     }
 
-    public void UpdateColors()
+    private void UpdateColors()
     {
         defaultColor = _probeManager.GetColor();
         defaultColor.a = 0.5f;
 
         selectedColor = defaultColor;
         selectedColor.a = 0.75f;
-
-        ProbeSelected(tpmanager.GetActiveProbeManager() == _probeManager);
     }
 
     public int GetOrder()
@@ -114,15 +106,17 @@ public class ProbeUIManager : MonoBehaviour
         (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)_probeManager.GetProbeController()).GetRecordingRegionHeight();
 
         (Vector3 startCoordWorld, Vector3 endCoordWorld) = _probeManager.GetProbeController().GetRecordingRegionWorld(_electrodeBase.transform);
-        Vector3 startApdvlr25 = annotationDataset.CoordinateSpace.World2Space(startCoordWorld);
-        Vector3 endApdvlr25 = annotationDataset.CoordinateSpace.World2Space(endCoordWorld);
+        Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorld);
+        Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorld);
 
 
         List<int> mmTickPositions = new List<int>();
         List<int> tickIdxs = new List<int>();
         List<int> tickHeights = new List<int>(); // this will be calculated in the second step
 
-        if (tpmanager.GetSetting_ShowRecRegionOnly())
+        bool recRegionOnly = PlayerPrefs.GetRecordingRegionOnly();
+
+        if (recRegionOnly)
         {
             // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
             // we also want to save the mm tick positions
@@ -158,9 +152,9 @@ public class ProbeUIManager : MonoBehaviour
         // Interpolate from the tip to the top, putting this data into the probe panel texture
         (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startApdvlr25, endApdvlr25);
 
-        probePanel.SetTipData(startApdvlr25, endApdvlr25, mmRecordingSize, tpmanager.GetSetting_ShowRecRegionOnly());
+        probePanel.SetTipData(startApdvlr25, endApdvlr25, mmRecordingSize, recRegionOnly);
 
-        if (tpmanager.GetSetting_ShowRecRegionOnly())
+        if (recRegionOnly)
         {
             for (int y = 0; y < probePanelPxHeight; y++)
             {
@@ -192,7 +186,7 @@ public class ProbeUIManager : MonoBehaviour
         }
 
         probePanel.UpdateTicks(tickHeights, tickIdxs);
-        probePanel.UpdateText(centerHeights, names, tpmanager.ProbePanelTextFS(tpmanager.GetSetting_UseAcronyms()));
+        probePanel.UpdateText(centerHeights, names, PlayerPrefs.GetAcronyms() ? FONT_SIZE_ACRONYM : FONT_SIZE_AREA);
     }
 
     /// <summary>
@@ -216,7 +210,7 @@ public class ProbeUIManager : MonoBehaviour
             float perc = i / (probePanelPxHeight-1);
             Vector3 interpolatedPosition = Vector3.Lerp(tipPosition, topPosition, perc);
             // Round to int
-            int ID = annotationDataset.ValueAtIndex(Mathf.RoundToInt(interpolatedPosition.x), Mathf.RoundToInt(interpolatedPosition.y), Mathf.RoundToInt(interpolatedPosition.z));
+            int ID = VolumeDatasetManager.AnnotationDataset.ValueAtIndex(Mathf.RoundToInt(interpolatedPosition.x), Mathf.RoundToInt(interpolatedPosition.y), Mathf.RoundToInt(interpolatedPosition.z));
             // convert to Beryl ID (if modelControl is set to do that)
             ID = modelControl.RemapID(ID);
             //interpolated[i] = modelControl.GetCCFAreaColor(ID);
@@ -225,7 +219,7 @@ public class ProbeUIManager : MonoBehaviour
             {
                 // We have arrived at a new area, get the name and height
                 heights.Add(i);
-                if (tpmanager.GetSetting_UseAcronyms())
+                if (PlayerPrefs.GetAcronyms())
                     areaNames.Add(modelControl.ID2Acronym(ID));
                 else
                     areaNames.Add(modelControl.ID2AreaName(ID));

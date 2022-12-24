@@ -29,6 +29,7 @@ public class ProbeManager : MonoBehaviour
     #region Events
 
     public UnityEvent ProbeUIUpdateEvent;
+    public UnityEvent ActivateProbeEvent;
 
     #endregion
 
@@ -184,11 +185,6 @@ public class ProbeManager : MonoBehaviour
             {
                 defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
             }
-        }
-
-        foreach (var probeUIManager in _probeUIManagers)
-        {
-            probeUIManager.UpdateColors();
         }
     }
 
@@ -515,12 +511,9 @@ public class ProbeManager : MonoBehaviour
 
 #endregion
 
-    /// <summary>
-    /// to implement 
-    /// </summary>
-    public void LockProbeToArea()
+    public void ActivateProbeInvoke()
     {
-
+        ActivateProbeEvent.Invoke();
     }
 
 #region Ephys Link and Control

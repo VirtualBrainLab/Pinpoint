@@ -437,7 +437,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fbfd593f6c8fb24fa231aa63383770b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  probeManager: {fileID: 4368194536080577053}
+  _probeManager: {fileID: 4368194536080577053}
+  OnMouseDownEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4368194536080577053}
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
+        m_MethodName: ActivateProbeInvoke
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnMouseDragEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementDrag
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnMouseUpEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementRelease
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!23 &5698296522629741772
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -631,7 +688,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fbfd593f6c8fb24fa231aa63383770b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  probeManager: {fileID: 4368194536080577053}
+  _probeManager: {fileID: 4368194536080577053}
+  OnMouseDownEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4368194536080577053}
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
+        m_MethodName: ActivateProbeInvoke
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnMouseDragEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementDrag
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnMouseUpEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementRelease
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!23 &2109270356737610317
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -946,17 +1060,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad1015086aede554a95357c03335db5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  probeColliders:
+  ProbeUIUpdateEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  ActivateProbeEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _probeColliders:
   - {fileID: 2248518516517011465}
   - {fileID: 2248518515153670015}
   - {fileID: 4049287887239998232}
   - {fileID: 6605905025463014201}
-  probeUIManagers:
+  _probeUIManagers:
   - {fileID: 4368194536080577050}
-  probeRenderer: {fileID: 2762817814583501863}
+  _probeRenderer: {fileID: 2762817814583501863}
   _probeType: 1
-  probeController: {fileID: 2207803182506741358}
-  ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
+  _probeController: {fileID: 2207803182506741358}
+  _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
 --- !u!114 &4368194536080577050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -969,10 +1089,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6feddcb48c16840a9df519f1aacfca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  probePanelPrefab: {fileID: 2746806081652951299, guid: c969e4be2f14f8f4dae11675354d4dbc, type: 3}
-  probeManager: {fileID: 4368194536080577053}
-  electrodeBase: {fileID: 1420707051332254735}
-  order: 0
+  _probePanelPrefab: {fileID: 2746806081652951299, guid: c969e4be2f14f8f4dae11675354d4dbc, type: 3}
+  _probeManager: {fileID: 4368194536080577053}
+  _electrodeBase: {fileID: 1420707051332254735}
+  _order: 0
 --- !u!114 &2207803182506741358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -985,10 +1105,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7902403c47a64dc43bdfb804dcc30b8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MovedThisFrameEvent:
+    m_PersistentCalls:
+      m_Calls: []
   _probeTipT: {fileID: 3485671869318689184}
-  recordingRegionGOs:
+  _recordingRegionGOs:
   - {fileID: 2248518515669906170}
-  rotateAround: {fileID: 7313519670166122196}
+  _rotateAround: {fileID: 7313519670166122196}
 --- !u!1 &4456090523800124213
 GameObject:
   m_ObjectHideFlags: 0
@@ -1517,7 +1640,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fbfd593f6c8fb24fa231aa63383770b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  probeManager: {fileID: 4368194536080577053}
+  _probeManager: {fileID: 4368194536080577053}
+  OnMouseDownEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4368194536080577053}
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
+        m_MethodName: ActivateProbeInvoke
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnMouseDragEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementDrag
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnMouseUpEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementRelease
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!23 &3977881604255453720
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1827,7 +2007,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fbfd593f6c8fb24fa231aa63383770b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  probeManager: {fileID: 4368194536080577053}
+  _probeManager: {fileID: 4368194536080577053}
+  OnMouseDownEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4368194536080577053}
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
+        m_MethodName: ActivateProbeInvoke
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnMouseDragEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementDrag
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnMouseUpEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2207803182506741358}
+        m_TargetAssemblyTypeName: DefaultProbeController, trajectoryplanner.core
+        m_MethodName: DragMovementRelease
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!23 &5415697460392725528
 MeshRenderer:
   m_ObjectHideFlags: 0

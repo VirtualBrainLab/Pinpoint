@@ -74,9 +74,6 @@ namespace TrajectoryPlanner
         private List<Collider> allNonActiveColliders;
         private bool _movedThisFrame;
 
-        // Values
-        [FormerlySerializedAs("probePanelAcronymTextFontSize")] [SerializeField] private int _probePanelAcronymTextFontSize = 14;
-        [FormerlySerializedAs("probePanelAreaTextFontSize")] [SerializeField] private int _probePanelAreaTextFontSize = 10;
 
         // Track who got clicked on, probe, camera, or brain
         private bool probeControl;
@@ -111,7 +108,7 @@ namespace TrajectoryPlanner
             _automaticManipulatorControlHandler.ProbeManagers =
                 ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
             _automaticManipulatorControlHandler.RightHandedManipulatorIDs = _rightHandedManipulatorIds;
-            _automaticManipulatorControlHandler.AnnotationDataset = GetAnnotationDataset();
+            _automaticManipulatorControlHandler.AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
             _automaticManipulatorControlHandler.TargetInsertionsReference = ProbeInsertion.TargetableInstances;
             
             _automaticControlPanelGameObject.SetActive(enable);
@@ -359,16 +356,6 @@ namespace TrajectoryPlanner
             return _ccfCollider;
         }
 
-        public int ProbePanelTextFS(bool acronym)
-        {
-            return acronym ? _probePanelAcronymTextFontSize : _probePanelAreaTextFontSize;
-        }
-
-        public CCFAnnotationDataset GetAnnotationDataset()
-        {
-            return _vdmanager.GetAnnotationDataset();
-        }
-
         public bool IsManipulatorRightHanded(string manipulatorId)
         {
             return _rightHandedManipulatorIds.Contains(manipulatorId);
@@ -531,6 +518,9 @@ namespace TrajectoryPlanner
 
             newProbeManager.ProbeUIUpdateEvent.AddListener(UpdateQuickSettings);
             newProbeManager.GetProbeController().MovedThisFrameEvent.AddListener(SetMovedThisFrame);
+
+            // Add listener for SetActiveProbe
+            newProbeManager.ActivateProbeEvent.AddListener(delegate { SetActiveProbe(newProbeManager); });
 
             return newProbe.GetComponent<ProbeManager>();
         }
