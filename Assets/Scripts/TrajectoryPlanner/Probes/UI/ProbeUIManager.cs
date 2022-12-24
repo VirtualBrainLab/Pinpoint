@@ -24,9 +24,6 @@ public class ProbeUIManager : MonoBehaviour
     private float pxStep;
 
     private const int MINIMUM_AREA_PIXEL_HEIGHT = 7;
-    // Values
-    private const int FONT_SIZE_ACRONYM = 14;
-    private const int FONT_SIZE_AREA = 10;
 
     private void Awake()
     {
@@ -186,7 +183,7 @@ public class ProbeUIManager : MonoBehaviour
         }
 
         probePanel.UpdateTicks(tickHeights, tickIdxs);
-        probePanel.UpdateText(centerHeights, names, PlayerPrefs.GetAcronyms() ? FONT_SIZE_ACRONYM : FONT_SIZE_AREA);
+        probePanel.UpdateText(centerHeights, names, PlayerPrefs.GetAcronyms() ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
     }
 
     /// <summary>
