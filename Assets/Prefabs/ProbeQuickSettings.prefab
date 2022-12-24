@@ -3228,7 +3228,6 @@ MonoBehaviour:
   _phiField: {fileID: 0}
   _thetaField: {fileID: 0}
   _spinField: {fileID: 0}
-  _tpmanager: {fileID: 0}
   _probeQuickSettings: {fileID: 0}
 --- !u!114 &8065434416982395538
 MonoBehaviour:
@@ -6234,8 +6233,6 @@ MonoBehaviour:
   _automaticMovementSpeedInputField: {fileID: 4912173287244133525}
   _automaticMovementControlPanelGameObject: {fileID: 5845088992127050120}
   _automaticMovementGoButton: {fileID: 3542177453428073158}
-  _accountsManager: {fileID: 0}
-  _linkedExperimentDropdown: {fileID: 0}
 --- !u!225 &998422518680573451
 CanvasGroup:
   m_ObjectHideFlags: 0

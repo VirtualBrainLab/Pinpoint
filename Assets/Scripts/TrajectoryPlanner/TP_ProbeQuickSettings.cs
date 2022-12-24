@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
 using TMPro;
@@ -13,7 +12,7 @@ namespace TrajectoryPlanner
         #region Components
 
         [FormerlySerializedAs("probeIdText")] [SerializeField] private TMP_Text _probeIdText;
-        [FormerlySerializedAs("coordinatePanel")] [SerializeField] private TP_CoordinateEntryPanel _coordinatePanel;
+        [FormerlySerializedAs("coordinatePanel")] [SerializeField] private CoordinateEntryPanel _coordinatePanel;
         [FormerlySerializedAs("positionFields")] [SerializeField] private CanvasGroup _positionFields;
         [FormerlySerializedAs("angleFields")] [SerializeField] private CanvasGroup _angleFields;
         [FormerlySerializedAs("buttons")] [SerializeField] private CanvasGroup _buttons;
@@ -26,10 +25,6 @@ namespace TrajectoryPlanner
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
         private TMP_InputField[] _inputFields;
-
-        [SerializeField] private TMP_Dropdown _linkedExperimentDropdown;
-
-        private TMP_InputField[] inputFields;
 
         #endregion
 
@@ -78,7 +73,10 @@ namespace TrajectoryPlanner
                 UpdateProbeIdText();
 
                 _coordinatePanel.LinkProbe(probeManager);
-                
+
+                // Handle picking up events
+                _probeManager.EphysLinkControlChangeEvent.AddListener(delegate { UpdateInteractable(); });
+
                 UpdateInteractable();
                 UpdateCoordinates();
                 UpdateAutomaticControlPanel();
@@ -95,7 +93,7 @@ namespace TrajectoryPlanner
             }
             else
             {
-                _positionFields.interactable = false; // !_probeManager.GetEphysLinkMovement();
+                _positionFields.interactable = _probeManager != null ? !_probeManager.IsEphysLinkControlled : true;
                 _angleFields.interactable = _probeManager == null || !_probeManager.IsGhost;
                 _buttons.interactable = true;
             }

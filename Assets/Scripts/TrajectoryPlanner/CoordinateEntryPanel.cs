@@ -2,7 +2,7 @@ using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
 
-public class TP_CoordinateEntryPanel : MonoBehaviour
+public class CoordinateEntryPanel : MonoBehaviour
 {
     [SerializeField] private TMP_Text _apText;
     [SerializeField] private TMP_Text _mlText;
@@ -16,8 +16,6 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
     [SerializeField] private TMP_InputField _phiField;
     [SerializeField] private TMP_InputField _thetaField;
     [SerializeField] private TMP_InputField _spinField;
-
-    [SerializeField] private TrajectoryPlannerManager _tpmanager;
     
     [SerializeField] private TP_ProbeQuickSettings _probeQuickSettings;
 
@@ -25,10 +23,10 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
 
     private void Start()
     {
-        _apField.onEndEdit.AddListener(delegate { ApplyPosition(); });
-        _mlField.onEndEdit.AddListener(delegate { ApplyPosition(); });
-        _dvField.onEndEdit.AddListener(delegate { ApplyPosition(); });
-        _depthField.onEndEdit.AddListener(delegate { ApplyPosition(); });
+        _apField.onSubmit.AddListener(delegate { ApplyPosition(); });
+        _mlField.onSubmit.AddListener(delegate { ApplyPosition(); });
+        _dvField.onSubmit.AddListener(delegate { ApplyPosition(); });
+        _depthField.onSubmit.AddListener(delegate { ApplyPosition(); });
 
         _phiField.onEndEdit.AddListener(delegate { ApplyAngles(); });
         _thetaField.onEndEdit.AddListener(delegate { ApplyAngles(); });
@@ -78,7 +76,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
             apmldv = _linkedProbe.GetProbeController().Insertion.apmldv;
         }
 
-        float mult = _tpmanager.GetSetting_DisplayUM() ? 1000f : 1f;
+        float mult = PlayerPrefs.GetDisplayUm() ? 1000f : 1f;
 
         _apField.text = Round2Str(apmldv.x * mult);
         _mlField.text = Round2Str(apmldv.y * mult);
@@ -86,7 +84,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         _depthField.text = float.IsNaN(depth) ? "nan" : Round2Str(depth * mult);
 
         // if in IBL angles, rotate the angles appropriately
-        if (_tpmanager.GetSetting_UseIBLAngles())
+        if (PlayerPrefs.GetUseIBLAngles())
             angles = Utils.World2IBL(angles);
 
         if (!_probeQuickSettings.IsFocused())
@@ -102,27 +100,28 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
         if (float.IsNaN(value))
             return "nan";
 
-        return _tpmanager.GetSetting_DisplayUM() ? ((int)value).ToString() : value.ToString("F3");
+        return PlayerPrefs.GetDisplayUm() ? ((int)value).ToString() : value.ToString("F3");
     }
 
     private void ApplyPosition()
     {
-        //try
-        //{
-        //    float ap = (apField.text.Length > 0) ? float.Parse(apField.text) : 0;
-        //    float ml = (mlField.text.Length > 0) ? float.Parse(mlField.text) : 0;
-        //    float dv = (dvField.text.Length > 0) ? float.Parse(dvField.text) : 0;
-        //    float depth = (depthField.text.Length > 0 && depthField.text != "nan") ? 
-        //        float.Parse(depthField.text) + 200f : 
-        //        0;
+        try
+        {
+            float ap = (_apField.text.Length > 0) ? float.Parse(_apField.text) : 0;
+            float ml = (_mlField.text.Length > 0) ? float.Parse(_mlField.text) : 0;
+            float dv = (_dvField.text.Length > 0) ? float.Parse(_dvField.text) : 0;
+            float depth = (_depthField.text.Length > 0 && _depthField.text != "nan") ?
+                float.Parse(_depthField.text) :
+                0;
 
-        //    Debug.LogError("TODO implement");
-        //    //linkedProbe.GetProbeController().SetProbePositionTransformed(ap, ml, dv, depth/1000f);
-        //}
-        //catch
-        //{
-        //    Debug.Log("Bad formatting?");
-        //}
+            Vector4 position = new Vector4(ap, ml, dv, depth) / 1000f;
+
+            _linkedProbe.GetProbeController().SetProbePosition(position);
+        }
+        catch
+        {
+            Debug.Log("Bad formatting?");
+        }
     }
 
     private void ApplyAngles()
@@ -133,7 +132,7 @@ public class TP_CoordinateEntryPanel : MonoBehaviour
                 (_thetaField.text.Length > 0) ? float.Parse(_thetaField.text) : 0,
                 (_spinField.text.Length > 0) ? float.Parse(_spinField.text) : 0);
 
-            if (_tpmanager.GetSetting_UseIBLAngles())
+            if (PlayerPrefs.GetUseIBLAngles())
                 angles = Utils.IBL2World(angles);
 
             _linkedProbe.GetProbeController().SetProbeAngles(angles);

@@ -30,6 +30,7 @@ public class ProbeManager : MonoBehaviour
 
     public UnityEvent ProbeUIUpdateEvent;
     public UnityEvent ActivateProbeEvent;
+    public UnityEvent EphysLinkControlChangeEvent;
 
     #endregion
 
@@ -545,6 +546,7 @@ public class ProbeManager : MonoBehaviour
 
         // Set states
         IsEphysLinkControlled = register;
+        EphysLinkControlChangeEvent.Invoke();
         ProbeUIUpdateEvent.Invoke();
 
         if (register)

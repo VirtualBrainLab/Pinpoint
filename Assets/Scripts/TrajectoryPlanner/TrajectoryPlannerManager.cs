@@ -4,12 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoordinateSpaces;
 using CoordinateTransforms;
-using EphysLink;
 using Settings;
 using TMPro;
 using TrajectoryPlanner.AutomaticManipulatorControl;
-using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -17,6 +16,11 @@ namespace TrajectoryPlanner
 {
     public class TrajectoryPlannerManager : MonoBehaviour
     {
+        #region Events
+        // TODO: Expose events for probes moving, UI updating, etc
+        //UnityEvent ProbeMovedEvent;
+        #endregion
+
         // Managers and accessors
         [SerializeField] private CCFModelControl _modelControl;
         [SerializeField] private VolumeDatasetManager _vdmanager;
@@ -692,7 +696,6 @@ namespace TrajectoryPlanner
 
         public void UpdateQuickSettings()
         {
-            _probeQuickSettings.UpdateInteractable();
             _probeQuickSettings.UpdateCoordinates();
         }
 
