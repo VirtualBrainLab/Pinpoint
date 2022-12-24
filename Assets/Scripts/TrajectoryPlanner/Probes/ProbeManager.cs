@@ -85,6 +85,8 @@ public class ProbeManager : MonoBehaviour
     [FormerlySerializedAs("probeColliders")] [SerializeField] private List<Collider> _probeColliders;
     [FormerlySerializedAs("probeUIManagers")] [SerializeField] private List<ProbeUIManager> _probeUIManagers;
     [FormerlySerializedAs("probeRenderer")] [SerializeField] private Renderer _probeRenderer;
+    private ColliderManager _colliderManager;
+    private AxisControl _axisControl;
     [SerializeField] private int _probeType;
     public int ProbeType => _probeType;
 
@@ -157,7 +159,6 @@ public class ProbeManager : MonoBehaviour
         _probeRenderer.material.color = ProbeProperties.GetNextProbeColor();
 
         // Pull the tpmanager object and register this probe
-        GameObject main = GameObject.Find("main");
         _probeController.Register(this);
 
         // Pull ephys link communication manager
@@ -168,6 +169,9 @@ public class ProbeManager : MonoBehaviour
 
         ProbeColliders = new HashSet<Collider>();
         visibleOtherColliders = new Dictionary<GameObject, Material>();
+
+        _colliderManager = GameObject.Find("main").GetComponent<ColliderManager>();
+        _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
     }
 
     private void Start()
@@ -177,9 +181,7 @@ public class ProbeManager : MonoBehaviour
 #endif
         // Request for ID and color if this is a normal probe
         if (IsOriginal)
-        {
-            _probeRenderer.material.color = ProbeProperties.GetNextProbeColor();
-            
+        {            
             // Record default materials
             foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
             {
@@ -217,8 +219,9 @@ public class ProbeManager : MonoBehaviour
     {
         if (_probeController.Insertion.CoordinateTransform != CoordinateSpaceManager.ActiveCoordinateTransform)
         {
-            QuestionDialogue.SetYesCallback(ChangeTransform);
-            QuestionDialogue.NewQuestion("The coordinate transform in the scene is mis-matched with the transform in this Probe insertion. Do you want to replace the transform?");
+            QuestionDialogue qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
+            qDialogue.SetYesCallback(ChangeTransform);
+            qDialogue.NewQuestion("The coordinate transform in the scene is mis-matched with the transform in this Probe insertion. Do you want to replace the transform?");
         }
     }
 
@@ -288,16 +291,16 @@ public class ProbeManager : MonoBehaviour
             bool collided = CheckCollisionsHelper(otherColliders);
 
             if (collided)
-                ColliderManager.SetCollisionPanelVisibility(true);
+                _colliderManager.SetCollisionPanelVisibility(true);
             else
             {
-                ColliderManager.SetCollisionPanelVisibility(false);
+                _colliderManager.SetCollisionPanelVisibility(false);
                 ClearCollisionMesh();
             }
         }
         else
         {
-            ColliderManager.SetCollisionPanelVisibility(false);
+            _colliderManager.SetCollisionPanelVisibility(false);
             ClearCollisionMesh();
         }
     }
@@ -807,15 +810,23 @@ public class ProbeManager : MonoBehaviour
 
 #region AxisControl
 
-    public void SetAxisVisibility(bool AP, bool ML, bool DV, bool depth)
+    public void SetAxisVisibility(bool X, bool Y, bool Z, bool depth)
     {
-        Transform tipT = _probeController.ProbeTipT;
-        AxisControl.SetAxisVisibility(AP, ML, DV, depth, tipT);
+        _axisControl.ZAxis.enabled = Z;
+        _axisControl.XAxis.enabled = X;
+        _axisControl.YAxis.enabled = Y;
+        _axisControl.DepthAxis.enabled = depth;
     }
 
-#endregion AxisControl
+    public void SetAxisTransform(Transform transform)
+    {
+        _axisControl.transform.position = transform.position;
+        _axisControl.transform.rotation = transform.rotation;
+    }
 
-#region Materials
+    #endregion AxisControl
+
+    #region Materials
 
 
     /// <summary>

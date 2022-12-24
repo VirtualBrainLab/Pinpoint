@@ -525,7 +525,7 @@ public class DefaultProbeController : ProbeController
             axisLockDepth = false;
             axisLockPhi = false;
             axisLockTheta = false;
-            ProbeManager.SetAxisVisibility(true, false, false, false);
+            ProbeManager.SetAxisVisibility(false, false, true, false);
         }
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
         {
@@ -536,7 +536,7 @@ public class DefaultProbeController : ProbeController
             axisLockDepth = false;
             axisLockPhi = false;
             axisLockTheta = false;
-            ProbeManager.SetAxisVisibility(false, true, false, false);
+            ProbeManager.SetAxisVisibility(true, false, false, false);
         }
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
         {
@@ -568,7 +568,7 @@ public class DefaultProbeController : ProbeController
             axisLockDepth = false;
             axisLockPhi = false;
             axisLockTheta = false;
-            ProbeManager.SetAxisVisibility(false, false, true, false);
+            ProbeManager.SetAxisVisibility(false, true, false, false);
         }
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Alpha3))
         {
@@ -630,6 +630,8 @@ public class DefaultProbeController : ProbeController
         if (moved)
         {
             SetProbePosition();
+
+            ProbeManager.SetAxisTransform(ProbeTipT);
 
             if (PlayerPrefs.GetCollisions())
                 ProbeManager.CheckCollisions(ColliderManager.InactiveColliderInstances);

@@ -59,19 +59,21 @@ public class ProbeInsertion
     #endregion
 
     #region other vars
+
+    private bool _targetable;
     public bool Targetable {
         get
         {
-            return Targetable;
+            return _targetable;
         }
 
         set
         {
-            if (value)
+            _targetable = value;
+            if (_targetable)
                 TargetableInstances.Add(this);
-            else if (TargetableInstances.Contains(this))
+            else
                 TargetableInstances.Remove(this);
-            Targetable = value;
         }
     }
 

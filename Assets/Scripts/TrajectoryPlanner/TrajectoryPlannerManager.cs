@@ -259,8 +259,8 @@ namespace TrajectoryPlanner
                         ? "Load previously saved probes?"
                         : "Restore previous session?";
 
-                    QuestionDialogue.SetYesCallback(LoadSavedProbes);
-                    QuestionDialogue.NewQuestion(questionString);
+                    _qDialogue.SetYesCallback(LoadSavedProbes);
+                    _qDialogue.NewQuestion(questionString);
                 }
             }
         }
@@ -1096,23 +1096,6 @@ namespace TrajectoryPlanner
             PlayerPrefs.SaveCurrentProbeData(probeCoordinates);
         }
 
-
-        #region Axis Control
-
-        public bool GetAxisControlEnabled()
-        {
-            return PlayerPrefs.GetAxisControl();
-        }
-
-        public void SetAxisControlEnabled(bool state)
-        {
-            PlayerPrefs.SetAxisControl(state);
-            if (!state)
-                AxisControl.SetAxisVisibility(false, false, false, false, null);
-        }
-
-        #endregion
-
         #region Mesh centers
 
         private int prevTipID;
@@ -1201,8 +1184,9 @@ namespace TrajectoryPlanner
                 if (data.spaceName != CoordinateSpaceManager.ActiveCoordinateSpace.Name || data.transformName != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
                 {
                     // We have a coordiante space/transform mis-match
-                    QuestionDialogue.SetYesCallback(new Action(delegate { AccountsNewProbeHelper(data); }));
-                    QuestionDialogue.NewQuestion($"The saved insertion uses {data.spaceName}/{data.transformName} while you are using {CoordinateSpaceManager.ActiveCoordinateSpace.Name}/{CoordinateSpaceManager.ActiveCoordinateTransform.Name}. Creating a new probe will override these settings with the active ones.");
+                    QuestionDialogue qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
+                    qDialogue.SetYesCallback(new Action(delegate { AccountsNewProbeHelper(data); }));
+                    qDialogue.NewQuestion($"The saved insertion uses {data.spaceName}/{data.transformName} while you are using {CoordinateSpaceManager.ActiveCoordinateSpace.Name}/{CoordinateSpaceManager.ActiveCoordinateTransform.Name}. Creating a new probe will override these settings with the active ones.");
                 }
                 else
                     AccountsNewProbeHelper(data);

@@ -1,50 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class AxisControl : MonoBehaviour
 {
-    [FormerlySerializedAs("apGO")] [SerializeField] private static GameObject _apGo;
-    [FormerlySerializedAs("dvGO")] [SerializeField] private static GameObject _dvGo;
-    [FormerlySerializedAs("mlGO")] [SerializeField] private static GameObject _mlGo;
-    [FormerlySerializedAs("depthGO")] [SerializeField] private static GameObject _depthGo;
+    public LineRenderer XAxis;
+    public LineRenderer YAxis;
+    public LineRenderer ZAxis;
+    public LineRenderer DepthAxis;
 
-    public static bool Enabled;
+    public float XScale;
+    public float YScale;
+    public float ZScale;
+    public float DepthScale;
 
-    public static void SetAxisPosition(Transform transform)
+    private void Update()
     {
-        if (transform == null)
-            return;
-        _apGo.transform.position = transform.position;
-        _dvGo.transform.position = transform.position;
-        _mlGo.transform.position = transform.position;
-        _depthGo.transform.position = transform.position;
-        _depthGo.transform.rotation = transform.rotation;
-    }
-    public static void SetAPVisibility(bool state)
-    {
-        _apGo.SetActive(state);
-    }
-    public static void SetDVVisibility(bool state)
-    {
-        _dvGo.SetActive(state);
-    }
-    public static void SetMLVisibility(bool state)
-    {
-        _mlGo.SetActive(state);
-    }
-    public static void SetDepthVisibility(bool state)
-    {
-        _depthGo.SetActive(state);
-    }
+        if (XAxis.enabled)
+            XAxis.SetPositions(new Vector3[] {
+                transform.position + -Vector3.right * XScale,
+                transform.position + Vector3.right * XScale});
 
-    public static void SetAxisVisibility(bool AP, bool ML, bool DV, bool depth, Transform transform)
-    {
-        SetAxisPosition(transform);
-        SetAPVisibility(AP);
-        SetMLVisibility(ML);
-        SetDVVisibility(DV);
-        SetDepthVisibility(depth);
+        if (YAxis.enabled)
+            YAxis.SetPositions(new Vector3[] {
+                transform.position + -Vector3.up * YScale,
+                transform.position + Vector3.up * YScale});
+
+        if (ZAxis.enabled)
+            ZAxis.SetPositions(new Vector3[] {
+                transform.position + -Vector3.forward * ZScale,
+                transform.position + Vector3.forward * ZScale});
+
+        if (DepthAxis.enabled)
+            DepthAxis.SetPositions(new Vector3[] {
+                transform.position + -transform.up * DepthScale,
+                transform.position + transform.up * DepthScale});
     }
 }

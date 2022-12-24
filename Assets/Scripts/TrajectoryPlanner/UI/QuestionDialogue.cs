@@ -7,44 +7,38 @@ using UnityEngine.Serialization;
 
 public class QuestionDialogue : MonoBehaviour
 {
-    [FormerlySerializedAs("questionText")] [SerializeField] private static TMP_Text _questionText;
+    [SerializeField] private TMP_Text _questionText;
 
-    private static Action yesCallback;
-    private static Action noCallback;
+    private Action yesCallback;
+    private Action noCallback;
 
-    private static GameObject _gameObject;
 
-    private void Awake()
-    {
-        _gameObject = gameObject;
-    }
-
-    public static void YesCallback()
+    public void YesCallback()
     {
         if (yesCallback != null)
             yesCallback();
-        _gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
-    public static void NoCallback()
+    public void NoCallback()
     {
         if (noCallback != null)
             noCallback();
-        _gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
-    public static void NewQuestion(string newText)
+    public void NewQuestion(string newText)
     {
-        _gameObject.SetActive(true);
+        gameObject.SetActive(true);
         _questionText.text = newText;
     }
 
-    public static void SetYesCallback(Action newCallback)
+    public void SetYesCallback(Action newCallback)
     {
         yesCallback = newCallback;
     }
 
-    public static void SetNoCallback(Action newCallback)
+    public void SetNoCallback(Action newCallback)
     {
         noCallback = newCallback;
     }

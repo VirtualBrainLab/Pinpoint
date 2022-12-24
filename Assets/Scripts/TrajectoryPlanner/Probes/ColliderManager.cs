@@ -12,9 +12,9 @@ public class ColliderManager : MonoBehaviour
 
     #endregion
 
-    [SerializeField] private static GameObject collisionPanelGO;
+    [SerializeField] public GameObject collisionPanelGO;
 
-    public static void SetCollisionPanelVisibility(bool visible)
+    public void SetCollisionPanelVisibility(bool visible)
     {
         collisionPanelGO.SetActive(visible);
     }
