@@ -40,7 +40,6 @@ namespace TrajectoryPlanner
 
         [FormerlySerializedAs("sliceRenderer")] [SerializeField] private TP_SliceRenderer _sliceRenderer;
         [FormerlySerializedAs("searchControl")] [SerializeField] private TP_Search _searchControl;
-        [FormerlySerializedAs("searchInput")] [SerializeField] private TMP_InputField _searchInput;
 
         [FormerlySerializedAs("settingsPanel")] [SerializeField] private TP_SettingsMenu _settingsPanel;
 
@@ -187,10 +186,10 @@ namespace TrajectoryPlanner
                 return;
             }
 
-            if (Input.GetKeyDown(KeyCode.H) && !InputsFocused())
+            if (Input.GetKeyDown(KeyCode.H) && !UIManager.InputsFocused)
                 _settingsPanel.ToggleSettingsMenu();
 
-            if (Input.anyKey && activeProbe != null && !InputsFocused())
+            if (Input.anyKey && activeProbe != null && !UIManager.InputsFocused)
             {
                 if (Input.GetKeyDown(KeyCode.Backspace) && !_canvasParent.GetComponentsInChildren<TMP_InputField>()
                         .Any(inputField => inputField.isFocused))
@@ -376,12 +375,6 @@ namespace TrajectoryPlanner
             if (!IsManipulatorRightHanded(manipulatorId)) return;
             _rightHandedManipulatorIds.Remove(manipulatorId);
             PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
-        }
-
-
-        public bool InputsFocused()
-        {
-            return _searchInput.isFocused || _probeQuickSettings.IsFocused() || _accountsManager.IsFocused();
         }
 
         public List<Collider> GetAllNonActiveColliders()
