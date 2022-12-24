@@ -12,7 +12,7 @@ using UnityEngine.Serialization;
 public class ProbeManager : MonoBehaviour
 {
     #region Webgl only
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")]
     private static extern void Copy2Clipboard(string str);
 #endif
@@ -416,7 +416,7 @@ public class ProbeManager : MonoBehaviour
             depthStr, round0(depthTransformed * mult),
             round0(apmldvS.x * mult), round0(apmldvS.y * mult), round0(apmldvS.z * mult));
 
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
         Copy2Clipboard(updateStr);
 #else
         GUIUtility.systemCopyBuffer = updateStr;
