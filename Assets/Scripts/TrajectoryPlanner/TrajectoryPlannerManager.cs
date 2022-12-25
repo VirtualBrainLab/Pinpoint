@@ -226,10 +226,13 @@ namespace TrajectoryPlanner
 
                 _inPlaneSlice.UpdateInPlaneSlice();
 
-                bool inBrain = activeProbe.IsProbeInBrain();
-                SetSurfaceDebugActive(inBrain);
-                if (inBrain)
-                    SetSurfaceDebugPosition(activeProbe.GetSurfaceCoordinateWorldT());
+                if (PlayerPrefs.GetSurfaceCoord())
+                {
+                    bool inBrain = activeProbe.IsProbeInBrain();
+                    SetSurfaceDebugActive(inBrain);
+                    if (inBrain)
+                        SetSurfaceDebugPosition(activeProbe.GetSurfaceCoordinateWorldT());
+                }
 
                 if (!_probeQuickSettings.IsFocused())
                     UpdateQuickSettings();

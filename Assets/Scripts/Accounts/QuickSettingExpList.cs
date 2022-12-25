@@ -15,9 +15,7 @@ public class QuickSettingExpList : MonoBehaviour
         Debug.Log("Updating quick settings experiment list");
         if (_experimentDropdown != null && _experimentDropdown.isActiveAndEnabled)
         {
-            Debug.Log("here");
             List<string> experiments = _accountsManager.GetExperiments();
-            Debug.Log(experiments.Count);
             _experimentDropdown.ClearOptions();
 
             List<TMP_Dropdown.OptionData> optList = new List<TMP_Dropdown.OptionData>();
