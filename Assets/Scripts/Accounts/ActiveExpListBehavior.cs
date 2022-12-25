@@ -16,13 +16,15 @@ public class ActiveExpListBehavior : MonoBehaviour
 
     public void UpdateList()
     {
+        int prevIdx = _optionList.value;
+
         List<string> experimentList = _accountsManager.GetExperiments();
         List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
         foreach (string experiment in experimentList)
             options.Add(new TMP_Dropdown.OptionData(experiment));
         _optionList.ClearOptions();
         _optionList.AddOptions(options);
-        SelectExperiment(0);
+        SelectExperiment(prevIdx);
     }
 
     public void SelectExperiment(int optIdx)

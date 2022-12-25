@@ -70,6 +70,8 @@ namespace TrajectoryPlanner
                 gameObject.SetActive(true);
                 _probeManager = probeManager;
 
+                _probeManager.ProbeUIUpdateEvent.AddListener(UpdateProbeIdText);
+
                 UpdateProbeIdText();
 
                 _coordinatePanel.LinkProbe(probeManager);

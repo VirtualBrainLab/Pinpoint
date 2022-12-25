@@ -20,6 +20,7 @@ public class ProbeManager : MonoBehaviour
 
     #region Static fields
     public static List<ProbeManager> instances = new List<ProbeManager>();
+    public static ProbeManager ActiveProbeManager;
     void OnEnable() => instances.Add(this);
     void OnDisable() => instances.Remove(this);
 
@@ -218,6 +219,8 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetActive()
     {
+        ActiveProbeManager = this;
+
         if (_probeController.Insertion.CoordinateTransform != CoordinateSpaceManager.ActiveCoordinateTransform)
         {
             QuestionDialogue qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
@@ -250,6 +253,8 @@ public class ProbeManager : MonoBehaviour
     public void OverrideUUID(string newUUID)
     {
         UUID = newUUID;
+        name = "Probe_" + UUID.Substring(0, 8);
+        ProbeUIUpdateEvent.Invoke();
     }
 
     /// <summary>

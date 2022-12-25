@@ -5,6 +5,7 @@ using System;
 using UnityEngine.Serialization;
 using TMPro;
 using UnityEngine.Events;
+using System.Linq;
 
 /// <summary>
 /// Handles connection with the Unisave system, and passing data back-and-forth with the TPManager
@@ -22,11 +23,13 @@ public class UnisaveAccountsManager : AccountsManager
     #region Insertion variables
     [SerializeField] private Transform _insertionPrefabParentT;
     [SerializeField] private GameObject _insertionPrefabGO;
+    #endregion
 
     // callbacks set by TPManager
-
-    public UnityEvent<string> SetActiveProbeCallback;
-    public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID),bool> UpdateCallback { get; set; }
+    #region Events
+    public UnityEvent<string> SetActiveProbeEvent;
+    public UnityEvent ExperimentChangedEvent;
+    public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID),bool> UpdateCallbackEvent { get; set; }
     #endregion
 
     #region current player data
@@ -35,19 +38,17 @@ public class UnisaveAccountsManager : AccountsManager
     #endregion
 
     #region tracking variables
-    private Dictionary<string, string> _probeUUID2experiment;
+    private Dictionary<string, string> _UUID2Experiment;
 
     public bool Dirty { get; private set; }
     private float _lastSave;
 
-    public string ActiveProbeUUID { get; set; }
     public string ActiveExperiment { get; private set; }
     #endregion
 
     #region Unity
     private void Awake()
     {
-        _probeUUID2experiment = new Dictionary<string, string>();
         _lastSave = Time.realtimeSinceStartup;
     }
 
@@ -56,7 +57,7 @@ public class UnisaveAccountsManager : AccountsManager
         if (Dirty && (Time.realtimeSinceStartup - _lastSave) >= UPDATE_RATE)
         {
             Dirty = false;
-            SaveAndUpdate();
+            SavePlayer();
         }
     }
 
@@ -67,34 +68,17 @@ public class UnisaveAccountsManager : AccountsManager
 
     #endregion
 
-    public void UpdateProbeData(string UUID, (Vector3 apmldv, Vector3 angles, 
-        int type, string spaceName, string transformName, string UUID) data)
+    public void UpdateProbeData()
     {
-        if (_player != null)
+        ProbeManager activeProbeManager = ProbeManager.ActiveProbeManager;
+
+        // Check that we are logged in and that this probe is in an experiment
+        if (_player != null && _UUID2Experiment.ContainsKey(activeProbeManager.UUID))
         {
-            // If this probe isn't in an experiment, ignore it
-            if (!_probeUUID2experiment.ContainsKey(UUID))
-                return;
-            //{
-            //    // this is the first time we've seen this probe, add all of its information
-            //    _probeUUID2experiment.Add(UUID, ActiveExperiment);
-            //    serverProbeInsertion = new ServerProbeInsertion();
-            //}
+            string experiment = _UUID2Experiment[activeProbeManager.UUID];
+            ServerProbeInsertion serverProbeInsertion = _player.experiments[experiment][activeProbeManager.UUID];
 
-            // The probe does exist, so 
-            ServerProbeInsertion serverProbeInsertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
-
-            serverProbeInsertion.ap = data.apmldv.x;
-            serverProbeInsertion.ml = data.apmldv.y;
-            serverProbeInsertion.dv = data.apmldv.z;
-            serverProbeInsertion.phi = data.angles.x;
-            serverProbeInsertion.theta = data.angles.y;
-            serverProbeInsertion.spin = data.angles.z;
-            serverProbeInsertion.coordinateSpaceName = data.spaceName;
-            serverProbeInsertion.coordinateTransformName = data.transformName;
-            serverProbeInsertion.UUID = data.UUID;
-
-            _player.experiments[_probeUUID2experiment[UUID]][UUID] = serverProbeInsertion;
+            _player.experiments[experiment][activeProbeManager.UUID] = ProbeManager2ServerProbeInsertion(activeProbeManager, true, serverProbeInsertion.recorded);
 
             Dirty = true;
         }
@@ -109,16 +93,20 @@ public class UnisaveAccountsManager : AccountsManager
             Debug.Log(kvp.Key);
             foreach (string UUID in kvp.Value.Keys)
             {
-                _probeUUID2experiment.Add(UUID, kvp.Key);
+                _UUID2Experiment.Add(UUID, kvp.Key);
                 Debug.Log(UUID);
             }
         }
-        Debug.Log("(AccountsManager) Loaded player data: " + player.email);
-        UpdateUI();
+        Debug.Log("(AccountsManager) Player logged in: " + player.email);
+
+        ExperimentChangedEvent.Invoke();
+        UpdateExperimentUI();
     }
 
     public void Login()
     {
+        _UUID2Experiment = new();
+        Debug.Log("(AccountsManager) Player attemping to log in");
         OnFacet<PlayerDataFacet>
             .Call<PlayerEntity>(nameof(PlayerDataFacet.LoadPlayerEntity))
             .Then(LoadPlayerCallback)
@@ -127,16 +115,12 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void LogoutCleanup()
     {
+        Debug.Log("(AccountsManager) Player logged out");
         _player = null;
-        UpdateUI();
+        UpdateExperimentUI();
     }
 
     #region Save and Update
-    private void SaveAndUpdate()
-    {
-        SavePlayer();
-        UpdateUI();
-    }
 
     public void SavePlayer()
     {
@@ -147,12 +131,11 @@ public class UnisaveAccountsManager : AccountsManager
             .Call(nameof(PlayerDataFacet.SavePlayerEntity), _player).Done();
     }
 
-    private void UpdateUI()
+    private void UpdateExperimentUI()
     {
         _experimentEditor.UpdateList();
         _activeExpListBehavior.UpdateList();
-        _quickSettingsExperimentList.UpdateExperimentList();
-        UpdateExperimentInsertions();
+        UpdateExperimentInsertionUIPanels();
     }
 
     #endregion
@@ -164,7 +147,8 @@ public class UnisaveAccountsManager : AccountsManager
     {
         _player.experiments.Add(string.Format("Experiment {0}", _player.experiments.Count), new Dictionary<string, ServerProbeInsertion>());
         // Immediately update, so that user can see effect
-        SaveAndUpdate();
+        SavePlayer();
+        UpdateExperimentUI();
     }
 
     public void EditExperiment(string origName, string newName)
@@ -177,7 +161,8 @@ public class UnisaveAccountsManager : AccountsManager
         else
             Debug.LogError(string.Format("Experiment {0} does not exist", origName));
         // Immediately update, so that user can see effect
-        SaveAndUpdate();
+        SavePlayer();
+        UpdateExperimentUI();
     }
 
     public void RemoveExperiment(string expName)
@@ -189,30 +174,36 @@ public class UnisaveAccountsManager : AccountsManager
         else
             Debug.LogError(string.Format("Experiment {0} does not exist", expName));
         // Immediately update, so that user can see effect
-        SaveAndUpdate();
+        SavePlayer();
+        UpdateExperimentUI();
     }
 
     #endregion
 
     #region Quick settings panel
-    public void ChangeProbeExperiment(string UUID, string newExperiment)
+    public void ChangeProbeExperiment(ProbeManager probeManager, string newExperiment)
     {
+        string UUID = probeManager.UUID;
+
         if (_player.experiments.ContainsKey(newExperiment))
         {
-            if (_probeUUID2experiment.ContainsKey(UUID))
-            {
-                // just update the experiment
-                ServerProbeInsertion insertionData = _player.experiments[_probeUUID2experiment[UUID]][UUID];
-                _player.experiments[_probeUUID2experiment[UUID]].Remove(UUID);
 
-                _probeUUID2experiment[UUID] = newExperiment;
+            if (_UUID2Experiment.ContainsKey(UUID))
+            {
+                Debug.Log($"Changing {probeManager.name} to {newExperiment}");
+                // just update the experiment
+                ServerProbeInsertion insertionData = _player.experiments[_UUID2Experiment[UUID]][UUID];
+                _player.experiments[_UUID2Experiment[UUID]].Remove(UUID);
+
+                _UUID2Experiment[UUID] = newExperiment;
                 _player.experiments[newExperiment].Add(UUID, insertionData);
             }
             else
             {
+                Debug.Log($"Adding {probeManager.name} to {newExperiment}");
                 // this is a totally new probe being added
-                _probeUUID2experiment.Add(UUID, newExperiment);
-                _player.experiments[newExperiment].Add(UUID, new ServerProbeInsertion());
+                _UUID2Experiment.Add(UUID, newExperiment);
+                _player.experiments[newExperiment].Add(UUID, ProbeManager2ServerProbeInsertion(probeManager));
 
             }
         }
@@ -220,18 +211,20 @@ public class UnisaveAccountsManager : AccountsManager
             Debug.LogError(string.Format("Can't move {0} to {1}, experiment does not exist", UUID, newExperiment));
 
         Dirty = true;
-        UpdateExperimentInsertions();
+
+        UpdateExperimentInsertionUIPanels();
     }
 
-    public void RemoveProbeExperiment(string probeUUID)
+    public void RemoveProbeExperiment(string UUID)
     {
 #if UNITY_EDITOR
-        Debug.Log($"Removing probe {probeUUID} from its active experiment");
+        Debug.Log($"Removing probe {UUID} from its active experiment");
 #endif
-        if (_probeUUID2experiment.ContainsKey(probeUUID))
+
+        if (_UUID2Experiment.ContainsKey(UUID))
         {
-            _player.experiments[_probeUUID2experiment[probeUUID]].Remove(probeUUID);
-            UpdateExperimentInsertions();
+            _player.experiments[_UUID2Experiment[UUID]].Remove(UUID);
+            UpdateExperimentInsertionUIPanels();
         }
     }
 #endregion
@@ -267,34 +260,13 @@ public class UnisaveAccountsManager : AccountsManager
         Debug.Log(string.Format("(AccountsManager) Selected experiment: {0}", experiment));
 #endif
         ActiveExperiment = experiment;
-        UpdateExperimentInsertions();
-        _quickSettingsExperimentList.UpdateExperimentList();
+        ExperimentChangedEvent.Invoke();
+        UpdateExperimentInsertionUIPanels();
     }
-
-    #region Input window focus
-
-    [SerializeField] private List<TMP_InputField> _focusableInputs;
-
-    /// <summary>
-    /// Return true when any input field on the account manager is actively focused
-    /// </summary>
-    public bool IsFocused()
-    {
-        if (_experimentEditor.IsFocused())
-            return true;
-
-        foreach (TMP_InputField input in _focusableInputs)
-            if (input.isFocused)
-                return true;
-
-        return false;
-    }
-
-    #endregion
 
     #region Insertions
 
-    public void UpdateExperimentInsertions()
+    public void UpdateExperimentInsertionUIPanels()
     {
         Debug.Log("(AccountsManager) Updating insertions");
         // [TODO: This is inefficient, better to keep prefabs that have been created and just hide extras]
@@ -314,31 +286,45 @@ public class UnisaveAccountsManager : AccountsManager
             GameObject insertionPrefab = Instantiate(_insertionPrefabGO, _insertionPrefabParentT);
             ServerProbeInsertionUI insertionUI = insertionPrefab.GetComponent<ServerProbeInsertionUI>();
 
-            // Insertions should be marked as active if they already exist in the scene
-            bool active;
+            // Insertions should be marked as active if they are in the scene already
+            bool active = ProbeManager.instances.Any(x => experimentData.Keys.Contains(x.UUID));
 
-            // Check if each UUID exists in ProbeManager.instances -- need access to ProbeManager here
-
-            insertionUI.SetInsertionData(this, insertion.UUID, false);
-            insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
-                insertion.ap, insertion.ml, insertion.dv,
-                insertion.phi, insertion.theta, insertion.spin));
+            insertionUI.SetInsertionData(this, insertion.UUID, active);
+            if (PlayerPrefs.GetDisplayUm())
+                insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
+                    Mathf.RoundToInt(insertion.ap*1000f), Mathf.RoundToInt(insertion.ml*1000f), Mathf.RoundToInt(insertion.dv*1000f),
+                    insertion.phi, insertion.theta, insertion.spin));
+            else
+                insertionUI.UpdateDescription(string.Format("AP {0:0.00} ML {1:0.00} DV {2:0.00} Phi {3} Theta {4} Spin {5}",
+                    insertion.ap, insertion.ml, insertion.dv,
+                    insertion.phi, insertion.theta, insertion.spin));
         }
     }
     
     public void ChangeInsertionVisibility(string UUID, bool visible)
     {
-        // Somehow, tell TPManager that we need to create or destroy a new probe... tbd
         Debug.Log(string.Format("(AccountsManager) Insertion {0} wants to become {1}", UUID, visible));
-        ServerProbeInsertion insertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
-        UpdateCallback(GetProbeInsertionData(UUID), visible);
+        ServerProbeInsertion insertion = _player.experiments[_UUID2Experiment[UUID]][UUID];
+        UpdateCallbackEvent(GetProbeInsertionData(UUID), visible);
+    }
+
+    public void ProbeDestroyInScene(string UUID)
+    {
+        // Find the UI object and disable the active state
+        Debug.Log($"{UUID} was destroyed, disabling UI element, if it exists");
+        foreach (ServerProbeInsertionUI serverProbeInsertionUI in _insertionPrefabParentT.GetComponentsInChildren<ServerProbeInsertionUI>())
+            if (serverProbeInsertionUI.UUID.Equals(UUID))
+            {
+                serverProbeInsertionUI.SetToggle(false);
+                return;
+            }
     }
 
     #endregion
 
     public void SetActiveProbe(string UUID)
     {
-        SetActiveProbeCallback.Invoke(UUID);
+        SetActiveProbeEvent.Invoke(UUID);
     }
 
     #region Data communication
@@ -353,9 +339,9 @@ public class UnisaveAccountsManager : AccountsManager
 
     public (Vector3 pos, Vector3 angles, int type, string cSpaceName, string cTransformName, string UUID) GetProbeInsertionData(string UUID)
     {
-        if (_probeUUID2experiment.ContainsKey(UUID))
+        if (_UUID2Experiment.ContainsKey(UUID))
         {
-            ServerProbeInsertion serverProbeInsertion = _player.experiments[_probeUUID2experiment[UUID]][UUID];
+            ServerProbeInsertion serverProbeInsertion = _player.experiments[_UUID2Experiment[UUID]][UUID];
             // convert to a regular probe insertion
             return (new Vector3(serverProbeInsertion.ap, serverProbeInsertion.ml, serverProbeInsertion.dv),
                 new Vector3(serverProbeInsertion.phi, serverProbeInsertion.theta, serverProbeInsertion.spin),
@@ -386,7 +372,29 @@ public class UnisaveAccountsManager : AccountsManager
         }
 
         return probeDataList;
-    } 
+    }
+
+    #endregion
+
+    #region Helpers
+
+    private ServerProbeInsertion ProbeManager2ServerProbeInsertion(ProbeManager probeManager, bool active = true, bool recorded = false)
+    {
+        ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
+        Vector3 apmldv = insertion.apmldv;
+        Vector3 angles = probeManager.GetProbeController().Insertion.angles;
+
+        ServerProbeInsertion serverProbeInsertion = new ServerProbeInsertion(
+            apmldv.x, apmldv.y, apmldv.z,
+            angles.x, angles.y, angles.z,
+            probeManager.ProbeType,
+            insertion.CoordinateSpace.Name,
+            insertion.CoordinateTransform.Name,
+            active, recorded,
+            probeManager.UUID);
+
+        return serverProbeInsertion;
+    }
 
     #endregion
 }

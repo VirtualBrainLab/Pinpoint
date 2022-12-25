@@ -11,19 +11,19 @@ public class ServerProbeInsertionUI : MonoBehaviour
     [SerializeField] private Toggle _insertionActiveToggle;
 
     private UnisaveAccountsManager _accountsManager;
-    private string _UUID;
+    public string UUID;
     private string _displayString;
 
     public void SetInsertionData(UnisaveAccountsManager accountsManager, string UUID, bool active)
     {
         _accountsManager = accountsManager;
-        _UUID = UUID;
-        _displayString = (!string.IsNullOrEmpty(_UUID)) ?
-            _UUID.Substring(0, 8) :
+        this.UUID = UUID;
+        _displayString = (!string.IsNullOrEmpty(this.UUID)) ?
+            this.UUID.Substring(0, 8) :
             "";
         _insertionNameText.text = _displayString;
 
-        _insertionActiveToggle.isOn = active;
+        SetToggle(active);
 
         GetComponent<Button>().onClick.AddListener(ActivateProbe);
     }
@@ -35,16 +35,21 @@ public class ServerProbeInsertionUI : MonoBehaviour
 
     public void ToggleVisibility(bool visible)
     {
-        _accountsManager.ChangeInsertionVisibility(_UUID, visible);
+        _accountsManager.ChangeInsertionVisibility(UUID, visible);
+    }
+
+    public void SetToggle(bool active)
+    {
+        _insertionActiveToggle.SetIsOnWithoutNotify(active);
     }
 
     public void DeleteProbe()
     {
-        _accountsManager.RemoveProbeExperiment(_UUID);
+        _accountsManager.RemoveProbeExperiment(UUID);
     }
 
     public void ActivateProbe()
     {
-        _accountsManager.SetActiveProbe(_UUID);
+        _accountsManager.SetActiveProbe(UUID);
     }
 }

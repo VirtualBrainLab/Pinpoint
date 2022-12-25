@@ -143,7 +143,7 @@ namespace TrajectoryPlanner
             LoadMeshData();
             //Physics.autoSyncTransforms = true;
 
-            _accountsManager.UpdateCallback = AccountsProbeStatusUpdatedCallback;
+            _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
             
             _automaticManipulatorControlHandler = _automaticControlPanelGameObject.GetComponent<AutomaticManipulatorControlHandler>();
         }
@@ -236,7 +236,7 @@ namespace TrajectoryPlanner
 
                 _sliceRenderer.UpdateSlicePosition();
 
-                SendActiveProbeDataToAccounts();
+                _accountsManager.UpdateProbeData();
             }
 
             if (_coenProbe != null && _coenProbe.MovedThisFrame)
@@ -451,6 +451,8 @@ namespace TrajectoryPlanner
                 UpdateQuickSettings();
             }
 
+            _accountsManager.ProbeDestroyInScene(_prevUUID);
+
             // update colliders
             UpdateProbeColliders();
         }
@@ -495,7 +497,7 @@ namespace TrajectoryPlanner
         /// </summary>
         /// <param name="probeType"></param>
         /// <returns></returns>
-        public ProbeManager AddNewProbe(int probeType)
+        public ProbeManager AddNewProbe(int probeType, string UUID = null)
         {
             CountProbePanels();
             if (visibleProbePanels >= 16)
@@ -504,6 +506,10 @@ namespace TrajectoryPlanner
             Debug.Log(probeType);
             GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
+
+            if (UUID != null)
+                newProbeManager.OverrideUUID(UUID);
+
             SetActiveProbe(newProbeManager);
             newProbeManager.GetProbeController().Insertion.Targetable = true;
 
@@ -524,10 +530,7 @@ namespace TrajectoryPlanner
 
         public ProbeManager AddNewProbe(int probeType, ProbeInsertion insertion, string UUID = null)
         {
-            ProbeManager probeManager = AddNewProbe(probeType);
-
-            if (UUID != null)
-                probeManager.OverrideUUID(UUID);
+            ProbeManager probeManager = AddNewProbe(probeType, UUID);
 
             probeManager.GetProbeController().SetProbePosition(insertion);
 
@@ -541,10 +544,7 @@ namespace TrajectoryPlanner
             string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
             string UUID = null, bool isGhost = false)
         {
-            ProbeManager probeManager = AddNewProbe(probeType);
-
-            if (UUID != null)
-                probeManager.OverrideUUID(UUID);
+            ProbeManager probeManager = AddNewProbe(probeType, UUID);
 
             probeManager.GetProbeController().SetProbePosition(insertion);
 
@@ -644,6 +644,7 @@ namespace TrajectoryPlanner
             Debug.Log("Setting active probe to: " + newActiveProbeManager.gameObject.name);
 #endif
             activeProbe = newActiveProbeManager;
+
             activeProbe.SetActive();
 
             foreach (ProbeManager probeManager in ProbeManager.instances)
@@ -683,8 +684,7 @@ namespace TrajectoryPlanner
             _probeQuickSettings.SetProbeManager(newActiveProbeManager);
 
             // Let the experiment manager know the active probe UUID
-            _accountsManager.ActiveProbeUUID = newActiveProbeManager.UUID;
-            _accountsManager.UpdateProbeData(activeProbe.UUID, Probe2ServerProbeInsertion(activeProbe));
+            _accountsManager.UpdateProbeData();
         }
 
         public void UpdateQuickSettings()
@@ -1171,9 +1171,9 @@ namespace TrajectoryPlanner
             if (!visible)
             {
                 // destroy the probe
-                foreach (ProbeManager probeManager in ProbeManager.instances)
-                    if (probeManager.UUID.Equals(data.UUID))
-                        DestroyProbe(probeManager);
+                ProbeManager probeManager = ProbeManager.instances.Find(x => x.UUID.Equals(data.UUID));
+                if (probeManager != null)
+                    DestroyProbe(probeManager);
             }
             else
             {
@@ -1194,11 +1194,6 @@ namespace TrajectoryPlanner
         private void AccountsNewProbeHelper((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) data)
         {
             AddNewProbe(data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
-        }
-
-        public void SendActiveProbeDataToAccounts()
-        {
-            _accountsManager.UpdateProbeData(activeProbe.UUID, Probe2ServerProbeInsertion(activeProbe));
         }
 
         #endregion

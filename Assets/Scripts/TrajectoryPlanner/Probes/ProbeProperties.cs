@@ -8,8 +8,8 @@ public class ProbeProperties
                                     ColorFromRGB(180, 0, 180), ColorFromRGB(240, 144, 96), ColorFromRGB(71, 147, 240), ColorFromRGB(240, 217, 48), ColorFromRGB(60, 240, 227),
                                     ColorFromRGB(114, 87, 242), ColorFromRGB(255, 255, 255), ColorFromRGB(0, 125, 125), ColorFromRGB(125, 0, 125), ColorFromRGB(125, 125, 0)};
 
-    public static readonly int FONT_SIZE_ACRONYM = 18;
-    public static readonly int FONT_SIZE_AREA = 14;
+    public static readonly int FONT_SIZE_ACRONYM = 24;
+    public static readonly int FONT_SIZE_AREA = 18;
 
     public static Color GetNextProbeColor()
     {

@@ -28,15 +28,20 @@ public class QuickSettingExpList : MonoBehaviour
         }
     }
 
-    public void ChangeExperiment(int optIdx)
+    /// <summary>
+    /// Triggered by the quick setting dropdown menu item when the user asks to change which experiment a
+    /// probe is saved in.
+    /// </summary>
+    /// <param name="optIdx"></param>
+    public void ChangeProbeExperiment(int optIdx)
     {
         if (optIdx > 0)
         {
             string optText = _experimentDropdown.options[optIdx].text;
-            _accountsManager.ChangeProbeExperiment(_accountsManager.ActiveProbeUUID, optText);
+            _accountsManager.ChangeProbeExperiment(ProbeManager.ActiveProbeManager, optText);
         }
         else
-            _accountsManager.RemoveProbeExperiment(_accountsManager.ActiveProbeUUID);
+            _accountsManager.RemoveProbeExperiment(ProbeManager.ActiveProbeManager.UUID);
     }
 
     #endregion
