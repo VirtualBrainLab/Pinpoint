@@ -22,44 +22,44 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             ProbeManager = probeManager;
 
+            // Set probe name
             _probeIdText.text = probeManager.UUID[..8];
             _probeIdText.color = probeManager.GetColor();
+
+            // Register event functions
+            ProbeManager.ZeroCoordinateOffsetChangedEvent.AddListener(UpdateZeroCoordinateInputFields);
+            ProbeManager.IsSetToDropToSurfaceWithDepthChangedEvent.AddListener(UpdateBrainSurfaceOffsetDropDirectionUI);
+            ProbeManager.BrainSurfaceOffsetChangedEvent.AddListener(UpdateBrainSurfaceOffsetValue);
+        }
+
+        private void UpdateZeroCoordinateInputFields(Vector4 offset)
+        {
+            _xInputField.text = offset.x.ToString(CultureInfo.CurrentCulture);
+            _yInputField.text = offset.y.ToString(CultureInfo.CurrentCulture);
+            _zInputField.text = offset.z.ToString(CultureInfo.CurrentCulture);
+            _dInputField.text = offset.w.ToString(CultureInfo.CurrentCulture);
+        }
+
+        private void UpdateBrainSurfaceOffsetDropDirectionUI(bool withDepth)
+        {
+            _brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(withDepth ? 0 : 1);
+            _brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.CanChangeBrainSurfaceOffsetAxis;
+        }
+
+        private void UpdateBrainSurfaceOffsetValue(float offset)
+        {
+            _brainSurfaceOffsetInputField.text = offset.ToString(CultureInfo.CurrentCulture);
         }
 
         #endregion
 
         #region Unity
 
-        /// <summary>
-        ///     Update values as they change.
-        /// </summary>
-        private void FixedUpdate()
+        private void Start()
         {
-            if (!ProbeManager.IsEphysLinkControlled) return;
-            // Update display for zero coordinate offset
-            if (ProbeManager.ZeroCoordinateOffset != _displayedZeroCoordinateOffset)
-            {
-                _displayedZeroCoordinateOffset = ProbeManager.ZeroCoordinateOffset;
-                _xInputField.text = _displayedZeroCoordinateOffset.x.ToString(CultureInfo.CurrentCulture);
-                _yInputField.text = _displayedZeroCoordinateOffset.y.ToString(CultureInfo.CurrentCulture);
-                _zInputField.text = _displayedZeroCoordinateOffset.z.ToString(CultureInfo.CurrentCulture);
-                _dInputField.text = _displayedZeroCoordinateOffset.w.ToString(CultureInfo.CurrentCulture);
-            }
-
-            // Update brain surface offset drop direction dropdown
-            if (ProbeManager.IsSetToDropToSurfaceWithDepth != (_brainSurfaceOffsetDirectionDropdown.value == 0))
-                _brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(
-                    ProbeManager.IsSetToDropToSurfaceWithDepth ? 0 : 1);
-
-            // Enable/disable interactivity of brain surface offset axis
-            if (ProbeManager.CanChangeBrainSurfaceOffsetAxis != _brainSurfaceOffsetDirectionDropdown.interactable)
-                _brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.CanChangeBrainSurfaceOffsetAxis;
-
-            // Update display for brain surface offset
-            if (!(Math.Abs(ProbeManager.BrainSurfaceOffset - _displayedBrainSurfaceOffset) > 0.001f)) return;
-            _displayedBrainSurfaceOffset = ProbeManager.BrainSurfaceOffset;
-            _brainSurfaceOffsetInputField.text =
-                _displayedBrainSurfaceOffset.ToString(CultureInfo.CurrentCulture);
+            UpdateZeroCoordinateInputFields(ProbeManager.ZeroCoordinateOffset);
+            UpdateBrainSurfaceOffsetDropDirectionUI(ProbeManager.IsSetToDropToSurfaceWithDepth);
+            UpdateBrainSurfaceOffsetValue(ProbeManager.BrainSurfaceOffset);
         }
 
         #endregion
@@ -88,7 +88,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         #region Properties
 
-        private Vector4 _displayedZeroCoordinateOffset;
         private float _displayedBrainSurfaceOffset;
 
         public static UnityEvent<ProbeManager> DestroyProbeEvent { private get; set; }
