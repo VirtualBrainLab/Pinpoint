@@ -78,13 +78,13 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             ProbeConnectionSettingsPanel.DestroyProbeEvent = _destroyProbeEvent;
         }
 
-        private void FixedUpdate()
-        {
-            // Update probe panels whenever they change
-            if (ProbeManager.instances.Count(manager => !manager.IsGhost) !=
-                _probeIdToProbeConnectionSettingsPanels.Count)
-                UpdateProbePanels();
-        }
+        // private void FixedUpdate()
+        // {
+        //     // Update probe panels whenever they change
+        //     if (ProbeManager.instances.Count(manager => !manager.IsGhost) !=
+        //         _probeIdToProbeConnectionSettingsPanels.Count)
+        //         UpdateProbePanels();
+        // }
 
         private void OnEnable()
         {
@@ -123,8 +123,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             }
         }
 
-        private void UpdateProbePanels()
+        public void UpdateProbePanels()
         {
+            // Exit early if not active
+            if (!gameObject.activeSelf) return;
+            
             var handledProbeIds = new HashSet<string>();
 
             // Add any new probes in scene to list

@@ -18,6 +18,7 @@ namespace TrajectoryPlanner
         #region Events
         // TODO: Expose events for probes moving, UI updating, etc
         //UnityEvent ProbeMovedEvent;
+        [SerializeField] private UnityEvent _probesChanged;
         #endregion
 
         // Managers and accessors
@@ -418,6 +419,9 @@ namespace TrajectoryPlanner
 
             // update colliders
             UpdateProbeColliders();
+            
+            // Invoke event
+            _probesChanged.Invoke();
         }
 
         private void DestroyActiveProbeManager()
@@ -487,6 +491,9 @@ namespace TrajectoryPlanner
 
             // Add listener for SetActiveProbe
             newProbeManager.ActivateProbeEvent.AddListener(delegate { SetActiveProbe(newProbeManager); });
+            
+            // Invoke event
+            _probesChanged.Invoke();
 
             return newProbe.GetComponent<ProbeManager>();
         }
@@ -505,9 +512,10 @@ namespace TrajectoryPlanner
         
         public ProbeManager AddNewProbe(int probeType, ProbeInsertion insertion,
             string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+            // ReSharper disable once InconsistentNaming
             string UUID = null, bool isGhost = false)
         {
-            ProbeManager probeManager = AddNewProbe(probeType, UUID);
+            var probeManager = AddNewProbe(probeType, UUID);
 
             probeManager.GetProbeController().SetProbePosition(insertion);
 
