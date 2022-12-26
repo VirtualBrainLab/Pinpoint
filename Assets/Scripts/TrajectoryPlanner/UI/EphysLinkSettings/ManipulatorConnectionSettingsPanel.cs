@@ -1,22 +1,13 @@
 using TMPro;
-using TrajectoryPlanner;
 using UnityEngine;
 
-namespace Settings
+namespace TrajectoryPlanner.UI.EphysLinkSettings
 {
     /// <summary>
     ///     Panel representing an available manipulator to connect to and its settings.
     /// </summary>
     public class ManipulatorConnectionSettingsPanel : MonoBehaviour
     {
-        #region Unity
-
-        private void Awake()
-        {
-            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
-        }
-
-        #endregion
 
         #region Getters and Setters
 
@@ -58,8 +49,6 @@ namespace Settings
 
         [SerializeField] private TMP_Text _manipulatorIdText;
         [SerializeField] private TMP_Dropdown _handednessDropdown;
-
-        private TrajectoryPlannerManager _trajectoryPlannerManager;
 
         #endregion
 

@@ -6,7 +6,6 @@ using CoordinateSpaces;
 using CoordinateTransforms;
 using Settings;
 using TMPro;
-using TrajectoryPlanner.AutomaticManipulatorControl;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -99,25 +98,6 @@ namespace TrajectoryPlanner
         // Track coen probe
         private EightShankProbeControl _coenProbe;
 
-        #region Ephys Link
-
-        [FormerlySerializedAs("automaticControlPanelGameObject")] [SerializeField] private GameObject _automaticControlPanelGameObject;
-        private AutomaticManipulatorControlHandler _automaticManipulatorControlHandler;
-
-        private HashSet<string> _rightHandedManipulatorIds = new();
-
-        public void EnableAutomaticManipulatorControlPanel(bool enable = true)
-        {
-            _automaticManipulatorControlHandler.ProbeManagers =
-                ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
-            _automaticManipulatorControlHandler.RightHandedManipulatorIDs = _rightHandedManipulatorIds;
-            _automaticManipulatorControlHandler.AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
-            _automaticManipulatorControlHandler.TargetInsertionsReference = ProbeInsertion.TargetableInstances;
-            
-            _automaticControlPanelGameObject.SetActive(enable);
-        }
-
-        #endregion
 
         #region Unity
         private void Awake()
@@ -144,8 +124,6 @@ namespace TrajectoryPlanner
             //Physics.autoSyncTransforms = true;
 
             _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
-            
-            _automaticManipulatorControlHandler = _automaticControlPanelGameObject.GetComponent<AutomaticManipulatorControlHandler>();
         }
 
         private void Start()
@@ -169,7 +147,7 @@ namespace TrajectoryPlanner
             SetSetting_UseIBLAngles(PlayerPrefs.GetUseIBLAngles());
             SetSetting_SurfaceDebugSphereVisibility(PlayerPrefs.GetSurfaceCoord());
             SetSetting_RelCoord(PlayerPrefs.GetRelCoord());
-            _rightHandedManipulatorIds = PlayerPrefs.GetRightHandedManipulatorIds();
+            ProbeManager.RightHandedManipulatorIDs = PlayerPrefs.GetRightHandedManipulatorIds();
         }
 
         void Update()
@@ -360,24 +338,6 @@ namespace TrajectoryPlanner
         public Collider CCFCollider()
         {
             return _ccfCollider;
-        }
-
-        public bool IsManipulatorRightHanded(string manipulatorId)
-        {
-            return _rightHandedManipulatorIds.Contains(manipulatorId);
-        }
-        
-        public void AddRightHandedManipulator(string manipulatorId)
-        {
-            _rightHandedManipulatorIds.Add(manipulatorId);
-            PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
-        }
-        
-        public void RemoveRightHandedManipulator(string manipulatorId)
-        {
-            if (!IsManipulatorRightHanded(manipulatorId)) return;
-            _rightHandedManipulatorIds.Remove(manipulatorId);
-            PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
         }
 
         public List<Collider> GetAllNonActiveColliders()

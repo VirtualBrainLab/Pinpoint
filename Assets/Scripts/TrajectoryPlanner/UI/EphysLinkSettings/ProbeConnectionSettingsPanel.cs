@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
 using TrajectoryPlanner;
+using TrajectoryPlanner.UI.EphysLinkSettings;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Settings
 {
@@ -29,11 +31,6 @@ namespace Settings
         #endregion
 
         #region Unity
-
-        private void Awake()
-        {
-            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
-        }
 
         /// <summary>
         ///     Update values as they change.
@@ -88,7 +85,6 @@ namespace Settings
 
         public ProbeManager ProbeManager { get; private set; }
         public EphysLinkSettings EphysLinkSettings { private get; set; }
-        private TrajectoryPlannerManager _trajectoryPlannerManager;
 
         #endregion
 
@@ -96,6 +92,8 @@ namespace Settings
 
         private Vector4 _displayedZeroCoordinateOffset;
         private float _displayedBrainSurfaceOffset;
+
+        static public UnityEvent<ProbeManager> DestroyProbeEvent { private get; set; }
 
         #endregion
 
@@ -138,7 +136,7 @@ namespace Settings
 
                         // Cleanup ghost prove stuff if applicable
                         if (!ProbeManager.HasGhost) return;
-                        _trajectoryPlannerManager.DestroyProbe(ProbeManager.GhostProbeManager);
+                        DestroyProbeEvent.Invoke(ProbeManager.GhostProbeManager);
                         ProbeManager.GhostProbeManager = null;
                     }
                 });
