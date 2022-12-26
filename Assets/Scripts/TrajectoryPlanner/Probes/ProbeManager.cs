@@ -613,6 +613,7 @@ public class ProbeManager : MonoBehaviour
         ManipulatorId = null;
         ZeroCoordinateOffset = Vector4.negativeInfinity;
         BrainSurfaceOffset = 0;
+        _probeController.Insertion.Targetable = true;
     }
 
 
