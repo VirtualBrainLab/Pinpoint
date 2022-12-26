@@ -111,8 +111,8 @@ public class ProbeManager : MonoBehaviour
     private Vector3 brainSurfaceWorldT;
 
     // Colliders
-    public HashSet<Collider> ProbeColliders { get; private set; }
-    private Dictionary<GameObject, Material> visibleOtherColliders;
+    private HashSet<Collider> _visibleProbeColliders;
+    private Dictionary<GameObject, Material> _visibleOtherColliders;
 
     #region Accessors
 
@@ -156,7 +156,7 @@ public class ProbeManager : MonoBehaviour
         UUID = Guid.NewGuid().ToString();
         name = "Probe_" + UUID.Substring(0, 8);
 
-        defaultMaterials = new Dictionary<GameObject, Material>();
+        defaultMaterials = new();
 
         _probeRenderer.material.color = ProbeProperties.GetNextProbeColor();
 
@@ -169,8 +169,8 @@ public class ProbeManager : MonoBehaviour
         // Get access to the annotation dataset and world-space boundaries
         annotationDataset = VolumeDatasetManager.AnnotationDataset;
 
-        ProbeColliders = new HashSet<Collider>();
-        visibleOtherColliders = new Dictionary<GameObject, Material>();
+        _visibleProbeColliders = new();
+        _visibleOtherColliders = new();
 
         _colliderManager = GameObject.Find("main").GetComponent<ColliderManager>();
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
@@ -217,10 +217,21 @@ public class ProbeManager : MonoBehaviour
     /// <summary>
     /// Called by the TPManager when this Probe becomes the active probe
     /// </summary>
-    public void SetActive()
+    public void SetActive(bool active)
     {
-        ActiveProbeManager = this;
+        if (active)
+        {
+            ActiveProbeManager = this;
+            ActivateProbeEvent.Invoke();
 
+            ColliderManager.AddProbeColliderInstances(_probeColliders, true);
+        }
+        else
+            ColliderManager.AddProbeColliderInstances(_probeColliders, false);
+    }
+
+    public void CheckProbeTransformState()
+    {
         if (_probeController.Insertion.CoordinateTransform != CoordinateSpaceManager.ActiveCoordinateTransform)
         {
             QuestionDialogue qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
@@ -232,7 +243,7 @@ public class ProbeManager : MonoBehaviour
     private void ChangeTransform()
     {
         ProbeInsertion originalInsertion = _probeController.Insertion;
-        Debug.LogWarning("Insertion coordinates are not being transformed!! This might not be expected behavior");
+        Debug.LogWarning("Insertion coordinates are not being transformed into the new space!! This might not be expected behavior");
         _probeController.SetProbePosition(new ProbeInsertion(originalInsertion.apmldv, originalInsertion.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform));
     }
 
@@ -342,16 +353,16 @@ public class ProbeManager : MonoBehaviour
     /// <param name="otherCollider"></param>
     private void CreateCollisionMesh(Collider activeCollider, Collider otherCollider)
     {
-        if (!ProbeColliders.Contains(activeCollider))
+        if (!_visibleProbeColliders.Contains(activeCollider))
         {
-            ProbeColliders.Add(activeCollider);
+            _visibleProbeColliders.Add(activeCollider);
             activeCollider.gameObject.GetComponent<Renderer>().enabled = true;
         }
 
         GameObject otherColliderGO = otherCollider.gameObject;
-        if (!visibleOtherColliders.ContainsKey(otherColliderGO))
+        if (!_visibleOtherColliders.ContainsKey(otherColliderGO))
         {
-            visibleOtherColliders.Add(otherColliderGO, otherColliderGO.GetComponent<Renderer>().material);
+            _visibleOtherColliders.Add(otherColliderGO, otherColliderGO.GetComponent<Renderer>().material);
             otherColliderGO.GetComponent<Renderer>().material = Materials.CollisionMaterial;
         }
     }
@@ -359,15 +370,15 @@ public class ProbeManager : MonoBehaviour
     // Clear probe colliders by disabling the renderers and then clear the other colliders by swapping back their materials
     private void ClearCollisionMesh()
     {
-        if (ProbeColliders.Count > 0 || visibleOtherColliders.Count > 0)
+        if (_visibleProbeColliders.Count > 0 || _visibleOtherColliders.Count > 0)
         {
-            foreach (Collider probeCollider in ProbeColliders)
+            foreach (Collider probeCollider in _visibleProbeColliders)
                 probeCollider.gameObject.GetComponent<Renderer>().enabled = false;
-            foreach (KeyValuePair<GameObject, Material> kvp in visibleOtherColliders)
+            foreach (KeyValuePair<GameObject, Material> kvp in _visibleOtherColliders)
                 kvp.Key.GetComponent<Renderer>().material = kvp.Value;
 
-            ProbeColliders.Clear();
-            visibleOtherColliders.Clear();
+            _visibleProbeColliders.Clear();
+            _visibleOtherColliders.Clear();
         }
     }
 
@@ -519,11 +530,6 @@ public class ProbeManager : MonoBehaviour
     }
 
 #endregion
-
-    public void ActivateProbeInvoke()
-    {
-        ActivateProbeEvent.Invoke();
-    }
 
 #region Ephys Link and Control
 
