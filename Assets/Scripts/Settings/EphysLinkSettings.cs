@@ -41,7 +41,6 @@ namespace Settings
 
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
-        private QuestionDialogue _questionDialogue;
 
         #endregion
 
@@ -53,8 +52,6 @@ namespace Settings
 
         #region Session variables
 
-        // private readonly Dictionary<int, Tuple<ManipulatorConnectionSettingsPanel, GameObject>>
-        //     _manipulatorIdToManipulatorConnectionSettingsPanel = new();
         private readonly Dictionary<string, (ManipulatorConnectionSettingsPanel manipulatorConnectionSettingsPanel,
                 GameObject gameObject)>
             _manipulatorIdToManipulatorConnectionSettingsPanel = new();
@@ -74,8 +71,6 @@ namespace Settings
             // Get Components
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
             _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
-            _questionDialogue = GameObject.Find("MainCanvas").transform.Find("QuestionDialoguePanel").gameObject
-                .GetComponent<QuestionDialogue>();
         }
 
         private void FixedUpdate()

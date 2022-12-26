@@ -249,32 +249,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f8a0b09213cb54493d9abbd31be079, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &211792548
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 211792534}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e6e78da88137a441b7094a31778b709, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  EditorFocusableInputs:
-  - {fileID: 1047957689}
-  - {fileID: 1364222952}
-  - {fileID: 1073378868}
-  - {fileID: 160775271}
-  - {fileID: 1889336854}
-  - {fileID: 1805012647}
-  - {fileID: 1049341881}
-  - {fileID: 661010683}
-  - {fileID: 434432043}
-  - {fileID: 444598638}
-  EditorFocusableGOs:
-  - {fileID: 1445793942}
-  - {fileID: 76833136}
 --- !u!1 &225749178
 GameObject:
   m_ObjectHideFlags: 0
@@ -2512,6 +2486,54 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: -17
       objectReference: {fileID: 0}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableGOs.Array.data[0]
+      value: 
+      objectReference: {fileID: 1445793942}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableGOs.Array.data[1]
+      value: 
+      objectReference: {fileID: 76833136}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableInputs.Array.data[0]
+      value: 
+      objectReference: {fileID: 1047957689}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableInputs.Array.data[1]
+      value: 
+      objectReference: {fileID: 1364222952}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableInputs.Array.data[2]
+      value: 
+      objectReference: {fileID: 1073378868}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableInputs.Array.data[3]
+      value: 
+      objectReference: {fileID: 160775271}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableInputs.Array.data[4]
+      value: 
+      objectReference: {fileID: 1889336854}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableInputs.Array.data[5]
+      value: 
+      objectReference: {fileID: 1805012647}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableInputs.Array.data[6]
+      value: 
+      objectReference: {fileID: 1049341881}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableInputs.Array.data[7]
+      value: 
+      objectReference: {fileID: 661010683}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableInputs.Array.data[8]
+      value: 
+      objectReference: {fileID: 434432043}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: EditorFocusableInputs.Array.data[9]
+      value: 
+      objectReference: {fileID: 444598638}
     - target: {fileID: 3538570341407524062, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -2654,7 +2676,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6257699837024560823, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -1292.5227
+      value: -1292.5222
       objectReference: {fileID: 0}
     - target: {fileID: 6336269206487648902, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
