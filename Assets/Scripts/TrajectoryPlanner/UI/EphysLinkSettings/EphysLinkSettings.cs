@@ -35,7 +35,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         // Probes in scene
         [SerializeField] private GameObject _probeList;
         [SerializeField] private GameObject _probeConnectionPanelPrefab;
-        
+
         // Events
         [SerializeField] private UnityEvent<ProbeManager> _destroyProbeEvent;
 
@@ -175,6 +175,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             _communicationManager.GetManipulators(availableIds =>
             {
+                print("Available manipulators: " + availableIds.Length);
                 // Update probes with selectable options
                 var usedManipulatorIds = ProbeManager.instances
                     .Where(probeManager => probeManager.IsEphysLinkControlled)

@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
-using TrajectoryPlanner;
-using TrajectoryPlanner.UI.EphysLinkSettings;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Settings
+namespace TrajectoryPlanner.UI.EphysLinkSettings
 {
     /// <summary>
     ///     Panel representing a probe in the scene and it's binding with a manipulator.
@@ -24,7 +22,7 @@ namespace Settings
         {
             ProbeManager = probeManager;
 
-            _probeIdText.text = probeManager.name;
+            _probeIdText.text = probeManager.UUID[..8];
             _probeIdText.color = probeManager.GetColor();
         }
 
@@ -93,7 +91,7 @@ namespace Settings
         private Vector4 _displayedZeroCoordinateOffset;
         private float _displayedBrainSurfaceOffset;
 
-        static public UnityEvent<ProbeManager> DestroyProbeEvent { private get; set; }
+        public static UnityEvent<ProbeManager> DestroyProbeEvent { private get; set; }
 
         #endregion
 

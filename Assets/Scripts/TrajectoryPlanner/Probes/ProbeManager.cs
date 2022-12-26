@@ -37,6 +37,7 @@ public class ProbeManager : MonoBehaviour
 
     // Internal flags that track whether we are in manual control or drag/link control mode
     public bool IsEphysLinkControlled { get; private set; }
+    // ReSharper disable once InconsistentNaming
     public string UUID { get; private set; }
 
     #region Ephys Link
