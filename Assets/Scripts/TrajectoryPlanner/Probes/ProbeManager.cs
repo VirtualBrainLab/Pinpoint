@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using EphysLink;
 using UnityEngine;
 using UnityEngine.Events;
@@ -37,6 +36,7 @@ public class ProbeManager : MonoBehaviour
 
     // Internal flags that track whether we are in manual control or drag/link control mode
     public bool IsEphysLinkControlled { get; private set; }
+    // ReSharper disable once InconsistentNaming
     public string UUID { get; private set; }
 
     #region Ephys Link
@@ -49,10 +49,48 @@ public class ProbeManager : MonoBehaviour
     public string ManipulatorId { get; private set; }
     private float _phiCos = 1f;
     private float _phiSin;
-    public Vector4 ZeroCoordinateOffset { get; set; } = Vector4.negativeInfinity;
-    public float BrainSurfaceOffset { get; set; }
+    private Vector4 _zeroCoordinateOffset = Vector4.negativeInfinity;
+
+    public Vector4 ZeroCoordinateOffset
+    {
+        get => _zeroCoordinateOffset;
+        set
+        {
+            _zeroCoordinateOffset = value;
+            ZeroCoordinateOffsetChangedEvent.Invoke(value);
+        }
+    }
+
+    public UnityEvent<Vector4> ZeroCoordinateOffsetChangedEvent;
+
+    private float _brainSurfaceOffset;
+    public float BrainSurfaceOffset
+    {
+        get => _brainSurfaceOffset;
+        set
+        {
+            _brainSurfaceOffset = value;
+            BrainSurfaceOffsetChangedEvent.Invoke(value);
+        }
+    }
+    public UnityEvent<float> BrainSurfaceOffsetChangedEvent;
+
     public bool CanChangeBrainSurfaceOffsetAxis => BrainSurfaceOffset == 0;
-    public bool IsSetToDropToSurfaceWithDepth { get; private set; } = true;
+
+    private bool _isSetToDropToSurfaceWithDepth = true;
+
+    public bool IsSetToDropToSurfaceWithDepth
+    {
+        get => _isSetToDropToSurfaceWithDepth;
+        private set
+        {
+            _isSetToDropToSurfaceWithDepth = value;
+            IsSetToDropToSurfaceWithDepthChangedEvent.Invoke(value);
+        }
+    }
+
+    public UnityEvent<bool> IsSetToDropToSurfaceWithDepthChangedEvent;
+
     private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
     public int AutomaticMovementSpeed { get; private set; } = 500; // Default to 500 um/s
 
@@ -618,6 +656,7 @@ public class ProbeManager : MonoBehaviour
         ManipulatorId = null;
         ZeroCoordinateOffset = Vector4.negativeInfinity;
         BrainSurfaceOffset = 0;
+        _probeController.Insertion.Targetable = true;
     }
 
 

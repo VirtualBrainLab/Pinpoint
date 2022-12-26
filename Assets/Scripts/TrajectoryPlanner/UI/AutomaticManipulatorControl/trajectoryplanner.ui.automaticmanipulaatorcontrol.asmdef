@@ -1,0 +1,21 @@
+{
+    "name": "trajectoryplanner.ui.automaticmanipulaatorcontrol",
+    "rootNamespace": "",
+    "references": [
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:90e12186c705ec4439eaedb493060fe3",
+        "GUID:7e45fd9ef3568e944946569af99430de",
+        "GUID:07000d85304fd3c488914a7dc63b71d7",
+        "GUID:bcfae4c7cb9968e45808db945035df54",
+        "GUID:025d8743921d928489cc31aa3f24d884"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

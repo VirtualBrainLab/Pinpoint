@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
 using TMPro;
+using TrajectoryPlanner.AutomaticManipulatorControl;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace TrajectoryPlanner.AutomaticManipulatorControl
+namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 {
     public class AutomaticManipulatorControlHandler : MonoBehaviour
     {
@@ -472,6 +473,11 @@ namespace TrajectoryPlanner.AutomaticManipulatorControl
 
         private void OnEnable()
         {
+            // Populate properties
+            ProbeManagers = ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
+            RightHandedManipulatorIDs = ProbeManager.RightHandedManipulatorIDs;
+            AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
+            TargetInsertionsReference = ProbeInsertion.TargetableInstances;
             // Enable step 1
             EnableStep1();
         }

@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
+using Settings;
 using TMPro;
-using TrajectoryPlanner;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace Settings
+namespace TrajectoryPlanner.UI.EphysLinkSettings
 {
     /// <summary>
     ///     Settings menu to connect to the Ephys Link server and manage probe-manipulator bindings.
@@ -35,12 +36,15 @@ namespace Settings
         [SerializeField] private GameObject _probeList;
         [SerializeField] private GameObject _probeConnectionPanelPrefab;
 
+        // Events
+        [SerializeField] private UnityEvent<ProbeManager> _destroyProbeEvent;
+
         #endregion
 
         #region Components
 
         private CommunicationManager _communicationManager;
-        private TrajectoryPlannerManager _trajectoryPlannerManager;
+        private UIManager _uiManager;
 
         #endregion
 
@@ -68,18 +72,19 @@ namespace Settings
 
         private void Awake()
         {
-            // Get Components
+            // Get/Set Components
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
-            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+            _uiManager = GameObject.Find("MainCanvas").GetComponent<UIManager>();
+            ProbeConnectionSettingsPanel.DestroyProbeEvent = _destroyProbeEvent;
         }
 
-        private void FixedUpdate()
-        {
-            // Update probe panels whenever they change
-            if (ProbeManager.instances.Count(manager => !manager.IsGhost) !=
-                _probeIdToProbeConnectionSettingsPanels.Count)
-                UpdateProbePanels();
-        }
+        // private void FixedUpdate()
+        // {
+        //     // Update probe panels whenever they change
+        //     if (ProbeManager.instances.Count(manager => !manager.IsGhost) !=
+        //         _probeIdToProbeConnectionSettingsPanels.Count)
+        //         UpdateProbePanels();
+        // }
 
         private void OnEnable()
         {
@@ -118,8 +123,11 @@ namespace Settings
             }
         }
 
-        private void UpdateProbePanels()
+        public void UpdateProbePanels()
         {
+            // Exit early if not active
+            if (!gameObject.activeSelf) return;
+            
             var handledProbeIds = new HashSet<string>();
 
             // Add any new probes in scene to list
@@ -170,6 +178,7 @@ namespace Settings
         {
             _communicationManager.GetManipulators(availableIds =>
             {
+                print("Available manipulators: " + availableIds.Length);
                 // Update probes with selectable options
                 var usedManipulatorIds = ProbeManager.instances
                     .Where(probeManager => probeManager.IsEphysLinkControlled)
@@ -280,7 +289,7 @@ namespace Settings
             _automaticControlButtonText.text = !AutomaticControlIsEnabled
                 ? "Disable Automatic Manipulator Control"
                 : "Enable Automatic Manipulator Control";
-            _trajectoryPlannerManager.EnableAutomaticManipulatorControlPanel(AutomaticControlIsEnabled);
+            _uiManager.EnableAutomaticManipulatorControlPanel(AutomaticControlIsEnabled);
         }
 
         #endregion

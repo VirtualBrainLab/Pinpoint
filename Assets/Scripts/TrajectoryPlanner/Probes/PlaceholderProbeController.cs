@@ -95,7 +95,8 @@ public class PlaceholderProbeController : ProbeController
         transform.RotateAround(_probeTipT.position, _probeTipT.up, localInsertion.spin);
 
         // save the data
-        Insertion = localInsertion;
+        Insertion.apmldv = localInsertion.apmldv;
+        Insertion.angles = localInsertion.angles;
     }
 
     #endregion

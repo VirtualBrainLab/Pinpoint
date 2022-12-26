@@ -6,7 +6,6 @@ using CoordinateSpaces;
 using CoordinateTransforms;
 using Settings;
 using TMPro;
-using TrajectoryPlanner.AutomaticManipulatorControl;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -19,6 +18,7 @@ namespace TrajectoryPlanner
         #region Events
         // TODO: Expose events for probes moving, UI updating, etc
         //UnityEvent ProbeMovedEvent;
+        [SerializeField] private UnityEvent _probesChanged;
         #endregion
 
         // Managers and accessors
@@ -98,25 +98,6 @@ namespace TrajectoryPlanner
         // Track coen probe
         private EightShankProbeControl _coenProbe;
 
-        #region Ephys Link
-
-        [FormerlySerializedAs("automaticControlPanelGameObject")] [SerializeField] private GameObject _automaticControlPanelGameObject;
-        private AutomaticManipulatorControlHandler _automaticManipulatorControlHandler;
-
-        private HashSet<string> _rightHandedManipulatorIds = new();
-
-        public void EnableAutomaticManipulatorControlPanel(bool enable = true)
-        {
-            _automaticManipulatorControlHandler.ProbeManagers =
-                ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
-            _automaticManipulatorControlHandler.RightHandedManipulatorIDs = _rightHandedManipulatorIds;
-            _automaticManipulatorControlHandler.AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
-            _automaticManipulatorControlHandler.TargetInsertionsReference = ProbeInsertion.TargetableInstances;
-            
-            _automaticControlPanelGameObject.SetActive(enable);
-        }
-
-        #endregion
 
         #region Unity
         private void Awake()
@@ -143,8 +124,6 @@ namespace TrajectoryPlanner
             //Physics.autoSyncTransforms = true;
 
             _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
-            
-            _automaticManipulatorControlHandler = _automaticControlPanelGameObject.GetComponent<AutomaticManipulatorControlHandler>();
         }
 
         private void Start()
@@ -168,7 +147,7 @@ namespace TrajectoryPlanner
             SetSetting_UseIBLAngles(PlayerPrefs.GetUseIBLAngles());
             SetSetting_SurfaceDebugSphereVisibility(PlayerPrefs.GetSurfaceCoord());
             SetSetting_RelCoord(PlayerPrefs.GetRelCoord());
-            _rightHandedManipulatorIds = PlayerPrefs.GetRightHandedManipulatorIds();
+            ProbeManager.RightHandedManipulatorIDs = PlayerPrefs.GetRightHandedManipulatorIds();
         }
 
         void Update()
@@ -361,24 +340,6 @@ namespace TrajectoryPlanner
             return _ccfCollider;
         }
 
-        public bool IsManipulatorRightHanded(string manipulatorId)
-        {
-            return _rightHandedManipulatorIds.Contains(manipulatorId);
-        }
-        
-        public void AddRightHandedManipulator(string manipulatorId)
-        {
-            _rightHandedManipulatorIds.Add(manipulatorId);
-            PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
-        }
-        
-        public void RemoveRightHandedManipulator(string manipulatorId)
-        {
-            if (!IsManipulatorRightHanded(manipulatorId)) return;
-            _rightHandedManipulatorIds.Remove(manipulatorId);
-            PlayerPrefs.SaveRightHandedManipulatorIds(_rightHandedManipulatorIds);
-        }
-
         public List<Collider> GetAllNonActiveColliders()
         {
             return allNonActiveColliders;
@@ -454,6 +415,9 @@ namespace TrajectoryPlanner
             }
 
             _accountsManager.ProbeDestroyInScene(_prevUUID);
+            
+            // Invoke event
+            _probesChanged.Invoke();
         }
 
         private void DestroyActiveProbeManager()
@@ -522,6 +486,9 @@ namespace TrajectoryPlanner
 
             // Add listener for SetActiveProbe
             newProbeManager.ActivateProbeEvent.AddListener(delegate { SetActiveProbe(newProbeManager); });
+            
+            // Invoke event
+            _probesChanged.Invoke();
 
             return newProbe.GetComponent<ProbeManager>();
         }
@@ -540,9 +507,10 @@ namespace TrajectoryPlanner
         
         public ProbeManager AddNewProbe(int probeType, ProbeInsertion insertion,
             string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+            // ReSharper disable once InconsistentNaming
             string UUID = null, bool isGhost = false)
         {
-            ProbeManager probeManager = AddNewProbe(probeType, UUID);
+            var probeManager = AddNewProbe(probeType, UUID);
 
             probeManager.GetProbeController().SetProbePosition(insertion);
 
