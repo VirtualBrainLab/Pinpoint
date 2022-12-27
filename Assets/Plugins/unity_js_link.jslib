@@ -1,8 +1,9 @@
 mergeInto(LibraryManager.library, {
 
   Copy2Clipboard: function (str) {
+    console.log('copy2clipboard called');
 	copy2clipboardStr = str;
-	document.getElementById('unity-canvas').addEventListener('click', copy2clipboardCallback, false);
+	canvas.addEventListener('click', copy2clipboardCallback, false);
   }
 
 });

@@ -129,7 +129,7 @@ public class ProbeInsertion
     /// Get the corresponding **un-transformed** coordinate in the CoordinateSpace
     /// </summary>
     /// <returns></returns>
-    public Vector3 PositionSpace()
+    public Vector3 PositionSpaceU()
     {
         return CoordinateTransform.Transform2Space(apmldv);
     }
@@ -149,7 +149,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldU()
     {
-        return CoordinateSpace.Space2World(PositionSpace());
+        return CoordinateSpace.Space2World(PositionSpaceU());
     }
 
     /// <summary>
