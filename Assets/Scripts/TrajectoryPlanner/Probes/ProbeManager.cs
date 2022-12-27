@@ -4,6 +4,9 @@ using EphysLink;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
+#if UNITY_WEBGL && !UNITY_EDITOR
+using System.Runtime.InteropServices;
+#endif
 
 /// <summary>
 /// 3D space control for Neuropixels probes in the Trajectory Planner scene
