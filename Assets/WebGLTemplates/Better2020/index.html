@@ -98,8 +98,15 @@
       };
       document.body.appendChild(script);
 
+      var copy2clipboardStr;
       function copy2clipboard(str) {
-        navigator.clipboard.writeText(str);
+        copy2clipboardStr = str;
+        document.getElementById('unity-canvas').addEventListener('click', copy2clipboardCallback, false);
+      }
+
+      function copy2clipboardCallback() {
+        navigator.clipboard.writeText(copy2clipboardStr);
+        document.getElementById('unity-canvas').removeEventListener('click', copy2clipboardCallback, false);
       }
     </script>
   </body>
