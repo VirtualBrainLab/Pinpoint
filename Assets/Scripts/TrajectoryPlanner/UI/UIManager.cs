@@ -34,7 +34,7 @@ public class UIManager : MonoBehaviour
 
     public static bool InputsFocused
     {
-        get { return FocusableInputs.Any(x => x.isFocused) || FocusableGOs.Any(x => x.activeSelf); }
+        get { return FocusableInputs.Any(x => x != null ? x.isFocused : false) || FocusableGOs.Any(x => x != null ? x.activeSelf : false); }
     }
 
     public void EnableAutomaticManipulatorControlPanel(bool enable = true)
