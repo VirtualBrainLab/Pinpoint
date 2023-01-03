@@ -25,7 +25,7 @@ public class ProbeManager : MonoBehaviour
     public static List<ProbeManager> instances = new List<ProbeManager>();
     public static ProbeManager ActiveProbeManager;
     void OnEnable() => instances.Add(this);
-    void OnDisable() => instances.Remove(this);
+    void OnDestroy() => instances.Remove(this);
 
     public static HashSet<string> RightHandedManipulatorIDs { get; set; } = new();
     #endregion
@@ -251,6 +251,8 @@ public class ProbeManager : MonoBehaviour
             puimanager.Destroy();
 
         ProbeProperties.ReturnProbeColor(GetColor());
+
+        ColliderManager.RemoveProbeColliderInstances(_probeColliders);
         
         // Unregister this probe from the ephys link
         if (IsEphysLinkControlled)
@@ -266,15 +268,25 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetActive(bool active)
     {
-        if (active)
-        {
-            ActiveProbeManager = this;
-            ActivateProbeEvent.Invoke();
+#if UNITY_EDITOR
+        Debug.Log($"{name} becoming {(active ? "active" : "inactive")}");
+#endif
 
+        if (active)
             ColliderManager.AddProbeColliderInstances(_probeColliders, true);
-        }
         else
             ColliderManager.AddProbeColliderInstances(_probeColliders, false);
+
+        ProbeUIUpdateEvent.Invoke();
+        _probeController.MovedThisFrameEvent.Invoke();
+    }
+
+    /// <summary>
+    /// Called by ProbeColliders when this probe is clicked on
+    /// </summary>
+    public void MouseDown()
+    {
+        ActivateProbeEvent.Invoke();
     }
 
     public void CheckProbeTransformState()
@@ -409,12 +421,15 @@ public class ProbeManager : MonoBehaviour
         {
             foreach (Collider otherCollider in otherColliders)
             {
-                Vector3 dir;
-                float dist;
-                if (Physics.ComputePenetration(activeCollider, activeCollider.transform.position, activeCollider.transform.rotation, otherCollider, otherCollider.transform.position, otherCollider.transform.rotation, out dir, out dist))
+                if (otherCollider != null)
                 {
-                    CreateCollisionMesh(activeCollider, otherCollider);
-                    return true;
+                    Vector3 dir;
+                    float dist;
+                    if (Physics.ComputePenetration(activeCollider, activeCollider.transform.position, activeCollider.transform.rotation, otherCollider, otherCollider.transform.position, otherCollider.transform.rotation, out dir, out dist))
+                    {
+                        CreateCollisionMesh(activeCollider, otherCollider);
+                        return true;
+                    }
                 }
             }
         }

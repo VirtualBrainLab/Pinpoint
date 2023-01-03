@@ -466,7 +466,6 @@ namespace TrajectoryPlanner
             if (visibleProbePanels >= 16)
                 return null;
 
-            Debug.Log(probeType);
             GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
 
@@ -532,6 +531,11 @@ namespace TrajectoryPlanner
             _accountsManager.AddNewProbe();
 
             return probeManager;
+        }
+
+        public void CopyActiveProbe()
+        {
+            AddNewProbe(ProbeManager.ActiveProbeManager.ProbeType, ProbeManager.ActiveProbeManager.GetProbeController().Insertion);
         }
 
         #endregion
@@ -618,6 +622,7 @@ namespace TrajectoryPlanner
             ProbeManager.ActiveProbeManager = newActiveProbeManager;
             ProbeManager.ActiveProbeManager.SetActive(true);
 
+            // Change the UI manager visibility and set transparency of probes
             foreach (ProbeManager probeManager in ProbeManager.instances)
             {
                 // Check visibility

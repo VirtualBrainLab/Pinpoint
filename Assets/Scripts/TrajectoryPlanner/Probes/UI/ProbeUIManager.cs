@@ -63,6 +63,7 @@ public class ProbeUIManager : MonoBehaviour
         {
             ProbedMovedHelper();
             probeMovedDirty = false;
+            _probeManager.ProbeUIUpdateEvent.Invoke();
         }
     }
 
@@ -245,8 +246,11 @@ public class ProbeUIManager : MonoBehaviour
         }
 
         // The top region (last) will be missing it's center height and area height, so compute those now
-        centerHeightsPixels.Add(Mathf.RoundToInt((areaPositionPixels[areaPositionPixels.Count - 1] + probePanelPxHeight) / 2f));
-        areaHeightPixels.Add(Mathf.RoundToInt(probePanelPxHeight - areaPositionPixels[areaPositionPixels.Count - 1]));
+        if (areaPositionPixels.Count > 0)
+        {
+            centerHeightsPixels.Add(Mathf.RoundToInt((areaPositionPixels[areaPositionPixels.Count - 1] + probePanelPxHeight) / 2f));
+            areaHeightPixels.Add(Mathf.RoundToInt(probePanelPxHeight - areaPositionPixels[areaPositionPixels.Count - 1]));
+        }
 
         // If there is only one value in the heights array, pixelHeight will be empty
         // Also find the area with the maximum pixel height

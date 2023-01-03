@@ -400,8 +400,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 4456597164778458634}
-        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
-        m_MethodName: ActivateProbeInvoke
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.probe
+        m_MethodName: MouseDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -409,7 +409,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   OnMouseDragEvent:
     m_PersistentCalls:
@@ -651,8 +651,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 4456597164778458634}
-        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
-        m_MethodName: ActivateProbeInvoke
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.probe
+        m_MethodName: MouseDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -660,7 +660,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   OnMouseDragEvent:
     m_PersistentCalls:
@@ -820,8 +820,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 4456597164778458634}
-        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
-        m_MethodName: ActivateProbeInvoke
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.probe
+        m_MethodName: MouseDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -829,7 +829,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   OnMouseDragEvent:
     m_PersistentCalls:
@@ -1114,8 +1114,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 4456597164778458634}
-        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
-        m_MethodName: ActivateProbeInvoke
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.probe
+        m_MethodName: MouseDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1123,7 +1123,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   OnMouseDragEvent:
     m_PersistentCalls:
@@ -1351,6 +1351,18 @@ MonoBehaviour:
   ActivateProbeEvent:
     m_PersistentCalls:
       m_Calls: []
+  EphysLinkControlChangeEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  ZeroCoordinateOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  BrainSurfaceOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  IsSetToDropToSurfaceWithDepthChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
   _probeColliders:
   - {fileID: 2194279852442524702}
   - {fileID: 2194279851657991016}
@@ -1377,6 +1389,9 @@ MonoBehaviour:
   MovedThisFrameEvent:
     m_PersistentCalls:
       m_Calls: []
+  FinishedMovingEvent:
+    m_PersistentCalls:
+      m_Calls: []
   _probeTipT: {fileID: 3537694416159337911}
   _recordingRegionGOs:
   - {fileID: 2194279852132282093}
@@ -1397,6 +1412,7 @@ MonoBehaviour:
   _probeManager: {fileID: 4456597164778458634}
   _electrodeBase: {fileID: 6172157643229611607}
   _order: 0
+  MaxArea: 
 --- !u!1 &4635550240378812117
 GameObject:
   m_ObjectHideFlags: 0

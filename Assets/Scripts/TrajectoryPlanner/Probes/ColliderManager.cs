@@ -39,6 +39,14 @@ public class ColliderManager : MonoBehaviour
             InactiveColliderInstances.UnionWith(colliders);
     }
 
+    public static void RemoveProbeColliderInstances(IEnumerable<Collider> colliders)
+    {
+        foreach (Collider c in colliders)
+            ActiveColliderInstances.Remove(c);
+        foreach (Collider c in colliders)
+            InactiveColliderInstances.Remove(c);
+    }
+
     public static void AddRigColliderInstances(IEnumerable<Collider> colliders)
     {
 #if UNITY_EDITOR

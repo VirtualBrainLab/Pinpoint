@@ -1223,8 +1223,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 8943063119080654583}
-        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
-        m_MethodName: ActivateProbeInvoke
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.probe
+        m_MethodName: MouseDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1232,7 +1232,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   OnMouseDragEvent:
     m_PersistentCalls:
@@ -1489,8 +1489,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 8943063119080654583}
-        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
-        m_MethodName: ActivateProbeInvoke
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.probe
+        m_MethodName: MouseDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1498,7 +1498,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   OnMouseDragEvent:
     m_PersistentCalls:
@@ -1657,8 +1657,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 8943063119080654583}
-        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
-        m_MethodName: ActivateProbeInvoke
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.probe
+        m_MethodName: MouseDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1666,7 +1666,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   OnMouseDragEvent:
     m_PersistentCalls:
@@ -1908,8 +1908,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 8943063119080654583}
-        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
-        m_MethodName: ActivateProbeInvoke
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.probe
+        m_MethodName: MouseDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1917,7 +1917,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   OnMouseDragEvent:
     m_PersistentCalls:
@@ -2600,8 +2600,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 8943063119080654583}
-        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
-        m_MethodName: ActivateProbeInvoke
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.probe
+        m_MethodName: MouseDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2609,7 +2609,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   OnMouseDragEvent:
     m_PersistentCalls:
@@ -2768,8 +2768,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 8943063119080654583}
-        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.core
-        m_MethodName: ActivateProbeInvoke
+        m_TargetAssemblyTypeName: ProbeManager, trajectoryplanner.probe
+        m_MethodName: MouseDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2777,7 +2777,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
   OnMouseDragEvent:
     m_PersistentCalls:
@@ -3645,6 +3645,18 @@ MonoBehaviour:
   ActivateProbeEvent:
     m_PersistentCalls:
       m_Calls: []
+  EphysLinkControlChangeEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  ZeroCoordinateOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  BrainSurfaceOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  IsSetToDropToSurfaceWithDepthChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
   _probeColliders:
   - {fileID: 6896843786921319317}
   - {fileID: 6896843787741631715}
@@ -3680,6 +3692,9 @@ MonoBehaviour:
   MovedThisFrameEvent:
     m_PersistentCalls:
       m_Calls: []
+  FinishedMovingEvent:
+    m_PersistentCalls:
+      m_Calls: []
   _probeTipT: {fileID: 4373075753628498810}
   _recordingRegionGOs:
   - {fileID: 6896843788505130512}
@@ -3707,6 +3722,7 @@ MonoBehaviour:
   _probeManager: {fileID: 8943063119080654583}
   _electrodeBase: {fileID: 8132741541750793547}
   _order: 3
+  MaxArea: 
 --- !u!114 &1545133269317581810
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3723,6 +3739,7 @@ MonoBehaviour:
   _probeManager: {fileID: 8943063119080654583}
   _electrodeBase: {fileID: 2792236579036533825}
   _order: 2
+  MaxArea: 
 --- !u!114 &1889671296123998709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3739,6 +3756,7 @@ MonoBehaviour:
   _probeManager: {fileID: 8943063119080654583}
   _electrodeBase: {fileID: 1823020946817655767}
   _order: 1
+  MaxArea: 
 --- !u!114 &3819742175937011324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3755,6 +3773,7 @@ MonoBehaviour:
   _probeManager: {fileID: 8943063119080654583}
   _electrodeBase: {fileID: 2757399421754738177}
   _order: 0
+  MaxArea: 
 --- !u!114 &6297965381491350068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3784,6 +3803,7 @@ MonoBehaviour:
   _probeManager: {fileID: 8943063119080654583}
   _electrodeBase: {fileID: 2813570672421089493}
   _order: 7
+  MaxArea: 
 --- !u!114 &4197637765416538696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3800,6 +3820,7 @@ MonoBehaviour:
   _probeManager: {fileID: 8943063119080654583}
   _electrodeBase: {fileID: 7287646237439500699}
   _order: 6
+  MaxArea: 
 --- !u!114 &4981350787610940250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3816,6 +3837,7 @@ MonoBehaviour:
   _probeManager: {fileID: 8943063119080654583}
   _electrodeBase: {fileID: 8958393922669122403}
   _order: 5
+  MaxArea: 
 --- !u!114 &1680033705420244464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3832,6 +3854,7 @@ MonoBehaviour:
   _probeManager: {fileID: 8943063119080654583}
   _electrodeBase: {fileID: 6760925190709588515}
   _order: 4
+  MaxArea: 
 --- !u!1 &8958393922669122403
 GameObject:
   m_ObjectHideFlags: 0
