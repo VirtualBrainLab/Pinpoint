@@ -385,6 +385,7 @@ public class DefaultProbeController : ProbeController
 
             // Update all the UI panels
             ProbeManager.UpdateUI();
+            FinishedMovingEvent.Invoke();
 
             return true;
         }
@@ -652,6 +653,7 @@ public class DefaultProbeController : ProbeController
         dragging = false;
         ProbeManager.SetAxisVisibility(false, false, false, false);
         BrainCameraController.BlockBrainControl = false;
+        FinishedMovingEvent.Invoke();
     }
 
     #endregion

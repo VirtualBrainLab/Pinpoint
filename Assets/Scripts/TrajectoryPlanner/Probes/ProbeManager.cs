@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EphysLink;
 using UnityEngine;
 using UnityEngine.Events;
@@ -40,7 +41,6 @@ public class ProbeManager : MonoBehaviour
     // Internal flags that track whether we are in manual control or drag/link control mode
     public bool IsEphysLinkControlled { get; private set; }
     // ReSharper disable once InconsistentNaming
-    public string UUID { get; private set; }
 
     #region Ephys Link
 
@@ -124,6 +124,11 @@ public class ProbeManager : MonoBehaviour
 
     #endregion
 
+    #region Identifiers
+    public string UUID { get; private set; }
+    private string _overrideName;
+    #endregion
+
     // Exposed fields to collect links to other components inside of the Probe prefab
     [FormerlySerializedAs("probeColliders")] [SerializeField] private List<Collider> _probeColliders;
     [FormerlySerializedAs("probeUIManagers")] [SerializeField] private List<ProbeUIManager> _probeUIManagers;
@@ -195,7 +200,6 @@ public class ProbeManager : MonoBehaviour
     private void Awake()
     {
         UUID = Guid.NewGuid().ToString();
-        name = "Probe_" + UUID.Substring(0, 8);
 
         defaultMaterials = new();
 
@@ -215,6 +219,8 @@ public class ProbeManager : MonoBehaviour
 
         _colliderManager = GameObject.Find("main").GetComponent<ColliderManager>();
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
+
+        _probeController.FinishedMovingEvent.AddListener(UpdateName);
     }
 
     private void Start()
@@ -305,8 +311,37 @@ public class ProbeManager : MonoBehaviour
     public void OverrideUUID(string newUUID)
     {
         UUID = newUUID;
-        name = "Probe_" + UUID.Substring(0, 8);
+        UpdateName();
         ProbeUIUpdateEvent.Invoke();
+    }
+
+    /// <summary>
+    /// Update the name of this probe, when it is in the brain 
+    /// </summary>
+    public void UpdateName()
+    {
+        if (_overrideName != null)
+        {
+            name = $"{_overrideName}-{UUID.Substring(0, 8)}";
+        }
+        else
+        {
+            // Check if this probe is in the brain
+            if (probeInBrain)
+            {
+                name = $"{_probeUIManagers[0].MaxArea}-{UUID.Substring(0, 8)}";
+            }
+            else
+                name = "Probe_" + UUID.Substring(0, 8);
+        }
+
+        ProbeUIUpdateEvent.Invoke();
+    }
+
+    public void OverrideName(string newName)
+    {
+        _overrideName = newName;
+        UpdateName();
     }
 
     /// <summary>

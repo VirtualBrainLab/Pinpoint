@@ -13,6 +13,7 @@ public abstract class ProbeController : MonoBehaviour
     }
 
     public UnityEvent MovedThisFrameEvent;
+    public UnityEvent FinishedMovingEvent;
 
     public abstract Transform ProbeTipT { get; }
 

@@ -25,9 +25,17 @@ public class ProbeUIManager : MonoBehaviour
 
     private const int MINIMUM_AREA_PIXEL_HEIGHT = 7;
 
+    /// <summary>
+    /// Area that this probe goes through covering the most pixels
+    /// </summary>
+    public string MaxArea;
+
     private void Awake()
     {
         Debug.Log("Adding puimanager: " + _order);
+
+        // initialize vars
+        MaxArea = "";
 
         // Add the probePanel
         Transform probePanelParentT = GameObject.Find("ProbePanelParent").transform;
@@ -196,10 +204,14 @@ public class ProbeUIManager : MonoBehaviour
     /// <returns></returns>
     private (List<int>, List<int>, List<string>)  InterpolateAnnotationIDs(Vector3 tipPosition, Vector3 topPosition)
     {
-        //Color[] interpolated = new Color[(int)probePanelPxHeight];
-        List<int> heights = new List<int>();
-        List<int> pixelHeight = new List<int>();
+        // pixel height at which changes happen
+        List<int> areaPositionPixels = new List<int>();
+        // pixel count for each area
+        List<int> areaHeightPixels = new List<int>();
+        // string name
         List<string> areaNames = new List<string>();
+        // center position of each area
+        List<int> centerHeightsPixels = new List<int>();
 
         int prevID = int.MinValue;
         for (int i = 0; i < probePanelPxHeight; i++)
@@ -215,50 +227,53 @@ public class ProbeUIManager : MonoBehaviour
             if (ID != prevID)
             {
                 // We have arrived at a new area, get the name and height
-                heights.Add(i);
+                areaPositionPixels.Add(i);
                 if (PlayerPrefs.GetAcronyms())
                     areaNames.Add(modelControl.ID2Acronym(ID));
                 else
                     areaNames.Add(modelControl.ID2AreaName(ID));
+                // Now compute the center height for the *previous* area, and the pixel height
+                int curIdx = areaPositionPixels.Count - 1;
+                if (curIdx >= 1)
+                {
+                    centerHeightsPixels.Add(Mathf.RoundToInt((areaPositionPixels[curIdx - 1] + areaPositionPixels[curIdx]) / 2f));
+                    areaHeightPixels.Add(areaPositionPixels[curIdx] - areaPositionPixels[curIdx - 1]);
+                }
 
                 prevID = ID;
             }
         }
 
-        // Also compute the area heights
-        // Now get the centerHeights -- this will be the position we'll show the area text at, so it should be bounded between 0 and the probePanelPxHeight
-        // and in theory it should be halfway between each height and the next height, with the exception of the first and last areas
-        List<int> centerHeights = new List<int>();
-        if (heights.Count > 0)
-        {
-            if (heights.Count > 1)
-            {
-                for (int i = 0; i < (heights.Count - 1); i++)
-                {
-                    centerHeights.Add(Mathf.RoundToInt((heights[i] + heights[i + 1]) / 2f));
-                    pixelHeight.Add(heights[i + 1] - heights[i]);
-                }
-                pixelHeight.Add(heights[heights.Count - 1] - heights[heights.Count - 2]);
-            }
-            centerHeights.Add(Mathf.RoundToInt((heights[heights.Count - 1] + probePanelPxHeight) / 2f));
-        }
+        // The top region (last) will be missing it's center height and area height, so compute those now
+        centerHeightsPixels.Add(Mathf.RoundToInt((areaPositionPixels[areaPositionPixels.Count - 1] + probePanelPxHeight) / 2f));
+        areaHeightPixels.Add(Mathf.RoundToInt(probePanelPxHeight - areaPositionPixels[areaPositionPixels.Count - 1]));
 
         // If there is only one value in the heights array, pixelHeight will be empty
-        if (pixelHeight.Count > 0)
+        // Also find the area with the maximum pixel height
+        int maxPixelHeight = 0;
+        if (areaHeightPixels.Count > 0)
         {
             // Remove any areas where heights < MINIMUM_AREA_PIXEL_HEIGHT
-            for (int i = heights.Count - 1; i >= 0; i--)
+            for (int i = areaPositionPixels.Count - 1; i >= 0; i--)
             {
-                if (pixelHeight[i] < MINIMUM_AREA_PIXEL_HEIGHT)
+                // Get the max area, ignoring "-"
+                // This is safe to do even though we remove areas afterward, because we are going backwards through the list
+                if (areaHeightPixels[i] > maxPixelHeight && areaNames[i] != "-")
                 {
-                    heights.RemoveAt(i);
-                    centerHeights.RemoveAt(i);
+                    maxPixelHeight = areaHeightPixels[i];
+                    MaxArea = areaNames[i];
+                }
+                // Remove areas that are too small
+                if (areaHeightPixels[i] < MINIMUM_AREA_PIXEL_HEIGHT)
+                {
+                    areaPositionPixels.RemoveAt(i);
+                    centerHeightsPixels.RemoveAt(i);
                     areaNames.RemoveAt(i);
                 }
             }
         }
 
-        return (heights, centerHeights, areaNames);
+        return (areaPositionPixels, centerHeightsPixels, areaNames);
     }
 
     public void ProbeSelected(bool selected)
