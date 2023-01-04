@@ -24,7 +24,11 @@ public class ProbeManager : MonoBehaviour
     public static List<ProbeManager> instances = new List<ProbeManager>();
     public static ProbeManager ActiveProbeManager;
     void OnEnable() => instances.Add(this);
-    void OnDestroy() => instances.Remove(this);
+    void OnDestroy()
+    {
+        GetProbeController().Insertion.Targetable = false;
+        instances.Remove(this);
+    }
 
     public static HashSet<string> RightHandedManipulatorIDs { get; set; } = new();
     #endregion
