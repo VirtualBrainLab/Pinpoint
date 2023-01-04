@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using EphysLink;
 using UnityEngine;
 using UnityEngine.Events;
@@ -133,7 +132,6 @@ public class ProbeManager : MonoBehaviour
     [FormerlySerializedAs("probeColliders")] [SerializeField] private List<Collider> _probeColliders;
     [FormerlySerializedAs("probeUIManagers")] [SerializeField] private List<ProbeUIManager> _probeUIManagers;
     [FormerlySerializedAs("probeRenderer")] [SerializeField] private Renderer _probeRenderer;
-    private ColliderManager _colliderManager;
     private AxisControl _axisControl;
     [SerializeField] private int _probeType;
     public int ProbeType => _probeType;
@@ -217,7 +215,6 @@ public class ProbeManager : MonoBehaviour
         _visibleProbeColliders = new();
         _visibleOtherColliders = new();
 
-        _colliderManager = GameObject.Find("main").GetComponent<ColliderManager>();
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
 
         _probeController.FinishedMovingEvent.AddListener(UpdateName);
@@ -370,9 +367,8 @@ public class ProbeManager : MonoBehaviour
 
 
     /// <summary>
-    /// Move the probe with the option to check for collisions
+    /// Move the probe
     /// </summary>
-    /// <param name="checkForCollisions">Set to true to check for collisions with rig colliders and other probes</param>
     /// <returns>Whether or not the probe moved on this frame</returns>
     public bool MoveProbe()
     {
@@ -381,96 +377,6 @@ public class ProbeManager : MonoBehaviour
             return false;
 
         return ((DefaultProbeController)_probeController).MoveProbe_Keyboard();
-    }
-
-
-    /// <summary>
-    /// Check for collisions between the probe colliders and a list of other colliders
-    /// </summary>
-    /// <param name="otherColliders">colliders to check against</param>
-    /// <returns></returns>
-    public void CheckCollisions(HashSet<Collider> otherColliders)
-    {
-        if (PlayerPrefs.GetCollisions())
-        {
-            bool collided = CheckCollisionsHelper(otherColliders);
-
-            if (collided)
-                _colliderManager.SetCollisionPanelVisibility(true);
-            else
-            {
-                _colliderManager.SetCollisionPanelVisibility(false);
-                ClearCollisionMesh();
-            }
-        }
-        else
-        {
-            _colliderManager.SetCollisionPanelVisibility(false);
-            ClearCollisionMesh();
-        }
-    }
-
-    /// <summary>
-    /// Internal function to perform collision checks between Collider components
-    /// </summary>
-    /// <param name="otherColliders"></param>
-    /// <returns></returns>
-    private bool CheckCollisionsHelper(HashSet<Collider> otherColliders)
-    {
-        foreach (Collider activeCollider in _probeColliders)
-        {
-            foreach (Collider otherCollider in otherColliders)
-            {
-                if (otherCollider != null)
-                {
-                    Vector3 dir;
-                    float dist;
-                    if (Physics.ComputePenetration(activeCollider, activeCollider.transform.position, activeCollider.transform.rotation, otherCollider, otherCollider.transform.position, otherCollider.transform.rotation, out dir, out dist))
-                    {
-                        CreateCollisionMesh(activeCollider, otherCollider);
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// When collisions occur we want to make the colliders we hit change material, but we might need to later swap them back
-    /// </summary>
-    /// <param name="activeCollider"></param>
-    /// <param name="otherCollider"></param>
-    private void CreateCollisionMesh(Collider activeCollider, Collider otherCollider)
-    {
-        if (!_visibleProbeColliders.Contains(activeCollider))
-        {
-            _visibleProbeColliders.Add(activeCollider);
-            activeCollider.gameObject.GetComponent<Renderer>().enabled = true;
-        }
-
-        GameObject otherColliderGO = otherCollider.gameObject;
-        if (!_visibleOtherColliders.ContainsKey(otherColliderGO))
-        {
-            _visibleOtherColliders.Add(otherColliderGO, otherColliderGO.GetComponent<Renderer>().material);
-            otherColliderGO.GetComponent<Renderer>().material = Materials.CollisionMaterial;
-        }
-    }
-
-    // Clear probe colliders by disabling the renderers and then clear the other colliders by swapping back their materials
-    private void ClearCollisionMesh()
-    {
-        if (_visibleProbeColliders.Count > 0 || _visibleOtherColliders.Count > 0)
-        {
-            foreach (Collider probeCollider in _visibleProbeColliders)
-                probeCollider.gameObject.GetComponent<Renderer>().enabled = false;
-            foreach (KeyValuePair<GameObject, Material> kvp in _visibleOtherColliders)
-                kvp.Key.GetComponent<Renderer>().material = kvp.Value;
-
-            _visibleProbeColliders.Clear();
-            _visibleOtherColliders.Clear();
-        }
     }
 
     #region Text

@@ -401,8 +401,8 @@ namespace TrajectoryPlanner
                 {
                     UpdateQuickSettings();
                 }
-                
-                probeManager.CheckCollisions(ColliderManager.InactiveColliderInstances);
+
+                ColliderManager.CheckForCollisions();
             }
             else
             {
@@ -943,8 +943,7 @@ namespace TrajectoryPlanner
         public void SetSetting_CollisionInfoVisibility(bool toggleCollisions)
         {
             PlayerPrefs.SetCollisions(toggleCollisions);
-            if (ProbeManager.ActiveProbeManager != null)
-                ProbeManager.ActiveProbeManager.CheckCollisions(ColliderManager.InactiveColliderInstances);
+            ColliderManager.CheckForCollisions();
         }
 
         public void SetSetting_InPlanePanelVisibility(bool state)
