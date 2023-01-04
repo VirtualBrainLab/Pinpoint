@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
 using TMPro;
-using TrajectoryPlanner.AutomaticManipulatorControl;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;

@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace TrajectoryPlanner.AutomaticManipulatorControl
+namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 {
     public class InsertionSelectionPanelHandler : MonoBehaviour
     {
