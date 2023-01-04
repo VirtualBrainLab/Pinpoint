@@ -432,7 +432,7 @@ namespace TrajectoryPlanner
             }
 
             // Remove the probe's insertion from the list of insertions (does nothing if not found)
-            ProbeManager.ActiveProbeManager.GetProbeController().Insertion.Targetable = false;
+            // ProbeManager.ActiveProbeManager.GetProbeController().Insertion.Targetable = false;
 
             // Remove Probe
             DestroyProbe(ProbeManager.ActiveProbeManager);

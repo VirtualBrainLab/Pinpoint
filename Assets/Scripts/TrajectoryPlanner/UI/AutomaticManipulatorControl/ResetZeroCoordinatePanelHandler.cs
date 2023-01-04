@@ -3,7 +3,7 @@ using EphysLink;
 using TMPro;
 using UnityEngine;
 
-namespace TrajectoryPlanner.AutomaticManipulatorControl
+namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 {
     public class ResetZeroCoordinatePanelHandler : MonoBehaviour
     {
