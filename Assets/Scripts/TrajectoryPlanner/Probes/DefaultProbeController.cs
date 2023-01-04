@@ -119,7 +119,7 @@ public class DefaultProbeController : ProbeController
     public bool MoveProbe_Keyboard()
     {
         // drag movement takes precedence
-        if (dragging)
+        if (dragging || Locked)
             return false;
 
         bool moved = false;
@@ -380,8 +380,7 @@ public class DefaultProbeController : ProbeController
             SetProbePosition();
 
             // Check collisions if we need to
-            if (PlayerPrefs.GetCollisions())
-                ProbeManager.CheckCollisions(ColliderManager.InactiveColliderInstances);
+            ColliderManager.CheckForCollisions();
 
             // Update all the UI panels
             ProbeManager.UpdateUI();
@@ -464,10 +463,8 @@ public class DefaultProbeController : ProbeController
     public void DragMovementClick()
     {
         // ignore mouse clicks if we're over a UI element
-        if (EventSystem.current.IsPointerOverGameObject())
-            return;
         // Cancel movement if being controlled by EphysLink
-        if (ProbeManager.IsEphysLinkControlled)
+        if (EventSystem.current.IsPointerOverGameObject() || ProbeManager.IsEphysLinkControlled || Locked)
             return;
 
         BrainCameraController.BlockBrainControl = true;
@@ -634,8 +631,7 @@ public class DefaultProbeController : ProbeController
 
             ProbeManager.SetAxisTransform(ProbeTipT);
 
-            if (PlayerPrefs.GetCollisions())
-                ProbeManager.CheckCollisions(ColliderManager.InactiveColliderInstances);
+            ColliderManager.CheckForCollisions();
 
             ProbeManager.UpdateUI();
 

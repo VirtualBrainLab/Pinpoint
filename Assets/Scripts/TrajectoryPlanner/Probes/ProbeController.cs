@@ -15,6 +15,8 @@ public abstract class ProbeController : MonoBehaviour
     public UnityEvent MovedThisFrameEvent;
     public UnityEvent FinishedMovingEvent;
 
+    public bool Locked;
+
     public abstract Transform ProbeTipT { get; }
 
     public abstract (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorldU();

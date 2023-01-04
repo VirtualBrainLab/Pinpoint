@@ -303,7 +303,9 @@ public class UnisaveAccountsManager : AccountsManager
     
     public void ChangeInsertionVisibility(string UUID, bool visible)
     {
-        Debug.Log(string.Format("(AccountsManager) Insertion {0} wants to become {1}", UUID, visible));
+#if UNITY_EDITOR
+        Debug.Log(string.Format("(Accounts) Insertion {0} wants to become {1}", UUID, visible));
+#endif
         ServerProbeInsertion insertion = _player.experiments[_UUID2Experiment[UUID]][UUID];
         UpdateCallbackEvent(GetProbeInsertionData(UUID), visible);
     }
@@ -311,7 +313,9 @@ public class UnisaveAccountsManager : AccountsManager
     public void ProbeDestroyInScene(string UUID)
     {
         // Find the UI object and disable the active state
-        Debug.Log($"{UUID} was destroyed, disabling UI element, if it exists");
+#if UNITY_EDITOR
+        Debug.Log($"(Accounts) {UUID} was destroyed, disabling UI element, if it exists");
+#endif
         foreach (ServerProbeInsertionUI serverProbeInsertionUI in _insertionPrefabParentT.GetComponentsInChildren<ServerProbeInsertionUI>())
             if (serverProbeInsertionUI.UUID.Equals(UUID))
             {
