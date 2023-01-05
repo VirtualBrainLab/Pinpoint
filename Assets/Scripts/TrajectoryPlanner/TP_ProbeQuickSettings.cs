@@ -43,16 +43,6 @@ namespace TrajectoryPlanner
             UpdateInteractable(true);
         }
 
-        /// <summary>
-        ///     Update UI components based on external updates
-        /// </summary>
-        private void FixedUpdate()
-        {
-            if (!_probeManager) return;
-            if (_probeManager.IsEphysLinkControlled == _automaticMovementControlPanelGameObject.activeSelf) return;
-            UpdateAutomaticControlPanel();
-        }
-
         #endregion
 
         #region Public Methods
@@ -77,7 +67,11 @@ namespace TrajectoryPlanner
                 _coordinatePanel.LinkProbe(probeManager);
 
                 // Handle picking up events
-                _probeManager.EphysLinkControlChangeEvent.AddListener(delegate { UpdateInteractable(); });
+                _probeManager.EphysLinkControlChangeEvent.AddListener(() =>
+                {
+                    UpdateInteractable();
+                    UpdateAutomaticControlPanel();
+                });
 
                 UpdateInteractable();
                 UpdateCoordinates();
