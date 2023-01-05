@@ -82,12 +82,12 @@ public class TP_InPlaneSlice : MonoBehaviour
     // *** INPLANE SLICE CODE *** //
     public void UpdateInPlaneVisibility()
     {
-        _inPlaneSliceUigo.SetActive(Settings.GetInplane());
+        _inPlaneSliceUigo.SetActive(Settings.ShowInPlaneSlice);
     }
 
     public void UpdateInPlaneSlice()
     {
-        if (!Settings.GetInplane()) return;
+        if (!Settings.ShowInPlaneSlice) return;
 
         ProbeManager activeProbeManager = _tpmanager.GetActiveProbeManager();
 
@@ -144,7 +144,7 @@ public class TP_InPlaneSlice : MonoBehaviour
                 _tpmanager.TargetSearchArea(annotation);
         }
 
-        if (_tpmanager.GetSetting_UseAcronyms())
+        if (Settings.UseAcronyms)
             _areaText.text = _modelControl.ID2Acronym(annotation);
         else
             _areaText.text = _modelControl.ID2AreaName(annotation);

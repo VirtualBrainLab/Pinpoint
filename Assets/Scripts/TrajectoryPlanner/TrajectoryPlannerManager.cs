@@ -127,7 +127,7 @@ namespace TrajectoryPlanner
         {
             // Startup CCF
             _modelControl.LateStart(true);
-            _modelControl.SetBeryl(GetSetting_UseBeryl());
+            _modelControl.SetBeryl(Settings.UseBeryl);
 
             // Set callback
             DelayedModelControlStart();
@@ -139,10 +139,6 @@ namespace TrajectoryPlanner
             CheckForSavedProbes(annotationDatasetLoadTask);
 
             // Pull settings from PlayerPrefs
-            SetSetting_UseAcronyms(Settings.GetAcronyms());
-            SetSetting_InPlanePanelVisibility(Settings.GetInplane());
-            SetSetting_UseIBLAngles(Settings.GetUseIBLAngles());
-            SetSetting_SurfaceDebugSphereVisibility(Settings.GetSurfaceCoord());
             SetSetting_RelCoord(Settings.GetRelCoord());
             ProbeManager.RightHandedManipulatorIDs = Settings.GetRightHandedManipulatorIds();
         }
@@ -201,7 +197,7 @@ namespace TrajectoryPlanner
 
                 _inPlaneSlice.UpdateInPlaneSlice();
 
-                if (Settings.GetSurfaceCoord())
+                if (Settings.ShowSurfaceCoordinate)
                 {
                     bool inBrain = ProbeManager.ActiveProbeManager.IsProbeInBrain();
                     SetSurfaceDebugActive(inBrain);
@@ -254,9 +250,10 @@ namespace TrajectoryPlanner
             {
                 var probeInsertion = new ProbeInsertion(savedProbe.apmldv, savedProbe.angles, 
                     coordinateSpaceOpts[savedProbe.coordinateSpaceName], coordinateTransformOpts[savedProbe.coordinateTransformName]);
-                AddNewProbe(savedProbe.type, probeInsertion,
+                ProbeManager newProbeManager = AddNewProbe(savedProbe.type, probeInsertion,
                     savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
                     savedProbe.dropToSurfaceWithDepth, savedProbe.uuid);
+                newProbeManager.SetColor(savedProbe.color);
             }
 
             UpdateQuickSettings();
@@ -717,7 +714,7 @@ namespace TrajectoryPlanner
 
         #endregion
 
-        private void MoveAllProbes()
+        public void MoveAllProbes()
         {
             foreach (ProbeManager probeController in ProbeManager.instances)
                 foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
@@ -797,21 +794,6 @@ namespace TrajectoryPlanner
             return Settings.GetDisplayUm();
         }
         
-        public void SetSetting_UseBeryl(bool state)
-        {
-            Settings.SetUseBeryl(state);
-            _modelControl.SetBeryl(state);
-
-            foreach (ProbeManager probeController in ProbeManager.instances)
-                foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
-                    puimanager.ProbeMoved();
-        }
-
-        public bool GetSetting_UseBeryl()
-        {
-            return Settings.GetUseBeryl();
-        }
-        
         public void SetSetting_ShowAllProbePanels(bool state)
         {
             Settings.SetShowAllProbePanels(state);
@@ -828,63 +810,6 @@ namespace TrajectoryPlanner
         public bool GetSetting_ShowAllProbePanels()
         {
             return Settings.GetShowAllProbePanels();
-        }
-
-        public void SetSetting_ShowRecRegionOnly(bool state)
-        {
-            Settings.SetRecordingRegionOnly(state);
-            MoveAllProbes();
-        }
-
-        public bool GetSetting_ShowRecRegionOnly()
-        {
-            return Settings.GetRecordingRegionOnly();
-        }
-
-        public void SetSetting_UseAcronyms(bool state)
-        {
-            Settings.SetAcronyms(state);
-            _searchControl.RefreshSearchWindow();
-            // move probes to update state
-            MoveAllProbes();
-        }
-
-        public bool GetSetting_UseAcronyms()
-        {
-            return Settings.GetAcronyms();
-        }
-
-        public void SetSetting_UseIBLAngles(bool state)
-        {
-            Settings.SetUseIBLAngles(state);
-            UpdateQuickSettings();
-        }
-
-        public bool GetSetting_UseIBLAngles()
-        {
-            return Settings.GetUseIBLAngles();
-        }
-
-
-        public void SetSetting_GetDepthFromBrain(bool state)
-        {
-            Settings.SetDepthFromBrain(state);
-            UpdateQuickSettings();
-        }
-        public bool GetSetting_GetDepthFromBrain()
-        {
-            return Settings.GetDepthFromBrain();
-        }
-
-        public void SetSetting_ConvertAPMLAxis2Probe(bool state)
-        {
-            Settings.SetAPML2ProbeAxis(state);
-            UpdateQuickSettings();
-        }
-
-        public bool GetSetting_ConvertAPMLAxis2Probe()
-        {
-            return Settings.GetAPML2ProbeAxis();
         }
 
         public void SetSetting_InVivoTransformState(int invivoOption)
@@ -911,18 +836,6 @@ namespace TrajectoryPlanner
             return Settings.GetStereotaxic() > 0;
         }
 
-        public void SetSetting_SurfaceDebugSphereVisibility(bool state)
-        {
-            Settings.SetSurfaceCoord(state);
-            SetSurfaceDebugActive(state);
-        }
-
-        public void SetSetting_InPlanePanelVisibility(bool state)
-        {
-            Settings.SetInplane(state);
-            _inPlaneSlice.UpdateInPlaneVisibility();
-        }
-
         #endregion
 
         #region Setting Helper Functions
@@ -930,8 +843,8 @@ namespace TrajectoryPlanner
 
         public void SetSurfaceDebugActive(bool active)
         {
-            if (Settings.GetSurfaceCoord() && ProbeManager.ActiveProbeManager != null)
-                _surfaceDebugGo.SetActive(active);
+            if (active && Settings.ShowSurfaceCoordinate && ProbeManager.ActiveProbeManager != null)
+                _surfaceDebugGo.SetActive(true);
             else
                 _surfaceDebugGo.SetActive(false);
         }
@@ -1011,6 +924,7 @@ namespace TrajectoryPlanner
                 int type, string manipulatorId,
                 string coordinateSpace, string coordinateTransform,
                 Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
+                Color color,
                 string uuid)[nonGhostProbeManagers.Count];
 
             for (int i =0; i< nonGhostProbeManagers.Count; i++)
@@ -1022,6 +936,7 @@ namespace TrajectoryPlanner
                     probe.ProbeType, probe.ManipulatorId,
                     probeInsertion.CoordinateSpace.Name, probeInsertion.CoordinateTransform.Name,
                     probe.ZeroCoordinateOffset, probe.BrainSurfaceOffset, probe.IsSetToDropToSurfaceWithDepth,
+                    probe.GetColor(),
                     probe.UUID);
             }
             Settings.SaveCurrentProbeData(probeCoordinates);

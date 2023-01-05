@@ -169,6 +169,12 @@ public class ProbeManager : MonoBehaviour
         return _probeRenderer.material.color;
     }
 
+    public void SetColor(Color color)
+    {
+        ProbeProperties.ReturnProbeColor(_probeRenderer.material.color);
+        _probeRenderer.material.color = color;
+    }
+
     public void DisableAllColliders()
     {
         foreach (var probeCollider in _probeColliders)
@@ -396,7 +402,7 @@ public class ProbeManager : MonoBehaviour
         string prefix = insertion.CoordinateTransform.Prefix;
 
         // If we are using the 
-        if (Settings.GetAPML2ProbeAxis())
+        if (Settings.ConvertAPML2Probe)
         {
             Debug.LogWarning("Not working");
             apStr = "not-implemented";
@@ -416,7 +422,7 @@ public class ProbeManager : MonoBehaviour
 
         Vector3 apmldvS = insertion.PositionSpaceU() + insertion.CoordinateSpace.RelativeOffset;
 
-        Vector3 angles = Settings.GetUseIBLAngles() ?
+        Vector3 angles = Settings.UseIBLAngles ?
             Utils.World2IBL(insertion.angles) :
             insertion.angles;
 

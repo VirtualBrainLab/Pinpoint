@@ -816,7 +816,7 @@ public class DefaultProbeController : ProbeController
 
     public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld(Transform tipTransform)
     {
-        if (Settings.GetRecordingRegionOnly())
+        if (Settings.RecordingRegionOnly)
         {
             // only rec region
             (float mmStartPos, float mmRecordingSize) = GetRecordingRegionHeight();

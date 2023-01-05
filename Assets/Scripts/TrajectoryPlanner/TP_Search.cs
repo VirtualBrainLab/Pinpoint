@@ -60,7 +60,7 @@ public class TP_Search : MonoBehaviour
         if (matchingAreas.Contains(997))
             matchingAreas.Remove(997);
 
-        if (!_tpmanager.GetSetting_UseAcronyms())
+        if (!Settings.UseAcronyms)
         {
             List<int> areasMatchingName = _modelControl.AreasMatchingName(searchString);
             matchingAreas = matchingAreas.Union(areasMatchingName).ToList();
@@ -89,7 +89,7 @@ public class TP_Search : MonoBehaviour
             if (i < matchingAreas.Count)
             {
                 CCFTreeNode areaNode = _modelControl.tree.findNode(matchingAreas[i]);
-                if (_tpmanager.GetSetting_UseAcronyms())
+                if (Settings.UseAcronyms)
                     areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.ShortName;
                 else
                     areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.Name;

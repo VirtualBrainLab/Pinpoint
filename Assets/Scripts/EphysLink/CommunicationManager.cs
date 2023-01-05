@@ -62,6 +62,7 @@ namespace EphysLink
             {
                 Timeout = new TimeSpan(0, 0, 2)
             };
+            Debug.Log((ip, port));
             _connectionManager = new SocketManager(new Uri("http://" + ip + ":" + port), options);
             _socket = _connectionManager.Socket;
 

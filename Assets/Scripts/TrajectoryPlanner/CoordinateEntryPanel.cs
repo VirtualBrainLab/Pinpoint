@@ -84,7 +84,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         _depthField.text = float.IsNaN(depth) ? "nan" : Round2Str(depth * mult);
 
         // if in IBL angles, rotate the angles appropriately
-        if (Settings.GetUseIBLAngles())
+        if (Settings.UseIBLAngles)
             angles = Utils.World2IBL(angles);
 
         if (!_probeQuickSettings.IsFocused())
@@ -132,7 +132,7 @@ public class CoordinateEntryPanel : MonoBehaviour
                 (_thetaField.text.Length > 0) ? float.Parse(_thetaField.text) : 0,
                 (_spinField.text.Length > 0) ? float.Parse(_spinField.text) : 0);
 
-            if (Settings.GetUseIBLAngles())
+            if (Settings.UseIBLAngles)
                 angles = Utils.IBL2World(angles);
 
             _linkedProbe.GetProbeController().SetProbeAngles(angles);
