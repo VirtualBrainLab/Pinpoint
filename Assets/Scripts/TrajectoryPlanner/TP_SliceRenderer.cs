@@ -45,7 +45,7 @@ public class TP_SliceRenderer : MonoBehaviour
         await _modelControl.GetDefaultLoadedTask();
 
         Debug.Log("(SliceRenderer) Loading 3D texture");
-        ToggleSliceVisibility(PlayerPrefs.GetSlice3D());
+        ToggleSliceVisibility(Settings.GetSlice3D());
 
         if (_dropdownMenu.value == 1)
             SetActiveTextureAnnotation();
@@ -127,7 +127,7 @@ public class TP_SliceRenderer : MonoBehaviour
 
     private void Update()
     {
-        if (PlayerPrefs.GetSlice3D()>0 && loaded)
+        if (Settings.GetSlice3D()>0 && loaded)
         {
             // Check if the camera moved such that we have to flip the slice quads
             UpdateCameraPosition();
@@ -142,7 +142,7 @@ public class TP_SliceRenderer : MonoBehaviour
     /// </summary>
     public void UpdateSlicePosition()
     {
-        if (PlayerPrefs.GetSlice3D() > 0)
+        if (Settings.GetSlice3D() > 0)
         {
             ProbeManager activeProbeManager = _tpmanager.GetActiveProbeManager();
             if (activeProbeManager == null) return;
@@ -225,7 +225,7 @@ public class TP_SliceRenderer : MonoBehaviour
 
     public void ToggleSliceVisibility(int sliceType)
     {
-        PlayerPrefs.SetSlice3D(sliceType);
+        Settings.SetSlice3D(sliceType);
 
         if (sliceType==0)
         {

@@ -120,7 +120,7 @@ public class ProbeUIManager : MonoBehaviour
         List<int> tickIdxs = new List<int>();
         List<int> tickHeights = new List<int>(); // this will be calculated in the second step
 
-        bool recRegionOnly = PlayerPrefs.GetRecordingRegionOnly();
+        bool recRegionOnly = Settings.GetRecordingRegionOnly();
 
         if (recRegionOnly)
         {
@@ -192,7 +192,7 @@ public class ProbeUIManager : MonoBehaviour
         }
 
         probePanel.UpdateTicks(tickHeights, tickIdxs);
-        probePanel.UpdateText(centerHeights, names, PlayerPrefs.GetAcronyms() ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
+        probePanel.UpdateText(centerHeights, names, Settings.GetAcronyms() ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
     }
 
     /// <summary>
@@ -229,7 +229,7 @@ public class ProbeUIManager : MonoBehaviour
             {
                 // We have arrived at a new area, get the name and height
                 areaPositionPixels.Add(i);
-                if (PlayerPrefs.GetAcronyms())
+                if (Settings.GetAcronyms())
                     areaNames.Add(modelControl.ID2Acronym(ID));
                 else
                     areaNames.Add(modelControl.ID2AreaName(ID));

@@ -37,7 +37,7 @@ namespace EphysLink
         private void Start()
         {
             // Connect to last known server
-            ConnectToServer(PlayerPrefs.GetServerIp(), PlayerPrefs.GetServerPort());
+            ConnectToServer(Settings.GetServerIp(), Settings.GetServerPort());
         }
 
         #endregion
@@ -69,7 +69,7 @@ namespace EphysLink
             {
                 Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
                 IsConnected = true;
-                PlayerPrefs.SaveEphysLinkConnectionData(ip, port);
+                Settings.SaveEphysLinkConnectionData(ip, port);
                 onConnected?.Invoke();
             });
             _socket.Once("error", () =>

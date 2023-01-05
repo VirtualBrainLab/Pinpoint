@@ -290,7 +290,7 @@ public class UnisaveAccountsManager : AccountsManager
             bool active = ProbeManager.instances.Any(x => experimentData.Keys.Contains(x.UUID));
 
             insertionUI.SetInsertionData(this, insertion.UUID, active);
-            if (PlayerPrefs.GetDisplayUm())
+            if (Settings.GetDisplayUm())
                 insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
                     Mathf.RoundToInt(insertion.ap*1000f), Mathf.RoundToInt(insertion.ml*1000f), Mathf.RoundToInt(insertion.dv*1000f),
                     insertion.phi, insertion.theta, insertion.spin));

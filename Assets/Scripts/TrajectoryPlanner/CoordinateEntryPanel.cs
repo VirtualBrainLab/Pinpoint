@@ -76,7 +76,7 @@ public class CoordinateEntryPanel : MonoBehaviour
             apmldv = _linkedProbe.GetProbeController().Insertion.apmldv;
         }
 
-        float mult = PlayerPrefs.GetDisplayUm() ? 1000f : 1f;
+        float mult = Settings.GetDisplayUm() ? 1000f : 1f;
 
         _apField.text = Round2Str(apmldv.x * mult);
         _mlField.text = Round2Str(apmldv.y * mult);
@@ -84,7 +84,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         _depthField.text = float.IsNaN(depth) ? "nan" : Round2Str(depth * mult);
 
         // if in IBL angles, rotate the angles appropriately
-        if (PlayerPrefs.GetUseIBLAngles())
+        if (Settings.GetUseIBLAngles())
             angles = Utils.World2IBL(angles);
 
         if (!_probeQuickSettings.IsFocused())
@@ -100,7 +100,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         if (float.IsNaN(value))
             return "nan";
 
-        return PlayerPrefs.GetDisplayUm() ? ((int)value).ToString() : value.ToString("F3");
+        return Settings.GetDisplayUm() ? ((int)value).ToString() : value.ToString("F3");
     }
 
     private void ApplyPosition()
@@ -132,7 +132,7 @@ public class CoordinateEntryPanel : MonoBehaviour
                 (_thetaField.text.Length > 0) ? float.Parse(_thetaField.text) : 0,
                 (_spinField.text.Length > 0) ? float.Parse(_spinField.text) : 0);
 
-            if (PlayerPrefs.GetUseIBLAngles())
+            if (Settings.GetUseIBLAngles())
                 angles = Utils.IBL2World(angles);
 
             _linkedProbe.GetProbeController().SetProbeAngles(angles);

@@ -396,7 +396,7 @@ public class ProbeManager : MonoBehaviour
         string prefix = insertion.CoordinateTransform.Prefix;
 
         // If we are using the 
-        if (PlayerPrefs.GetAPML2ProbeAxis())
+        if (Settings.GetAPML2ProbeAxis())
         {
             Debug.LogWarning("Not working");
             apStr = "not-implemented";
@@ -412,11 +412,11 @@ public class ProbeManager : MonoBehaviour
             depthStr = prefix + "Depth";
         }
 
-        float mult = PlayerPrefs.GetDisplayUm() ? 1000f : 1f;
+        float mult = Settings.GetDisplayUm() ? 1000f : 1f;
 
         Vector3 apmldvS = insertion.PositionSpaceU() + insertion.CoordinateSpace.RelativeOffset;
 
-        Vector3 angles = PlayerPrefs.GetUseIBLAngles() ?
+        Vector3 angles = Settings.GetUseIBLAngles() ?
             Utils.World2IBL(insertion.angles) :
             insertion.angles;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -18,10 +19,38 @@ using UnityEngine.UI;
 /// 
 /// Note that PlayerPrefs data is not available in Awake() calls in other components!!
 /// </summary>
-public class PlayerPrefs : MonoBehaviour
+public class Settings : MonoBehaviour
 {
+    public static Settings Instance;
+
+    private static bool s_collisions;
+    private const string COLLISIONS_STR = "collisions";
+    private const bool COLLISIONS_DEFAULT = true;
+    [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _collisionsToggle;
+    public UnityEvent DetectCollisionsChangedEvent;
+
+    public static bool DetectCollisions
+    {
+        get { return s_collisions; }
+        set
+        {
+            s_collisions = value;
+            PlayerPrefs.SetInt(COLLISIONS_STR, s_collisions ? 1 : 0);
+            Instance.DetectCollisionsChangedEvent.Invoke();
+        }
+    }
+
+    private void AwakeNew()
+    {
+        if (Instance != null)
+            Debug.LogError("Make sure there is only one Settings object in the scene!");
+        Instance = this;
+
+        s_collisions = LoadBoolPref(COLLISIONS_STR, COLLISIONS_DEFAULT);
+        _collisionsToggle.isOn = s_collisions;
+    }
+
     // Settings
-    private static bool _collisions;
     private static bool _recordingRegionOnly;
     private static bool _useAcronyms;
     private static bool _depthFromBrain;
@@ -42,7 +71,6 @@ public class PlayerPrefs : MonoBehaviour
     private static bool _ghostInactiveProbes;
     private static bool _ghostInactiveAreas;
 
-    [FormerlySerializedAs("collisionsToggle")] [SerializeField] private Toggle _collisionsToggle;
     [FormerlySerializedAs("recordingRegionToggle")] [SerializeField] private Toggle _recordingRegionToggle;
     [FormerlySerializedAs("acronymToggle")] [SerializeField] private Toggle _acronymToggle;
     [FormerlySerializedAs("depthToggle")] [SerializeField] private Toggle _depthToggle;
@@ -67,8 +95,6 @@ public class PlayerPrefs : MonoBehaviour
     /// </summary>
     private void Awake()
     {
-        _collisions = LoadBoolPref("collisions", true);
-        _collisionsToggle.isOn = _collisions;
 
         _recordingRegionOnly = LoadBoolPref("recording", true);
         _recordingRegionToggle.isOn = _recordingRegionOnly;
@@ -302,17 +328,6 @@ public class PlayerPrefs : MonoBehaviour
     public static bool GetRecordingRegionOnly()
     {
         return _recordingRegionOnly;
-    }
-
-    public static void SetCollisions(bool toggleCollisions)
-    {
-        _collisions = toggleCollisions;
-        UnityEngine.PlayerPrefs.SetInt("collisions", _collisions ? 1 : 0);
-    }
-
-    public static bool GetCollisions()
-    {
-        return _collisions;
     }
 
     /// <summary>

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoordinateSpaces;
 using CoordinateTransforms;
-using Settings;
+using UITabs;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -60,9 +60,6 @@ namespace TrajectoryPlanner
 
         // Debug graphics
         [FormerlySerializedAs("surfaceDebugGO")] [SerializeField] private GameObject _surfaceDebugGo;
-
-        // Text objects that need to stay visible when the background changes
-        [FormerlySerializedAs("whiteUIText")] [SerializeField] private List<TMP_Text> _whiteUIText;
 
         // Craniotomy
         [SerializeField] private CraniotomyPanel _craniotomyPanel;
@@ -142,12 +139,12 @@ namespace TrajectoryPlanner
             CheckForSavedProbes(annotationDatasetLoadTask);
 
             // Pull settings from PlayerPrefs
-            SetSetting_UseAcronyms(PlayerPrefs.GetAcronyms());
-            SetSetting_InPlanePanelVisibility(PlayerPrefs.GetInplane());
-            SetSetting_UseIBLAngles(PlayerPrefs.GetUseIBLAngles());
-            SetSetting_SurfaceDebugSphereVisibility(PlayerPrefs.GetSurfaceCoord());
-            SetSetting_RelCoord(PlayerPrefs.GetRelCoord());
-            ProbeManager.RightHandedManipulatorIDs = PlayerPrefs.GetRightHandedManipulatorIds();
+            SetSetting_UseAcronyms(Settings.GetAcronyms());
+            SetSetting_InPlanePanelVisibility(Settings.GetInplane());
+            SetSetting_UseIBLAngles(Settings.GetUseIBLAngles());
+            SetSetting_SurfaceDebugSphereVisibility(Settings.GetSurfaceCoord());
+            SetSetting_RelCoord(Settings.GetRelCoord());
+            ProbeManager.RightHandedManipulatorIDs = Settings.GetRightHandedManipulatorIds();
         }
 
         void Update()
@@ -204,7 +201,7 @@ namespace TrajectoryPlanner
 
                 _inPlaneSlice.UpdateInPlaneSlice();
 
-                if (PlayerPrefs.GetSurfaceCoord())
+                if (Settings.GetSurfaceCoord())
                 {
                     bool inBrain = ProbeManager.ActiveProbeManager.IsProbeInBrain();
                     SetSurfaceDebugActive(inBrain);
@@ -239,7 +236,7 @@ namespace TrajectoryPlanner
             {
                 if (UnityEngine.PlayerPrefs.GetInt("probecount", 0) > 0)
                 {
-                    var questionString = PlayerPrefs.IsEphysLinkDataExpired()
+                    var questionString = Settings.IsEphysLinkDataExpired()
                         ? "Load previously saved probes?"
                         : "Restore previous session?";
 
@@ -251,7 +248,7 @@ namespace TrajectoryPlanner
 
         private void LoadSavedProbes()
         {
-            var savedProbes = PlayerPrefs.LoadSavedProbeData();
+            var savedProbes = Settings.LoadSavedProbeData();
 
             foreach (var savedProbe in savedProbes)
             {
@@ -281,7 +278,7 @@ namespace TrajectoryPlanner
             }
 
             // Set the warp setting
-            SetSetting_InVivoTransformState(PlayerPrefs.GetStereotaxic());
+            SetSetting_InVivoTransformState(Settings.GetStereotaxic());
         }
 
         /// <summary>
@@ -343,11 +340,6 @@ namespace TrajectoryPlanner
         public List<Collider> GetAllNonActiveColliders()
         {
             return allNonActiveColliders;
-        }
-
-        public bool GetCollisions()
-        {
-            return PlayerPrefs.GetCollisions();
         }
 
         // DESTROY AND REPLACE PROBES
@@ -514,7 +506,7 @@ namespace TrajectoryPlanner
             probeManager.GetProbeController().SetProbePosition(insertion);
 
             // Repopulate Ephys Link information
-            if (!PlayerPrefs.IsEphysLinkDataExpired())
+            if (!Settings.IsEphysLinkDataExpired())
             {
                 probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
                 probeManager.BrainSurfaceOffset = brainSurfaceOffset;
@@ -736,26 +728,11 @@ namespace TrajectoryPlanner
         /// SETTINGS
         /// 
 
-        public void SetBackgroundWhite(bool state)
-        {
-            if (state)
-            {
-                foreach (TMP_Text textC in _whiteUIText)
-                    textC.color = Color.black;
-                Camera.main.backgroundColor = Color.white;
-            }
-            else
-            {
-                foreach (TMP_Text textC in _whiteUIText)
-                    textC.color = Color.white;
-                Camera.main.backgroundColor = Color.black;
-            }
-        }
 
         #region Player Preferences
         public void SetSetting_GhostAreas(bool state)
         {
-            PlayerPrefs.SetGhostInactiveAreas(state);
+            Settings.SetGhostInactiveAreas(state);
 
             if (state)
             {
@@ -773,12 +750,12 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_GhostAreas()
         {
-            return PlayerPrefs.GetGhostInactiveAreas();
+            return Settings.GetGhostInactiveAreas();
         }
 
         public void SetSetting_GhostInactive(bool state)
         {
-            PlayerPrefs.SetGhostInactiveProbes(state);
+            Settings.SetGhostInactiveProbes(state);
             foreach (ProbeManager probeManager in ProbeManager.instances)
             {
                 if (probeManager == ProbeManager.ActiveProbeManager)
@@ -793,36 +770,36 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_GhostInactive()
         {
-            return PlayerPrefs.GetGhostInactiveProbes();
+            return Settings.GetGhostInactiveProbes();
         }
 
         public void SetSetting_RelCoord(Vector3 coord)
         {
-            PlayerPrefs.SetRelCoord(coord);
+            Settings.SetRelCoord(coord);
             CoordinateSpaceManager.ActiveCoordinateSpace.RelativeOffset = coord;
             _relCoordPanel.SetRelativeCoordinateText(coord);
         }
 
         public Vector3 GetSetting_RelCoord()
         {
-            return PlayerPrefs.GetRelCoord();
+            return Settings.GetRelCoord();
         }
         
         public void SetSetting_DisplayUM(bool state)
         {
-            PlayerPrefs.SetDisplayUm(state);
+            Settings.SetDisplayUm(state);
 
             UpdateQuickSettings();
         }
 
         public bool GetSetting_DisplayUM()
         {
-            return PlayerPrefs.GetDisplayUm();
+            return Settings.GetDisplayUm();
         }
         
         public void SetSetting_UseBeryl(bool state)
         {
-            PlayerPrefs.SetUseBeryl(state);
+            Settings.SetUseBeryl(state);
             _modelControl.SetBeryl(state);
 
             foreach (ProbeManager probeController in ProbeManager.instances)
@@ -832,12 +809,12 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_UseBeryl()
         {
-            return PlayerPrefs.GetUseBeryl();
+            return Settings.GetUseBeryl();
         }
         
         public void SetSetting_ShowAllProbePanels(bool state)
         {
-            PlayerPrefs.SetShowAllProbePanels(state);
+            Settings.SetShowAllProbePanels(state);
             if (state)
                 foreach (ProbeManager probeManager in ProbeManager.instances)
                     probeManager.SetUIVisibility(true);
@@ -850,23 +827,23 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_ShowAllProbePanels()
         {
-            return PlayerPrefs.GetShowAllProbePanels();
+            return Settings.GetShowAllProbePanels();
         }
 
         public void SetSetting_ShowRecRegionOnly(bool state)
         {
-            PlayerPrefs.SetRecordingRegionOnly(state);
+            Settings.SetRecordingRegionOnly(state);
             MoveAllProbes();
         }
 
         public bool GetSetting_ShowRecRegionOnly()
         {
-            return PlayerPrefs.GetRecordingRegionOnly();
+            return Settings.GetRecordingRegionOnly();
         }
 
         public void SetSetting_UseAcronyms(bool state)
         {
-            PlayerPrefs.SetAcronyms(state);
+            Settings.SetAcronyms(state);
             _searchControl.RefreshSearchWindow();
             // move probes to update state
             MoveAllProbes();
@@ -874,45 +851,45 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_UseAcronyms()
         {
-            return PlayerPrefs.GetAcronyms();
+            return Settings.GetAcronyms();
         }
 
         public void SetSetting_UseIBLAngles(bool state)
         {
-            PlayerPrefs.SetUseIBLAngles(state);
+            Settings.SetUseIBLAngles(state);
             UpdateQuickSettings();
         }
 
         public bool GetSetting_UseIBLAngles()
         {
-            return PlayerPrefs.GetUseIBLAngles();
+            return Settings.GetUseIBLAngles();
         }
 
 
         public void SetSetting_GetDepthFromBrain(bool state)
         {
-            PlayerPrefs.SetDepthFromBrain(state);
+            Settings.SetDepthFromBrain(state);
             UpdateQuickSettings();
         }
         public bool GetSetting_GetDepthFromBrain()
         {
-            return PlayerPrefs.GetDepthFromBrain();
+            return Settings.GetDepthFromBrain();
         }
 
         public void SetSetting_ConvertAPMLAxis2Probe(bool state)
         {
-            PlayerPrefs.SetAPML2ProbeAxis(state);
+            Settings.SetAPML2ProbeAxis(state);
             UpdateQuickSettings();
         }
 
         public bool GetSetting_ConvertAPMLAxis2Probe()
         {
-            return PlayerPrefs.GetAPML2ProbeAxis();
+            return Settings.GetAPML2ProbeAxis();
         }
 
         public void SetSetting_InVivoTransformState(int invivoOption)
         {
-            PlayerPrefs.SetStereotaxic(invivoOption);
+            Settings.SetStereotaxic(invivoOption);
 
             Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
             CoordinateSpaceManager.ActiveCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
@@ -931,24 +908,18 @@ namespace TrajectoryPlanner
 
         public bool GetSetting_InVivoTransformActive()
         {
-            return PlayerPrefs.GetStereotaxic() > 0;
+            return Settings.GetStereotaxic() > 0;
         }
 
         public void SetSetting_SurfaceDebugSphereVisibility(bool state)
         {
-            PlayerPrefs.SetSurfaceCoord(state);
+            Settings.SetSurfaceCoord(state);
             SetSurfaceDebugActive(state);
-        }
-
-        public void SetSetting_CollisionInfoVisibility(bool toggleCollisions)
-        {
-            PlayerPrefs.SetCollisions(toggleCollisions);
-            ColliderManager.CheckForCollisions();
         }
 
         public void SetSetting_InPlanePanelVisibility(bool state)
         {
-            PlayerPrefs.SetInplane(state);
+            Settings.SetInplane(state);
             _inPlaneSlice.UpdateInPlaneVisibility();
         }
 
@@ -959,7 +930,7 @@ namespace TrajectoryPlanner
 
         public void SetSurfaceDebugActive(bool active)
         {
-            if (PlayerPrefs.GetSurfaceCoord() && ProbeManager.ActiveProbeManager != null)
+            if (Settings.GetSurfaceCoord() && ProbeManager.ActiveProbeManager != null)
                 _surfaceDebugGo.SetActive(active);
             else
                 _surfaceDebugGo.SetActive(false);
@@ -1053,7 +1024,7 @@ namespace TrajectoryPlanner
                     probe.ZeroCoordinateOffset, probe.BrainSurfaceOffset, probe.IsSetToDropToSurfaceWithDepth,
                     probe.UUID);
             }
-            PlayerPrefs.SaveCurrentProbeData(probeCoordinates);
+            Settings.SaveCurrentProbeData(probeCoordinates);
         }
 
         #region Mesh centers

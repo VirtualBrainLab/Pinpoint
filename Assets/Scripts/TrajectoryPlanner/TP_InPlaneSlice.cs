@@ -82,12 +82,12 @@ public class TP_InPlaneSlice : MonoBehaviour
     // *** INPLANE SLICE CODE *** //
     public void UpdateInPlaneVisibility()
     {
-        _inPlaneSliceUigo.SetActive(PlayerPrefs.GetInplane());
+        _inPlaneSliceUigo.SetActive(Settings.GetInplane());
     }
 
     public void UpdateInPlaneSlice()
     {
-        if (!PlayerPrefs.GetInplane()) return;
+        if (!Settings.GetInplane()) return;
 
         ProbeManager activeProbeManager = _tpmanager.GetActiveProbeManager();
 

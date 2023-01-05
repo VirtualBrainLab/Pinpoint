@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
-using Settings;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
