@@ -624,14 +624,11 @@ namespace TrajectoryPlanner
 
                 // Update transparency for probe (if not ghost)
                 if (probeManager.IsGhost) continue;
-                if (isActiveProbe)
-                {
+
+                if (!isActiveProbe && Settings.GhostInactiveProbes)
+                    probeManager.SetMaterialsTransparent();
+                else
                     probeManager.SetMaterialsDefault();
-                    continue;
-                }
-
-                if (GetSetting_GhostInactive()) probeManager.SetMaterialsTransparent();
-
             }
 
             // Change the height of the probe panels, if needed
@@ -727,11 +724,10 @@ namespace TrajectoryPlanner
 
 
         #region Player Preferences
-        public void SetSetting_GhostAreas(bool state)
-        {
-            Settings.SetGhostInactiveAreas(state);
 
-            if (state)
+        public void SetGhostAreaVisibility()
+        {
+            if (Settings.GhostInactiveAreas)
             {
                 List<CCFTreeNode> activeAreas = _searchControl.activeBrainAreas;
                 foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
@@ -745,14 +741,8 @@ namespace TrajectoryPlanner
             }
         }
 
-        public bool GetSetting_GhostAreas()
+        public void SetGhostProbeVisibility()
         {
-            return Settings.GetGhostInactiveAreas();
-        }
-
-        public void SetSetting_GhostInactive(bool state)
-        {
-            Settings.SetGhostInactiveProbes(state);
             foreach (ProbeManager probeManager in ProbeManager.instances)
             {
                 if (probeManager == ProbeManager.ActiveProbeManager)
@@ -761,13 +751,11 @@ namespace TrajectoryPlanner
                     continue;
                 }
 
-                if (state) probeManager.SetMaterialsTransparent();
+                if (Settings.GhostInactiveProbes)
+                    probeManager.SetMaterialsTransparent();
+                else
+                    probeManager.SetMaterialsDefault();
             }
-        }
-
-        public bool GetSetting_GhostInactive()
-        {
-            return Settings.GetGhostInactiveProbes();
         }
 
         public void SetSetting_RelCoord(Vector3 coord)

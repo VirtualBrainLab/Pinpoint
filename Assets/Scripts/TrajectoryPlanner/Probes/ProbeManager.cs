@@ -210,6 +210,15 @@ public class ProbeManager : MonoBehaviour
         UUID = Guid.NewGuid().ToString();
 
         defaultMaterials = new();
+        // Request for ID and color if this is a normal probe
+        if (IsOriginal)
+        {
+            // Record default materials
+            foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
+            {
+                defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
+            }
+        }
 
         _probeRenderer.material.color = ProbeProperties.GetNextProbeColor();
 
@@ -235,15 +244,6 @@ public class ProbeManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"(ProbeManager) New probe created with UUID: {UUID}");
 #endif
-        // Request for ID and color if this is a normal probe
-        if (IsOriginal)
-        {            
-            // Record default materials
-            foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
-            {
-                defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
-            }
-        }
     }
 
     /// <summary>
@@ -855,6 +855,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsTransparent()
     {
+        Debug.Log($"Setting materials for {name} to transparent");
         var currentColorTint = new Color(GetColor().r, GetColor().g, GetColor().b, .2f);
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
@@ -870,6 +871,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
+        Debug.Log($"Setting materials for {name} to default");
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
             if (defaultMaterials.ContainsKey(childRenderer.gameObject))
                 childRenderer.material = defaultMaterials[childRenderer.gameObject];

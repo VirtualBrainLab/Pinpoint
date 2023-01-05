@@ -193,7 +193,41 @@ public class Settings : MonoBehaviour
         }
     }
 
-    private static bool _ghostInactiveProbes;
+    private static bool s_ghostInactiveProbes;
+    private const string GHOSTINACTIVEPROBES_STR = "ghostinactive";
+    private const bool GHOSTINACTIVEPROBES_DEFAULT = true;
+    [FormerlySerializedAs("ghostInactiveProbesToggle")][SerializeField] private Toggle _ghostInactiveProbesToggle;
+    public UnityEvent GhostInactiveProbesChangedEvent;
+
+    public static bool GhostInactiveProbes
+    {
+        get { return s_ghostInactiveProbes; }
+        set
+        {
+            s_ghostInactiveProbes = value;
+            PlayerPrefs.SetInt(GHOSTINACTIVEPROBES_STR, s_ghostInactiveProbes ? 1 : 0);
+            Instance.GhostInactiveProbesChangedEvent.Invoke();
+        }
+    }
+
+
+    private static bool s_ghostInactiveAreas;
+    private const string GHOSTINACTIVEAREAS_STR = "ghostinactive_areas";
+    private const bool GHOSTINACTIVEAREAS_DEFAULT = false;
+    [FormerlySerializedAs("ghostInactiveAreasToggle")][SerializeField] private Toggle _ghostInactiveAreasToggle;
+    public UnityEvent GhostInactiveAreasChangedEvent;
+
+    public static bool GhostInactiveAreas
+    {
+        get { return s_ghostInactiveAreas; }
+        set
+        {
+            s_ghostInactiveAreas = value;
+            PlayerPrefs.SetInt(GHOSTINACTIVEAREAS_STR, s_ghostInactiveAreas ? 1 : 0);
+            Instance.GhostInactiveAreasChangedEvent.Invoke();
+        }
+    }
+
 
     #endregion
 
@@ -252,7 +286,6 @@ public class Settings : MonoBehaviour
     private static string _rightHandedManipulatorIds;
     private static bool _displayUM;
     private static Vector3 _relCoord;
-    private static bool _ghostInactiveAreas;
 
     private void Awake()
     {
@@ -291,14 +324,18 @@ public class Settings : MonoBehaviour
 
         s_useBeryl = LoadBoolPref(USEBERYL_STR, USEBERYL_DEFAULT);
         _useBerylToggle.SetIsOnWithoutNotify(s_useBeryl);
+
+        s_ghostInactiveProbes = LoadBoolPref(GHOSTINACTIVEPROBES_STR, GHOSTINACTIVEPROBES_DEFAULT);
+        _ghostInactiveProbesToggle.SetIsOnWithoutNotify(s_ghostInactiveProbes);
+
+        s_ghostInactiveAreas = LoadBoolPref(GHOSTINACTIVEAREAS_STR, GHOSTINACTIVEAREAS_DEFAULT);
+        _ghostInactiveAreasToggle.SetIsOnWithoutNotify(s_ghostInactiveAreas);
     }
 
     [FormerlySerializedAs("invivoDropdown")] [SerializeField] private TMP_Dropdown _invivoDropdown;
     [FormerlySerializedAs("axisControlToggle")] [SerializeField] private Toggle _axisControlToggle;
     [FormerlySerializedAs("showAllProbePanelsToggle")] [SerializeField] private Toggle _showAllProbePanelsToggle;
     [FormerlySerializedAs("displayUmToggle")] [SerializeField] private Toggle _displayUmToggle;
-    [FormerlySerializedAs("ghostInactiveProbesToggle")] [SerializeField] private Toggle _ghostInactiveProbesToggle;
-    [FormerlySerializedAs("ghostInactiveAreasToggle")] [SerializeField] private Toggle _ghostInactiveAreasToggle;
 
 
     /// <summary>
@@ -334,36 +371,10 @@ public class Settings : MonoBehaviour
 
     //    _relCoord = LoadVector3Pref("rel_coord", new Vector3(5.4f, 5.7f, 0.332f));
 
-    //    _ghostInactiveProbes = LoadBoolPref("ghost_inactive", false);
-    //    _ghostInactiveProbesToggle.isOn = _ghostInactiveProbes;
 
-    //    _ghostInactiveAreas = LoadBoolPref("ghost_areas", false);
-    //    _ghostInactiveAreasToggle.isOn = _ghostInactiveAreas;
     //}
 
     #region Getters/Setters
-
-    public static void SetGhostInactiveAreas(bool ghostInactive)
-    {
-        _ghostInactiveAreas = ghostInactive;
-        PlayerPrefs.SetInt("ghost_areas", _ghostInactiveAreas ? 1 : 0);
-    }
-
-    public static bool GetGhostInactiveAreas()
-    {
-        return _ghostInactiveAreas;
-    }
-
-    public static void SetGhostInactiveProbes(bool ghostInactive)
-    {
-        _ghostInactiveProbes = ghostInactive;
-        PlayerPrefs.SetInt("ghost_inactive", _ghostInactiveProbes ? 1 : 0);
-    }
-
-    public static bool GetGhostInactiveProbes()
-    {
-        return _ghostInactiveProbes;
-    }
 
     public static void SetRelCoord(Vector3 coord)
     {
