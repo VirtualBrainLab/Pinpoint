@@ -1162,6 +1162,10 @@ PrefabInstance:
       value: Accounts
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: _emailLoginForm
+      value: 
+      objectReference: {fileID: 1556897671}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: registerPanelGO
       value: 
       objectReference: {fileID: 76833136}
@@ -1386,6 +1390,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ef8f26d31ab1d734bbc23784541694bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1556897671 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7532817799878068805, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0526e6704a227043a78c93fa5a9722e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1593103045 stripped
@@ -3868,7 +3883,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ShowAllProbePanelsChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: SurfaceCoordChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -3909,7 +3924,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ShowAllProbePanelsChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 2108153956}
+      objectReference: {fileID: 2108153954}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: DetectCollisionsChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -3976,7 +3991,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ShowAllProbePanelsChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: set_ShowAllProbePanels
+      value: SetShowAllProbePanels
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: GhostInactiveProbesChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -4056,7 +4071,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ShowAllProbePanelsChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Settings, trajectoryplanner.core.utilities
+      value: TrajectoryPlanner.TrajectoryPlannerManager, trajectoryplanner.core
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: GhostInactiveProbesChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
