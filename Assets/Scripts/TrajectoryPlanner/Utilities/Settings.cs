@@ -96,6 +96,23 @@ public class Settings : MonoBehaviour
         }
     }
 
+    private static bool s_axisControl;
+    private const string AXISCONTROL_STR = "axiscontrol";
+    private const bool AXISCONTROL_DEFAULT = true;
+    [FormerlySerializedAs("axisControlToggle")][SerializeField] private Toggle _axisControlToggle;
+    public UnityEvent AxisControlChangedEvent;
+
+    public static bool AxisControl
+    {
+        get { return s_axisControl; }
+        set
+        {
+            s_axisControl = value;
+            PlayerPrefs.SetInt(AXISCONTROL_STR, s_axisControl ? 1 : 0);
+            Instance.AxisControlChangedEvent.Invoke();
+        }
+    }
+
     #endregion
 
     #region Area settings
@@ -114,24 +131,6 @@ public class Settings : MonoBehaviour
             s_useAcronyms = value;
             PlayerPrefs.SetInt(USEACRONYMS_STR, s_useAcronyms ? 1 : 0);
             Instance.UseAcronymsChangedEvent.Invoke();
-        }
-    }
-
-    // Display the 3D area slice
-    private static int s_slice3d;
-    private const string SHOW3DSLICE_STR = "slice3d";
-    private const int SHOW3DSLICE_DEFAULT = 0;
-    [FormerlySerializedAs("slice3dDropdown")][SerializeField] private TMP_Dropdown _slice3dDropdown;
-    public UnityEvent<int> Slice3DChangedEvent;
-
-    public static int Slice3DDropdownOption
-    {
-        get { return s_slice3d; }
-        set
-        {
-            s_slice3d = value;
-            PlayerPrefs.SetInt(SHOW3DSLICE_STR, s_slice3d);
-            Instance.Slice3DChangedEvent.Invoke(s_slice3d);
         }
     }
 
@@ -229,6 +228,99 @@ public class Settings : MonoBehaviour
         }
     }
 
+    private static bool s_displayUM;
+    private const string DISPLAYUM_STR = "displayum";
+    private const bool DISPLAYUM_DEFAULT = true;
+    [FormerlySerializedAs("displayUmToggle")][SerializeField] private Toggle _displayUmToggle;
+    public UnityEvent DisplayUMChangedEvent;
+
+    public static bool DisplayUM
+    {
+        get { return s_displayUM; }
+        set
+        {
+            s_displayUM = value;
+            PlayerPrefs.SetInt(DISPLAYUM_STR, s_displayUM ? 1 : 0);
+            Instance.DisplayUMChangedEvent.Invoke();
+        }
+    }
+
+    private static bool s_showAllProbePanels;
+    private const string SHOWALLPROBEPANELS_STR = "showallpanels";
+    private const bool SHOWALLPROBEPANELS_DEFAULT = true;
+    [FormerlySerializedAs("showAllProbePanelsToggle")][SerializeField] private Toggle _showAllProbePanelsToggle;
+    public UnityEvent ShowAllProbePanelsChangedEvent;
+
+    public static bool ShowAllProbePanels
+    {
+        get { return s_showAllProbePanels; }
+        set
+        {
+            s_showAllProbePanels = value;
+            PlayerPrefs.SetInt(SHOWALLPROBEPANELS_STR, s_showAllProbePanels ? 1 : 0);
+            Instance.ShowAllProbePanelsChangedEvent.Invoke();
+        }
+    }
+
+
+    #endregion
+
+    #region Atlas
+
+    // Display the 3D area slice
+    private static int s_slice3d;
+    private const string SHOW3DSLICE_STR = "slice3d";
+    private const int SHOW3DSLICE_DEFAULT = 0;
+    [FormerlySerializedAs("slice3dDropdown")][SerializeField] private TMP_Dropdown _slice3dDropdown;
+    public UnityEvent<int> Slice3DChangedEvent;
+
+    public static int Slice3DDropdownOption
+    {
+        get { return s_slice3d; }
+        set
+        {
+            s_slice3d = value;
+            PlayerPrefs.SetInt(SHOW3DSLICE_STR, s_slice3d);
+            Instance.Slice3DChangedEvent.Invoke(s_slice3d);
+        }
+    }
+
+    private static Vector3 s_relCoord;
+    private const string RELATIVECOORD_STR = "relcoord";
+    private readonly Vector3 RELCOORD_DEFAULT = new Vector3(5.4f, 5.7f, 0.332f);
+    public UnityEvent<Vector3> RelativeCoordinateChangedEvent;
+
+    public static Vector3 RelativeCoordinate
+    {
+        get { return s_relCoord; }
+        set
+        {
+            s_relCoord = value;
+            SaveVector3Pref(RELATIVECOORD_STR, s_relCoord);
+            Instance.RelativeCoordinateChangedEvent.Invoke(s_relCoord);
+        }
+    }
+
+
+    private static int s_invivoTransform;
+    private const string INVIVO_STR = "invivo";
+    private const int INVIVO_DEFAULT = 1;
+    [FormerlySerializedAs("invivoDropdown")][SerializeField] private TMP_Dropdown _invivoDropdown;
+    public UnityEvent<int> InvivoTransformChangedEvent;
+
+    public static int InvivoTransform
+    {
+        get
+        {
+            return s_invivoTransform;
+        }
+        set
+        {
+            s_invivoTransform = value;
+            PlayerPrefs.SetInt(INVIVO_STR, s_invivoTransform);
+            Instance.InvivoTransformChangedEvent.Invoke(s_invivoTransform);
+        }
+    }
 
     #endregion
 
@@ -238,6 +330,7 @@ public class Settings : MonoBehaviour
     [FormerlySerializedAs("ephysLinkServerIpInput")][SerializeField] private TMP_InputField _ephysLinkServerIpInput;
     [FormerlySerializedAs("ephysLinkServerPortInput")][SerializeField] private TMP_InputField _ephysLinkServerPortInput;
 
+    private static string _rightHandedManipulatorIds;
 
     /// <summary>
     ///     Return the saved Ephys Link server IP address.
@@ -277,16 +370,34 @@ public class Settings : MonoBehaviour
         PlayerPrefs.SetString("right_handed_manipulator_ids", string.Join(",", manipulatorIds));
         PlayerPrefs.Save();
     }
+
+    /// <summary>
+    ///     Return the saved IDs of right handed manipulators.
+    /// </summary>
+    /// <returns>Saved IDs of right handed manipulators</returns>
+    public static HashSet<string> GetRightHandedManipulatorIds()
+    {
+        return _rightHandedManipulatorIds == null
+            ? new HashSet<string>()
+            : _rightHandedManipulatorIds.Split(',').ToHashSet();
+    }
+
+    /// <summary>
+    ///     Return if it has been more than 24 hours since the last launch.
+    /// </summary>
+    /// <returns>If it has been more than 24 hours since the last launch</returns>
+    public static bool IsEphysLinkDataExpired()
+    {
+        var timestampString = PlayerPrefs.GetString("timestamp");
+        if (timestampString == "") return false;
+
+        return new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - long.Parse(timestampString) >= 86400;
+    }
+
+
     #endregion
 
-
-    // Settings
-    private static int invivoTransform;
-    private static bool _axisControl;
-    private static bool _showAllProbePanels;
-    private static string _rightHandedManipulatorIds;
-    private static bool _displayUM;
-    private static Vector3 _relCoord;
+    #region Unity
 
     private void Awake()
     {
@@ -320,17 +431,32 @@ public class Settings : MonoBehaviour
         ShowSurfaceCoordinate = LoadBoolPref(SHOWSURFACECOORD_STR, SHOWSURFACECOORD_DEFAULT);
         _surfaceToggle.SetIsOnWithoutNotify(ShowSurfaceCoordinate);
 
-        s_inplane = LoadBoolPref(SHOWINPLANE_STR, SHOWINPLANE_DEFAULT);
-        _inplaneToggle.SetIsOnWithoutNotify(s_inplane);
+        ShowInPlaneSlice = LoadBoolPref(SHOWINPLANE_STR, SHOWINPLANE_DEFAULT);
+        _inplaneToggle.SetIsOnWithoutNotify(ShowInPlaneSlice);
 
-        s_useBeryl = LoadBoolPref(USEBERYL_STR, USEBERYL_DEFAULT);
-        _useBerylToggle.SetIsOnWithoutNotify(s_useBeryl);
+        UseBeryl = LoadBoolPref(USEBERYL_STR, USEBERYL_DEFAULT);
+        _useBerylToggle.SetIsOnWithoutNotify(UseBeryl);
 
-        s_ghostInactiveProbes = LoadBoolPref(GHOSTINACTIVEPROBES_STR, GHOSTINACTIVEPROBES_DEFAULT);
-        _ghostInactiveProbesToggle.SetIsOnWithoutNotify(s_ghostInactiveProbes);
+        GhostInactiveProbes = LoadBoolPref(GHOSTINACTIVEPROBES_STR, GHOSTINACTIVEPROBES_DEFAULT);
+        _ghostInactiveProbesToggle.SetIsOnWithoutNotify(GhostInactiveProbes);
 
-        s_ghostInactiveAreas = LoadBoolPref(GHOSTINACTIVEAREAS_STR, GHOSTINACTIVEAREAS_DEFAULT);
-        _ghostInactiveAreasToggle.SetIsOnWithoutNotify(s_ghostInactiveAreas);
+        GhostInactiveAreas = LoadBoolPref(GHOSTINACTIVEAREAS_STR, GHOSTINACTIVEAREAS_DEFAULT);
+        _ghostInactiveAreasToggle.SetIsOnWithoutNotify(GhostInactiveAreas);
+
+        // Default to Bregma
+        RelativeCoordinate = LoadVector3Pref(RELATIVECOORD_STR, RELCOORD_DEFAULT);
+
+        InvivoTransform = LoadIntPref(INVIVO_STR, INVIVO_DEFAULT);
+        _invivoDropdown.SetValueWithoutNotify(InvivoTransform);
+
+        DisplayUM = LoadBoolPref(DISPLAYUM_STR, DISPLAYUM_DEFAULT);
+        _displayUmToggle.SetIsOnWithoutNotify(DisplayUM);
+
+        AxisControl = LoadBoolPref(AXISCONTROL_STR, AXISCONTROL_DEFAULT);
+        _axisControlToggle.SetIsOnWithoutNotify(AxisControl);
+
+        ShowAllProbePanels = LoadBoolPref(SHOWALLPROBEPANELS_STR, SHOWALLPROBEPANELS_DEFAULT);
+        _showAllProbePanelsToggle.SetIsOnWithoutNotify(ShowAllProbePanels);
 
         // Ephys link
         _ephysLinkServerIp = LoadStringPref("ephys_link_ip", "localhost");
@@ -338,122 +464,8 @@ public class Settings : MonoBehaviour
 
         _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
         _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
-    }
 
-    [FormerlySerializedAs("invivoDropdown")] [SerializeField] private TMP_Dropdown _invivoDropdown;
-    [FormerlySerializedAs("axisControlToggle")] [SerializeField] private Toggle _axisControlToggle;
-    [FormerlySerializedAs("showAllProbePanelsToggle")] [SerializeField] private Toggle _showAllProbePanelsToggle;
-    [FormerlySerializedAs("displayUmToggle")] [SerializeField] private Toggle _displayUmToggle;
-
-
-    /// <summary>
-    /// On Awake() load the preferences and toggle the corresponding UI elements
-    /// </summary>
-    //private void Awake()
-    //{
-
-
-
-    //    invivoTransform = LoadIntPref("stereotaxic", 1);
-    //    _invivoDropdown.SetValueWithoutNotify(invivoTransform);
-
-
-
-    //    _axisControl = LoadBoolPref("axis_control", true);
-    //    _axisControlToggle.isOn = _axisControl;
-
-    //    _showAllProbePanels = LoadBoolPref("show_all_probe_panels", true);
-    //    _showAllProbePanelsToggle.isOn = _showAllProbePanels;
-
-    //    _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulator_ids", "");
-
-
-    //    _displayUM = LoadBoolPref("display_um", true);
-    //    _displayUmToggle.isOn = _displayUM;
-
-    //    _relCoord = LoadVector3Pref("rel_coord", new Vector3(5.4f, 5.7f, 0.332f));
-
-
-    //}
-
-    #region Getters/Setters
-
-    public static void SetRelCoord(Vector3 coord)
-    {
-        _relCoord = coord;
-        SaveVector3Pref("rel_coord", _relCoord);
-    }
-
-    public static Vector3 GetRelCoord()
-    {
-        return _relCoord;
-    }
-
-    public static void SetDisplayUm(bool state)
-    {
-        _displayUM = state;
-        PlayerPrefs.SetInt("display_um", _displayUM ? 1 : 0);
-    }
-
-    public static bool GetDisplayUm()
-    {
-        return _displayUM;
-    }
-
-    public static void SetShowAllProbePanels(bool state)
-    {
-        _showAllProbePanels = state;
-        PlayerPrefs.SetInt("show_all_probe_panels", _showAllProbePanels ? 1 : 0);
-    }
-
-    public static bool GetShowAllProbePanels()
-    {
-        return _showAllProbePanels;
-    }
-
-    public static void SetAxisControl(bool state)
-    {
-        _axisControl = state;
-        PlayerPrefs.SetInt("axis_control", _axisControl ? 1 : 0);
-    }
-
-    public static bool GetAxisControl()
-    {
-        return _axisControl;
-    }
-
-    public static void SetStereotaxic(int state)
-    {
-        invivoTransform = state;
-        PlayerPrefs.SetInt("stereotaxic", invivoTransform);
-    }
-
-    public static int GetStereotaxic()
-    {
-        return invivoTransform;
-    }
-
-    /// <summary>
-    ///     Return the saved IDs of right handed manipulators.
-    /// </summary>
-    /// <returns>Saved IDs of right handed manipulators</returns>
-    public static HashSet<string> GetRightHandedManipulatorIds()
-    {
-        return _rightHandedManipulatorIds == null
-            ? new HashSet<string>()
-            : _rightHandedManipulatorIds.Split(',').ToHashSet();
-    }
-
-    /// <summary>
-    ///     Return if it has been more than 24 hours since the last launch.
-    /// </summary>
-    /// <returns>If it has been more than 24 hours since the last launch</returns>
-    public static bool IsEphysLinkDataExpired()
-    {
-        var timestampString = PlayerPrefs.GetString("timestamp");
-        if (timestampString == "") return false;
-
-        return new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - long.Parse(timestampString) >= 86400;
+        _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulator_ids", "");
     }
 
     #endregion

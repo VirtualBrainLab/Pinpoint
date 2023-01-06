@@ -34,7 +34,7 @@ public class RelativeCoordinatePanel : MonoBehaviour
             float ml = float.Parse(_mlField.text);
             float dv = float.Parse(_mlField.text);
 
-            _tpmanager.SetSetting_RelCoord(new Vector3(ap, ml, dv));
+            Settings.RelativeCoordinate = new Vector3(ap, ml, dv);
         }
         catch
         {
@@ -44,11 +44,11 @@ public class RelativeCoordinatePanel : MonoBehaviour
 
     public void Set2Bregma()
     {
-        _tpmanager.SetSetting_RelCoord(Utils.IBL_BREGMA);
+        Settings.RelativeCoordinate = Utils.IBL_BREGMA;
     }
 
     public void Set2Lambda()
     {
-        Debug.LogError("Not implemented");
+        Settings.RelativeCoordinate = Utils.IBL_LAMBDA;
     }
 }

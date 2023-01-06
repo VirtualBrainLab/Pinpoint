@@ -76,7 +76,7 @@ public class CoordinateEntryPanel : MonoBehaviour
             apmldv = _linkedProbe.GetProbeController().Insertion.apmldv;
         }
 
-        float mult = Settings.GetDisplayUm() ? 1000f : 1f;
+        float mult = Settings.DisplayUM ? 1000f : 1f;
 
         _apField.text = Round2Str(apmldv.x * mult);
         _mlField.text = Round2Str(apmldv.y * mult);
@@ -100,7 +100,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         if (float.IsNaN(value))
             return "nan";
 
-        return Settings.GetDisplayUm() ? ((int)value).ToString() : value.ToString("F3");
+        return Settings.DisplayUM ? ((int)value).ToString() : value.ToString("F3");
     }
 
     private void ApplyPosition()

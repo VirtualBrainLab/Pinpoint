@@ -418,7 +418,7 @@ public class ProbeManager : MonoBehaviour
             depthStr = prefix + "Depth";
         }
 
-        float mult = Settings.GetDisplayUm() ? 1000f : 1f;
+        float mult = Settings.DisplayUM ? 1000f : 1f;
 
         Vector3 apmldvS = insertion.PositionSpaceU() + insertion.CoordinateSpace.RelativeOffset;
 
@@ -833,10 +833,20 @@ public class ProbeManager : MonoBehaviour
 
     public void SetAxisVisibility(bool X, bool Y, bool Z, bool depth)
     {
-        _axisControl.ZAxis.enabled = Z;
-        _axisControl.XAxis.enabled = X;
-        _axisControl.YAxis.enabled = Y;
-        _axisControl.DepthAxis.enabled = depth;
+        if (Settings.AxisControl)
+        {
+            _axisControl.ZAxis.enabled = Z;
+            _axisControl.XAxis.enabled = X;
+            _axisControl.YAxis.enabled = Y;
+            _axisControl.DepthAxis.enabled = depth;
+        }
+        else
+        {
+            _axisControl.ZAxis.enabled = false;
+            _axisControl.XAxis.enabled = false;
+            _axisControl.YAxis.enabled = false;
+            _axisControl.DepthAxis.enabled = false;
+        }
     }
 
     public void SetAxisTransform(Transform transform)

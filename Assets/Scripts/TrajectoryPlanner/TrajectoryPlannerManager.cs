@@ -139,7 +139,6 @@ namespace TrajectoryPlanner
             CheckForSavedProbes(annotationDatasetLoadTask);
 
             // Pull settings from PlayerPrefs
-            SetSetting_RelCoord(Settings.GetRelCoord());
             ProbeManager.RightHandedManipulatorIDs = Settings.GetRightHandedManipulatorIds();
         }
 
@@ -275,7 +274,8 @@ namespace TrajectoryPlanner
             }
 
             // Set the warp setting
-            SetSetting_InVivoTransformState(Settings.GetStereotaxic());
+
+            InVivoTransformChanged(Settings.InvivoTransform);
         }
 
         /// <summary>
@@ -616,7 +616,7 @@ namespace TrajectoryPlanner
             {
                 // Check visibility
                 var isActiveProbe = probeManager == ProbeManager.ActiveProbeManager;
-                probeManager.SetUIVisibility(GetSetting_ShowAllProbePanels() || isActiveProbe);
+                probeManager.SetUIVisibility(Settings.ShowAllProbePanels || isActiveProbe);
 
                 // Set active state for UI managers
                 foreach (ProbeUIManager puimanager in probeManager.GetProbeUIManagers())
@@ -723,7 +723,7 @@ namespace TrajectoryPlanner
         /// 
 
 
-        #region Player Preferences
+        #region Settings
 
         public void SetGhostAreaVisibility()
         {
@@ -757,35 +757,10 @@ namespace TrajectoryPlanner
                     probeManager.SetMaterialsDefault();
             }
         }
-
-        public void SetSetting_RelCoord(Vector3 coord)
-        {
-            Settings.SetRelCoord(coord);
-            CoordinateSpaceManager.ActiveCoordinateSpace.RelativeOffset = coord;
-            _relCoordPanel.SetRelativeCoordinateText(coord);
-        }
-
-        public Vector3 GetSetting_RelCoord()
-        {
-            return Settings.GetRelCoord();
-        }
         
-        public void SetSetting_DisplayUM(bool state)
+        public void SetShowAllProbePanels()
         {
-            Settings.SetDisplayUm(state);
-
-            UpdateQuickSettings();
-        }
-
-        public bool GetSetting_DisplayUM()
-        {
-            return Settings.GetDisplayUm();
-        }
-        
-        public void SetSetting_ShowAllProbePanels(bool state)
-        {
-            Settings.SetShowAllProbePanels(state);
-            if (state)
+            if (Settings.ShowAllProbePanels)
                 foreach (ProbeManager probeManager in ProbeManager.instances)
                     probeManager.SetUIVisibility(true);
             else
@@ -795,15 +770,8 @@ namespace TrajectoryPlanner
             RecalculateProbePanels();
         }
 
-        public bool GetSetting_ShowAllProbePanels()
+        public void InVivoTransformChanged(int invivoOption)
         {
-            return Settings.GetShowAllProbePanels();
-        }
-
-        public void SetSetting_InVivoTransformState(int invivoOption)
-        {
-            Settings.SetStereotaxic(invivoOption);
-
             Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
             CoordinateSpaceManager.ActiveCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
             WarpBrain();
@@ -817,11 +785,6 @@ namespace TrajectoryPlanner
                 ProbeManager.ActiveProbeManager.CheckProbeTransformState();
 
             MoveAllProbes();
-        }
-
-        public bool GetSetting_InVivoTransformActive()
-        {
-            return Settings.GetStereotaxic() > 0;
         }
 
         #endregion
