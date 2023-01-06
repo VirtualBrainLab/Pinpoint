@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -330,6 +331,13 @@ public class Settings : MonoBehaviour
 
         s_ghostInactiveAreas = LoadBoolPref(GHOSTINACTIVEAREAS_STR, GHOSTINACTIVEAREAS_DEFAULT);
         _ghostInactiveAreasToggle.SetIsOnWithoutNotify(s_ghostInactiveAreas);
+
+        // Ephys link
+        _ephysLinkServerIp = LoadStringPref("ephys_link_ip", "localhost");
+        _ephysLinkServerIpInput.text = _ephysLinkServerIp;
+
+        _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
+        _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
     }
 
     [FormerlySerializedAs("invivoDropdown")] [SerializeField] private TMP_Dropdown _invivoDropdown;
@@ -350,12 +358,6 @@ public class Settings : MonoBehaviour
     //    _invivoDropdown.SetValueWithoutNotify(invivoTransform);
 
 
-
-    //    _ephysLinkServerIp = LoadStringPref("ephys_link_ip", "localhost");
-    //    _ephysLinkServerIpInput.text = _ephysLinkServerIp;
-
-    //    _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
-    //    _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
 
     //    _axisControl = LoadBoolPref("axis_control", true);
     //    _axisControlToggle.isOn = _axisControl;
@@ -613,5 +615,16 @@ public class Settings : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    #endregion
+
+    #region Editor
+#if UNITY_EDITOR
+    [MenuItem("Tools/Reset PlayerPrefs")]
+    static void ResetPlayerPrefs()
+    {
+        PlayerPrefs.DeleteAll();
+        Debug.Log("(Settings) All PlayerPrefs Deleted");
+    }
+#endif
     #endregion
 }
