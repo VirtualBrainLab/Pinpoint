@@ -18,7 +18,14 @@ namespace EphysLink
         {
             // Connect to last known server
             if (Settings.EphysLinkServerIp != "" && Settings.EphysLinkServerPort >= 1025)
+            {
+                print("Making connection to saved server");
                 ConnectToServer(Settings.EphysLinkServerIp, Settings.EphysLinkServerPort);
+            }
+            else
+            {
+                print("Making saved data: "+Settings.EphysLinkServerIp+": "+Settings.EphysLinkServerPort);
+            }
         }
 
         #endregion
@@ -77,8 +84,11 @@ namespace EphysLink
                 {
                     Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
                     IsConnected = true;
+                    
+                    // Save settings
                     Settings.EphysLinkServerIp = ip;
                     Settings.EphysLinkServerPort = port;
+                    
                     onConnected?.Invoke();
                 });
 
