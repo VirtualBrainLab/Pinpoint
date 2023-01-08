@@ -137,9 +137,6 @@ namespace TrajectoryPlanner
 
             // After annotation loads, check if the user wants to load previously used probes
             CheckForSavedProbes(annotationDatasetLoadTask);
-
-            // Pull settings from PlayerPrefs
-            ProbeManager.RightHandedManipulatorIDs = Settings.GetRightHandedManipulatorIds();
         }
 
         void Update()

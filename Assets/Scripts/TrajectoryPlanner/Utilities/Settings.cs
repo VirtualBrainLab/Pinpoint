@@ -326,60 +326,40 @@ public class Settings : MonoBehaviour
 
     #region Ephys link settings
     private static string _ephysLinkServerIp;
+    public static string EphysLinkServerIp
+    {
+        get => _ephysLinkServerIp;
+        set
+        {
+            PlayerPrefs.SetString("ephys_link_ip", value);
+            PlayerPrefs.Save();
+        }
+    }
+    
     private static int _ephysLinkServerPort;
-    [FormerlySerializedAs("ephysLinkServerIpInput")][SerializeField] private TMP_InputField _ephysLinkServerIpInput;
-    [FormerlySerializedAs("ephysLinkServerPortInput")][SerializeField] private TMP_InputField _ephysLinkServerPortInput;
+
+    public static int EphysLinkServerPort
+    {
+        get => _ephysLinkServerPort;
+        set
+        {
+            PlayerPrefs.SetInt("ephys_link_port", value);
+            PlayerPrefs.Save();
+        }
+    }
+    
+    [SerializeField] private TMP_InputField _ephysLinkServerIpInput;
+    [SerializeField] private TMP_InputField _ephysLinkServerPortInput;
 
     private static string _rightHandedManipulatorIds;
-
-    /// <summary>
-    ///     Return the saved Ephys Link server IP address.
-    /// </summary>
-    /// <returns>Saved IP address of the Ephys Link server</returns>
-    public static string GetServerIp()
+    public static HashSet<string> RightHandedManipulatorIds
     {
-        return _ephysLinkServerIp;
-    }
-
-    /// <summary>
-    ///     Return the saved Ephys Link server port.
-    /// </summary>
-    /// <returns>Saved server port of the Ephys Link server</returns>
-    public static int GetServerPort()
-    {
-        return _ephysLinkServerPort;
-    }
-    /// <summary>
-    ///     Save Ephys Link server connection information.
-    /// </summary>
-    /// <param name="serverIp">Server IP address</param>
-    /// <param name="serverPort">Server port number</param>
-    public static void SaveEphysLinkConnectionData(string serverIp, int serverPort)
-    {
-        PlayerPrefs.SetString("ephys_link_ip", serverIp);
-        PlayerPrefs.SetInt("ephys_link_port", serverPort);
-        PlayerPrefs.Save();
-    }
-
-    /// <summary>
-    ///     Save the IDs of right handed manipulators.
-    /// </summary>
-    /// <param name="manipulatorIds">IDs of right handed manipulators</param>
-    public static void SaveRightHandedManipulatorIds(IEnumerable<string> manipulatorIds)
-    {
-        PlayerPrefs.SetString("right_handed_manipulator_ids", string.Join(",", manipulatorIds));
-        PlayerPrefs.Save();
-    }
-
-    /// <summary>
-    ///     Return the saved IDs of right handed manipulators.
-    /// </summary>
-    /// <returns>Saved IDs of right handed manipulators</returns>
-    public static HashSet<string> GetRightHandedManipulatorIds()
-    {
-        return _rightHandedManipulatorIds == null
-            ? new HashSet<string>()
-            : _rightHandedManipulatorIds.Split(',').ToHashSet();
+        get => _rightHandedManipulatorIds == null ? new HashSet<string>() : _rightHandedManipulatorIds.Split(',').ToHashSet();
+        set
+        {
+            PlayerPrefs.SetString("right_handed_manipulators", string.Join(",", value));
+            PlayerPrefs.Save();
+        }
     }
 
     /// <summary>
@@ -393,8 +373,7 @@ public class Settings : MonoBehaviour
 
         return new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - long.Parse(timestampString) >= 86400;
     }
-
-
+    
     #endregion
 
     #region Unity
@@ -459,7 +438,7 @@ public class Settings : MonoBehaviour
         _showAllProbePanelsToggle.SetIsOnWithoutNotify(ShowAllProbePanels);
 
         // Ephys link
-        _ephysLinkServerIp = LoadStringPref("ephys_link_ip", "localhost");
+        _ephysLinkServerIp = LoadStringPref("ephys_link_ip", "");
         _ephysLinkServerIpInput.text = _ephysLinkServerIp;
 
         _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8081);

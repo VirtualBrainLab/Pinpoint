@@ -30,7 +30,7 @@ public class ProbeManager : MonoBehaviour
         instances.Remove(this);
     }
 
-    public static HashSet<string> RightHandedManipulatorIDs { get; set; } = new();
+    public static HashSet<string> RightHandedManipulatorIDs { get; } = Settings.RightHandedManipulatorIds;
     #endregion
 
     #region Events

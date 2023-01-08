@@ -9,6 +9,20 @@ namespace EphysLink
     /// </summary>
     public class CommunicationManager : MonoBehaviour
     {
+        #region Unity
+
+        /// <summary>
+        ///     Populate data and connect to the server.
+        /// </summary>
+        private void Start()
+        {
+            // Connect to last known server
+            if (Settings.EphysLinkServerIp != "" && Settings.EphysLinkServerPort >= 1025)
+                ConnectToServer(Settings.EphysLinkServerIp, Settings.EphysLinkServerPort);
+        }
+
+        #endregion
+
         #region Variables
 
         #region Components
@@ -26,19 +40,6 @@ namespace EphysLink
         public bool IsConnected { get; private set; }
 
         #endregion
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Populate data and connect to the server.
-        /// </summary>
-        private void Start()
-        {
-            // Connect to last known server
-            ConnectToServer(Settings.GetServerIp(), Settings.GetServerPort());
-        }
 
         #endregion
 
@@ -62,38 +63,62 @@ namespace EphysLink
             {
                 Timeout = new TimeSpan(0, 0, 2)
             };
-            Debug.Log((ip, port));
-            _connectionManager = new SocketManager(new Uri("http://" + ip + ":" + port), options);
-            _socket = _connectionManager.Socket;
 
-            _socket.Once("connect", () =>
+
+            // Try to open a connection
+            try
             {
-                Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
-                IsConnected = true;
-                Settings.SaveEphysLinkConnectionData(ip, port);
-                onConnected?.Invoke();
-            });
-            _socket.Once("error", () =>
+                // Create a new socket
+                _connectionManager = new SocketManager(new Uri("http://" + ip + ":" + port), options);
+                _socket = _connectionManager.Socket;
+
+                // On successful connection
+                _socket.Once("connect", () =>
+                {
+                    Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
+                    IsConnected = true;
+                    Settings.EphysLinkServerIp = ip;
+                    Settings.EphysLinkServerPort = port;
+                    onConnected?.Invoke();
+                });
+
+                // On error
+                _socket.Once("error", () =>
+                {
+                    var connectionErrorMessage =
+                        "Error connecting to server at " + ip + ":" + port + ". Check server for details.";
+                    Debug.LogWarning(connectionErrorMessage);
+                    IsConnected = false;
+                    _connectionManager.Close();
+                    _connectionManager = null;
+                    _socket = null;
+                    onError?.Invoke(connectionErrorMessage);
+                });
+
+                // On timeout
+                _socket.Once("connect_timeout", () =>
+                {
+                    var connectionTimeoutMessage = "Connection to server at " + ip + ":" + port + " timed out";
+                    Debug.LogWarning(connectionTimeoutMessage);
+                    IsConnected = false;
+                    _connectionManager.Close();
+                    _connectionManager = null;
+                    _socket = null;
+                    onError?.Invoke(connectionTimeoutMessage);
+                });
+            }
+            catch (Exception e)
             {
+                // On socket generation error
                 var connectionErrorMessage =
                     "Error connecting to server at " + ip + ":" + port + ". Check server for details.";
                 Debug.LogWarning(connectionErrorMessage);
+                Debug.LogWarning("Exception: " + e);
                 IsConnected = false;
-                _connectionManager.Close();
                 _connectionManager = null;
                 _socket = null;
                 onError?.Invoke(connectionErrorMessage);
-            });
-            _socket.Once("connect_timeout", () =>
-            {
-                var connectionTimeoutMessage = "Connection to server at " + ip + ":" + port + " timed out";
-                Debug.LogWarning(connectionTimeoutMessage);
-                IsConnected = false;
-                _connectionManager.Close();
-                _connectionManager = null;
-                _socket = null;
-                onError?.Invoke(connectionTimeoutMessage);
-            });
+            }
         }
 
         /// <summary>
