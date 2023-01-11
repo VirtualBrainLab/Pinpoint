@@ -690,7 +690,6 @@ GameObject:
   - component: {fileID: 1445278465893963684}
   - component: {fileID: 1445278465893963685}
   - component: {fileID: 1445278465893963687}
-  - component: {fileID: 3013020695642461156}
   - component: {fileID: 4497304439904425383}
   m_Layer: 5
   m_Name: ZeroCoordinatePanel
@@ -785,18 +784,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!225 &3013020695642461156
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1445278465893963707}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!114 &4497304439904425383
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -812,7 +799,7 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 300
+  m_PreferredWidth: -1
   m_PreferredHeight: -1
   m_FlexibleWidth: 1
   m_FlexibleHeight: -1
@@ -1735,7 +1722,7 @@ MonoBehaviour:
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: 2
+  m_FlexibleWidth: 3
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &4873534109996246329
@@ -3030,7 +3017,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5713203697382717340}
   m_HandleRect: {fileID: 538386439288270413}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

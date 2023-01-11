@@ -33,7 +33,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
             // Add panels
             _zeroCoordinatePanel.PanelScrollView.SetActive(true);
-            _zeroCoordinatePanel.ManipulatorsAttachedText.SetActive(false);
+            // _zeroCoordinatePanel.ManipulatorsAttachedText.SetActive(false);
             foreach (var probeManager in ProbeManagers) AddResetZeroCoordinatePanel(probeManager);
         }
 
@@ -69,12 +69,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             InsertionSelectionPanelHandler.AddResetDuraOffsetPanelCallback = AddResetDuraOffsetPanel;
 
             // Enable UI
-            _gotoPanel.CanvasGroup.alpha = 1;
-            _gotoPanel.CanvasGroup.interactable = true;
-            _gotoPanel.PanelText.color = _readyColor;
-            _zeroCoordinatePanel.PanelText.color = Color.white;
+            // _gotoPanel.CanvasGroup.alpha = 1;
+            // _gotoPanel.CanvasGroup.interactable = true;
+            // _gotoPanel.PanelText.color = _readyColor;
+            // _zeroCoordinatePanel.PanelText.color = Color.white;
             _gotoPanel.PanelScrollView.SetActive(true);
-            _gotoPanel.ManipulatorsZeroedText.SetActive(false);
+            // _gotoPanel.ManipulatorsZeroedText.SetActive(false);
         }
 
         private void AddInsertionSelectionPanel(ProbeManager probeManager)
@@ -95,15 +95,15 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private void UpdateMoveButtonInteractable(string _)
         {
-            _gotoPanel.MoveButton.interactable = InsertionSelectionPanelHandler.SelectedTargetInsertion.Count > 0;
+            // _gotoPanel.MoveButton.interactable = InsertionSelectionPanelHandler.SelectedTargetInsertion.Count > 0;
         }
 
         private void PostMovementActions()
         {
             // Reset text states
-            _gotoPanel.MoveButtonText.text =
-                "Move Manipulators into Position";
-            _gotoPanel.PanelText.color = Color.white;
+            // _gotoPanel.MoveButtonText.text =
+            //     "Move Manipulators into Position";
+            // _gotoPanel.PanelText.color = Color.white;
 
             // Enable step 3
             EnableStep3();
@@ -128,17 +128,17 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             ResetDuraOffsetPanelHandler.CommunicationManager = _communicationManager;
 
             // Enable UI
-            _duraOffsetPanel.CanvasGroup.alpha = 1;
-            _duraOffsetPanel.CanvasGroup.interactable = true;
-            _duraOffsetPanel.PanelText.color = Color.green;
-            _gotoPanel.PanelText.color = Color.white;
+            // _duraOffsetPanel.CanvasGroup.alpha = 1;
+            // _duraOffsetPanel.CanvasGroup.interactable = true;
+            // _duraOffsetPanel.PanelText.color = Color.green;
+            // _gotoPanel.PanelText.color = Color.white;
         }
 
         private void AddResetDuraOffsetPanel(ProbeManager probeManager)
         {
             // Show scroll view
             _duraOffsetPanel.PanelScrollView.SetActive(true);
-            _duraOffsetPanel.ManipulatorsDrivenText.SetActive(false);
+            // _duraOffsetPanel.ManipulatorsDrivenText.SetActive(false);
 
             // Instantiate
             var resetDuraPanelGameObject = Instantiate(_duraOffsetPanel.ResetDuraOffsetPanelPrefab,
@@ -156,11 +156,11 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void EnableStep4()
         {
             // Enable UI
-            _drivePanel.CanvasGroup.alpha = 1;
-            _drivePanel.CanvasGroup.interactable = true;
-            _duraOffsetPanel.PanelText.color = Color.white;
-            _drivePanel.PanelText.color = Color.green;
-            _drivePanel.StatusText.text = "Ready to Drive";
+            // _drivePanel.CanvasGroup.alpha = 1;
+            // _drivePanel.CanvasGroup.interactable = true;
+            // _duraOffsetPanel.PanelText.color = Color.white;
+            // _drivePanel.PanelText.color = Color.green;
+            // _drivePanel.StatusText.text = "Ready to Drive";
         }
 
         private void StartDriveChain()
@@ -202,7 +202,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private IEnumerator CountDownTimer()
         {
             // Set timer text
-            _drivePanel.TimerText.text = TimeSpan.FromSeconds(_driveDuration).ToString(@"mm\:ss");
+            // _drivePanel.TimerText.text = TimeSpan.FromSeconds(_driveDuration).ToString(@"mm\:ss");
 
             // Wait for 1 second
             yield return new WaitForSeconds(1);
@@ -219,10 +219,10 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             else
             {
                 // Set timer text
-                _drivePanel.StatusText.text = "Drive Complete!";
-                _drivePanel.TimerText.text = "Ready for Experiment";
-                _drivePanel.ButtonText.text = "Drive";
-                _drivePanel.PanelText.color = Color.white;
+                // _drivePanel.StatusText.text = "Drive Complete!";
+                // _drivePanel.TimerText.text = "Ready for Experiment";
+                // _drivePanel.ButtonText.text = "Drive";
+                // _drivePanel.PanelText.color = Color.white;
                 _probesAtTarget.Clear();
             }
         }
@@ -230,7 +230,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void Drive200PastTarget()
         {
             // Set drive status
-            _drivePanel.StatusText.text = "Driving to 200 µm past target...";
+            // _drivePanel.StatusText.text = "Driving to 200 µm past target...";
 
             // Drive
             foreach (var kvp in _probesTargetDepth)
@@ -253,7 +253,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void DriveBackToTarget(string manipulatorID)
         {
             // Set drive status
-            _drivePanel.StatusText.text = "Driving back to target...";
+            // _drivePanel.StatusText.text = "Driving back to target...";
 
             // Drive
             _communicationManager.DriveToDepth(manipulatorID,
@@ -269,7 +269,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
                     // Update status text if both are done
                     if (_probesAtTarget.Count != _probesTargetDepth.Keys.Count) return;
-                    _drivePanel.StatusText.text = "Settling... Please wait...";
+                    // _drivePanel.StatusText.text = "Settling... Please wait...";
                 }, Debug.LogError);
         }
 
@@ -291,7 +291,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 // No movements completed. Pressing means start a new movement set
 
                 // Set button text
-                _gotoPanel.MoveButtonText.text = "Moving... Press Again to Stop";
+                // _gotoPanel.MoveButtonText.text = "Moving... Press Again to Stop";
 
                 // Trigger movement
                 _moveToTargetInsertionEvent.Invoke(PostMovementActions);
@@ -308,7 +308,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     InsertionSelectionPanelHandler.MovementStopped();
 
                     // Reset text
-                    _gotoPanel.MoveButtonText.text = "Move Manipulators into Position";
+                    // _gotoPanel.MoveButtonText.text = "Move Manipulators into Position";
 
                     // Update button interactable
                     UpdateMoveButtonInteractable("");
@@ -333,18 +333,18 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 _communicationManager.Stop(state =>
                 {
                     if (!state) return;
-                    _drivePanel.ButtonText.text = "Drive";
-                    _drivePanel.StatusText.text = "Ready to Drive";
-                    _drivePanel.TimerText.text = "";
-                    _drivePanel.PanelText.color = Color.white;
+                    // _drivePanel.ButtonText.text = "Drive";
+                    // _drivePanel.StatusText.text = "Ready to Drive";
+                    // _drivePanel.TimerText.text = "";
+                    // _drivePanel.PanelText.color = Color.white;
                     _isDriving = false;
                 });
             }
             else
             {
                 // Set UI for driving
-                _drivePanel.ButtonText.text = "Stop";
-                _drivePanel.PanelText.color = _workingColor;
+                // _drivePanel.ButtonText.text = "Stop";
+                // _drivePanel.PanelText.color = _workingColor;
                 _isDriving = true;
                 _probesAtTarget.Clear();
 
@@ -370,11 +370,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         [Serializable]
         private class ZeroCoordinatePanelComponents
         {
-            public TMP_Text PanelText;
             public GameObject ResetZeroCoordinatePanelPrefab;
             public GameObject PanelScrollView;
             public GameObject PanelScrollViewContent;
-            public GameObject ManipulatorsAttachedText;
         }
 
         [SerializeField] private ZeroCoordinatePanelComponents _zeroCoordinatePanel;
@@ -386,14 +384,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         [Serializable]
         private class GotoPanelComponents
         {
-            public CanvasGroup CanvasGroup;
-            public TMP_Text PanelText;
             public GameObject InsertionSelectionPanelPrefab;
             public GameObject PanelScrollView;
             public GameObject PanelScrollViewContent;
-            public GameObject ManipulatorsZeroedText;
-            public Button MoveButton;
-            public TMP_Text MoveButtonText;
         }
 
         [SerializeField] private GotoPanelComponents _gotoPanel;
@@ -405,12 +398,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         [Serializable]
         private class DuraOffsetPanelComponents
         {
-            public CanvasGroup CanvasGroup;
-            public TMP_Text PanelText;
             public GameObject ResetDuraOffsetPanelPrefab;
             public GameObject PanelScrollView;
             public GameObject PanelScrollViewContent;
-            public GameObject ManipulatorsDrivenText;
         }
 
         [SerializeField] private DuraOffsetPanelComponents _duraOffsetPanel;
@@ -422,11 +412,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         [Serializable]
         private class DrivePanelComponents
         {
-            public CanvasGroup CanvasGroup;
-            public TMP_Text PanelText;
-            public TMP_Text StatusText;
-            public TMP_Text TimerText;
-            public TMP_Text ButtonText;
+            public GameObject DrivePanelPrefab;
+            public GameObject PanelScrollView;
+            public GameObject PanelScrollViewContent;
         }
 
         [SerializeField] private DrivePanelComponents _drivePanel;
