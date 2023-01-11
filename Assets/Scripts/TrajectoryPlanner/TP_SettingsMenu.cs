@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Settings
+namespace UITabs
 {
     public class TP_SettingsMenu : MonoBehaviour
     {

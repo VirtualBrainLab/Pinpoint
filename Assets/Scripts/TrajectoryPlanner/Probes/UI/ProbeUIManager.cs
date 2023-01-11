@@ -120,9 +120,7 @@ public class ProbeUIManager : MonoBehaviour
         List<int> tickIdxs = new List<int>();
         List<int> tickHeights = new List<int>(); // this will be calculated in the second step
 
-        bool recRegionOnly = PlayerPrefs.GetRecordingRegionOnly();
-
-        if (recRegionOnly)
+        if (Settings.RecordingRegionOnly)
         {
             // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
             // we also want to save the mm tick positions
@@ -158,9 +156,9 @@ public class ProbeUIManager : MonoBehaviour
         // Interpolate from the tip to the top, putting this data into the probe panel texture
         (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startApdvlr25, endApdvlr25);
 
-        probePanel.SetTipData(startApdvlr25, endApdvlr25, mmRecordingSize, recRegionOnly);
+        probePanel.SetTipData(startApdvlr25, endApdvlr25, mmRecordingSize, Settings.RecordingRegionOnly);
 
-        if (recRegionOnly)
+        if (Settings.RecordingRegionOnly)
         {
             for (int y = 0; y < probePanelPxHeight; y++)
             {
@@ -192,7 +190,7 @@ public class ProbeUIManager : MonoBehaviour
         }
 
         probePanel.UpdateTicks(tickHeights, tickIdxs);
-        probePanel.UpdateText(centerHeights, names, PlayerPrefs.GetAcronyms() ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
+        probePanel.UpdateText(centerHeights, names, Settings.UseAcronyms ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
     }
 
     /// <summary>
@@ -206,13 +204,15 @@ public class ProbeUIManager : MonoBehaviour
     private (List<int>, List<int>, List<string>)  InterpolateAnnotationIDs(Vector3 tipPosition, Vector3 topPosition)
     {
         // pixel height at which changes happen
-        List<int> areaPositionPixels = new List<int>();
+        List<int> areaPositionPixels = new();
         // pixel count for each area
-        List<int> areaHeightPixels = new List<int>();
+        List<int> areaHeightPixels = new();
+        // area IDs
+        List<int> areaIDs = new();
         // string name
-        List<string> areaNames = new List<string>();
+        List<string> areaNames = new();
         // center position of each area
-        List<int> centerHeightsPixels = new List<int>();
+        List<int> centerHeightsPixels = new();
 
         int prevID = int.MinValue;
         for (int i = 0; i < probePanelPxHeight; i++)
@@ -229,10 +229,11 @@ public class ProbeUIManager : MonoBehaviour
             {
                 // We have arrived at a new area, get the name and height
                 areaPositionPixels.Add(i);
-                if (PlayerPrefs.GetAcronyms())
-                    areaNames.Add(modelControl.ID2Acronym(ID));
-                else
-                    areaNames.Add(modelControl.ID2AreaName(ID));
+                areaIDs.Add(ID);
+                //if (Settings.UseAcronyms)
+                //    areaNames.Add(modelControl.ID2Acronym(ID));
+                //else
+                //    areaNames.Add(modelControl.ID2AreaName(ID));
                 // Now compute the center height for the *previous* area, and the pixel height
                 int curIdx = areaPositionPixels.Count - 1;
                 if (curIdx >= 1)
@@ -254,6 +255,7 @@ public class ProbeUIManager : MonoBehaviour
 
         // If there is only one value in the heights array, pixelHeight will be empty
         // Also find the area with the maximum pixel height
+        int maxAreaID = 0;
         int maxPixelHeight = 0;
         if (areaHeightPixels.Count > 0)
         {
@@ -262,20 +264,26 @@ public class ProbeUIManager : MonoBehaviour
             {
                 // Get the max area, ignoring "-"
                 // This is safe to do even though we remove areas afterward, because we are going backwards through the list
-                if (areaHeightPixels[i] > maxPixelHeight && areaNames[i] != "-")
+                if (areaHeightPixels[i] > maxPixelHeight && areaIDs[i] > 0)
                 {
                     maxPixelHeight = areaHeightPixels[i];
-                    MaxArea = areaNames[i];
+                    maxAreaID = areaIDs[i];
                 }
                 // Remove areas that are too small
                 if (areaHeightPixels[i] < MINIMUM_AREA_PIXEL_HEIGHT)
                 {
                     areaPositionPixels.RemoveAt(i);
                     centerHeightsPixels.RemoveAt(i);
-                    areaNames.RemoveAt(i);
+                    areaIDs.RemoveAt(i);
                 }
             }
         }
+
+        MaxArea = modelControl.ID2Acronym(maxAreaID);
+
+        areaNames = Settings.UseAcronyms ?
+            areaIDs.ConvertAll(x => modelControl.ID2Acronym(x)) :
+            areaIDs.ConvertAll(x => modelControl.ID2AreaName(x));
 
         return (areaPositionPixels, centerHeightsPixels, areaNames);
     }

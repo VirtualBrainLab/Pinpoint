@@ -30,7 +30,7 @@ public class ProbeManager : MonoBehaviour
         instances.Remove(this);
     }
 
-    public static HashSet<string> RightHandedManipulatorIDs { get; set; } = new();
+    public static HashSet<string> RightHandedManipulatorIDs { get; } = Settings.RightHandedManipulatorIds;
     #endregion
 
     #region Events
@@ -169,6 +169,12 @@ public class ProbeManager : MonoBehaviour
         return _probeRenderer.material.color;
     }
 
+    public void SetColor(Color color)
+    {
+        ProbeProperties.ReturnProbeColor(_probeRenderer.material.color);
+        _probeRenderer.material.color = color;
+    }
+
     public void DisableAllColliders()
     {
         foreach (var probeCollider in _probeColliders)
@@ -204,6 +210,15 @@ public class ProbeManager : MonoBehaviour
         UUID = Guid.NewGuid().ToString();
 
         defaultMaterials = new();
+        // Request for ID and color if this is a normal probe
+        if (IsOriginal)
+        {
+            // Record default materials
+            foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
+            {
+                defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
+            }
+        }
 
         _probeRenderer.material.color = ProbeProperties.GetNextProbeColor();
 
@@ -229,15 +244,6 @@ public class ProbeManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"(ProbeManager) New probe created with UUID: {UUID}");
 #endif
-        // Request for ID and color if this is a normal probe
-        if (IsOriginal)
-        {            
-            // Record default materials
-            foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
-            {
-                defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
-            }
-        }
     }
 
     /// <summary>
@@ -396,7 +402,7 @@ public class ProbeManager : MonoBehaviour
         string prefix = insertion.CoordinateTransform.Prefix;
 
         // If we are using the 
-        if (PlayerPrefs.GetAPML2ProbeAxis())
+        if (Settings.ConvertAPML2Probe)
         {
             Debug.LogWarning("Not working");
             apStr = "not-implemented";
@@ -412,11 +418,11 @@ public class ProbeManager : MonoBehaviour
             depthStr = prefix + "Depth";
         }
 
-        float mult = PlayerPrefs.GetDisplayUm() ? 1000f : 1f;
+        float mult = Settings.DisplayUM ? 1000f : 1f;
 
         Vector3 apmldvS = insertion.PositionSpaceU() + insertion.CoordinateSpace.RelativeOffset;
 
-        Vector3 angles = PlayerPrefs.GetUseIBLAngles() ?
+        Vector3 angles = Settings.UseIBLAngles ?
             Utils.World2IBL(insertion.angles) :
             insertion.angles;
 
@@ -827,10 +833,20 @@ public class ProbeManager : MonoBehaviour
 
     public void SetAxisVisibility(bool X, bool Y, bool Z, bool depth)
     {
-        _axisControl.ZAxis.enabled = Z;
-        _axisControl.XAxis.enabled = X;
-        _axisControl.YAxis.enabled = Y;
-        _axisControl.DepthAxis.enabled = depth;
+        if (Settings.AxisControl)
+        {
+            _axisControl.ZAxis.enabled = Z;
+            _axisControl.XAxis.enabled = X;
+            _axisControl.YAxis.enabled = Y;
+            _axisControl.DepthAxis.enabled = depth;
+        }
+        else
+        {
+            _axisControl.ZAxis.enabled = false;
+            _axisControl.XAxis.enabled = false;
+            _axisControl.YAxis.enabled = false;
+            _axisControl.DepthAxis.enabled = false;
+        }
     }
 
     public void SetAxisTransform(Transform transform)
@@ -849,6 +865,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsTransparent()
     {
+        Debug.Log($"Setting materials for {name} to transparent");
         var currentColorTint = new Color(GetColor().r, GetColor().g, GetColor().b, .2f);
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
@@ -864,6 +881,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
+        Debug.Log($"Setting materials for {name} to default");
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
             if (defaultMaterials.ContainsKey(childRenderer.gameObject))
                 childRenderer.material = defaultMaterials[childRenderer.gameObject];

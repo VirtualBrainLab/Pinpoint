@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
-using Settings;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -88,6 +87,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         private void OnEnable()
         {
+            if (!_communicationManager.IsConnected) return;
             // Update UI elements every time the settings panel is opened
             UpdateProbePanels();
             UpdateConnectionUI();
@@ -264,7 +264,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             }
             else
             {
-                QuestionDialogue qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
+                var qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
 
                 // Disconnect from server
                 qDialogue.SetYesCallback(() =>

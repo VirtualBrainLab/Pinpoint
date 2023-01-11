@@ -38,7 +38,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 ProbeManager.RightHandedManipulatorIDs.Remove(_manipulatorId);
             
             // Save changes
-            PlayerPrefs.SaveRightHandedManipulatorIds(ProbeManager.RightHandedManipulatorIDs);
+            Settings.RightHandedManipulatorIds = ProbeManager.RightHandedManipulatorIDs;
         }
 
         #endregion

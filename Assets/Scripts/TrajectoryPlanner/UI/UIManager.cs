@@ -14,6 +14,8 @@ public class UIManager : MonoBehaviour
     [FormerlySerializedAs("EditorFocusableGOs")] [SerializeField]
     private List<GameObject> _editorFocusableGOs;
 
+    [SerializeField] private List<TMP_Text> _whiteUIText;
+
     [SerializeField] private GameObject _automaticControlPanelGameObject;
 
     #endregion
@@ -40,5 +42,21 @@ public class UIManager : MonoBehaviour
     public void EnableAutomaticManipulatorControlPanel(bool enable = true)
     {
         _automaticControlPanelGameObject.SetActive(enable);
+    }
+
+    public void SetBackgroundWhite(bool state)
+    {
+        if (state)
+        {
+            foreach (TMP_Text textC in _whiteUIText)
+                textC.color = Color.black;
+            Camera.main.backgroundColor = Color.white;
+        }
+        else
+        {
+            foreach (TMP_Text textC in _whiteUIText)
+                textC.color = Color.white;
+            Camera.main.backgroundColor = Color.black;
+        }
     }
 }

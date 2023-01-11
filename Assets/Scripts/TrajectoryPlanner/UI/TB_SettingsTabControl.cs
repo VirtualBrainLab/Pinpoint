@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Settings
+namespace UITabs
 {
     public class TB_SettingsTabControl : MonoBehaviour
     {

@@ -79,7 +79,7 @@ public class ColliderManager : MonoBehaviour
 
     public static void CheckForCollisions()
     {
-        if (PlayerPrefs.GetCollisions())
+        if (Settings.DetectCollisions)
         {
             bool collided = CheckCollisionsHelper();
 
