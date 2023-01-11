@@ -1,5 +1,6 @@
 using System;
 using BestHTTP.SocketIO3;
+using UnityEditor;
 using UnityEngine;
 
 namespace EphysLink
@@ -11,18 +12,6 @@ namespace EphysLink
     {
         #region Unity
 
-        /// <summary>
-        ///     Attach to events for automatic connection.
-        /// </summary>
-        private void Awake()
-        {
-            Settings.EphysLinkServerSettingsLoadedEvent.AddListener(() =>
-            {
-                // Automatically connect if the server credentials are possible
-                if (Settings.EphysLinkServerIp != "" && Settings.EphysLinkServerPort >= 1025)
-                    ConnectToServer(Settings.EphysLinkServerIp, Settings.EphysLinkServerPort);
-            });
-        }
 
         #endregion
 
@@ -47,6 +36,13 @@ namespace EphysLink
         #endregion
 
         #region Connection Handler
+
+        public void ServerSettingsLoaded()
+        {
+            // Automatically connect if the server credentials are possible
+            if (!IsConnected && Settings.EphysLinkServerIp != "" && Settings.EphysLinkServerPort >= 1025)
+                ConnectToServer(Settings.EphysLinkServerIp, Settings.EphysLinkServerPort);
+        }
 
         /// <summary>
         ///     Create a connection to the server.
