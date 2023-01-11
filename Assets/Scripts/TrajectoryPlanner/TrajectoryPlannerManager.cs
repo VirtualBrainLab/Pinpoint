@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoordinateSpaces;
 using CoordinateTransforms;
+using EphysLink;
 using UITabs;
 using TMPro;
 using UnityEngine;
@@ -137,9 +138,6 @@ namespace TrajectoryPlanner
 
             // After annotation loads, check if the user wants to load previously used probes
             CheckForSavedProbes(annotationDatasetLoadTask);
-
-            // Pull settings from PlayerPrefs
-            ProbeManager.RightHandedManipulatorIDs = Settings.GetRightHandedManipulatorIds();
         }
 
         void Update()
@@ -508,7 +506,9 @@ namespace TrajectoryPlanner
                 probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
                 probeManager.BrainSurfaceOffset = brainSurfaceOffset;
                 probeManager.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                if (!string.IsNullOrEmpty(manipulatorId))
+                var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
+                
+                if (communicationManager.IsConnected && !string.IsNullOrEmpty(manipulatorId))
                     probeManager.SetIsEphysLinkControlled(true, manipulatorId, true, null,
                         _ => probeManager.SetIsEphysLinkControlled(false));
             }
