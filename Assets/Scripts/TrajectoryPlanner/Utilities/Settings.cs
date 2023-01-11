@@ -325,6 +325,8 @@ public class Settings : MonoBehaviour
     #endregion
 
     #region Ephys Link
+
+    public UnityEvent<string> EphysLinkServerIpChangedEvent;
     private static string _ephysLinkServerIp;
     public static string EphysLinkServerIp
     {
@@ -334,9 +336,11 @@ public class Settings : MonoBehaviour
             _ephysLinkServerIp = value;
             PlayerPrefs.SetString("ephys_link_ip", value);
             PlayerPrefs.Save();
+            Instance.EphysLinkServerIpChangedEvent.Invoke(value);
         }
     }
     
+    public UnityEvent<int> EphysLinkServerPortChangedEvent;
     private static int _ephysLinkServerPort;
 
     public static int EphysLinkServerPort
@@ -347,13 +351,12 @@ public class Settings : MonoBehaviour
             _ephysLinkServerPort = value;
             PlayerPrefs.SetInt("ephys_link_port", value);
             PlayerPrefs.Save();
+            Instance.EphysLinkServerPortChangedEvent.Invoke(value);
         }
     }
     
     [SerializeField] private TMP_InputField _ephysLinkServerIpInput;
     [SerializeField] private TMP_InputField _ephysLinkServerPortInput;
-
-    public static readonly UnityEvent EphysLinkServerSettingsLoadedEvent = new();
 
     private static string _rightHandedManipulatorIds;
     public static HashSet<string> RightHandedManipulatorIds
@@ -390,7 +393,7 @@ public class Settings : MonoBehaviour
             Debug.LogError("Make sure there is only one Settings object in the scene!");
         Instance = this;
     }
-
+    
     private void Start()
     {
         // Load preferences from memory and set UI elements
@@ -449,8 +452,6 @@ public class Settings : MonoBehaviour
         EphysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
         _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
         
-        EphysLinkServerSettingsLoadedEvent.Invoke();
-
         _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulator_ids", "");
     }
 
