@@ -12,20 +12,16 @@ namespace EphysLink
         #region Unity
 
         /// <summary>
-        ///     Populate data and connect to the server.
+        ///     Attach to events for automatic connection.
         /// </summary>
-        private void Start()
+        private void Awake()
         {
-            // Connect to last known server
-            if (Settings.EphysLinkServerIp != "" && Settings.EphysLinkServerPort >= 1025)
+            Settings.EphysLinkServerSettingsLoadedEvent.AddListener(() =>
             {
-                print("Making connection to saved server");
-                ConnectToServer(Settings.EphysLinkServerIp, Settings.EphysLinkServerPort);
-            }
-            else
-            {
-                print("Making saved data: "+Settings.EphysLinkServerIp+": "+Settings.EphysLinkServerPort);
-            }
+                // Automatically connect if the server credentials are possible
+                if (Settings.EphysLinkServerIp != "" && Settings.EphysLinkServerPort >= 1025)
+                    ConnectToServer(Settings.EphysLinkServerIp, Settings.EphysLinkServerPort);
+            });
         }
 
         #endregion
@@ -84,11 +80,11 @@ namespace EphysLink
                 {
                     Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
                     IsConnected = true;
-                    
+
                     // Save settings
                     Settings.EphysLinkServerIp = ip;
                     Settings.EphysLinkServerPort = port;
-                    
+
                     onConnected?.Invoke();
                 });
 

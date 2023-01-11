@@ -324,13 +324,14 @@ public class Settings : MonoBehaviour
 
     #endregion
 
-    #region Ephys link settings
+    #region Ephys Link
     private static string _ephysLinkServerIp;
     public static string EphysLinkServerIp
     {
         get => _ephysLinkServerIp;
         set
         {
+            _ephysLinkServerIp = value;
             PlayerPrefs.SetString("ephys_link_ip", value);
             PlayerPrefs.Save();
         }
@@ -343,6 +344,7 @@ public class Settings : MonoBehaviour
         get => _ephysLinkServerPort;
         set
         {
+            _ephysLinkServerPort = value;
             PlayerPrefs.SetInt("ephys_link_port", value);
             PlayerPrefs.Save();
         }
@@ -351,13 +353,16 @@ public class Settings : MonoBehaviour
     [SerializeField] private TMP_InputField _ephysLinkServerIpInput;
     [SerializeField] private TMP_InputField _ephysLinkServerPortInput;
 
+    public static readonly UnityEvent EphysLinkServerSettingsLoadedEvent = new();
+
     private static string _rightHandedManipulatorIds;
     public static HashSet<string> RightHandedManipulatorIds
     {
         get => _rightHandedManipulatorIds == null ? new HashSet<string>() : _rightHandedManipulatorIds.Split(',').ToHashSet();
         set
         {
-            PlayerPrefs.SetString("right_handed_manipulators", string.Join(",", value));
+            _rightHandedManipulatorIds = string.Join(",", value);
+            PlayerPrefs.SetString("right_handed_manipulators", _rightHandedManipulatorIds);
             PlayerPrefs.Save();
         }
     }
@@ -438,11 +443,13 @@ public class Settings : MonoBehaviour
         _showAllProbePanelsToggle.SetIsOnWithoutNotify(ShowAllProbePanels);
 
         // Ephys link
-        _ephysLinkServerIp = LoadStringPref("ephys_link_ip", "");
+        EphysLinkServerIp = LoadStringPref("ephys_link_ip", "");
         _ephysLinkServerIpInput.text = _ephysLinkServerIp;
 
-        _ephysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
+        EphysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
         _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
+        
+        EphysLinkServerSettingsLoadedEvent.Invoke();
 
         _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulator_ids", "");
     }
