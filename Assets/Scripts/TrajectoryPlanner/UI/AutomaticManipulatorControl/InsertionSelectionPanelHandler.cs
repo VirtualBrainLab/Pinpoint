@@ -27,6 +27,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             InitializeLineRenderers();
         }
 
+        /// <summary>
+        /// Cleanup line renderers on destroy
+        /// </summary>
         private void OnDestroy()
         {
             Destroy(_lineGameObjects.ap);
@@ -137,6 +140,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         [SerializeField] private TMP_InputField _mlInputField;
         [SerializeField] private TMP_InputField _dvInputField;
         [SerializeField] private TMP_InputField _depthInputField;
+        [SerializeField] private TMP_Text _moveButtonText;
 
         public ProbeManager ProbeManager { private get; set; }
 
