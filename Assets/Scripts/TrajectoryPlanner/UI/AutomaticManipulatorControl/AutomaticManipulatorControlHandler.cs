@@ -23,20 +23,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Step 1
 
-        private void EnableStep1()
-        {
-            if (!ProbeManagers.Any()) return;
-
-            // Setup shared resources
-            ResetZeroCoordinatePanelHandler.ResetZeroCoordinateCallback = AddInsertionSelectionPanel;
-            ResetZeroCoordinatePanelHandler.CommunicationManager = _communicationManager;
-
-            // Add panels
-            _zeroCoordinatePanel.PanelScrollView.SetActive(true);
-            // _zeroCoordinatePanel.ManipulatorsAttachedText.SetActive(false);
-            foreach (var probeManager in ProbeManagers) AddResetZeroCoordinatePanel(probeManager);
-        }
-
         private void AddResetZeroCoordinatePanel(ProbeManager probeManager)
         {
             // Instantiate
@@ -45,6 +31,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 _zeroCoordinatePanel.PanelScrollViewContent.transform);
             var resetZeroCoordinatePanelHandler =
                 resetZeroCoordinatePanelGameObject.GetComponent<ResetZeroCoordinatePanelHandler>();
+            _panels.Add(resetZeroCoordinatePanelGameObject);
 
             // Setup
             resetZeroCoordinatePanelHandler.ProbeManager = probeManager;
@@ -62,7 +49,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
             // Setup shared resources
             InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
-            InsertionSelectionPanelHandler.CommunicationManager = _communicationManager;
+            InsertionSelectionPanelHandler.CommunicationManager = CommunicationManager;
             InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
             InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent.AddListener(
                 UpdateMoveButtonInteractable);
@@ -87,6 +74,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 _gotoPanel.PanelScrollViewContent.transform);
             var insertionSelectionPanelHandler =
                 insertionSelectionPanelGameObject.GetComponent<InsertionSelectionPanelHandler>();
+            _panels.Add(insertionSelectionPanelGameObject);
 
             // Setup
             insertionSelectionPanelHandler.ProbeManager = probeManager;
@@ -125,7 +113,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // Setup shared resources
             ResetDuraOffsetPanelHandler.EnableStep4Callback = EnableStep4;
             ResetDuraOffsetPanelHandler.ProbesTargetDepth = _probesTargetDepth;
-            ResetDuraOffsetPanelHandler.CommunicationManager = _communicationManager;
 
             // Enable UI
             // _duraOffsetPanel.CanvasGroup.alpha = 1;
@@ -144,6 +131,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             var resetDuraPanelGameObject = Instantiate(_duraOffsetPanel.ResetDuraOffsetPanelPrefab,
                 _duraOffsetPanel.PanelScrollViewContent.transform);
             var resetDuraPanelHandler = resetDuraPanelGameObject.GetComponent<ResetDuraOffsetPanelHandler>();
+            _panels.Add(resetDuraPanelGameObject);
 
             // Setup
             resetDuraPanelHandler.ProbeManager = probeManager;
@@ -168,6 +156,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             var addDrivePanelGameObject =
                 Instantiate(_drivePanel.DrivePanelPrefab, _drivePanel.PanelScrollViewContent.transform);
             var drivePanelHandler = addDrivePanelGameObject.GetComponent<DrivePanelHandler>();
+            _panels.Add(addDrivePanelGameObject);
 
             // Setup
             drivePanelHandler.ProbeManager = probeManager;
@@ -245,12 +234,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // Drive
             foreach (var kvp in _probesTargetDepth)
                 // Start driving
-                _communicationManager.SetCanWrite(kvp.Key, true, 1, canWrite =>
+                CommunicationManager.SetCanWrite(kvp.Key, true, 1, canWrite =>
                 {
                     if (canWrite)
-                        _communicationManager.SetInsideBrain(kvp.Key, true, _ =>
+                        CommunicationManager.SetInsideBrain(kvp.Key, true, _ =>
                         {
-                            _communicationManager.DriveToDepth(kvp.Key,
+                            CommunicationManager.DriveToDepth(kvp.Key,
                                 kvp.Value + DRIVE_PAST_TARGET_DISTANCE, DEPTH_DRIVE_SPEED, _ =>
                                 {
                                     // Drive back up to target
@@ -266,15 +255,15 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // _drivePanel.StatusText.text = "Driving back to target...";
 
             // Drive
-            _communicationManager.DriveToDepth(manipulatorID,
+            CommunicationManager.DriveToDepth(manipulatorID,
                 _probesTargetDepth[manipulatorID], DEPTH_DRIVE_SPEED, _ =>
                 {
                     // Finished movement, and is now settling
                     _probesAtTarget.Add(manipulatorID);
 
                     // Reset manipulator drive states
-                    _communicationManager.SetInsideBrain(manipulatorID, false,
-                        _ => { _communicationManager.SetCanWrite(manipulatorID, false, 1, _ => { }, Debug.LogError); },
+                    CommunicationManager.SetInsideBrain(manipulatorID, false,
+                        _ => { CommunicationManager.SetCanWrite(manipulatorID, false, 1, _ => { }, Debug.LogError); },
                         Debug.LogError);
 
                     // Update status text if both are done
@@ -311,7 +300,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 // Movement in progress
 
                 // Stop all movements
-                _communicationManager.Stop(state =>
+                CommunicationManager.Stop(state =>
                 {
                     if (!state) return;
 
@@ -340,7 +329,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             if (_isDriving)
             {
                 // Stop all movements and reset UI
-                _communicationManager.Stop(state =>
+                CommunicationManager.Stop(state =>
                 {
                     if (!state) return;
                     // _drivePanel.ButtonText.text = "Drive";
@@ -423,7 +412,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private class DrivePanelComponents
         {
             public GameObject DrivePanelPrefab;
-            public GameObject PanelScrollView;
             public GameObject PanelScrollViewContent;
         }
 
@@ -431,7 +419,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #endregion
 
-        private CommunicationManager _communicationManager;
+        private HashSet<GameObject> _panels;
+
+        public static CommunicationManager CommunicationManager { get; private set; }
 
         #endregion
 
@@ -465,7 +455,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private void Awake()
         {
-            _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
+            CommunicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
         }
 
         private void OnEnable()
@@ -478,7 +468,13 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
             // Setup shared resources for panels
             ResetZeroCoordinatePanelHandler.ResetZeroCoordinateCallback = AddInsertionSelectionPanel;
-            ResetZeroCoordinatePanelHandler.CommunicationManager = _communicationManager;
+            InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
+            InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
+            InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent.AddListener(
+                UpdateMoveButtonInteractable);
+            InsertionSelectionPanelHandler.AddResetDuraOffsetPanelCallback = AddResetDuraOffsetPanel;
+            ResetDuraOffsetPanelHandler.ProbesTargetDepth = _probesTargetDepth;
+            
 
             // Spawn panels
             foreach (var probeManager in ProbeManagers)
@@ -499,24 +495,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private void OnDisable()
         {
-            foreach (Transform panel in _zeroCoordinatePanel.PanelScrollViewContent.transform)
+            foreach (var panel in _panels)
             {
-                Destroy(panel.gameObject);
-            }
-
-            foreach (Transform panel in _gotoPanel.PanelScrollViewContent.transform)
-            {
-                Destroy(panel.gameObject);
-            }
-
-            foreach (Transform panel in _duraOffsetPanel.PanelScrollViewContent.transform)
-            {
-                Destroy(panel.gameObject);
-            }
-
-            foreach (Transform panel in _drivePanel.PanelScrollViewContent.transform)
-            {
-                Destroy(panel.gameObject);
+                Destroy(panel);
             }
         }
 

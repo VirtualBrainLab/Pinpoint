@@ -29,7 +29,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             ProbeManager.SetBrainSurfaceOffset();
 
             // Record current position and mark down as at dura
-            CommunicationManager.GetPos(ProbeManager.ManipulatorId, position =>
+            AutomaticManipulatorControlHandler.CommunicationManager.GetPos(ProbeManager.ManipulatorId, position =>
             {
                 // Record depth for this probe
                 ProbesTargetDepth[ProbeManager.ManipulatorId] = position.w;
@@ -52,7 +52,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         public static Dictionary<string, float> ProbesTargetDepth { private get; set; }
         public static Action EnableStep4Callback { private get; set; }
-        public static CommunicationManager CommunicationManager { private get; set; }
 
         #endregion
     }
