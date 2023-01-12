@@ -27,6 +27,13 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             InitializeLineRenderers();
         }
 
+        private void OnDestroy()
+        {
+            Destroy(_lineGameObjects.ap);
+            Destroy(_lineGameObjects.ml);
+            Destroy(_lineGameObjects.dv);
+        }
+
         #endregion
 
         #region Internal Functions
@@ -152,7 +159,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         #region Shared
 
         public static HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
-        public static CommunicationManager CommunicationManager { private get; set; }
         public static CCFAnnotationDataset AnnotationDataset { private get; set; }
         public static readonly Dictionary<string, ProbeInsertion> SelectedTargetInsertion = new();
         private static uint completedMovements;
@@ -307,19 +313,19 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 ConvertInsertionToManipulatorPosition(_movementAxesInsertions.dv);
 
             // Move
-            CommunicationManager.SetCanWrite(manipulatorID, true, 1, canWrite =>
+            CommunicationManager.Instance.SetCanWrite(manipulatorID, true, 1, canWrite =>
             {
                 if (canWrite)
-                    CommunicationManager.GotoPos(manipulatorID, dvPosition,
+                    CommunicationManager.Instance.GotoPos(manipulatorID, dvPosition,
                         automaticMovementSpeed, _ =>
                         {
-                            CommunicationManager.GotoPos(manipulatorID, apPosition,
+                            CommunicationManager.Instance.GotoPos(manipulatorID, apPosition,
                                 automaticMovementSpeed, _ =>
                                 {
-                                    CommunicationManager.GotoPos(manipulatorID, mlPosition,
+                                    CommunicationManager.Instance.GotoPos(manipulatorID, mlPosition,
                                         automaticMovementSpeed, _ =>
                                         {
-                                            CommunicationManager.SetCanWrite(manipulatorID, false, 1, _ =>
+                                            CommunicationManager.Instance.SetCanWrite(manipulatorID, false, 1, _ =>
                                             {
                                                 // Hide lines
                                                 _lineGameObjects.ap.SetActive(false);

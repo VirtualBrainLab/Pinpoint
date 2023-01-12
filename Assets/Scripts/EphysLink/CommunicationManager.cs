@@ -11,6 +11,8 @@ namespace EphysLink
     public class CommunicationManager : MonoBehaviour
     {
         #region Variables
+        
+        public static CommunicationManager Instance;
 
         #region Components
 
@@ -27,6 +29,19 @@ namespace EphysLink
         public bool IsConnected { get; private set; }
 
         #endregion
+
+        #endregion
+
+        #region Unity
+
+        private void Awake()
+        {
+            if (Instance != null)
+            {
+                Debug.LogError("Make sure there is only one CommunicationManager in the scene!");
+            }
+            Instance = this;
+        }
 
         #endregion
 

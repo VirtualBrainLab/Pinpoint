@@ -49,7 +49,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
             // Setup shared resources
             InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
-            InsertionSelectionPanelHandler.CommunicationManager = CommunicationManager;
             InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
             InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent.AddListener(
                 UpdateMoveButtonInteractable);
@@ -234,12 +233,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // Drive
             foreach (var kvp in _probesTargetDepth)
                 // Start driving
-                CommunicationManager.SetCanWrite(kvp.Key, true, 1, canWrite =>
+                CommunicationManager.Instance.SetCanWrite(kvp.Key, true, 1, canWrite =>
                 {
                     if (canWrite)
-                        CommunicationManager.SetInsideBrain(kvp.Key, true, _ =>
+                        CommunicationManager.Instance.SetInsideBrain(kvp.Key, true, _ =>
                         {
-                            CommunicationManager.DriveToDepth(kvp.Key,
+                            CommunicationManager.Instance.DriveToDepth(kvp.Key,
                                 kvp.Value + DRIVE_PAST_TARGET_DISTANCE, DEPTH_DRIVE_SPEED, _ =>
                                 {
                                     // Drive back up to target
@@ -255,15 +254,19 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // _drivePanel.StatusText.text = "Driving back to target...";
 
             // Drive
-            CommunicationManager.DriveToDepth(manipulatorID,
+            CommunicationManager.Instance.DriveToDepth(manipulatorID,
                 _probesTargetDepth[manipulatorID], DEPTH_DRIVE_SPEED, _ =>
                 {
                     // Finished movement, and is now settling
                     _probesAtTarget.Add(manipulatorID);
 
                     // Reset manipulator drive states
-                    CommunicationManager.SetInsideBrain(manipulatorID, false,
-                        _ => { CommunicationManager.SetCanWrite(manipulatorID, false, 1, _ => { }, Debug.LogError); },
+                    CommunicationManager.Instance.SetInsideBrain(manipulatorID, false,
+                        _ =>
+                        {
+                            CommunicationManager.Instance.SetCanWrite(manipulatorID, false, 1, _ => { },
+                                Debug.LogError);
+                        },
                         Debug.LogError);
 
                     // Update status text if both are done
@@ -300,7 +303,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 // Movement in progress
 
                 // Stop all movements
-                CommunicationManager.Stop(state =>
+                CommunicationManager.Instance.Stop(state =>
                 {
                     if (!state) return;
 
@@ -329,7 +332,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             if (_isDriving)
             {
                 // Stop all movements and reset UI
-                CommunicationManager.Stop(state =>
+                CommunicationManager.Instance.Stop(state =>
                 {
                     if (!state) return;
                     // _drivePanel.ButtonText.text = "Drive";
@@ -419,9 +422,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #endregion
 
-        private HashSet<GameObject> _panels;
-
-        public static CommunicationManager CommunicationManager { get; private set; }
+        private readonly HashSet<GameObject> _panels = new();
 
         #endregion
 
@@ -453,11 +454,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Unity
 
-        private void Awake()
-        {
-            CommunicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
-        }
-
         private void OnEnable()
         {
             // Populate properties
@@ -474,7 +470,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 UpdateMoveButtonInteractable);
             InsertionSelectionPanelHandler.AddResetDuraOffsetPanelCallback = AddResetDuraOffsetPanel;
             ResetDuraOffsetPanelHandler.ProbesTargetDepth = _probesTargetDepth;
-            
+
 
             // Spawn panels
             foreach (var probeManager in ProbeManagers)

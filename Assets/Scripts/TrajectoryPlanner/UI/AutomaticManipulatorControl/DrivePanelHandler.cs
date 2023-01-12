@@ -18,12 +18,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         #endregion
         #region Components
 
-        #region Shared
-
-        public static CommunicationManager CommunicationManager { private get; set; }
-
-        #endregion
-
         [SerializeField] private TMP_Text _manipulatorIDText;
         [SerializeField] private TMP_Text _statusText;
         [SerializeField] private TMP_Text _timeText;

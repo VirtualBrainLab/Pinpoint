@@ -664,7 +664,6 @@ MonoBehaviour:
     PanelScrollViewContent: {fileID: 8370024288020303656}
   _drivePanel:
     DrivePanelPrefab: {fileID: 8263761920505935187, guid: 57f71b59395523648b1afe91354e6e46, type: 3}
-    PanelScrollView: {fileID: 2779935584337275322}
     PanelScrollViewContent: {fileID: 4935010787922608052}
 --- !u!1 &1445278465893963707
 GameObject:
@@ -1706,11 +1705,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: -1
+  m_MinWidth: 300
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: 3
+  m_FlexibleWidth: 2
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &4873534109996246329
@@ -2786,9 +2785,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: -1
+  m_MinWidth: 300
   m_MinHeight: -1
-  m_PreferredWidth: 300
+  m_PreferredWidth: -1
   m_PreferredHeight: -1
   m_FlexibleWidth: 1
   m_FlexibleHeight: -1
@@ -3130,11 +3129,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: -1
+  m_MinWidth: 300
   m_MinHeight: -1
-  m_PreferredWidth: 300
+  m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: 2
+  m_FlexibleWidth: 3
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &8370024288020303656
