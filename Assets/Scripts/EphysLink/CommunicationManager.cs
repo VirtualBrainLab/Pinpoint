@@ -10,11 +10,6 @@ namespace EphysLink
     /// </summary>
     public class CommunicationManager : MonoBehaviour
     {
-        #region Unity
-
-
-        #endregion
-
         #region Variables
 
         #region Components

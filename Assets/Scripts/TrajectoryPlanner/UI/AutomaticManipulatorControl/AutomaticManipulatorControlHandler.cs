@@ -163,6 +163,16 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // _drivePanel.StatusText.text = "Ready to Drive";
         }
 
+        private void AddDrivePanel(ProbeManager probeManager)
+        {
+            var addDrivePanelGameObject =
+                Instantiate(_drivePanel.DrivePanelPrefab, _drivePanel.PanelScrollViewContent.transform);
+            var drivePanelHandler = addDrivePanelGameObject.GetComponent<DrivePanelHandler>();
+
+            // Setup
+            drivePanelHandler.ProbeManager = probeManager;
+        }
+
         private void StartDriveChain()
         {
             // Compute furthest depth drive distance
@@ -465,8 +475,49 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             RightHandedManipulatorIDs = ProbeManager.RightHandedManipulatorIDs;
             AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
             TargetInsertionsReference = ProbeInsertion.TargetableInstances;
-            // Enable step 1
-            EnableStep1();
+
+            // Setup shared resources for panels
+            ResetZeroCoordinatePanelHandler.ResetZeroCoordinateCallback = AddInsertionSelectionPanel;
+            ResetZeroCoordinatePanelHandler.CommunicationManager = _communicationManager;
+
+            // Spawn panels
+            foreach (var probeManager in ProbeManagers)
+            {
+                // Step 1
+                AddResetZeroCoordinatePanel(probeManager);
+
+                // Step 2
+                AddInsertionSelectionPanel(probeManager);
+
+                // Step 3
+                AddResetDuraOffsetPanel(probeManager);
+
+                // Step 4
+                AddDrivePanel(probeManager);
+            }
+        }
+
+        private void OnDisable()
+        {
+            foreach (Transform panel in _zeroCoordinatePanel.PanelScrollViewContent.transform)
+            {
+                Destroy(panel.gameObject);
+            }
+
+            foreach (Transform panel in _gotoPanel.PanelScrollViewContent.transform)
+            {
+                Destroy(panel.gameObject);
+            }
+
+            foreach (Transform panel in _duraOffsetPanel.PanelScrollViewContent.transform)
+            {
+                Destroy(panel.gameObject);
+            }
+
+            foreach (Transform panel in _drivePanel.PanelScrollViewContent.transform)
+            {
+                Destroy(panel.gameObject);
+            }
         }
 
         #endregion

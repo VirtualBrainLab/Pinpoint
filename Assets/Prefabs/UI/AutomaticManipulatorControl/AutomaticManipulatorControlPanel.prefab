@@ -651,33 +651,21 @@ MonoBehaviour:
   _readyColor: {r: 0.19999999, g: 0.8509804, b: 0.39529407, a: 1}
   _workingColor: {r: 1, g: 0.69411767, b: 0.25882354, a: 1}
   _zeroCoordinatePanel:
-    PanelText: {fileID: 1445278465210223968}
     ResetZeroCoordinatePanelPrefab: {fileID: 8263761920505935187, guid: 8e78152cb80513c45b3c35cb5a96432f, type: 3}
     PanelScrollView: {fileID: 2904017589487271391}
     PanelScrollViewContent: {fileID: 7072317697882447797}
-    ManipulatorsAttachedText: {fileID: 0}
   _gotoPanel:
-    CanvasGroup: {fileID: 0}
-    PanelText: {fileID: 478385048297492083}
     InsertionSelectionPanelPrefab: {fileID: 4424500575015542408, guid: 3c4cf558240cec14abf3dd9882eba899, type: 3}
     PanelScrollView: {fileID: 687500095747171540}
     PanelScrollViewContent: {fileID: 7125810125362052674}
-    ManipulatorsZeroedText: {fileID: 0}
-    MoveButton: {fileID: 0}
-    MoveButtonText: {fileID: 0}
   _duraOffsetPanel:
-    CanvasGroup: {fileID: 0}
-    PanelText: {fileID: 8296755181428719015}
     ResetDuraOffsetPanelPrefab: {fileID: 8263761920505935187, guid: b9c529c14db0a5043baffd6a8baecaf4, type: 3}
     PanelScrollView: {fileID: 6248915284573402155}
     PanelScrollViewContent: {fileID: 8370024288020303656}
-    ManipulatorsDrivenText: {fileID: 0}
   _drivePanel:
-    CanvasGroup: {fileID: 0}
-    PanelText: {fileID: 1424320475779402751}
-    StatusText: {fileID: 0}
-    TimerText: {fileID: 0}
-    ButtonText: {fileID: 0}
+    DrivePanelPrefab: {fileID: 8263761920505935187, guid: 57f71b59395523648b1afe91354e6e46, type: 3}
+    PanelScrollView: {fileID: 2779935584337275322}
+    PanelScrollViewContent: {fileID: 4935010787922608052}
 --- !u!1 &1445278465893963707
 GameObject:
   m_ObjectHideFlags: 0
@@ -3146,7 +3134,7 @@ MonoBehaviour:
   m_MinHeight: -1
   m_PreferredWidth: 300
   m_PreferredHeight: -1
-  m_FlexibleWidth: 1
+  m_FlexibleWidth: 2
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &8370024288020303656
