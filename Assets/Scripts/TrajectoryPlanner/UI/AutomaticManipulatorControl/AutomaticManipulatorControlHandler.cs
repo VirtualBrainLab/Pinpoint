@@ -12,12 +12,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 {
     public class AutomaticManipulatorControlHandler : MonoBehaviour
     {
-        #region Constants
-
-        private const float DRIVE_PAST_TARGET_DISTANCE = 0.2f;
-        private const int DEPTH_DRIVE_SPEED = 5;
-
-        #endregion
 
         #region Internal UI Functions
 
@@ -161,119 +155,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             drivePanelHandler.ProbeManager = probeManager;
         }
 
-        private void StartDriveChain()
-        {
-            // Compute furthest depth drive distance
-            var maxTravelDistance = 0f;
-            foreach (var manipulatorID in _probesTargetDepth.Keys.ToList())
-            {
-                // Compute max travel distance for this probe
-                var distance = Vector3.Distance(
-                    InsertionSelectionPanelHandler.SelectedTargetInsertion[manipulatorID].apmldv,
-                    ProbeManagers.Find(manager => manager.ManipulatorId == manipulatorID).GetProbeController()
-                        .Insertion.apmldv);
-
-                // Update target depth for probe
-                _probesTargetDepth[manipulatorID] += distance;
-
-                // Update overall max travel distance
-                maxTravelDistance = Math.Max(maxTravelDistance, distance + DRIVE_PAST_TARGET_DISTANCE);
-            }
-
-            // Compute drive time:
-            // Time to move manipulator to 200 µm past target @ 5 µm/s
-            _driveDuration = maxTravelDistance * 1000f / DEPTH_DRIVE_SPEED;
-
-            // Time to move back to target at 5 µm/s
-            _driveDuration += 40;
-
-            // Time to let settle (at least 2 minutes, or total distance / 1000 µm per minute)
-            _driveDuration += Math.Max(120, maxTravelDistance * 60f);
-
-            // Start timer
-            StartCoroutine(CountDownTimer());
-
-            // Start drive chain
-            Drive200PastTarget();
-        }
-
-        private IEnumerator CountDownTimer()
-        {
-            // Set timer text
-            // _drivePanel.TimerText.text = TimeSpan.FromSeconds(_driveDuration).ToString(@"mm\:ss");
-
-            // Wait for 1 second
-            yield return new WaitForSeconds(1);
-
-            // Decrement timer
-            _driveDuration--;
-
-            // Check if timer is done
-            if (_driveDuration > 0 && _isDriving)
-                // Start next timer
-            {
-                StartCoroutine(CountDownTimer());
-            }
-            else
-            {
-                // Set timer text
-                // _drivePanel.StatusText.text = "Drive Complete!";
-                // _drivePanel.TimerText.text = "Ready for Experiment";
-                // _drivePanel.ButtonText.text = "Drive";
-                // _drivePanel.PanelText.color = Color.white;
-                _probesAtTarget.Clear();
-            }
-        }
-
-        private void Drive200PastTarget()
-        {
-            // Set drive status
-            // _drivePanel.StatusText.text = "Driving to 200 µm past target...";
-
-            // Drive
-            foreach (var kvp in _probesTargetDepth)
-                // Start driving
-                CommunicationManager.Instance.SetCanWrite(kvp.Key, true, 1, canWrite =>
-                {
-                    if (canWrite)
-                        CommunicationManager.Instance.SetInsideBrain(kvp.Key, true, _ =>
-                        {
-                            CommunicationManager.Instance.DriveToDepth(kvp.Key,
-                                kvp.Value + DRIVE_PAST_TARGET_DISTANCE, DEPTH_DRIVE_SPEED, _ =>
-                                {
-                                    // Drive back up to target
-                                    DriveBackToTarget(kvp.Key);
-                                }, Debug.LogError);
-                        });
-                });
-        }
-
-        private void DriveBackToTarget(string manipulatorID)
-        {
-            // Set drive status
-            // _drivePanel.StatusText.text = "Driving back to target...";
-
-            // Drive
-            CommunicationManager.Instance.DriveToDepth(manipulatorID,
-                _probesTargetDepth[manipulatorID], DEPTH_DRIVE_SPEED, _ =>
-                {
-                    // Finished movement, and is now settling
-                    _probesAtTarget.Add(manipulatorID);
-
-                    // Reset manipulator drive states
-                    CommunicationManager.Instance.SetInsideBrain(manipulatorID, false,
-                        _ =>
-                        {
-                            CommunicationManager.Instance.SetCanWrite(manipulatorID, false, 1, _ => { },
-                                Debug.LogError);
-                        },
-                        Debug.LogError);
-
-                    // Update status text if both are done
-                    if (_probesAtTarget.Count != _probesTargetDepth.Keys.Count) return;
-                    // _drivePanel.StatusText.text = "Settling... Please wait...";
-                }, Debug.LogError);
-        }
 
         #endregion
 
@@ -320,42 +201,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #endregion
 
-
-        #region Step 4
-
-        /// <summary>
-        ///     Drive manipulators to 200 µm past target insertion, bring back up to target, and let settle.
-        ///     Stops in progress drive.
-        /// </summary>
-        public void DriveOrStopDepth()
-        {
-            if (_isDriving)
-            {
-                // Stop all movements and reset UI
-                CommunicationManager.Instance.Stop(state =>
-                {
-                    if (!state) return;
-                    // _drivePanel.ButtonText.text = "Drive";
-                    // _drivePanel.StatusText.text = "Ready to Drive";
-                    // _drivePanel.TimerText.text = "";
-                    // _drivePanel.PanelText.color = Color.white;
-                    _isDriving = false;
-                });
-            }
-            else
-            {
-                // Set UI for driving
-                // _drivePanel.ButtonText.text = "Stop";
-                // _drivePanel.PanelText.color = _workingColor;
-                _isDriving = true;
-                _probesAtTarget.Clear();
-
-                // Run drive chain
-                StartDriveChain();
-            }
-        }
-
-        #endregion
 
         #endregion
 
