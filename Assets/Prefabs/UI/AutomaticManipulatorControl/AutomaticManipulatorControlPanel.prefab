@@ -648,8 +648,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d88c3882a5d335418c1360b640d50cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _readyColor: {r: 0.19999999, g: 0.8509804, b: 0.39529407, a: 1}
-  _workingColor: {r: 1, g: 0.69411767, b: 0.25882354, a: 1}
   _zeroCoordinatePanel:
     ResetZeroCoordinatePanelPrefab: {fileID: 8263761920505935187, guid: 8e78152cb80513c45b3c35cb5a96432f, type: 3}
     PanelScrollView: {fileID: 2904017589487271391}
@@ -728,7 +726,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0.6666667, g: 0.6509804, b: 0.6156863, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1649,7 +1647,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0.6666667, g: 0.6509804, b: 0.6156863, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2729,7 +2727,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0.6666667, g: 0.6509804, b: 0.6156863, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3073,7 +3071,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0.6666667, g: 0.6509804, b: 0.6156863, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

@@ -28,19 +28,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             {
                 ProbeManager.ZeroCoordinateOffset = zeroCoordinate;
                 ProbeManager.BrainSurfaceOffset = 0;
-                ResetZeroCoordinateCallback.Invoke(ProbeManager);
             });
         }
 
         #endregion
 
         #region Components
-
-        #region Shared
-
-        public static Action<ProbeManager> ResetZeroCoordinateCallback { private get; set; }
-
-        #endregion
 
         [SerializeField] private TMP_Text _manipulatorIDText;
 

@@ -35,33 +35,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Step 2
 
-        private void EnableStep2()
-        {
-            // Check if needed
-            if (_step != 1) return;
-            _step = 2;
-
-            // Setup shared resources
-            InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
-            InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
-            InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent.AddListener(
-                UpdateMoveButtonInteractable);
-            InsertionSelectionPanelHandler.AddResetDuraOffsetPanelCallback = AddResetDuraOffsetPanel;
-
-            // Enable UI
-            // _gotoPanel.CanvasGroup.alpha = 1;
-            // _gotoPanel.CanvasGroup.interactable = true;
-            // _gotoPanel.PanelText.color = _readyColor;
-            // _zeroCoordinatePanel.PanelText.color = Color.white;
-            _gotoPanel.PanelScrollView.SetActive(true);
-            // _gotoPanel.ManipulatorsZeroedText.SetActive(false);
-        }
 
         private void AddInsertionSelectionPanel(ProbeManager probeManager)
         {
-            // Enable step 2 (automatically checks if needed)
-            EnableStep2();
-
             // Instantiate
             var insertionSelectionPanelGameObject = Instantiate(_gotoPanel.InsertionSelectionPanelPrefab,
                 _gotoPanel.PanelScrollViewContent.transform);
@@ -71,26 +47,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
             // Setup
             insertionSelectionPanelHandler.ProbeManager = probeManager;
-            _moveToTargetInsertionEvent.AddListener(insertionSelectionPanelHandler.MoveToTargetInsertion);
-        }
-
-        private void UpdateMoveButtonInteractable(string _)
-        {
-            // _gotoPanel.MoveButton.interactable = InsertionSelectionPanelHandler.SelectedTargetInsertion.Count > 0;
-        }
-
-        private void PostMovementActions()
-        {
-            // Reset text states
-            // _gotoPanel.MoveButtonText.text =
-            //     "Move Manipulators into Position";
-            // _gotoPanel.PanelText.color = Color.white;
-
-            // Enable step 3
-            EnableStep3();
-
-            // Update button intractability
-            UpdateMoveButtonInteractable("");
         }
 
         #endregion
@@ -160,57 +116,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #endregion
 
-        #region UI Functions
-
-        #region Step 2
-
-        /// <summary>
-        ///     Move probes with selected target insertions. Stop in progress movement.
-        /// </summary>
-        public void MoveOrStopProbeToInsertionTarget()
-        {
-            if (!InsertionSelectionPanelHandler.Moving)
-            {
-                // No movements completed. Pressing means start a new movement set
-
-                // Set button text
-                // _gotoPanel.MoveButtonText.text = "Moving... Press Again to Stop";
-
-                // Trigger movement
-                _moveToTargetInsertionEvent.Invoke(PostMovementActions);
-            }
-            else
-            {
-                // Movement in progress
-
-                // Stop all movements
-                CommunicationManager.Instance.Stop(state =>
-                {
-                    if (!state) return;
-
-                    InsertionSelectionPanelHandler.MovementStopped();
-
-                    // Reset text
-                    // _gotoPanel.MoveButtonText.text = "Move Manipulators into Position";
-
-                    // Update button interactable
-                    UpdateMoveButtonInteractable("");
-                });
-            }
-        }
-
-        #endregion
-
-
-        #endregion
-
         #region Components
-
-        #region Colors
-
-        [SerializeField] private Color _readyColor, _workingColor;
-
-        #endregion
 
         #region Step 1
 
@@ -308,12 +214,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             TargetInsertionsReference = ProbeInsertion.TargetableInstances;
 
             // Setup shared resources for panels
-            ResetZeroCoordinatePanelHandler.ResetZeroCoordinateCallback = AddInsertionSelectionPanel;
             InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
             InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
-            InsertionSelectionPanelHandler.ShouldUpdateTargetInsertionOptionsEvent.AddListener(
-                UpdateMoveButtonInteractable);
-            InsertionSelectionPanelHandler.AddResetDuraOffsetPanelCallback = AddResetDuraOffsetPanel;
             ResetDuraOffsetPanelHandler.ProbesTargetDepth = _probesTargetDepth;
 
 

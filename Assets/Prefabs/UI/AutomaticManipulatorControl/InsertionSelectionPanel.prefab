@@ -1648,6 +1648,7 @@ MonoBehaviour:
   _mlInputField: {fileID: 876138261419165244}
   _dvInputField: {fileID: 5282841611714941283}
   _depthInputField: {fileID: 6821077568314275510}
+  _moveButton: {fileID: 9144106275895397085}
   _moveButtonText: {fileID: 692523615733388102}
 --- !u!1 &5350147386769723515
 GameObject:
@@ -3267,7 +3268,20 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 418619593512046404}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6020112440439880645}
+        m_TargetAssemblyTypeName: TrajectoryPlanner.UI.AutomaticManipulatorControl.InsertionSelectionPanelHandler,
+          trajectoryplanner.ui.automaticmanipulaatorcontrol
+        m_MethodName: MoveOrStopProbeToInsertionTarget
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1627263282243590414
 MonoBehaviour:
   m_ObjectHideFlags: 0
