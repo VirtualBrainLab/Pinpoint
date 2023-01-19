@@ -1,18 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using EphysLink;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 {
     public class AutomaticManipulatorControlHandler : MonoBehaviour
     {
-
         #region Internal UI Functions
 
         #region Step 1
@@ -35,7 +29,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Step 2
 
-
         private void AddInsertionSelectionPanel(ProbeManager probeManager)
         {
             // Instantiate
@@ -53,29 +46,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Step 3
 
-        private void EnableStep3()
-        {
-            // Check if needed
-            if (_step != 2) return;
-            _step = 3;
-
-            // Setup shared resources
-            ResetDuraOffsetPanelHandler.EnableStep4Callback = EnableStep4;
-            ResetDuraOffsetPanelHandler.ProbesTargetDepth = _probesTargetDepth;
-
-            // Enable UI
-            // _duraOffsetPanel.CanvasGroup.alpha = 1;
-            // _duraOffsetPanel.CanvasGroup.interactable = true;
-            // _duraOffsetPanel.PanelText.color = Color.green;
-            // _gotoPanel.PanelText.color = Color.white;
-        }
-
         private void AddResetDuraOffsetPanel(ProbeManager probeManager)
         {
-            // Show scroll view
-            _duraOffsetPanel.PanelScrollView.SetActive(true);
-            // _duraOffsetPanel.ManipulatorsDrivenText.SetActive(false);
-
             // Instantiate
             var resetDuraPanelGameObject = Instantiate(_duraOffsetPanel.ResetDuraOffsetPanelPrefab,
                 _duraOffsetPanel.PanelScrollViewContent.transform);
@@ -90,16 +62,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Step 4
 
-        private void EnableStep4()
-        {
-            // Enable UI
-            // _drivePanel.CanvasGroup.alpha = 1;
-            // _drivePanel.CanvasGroup.interactable = true;
-            // _duraOffsetPanel.PanelText.color = Color.white;
-            // _drivePanel.PanelText.color = Color.green;
-            // _drivePanel.StatusText.text = "Ready to Drive";
-        }
-
         private void AddDrivePanel(ProbeManager probeManager)
         {
             var addDrivePanelGameObject =
@@ -110,7 +72,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // Setup
             drivePanelHandler.ProbeManager = probeManager;
         }
-
 
         #endregion
 
@@ -124,7 +85,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private class ZeroCoordinatePanelComponents
         {
             public GameObject ResetZeroCoordinatePanelPrefab;
-            public GameObject PanelScrollView;
             public GameObject PanelScrollViewContent;
         }
 
@@ -138,7 +98,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private class GotoPanelComponents
         {
             public GameObject InsertionSelectionPanelPrefab;
-            public GameObject PanelScrollView;
             public GameObject PanelScrollViewContent;
         }
 
@@ -152,7 +111,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private class DuraOffsetPanelComponents
         {
             public GameObject ResetDuraOffsetPanelPrefab;
-            public GameObject PanelScrollView;
             public GameObject PanelScrollViewContent;
         }
 
@@ -179,23 +137,17 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Properties
 
-        private uint _step = 1;
-
         public List<ProbeManager> ProbeManagers { private get; set; }
         public CCFAnnotationDataset AnnotationDataset { private get; set; }
 
         #region Step 2
 
-        public HashSet<string> RightHandedManipulatorIDs { private get; set; }
         public HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
-        private readonly UnityEvent<Action> _moveToTargetInsertionEvent = new();
 
         #endregion
 
         #region Step 4
 
-        private readonly Dictionary<string, float> _probesTargetDepth = new();
-        private readonly HashSet<string> _probesAtTarget = new();
         private bool _isDriving;
         private float _driveDuration;
 
@@ -209,14 +161,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         {
             // Populate properties
             ProbeManagers = ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
-            RightHandedManipulatorIDs = ProbeManager.RightHandedManipulatorIDs;
             AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
             TargetInsertionsReference = ProbeInsertion.TargetableInstances;
 
             // Setup shared resources for panels
             InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
             InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
-            ResetDuraOffsetPanelHandler.ProbesTargetDepth = _probesTargetDepth;
 
 
             // Spawn panels
@@ -238,10 +188,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private void OnDisable()
         {
-            foreach (var panel in _panels)
-            {
-                Destroy(panel);
-            }
+            foreach (var panel in _panels) Destroy(panel);
         }
 
         #endregion

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8952259179317146031}
   - component: {fileID: 1731049060397596974}
   m_Layer: 5
-  m_Name: DriveTimeText
+  m_Name: DriveTimerText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 00:00
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -617,7 +617,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _manipulatorIDText: {fileID: 8263761920268002476}
   _statusText: {fileID: 7924123701241578565}
-  _timerText: {fileID: 0}
+  _timerText: {fileID: 1731049060397596974}
   _buttonText: {fileID: 7698225164329509631}
 --- !u!114 &2376644107146004916
 MonoBehaviour:

@@ -3,20 +3,11 @@ using System.Collections;
 using EphysLink;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 {
     public class DrivePanelHandler : MonoBehaviour
     {
-        #region Constants
-
-        private const float DRIVE_PAST_TARGET_DISTANCE = 0.2f;
-        private const int DEPTH_DRIVE_SPEED = 5;
-        private const float DRIVE_BACK_TO_TARGET_DURATION = DRIVE_PAST_TARGET_DISTANCE * 1000 / DEPTH_DRIVE_SPEED;
-
-        #endregion
-
         #region Unity
 
         private void Start()
@@ -27,13 +18,52 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #endregion
 
+        #region UI Functions
+
+        /// <summary>
+        ///     Drive manipulators to 200 µm past target insertion, bring back up to target, and let settle.
+        ///     Stops in progress drive.
+        /// </summary>
+        public void DriveOrStopDepth()
+        {
+            if (_isDriving)
+            {
+                // Stop all movements and reset UI
+                CommunicationManager.Instance.Stop(state =>
+                {
+                    if (!state) return;
+                    _buttonText.text = "Drive";
+                    _statusText.text = "Ready to Drive";
+                    _timerText.text = "";
+                    _isDriving = false;
+                });
+            }
+            else
+            {
+                // Set UI for driving
+                _buttonText.text = "Stop";
+                _isDriving = true;
+
+                // Run drive chain
+                StartDriveChain();
+            }
+        }
+
+        #endregion
+
+        #region Constants
+
+        private const float DRIVE_PAST_TARGET_DISTANCE = 0.2f;
+        private const int DEPTH_DRIVE_SPEED = 5;
+        private const float DRIVE_BACK_TO_TARGET_DURATION = DRIVE_PAST_TARGET_DISTANCE * 1000 / DEPTH_DRIVE_SPEED;
+
+        #endregion
+
         #region Components
 
         [SerializeField] private TMP_Text _manipulatorIDText;
         [SerializeField] private TMP_Text _statusText;
-
         [SerializeField] private TMP_Text _timerText;
-
         [SerializeField] private TMP_Text _buttonText;
 
         public ProbeManager ProbeManager { private get; set; }
@@ -140,39 +170,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                         },
                         Debug.LogError);
                 }, Debug.LogError);
-        }
-
-        #endregion
-
-        #region UI Functions
-
-        /// <summary>
-        ///     Drive manipulators to 200 µm past target insertion, bring back up to target, and let settle.
-        ///     Stops in progress drive.
-        /// </summary>
-        public void DriveOrStopDepth()
-        {
-            if (_isDriving)
-            {
-                // Stop all movements and reset UI
-                CommunicationManager.Instance.Stop(state =>
-                {
-                    if (!state) return;
-                    _buttonText.text = "Drive";
-                    _statusText.text = "Ready to Drive";
-                    _timerText.text = "";
-                    _isDriving = false;
-                });
-            }
-            else
-            {
-                // Set UI for driving
-                _buttonText.text = "Stop";
-                _isDriving = true;
-
-                // Run drive chain
-                StartDriveChain();
-            }
         }
 
         #endregion
