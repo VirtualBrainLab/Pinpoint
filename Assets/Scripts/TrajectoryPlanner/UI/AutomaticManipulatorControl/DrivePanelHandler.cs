@@ -96,7 +96,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 // Compute drive duration
                 driveDistance += DRIVE_PAST_TARGET_DISTANCE;
                 _driveDuration = driveDistance * 1000f / DEPTH_DRIVE_SPEED + DRIVE_BACK_TO_TARGET_DURATION +
-                                 Math.Max(120, driveDistance * 60);
+                                 Math.Max(120, driveDistance * 600);
 
                 // Start timer
                 StartCoroutine(CountDownTimer());
