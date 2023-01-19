@@ -14,7 +14,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
             _manipulatorIDText.color = ProbeManager.GetColor();
         }
-
+        
         #endregion
 
         #region UI Functions
@@ -24,25 +24,16 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         /// </summary>
         public void ResetZeroCoordinate()
         {
-            CommunicationManager.GetPos(ProbeManager.ManipulatorId, zeroCoordinate =>
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorId, zeroCoordinate =>
             {
                 ProbeManager.ZeroCoordinateOffset = zeroCoordinate;
                 ProbeManager.BrainSurfaceOffset = 0;
-                ResetZeroCoordinateCallback.Invoke(ProbeManager);
             });
         }
 
         #endregion
 
         #region Components
-
-        #region Shared
-
-        public static Action<ProbeManager> ResetZeroCoordinateCallback { private get; set; }
-
-        public static CommunicationManager CommunicationManager { private get; set; }
-
-        #endregion
 
         [SerializeField] private TMP_Text _manipulatorIDText;
 

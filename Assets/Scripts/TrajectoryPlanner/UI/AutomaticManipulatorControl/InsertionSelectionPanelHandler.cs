@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -6,6 +5,7 @@ using EphysLink;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 {
@@ -20,11 +20,21 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             _manipulatorIDText.color = ProbeManager.GetColor();
 
             // Attach to dropdown events
-            ShouldUpdateTargetInsertionOptionsEvent.AddListener(UpdateTargetInsertionOptions);
+            _shouldUpdateTargetInsertionOptionsEvent.AddListener(UpdateTargetInsertionOptions);
             UpdateTargetInsertionOptions("-1");
 
             // Create line renderer
             InitializeLineRenderers();
+        }
+
+        /// <summary>
+        ///     Cleanup line renderers on destroy
+        /// </summary>
+        private void OnDestroy()
+        {
+            Destroy(_lineGameObjects.ap);
+            Destroy(_lineGameObjects.ml);
+            Destroy(_lineGameObjects.dv);
         }
 
         #endregion
@@ -102,10 +112,91 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
             // Apply axis negations
             posWithDepthAndCorrectAxes.z *= -1;
-            posWithDepthAndCorrectAxes.y *= ProbeManager.RightHandedManipulatorIDs.Contains(ProbeManager.ManipulatorId) ? 1 : -1;
+            posWithDepthAndCorrectAxes.y *=
+                ProbeManager.RightHandedManipulatorIDs.Contains(ProbeManager.ManipulatorId) ? 1 : -1;
 
             // Apply coordinate offsets and return result
             return posWithDepthAndCorrectAxes + ProbeManager.ZeroCoordinateOffset;
+        }
+
+        /// <summary>
+        ///     Update the target insertion dropdown options.
+        ///     Try to maintain/restore previous selection
+        /// </summary>
+        private void UpdateTargetInsertionOptions(string fromManipulatorID)
+        {
+            // Skip if called from self
+            if (fromManipulatorID == ProbeManager.ManipulatorId) return;
+
+            // Clear options
+            _targetInsertionDropdown.ClearOptions();
+
+            // Add default option
+            _targetInsertionDropdown.options.Add(new TMP_Dropdown.OptionData("Select a target insertion..."));
+
+            // Add other options
+            _targetInsertionDropdown.AddOptions(_targetInsertionOptions
+                .Select(insertion => insertion.PositionToString()).ToList());
+
+            // Restore selection (if possible)
+            _targetInsertionDropdown.SetValueWithoutNotify(
+                _targetInsertionOptions.ToList()
+                    .IndexOf(SelectedTargetInsertion.GetValueOrDefault(ProbeManager.ManipulatorId, null)) + 1
+            );
+        }
+
+        /// <summary>
+        ///     Move to target insertion and handle callback when all movements are done
+        /// </summary>
+        private void MoveToTargetInsertion()
+        {
+            // Check if a target insertion is selected
+            if (!SelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorId)) return;
+
+            // Setup and compute movement
+            _isMoving = true;
+            var automaticMovementSpeed = ProbeManager.AutomaticMovementSpeed;
+            var apPosition =
+                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ap);
+            var mlPosition =
+                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ml);
+            var dvPosition =
+                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.dv);
+
+            // Move
+            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, true, 1, canWrite =>
+            {
+                if (canWrite)
+                    CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorId, dvPosition,
+                        automaticMovementSpeed, _ =>
+                        {
+                            CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorId, apPosition,
+                                automaticMovementSpeed, _ =>
+                                {
+                                    CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorId, mlPosition,
+                                        automaticMovementSpeed, _ =>
+                                        {
+                                            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, false,
+                                                1, _ =>
+                                                {
+                                                    // Hide lines
+                                                    _lineGameObjects.ap.SetActive(false);
+                                                    _lineGameObjects.ml.SetActive(false);
+                                                    _lineGameObjects.dv.SetActive(false);
+
+                                                    // Complete movement
+                                                    _isMoving = false;
+                                                    _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
+                                                }, Debug.LogError);
+                                        }, Debug.LogError);
+                                }, Debug.LogError);
+                        });
+            });
+        }
+
+        private void UpdateMoveButtonInteractable()
+        {
+            _moveButton.interactable = SelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorId);
         }
 
         #endregion
@@ -115,6 +206,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private const float LINE_WIDTH = 0.1f;
         private const int NUM_SEGMENTS = 2;
         private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0, 0.5f, 0);
+        private const string MOVE_TO_TARGET_INSERTION_STR = "Move to Target Insertion";
+        private  const string STOP_MOVEMENT_STR = "Stop Movement";
 
         #endregion
 
@@ -130,6 +223,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         [SerializeField] private TMP_InputField _mlInputField;
         [SerializeField] private TMP_InputField _dvInputField;
         [SerializeField] private TMP_InputField _depthInputField;
+        [SerializeField] private Button _moveButton;
+        [SerializeField] private TMP_Text _moveButtonText;
 
         public ProbeManager ProbeManager { private get; set; }
 
@@ -139,6 +234,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         #endregion
 
         #region Properties
+
+        private bool _isMoving;
 
         private IEnumerable<ProbeInsertion> _targetInsertionOptions => TargetInsertionsReference
             .Where(insertion =>
@@ -152,19 +249,15 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         #region Shared
 
         public static HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
-        public static CommunicationManager CommunicationManager { private get; set; }
         public static CCFAnnotationDataset AnnotationDataset { private get; set; }
         public static readonly Dictionary<string, ProbeInsertion> SelectedTargetInsertion = new();
-        private static uint completedMovements;
-        public static Action<ProbeManager> AddResetDuraOffsetPanelCallback { private get; set; }
-        public static bool Moving { get; private set; }
-        public static readonly UnityEvent<string> ShouldUpdateTargetInsertionOptionsEvent = new();
+        private static readonly UnityEvent<string> _shouldUpdateTargetInsertionOptionsEvent = new();
 
         #endregion
 
         #endregion
 
-        #region Public Functions
+        #region UI Functions
 
         /// <summary>
         ///     Update record of selected target insertion for this panel.
@@ -257,99 +350,27 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             }
 
             // Update dropdown options
-            ShouldUpdateTargetInsertionOptionsEvent.Invoke(ProbeManager.ManipulatorId);
+            _shouldUpdateTargetInsertionOptionsEvent.Invoke(ProbeManager.ManipulatorId);
+            UpdateMoveButtonInteractable();
         }
 
-        /// <summary>
-        ///     Update the target insertion dropdown options.
-        ///     Try to maintain/restore previous selection
-        /// </summary>
-        public void UpdateTargetInsertionOptions(string fromManipulatorID)
+        public void MoveOrStopProbeToInsertionTarget()
         {
-            // Skip if called from self
-            if (fromManipulatorID == ProbeManager.ManipulatorId) return;
+            if (_isMoving)
+                // Movement in progress -> should stop movement
+                CommunicationManager.Instance.Stop(state =>
+                {
+                    if (!state) return;
 
-            // Clear options
-            _targetInsertionDropdown.ClearOptions();
-
-            // Add default option
-            _targetInsertionDropdown.options.Add(new TMP_Dropdown.OptionData("Select a target insertion..."));
-
-            // Add other options
-            _targetInsertionDropdown.AddOptions(_targetInsertionOptions
-                .Select(insertion => insertion.PositionToString()).ToList());
-
-            // Restore selection (if possible)
-            _targetInsertionDropdown.SetValueWithoutNotify(
-                _targetInsertionOptions.ToList()
-                    .IndexOf(SelectedTargetInsertion.GetValueOrDefault(ProbeManager.ManipulatorId, null)) + 1
-            );
-        }
-
-        /// <summary>
-        ///     Move to target insertion and handle callback when all movements are done
-        /// </summary>
-        /// <param name="totallyCompleteCallback">Callback function to report back when all movements have completed</param>
-        public void MoveToTargetInsertion(Action totallyCompleteCallback)
-        {
-            // Check if a target insertion is selected
-            if (!SelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorId)) return;
-
-            // Setup and compute movement
-            Moving = true;
-            var manipulatorID = ProbeManager.ManipulatorId;
-            var automaticMovementSpeed = ProbeManager.AutomaticMovementSpeed;
-            var apPosition =
-                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ap);
-            var mlPosition =
-                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ml);
-            var dvPosition =
-                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.dv);
-
-            // Move
-            CommunicationManager.SetCanWrite(manipulatorID, true, 1, canWrite =>
+                    _isMoving = false;
+                    _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
+                });
+            else
             {
-                if (canWrite)
-                    CommunicationManager.GotoPos(manipulatorID, dvPosition,
-                        automaticMovementSpeed, _ =>
-                        {
-                            CommunicationManager.GotoPos(manipulatorID, apPosition,
-                                automaticMovementSpeed, _ =>
-                                {
-                                    CommunicationManager.GotoPos(manipulatorID, mlPosition,
-                                        automaticMovementSpeed, _ =>
-                                        {
-                                            CommunicationManager.SetCanWrite(manipulatorID, false, 1, _ =>
-                                            {
-                                                // Hide lines
-                                                _lineGameObjects.ap.SetActive(false);
-                                                _lineGameObjects.ml.SetActive(false);
-                                                _lineGameObjects.dv.SetActive(false);
-
-                                                // Increment movement counter
-                                                completedMovements++;
-                                                
-                                                // Add a dura offset panel
-                                                AddResetDuraOffsetPanelCallback.Invoke(ProbeManager);
-
-                                                // Check and invoke totally complete callback
-                                                if (completedMovements != SelectedTargetInsertion.Count) return;
-                                                Moving = false;
-                                                totallyCompleteCallback.Invoke();
-                                            }, Debug.LogError);
-                                        }, Debug.LogError);
-                                }, Debug.LogError);
-                        });
-            });
-        }
-
-        /// <summary>
-        ///     Reset state function for when a stop is requested
-        /// </summary>
-        public static void MovementStopped()
-        {
-            completedMovements = 0;
-            Moving = false;
+                MoveToTargetInsertion();
+                _moveButtonText.text = STOP_MOVEMENT_STR;
+            }
+                
         }
 
         #endregion
