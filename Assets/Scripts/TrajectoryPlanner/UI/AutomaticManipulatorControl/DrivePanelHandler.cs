@@ -85,6 +85,16 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // Compute drive distance and duration
             CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorId, position =>
             {
+                // Calibrate target insertion depth to surface position
+                var targetPosition = InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId]
+                    .apmldv;
+                var relativePosition = ProbeManager.GetProbeController().Insertion.apmldv - targetPosition;
+                var offsetAdjustedTargetPosition =
+                    Vector3.ProjectOnPlane(relativePosition, ProbeManager.GetProbeController().ProbeTipT.up);
+                print("Target pos: " + targetPosition + "; Offset adjusted target pos: " +
+                      offsetAdjustedTargetPosition);
+                
+                
                 // Set target depth
                 var driveDistance =
                     Vector3.Distance(
