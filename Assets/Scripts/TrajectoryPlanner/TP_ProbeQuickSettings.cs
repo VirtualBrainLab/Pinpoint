@@ -1,8 +1,8 @@
-using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace TrajectoryPlanner
@@ -11,25 +11,20 @@ namespace TrajectoryPlanner
     {
         #region Components
 
-        [SerializeField] private TMP_Text probeIdText;
-        [SerializeField] private TP_CoordinateEntryPanel coordinatePanel;
-        [SerializeField] private CanvasGroup positionFields;
-        [SerializeField] private CanvasGroup angleFields;
-        [SerializeField] private CanvasGroup buttons;
-        [SerializeField] private Toggle automaticMovementToggle;
-        [SerializeField] private TMP_InputField automaticMovementSpeedInputField;
-        [SerializeField] private GameObject automaticMovementControlPanelGameObject;
-        [SerializeField] private Button automaticMovementGoButton;
+        [FormerlySerializedAs("probeIdText")] [SerializeField] private TMP_Text _probeIdText;
+        [FormerlySerializedAs("coordinatePanel")] [SerializeField] private CoordinateEntryPanel _coordinatePanel;
+        [FormerlySerializedAs("positionFields")] [SerializeField] private CanvasGroup _positionFields;
+        [FormerlySerializedAs("angleFields")] [SerializeField] private CanvasGroup _angleFields;
+        [FormerlySerializedAs("buttons")] [SerializeField] private CanvasGroup _buttons;
+        [FormerlySerializedAs("automaticMovementToggle")] [SerializeField] private Toggle _automaticMovementToggle;
+        [FormerlySerializedAs("automaticMovementSpeedInputField")] [SerializeField] private TMP_InputField _automaticMovementSpeedInputField;
+        [FormerlySerializedAs("automaticMovementControlPanelGameObject")] [SerializeField] private GameObject _automaticMovementControlPanelGameObject;
+        [FormerlySerializedAs("automaticMovementGoButton")] [SerializeField] private Button _automaticMovementGoButton;
         
         private ProbeManager _probeManager;
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
         private TMP_InputField[] _inputFields;
-
-        [SerializeField] private AccountsManager _accountsManager;
-        [SerializeField] private TMP_Dropdown _linkedExperimentDropdown;
-
-        private TMP_InputField[] inputFields;
 
         #endregion
 
@@ -46,16 +41,6 @@ namespace TrajectoryPlanner
             _inputFields = gameObject.GetComponentsInChildren<TMP_InputField>(true);
 
             UpdateInteractable(true);
-        }
-
-        /// <summary>
-        ///     Update UI components based on external updates
-        /// </summary>
-        private void FixedUpdate()
-        {
-            if (!_probeManager) return;
-            if (_probeManager.IsEphysLinkControlled == automaticMovementControlPanelGameObject.activeSelf) return;
-            UpdateAutomaticControlPanel();
         }
 
         #endregion
@@ -75,10 +60,19 @@ namespace TrajectoryPlanner
                 gameObject.SetActive(true);
                 _probeManager = probeManager;
 
+                _probeManager.ProbeUIUpdateEvent.AddListener(UpdateProbeIdText);
+
                 UpdateProbeIdText();
 
-                coordinatePanel.LinkProbe(probeManager);
-                
+                _coordinatePanel.LinkProbe(probeManager);
+
+                // Handle picking up events
+                _probeManager.EphysLinkControlChangeEvent.AddListener(() =>
+                {
+                    UpdateInteractable();
+                    UpdateAutomaticControlPanel();
+                });
+
                 UpdateInteractable();
                 UpdateCoordinates();
                 UpdateAutomaticControlPanel();
@@ -89,27 +83,27 @@ namespace TrajectoryPlanner
         {
             if (disableAll)
             {
-                positionFields.interactable = false;
-                angleFields.interactable = false;
-                buttons.interactable = false;
+                _positionFields.interactable = false;
+                _angleFields.interactable = false;
+                _buttons.interactable = false;
             }
             else
             {
-                positionFields.interactable = false; // !_probeManager.GetEphysLinkMovement();
-                angleFields.interactable = _probeManager == null || !_probeManager.IsGhost;
-                buttons.interactable = true;
+                _positionFields.interactable = _probeManager != null ? !_probeManager.IsEphysLinkControlled : true;
+                _angleFields.interactable = _probeManager == null || !_probeManager.IsGhost;
+                _buttons.interactable = true;
             }
         }
 
         public void UpdateCoordinates()
         {
-            coordinatePanel.UpdateText();
+            _coordinatePanel.UpdateText();
         }
 
         public void UpdateProbeIdText()
         {
-            probeIdText.text = _probeManager.GetID().ToString();
-            probeIdText.color = _probeManager.GetColor();
+            _probeIdText.text = _probeManager.name;
+            _probeIdText.color = _probeManager.GetColor();
         }
 
         private void UpdateAutomaticControlPanel()
@@ -118,28 +112,28 @@ namespace TrajectoryPlanner
             if (_probeManager.IsEphysLinkControlled)
             {
                 // Show the panel
-                automaticMovementControlPanelGameObject.SetActive(true);
+                _automaticMovementControlPanelGameObject.SetActive(true);
                 
                 // Set enable status (based on if there is a ghost attached or not)
-                automaticMovementToggle.SetIsOnWithoutNotify(_probeManager.HasGhost);
+                _automaticMovementToggle.SetIsOnWithoutNotify(_probeManager.HasGhost);
                 
                 // Enable/disable interaction based on if there is a ghost attached or not
                 EnableAutomaticControlUI(_probeManager.HasGhost);
                 
                 // Set value in speed input field
-                automaticMovementSpeedInputField.text = _probeManager.AutomaticMovementSpeed.ToString();
+                _automaticMovementSpeedInputField.text = _probeManager.AutomaticMovementSpeed.ToString();
             }
             else
             {
                 // Hide the panel
-                automaticMovementControlPanelGameObject.SetActive(false);
+                _automaticMovementControlPanelGameObject.SetActive(false);
             }
         }
 
         public void EnableAutomaticControlUI(bool enable)
         {
-            automaticMovementSpeedInputField.interactable = enable;
-            automaticMovementGoButton.interactable = enable;
+            _automaticMovementSpeedInputField.interactable = enable;
+            _automaticMovementGoButton.interactable = enable;
         }
 
         /// <summary>
@@ -189,7 +183,7 @@ namespace TrajectoryPlanner
             {
                 // Spawn ghost
                 var originalProbeManager = _probeManager;
-                var ghostProbeManager = _trajectoryPlannerManager.AddNewProbeTransformed(
+                var ghostProbeManager = _trajectoryPlannerManager.AddNewProbe(
                     _probeManager.ProbeType, _probeManager.GetProbeController().Insertion, "",
                     _probeManager.ZeroCoordinateOffset, _probeManager.BrainSurfaceOffset,
                     _probeManager.IsSetToDropToSurfaceWithDepth, null, true);
@@ -207,8 +201,7 @@ namespace TrajectoryPlanner
                 
                 // Set references
                 originalProbeManager.GhostProbeManager = ghostProbeManager;
-                ghostProbeManager.SetId(originalProbeManager.GetID());
-                ghostProbeManager.name = "GHOST_PROBE_" + originalProbeManager.GetID();
+                ghostProbeManager.name = "GHOST_" + originalProbeManager.name;
             }
             else
             {
@@ -235,15 +228,15 @@ namespace TrajectoryPlanner
             switch (int.Parse(input))
             {
                 case <= 0:
-                    automaticMovementSpeedInputField.SetTextWithoutNotify("1");
+                    _automaticMovementSpeedInputField.SetTextWithoutNotify("1");
                     break;
                 case > 8000:
-                    automaticMovementSpeedInputField.SetTextWithoutNotify("8000");
+                    _automaticMovementSpeedInputField.SetTextWithoutNotify("8000");
                     break;
             }
             
             // Set speed to probe
-            _probeManager.SetAutomaticMovementSpeed(int.Parse(automaticMovementSpeedInputField.text));
+            _probeManager.SetAutomaticMovementSpeed(int.Parse(_automaticMovementSpeedInputField.text));
         }
 
         /// <summary>
@@ -289,7 +282,7 @@ namespace TrajectoryPlanner
             // Apply axis negations
             posWithDepthAndCorrectAxes.z *= -1;
             posWithDepthAndCorrectAxes.y *=
-                _trajectoryPlannerManager.IsManipulatorRightHanded(_probeManager.ManipulatorId) ? 1 : -1;
+                ProbeManager.RightHandedManipulatorIDs.Contains(_probeManager.ManipulatorId) ? 1 : -1;
 
             // Apply coordinate offsets
             var zeroCoordinateOffsetPos = posWithDepthAndCorrectAxes + _probeManager.ZeroCoordinateOffset;
@@ -317,31 +310,9 @@ namespace TrajectoryPlanner
             {
                 if (canWrite)
                     _communicationManager.GotoPos(_probeManager.ManipulatorId,
-                        zeroCoordinateOffsetPos, _probeManager.AutomaticMovementSpeed, endPos => Destroy(lineObject),
+                        zeroCoordinateOffsetPos, _probeManager.AutomaticMovementSpeed, _ => Destroy(lineObject),
                         Debug.LogError);
             }, Debug.LogError);
-        }
-        public void UpdateExperimentList()
-        {
-            List<string> experiments = _accountsManager.GetExperiments();
-            _linkedExperimentDropdown.ClearOptions();
-
-            List<TMP_Dropdown.OptionData> optList = new List<TMP_Dropdown.OptionData>();
-            optList.Add(new TMP_Dropdown.OptionData("Not saved"));
-            foreach (string experiment in experiments)
-                optList.Add(new TMP_Dropdown.OptionData(experiment));
-            _linkedExperimentDropdown.AddOptions(optList);
-        }
-
-        public void ChangeExperiment(int optIdx)
-        {
-            if (optIdx > 0)
-            {
-                string optText = _linkedExperimentDropdown.options[optIdx].text;
-                _accountsManager.ChangeProbeExperiment(_probeManager.Uuid, optText);
-            }
-            else
-                _accountsManager.RemoveProbeExperiment(_probeManager.Uuid);
         }
 
         #endregion

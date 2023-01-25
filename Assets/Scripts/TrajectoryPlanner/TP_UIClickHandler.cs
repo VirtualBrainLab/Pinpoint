@@ -4,13 +4,14 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TrajectoryPlanner;
+using UnityEngine.Serialization;
 
 public class TP_UIClickHandler : MonoBehaviour
 {
     // Raycaster
     private GraphicRaycaster raycaster;
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
-    [SerializeField] private TP_InPlaneSlice inPlaneSlice;
+    [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
+    [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
     //[SerializeField] private UM_CameraController cameraController;
 
     // Start is called before the first frame update
@@ -37,8 +38,8 @@ public class TP_UIClickHandler : MonoBehaviour
                 // check if this is the in-plane slice panel
                 if (uiTarget.name == "InPlaneSlicePanel")
                 {
-                    if (tpmanager.GetActiveProbeManager() != null)
-                        inPlaneSlice.InPlaneSliceHover(pointerData.position);
+                    if (_tpmanager.GetActiveProbeManager() != null)
+                        _inPlaneSlice.InPlaneSliceHover(pointerData.position);
                 }
                 else
                 {
@@ -48,10 +49,10 @@ public class TP_UIClickHandler : MonoBehaviour
                         switch (uiTarget.tag)
                         {
                             case "ProbePanel":
-                                tpmanager.SetActiveProbe(uiTarget.GetComponent<TP_ProbePanel>().GetProbeController());
+                                _tpmanager.SetActiveProbe(uiTarget.GetComponent<TP_ProbePanel>().GetProbeController());
                                 break;
                             case "AreaPanel":
-                                tpmanager.ClickSearchArea(uiTarget);
+                                _tpmanager.ClickSearchArea(uiTarget);
                                 break;
                         }
                     }

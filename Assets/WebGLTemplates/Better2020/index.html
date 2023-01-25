@@ -97,6 +97,14 @@
         });
       };
       document.body.appendChild(script);
+
+      var copy2clipboardStr;
+
+      function copy2clipboardCallback() {
+        console.log('actually writing text to clipboard');
+        navigator.clipboard.writeText(copy2clipboardStr);
+        canvas.removeEventListener('click', copy2clipboardCallback, false);
+      }
     </script>
   </body>
 </html>

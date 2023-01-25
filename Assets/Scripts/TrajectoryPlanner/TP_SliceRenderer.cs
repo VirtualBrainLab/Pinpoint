@@ -7,20 +7,18 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using TrajectoryPlanner;
+using UnityEngine.Serialization;
 
 public class TP_SliceRenderer : MonoBehaviour
 {
-    [SerializeField] private GameObject sagittalSliceGO;
-    [SerializeField] private GameObject coronalSliceGO;
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
-    [SerializeField] private CCFModelControl modelControl;
-    [SerializeField] private PlayerPrefs localPrefs;
-    [SerializeField] private TP_InPlaneSlice inPlaneSlice;
-    [SerializeField] private Utils util;
-    [SerializeField] private TMP_Dropdown dropdownMenu;
-    [SerializeField] private AssetReference iblCoverageTextureAssetRef;
-
-    private int[] baseSize = { 528, 320, 456 };
+    [FormerlySerializedAs("sagittalSliceGO")] [SerializeField] private GameObject _sagittalSliceGo;
+    [FormerlySerializedAs("coronalSliceGO")] [SerializeField] private GameObject _coronalSliceGo;
+    [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
+    [FormerlySerializedAs("modelControl")] [SerializeField] private CCFModelControl _modelControl;
+    [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
+    [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
+    [FormerlySerializedAs("dropdownMenu")] [SerializeField] private TMP_Dropdown _dropdownMenu;
+    [FormerlySerializedAs("iblCoverageTextureAssetRef")] [SerializeField] private AssetReference _iblCoverageTextureAssetRef;
 
     private bool loaded;
 
@@ -32,8 +30,8 @@ public class TP_SliceRenderer : MonoBehaviour
 
     private void Awake()
     {
-        saggitalSliceMaterial = sagittalSliceGO.GetComponent<Renderer>().material;
-        coronalSliceMaterial = coronalSliceGO.GetComponent<Renderer>().material;
+        saggitalSliceMaterial = _sagittalSliceGo.GetComponent<Renderer>().material;
+        coronalSliceMaterial = _coronalSliceGo.GetComponent<Renderer>().material;
 
         loaded = false;
     }
@@ -42,14 +40,11 @@ public class TP_SliceRenderer : MonoBehaviour
     private async void Start()
     {
         Debug.Log("(SliceRenderer) Waiting for inplane slice to complete");
-        await inPlaneSlice.GetGPUTextureTask();
+        await _inPlaneSlice.GetGPUTextureTask();
         Debug.Log("(SliceRenderer) Waiting for node models to load");
-        await modelControl.GetDefaultLoadedTask();
+        await _modelControl.GetDefaultLoadedTask();
 
-        Debug.Log("(SliceRenderer) Loading 3D texture");
-        ToggleSliceVisibility(localPrefs.GetSlice3D());
-
-        if (dropdownMenu.value == 1)
+        if (_dropdownMenu.value == 1)
             SetActiveTextureAnnotation();
         //else if (dropdownMenu.value == 2)
         //    SetActiveTextureIBLCoverage();
@@ -109,7 +104,7 @@ public class TP_SliceRenderer : MonoBehaviour
 
     private async void SetActiveTextureAnnotation()
     {
-        Task<Texture3D> textureTask = inPlaneSlice.GetAnnotationDatasetGPUTexture();
+        Task<Texture3D> textureTask = _inPlaneSlice.GetAnnotationDatasetGPUTexture();
         await textureTask;
 
         saggitalSliceMaterial.SetTexture("_Volume", textureTask.Result);
@@ -129,7 +124,7 @@ public class TP_SliceRenderer : MonoBehaviour
 
     private void Update()
     {
-        if (localPrefs.GetSlice3D()>0 && loaded)
+        if (Settings.Slice3DDropdownOption>0 && loaded)
         {
             // Check if the camera moved such that we have to flip the slice quads
             UpdateCameraPosition();
@@ -144,16 +139,16 @@ public class TP_SliceRenderer : MonoBehaviour
     /// </summary>
     public void UpdateSlicePosition()
     {
-        if (localPrefs.GetSlice3D() > 0)
+        if (Settings.Slice3DDropdownOption > 0)
         {
-            ProbeManager activeProbeManager = tpmanager.GetActiveProbeManager();
+            ProbeManager activeProbeManager = _tpmanager.GetActiveProbeManager();
             if (activeProbeManager == null) return;
 
             // the actual tip
             Vector3 probeTipWorld = activeProbeManager.GetProbeController().ProbeTipT.position;
             // position the slices along the real tip in world space
-            coronalSliceGO.transform.position = new Vector3(0f, 0f, probeTipWorld.z);
-            sagittalSliceGO.transform.position = new Vector3(probeTipWorld.x, 0f, 0f);
+            _coronalSliceGo.transform.position = new Vector3(0f, 0f, probeTipWorld.z);
+            _sagittalSliceGo.transform.position = new Vector3(probeTipWorld.x, 0f, 0f);
 
             // for CCF coordinates
             (Vector3 tipCoordWorld, _, _) = activeProbeManager.GetProbeController().GetTipWorldU();
@@ -199,7 +194,7 @@ public class TP_SliceRenderer : MonoBehaviour
     private void UpdateNodeModelSlicing()
     {
         // Update the renderers on the node objects
-        foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+        foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
         {
             if (camYBack)
                 // clip from apPosition forward
@@ -218,7 +213,7 @@ public class TP_SliceRenderer : MonoBehaviour
     private void ClearNodeModelSlicing()
     {
         // Update the renderers on the node objects
-        foreach (CCFTreeNode node in modelControl.GetDefaultLoadedNodes())
+        foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
         {
             node.SetShaderProperty("_APClip", new Vector2(0f, 13.2f));
             node.SetShaderProperty("_MLClip", new Vector2(0f, 11.4f));
@@ -227,21 +222,18 @@ public class TP_SliceRenderer : MonoBehaviour
 
     public void ToggleSliceVisibility(int sliceType)
     {
-        Debug.Log(sliceType);
-        localPrefs.SetSlice3D(sliceType);
-
         if (sliceType==0)
         {
             // make slices invisible
-            sagittalSliceGO.SetActive(false);
-            coronalSliceGO.SetActive(false);
+            _sagittalSliceGo.SetActive(false);
+            _coronalSliceGo.SetActive(false);
             ClearNodeModelSlicing();
         }
         else
         {
             // Standard sagittal/coronal slices
-            sagittalSliceGO.SetActive(true);
-            coronalSliceGO.SetActive(true);
+            _sagittalSliceGo.SetActive(true);
+            _coronalSliceGo.SetActive(true);
 
             if (sliceType == 1)
                 SetActiveTextureAnnotation();
