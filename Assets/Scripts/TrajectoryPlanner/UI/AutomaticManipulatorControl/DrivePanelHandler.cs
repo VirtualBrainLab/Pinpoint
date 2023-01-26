@@ -26,26 +26,37 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         /// </summary>
         public void DriveOrStopDepth()
         {
-            if (_isDriving)
+            switch (_driveState)
             {
-                // Stop all movements and reset UI
-                CommunicationManager.Instance.Stop(state =>
-                {
-                    if (!state) return;
-                    _buttonText.text = "Drive";
-                    _statusText.text = "Ready to Drive";
-                    _timerText.text = "";
-                    _isDriving = false;
-                });
-            }
-            else
-            {
-                // Set UI for driving
-                _buttonText.text = "Stop";
-                _isDriving = true;
-
-                // Run drive chain
-                StartDriveChain();
+                case 0:
+                    // Set UI for driving
+                    _buttonText.text = "Stop";
+                    _driveState++;
+    
+                    // Run drive chain
+                    StartDriveChain();
+                    break;
+                case 1:
+                    // Stop all movements and reset UI
+                    CommunicationManager.Instance.Stop(state =>
+                    {
+                        if (!state) return;
+                        _buttonText.text = "Drive";
+                        _statusText.text = "Ready to Drive";
+                        _timerText.text = "";
+                        _driveState = 0;
+                    });
+                    break;
+                case 2:
+                    // Return to surface + 500 dv
+                    print("Driving back to surface");
+                    _buttonText.text = "Stop";
+                    _statusText.text = "Returning to surface...";
+                    _driveState = 1;
+                    break;
+                default:
+                    Debug.LogError("Unknown drive state: " + _driveState);
+                    break;
             }
         }
 
@@ -72,7 +83,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Properties
 
-        private bool _isDriving;
+        private int _driveState; // 0 = ready, 1 = driving, 2 = at target
         private float _targetDepth;
         private float _driveDuration;
 
@@ -86,13 +97,14 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorId, position =>
             {
                 // Calibrate target insertion depth to surface position
-                var targetPosition = InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId]
-                    .apmldv;
-                var relativePosition = ProbeManager.GetProbeController().Insertion.apmldv - targetPosition;
-                var offsetAdjustedTargetPosition =
-                    Vector3.ProjectOnPlane(relativePosition, ProbeManager.GetProbeController().ProbeTipT.up);
-                print("Target pos: " + targetPosition + "; Offset adjusted target pos: " +
-                      offsetAdjustedTargetPosition);
+                // var targetPosition = InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId]
+                //     .apmldv;
+                // var relativePosition = ProbeManager.GetProbeController().Insertion.apmldv - targetPosition;
+                // var offsetAdjustedTargetPosition =
+                //     Vector3.ProjectOnPlane(relativePosition, ProbeManager.GetProbeController().ProbeTipT.up);
+                // print("Target position: " + InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId]);
+                // print("Probe position: " + ProbeManager.GetProbeController().Insertion);
+                // print("Plane normal: " + ProbeManager.GetProbeController().ProbeTipT.up);
                 
                 
                 // Set target depth
@@ -128,7 +140,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             _driveDuration--;
 
             // Check if timer is done
-            if (_driveDuration > 0 && _isDriving)
+            if (_driveDuration > 0 && _driveState == 1)
                 // Start next timer
             {
                 StartCoroutine(CountDownTimer());
@@ -138,7 +150,10 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 // Set timer text
                 _statusText.text = "Drive Complete!";
                 _timerText.text = "Ready for Experiment";
-                _buttonText.text = "Drive";
+                _buttonText.text = "Return to surface";
+                
+                // Set drive state
+                _driveState = 2;
             }
         }
 
