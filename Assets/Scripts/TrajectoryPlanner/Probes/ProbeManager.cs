@@ -30,7 +30,7 @@ public class ProbeManager : MonoBehaviour
         instances.Remove(this);
     }
 
-    public static HashSet<string> RightHandedManipulatorIDs { get; } = Settings.RightHandedManipulatorIds;
+    public static HashSet<string> RightHandedManipulatorIDs { get; private set; }
     #endregion
 
     #region Events
@@ -154,7 +154,7 @@ public class ProbeManager : MonoBehaviour
     // Brain surface position
     private CCFAnnotationDataset annotationDataset;
     private bool probeInBrain;
-    private Vector3 brainSurface;
+    private Vector3 _brainSurface;
     private Vector3 brainSurfaceWorld;
     private Vector3 brainSurfaceWorldT;
 
@@ -244,6 +244,7 @@ public class ProbeManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"(ProbeManager) New probe created with UUID: {UUID}");
 #endif
+        RightHandedManipulatorIDs = Settings.RightHandedManipulatorIds;
     }
 
     /// <summary>
@@ -490,7 +491,7 @@ public class ProbeManager : MonoBehaviour
             probeInBrain = false;
             brainSurfaceWorld = new Vector3(float.NaN, float.NaN, float.NaN);
             brainSurfaceWorldT = new Vector3(float.NaN, float.NaN, float.NaN);
-            brainSurface = new Vector3(float.NaN, float.NaN, float.NaN);
+            _brainSurface = new Vector3(float.NaN, float.NaN, float.NaN);
         }
         else
         {
@@ -498,14 +499,14 @@ public class ProbeManager : MonoBehaviour
             probeInBrain = true;
             brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(surfacePos25);
             brainSurfaceWorldT = CoordinateSpaceManager.WorldU2WorldT(brainSurfaceWorld);
-            brainSurface = _probeController.Insertion.World2Transformed(brainSurfaceWorld);
+            _brainSurface = _probeController.Insertion.World2Transformed(brainSurfaceWorld);
         }
     }
 
 
     public (Vector3 surfaceCoordinateT, float depthT) GetSurfaceCoordinateT()
     {
-        return (brainSurface, Vector3.Distance(_probeController.Insertion.apmldv, brainSurface));
+        return (_brainSurface, Vector3.Distance(_probeController.Insertion.apmldv, _brainSurface));
     }
 
     public Vector3 GetSurfaceCoordinateWorldT()
@@ -689,6 +690,11 @@ public class ProbeManager : MonoBehaviour
         temp.w = depth;
         ZeroCoordinateOffset = temp;
     }
+
+    public Vector3 GetBrainSurface()
+    {
+        return _brainSurface;
+    }
     
     /// <summary>
     ///     Set manipulator space offset from brain surface as Depth from manipulator or probe coordinates.
@@ -700,11 +706,11 @@ public class ProbeManager : MonoBehaviour
             // Just calculate the distance from the probe tip position to the brain surface            
             if (IsEphysLinkControlled)
             {
-                BrainSurfaceOffset -= Vector3.Distance(brainSurface, _probeController.Insertion.apmldv);
+                BrainSurfaceOffset -= Vector3.Distance(_brainSurface, _probeController.Insertion.apmldv);
             }
             else
             {
-                _probeController.SetProbePosition(brainSurface);
+                _probeController.SetProbePosition(_brainSurface);
             }
         }
         else

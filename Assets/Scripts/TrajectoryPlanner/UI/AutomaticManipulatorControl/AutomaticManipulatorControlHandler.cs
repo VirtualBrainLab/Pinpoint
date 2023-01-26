@@ -146,13 +146,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #endregion
 
-        #region Step 4
-
-        private bool _isDriving;
-        private float _driveDuration;
-
-        #endregion
-
         #endregion
 
         #region Unity

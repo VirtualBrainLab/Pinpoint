@@ -32,7 +32,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     // Set UI for driving
                     _buttonText.text = "Stop";
                     _driveState++;
-    
+
                     // Run drive chain
                     StartDriveChain();
                     break;
@@ -97,16 +97,19 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorId, position =>
             {
                 // Calibrate target insertion depth to surface position
-                // var targetPosition = InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId]
-                //     .apmldv;
-                // var relativePosition = ProbeManager.GetProbeController().Insertion.apmldv - targetPosition;
-                // var offsetAdjustedTargetPosition =
-                //     Vector3.ProjectOnPlane(relativePosition, ProbeManager.GetProbeController().ProbeTipT.up);
-                // print("Target position: " + InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId]);
-                // print("Probe position: " + ProbeManager.GetProbeController().Insertion);
-                // print("Plane normal: " + ProbeManager.GetProbeController().ProbeTipT.up);
-                
-                
+                var targetInsertion =
+                    InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId];
+                var targetPosition = targetInsertion.apmldv;
+                var relativePosition = ProbeManager.GetProbeController().Insertion.apmldv - targetPosition;
+                var offsetAdjustedTargetPosition =
+                    Vector3.ProjectOnPlane(relativePosition, ProbeManager.GetProbeController().ProbeTipT.up);
+                print("Target position: " + targetInsertion.PositionWorldT());
+                print("Target APMLDV: " + targetPosition);
+                print("Convert back: " + targetInsertion.World2Transformed(targetInsertion.PositionWorldU()));
+                print("Probe position: " + ProbeManager.GetProbeController().Insertion.PositionWorldT());
+                print("Plane normal: " + ProbeManager.GetProbeController().ProbeTipT.up);
+
+
                 // Set target depth
                 var driveDistance =
                     Vector3.Distance(
@@ -151,7 +154,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 _statusText.text = "Drive Complete!";
                 _timerText.text = "Ready for Experiment";
                 _buttonText.text = "Return to surface";
-                
+
                 // Set drive state
                 _driveState = 2;
             }
