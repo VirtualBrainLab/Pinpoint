@@ -99,15 +99,18 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 // Calibrate target insertion depth to surface position
                 var targetInsertion =
                     InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId];
-                var targetPosition = targetInsertion.apmldv;
-                var relativePosition = ProbeManager.GetProbeController().Insertion.apmldv - targetPosition;
-                var offsetAdjustedTargetPosition =
+                var targetPosition = targetInsertion.PositionWorldT();
+                var relativePosition = ProbeManager.GetProbeController().Insertion.PositionWorldT() - targetPosition;
+                var offsetAdjustedRelativeTargetPosition =
                     Vector3.ProjectOnPlane(relativePosition, ProbeManager.GetProbeController().ProbeTipT.up);
                 print("Target position: " + targetInsertion.PositionWorldT());
-                print("Target APMLDV: " + targetPosition);
-                print("Convert back: " + targetInsertion.World2Transformed(targetInsertion.PositionWorldU()));
+                // print("Convert back: " + targetInsertion.World2Transformed(targetInsertion.PositionWorldU()));
                 print("Probe position: " + ProbeManager.GetProbeController().Insertion.PositionWorldT());
                 print("Plane normal: " + ProbeManager.GetProbeController().ProbeTipT.up);
+                print("Offset adjusted relative target position: " + offsetAdjustedRelativeTargetPosition);
+                print("Offset adjusted target position: " +
+                      (targetPosition + offsetAdjustedRelativeTargetPosition));
+                
 
 
                 // Set target depth

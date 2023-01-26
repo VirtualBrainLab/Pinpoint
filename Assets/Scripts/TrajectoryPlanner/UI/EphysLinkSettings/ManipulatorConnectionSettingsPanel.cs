@@ -19,7 +19,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             _manipulatorId = manipulatorId;
             _manipulatorIdText.text = manipulatorId;
-            print("RightHandedManipulators: "+string.Join(", ", ProbeManager.RightHandedManipulatorIDs));
             _handednessDropdown.value = ProbeManager.RightHandedManipulatorIDs.Contains(manipulatorId) ? 1 : 0;
         }
 

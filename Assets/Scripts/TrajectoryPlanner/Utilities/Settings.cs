@@ -453,8 +453,6 @@ public class Settings : MonoBehaviour
         _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
         
         _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulators", null);
-        print("Has key right handed: "+ PlayerPrefs.HasKey("right_handed_manipulators"));
-        print("Right handed: " + _rightHandedManipulatorIds);
     }
 
     #endregion
