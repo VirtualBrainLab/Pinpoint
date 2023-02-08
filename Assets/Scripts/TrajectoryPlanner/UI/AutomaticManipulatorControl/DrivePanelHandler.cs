@@ -103,15 +103,27 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 var relativePosition = ProbeManager.GetProbeController().Insertion.PositionWorldT() - targetPosition;
                 var offsetAdjustedRelativeTargetPosition =
                     Vector3.ProjectOnPlane(relativePosition, ProbeManager.GetProbeController().ProbeTipT.up);
+                var offsetAdjustedTargetPosition = targetPosition + offsetAdjustedRelativeTargetPosition;
                 print("Target position: " + targetInsertion.PositionWorldT());
                 // print("Convert back: " + targetInsertion.World2Transformed(targetInsertion.PositionWorldU()));
                 print("Probe position: " + ProbeManager.GetProbeController().Insertion.PositionWorldT());
                 print("Plane normal: " + ProbeManager.GetProbeController().ProbeTipT.up);
                 print("Offset adjusted relative target position: " + offsetAdjustedRelativeTargetPosition);
-                print("Offset adjusted target position: " +
-                      (targetPosition + offsetAdjustedRelativeTargetPosition));
-                
+                print("Offset adjusted target position: " + offsetAdjustedTargetPosition);
 
+                // Converting worldT back to APMLDV (position transformed)
+                var newTarget =
+                    targetInsertion.CoordinateTransform.Space2TransformAxisChange(
+                        targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPosition));
+
+                print("\n");
+                print("Original Target Insertion: " + targetInsertion);
+                GameObject.Find("Target").transform.position = targetPosition;
+                
+                InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId].apmldv = newTarget;
+                print("New Target Insertion: " + newTarget);
+                GameObject.Find("NewTarget").transform.position = offsetAdjustedTargetPosition;
+                
 
                 // Set target depth
                 var driveDistance =
