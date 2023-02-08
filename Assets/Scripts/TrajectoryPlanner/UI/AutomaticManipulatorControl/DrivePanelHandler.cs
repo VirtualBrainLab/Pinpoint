@@ -28,15 +28,15 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         {
             switch (_driveState)
             {
-                case 0:
+                case DriveState.Ready:
                     // Set UI for driving
                     _buttonText.text = "Stop";
-                    _driveState++;
+                    _driveState = DriveState.Driving;
 
                     // Run drive chain
                     StartDriveChain();
                     break;
-                case 1:
+                case DriveState.Driving:
                     // Stop all movements and reset UI
                     CommunicationManager.Instance.Stop(state =>
                     {
@@ -44,15 +44,18 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                         _buttonText.text = "Drive";
                         _statusText.text = "Ready to Drive";
                         _timerText.text = "";
-                        _driveState = 0;
+                        _driveState = DriveState.Ready;
                     });
                     break;
-                case 2:
+                case DriveState.AtTarget:
                     // Return to surface + 500 dv
                     print("Driving back to surface");
                     _buttonText.text = "Stop";
                     _statusText.text = "Returning to surface...";
-                    _driveState = 1;
+                    _driveState = DriveState.Driving;
+                    
+                    // Run Drive
+                    DriveBackToSurface();
                     break;
                 default:
                     Debug.LogError("Unknown drive state: " + _driveState);
@@ -83,8 +86,16 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Properties
 
-        private int _driveState; // 0 = ready, 1 = driving, 2 = at target
+        private enum DriveState
+        {
+            Ready,
+            Driving,
+            AtTarget
+        }
+
+        private DriveState _driveState;
         private float _targetDepth;
+        private float _surfaceDepth;
         private float _driveDuration;
 
         #endregion
@@ -96,47 +107,60 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // Compute drive distance and duration
             CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorId, position =>
             {
-                // Calibrate target insertion depth to surface position
+                // Calibrate target insertion depth based on surface position
                 var targetInsertion =
                     InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId];
-                var targetPosition = targetInsertion.PositionWorldT();
-                var relativePosition = ProbeManager.GetProbeController().Insertion.PositionWorldT() - targetPosition;
-                var offsetAdjustedRelativeTargetPosition =
-                    Vector3.ProjectOnPlane(relativePosition, ProbeManager.GetProbeController().ProbeTipT.up);
-                var offsetAdjustedTargetPosition = targetPosition + offsetAdjustedRelativeTargetPosition;
-                print("Target position: " + targetInsertion.PositionWorldT());
-                // print("Convert back: " + targetInsertion.World2Transformed(targetInsertion.PositionWorldU()));
-                print("Probe position: " + ProbeManager.GetProbeController().Insertion.PositionWorldT());
-                print("Plane normal: " + ProbeManager.GetProbeController().ProbeTipT.up);
-                print("Offset adjusted relative target position: " + offsetAdjustedRelativeTargetPosition);
-                print("Offset adjusted target position: " + offsetAdjustedTargetPosition);
+                var targetPositionWorldT = targetInsertion.PositionWorldT();
+                var relativePositionWorldT = ProbeManager.GetProbeController().Insertion.PositionWorldT() - targetPositionWorldT;
+                var offsetAdjustedRelativeTargetPositionWorldT =
+                    Vector3.ProjectOnPlane(relativePositionWorldT, ProbeManager.GetProbeController().ProbeTipT.up);
+                var offsetAdjustedTargetPositionWorldT = targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
                 // Converting worldT back to APMLDV (position transformed)
-                var newTarget =
+                var offsetAdjustedTargetPosition =
                     targetInsertion.CoordinateTransform.Space2TransformAxisChange(
-                        targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPosition));
-
-                print("\n");
-                print("Original Target Insertion: " + targetInsertion);
-                GameObject.Find("Target").transform.position = targetPosition;
+                        targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
                 
-                InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId].apmldv = newTarget;
-                print("New Target Insertion: " + newTarget);
-                GameObject.Find("NewTarget").transform.position = offsetAdjustedTargetPosition;
+                // Update target insertion coordinate
+                InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId].apmldv = offsetAdjustedTargetPosition;
                 
+                // Compute return surface position (500 dv above surface)
+                var surfaceInsertion = new ProbeInsertion(0, 0, 0.5f, 0, 0, 0, targetInsertion.CoordinateSpace,
+                    targetInsertion.CoordinateTransform, false);
+                var surfacePositionWorldT = surfaceInsertion.PositionWorldT();
+                var relativeSurfacePositionWorldT = ProbeManager.GetProbeController().Insertion.PositionWorldT() - surfacePositionWorldT;
+                var offsetAdjustedRelativeSurfacePositionWorldT =
+                    Vector3.ProjectOnPlane(relativeSurfacePositionWorldT, Vector3.up);
+                var offsetAdjustedSurfacePositionWorldT = surfacePositionWorldT + offsetAdjustedRelativeSurfacePositionWorldT;
+                
+                // Converting worldT back to APMLDV (position transformed)
+                var offsetAdjustedSurfacePosition =
+                    surfaceInsertion.CoordinateTransform.Space2TransformAxisChange(
+                        surfaceInsertion.CoordinateSpace.World2Space(offsetAdjustedSurfacePositionWorldT));
 
-                // Set target depth
-                var driveDistance =
+                // Compute drive distances
+                var targetDriveDistance =
                     Vector3.Distance(
                         InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId].apmldv,
                         ProbeManager.GetProbeController().Insertion.apmldv);
+                var surfaceDriveDistance = Vector3.Distance(offsetAdjustedSurfacePosition,
+                    ProbeManager.GetProbeController().Insertion.apmldv);
+                
+                // Draw lines
+                Debug.DrawLine(ProbeManager.GetProbeController().Insertion.PositionWorldT(),
+                    offsetAdjustedTargetPositionWorldT, Color.red, 60);
+                Debug.DrawLine(ProbeManager.GetProbeController().Insertion.PositionWorldT(), offsetAdjustedSurfacePositionWorldT, Color.green, 60);
+                
 
-                _targetDepth = position.w + driveDistance;
+                // Set target and surface
+                _targetDepth = position.w + targetDriveDistance;
+                _surfaceDepth = position.w - surfaceDriveDistance;
+                
 
                 // Compute drive duration
-                driveDistance += DRIVE_PAST_TARGET_DISTANCE;
-                _driveDuration = driveDistance * 1000f / DEPTH_DRIVE_SPEED + DRIVE_BACK_TO_TARGET_DURATION +
-                                 Math.Max(120, driveDistance * 600);
+                targetDriveDistance += DRIVE_PAST_TARGET_DISTANCE;
+                _driveDuration = targetDriveDistance * 1000f / DEPTH_DRIVE_SPEED + DRIVE_BACK_TO_TARGET_DURATION +
+                                 Math.Max(120, targetDriveDistance * 600);
 
                 // Start timer
                 StartCoroutine(CountDownTimer());
@@ -158,7 +182,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             _driveDuration--;
 
             // Check if timer is done
-            if (_driveDuration > 0 && _driveState == 1)
+            if (_driveDuration > 0 && _driveState == DriveState.Driving)
                 // Start next timer
             {
                 StartCoroutine(CountDownTimer());
@@ -171,7 +195,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 _buttonText.text = "Return to surface";
 
                 // Set drive state
-                _driveState = 2;
+                _driveState = DriveState.AtTarget;
             }
         }
 
@@ -213,6 +237,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                         },
                         Debug.LogError);
                 }, Debug.LogError);
+        }
+        
+        private void DriveBackToSurface()
+        {
+            // Set drive status
+            _statusText.text = "Driving back to surface...";
         }
 
         #endregion
