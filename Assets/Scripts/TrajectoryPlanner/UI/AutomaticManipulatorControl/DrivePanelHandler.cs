@@ -133,6 +133,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     Vector3.ProjectOnPlane(relativeSurfacePositionWorldT, Vector3.up);
                 var offsetAdjustedSurfacePositionWorldT = surfacePositionWorldT + offsetAdjustedRelativeSurfacePositionWorldT;
                 
+                // TODO: use raycast
+                
                 // Converting worldT back to APMLDV (position transformed)
                 var offsetAdjustedSurfacePosition =
                     surfaceInsertion.CoordinateTransform.Space2TransformAxisChange(
