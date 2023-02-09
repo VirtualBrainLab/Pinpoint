@@ -53,7 +53,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     _buttonText.text = "Stop";
                     _statusText.text = "Returning to surface...";
                     _driveState = DriveState.Driving;
-                    
+
                     // Run Drive
                     DriveBackToSurface();
                     break;
@@ -111,30 +111,37 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 var targetInsertion =
                     InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId];
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
-                var relativePositionWorldT = ProbeManager.GetProbeController().Insertion.PositionWorldT() - targetPositionWorldT;
+                var relativePositionWorldT =
+                    ProbeManager.GetProbeController().Insertion.PositionWorldT() - targetPositionWorldT;
                 var offsetAdjustedRelativeTargetPositionWorldT =
                     Vector3.ProjectOnPlane(relativePositionWorldT, ProbeManager.GetProbeController().ProbeTipT.up);
-                var offsetAdjustedTargetPositionWorldT = targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
+                var offsetAdjustedTargetPositionWorldT =
+                    targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
                 // Converting worldT back to APMLDV (position transformed)
                 var offsetAdjustedTargetPosition =
                     targetInsertion.CoordinateTransform.Space2TransformAxisChange(
                         targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
-                
+
                 // Update target insertion coordinate
-                InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId].apmldv = offsetAdjustedTargetPosition;
-                
+                InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId].apmldv =
+                    offsetAdjustedTargetPosition;
+
                 // Compute return surface position (500 dv above surface)
+
                 var surfaceInsertion = new ProbeInsertion(0, 0, 0.5f, 0, 0, 0, targetInsertion.CoordinateSpace,
                     targetInsertion.CoordinateTransform, false);
                 var surfacePositionWorldT = surfaceInsertion.PositionWorldT();
-                var relativeSurfacePositionWorldT = ProbeManager.GetProbeController().Insertion.PositionWorldT() - surfacePositionWorldT;
-                var offsetAdjustedRelativeSurfacePositionWorldT =
-                    Vector3.ProjectOnPlane(relativeSurfacePositionWorldT, Vector3.up);
-                var offsetAdjustedSurfacePositionWorldT = surfacePositionWorldT + offsetAdjustedRelativeSurfacePositionWorldT;
-                
-                // TODO: use raycast
-                
+                var surfacePlane = new Plane(Vector3.down, surfacePositionWorldT);
+                var direction = new Ray(ProbeManager.GetProbeController().Insertion.PositionWorldT(),
+                    ProbeManager.GetProbeController().ProbeTipT.up);
+                var offsetAdjustedSurfacePositionWorldT = Vector3.zero;
+
+                if (surfacePlane.Raycast(direction, out var distanceToSurface))
+                {
+                    offsetAdjustedSurfacePositionWorldT = direction.GetPoint(distanceToSurface);
+                }
+
                 // Converting worldT back to APMLDV (position transformed)
                 var offsetAdjustedSurfacePosition =
                     surfaceInsertion.CoordinateTransform.Space2TransformAxisChange(
@@ -147,17 +154,18 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                         ProbeManager.GetProbeController().Insertion.apmldv);
                 var surfaceDriveDistance = Vector3.Distance(offsetAdjustedSurfacePosition,
                     ProbeManager.GetProbeController().Insertion.apmldv);
-                
+
                 // Draw lines
                 Debug.DrawLine(ProbeManager.GetProbeController().Insertion.PositionWorldT(),
                     offsetAdjustedTargetPositionWorldT, Color.red, 60);
-                Debug.DrawLine(ProbeManager.GetProbeController().Insertion.PositionWorldT(), offsetAdjustedSurfacePositionWorldT, Color.green, 60);
-                
+                Debug.DrawLine(ProbeManager.GetProbeController().Insertion.PositionWorldT(),
+                    offsetAdjustedSurfacePositionWorldT, Color.green, 60);
+
 
                 // Set target and surface
                 _targetDepth = position.w + targetDriveDistance;
                 _surfaceDepth = position.w - surfaceDriveDistance;
-                
+
 
                 // Compute drive duration
                 targetDriveDistance += DRIVE_PAST_TARGET_DISTANCE;
@@ -230,21 +238,36 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 _targetDepth, DEPTH_DRIVE_SPEED, _ =>
                 {
                     // Reset manipulator drive states
-                    CommunicationManager.Instance.SetInsideBrain(ProbeManager.ManipulatorId, false,
-                        _ =>
-                        {
-                            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, false, 1,
-                                _ => { _statusText.text = "Settling... Please wait..."; },
-                                Debug.LogError);
-                        },
+                    CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, false, 1,
+                        _ => { _statusText.text = "Settling... Please wait..."; },
                         Debug.LogError);
-                }, Debug.LogError);
+                },
+                Debug.LogError);
         }
-        
+
         private void DriveBackToSurface()
         {
             // Set drive status
             _statusText.text = "Driving back to surface...";
+
+            // Drive
+            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, true, 1, canWrite =>
+            {
+                if (canWrite)
+                {
+                    CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId, _surfaceDepth,
+                        DEPTH_DRIVE_SPEED, _ =>
+                        {
+                            // Reset manipulator drive states
+                            CommunicationManager.Instance.SetInsideBrain(ProbeManager.ManipulatorId, false, _ =>
+                            {
+                                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, false, 1,
+                                    _ => { _statusText.text = ""; },
+                                    Debug.LogError);
+                            }, Debug.LogError);
+                        }, Debug.LogError);
+                }
+            });
         }
 
         #endregion
