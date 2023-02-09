@@ -31,12 +31,13 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 case DriveState.Ready:
                     // Set UI for driving
                     _buttonText.text = "Stop";
-                    _driveState = DriveState.Driving;
+                    _driveState = DriveState.DrivingToTarget;
 
                     // Run drive chain
                     StartDriveChain();
                     break;
-                case DriveState.Driving:
+                case DriveState.DrivingToTarget:
+                case DriveState.DrivingToSurface:
                     // Stop all movements and reset UI
                     CommunicationManager.Instance.Stop(state =>
                     {
@@ -47,12 +48,17 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                         _driveState = DriveState.Ready;
                     });
                     break;
+                case DriveState.Settling:
+                    // Skip settling and be at target
+                    _timerText.text = "Ready for Experiment";
+                    _buttonText.text = "Return to surface";
+                    _driveState = DriveState.AtTarget;
+                    break;
                 case DriveState.AtTarget:
                     // Return to surface + 500 dv
-                    print("Driving back to surface");
                     _buttonText.text = "Stop";
                     _statusText.text = "Returning to surface...";
-                    _driveState = DriveState.Driving;
+                    _driveState = DriveState.DrivingToSurface;
 
                     // Run Drive
                     DriveBackToSurface();
@@ -67,8 +73,17 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Constants
 
+        private enum DriveState
+        {
+            Ready,
+            DrivingToTarget,
+            AtTarget,
+            DrivingToSurface,
+            Settling
+        }
+
         private const float DRIVE_PAST_TARGET_DISTANCE = 0.2f;
-        private const int DEPTH_DRIVE_SPEED = 5;
+        private const int DEPTH_DRIVE_SPEED = 2500;
         private const float DRIVE_BACK_TO_TARGET_DURATION = DRIVE_PAST_TARGET_DISTANCE * 1000 / DEPTH_DRIVE_SPEED;
 
         #endregion
@@ -86,17 +101,11 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #region Properties
 
-        private enum DriveState
-        {
-            Ready,
-            Driving,
-            AtTarget
-        }
-
         private DriveState _driveState;
         private float _targetDepth;
+        private float _targetDriveDuration;
         private float _surfaceDepth;
-        private float _driveDuration;
+        private float _surfaceDriveDuration;
 
         #endregion
 
@@ -138,9 +147,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 var offsetAdjustedSurfacePositionWorldT = Vector3.zero;
 
                 if (surfacePlane.Raycast(direction, out var distanceToSurface))
-                {
                     offsetAdjustedSurfacePositionWorldT = direction.GetPoint(distanceToSurface);
-                }
 
                 // Converting worldT back to APMLDV (position transformed)
                 var offsetAdjustedSurfacePosition =
@@ -169,62 +176,77 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
                 // Compute drive duration
                 targetDriveDistance += DRIVE_PAST_TARGET_DISTANCE;
-                _driveDuration = targetDriveDistance * 1000f / DEPTH_DRIVE_SPEED + DRIVE_BACK_TO_TARGET_DURATION +
-                                 Math.Max(120, targetDriveDistance * 600);
-
-                // Start timer
-                StartCoroutine(CountDownTimer());
+                _targetDriveDuration = targetDriveDistance * 1000f / DEPTH_DRIVE_SPEED + DRIVE_BACK_TO_TARGET_DURATION +
+                                       Math.Max(120, targetDriveDistance * 600);
+                _surfaceDriveDuration = surfaceDriveDistance * 1000f / DEPTH_DRIVE_SPEED +
+                                        Math.Max(120, surfaceDriveDistance * 600);
 
                 // Start drive chain
                 Drive200PastTarget();
             });
         }
 
-        private IEnumerator CountDownTimer()
+        private IEnumerator CountDownTimer(float seconds)
         {
             // Set timer text
-            _timerText.text = TimeSpan.FromSeconds(_driveDuration).ToString(@"mm\:ss");
+            _timerText.text = TimeSpan.FromSeconds(seconds).ToString(@"mm\:ss");
 
             // Wait for 1 second
             yield return new WaitForSeconds(1);
 
-            // Decrement timer
-            _driveDuration--;
-
-            // Check if timer is done
-            if (_driveDuration > 0 && _driveState == DriveState.Driving)
-                // Start next timer
+            switch (seconds)
             {
-                StartCoroutine(CountDownTimer());
-            }
-            else
-            {
-                // Set timer text
-                _statusText.text = "Drive Complete!";
-                _timerText.text = "Ready for Experiment";
-                _buttonText.text = "Return to surface";
+                // Check if timer is done
+                case > 0 when
+                    _driveState is DriveState.DrivingToTarget or DriveState.DrivingToSurface or DriveState.Settling:
+                    StartCoroutine(CountDownTimer(seconds - 1));
+                    break;
+                case <= 0:
+                {
+                    // Set status to complete
+                    _statusText.text = "Drive Complete!";
+                    if (_driveState == DriveState.DrivingToTarget)
+                    {
+                        // Set timer and button text
+                        _timerText.text = "Ready for Experiment";
+                        _buttonText.text = "Return to surface";
 
-                // Set drive state
-                _driveState = DriveState.AtTarget;
+                        // Set drive state
+                        _driveState = DriveState.AtTarget;
+                    }
+                    else
+                    {
+                        // Set timer and button text
+                        _timerText.text = "";
+                        _buttonText.text = "Drive";
+
+                        // Set drive state
+                        _driveState = DriveState.Ready;
+                    }
+
+                    break;
+                }
             }
         }
 
         private void Drive200PastTarget()
         {
-            // Set drive status
-            _statusText.text = "Driving to 200 µm past target...";
-
-            // Drive
-            // Start driving
             CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, true, 1, canWrite =>
             {
-                if (canWrite)
-                    CommunicationManager.Instance.SetInsideBrain(ProbeManager.ManipulatorId, true, _ =>
-                    {
-                        CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId,
-                            _targetDepth + DRIVE_PAST_TARGET_DISTANCE, DEPTH_DRIVE_SPEED, _ => DriveBackToTarget(),
-                            Debug.LogError);
-                    });
+                if (!canWrite) return;
+                // Set drive status
+                _statusText.text = "Driving to 200 µm past target...";
+
+                // Start timer
+                StartCoroutine(CountDownTimer(_targetDriveDuration));
+
+                // Drive
+                CommunicationManager.Instance.SetInsideBrain(ProbeManager.ManipulatorId, true, _ =>
+                {
+                    CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId,
+                        _targetDepth + DRIVE_PAST_TARGET_DISTANCE, DEPTH_DRIVE_SPEED, _ => DriveBackToTarget(),
+                        Debug.LogError);
+                });
             });
         }
 
@@ -239,7 +261,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 {
                     // Reset manipulator drive states
                     CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, false, 1,
-                        _ => { _statusText.text = "Settling... Please wait..."; },
+                        _ =>
+                        {
+                            _statusText.text = "Settling... Please wait...";
+                            _buttonText.text = "Skip settling";
+                            _driveState = DriveState.Settling;
+                        },
                         Debug.LogError);
                 },
                 Debug.LogError);
@@ -247,26 +274,28 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private void DriveBackToSurface()
         {
-            // Set drive status
-            _statusText.text = "Driving back to surface...";
-
             // Drive
             CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, true, 1, canWrite =>
             {
-                if (canWrite)
-                {
-                    CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId, _surfaceDepth,
-                        DEPTH_DRIVE_SPEED, _ =>
+                if (!canWrite) return;
+                // Set drive status
+                _statusText.text = "Driving back to surface...";
+
+                // Start timer
+                StartCoroutine(CountDownTimer(_surfaceDriveDuration));
+
+                // Start driving
+                CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId, _surfaceDepth,
+                    DEPTH_DRIVE_SPEED, _ =>
+                    {
+                        // Reset manipulator drive states
+                        CommunicationManager.Instance.SetInsideBrain(ProbeManager.ManipulatorId, false, _ =>
                         {
-                            // Reset manipulator drive states
-                            CommunicationManager.Instance.SetInsideBrain(ProbeManager.ManipulatorId, false, _ =>
-                            {
-                                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, false, 1,
-                                    _ => { _statusText.text = ""; },
-                                    Debug.LogError);
-                            }, Debug.LogError);
+                            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, false, 1,
+                                _ => { _statusText.text = ""; },
+                                Debug.LogError);
                         }, Debug.LogError);
-                }
+                    }, Debug.LogError);
             });
         }
 
