@@ -1,28 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using RainbowArt.CleanFlatUI;
+using UnityEngine.UI;
 
 public class QuickSettingExpList : MonoBehaviour
 {
     [SerializeField] private UnisaveAccountsManager _accountsManager;
-    [SerializeField] private TMP_Dropdown _experimentDropdown;
+    [SerializeField] private DropdownMultiCheck _experimentDropdown;
+
+    #region Unity
+    private void Awake()
+    {
+        _experimentDropdown.toggleEvent.AddListener(ChangeProbeExperiment);
+    }
+    #endregion
 
     #region Experiment management functionality
 
     public void UpdateExperimentList()
     {
         Debug.Log("Updating quick settings experiment list");
+
         if (_experimentDropdown != null && _experimentDropdown.isActiveAndEnabled)
         {
             List<string> experiments = _accountsManager.GetExperiments();
+
             _experimentDropdown.ClearOptions();
 
-            List<TMP_Dropdown.OptionData> optList = new List<TMP_Dropdown.OptionData>();
-            optList.Add(new TMP_Dropdown.OptionData("Not saved"));
+            List<Dropdown.OptionData> optList = new();
+            optList.Add(new Dropdown.OptionData("Not saved"));
             foreach (string experiment in experiments)
-                optList.Add(new TMP_Dropdown.OptionData(experiment));
+                optList.Add(new Dropdown.OptionData(experiment));
             _experimentDropdown.AddOptions(optList);
+            _experimentDropdown.UpdateToggleList();
         }
     }
 
@@ -31,15 +42,33 @@ public class QuickSettingExpList : MonoBehaviour
     /// probe is saved in.
     /// </summary>
     /// <param name="optIdx"></param>
-    public void ChangeProbeExperiment(int optIdx)
+    public void ChangeProbeExperiment(int index, Toggle toggle)
     {
-        if (optIdx > 0)
+#if UNITY_EDITOR
+        Debug.Log($"Toggle {toggle.GetComponentInChildren<Text>().text} is {(toggle.isOn ? "on" : "off")}");
+#endif
+
+        if (index== 0)
         {
-            string optText = _experimentDropdown.options[optIdx].text;
-            _accountsManager.ChangeProbeExperiment(ProbeManager.ActiveProbeManager, optText);
+            // Remove all other experiments, this probe is not saved anymore
+            for (int i = 1; i < _experimentDropdown.ToggleList.Length; i++)
+            {
+                string experimentName = _experimentDropdown.options[i].text;
+                _accountsManager.RemoveProbeExperiment(ProbeManager.ActiveProbeManager, experimentName);
+                _experimentDropdown.ToggleList[i].SetIsOnWithoutNotify(false);
+            }
         }
         else
-            _accountsManager.RemoveProbeExperiment(ProbeManager.ActiveProbeManager.UUID);
+        {
+            // Disable the "Not saved" toggle if it was checked
+            _experimentDropdown.ToggleList[0].SetIsOnWithoutNotify(false);
+
+            string experimentName = _experimentDropdown.options[index].text;
+            if (toggle.isOn)
+                _accountsManager.AddProbeExperiment(ProbeManager.ActiveProbeManager, experimentName);
+            else
+                _accountsManager.RemoveProbeExperiment(ProbeManager.ActiveProbeManager, experimentName);
+        }
     }
 
     #endregion

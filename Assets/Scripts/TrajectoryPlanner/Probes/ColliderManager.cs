@@ -152,9 +152,11 @@ public class ColliderManager : MonoBehaviour
         if (VisibleProbeColliders.Count > 0 || VisibleRigGOs.Count > 0)
         {
             foreach (Collider probeCollider in VisibleProbeColliders)
-                probeCollider.gameObject.GetComponent<Renderer>().enabled = false;
+                if (probeCollider != null)
+                    probeCollider.gameObject.GetComponent<Renderer>().enabled = false;
             foreach (KeyValuePair<GameObject, Material> kvp in VisibleRigGOs)
-                kvp.Key.GetComponent<Renderer>().material = kvp.Value;
+                if (kvp.Key != null)
+                    kvp.Key.GetComponent<Renderer>().material = kvp.Value;
 
             VisibleProbeColliders.Clear();
             VisibleRigGOs.Clear();

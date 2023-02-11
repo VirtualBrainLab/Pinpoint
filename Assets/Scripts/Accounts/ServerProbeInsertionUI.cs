@@ -45,7 +45,7 @@ public class ServerProbeInsertionUI : MonoBehaviour
 
     public void DeleteProbe()
     {
-        _accountsManager.RemoveProbeExperiment(UUID);
+        _accountsManager.DeleteProbe(UUID);
     }
 
     public void ActivateProbe()

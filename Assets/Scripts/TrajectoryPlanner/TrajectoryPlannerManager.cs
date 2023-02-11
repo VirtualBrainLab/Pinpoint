@@ -463,7 +463,6 @@ namespace TrajectoryPlanner
             newProbeManager.GetProbeController().Insertion.Targetable = true;
 
             spawnedThisFrame = true;
-            _accountsManager.AddNewProbe();
 
             UpdateQuickSettingsProbeIdText();
 
@@ -472,7 +471,9 @@ namespace TrajectoryPlanner
 
             // Add listener for SetActiveProbe
             newProbeManager.ActivateProbeEvent.AddListener(delegate { SetActiveProbe(newProbeManager); });
-            
+
+            _accountsManager.AddNewProbe();
+
             // Invoke event
             _probesChanged.Invoke();
 
@@ -484,9 +485,6 @@ namespace TrajectoryPlanner
             ProbeManager probeManager = AddNewProbe(probeType, UUID);
 
             probeManager.GetProbeController().SetProbePosition(insertion);
-
-            spawnedThisFrame = true;
-            _accountsManager.AddNewProbe();
 
             return probeManager;
         }
@@ -515,9 +513,6 @@ namespace TrajectoryPlanner
             
             // Set original probe manager early on
             if (isGhost) probeManager.OriginalProbeManager = GetActiveProbeManager();
-
-            spawnedThisFrame = true;
-            _accountsManager.AddNewProbe();
 
             return probeManager;
         }

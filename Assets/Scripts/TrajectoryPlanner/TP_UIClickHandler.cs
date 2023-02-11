@@ -33,8 +33,6 @@ public class TP_UIClickHandler : MonoBehaviour
             // Check if the element they are over is the in-plane slice element
             if (uiTarget != null)
             {
-                //cameraController.BlockDragging();
-
                 // check if this is the in-plane slice panel
                 if (uiTarget.name == "InPlaneSlicePanel")
                 {
