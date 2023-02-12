@@ -158,10 +158,6 @@ public class ProbeManager : MonoBehaviour
     private Vector3 brainSurfaceWorld;
     private Vector3 brainSurfaceWorldT;
 
-    // Colliders
-    private HashSet<Collider> _visibleProbeColliders;
-    private Dictionary<GameObject, Material> _visibleOtherColliders;
-
     #region Accessors
 
     public Color GetColor()
@@ -230,9 +226,6 @@ public class ProbeManager : MonoBehaviour
 
         // Get access to the annotation dataset and world-space boundaries
         annotationDataset = VolumeDatasetManager.AnnotationDataset;
-
-        _visibleProbeColliders = new();
-        _visibleOtherColliders = new();
 
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
 
