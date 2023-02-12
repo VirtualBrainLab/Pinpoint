@@ -26,6 +26,7 @@ public class ProbeManager : MonoBehaviour
     void OnEnable() => instances.Add(this);
     void OnDestroy()
     {
+        ProbeProperties.ReturnProbeColor(_probeRenderer.material.color);
         GetProbeController().Insertion.Targetable = false;
         instances.Remove(this);
     }
@@ -354,7 +355,7 @@ public class ProbeManager : MonoBehaviour
                 name = $"{_probeUIManagers[0].MaxArea}-{UUID.Substring(0, 8)}";
             }
             else
-                name = "Probe_" + UUID.Substring(0, 8);
+                name = UUID.Substring(0, 8);
         }
 
         ProbeUIUpdateEvent.Invoke();

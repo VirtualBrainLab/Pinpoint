@@ -16,21 +16,17 @@ public class UnisaveAccountsManager : AccountsManager
 
     [FormerlySerializedAs("registerPanelGO")] [SerializeField] private GameObject _registerPanelGo;
     [FormerlySerializedAs("experimentEditor")] [SerializeField] private ExperimentEditor _experimentEditor;
-    [FormerlySerializedAs("activeExpListBehavior")] [SerializeField] private ActiveExpListBehavior _activeExpListBehavior;
+    [FormerlySerializedAs("activeExpListBehavior")] [SerializeField] private ActiveExperimentUI _activeExperimentUI;
 
     [SerializeField] private QuickSettingExpList _quickSettingsExperimentList;
 
     [SerializeField] private EmailLoginForm _emailLoginForm;
 
-    #region Insertion variables
-    [SerializeField] private Transform _insertionPrefabParentT;
-    [SerializeField] private GameObject _insertionPrefabGO;
-    #endregion
-
-    // callbacks set by TPManager
     #region Events
-    public UnityEvent<string> SetActiveProbeEvent;
-    public UnityEvent ExperimentChangedEvent;
+    public UnityEvent<string> SetActiveProbeEvent; // Fired when a user clicks on an insertion (to set it to the active probe)
+
+    public UnityEvent ExperimentListChangeEvent; // Fired when the experiment list is updated
+    public UnityEvent InsertionListChangeEvent; // Fired when the insertion list is updated or when insertion data is updated
     public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID),bool> UpdateCallbackEvent { get; set; }
     #endregion
 
@@ -87,15 +83,18 @@ public class UnisaveAccountsManager : AccountsManager
 
         Debug.Log("(AccountsManager) Player logged in: " + player.email);
 
-        ExperimentChangedEvent.Invoke();
-        UpdateExperimentUI();
+        // Update everybody
+        ExperimentListChangeEvent.Invoke();
+        InsertionListChangeEvent.Invoke();
     }
 
     public void LogoutCleanup()
     {
         Debug.Log("(AccountsManager) Player logged out");
         _player = null;
-        UpdateExperimentUI();
+
+        ExperimentListChangeEvent.Invoke();
+        InsertionListChangeEvent.Invoke();
     }
 
     #endregion
@@ -126,14 +125,6 @@ public class UnisaveAccountsManager : AccountsManager
             .Call(nameof(PlayerDataFacet.SavePlayerEntity), _player).Done();
     }
 
-    private void UpdateExperimentUI()
-    {
-        _experimentEditor.UpdateList();
-        _activeExpListBehavior.UpdateList();
-        UpdateExperimentInsertionUIPanels();
-        _quickSettingsExperimentList.UpdateExperimentList();
-    }
-
     #endregion
 
 
@@ -141,10 +132,13 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void NewExperiment()
     {
-        _player.Experiments.Add($"Experiment {_player.Experiments.Count}");
-        // Immediately update, so that user can see effect
-        SavePlayer();
-        UpdateExperimentUI();
+        string experimentName = $"Experiment {_player.Experiments.Count}";
+        _player.Experiments.Add(experimentName);
+        _player.Experiment2UUID.Add(experimentName, new HashSet<string>());
+        
+        ExperimentListChangeEvent.Invoke();
+
+        Dirty = true;
     }
 
     public void EditExperiment(string origName, string newName)
@@ -155,17 +149,19 @@ public class UnisaveAccountsManager : AccountsManager
         }
         else
             Debug.LogError(string.Format("Experiment {0} does not exist", origName));
-        // Immediately update, so that user can see effect
-        SavePlayer();
-        UpdateExperimentUI();
+
+        ExperimentListChangeEvent.Invoke();
+
+        Dirty = true;
     }
 
     public void DeleteExperiment(string expName)
     {
         RemoveExperiment(expName);
-        // Immediately update, so that user can see effect
-        SavePlayer();
-        UpdateExperimentUI();
+
+        ExperimentListChangeEvent.Invoke();
+
+        Dirty = true;
     }
 
     #endregion
@@ -179,36 +175,68 @@ public class UnisaveAccountsManager : AccountsManager
     /// <param name="experimentName"></param>
     public void AddProbeExperiment(ProbeManager probeManager, string experimentName)
     {
-        if (_player.UUID2Experiment.ContainsKey(probeManager.UUID))
+        Debug.Log($"Adding {probeManager.UUID} to {experimentName}");
+
+        if (_player.UUID2InsertionData.ContainsKey(probeManager.UUID))
         {
+            // This probe is already saved in a different experiment, just add it to the new experiment (assuming it exists)
+
             if (_player.UUID2Experiment[probeManager.UUID].Contains(experimentName))
                 Debug.Log("Experiment already in list");
             else
+            {
+                Debug.Log("Added new experiemnt to dictionary");
                 _player.UUID2Experiment[probeManager.UUID].Add(experimentName);
+                _player.Experiment2UUID[experimentName].Add(probeManager.UUID);
+            }
+        }
+        else
+        {
+            // This probe is not saved yet -- add it for the first time
+            _player.UUID2InsertionData.Add(probeManager.UUID, ProbeManager2ServerProbeInsertion(probeManager));
+            _player.UUID2Experiment.Add(probeManager.UUID, new HashSet<string>());
+            _player.UUID2Experiment[probeManager.UUID].Add(experimentName);
+            _player.Experiment2UUID[experimentName].Add(probeManager.UUID);
         }
 
         Dirty = true;
-        UpdateExperimentInsertionUIPanels();
+
+        InsertionListChangeEvent.Invoke();
     }
 
     public void RemoveProbeExperiment(ProbeManager probeManager, string experimentName)
     {
+        Debug.Log($"Removing {probeManager.UUID} from {experimentName}");
+
         if (_player.UUID2Experiment.ContainsKey(probeManager.UUID))
         {
             if (_player.UUID2Experiment[probeManager.UUID].Contains(experimentName))
+            {
                 _player.UUID2Experiment[probeManager.UUID].Remove(experimentName);
+                _player.Experiment2UUID[experimentName].Remove(probeManager.UUID);
+
+                // If there are no remaining experiments we should remove the data for this probe entirely
+                if (_player.UUID2Experiment[probeManager.UUID].Count == 0)
+                {
+                    _player.UUID2Experiment.Remove(probeManager.UUID);
+                    _player.UUID2InsertionData.Remove(probeManager.UUID);
+                }
+            }
             else
                 Debug.Log("Experiment wasn't in list");
         }
 
         Dirty = true;
-        UpdateExperimentInsertionUIPanels();
+
+        InsertionListChangeEvent.Invoke();
     }
 
     public void DeleteProbe(string UUID)
     {
-        _player.UUID2Experiment.Remove(UUID);
-        
+        Debug.Log($"Probe {UUID} deleted");
+        RemoveInsertion(UUID);
+
+        InsertionListChangeEvent.Invoke();
     }
 
 #endregion
@@ -239,46 +267,12 @@ public class UnisaveAccountsManager : AccountsManager
         Debug.Log(string.Format("(AccountsManager) Selected experiment: {0}", experiment));
 #endif
         ActiveExperiment = experiment;
-        ExperimentChangedEvent.Invoke();
-        UpdateExperimentInsertionUIPanels();
+
+        InsertionListChangeEvent.Invoke();
     }
 
     #region Insertions
 
-    public void UpdateExperimentInsertionUIPanels()
-    {
-        Debug.Log("(AccountsManager) Updating insertions");
-        // [TODO: This is inefficient, better to keep prefabs that have been created and just hide extras]
-
-        // Destroy all children
-        for (int i = _insertionPrefabParentT.childCount - 1; i >= 0; i--)
-            Destroy(_insertionPrefabParentT.GetChild(i).gameObject);
-
-        Debug.Log("All insertion prefabs destroyed");
-
-        // Add new child prefabs that have the properties matched to the current experiment
-        var experimentData = GetActiveExperimentInsertions();
-
-        foreach (ServerProbeInsertion insertion in experimentData.Values)
-        {
-            // Create a new prefab
-            GameObject insertionPrefab = Instantiate(_insertionPrefabGO, _insertionPrefabParentT);
-            ServerProbeInsertionUI insertionUI = insertionPrefab.GetComponent<ServerProbeInsertionUI>();
-
-            // Insertions should be marked as active if they are in the scene already
-            bool active = ProbeManager.instances.Any(x => experimentData.Keys.Contains(x.UUID));
-
-            insertionUI.SetInsertionData(this, insertion.UUID, active);
-            if (Settings.DisplayUM)
-                insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
-                    Mathf.RoundToInt(insertion.ap*1000f), Mathf.RoundToInt(insertion.ml*1000f), Mathf.RoundToInt(insertion.dv*1000f),
-                    insertion.phi, insertion.theta, insertion.spin));
-            else
-                insertionUI.UpdateDescription(string.Format("AP {0:0.00} ML {1:0.00} DV {2:0.00} Phi {3} Theta {4} Spin {5}",
-                    insertion.ap, insertion.ml, insertion.dv,
-                    insertion.phi, insertion.theta, insertion.spin));
-        }
-    }
     
     public void ChangeInsertionVisibility(string UUID, bool visible)
     {
@@ -289,18 +283,13 @@ public class UnisaveAccountsManager : AccountsManager
         UpdateCallbackEvent(GetProbeInsertionData(UUID), visible);
     }
 
+    /// <summary>
+    /// Called when a probe is destroyed in the scene, handles modifying UI elements to reflect the new state
+    /// </summary>
+    /// <param name="UUID"></param>
     public void ProbeDestroyInScene(string UUID)
     {
-        // Find the UI object and disable the active state
-#if UNITY_EDITOR
-        Debug.Log($"(Accounts) {UUID} was destroyed, disabling UI element, if it exists");
-#endif
-        foreach (ServerProbeInsertionUI serverProbeInsertionUI in _insertionPrefabParentT.GetComponentsInChildren<ServerProbeInsertionUI>())
-            if (serverProbeInsertionUI.UUID.Equals(UUID))
-            {
-                serverProbeInsertionUI.SetToggle(false);
-                return;
-            }
+        _activeExperimentUI.SetInsertionActiveToggle(UUID, false);
     }
 
     #endregion
@@ -379,16 +368,14 @@ public class UnisaveAccountsManager : AccountsManager
         return serverProbeInsertion;
     }
 
-    public void AddInsertion(string UUID, ServerProbeInsertion serverProbeInsertion)
+    private void AddInsertion(string UUID, ServerProbeInsertion serverProbeInsertion)
     {
-        _player.UUIDs.Add(UUID);
         _player.UUID2InsertionData.Add(UUID, serverProbeInsertion);
         _player.UUID2Experiment.Add(UUID, new HashSet<string>());
     }
 
-    public void RemoveInsertion(string UUID)
+    private void RemoveInsertion(string UUID)
     {
-        _player.UUIDs.Remove(UUID);
         HashSet<string> experiments = GetExperimentsFromUUID(UUID);
 
         // remove the UUID from each experiment
@@ -400,7 +387,7 @@ public class UnisaveAccountsManager : AccountsManager
         _player.UUID2Experiment.Remove(UUID);
     }
 
-    public void AddExperiment(string UUID, string experimentName)
+    private void AddExperiment(string UUID, string experimentName)
     {
         if (!_player.Experiments.Contains(experimentName))
         {
@@ -413,7 +400,7 @@ public class UnisaveAccountsManager : AccountsManager
             _player.Experiment2UUID[experimentName].Add(UUID);
     }
 
-    public void RemoveExperiment(string experimentName)
+    private void RemoveExperiment(string experimentName)
     {
         if (_player.Experiments.Contains(experimentName))
         {
@@ -432,18 +419,18 @@ public class UnisaveAccountsManager : AccountsManager
 
     public ServerProbeInsertion GetInsertion(string UUID)
     {
-        if (_player.UUID2InsertionData.ContainsKey(UUID))
-            return _player.UUID2InsertionData[UUID];
-        else
+        if (_player == null || !_player.UUID2InsertionData.ContainsKey(UUID))
             return null;
+
+        return _player.UUID2InsertionData[UUID];
     }
 
     public HashSet<string> GetExperimentsFromUUID(string UUID)
     {
-        if (_player.UUID2Experiment.ContainsKey(UUID))
-            return _player.UUID2Experiment[UUID];
-        else
+        if (_player == null || !_player.UUID2Experiment.ContainsKey(UUID))
             return new HashSet<string>();
+
+        return _player.UUID2Experiment[UUID];
     }
 
     public HashSet<string> GetUUIDsFromExperiment(string experimentName)
@@ -466,4 +453,26 @@ public class UnisaveAccountsManager : AccountsManager
     }
 
     #endregion
+
+    #region Debug
+#if UNITY_EDITOR
+
+    public void PrintExperimentList()
+    {
+        string list = "";
+
+        foreach (string experiment in _player.Experiments)
+        {
+            list += $"{experiment}\n";
+            foreach (string UUID in GetUUIDsFromExperiment(experiment))
+            {
+                list += $"\t{UUID}\n";
+            }
+        }
+
+        Debug.Log(list);
+    }
+
+#endif
+#endregion
 }
