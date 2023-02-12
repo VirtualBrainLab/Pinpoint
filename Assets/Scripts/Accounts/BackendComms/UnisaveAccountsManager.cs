@@ -192,12 +192,14 @@ public class UnisaveAccountsManager : AccountsManager
                 Debug.Log("Experiment already in list");
             else
             {
+                Debug.Log("Adding new experiment to existing UUID");
                 _player.UUID2Experiment[probeManager.UUID].Add(experimentName);
                 _player.Experiment2UUID[experimentName].Add(probeManager.UUID);
             }
         }
         else
         {
+            Debug.Log("Saving UUID for the first time");
             // This probe is not saved yet -- add it for the first time
             _player.UUID2InsertionData.Add(probeManager.UUID, ProbeManager2ServerProbeInsertion(probeManager));
             _player.UUID2Experiment.Add(probeManager.UUID, new HashSet<string>());
@@ -439,9 +441,9 @@ public class UnisaveAccountsManager : AccountsManager
     public HashSet<string> GetUUIDsFromExperiment(string experimentName)
     {
         if (_player == null || !_player.Experiment2UUID.ContainsKey(experimentName))
-            return _player.Experiment2UUID[experimentName];
+            return new HashSet<string>();
         
-        return new HashSet<string>();
+        return _player.Experiment2UUID[experimentName];
     }
 
     public Dictionary<string, ServerProbeInsertion> GetActiveExperimentInsertions()

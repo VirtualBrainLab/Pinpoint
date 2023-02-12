@@ -48,6 +48,8 @@ public class ActiveExperimentUI : MonoBehaviour
     #region Insertions
     public void UpdateExperimentInsertionUIPanels()
     {
+        Debug.Log("Clearing and updating Insertion UI");
+
         // Destroy all children
         for (int i = _insertionPrefabParentT.childCount - 1; i >= 0; i--)
             Destroy(_insertionPrefabParentT.GetChild(i).gameObject);
