@@ -64,15 +64,19 @@ public class ActiveExperimentUI : MonoBehaviour
             // Insertions should be marked as active if they are in the scene already
             bool active = ProbeManager.instances.Any(x => experimentData.Keys.Contains(x.UUID));
 
-            insertionUI.SetInsertionData(_accountsManager, insertion.UUID, active);
+            Vector3 angles = new Vector3(insertion.phi, insertion.theta, insertion.spin);
+            if (Settings.UseIBLAngles)
+                angles = TP_Utils.World2IBL(angles);
+
+            insertionUI.SetInsertionData(_accountsManager, insertion.UUID, insertion.name, active);
             if (Settings.DisplayUM)
                 insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
                     Mathf.RoundToInt(insertion.ap * 1000f), Mathf.RoundToInt(insertion.ml * 1000f), Mathf.RoundToInt(insertion.dv * 1000f),
-                    insertion.phi, insertion.theta, insertion.spin));
+                    angles.x, angles.y, angles.z));
             else
                 insertionUI.UpdateDescription(string.Format("AP {0:0.00} ML {1:0.00} DV {2:0.00} Phi {3} Theta {4} Spin {5}",
                     insertion.ap, insertion.ml, insertion.dv,
-                    insertion.phi, insertion.theta, insertion.spin));
+                    angles.x, angles.y, angles.z));
         }
     }
 

@@ -13,6 +13,7 @@ public class QuickSettingsMultiDropdown : Dropdown
     Animator animator;
 
     public UnityEvent<int, Toggle> toggleEvent;
+    public UnityEvent showEvent;
 
     public void UpdateToggleList()
     {
@@ -45,7 +46,7 @@ public class QuickSettingsMultiDropdown : Dropdown
     {
         base.Show();
 
-        UpdateToggleList();
+        showEvent.Invoke();
 
         if(animator == null)
         {

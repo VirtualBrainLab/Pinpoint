@@ -53,11 +53,12 @@ namespace TrajectoryPlanner
         public void SetActiveProbeManager()
         {
             if (ProbeManager.ActiveProbeManager == null)
+            {
                 gameObject.SetActive(false);
+            }
             else
             {
                 gameObject.SetActive(true);
-                Debug.Log(gameObject.activeSelf);
 
                 ProbeManager.ActiveProbeManager.ProbeUIUpdateEvent.AddListener(UpdateProbeIdText);
 

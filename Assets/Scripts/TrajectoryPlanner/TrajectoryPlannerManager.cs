@@ -27,7 +27,7 @@ namespace TrajectoryPlanner
         [SerializeField] private CCFModelControl _modelControl;
         [SerializeField] private VolumeDatasetManager _vdmanager;
         [SerializeField] private Transform _brainModel;
-        [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
+        [FormerlySerializedAs("util")] [SerializeField] private TP_Utils _util;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
 
         // Settings
@@ -395,9 +395,12 @@ namespace TrajectoryPlanner
             else
             {
                 // Invalidate ProbeManager.ActiveProbeManager
-                if (probeManager == ProbeManager.ActiveProbeManager) ProbeManager.ActiveProbeManager = null;
+                if (probeManager == ProbeManager.ActiveProbeManager)
+                {
+                    ProbeManager.ActiveProbeManager = null;
+                    _activeProbeChangedEvent.Invoke();
+                }
                 _probeQuickSettings.UpdateInteractable(true);
-                _probeQuickSettings.SetActiveProbeManager();
                 SetSurfaceDebugActive(false);
                 UpdateQuickSettings();
             }
@@ -632,6 +635,13 @@ namespace TrajectoryPlanner
             RecalculateProbePanels();
             
             _activeProbeChangedEvent.Invoke();
+        }
+
+        public void OverrideInsertionName(string UUID, string newName)
+        {
+            foreach (ProbeManager probeManager in ProbeManager.instances)
+                if (probeManager.UUID.Equals(UUID))
+                    probeManager.OverrideName(newName);
         }
 
         public void UpdateQuickSettings()

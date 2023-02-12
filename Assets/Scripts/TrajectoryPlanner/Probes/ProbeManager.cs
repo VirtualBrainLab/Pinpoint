@@ -26,9 +26,8 @@ public class ProbeManager : MonoBehaviour
     void OnEnable() => instances.Add(this);
     void OnDestroy()
     {
-        ProbeProperties.ReturnProbeColor(_probeRenderer.material.color);
-        GetProbeController().Insertion.Targetable = false;
-        instances.Remove(this);
+        if (instances.Contains(this))
+            instances.Remove(this);
     }
 
     public static HashSet<string> RightHandedManipulatorIDs { get; } = Settings.RightHandedManipulatorIds;
@@ -258,6 +257,9 @@ public class ProbeManager : MonoBehaviour
         foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.Destroy();
 
+        instances.Remove(this);
+        GetProbeController().Insertion.Targetable = false;
+
         ProbeProperties.ReturnProbeColor(GetColor());
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
@@ -345,7 +347,7 @@ public class ProbeManager : MonoBehaviour
     {
         if (_overrideName != null)
         {
-            name = $"{_overrideName}-{UUID.Substring(0, 8)}";
+            name = _overrideName;
         }
         else
         {
@@ -427,7 +429,7 @@ public class ProbeManager : MonoBehaviour
         Vector3 apmldvS = insertion.PositionSpaceU() + insertion.CoordinateSpace.RelativeOffset;
 
         Vector3 angles = Settings.UseIBLAngles ?
-            Utils.World2IBL(insertion.angles) :
+            TP_Utils.World2IBL(insertion.angles) :
             insertion.angles;
 
         (Vector3 entryCoordTranformed, float depthTransformed) = GetSurfaceCoordinateT();
@@ -440,7 +442,7 @@ public class ProbeManager : MonoBehaviour
             " Tip coordinate: (ccfAP:{12}, ccfML: {13}, ccfDV:{14})",
             name, 
             apStr, round0(entryCoordTranformed.x * mult), mlStr, round0(entryCoordTranformed.y * mult), dvStr, round0(entryCoordTranformed.z * mult), 
-            round2(Utils.CircDeg(angles.x, minPhi, maxPhi)), round2(angles.y), round2(Utils.CircDeg(angles.z, minSpin, maxSpin)),
+            round2(TP_Utils.CircDeg(angles.x, minPhi, maxPhi)), round2(angles.y), round2(TP_Utils.CircDeg(angles.z, minSpin, maxSpin)),
             depthStr, round0(depthTransformed * mult),
             round0(apmldvS.x * mult), round0(apmldvS.y * mult), round0(apmldvS.z * mult));
 

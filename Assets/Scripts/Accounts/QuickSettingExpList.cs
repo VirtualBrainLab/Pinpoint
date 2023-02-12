@@ -13,6 +13,7 @@ public class QuickSettingExpList : MonoBehaviour
     private void Awake()
     {
         _experimentDropdown.toggleEvent.AddListener(ChangeProbeExperiment);
+        _experimentDropdown.showEvent.AddListener(UpdateExperimentList);
     }
     #endregion
 
@@ -20,7 +21,9 @@ public class QuickSettingExpList : MonoBehaviour
 
     public void UpdateExperimentList()
     {
+#if UNITY_EDITOR
         Debug.Log("Updating quick settings experiment list");
+#endif
 
         if (_experimentDropdown != null && _experimentDropdown.isActiveAndEnabled)
         {

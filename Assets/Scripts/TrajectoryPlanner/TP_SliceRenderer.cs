@@ -16,7 +16,7 @@ public class TP_SliceRenderer : MonoBehaviour
     [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
     [FormerlySerializedAs("modelControl")] [SerializeField] private CCFModelControl _modelControl;
     [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
-    [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
+    [FormerlySerializedAs("util")] [SerializeField] private TP_Utils _util;
     [FormerlySerializedAs("dropdownMenu")] [SerializeField] private TMP_Dropdown _dropdownMenu;
     [FormerlySerializedAs("iblCoverageTextureAssetRef")] [SerializeField] private AssetReference _iblCoverageTextureAssetRef;
 

@@ -1212,6 +1212,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: InsertionNameChangeEvent.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.size
       value: 3
       objectReference: {fileID: 0}
@@ -1248,6 +1252,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: InsertionNameChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: SetActiveProbeCallback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 2108153954}
@@ -1275,6 +1283,10 @@ PrefabInstance:
       propertyPath: InsertionListChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1020089445}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: InsertionNameChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2108153954}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: ExperimentChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -1316,6 +1328,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: InsertionNameChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
@@ -1330,6 +1346,10 @@ PrefabInstance:
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: InsertionListChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: UpdateExperimentInsertionUIPanels
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: InsertionNameChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OverrideInsertionName
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -1368,6 +1388,10 @@ PrefabInstance:
       value: ActiveExperimentUI, trajectoryplanner.accounts
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: InsertionNameChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: TrajectoryPlanner.TrajectoryPlannerManager, trajectoryplanner.core
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: ActiveExperimentUI, trajectoryplanner.accounts
       objectReference: {fileID: 0}
@@ -1397,6 +1421,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: InsertionListChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: InsertionNameChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
@@ -2587,7 +2615,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 341190945477065620, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -392.49994
+      value: -392.5
       objectReference: {fileID: 0}
     - target: {fileID: 341190945530995194, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y

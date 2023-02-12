@@ -4,8 +4,6 @@ using Unisave.Facades;
 using System;
 using UnityEngine.Serialization;
 using UnityEngine.Events;
-using System.Linq;
-using System.Xml.Linq;
 
 /// <summary>
 /// Handles connection with the Unisave system, and passing data back-and-forth with the TPManager
@@ -25,6 +23,8 @@ public class UnisaveAccountsManager : AccountsManager
 
     public UnityEvent ExperimentListChangeEvent; // Fired when the experiment list is updated
     public UnityEvent InsertionListChangeEvent; // Fired when the insertion list is updated or when insertion data is updated
+
+    public UnityEvent<string, string> InsertionNameChangeEvent; // Fired when a probe's name is updated
     public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID),bool> UpdateCallbackEvent { get; set; }
     #endregion
 
@@ -99,17 +99,26 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void UpdateProbeData()
     {
-        string UUID = ProbeManager.ActiveProbeManager.UUID;
-
-        // Check that we are logged in and that this probe is in an experiment
-        if (_player != null && _player.UUID2Experiment.ContainsKey(UUID))
+        if (ProbeManager.ActiveProbeManager != null)
         {
-            ServerProbeInsertion insertionData = GetInsertion(UUID);
+            string UUID = ProbeManager.ActiveProbeManager.UUID;
 
-            _player.UUID2InsertionData[UUID] = ProbeManager2ServerProbeInsertion(ProbeManager.ActiveProbeManager, true, insertionData.recorded);
+            // Check that we are logged in and that this probe is in an experiment
+            if (_player != null && _player.UUID2Experiment.ContainsKey(UUID))
+            {
+                ServerProbeInsertion insertionData = GetInsertion(UUID);
 
-            Dirty = true;
+                _player.UUID2InsertionData[UUID] = ProbeManager2ServerProbeInsertion(ProbeManager.ActiveProbeManager, true, insertionData.recorded);
+                _activeExperimentUI.UpdateExperimentInsertionUIPanels();
+
+                Dirty = true;
+            }
         }
+    }
+
+    public void OverrideProbeName(string UUID, string newName)
+    {
+        InsertionNameChangeEvent.Invoke(UUID, newName);
     }
 
     #region Save and Update
@@ -183,7 +192,6 @@ public class UnisaveAccountsManager : AccountsManager
                 Debug.Log("Experiment already in list");
             else
             {
-                Debug.Log("Added new experiemnt to dictionary");
                 _player.UUID2Experiment[probeManager.UUID].Add(experimentName);
                 _player.Experiment2UUID[experimentName].Add(probeManager.UUID);
             }
@@ -204,7 +212,9 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void RemoveProbeExperiment(ProbeManager probeManager, string experimentName)
     {
+#if UNITY_EDITOR
         Debug.Log($"Removing {probeManager.UUID} from {experimentName}");
+#endif
 
         if (_player.UUID2Experiment.ContainsKey(probeManager.UUID))
         {
@@ -220,8 +230,10 @@ public class UnisaveAccountsManager : AccountsManager
                     _player.UUID2InsertionData.Remove(probeManager.UUID);
                 }
             }
+#if UNITY_EDITOR
             else
                 Debug.Log("Experiment wasn't in list");
+#endif
         }
 
         Dirty = true;
@@ -344,9 +356,10 @@ public class UnisaveAccountsManager : AccountsManager
     {
         ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
         Vector3 apmldv = insertion.apmldv;
-        Vector3 angles = probeManager.GetProbeController().Insertion.angles;
+        Vector3 angles = insertion.angles;
 
         ServerProbeInsertion serverProbeInsertion = new ServerProbeInsertion(
+            probeManager.name,
             apmldv.x, apmldv.y, apmldv.z,
             angles.x, angles.y, angles.z,
             probeManager.ProbeType,
@@ -425,10 +438,10 @@ public class UnisaveAccountsManager : AccountsManager
 
     public HashSet<string> GetUUIDsFromExperiment(string experimentName)
     {
-        if (_player.Experiment2UUID.ContainsKey(experimentName))
+        if (_player == null || !_player.Experiment2UUID.ContainsKey(experimentName))
             return _player.Experiment2UUID[experimentName];
-        else
-            return new HashSet<string>();
+        
+        return new HashSet<string>();
     }
 
     public Dictionary<string, ServerProbeInsertion> GetActiveExperimentInsertions()

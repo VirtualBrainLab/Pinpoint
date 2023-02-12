@@ -77,7 +77,7 @@ public class CoordinateEntryPanel : MonoBehaviour
 
         // if in IBL angles, rotate the angles appropriately
         if (Settings.UseIBLAngles)
-            angles = Utils.World2IBL(angles);
+            angles = TP_Utils.World2IBL(angles);
 
         if (!_probeQuickSettings.IsFocused())
         {
@@ -125,7 +125,7 @@ public class CoordinateEntryPanel : MonoBehaviour
                 (_spinField.text.Length > 0) ? float.Parse(_spinField.text) : 0);
 
             if (Settings.UseIBLAngles)
-                angles = Utils.IBL2World(angles);
+                angles = TP_Utils.IBL2World(angles);
 
             ProbeManager.ActiveProbeManager.GetProbeController().SetProbeAngles(angles);
             if (ProbeManager.ActiveProbeManager.HasGhost)

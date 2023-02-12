@@ -78,6 +78,7 @@ public class PlayerEntity : Entity
 
 public class ServerProbeInsertion
 {
+    public string name;
     public float ap;
     public float ml;
     public float dv;
@@ -93,8 +94,9 @@ public class ServerProbeInsertion
 
     public ServerProbeInsertion() { }
 
-    public ServerProbeInsertion(float ap, float ml, float dv, float phi, float theta, float spin, int probeType, string coordinateSpaceName, string coordinateTransformName, bool active, bool recorded, string UUID)
+    public ServerProbeInsertion(string name, float ap, float ml, float dv, float phi, float theta, float spin, int probeType, string coordinateSpaceName, string coordinateTransformName, bool active, bool recorded, string UUID)
     {
+        this.name = name;
         this.ap = ap;
         this.ml = ml;
         this.dv = dv;

@@ -28,15 +28,15 @@ public class TP_RecRegionSlider : MonoBehaviour
 
     public void SliderValueChanged()
     {
-        // Get the slider size from the active probe
-        float value = ((DefaultProbeController)ProbeManager.ActiveProbeManager.GetProbeController()).GetRecordingRegionSize();
-
         if (UIManager.InputsFocused)
             return;
 
         ProbeManager probeManager = ProbeManager.ActiveProbeManager;
         if (probeManager != null)
         {
+            // Get the slider size from the active probe
+            float value = ((DefaultProbeController)ProbeManager.ActiveProbeManager.GetProbeController()).GetRecordingRegionSize();
+
             // Get active probe type from tpmanager
             float[] range = ranges[type2index[probeManager.ProbeType]];
             _uiSlider.value = Round2Nearest(value, range);
