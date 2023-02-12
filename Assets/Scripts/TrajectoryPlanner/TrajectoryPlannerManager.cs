@@ -19,7 +19,8 @@ namespace TrajectoryPlanner
         #region Events
         // TODO: Expose events for probes moving, UI updating, etc
         //UnityEvent ProbeMovedEvent;
-        [SerializeField] private UnityEvent _probesChanged;
+        [SerializeField] private UnityEvent _probesChangedEvent;
+        [SerializeField] private UnityEvent _activeProbeChangedEvent;
         #endregion
 
         // Managers and accessors
@@ -396,7 +397,7 @@ namespace TrajectoryPlanner
                 // Invalidate ProbeManager.ActiveProbeManager
                 if (probeManager == ProbeManager.ActiveProbeManager) ProbeManager.ActiveProbeManager = null;
                 _probeQuickSettings.UpdateInteractable(true);
-                _probeQuickSettings.SetProbeManager(null);
+                _probeQuickSettings.SetActiveProbeManager();
                 SetSurfaceDebugActive(false);
                 UpdateQuickSettings();
             }
@@ -404,7 +405,7 @@ namespace TrajectoryPlanner
             _accountsManager.ProbeDestroyInScene(_prevUUID);
             
             // Invoke event
-            _probesChanged.Invoke();
+            _probesChangedEvent.Invoke();
         }
 
         private void DestroyActiveProbeManager()
@@ -475,7 +476,7 @@ namespace TrajectoryPlanner
             _accountsManager.AddNewProbe();
 
             // Invoke event
-            _probesChanged.Invoke();
+            _probesChangedEvent.Invoke();
 
             return newProbe.GetComponent<ProbeManager>();
         }
@@ -512,7 +513,7 @@ namespace TrajectoryPlanner
             }
             
             // Set original probe manager early on
-            if (isGhost) probeManager.OriginalProbeManager = GetActiveProbeManager();
+            if (isGhost) probeManager.OriginalProbeManager = ProbeManager.ActiveProbeManager;
 
             return probeManager;
         }
@@ -628,18 +629,8 @@ namespace TrajectoryPlanner
 
             // Change the height of the probe panels, if needed
             RecalculateProbePanels();
-
-            // Also update the recording region size slider
-            _recRegionSlider.SliderValueChanged(((DefaultProbeController)ProbeManager.ActiveProbeManager.GetProbeController()).GetRecordingRegionSize());
-
-            // Reset the inplane slice zoom factor
-            _inPlaneSlice.ResetZoom();
             
-            // Update probe quick settings
-            _probeQuickSettings.SetProbeManager(newActiveProbeManager);
-
-            // Let the experiment manager know the active probe UUID
-            _accountsManager.UpdateProbeData();
+            _activeProbeChangedEvent.Invoke();
         }
 
         public void UpdateQuickSettings()
@@ -656,12 +647,6 @@ namespace TrajectoryPlanner
         {
             if (ProbeManager.ActiveProbeManager != null)
                 ProbeManager.ActiveProbeManager.GetProbeController().ResetInsertion();
-        }
-
-
-        public ProbeManager GetActiveProbeManager()
-        {
-            return ProbeManager.ActiveProbeManager;
         }
 
         #region Warping

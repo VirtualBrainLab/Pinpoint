@@ -89,16 +89,14 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         if (!Settings.ShowInPlaneSlice) return;
 
-        ProbeManager activeProbeManager = _tpmanager.GetActiveProbeManager();
-
-        if (activeProbeManager == null)
+        if (ProbeManager.ActiveProbeManager == null)
         {
             ResetRendererParameters();
             return;
         }
 
-        (Vector3 startCoordWorld, Vector3 endCoordWorld) = activeProbeManager.GetProbeController().GetRecordingRegionWorld();
-        (_, upWorld, forwardWorld) = activeProbeManager.GetProbeController().GetTipWorldU();
+        (Vector3 startCoordWorld, Vector3 endCoordWorld) = ProbeManager.ActiveProbeManager.GetProbeController().GetRecordingRegionWorld();
+        (_, upWorld, forwardWorld) = ProbeManager.ActiveProbeManager.GetProbeController().GetTipWorldU();
 
 #if UNITY_EDITOR
         // debug statements
@@ -109,7 +107,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         // Calculate the size
         float mmRecordingSize = Vector3.Distance(startCoordWorld, endCoordWorld);
 
-        int type = activeProbeManager.ProbeType;
+        int type = ProbeManager.ActiveProbeManager.ProbeType;
         bool fourShank = type == 4 || type == 8;
 
         recordingRegionCenterPosition = fourShank ?

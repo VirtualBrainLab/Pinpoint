@@ -26,12 +26,15 @@ public class TP_RecRegionSlider : MonoBehaviour
         ranges.Add(np24Range);
     }
 
-    public void SliderValueChanged(float value)
+    public void SliderValueChanged()
     {
+        // Get the slider size from the active probe
+        float value = ((DefaultProbeController)ProbeManager.ActiveProbeManager.GetProbeController()).GetRecordingRegionSize();
+
         if (UIManager.InputsFocused)
             return;
 
-        ProbeManager probeManager = _tpmanager.GetActiveProbeManager();
+        ProbeManager probeManager = ProbeManager.ActiveProbeManager;
         if (probeManager != null)
         {
             // Get active probe type from tpmanager
