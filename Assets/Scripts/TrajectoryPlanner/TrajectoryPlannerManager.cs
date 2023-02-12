@@ -473,9 +473,7 @@ namespace TrajectoryPlanner
             // Add listener for SetActiveProbe
             newProbeManager.ActivateProbeEvent.AddListener(delegate { SetActiveProbe(newProbeManager); });
 
-            _accountsManager.AddNewProbe();
-
-            // Invoke event
+            // Invoke the movement event
             _probesChangedEvent.Invoke();
 
             return newProbe.GetComponent<ProbeManager>();
@@ -528,8 +526,11 @@ namespace TrajectoryPlanner
         private void CountProbePanels()
         {
             visibleProbePanels = 0;
-            foreach (ProbeManager probeManager in ProbeManager.instances)
-                visibleProbePanels += probeManager.GetProbeUIManagers().Count;
+            if (Settings.ShowAllProbePanels)
+                foreach (ProbeManager probeManager in ProbeManager.instances)
+                    visibleProbePanels += probeManager.GetProbeUIManagers().Count;
+            else
+                visibleProbePanels = ProbeManager.ActiveProbeManager != null ? 1 : 0;
         }
 
         private void RecalculateProbePanels()

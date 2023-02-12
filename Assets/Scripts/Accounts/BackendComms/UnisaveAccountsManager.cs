@@ -18,8 +18,6 @@ public class UnisaveAccountsManager : AccountsManager
     [FormerlySerializedAs("experimentEditor")] [SerializeField] private ExperimentEditor _experimentEditor;
     [FormerlySerializedAs("activeExpListBehavior")] [SerializeField] private ActiveExperimentUI _activeExperimentUI;
 
-    [SerializeField] private QuickSettingExpList _quickSettingsExperimentList;
-
     [SerializeField] private EmailLoginForm _emailLoginForm;
 
     #region Events
@@ -300,14 +298,6 @@ public class UnisaveAccountsManager : AccountsManager
     }
 
     #region Data communication
-
-    /// <summary>
-    /// Handle anything that needs to be updated when a new probe is added to the scene
-    /// </summary>
-    public void AddNewProbe()
-    {
-        _quickSettingsExperimentList.UpdateExperimentList();
-    }
 
     public (Vector3 pos, Vector3 angles, int type, string cSpaceName, string cTransformName, string UUID) GetProbeInsertionData(string UUID)
     {

@@ -716,9 +716,9 @@ MonoBehaviour:
   _inPlaneSliceUigo: {fileID: 5418626435377505851}
   _modelControl: {fileID: 0}
   _areaText: {fileID: 5418626435172264580}
-  _textX: {fileID: 0}
-  _textY: {fileID: 0}
-  _gpuInPlaneSliceGo: {fileID: 5418626435328794262}
+  _textX: {fileID: 5418626435471893410}
+  _textY: {fileID: 5418626434867560523}
+  _gpuSliceRenderer: {fileID: 5418626435328794256}
 --- !u!1 &5418626435471893408
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using TrajectoryPlanner;
-using UnityEngine.Serialization;
 
 public class TP_InPlaneSlice : MonoBehaviour
 {
@@ -15,8 +14,7 @@ public class TP_InPlaneSlice : MonoBehaviour
     [SerializeField] private TMP_Text _textX;
     [SerializeField] private TMP_Text _textY;
 
-    [SerializeField] private GameObject _gpuInPlaneSliceGo;
-    private Renderer _gpuSliceRenderer;
+    [SerializeField] private Renderer _gpuSliceRenderer;
 
     private float probeWidth = 70; // probes are 70um wide
     private int zoomLevel = 0;
@@ -40,8 +38,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         gpuTextureLoadedSource = new TaskCompletionSource<bool>();
         gpuTextureLoadedTask = gpuTextureLoadedSource.Task;
 
-        _gpuSliceRenderer = _gpuInPlaneSliceGo.GetComponent<Renderer>();
-
         ResetRendererParameters();
     }
     // Start is called before the first frame update
@@ -51,27 +47,20 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         annotationDatasetGPUTexture = VolumeDatasetManager.AnnotationDatasetTexture3D;
 
-        _gpuSliceRenderer.material.SetTexture("_Volume", annotationDatasetGPUTexture);
-        _gpuSliceRenderer.material.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
+        _gpuSliceRenderer.sharedMaterial.SetTexture("_Volume", annotationDatasetGPUTexture);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
         gpuTextureLoadedSource.SetResult(true);
-
-        Debug.Log("STARTED");
-    }
-
-    private void Update()
-    {
-        Debug.Log(_gpuSliceRenderer);
     }
 
     private void ResetRendererParameters()
     {
-        _gpuSliceRenderer.material.SetFloat("_FourShankProbe", 0f);
-        _gpuSliceRenderer.material.SetVector("_TipPosition", Vector4.zero);
-        _gpuSliceRenderer.material.SetVector("_ForwardDirection", Vector4.zero);
-        _gpuSliceRenderer.material.SetVector("_UpDirection", Vector4.zero);
-        _gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", 0f);
-        _gpuSliceRenderer.material.SetFloat("_Scale", 1f);
-        _gpuSliceRenderer.material.SetFloat("_ShankWidth", probeWidth);
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", 0f);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_TipPosition", Vector4.zero);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_ForwardDirection", Vector4.zero);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", Vector4.zero);
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", 0f);
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_Scale", 1f);
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankWidth", probeWidth);
     }
 
     public async Task<Texture3D> GetAnnotationDatasetGPUTexture()
@@ -121,15 +110,15 @@ public class TP_InPlaneSlice : MonoBehaviour
             VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2 + forwardWorld * 0.375f) :
             VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2);
 
-        _gpuSliceRenderer.material.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 
         inPlaneScale = mmRecordingSize * 1.5f * 1000f / 25f * zoomFactor;
 
-        _gpuSliceRenderer.material.SetVector("_RecordingRegionCenterPosition", recordingRegionCenterPosition);
-        _gpuSliceRenderer.material.SetVector("_ForwardDirection", forwardWorld);
-        _gpuSliceRenderer.material.SetVector("_UpDirection", upWorld);
-        _gpuSliceRenderer.material.SetFloat("_RecordingRegionSize", mmRecordingSize * 1000f / 25f);
-        _gpuSliceRenderer.material.SetFloat("_Scale", inPlaneScale);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_RecordingRegionCenterPosition", recordingRegionCenterPosition);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_ForwardDirection", forwardWorld);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", upWorld);
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", mmRecordingSize * 1000f / 25f);
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_Scale", inPlaneScale);
         float roundedMmRecSize = Mathf.Round(mmRecordingSize * 1.5f * zoomFactor * 100) / 100;
         string formatted = string.Format("<- {0} mm ->", roundedMmRecSize);
         _textX.text = formatted;

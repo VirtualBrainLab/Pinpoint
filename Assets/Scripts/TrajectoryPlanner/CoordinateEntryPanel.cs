@@ -19,9 +19,7 @@ public class CoordinateEntryPanel : MonoBehaviour
     
     [SerializeField] private TP_ProbeQuickSettings _probeQuickSettings;
 
-    private ProbeManager _linkedProbe;
-
-    private void Start()
+    private void Awake()
     {
         _apField.onSubmit.AddListener(delegate { ApplyPosition(); });
         _mlField.onSubmit.AddListener(delegate { ApplyPosition(); });
@@ -33,25 +31,19 @@ public class CoordinateEntryPanel : MonoBehaviour
         _spinField.onEndEdit.AddListener(delegate { ApplyAngles(); });
     }
 
-    public void LinkProbe(ProbeManager probeManager)
+    public void NewProbe()
     {
-        _linkedProbe = probeManager;
         // change the apmldv/depth text fields to match the prefix on this probe's insertion
-        string prefix = _linkedProbe.GetProbeController().Insertion.CoordinateTransform.Prefix;
+        string prefix = ProbeManager.ActiveProbeManager.GetProbeController().Insertion.CoordinateTransform.Prefix;
         _apText.text = prefix + "AP";
         _mlText.text = prefix + "ML";
         _dvText.text = prefix + "DV";
         _depthText.text = prefix + "Depth";
     }
 
-    public void UnlinkProbe()
-    {
-        _linkedProbe = null;
-    }
-
     public void UpdateText()
     {
-        if (_linkedProbe == null)
+        if (ProbeManager.ActiveProbeManager == null)
         {
             _apField.text = "";
             _mlField.text = "";
@@ -64,16 +56,16 @@ public class CoordinateEntryPanel : MonoBehaviour
         }
 
         Vector3 apmldv;
-        Vector3 angles = _linkedProbe.GetProbeController().Insertion.angles;
+        Vector3 angles = ProbeManager.ActiveProbeManager.GetProbeController().Insertion.angles;
         float depth = float.NaN;
 
-        if (_linkedProbe.IsProbeInBrain())
+        if (ProbeManager.ActiveProbeManager.IsProbeInBrain())
         {
-            (apmldv, depth) = _linkedProbe.GetSurfaceCoordinateT();
+            (apmldv, depth) = ProbeManager.ActiveProbeManager.GetSurfaceCoordinateT();
         }
         else
         {
-            apmldv = _linkedProbe.GetProbeController().Insertion.apmldv;
+            apmldv = ProbeManager.ActiveProbeManager.GetProbeController().Insertion.apmldv;
         }
 
         float mult = Settings.DisplayUM ? 1000f : 1f;
@@ -116,7 +108,7 @@ public class CoordinateEntryPanel : MonoBehaviour
 
             Vector4 position = new Vector4(ap, ml, dv, depth) / 1000f;
 
-            _linkedProbe.GetProbeController().SetProbePosition(position);
+            ProbeManager.ActiveProbeManager.GetProbeController().SetProbePosition(position);
         }
         catch
         {
@@ -135,9 +127,9 @@ public class CoordinateEntryPanel : MonoBehaviour
             if (Settings.UseIBLAngles)
                 angles = Utils.IBL2World(angles);
 
-            _linkedProbe.GetProbeController().SetProbeAngles(angles);
-            if (_linkedProbe.HasGhost)
-                _linkedProbe.GhostProbeManager.GetProbeController().SetProbeAngles(angles);
+            ProbeManager.ActiveProbeManager.GetProbeController().SetProbeAngles(angles);
+            if (ProbeManager.ActiveProbeManager.HasGhost)
+                ProbeManager.ActiveProbeManager.GhostProbeManager.GetProbeController().SetProbeAngles(angles);
         }
         catch
         {

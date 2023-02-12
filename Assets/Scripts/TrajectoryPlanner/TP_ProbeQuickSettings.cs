@@ -57,12 +57,13 @@ namespace TrajectoryPlanner
             else
             {
                 gameObject.SetActive(true);
+                Debug.Log(gameObject.activeSelf);
 
                 ProbeManager.ActiveProbeManager.ProbeUIUpdateEvent.AddListener(UpdateProbeIdText);
 
                 UpdateProbeIdText();
 
-                _coordinatePanel.LinkProbe(ProbeManager.ActiveProbeManager);
+                _coordinatePanel.NewProbe();
 
                 // Handle picking up events
                 ProbeManager.ActiveProbeManager.EphysLinkControlChangeEvent.AddListener(() =>
@@ -71,8 +72,8 @@ namespace TrajectoryPlanner
                     UpdateAutomaticControlPanel();
                 });
 
-                UpdateInteractable();
                 UpdateCoordinates();
+                UpdateInteractable();
                 UpdateAutomaticControlPanel();
             }
         }

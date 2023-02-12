@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class QuickSettingExpList : MonoBehaviour
 {
     [SerializeField] private UnisaveAccountsManager _accountsManager;
-    [SerializeField] private DropdownMultiCheck _experimentDropdown;
+    [SerializeField] private QuickSettingsMultiDropdown _experimentDropdown;
 
     #region Unity
     private void Awake()
