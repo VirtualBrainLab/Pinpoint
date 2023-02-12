@@ -1457,6 +1457,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4589053103431979469, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
   m_PrefabInstance: {fileID: 341190943874437988}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1453315618 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6525320589828048924, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1501715917 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6336269206487648902, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -2615,7 +2626,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 341190945477065620, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -392.5
+      value: -392.49994
       objectReference: {fileID: 0}
     - target: {fileID: 341190945530995194, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4698,6 +4709,10 @@ PrefabInstance:
       propertyPath: _axisControlToggle
       value: 
       objectReference: {fileID: 1397446698413376552}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _stayLoggedInToggle
+      value: 
+      objectReference: {fileID: 1453315618}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: recordingRegionToggle
       value: 

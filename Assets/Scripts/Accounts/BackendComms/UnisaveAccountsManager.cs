@@ -462,7 +462,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void PrintExperimentList()
     {
-        string list = "";
+        string list = "\n";
 
         foreach (string experiment in _player.Experiments)
         {

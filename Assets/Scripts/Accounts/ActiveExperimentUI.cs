@@ -57,6 +57,10 @@ public class ActiveExperimentUI : MonoBehaviour
 
         foreach (ServerProbeInsertion insertion in experimentData.Values)
         {
+#if UNITY_EDITOR
+            Debug.Log($"Creating insertion panel for {insertion.name}");
+#endif
+
             // Create a new prefab
             GameObject insertionPrefab = Instantiate(_insertionPrefabGO, _insertionPrefabParentT);
             ServerProbeInsertionUI insertionUI = insertionPrefab.GetComponent<ServerProbeInsertionUI>();

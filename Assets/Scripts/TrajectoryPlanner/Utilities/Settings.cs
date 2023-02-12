@@ -445,6 +445,10 @@ public class Settings : MonoBehaviour
         ShowAllProbePanels = LoadBoolPref(SHOWALLPROBEPANELS_STR, SHOWALLPROBEPANELS_DEFAULT);
         _showAllProbePanelsToggle.SetIsOnWithoutNotify(ShowAllProbePanels);
 
+        // Accounts
+        StayLoggedIn = LoadBoolPref(LOGGEDIN_STR, LOGGEDIN_DEFAULT);
+        _stayLoggedInToggle.SetIsOnWithoutNotify(StayLoggedIn);
+
         // Ephys link
         EphysLinkServerIp = LoadStringPref("ephys_link_ip", "");
         _ephysLinkServerIpInput.text = _ephysLinkServerIp;
@@ -614,6 +618,25 @@ public class Settings : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    #endregion
+
+    #region Accounts
+    private static bool s_stayLoggedIn;
+    private const string LOGGEDIN_STR = "stayloggedin";
+    private const bool LOGGEDIN_DEFAULT = true;
+    [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _stayLoggedInToggle;
+    //public UnityEvent DetectCollisionsChangedEvent;
+
+    public static bool StayLoggedIn
+    {
+        get { return s_stayLoggedIn; }
+        set
+        {
+            s_stayLoggedIn = value;
+            PlayerPrefs.SetInt(LOGGEDIN_STR, s_stayLoggedIn ? 1 : 0);
+            //Instance.DetectCollisionsChangedEvent.Invoke();
+        }
+    }
     #endregion
 
     #region Editor

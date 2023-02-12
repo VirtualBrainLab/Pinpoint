@@ -22,6 +22,7 @@ public class EmailLoginForm : MonoBehaviour
     public const string UNISAVE_TOKEN_STR = "unisave-token";
 
     [SerializeField] private UnisaveAccountsManager _accountsManager;
+    [SerializeField] private Toggle _stayLoggedInToggle;
 
     public TMP_InputField _emailField;
     public TMP_InputField _passwordField;
@@ -99,7 +100,8 @@ public class EmailLoginForm : MonoBehaviour
 
             if (loginResponse.success)
             {
-                PlayerPrefs.SetString(UNISAVE_TOKEN_STR, loginResponse.token);
+                if (_stayLoggedInToggle)
+                    PlayerPrefs.SetString(UNISAVE_TOKEN_STR, loginResponse.token);
                 Debug.Log($"Received token {loginResponse.token}");
 
                 _statusText.text = string.Format("Logged into: {0}", _emailField.text);
@@ -158,6 +160,16 @@ public class EmailLoginForm : MonoBehaviour
                 _statusText.text = "Autologin failed\nThis account does not exist,\nor the token was invalid";
                 _statusText.color = Color.red;
             }
+        }
+    }
+
+    public void DisableLoginToken(bool state)
+    {
+        Settings.StayLoggedIn = state;
+        if (!state)
+        {
+            PlayerPrefs.DeleteKey(UNISAVE_EMAIL_STR);
+            PlayerPrefs.DeleteKey(UNISAVE_TOKEN_STR);
         }
     }
 }
