@@ -660,6 +660,11 @@ namespace TrajectoryPlanner
                 ProbeManager.ActiveProbeManager.GetProbeController().ResetInsertion();
         }
 
+        public void LockActiveProbe(bool locked)
+        {
+            ProbeManager.ActiveProbeManager.SetLock(locked);
+        }
+
         #region Warping
 
         public void WarpBrain()

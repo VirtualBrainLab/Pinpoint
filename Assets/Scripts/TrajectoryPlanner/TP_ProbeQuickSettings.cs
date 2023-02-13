@@ -20,6 +20,7 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("automaticMovementSpeedInputField")] [SerializeField] private TMP_InputField _automaticMovementSpeedInputField;
         [FormerlySerializedAs("automaticMovementControlPanelGameObject")] [SerializeField] private GameObject _automaticMovementControlPanelGameObject;
         [FormerlySerializedAs("automaticMovementGoButton")] [SerializeField] private Button _automaticMovementGoButton;
+        [SerializeField] private QuickSettingsLockBehavior _lockBehavior;
         
         private CommunicationManager _communicationManager;
         private TrajectoryPlannerManager _trajectoryPlannerManager;
@@ -72,6 +73,8 @@ namespace TrajectoryPlanner
                     UpdateInteractable();
                     UpdateAutomaticControlPanel();
                 });
+
+                _lockBehavior.SetLockState(ProbeManager.ActiveProbeManager.GetProbeController().Locked);
 
                 UpdateCoordinates();
                 UpdateInteractable();

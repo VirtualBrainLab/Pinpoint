@@ -222,6 +222,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &121884410 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6774864783474415589, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75822e5514edb0d42b76f8c24264f0e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &160775271 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 193214259762620640, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -3396,6 +3407,34 @@ PrefabInstance:
       propertyPath: _accountsManager
       value: 
       objectReference: {fileID: 809984607}
+    - target: {fileID: 4306952370464967406, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4306952370464967406, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4306952370464967406, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 121884410}
+    - target: {fileID: 4306952370464967406, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4306952370464967406, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: InvokeLockEvent
+      objectReference: {fileID: 0}
+    - target: {fileID: 4306952370464967406, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: QuickSettingsLockBehavior, trajectoryplanner.ui
+      objectReference: {fileID: 0}
+    - target: {fileID: 4306952370464967406, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 4456086472949524093, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -3764,6 +3803,34 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6774864783474415589, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: LockEvent.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6774864783474415589, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: LockEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6774864783474415589, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: LockEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2108153954}
+    - target: {fileID: 6774864783474415589, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: LockEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6774864783474415589, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: LockEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: LockActiveProbe
+      objectReference: {fileID: 0}
+    - target: {fileID: 6774864783474415589, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: LockEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: TrajectoryPlanner.TrajectoryPlannerManager, trajectoryplanner.core
+      objectReference: {fileID: 0}
+    - target: {fileID: 6774864783474415589, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: LockEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 6785611152075342182, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3952,6 +4019,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 311.77
       objectReference: {fileID: 0}
+    - target: {fileID: 8017547552066817441, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: _lockBehavior
+      value: 
+      objectReference: {fileID: 121884410}
     - target: {fileID: 8017547552066817445, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_IsActive
       value: 0

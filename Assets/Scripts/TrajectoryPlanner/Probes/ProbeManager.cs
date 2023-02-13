@@ -178,6 +178,11 @@ public class ProbeManager : MonoBehaviour
             puiManager.UpdateColors();
     }
 
+    public void SetLock(bool locked)
+    {
+        _probeController.Locked = locked;
+    }
+
     public void DisableAllColliders()
     {
         foreach (var probeCollider in _probeColliders)
@@ -386,13 +391,13 @@ public class ProbeManager : MonoBehaviour
     /// Move the probe
     /// </summary>
     /// <returns>Whether or not the probe moved on this frame</returns>
-    public bool MoveProbe()
+    public void MoveProbe()
     {
         // Cancel movement if being controlled by EphysLink
         if (IsEphysLinkControlled)
-            return false;
+            return;
 
-        return ((DefaultProbeController)_probeController).MoveProbe_Keyboard();
+        ((DefaultProbeController)_probeController).MoveProbe_Keyboard();
     }
 
     #region Text

@@ -116,11 +116,11 @@ public class DefaultProbeController : ProbeController
         keySlow = Input.GetKey(KeyCode.LeftControl);
     }
 
-    public bool MoveProbe_Keyboard()
+    public void MoveProbe_Keyboard()
     {
         // drag movement takes precedence
         if (dragging || Locked)
-            return false;
+            return;
 
         bool moved = false;
         bool keyHoldDelayPassed = (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay;
@@ -385,12 +385,6 @@ public class DefaultProbeController : ProbeController
             // Update all the UI panels
             ProbeManager.UpdateUI();
             FinishedMovingEvent.Invoke();
-
-            return true;
-        }
-        else
-        {
-            return false;
         }
     }
 
@@ -506,7 +500,7 @@ public class DefaultProbeController : ProbeController
     public void DragMovementDrag()
     {
         // Cancel movement if being controlled by EphysLink
-        if (ProbeManager.IsEphysLinkControlled)
+        if (ProbeManager.IsEphysLinkControlled || Locked)
             return;
 
         CheckForSpeedKeys();
