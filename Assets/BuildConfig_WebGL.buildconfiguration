@@ -23,7 +23,7 @@
         {
             "$type": "Unity.Build.Classic.ClassicCodeStrippingOptions, Unity.Build.Classic",
             "StripEngineCode": true,
-            "ManagedStrippingLevel": 2
+            "ManagedStrippingLevel": 4
         }
     ]
 }

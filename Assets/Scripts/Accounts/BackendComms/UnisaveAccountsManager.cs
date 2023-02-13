@@ -10,15 +10,20 @@ using UnityEngine.Events;
 /// </summary>
 public class UnisaveAccountsManager : AccountsManager
 {
-    private const float UPDATE_RATE = 60f;
+#if UNITY_WEBGL && !UNITY_EDITOR
+    private const float UPDATE_RATE = 15f;
+#else
+    private const float UPDATE_RATE = 120f;
+#endif
 
     [FormerlySerializedAs("registerPanelGO")] [SerializeField] private GameObject _registerPanelGo;
     [FormerlySerializedAs("experimentEditor")] [SerializeField] private ExperimentEditor _experimentEditor;
     [FormerlySerializedAs("activeExpListBehavior")] [SerializeField] private ActiveExperimentUI _activeExperimentUI;
+    [SerializeField] private GameObject _savePanel;
 
     [SerializeField] private EmailLoginForm _emailLoginForm;
 
-    #region Events
+#region Events
     public UnityEvent<string> SetActiveProbeEvent; // Fired when a user clicks on an insertion (to set it to the active probe)
 
     public UnityEvent ExperimentListChangeEvent; // Fired when the experiment list is updated
@@ -26,20 +31,20 @@ public class UnisaveAccountsManager : AccountsManager
 
     public UnityEvent<string, string> InsertionNameChangeEvent; // Fired when a probe's name is updated
     public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, string overrideName, Color color),bool> UpdateCallbackEvent { get; set; }
-    #endregion
+#endregion
 
-    #region current player data
+#region current player data
     private PlayerEntity _player;
     public bool Connected { get { return _player != null; } }
-    #endregion
+#endregion
 
-    #region tracking variables
+#region tracking variables
     public bool Dirty { get; private set; }
     private float _lastSave;
     public string ActiveExperiment { get; private set; }
-    #endregion
+#endregion
 
-    #region Unity
+#region Unity
     private void Awake()
     {
         _lastSave = Time.realtimeSinceStartup;
@@ -52,10 +57,16 @@ public class UnisaveAccountsManager : AccountsManager
 
     private void Update()
     {
-        if (Dirty && (Time.realtimeSinceStartup - _lastSave) >= UPDATE_RATE)
+        if (Dirty)
         {
-            Dirty = false;
-            SavePlayer();
+            if ((Time.realtimeSinceStartup - _lastSave) >= UPDATE_RATE)
+            {
+                SavePlayer();
+            }
+            else
+            {
+                _savePanel.SetActive(true);
+            }
         }
     }
 
@@ -64,9 +75,9 @@ public class UnisaveAccountsManager : AccountsManager
         SavePlayer();
     }
 
-    #endregion
+#endregion
 
-    #region Login/logout
+#region Login/logout
     public void Login()
     {
         OnFacet<PlayerDataFacet>
@@ -95,7 +106,7 @@ public class UnisaveAccountsManager : AccountsManager
         InsertionListChangeEvent.Invoke();
     }
 
-    #endregion
+#endregion
 
     public void UpdateProbeData()
     {
@@ -120,12 +131,16 @@ public class UnisaveAccountsManager : AccountsManager
     {
         _player.UUID2InsertionData[UUID].name = newName;
         InsertionNameChangeEvent.Invoke(UUID, newName);
+        Dirty = true;
     }
 
-    #region Save and Update
+#region Save and Update
 
     public void SavePlayer()
     {
+        Dirty = false;
+        _savePanel.SetActive(false);
+
         if (_player == null)
             return;
         Debug.Log("(AccountsManager) Saving data");
@@ -133,10 +148,10 @@ public class UnisaveAccountsManager : AccountsManager
             .Call(nameof(PlayerDataFacet.SavePlayerEntity), _player).Done();
     }
 
-    #endregion
+#endregion
 
 
-    #region Experiment editor
+#region Experiment editor
 
     public void NewExperiment()
     {
@@ -172,9 +187,9 @@ public class UnisaveAccountsManager : AccountsManager
         Dirty = true;
     }
 
-    #endregion
+#endregion
 
-    #region Quick settings panel
+#region Quick settings panel
 
     /// <summary>
     /// Add a new experiment to the list of experiments for a particular probe
@@ -249,6 +264,8 @@ public class UnisaveAccountsManager : AccountsManager
         Debug.Log($"Probe {UUID} deleted");
         RemoveInsertion(UUID);
 
+        Dirty = true;
+
         InsertionListChangeEvent.Invoke();
     }
 
@@ -259,7 +276,7 @@ public class UnisaveAccountsManager : AccountsManager
         _registerPanelGo.SetActive(true);
     }
 
-    #region Public helpers
+#region Public helpers
     public List<string> GetExperiments()
     {
         if (_player != null)
@@ -268,7 +285,7 @@ public class UnisaveAccountsManager : AccountsManager
             return new List<string>();
     }
 
-    #endregion
+#endregion
 
     public void SaveRigList(List<int> visibleRigParts) {
         _player.VisibleRigParts = visibleRigParts;
@@ -284,7 +301,7 @@ public class UnisaveAccountsManager : AccountsManager
         InsertionListChangeEvent.Invoke();
     }
 
-    #region Insertions
+#region Insertions
 
     
     public void ChangeInsertionVisibility(string UUID, bool visible)
@@ -305,14 +322,14 @@ public class UnisaveAccountsManager : AccountsManager
         _activeExperimentUI.SetInsertionActiveToggle(UUID, false);
     }
 
-    #endregion
+#endregion
 
     public void SetActiveProbe(string UUID)
     {
         SetActiveProbeEvent.Invoke(UUID);
     }
 
-    #region Data communication
+#region Data communication
 
     public (Vector3 pos, Vector3 angles, int type, string cSpaceName, string cTransformName, string UUID, string overrideName, Color color) GetProbeInsertionData(string UUID)
     {
@@ -353,9 +370,9 @@ public class UnisaveAccountsManager : AccountsManager
         return probeDataList;
     }
 
-    #endregion
+#endregion
 
-    #region Helpers
+#region Helpers
 
     private ServerProbeInsertion ProbeManager2ServerProbeInsertion(ProbeManager probeManager, bool active = true, bool recorded = false)
     {
@@ -462,9 +479,9 @@ public class UnisaveAccountsManager : AccountsManager
         return activeExperimentInsertions;
     }
 
-    #endregion
+#endregion
 
-    #region Debug
+#region Debug
 #if UNITY_EDITOR
 
     public void PrintExperimentList()
