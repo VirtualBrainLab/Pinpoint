@@ -956,7 +956,7 @@ namespace TrajectoryPlanner
         /// 
         /// TPManager then requests a list of all active probes and updates the scene appropriately
         /// </summary>
-        private void AccountsProbeStatusUpdatedCallback((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) data,
+        private void AccountsProbeStatusUpdatedCallback((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, Color color) data,
             bool visible)
         {
             Debug.Log($"Change in visibility for {data.UUID} to {visible}");
@@ -983,9 +983,10 @@ namespace TrajectoryPlanner
             
         }
 
-        private void AccountsNewProbeHelper((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) data)
+        private void AccountsNewProbeHelper((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, Color color) data)
         {
-            AddNewProbe(data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
+            ProbeManager newProbeManager = AddNewProbe(data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
+            newProbeManager.SetColor(data.color);
         }
 
         #endregion

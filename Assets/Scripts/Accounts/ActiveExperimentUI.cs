@@ -75,6 +75,8 @@ public class ActiveExperimentUI : MonoBehaviour
                 angles = TP_Utils.World2IBL(angles);
 
             insertionUI.SetInsertionData(_accountsManager, insertion.UUID, insertion.name, active);
+            insertionUI.SetColor(insertion.color);
+
             if (Settings.DisplayUM)
                 insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
                     Mathf.RoundToInt(insertion.ap * 1000f), Mathf.RoundToInt(insertion.ml * 1000f), Mathf.RoundToInt(insertion.dv * 1000f),

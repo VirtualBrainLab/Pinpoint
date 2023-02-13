@@ -25,7 +25,7 @@ public class UnisaveAccountsManager : AccountsManager
     public UnityEvent InsertionListChangeEvent; // Fired when the insertion list is updated or when insertion data is updated
 
     public UnityEvent<string, string> InsertionNameChangeEvent; // Fired when a probe's name is updated
-    public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID),bool> UpdateCallbackEvent { get; set; }
+    public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, Color color),bool> UpdateCallbackEvent { get; set; }
     #endregion
 
     #region current player data
@@ -313,7 +313,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     #region Data communication
 
-    public (Vector3 pos, Vector3 angles, int type, string cSpaceName, string cTransformName, string UUID) GetProbeInsertionData(string UUID)
+    public (Vector3 pos, Vector3 angles, int type, string cSpaceName, string cTransformName, string UUID, Color color) GetProbeInsertionData(string UUID)
     {
         if (_player.UUID2Experiment.ContainsKey(UUID))
         {
@@ -323,10 +323,11 @@ public class UnisaveAccountsManager : AccountsManager
                 new Vector3(serverProbeInsertion.phi, serverProbeInsertion.theta, serverProbeInsertion.spin),
                 serverProbeInsertion.probeType,
                 serverProbeInsertion.coordinateSpaceName, serverProbeInsertion.coordinateTransformName,
-                UUID);
+                UUID,
+                new Color(serverProbeInsertion.color[0], serverProbeInsertion.color[1], serverProbeInsertion.color[2]));
         }
         else
-            return (Vector3.zero, Vector3.zero, -1, null, null, null);
+            return (Vector3.zero, Vector3.zero, -1, null, null, null, Color.black);
     }
 
     /// <summary>
@@ -359,6 +360,7 @@ public class UnisaveAccountsManager : AccountsManager
         ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
         Vector3 apmldv = insertion.apmldv;
         Vector3 angles = insertion.angles;
+        Color color = probeManager.GetColor();
 
         ServerProbeInsertion serverProbeInsertion = new ServerProbeInsertion(
             probeManager.name,
@@ -368,7 +370,8 @@ public class UnisaveAccountsManager : AccountsManager
             insertion.CoordinateSpace.Name,
             insertion.CoordinateTransform.Name,
             active, recorded,
-            probeManager.UUID);
+            probeManager.UUID,
+            new float[] {color.r, color.g, color.b});
 
         return serverProbeInsertion;
     }

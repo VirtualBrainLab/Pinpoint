@@ -167,8 +167,15 @@ public class ProbeManager : MonoBehaviour
 
     public void SetColor(Color color)
     {
+        // try to return the current color
         ProbeProperties.ReturnProbeColor(_probeRenderer.material.color);
+        // use up the new color (if it's a default color)
+        ProbeProperties.UseColor(color);
+
         _probeRenderer.material.color = color;
+
+        foreach (ProbeUIManager puiManager in _probeUIManagers)
+            puiManager.UpdateColors();
     }
 
     public void DisableAllColliders()

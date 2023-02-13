@@ -17,6 +17,7 @@ public class ProbeUIManager : MonoBehaviour
 
     private Color defaultColor;
     private Color selectedColor;
+    private bool _selected;
 
     private bool probeMovedDirty = false;
 
@@ -67,13 +68,15 @@ public class ProbeUIManager : MonoBehaviour
         }
     }
 
-    private void UpdateColors()
+    public void UpdateColors()
     {
         defaultColor = _probeManager.GetColor();
         defaultColor.a = 0.5f;
 
         selectedColor = defaultColor;
         selectedColor.a = 0.75f;
+
+        UpdateUIManagerColor();
     }
 
     public int GetOrder()
@@ -290,7 +293,13 @@ public class ProbeUIManager : MonoBehaviour
 
     public void ProbeSelected(bool selected)
     {
-        if (selected)
+        _selected = selected;
+        UpdateUIManagerColor();
+    }
+
+    private void UpdateUIManagerColor()
+    {
+        if (_selected)
             probePanelGO.GetComponent<Image>().color = selectedColor;
         else
             probePanelGO.GetComponent<Image>().color = defaultColor;

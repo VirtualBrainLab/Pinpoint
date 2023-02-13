@@ -471,6 +471,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _insertionNameInput: {fileID: 2712259087351664530}
+  _insertionText: {fileID: 7777097962390134987}
   _insertionDescriptionText: {fileID: 5110724706911345810}
   _insertionActiveToggle: {fileID: 4603798331339086737}
   UUID: 

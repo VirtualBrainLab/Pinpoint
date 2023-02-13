@@ -91,10 +91,14 @@ public class ServerProbeInsertion
     public bool active;
     public bool recorded;
     public string UUID;
+    public float[] color;
 
     public ServerProbeInsertion() { }
 
-    public ServerProbeInsertion(string name, float ap, float ml, float dv, float phi, float theta, float spin, int probeType, string coordinateSpaceName, string coordinateTransformName, bool active, bool recorded, string UUID)
+    public ServerProbeInsertion(string name, float ap, float ml, float dv, float phi, float theta, float spin,
+        int probeType, string coordinateSpaceName, string coordinateTransformName,
+        bool active, bool recorded, string UUID,
+        float[] color)
     {
         this.name = name;
         this.ap = ap;
@@ -109,5 +113,6 @@ public class ServerProbeInsertion
         this.active = active;
         this.recorded = recorded;
         this.UUID = UUID;
+        this.color = color;
     }
 }
