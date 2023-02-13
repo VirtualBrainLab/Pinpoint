@@ -107,16 +107,19 @@ public class ColliderManager : MonoBehaviour
     {
         foreach (Collider activeCollider in ActiveColliderInstances)
         {
-            foreach (Collider otherCollider in InactiveColliderInstances)
+            if (activeCollider != null)
             {
-                if (otherCollider != null)
+                foreach (Collider otherCollider in InactiveColliderInstances)
                 {
-                    Vector3 dir;
-                    float dist;
-                    if (Physics.ComputePenetration(activeCollider, activeCollider.transform.position, activeCollider.transform.rotation, otherCollider, otherCollider.transform.position, otherCollider.transform.rotation, out dir, out dist))
+                    if (otherCollider != null)
                     {
-                        CreateCollisionMesh(activeCollider, otherCollider);
-                        return true;
+                        Vector3 dir;
+                        float dist;
+                        if (Physics.ComputePenetration(activeCollider, activeCollider.transform.position, activeCollider.transform.rotation, otherCollider, otherCollider.transform.position, otherCollider.transform.rotation, out dir, out dist))
+                        {
+                            CreateCollisionMesh(activeCollider, otherCollider);
+                            return true;
+                        }
                     }
                 }
             }

@@ -125,7 +125,7 @@ namespace TrajectoryPlanner
             _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
         }
 
-        private void Start()
+        private async void Start()
         {
             // Startup CCF
             _modelControl.LateStart(true);
@@ -136,9 +136,13 @@ namespace TrajectoryPlanner
 
             // Startup the volume textures
             annotationDatasetLoadTask = _vdmanager.LoadAnnotationDataset();
+            await annotationDatasetLoadTask;
 
             // After annotation loads, check if the user wants to load previously used probes
             CheckForSavedProbes(annotationDatasetLoadTask);
+
+            // Finally, load accounts
+            _accountsManager.DelayedStart();
         }
 
         void Update()
@@ -177,14 +181,6 @@ namespace TrajectoryPlanner
 
             if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.P))
                 _coenProbe = AddNewProbe(8).GetComponent<EightShankProbeControl>();
-
-            // TEST CODE: Debugging distance of mesh nodes from camera, trying to fix model "pop"
-            //List<CCFTreeNode> defaultLoadedNodes = modelControl.GetDefaultLoadedNodes();
-            //if (defaultLoadedNodes.Count > 0)
-            //{
-            //    Camera brainCamera = brainCamController.GetCamera();
-            //    Debug.Log(Vector3.Distance(brainCamera.transform.position, defaultLoadedNodes[0].GetMeshCenter()));
-            //}
         }
 
         private void LateUpdate()
@@ -246,12 +242,17 @@ namespace TrajectoryPlanner
 
             foreach (var savedProbe in savedProbes)
             {
-                var probeInsertion = new ProbeInsertion(savedProbe.apmldv, savedProbe.angles, 
-                    coordinateSpaceOpts[savedProbe.coordinateSpaceName], coordinateTransformOpts[savedProbe.coordinateTransformName]);
-                ProbeManager newProbeManager = AddNewProbe(savedProbe.type, probeInsertion,
-                    savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
-                    savedProbe.dropToSurfaceWithDepth, savedProbe.uuid);
-                newProbeManager.SetColor(savedProbe.color);
+                // Don't duplicate probes by accident
+                if (!ProbeManager.instances.Any(x => x.UUID.Equals(savedProbe.uuid)))
+                {
+                    var probeInsertion = new ProbeInsertion(savedProbe.apmldv, savedProbe.angles,
+                        coordinateSpaceOpts[savedProbe.coordinateSpaceName], coordinateTransformOpts[savedProbe.coordinateTransformName]);
+
+                    ProbeManager newProbeManager = AddNewProbe(savedProbe.type, probeInsertion,
+                        savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
+                        savedProbe.dropToSurfaceWithDepth, savedProbe.uuid);
+                    newProbeManager.SetColor(savedProbe.color);
+                }
             }
 
             UpdateQuickSettings();
@@ -389,8 +390,6 @@ namespace TrajectoryPlanner
                 {
                     UpdateQuickSettings();
                 }
-
-                ColliderManager.CheckForCollisions();
             }
             else
             {
@@ -405,10 +404,7 @@ namespace TrajectoryPlanner
                 UpdateQuickSettings();
             }
 
-            _accountsManager.ProbeDestroyInScene(_prevUUID);
-            
-            // Invoke event
-            _probesChangedEvent.Invoke();
+            ColliderManager.CheckForCollisions();
         }
 
         private void DestroyActiveProbeManager()
@@ -974,18 +970,17 @@ namespace TrajectoryPlanner
             }
             else
             {
-                if (data.spaceName != CoordinateSpaceManager.ActiveCoordinateSpace.Name || data.transformName != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
-                {
-                    // We have a coordiante space/transform mis-match
-                    QuestionDialogue qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
-                    qDialogue.SetYesCallback(new Action(delegate { AccountsNewProbeHelper(data); }));
-                    qDialogue.NewQuestion($"The saved insertion uses {data.spaceName}/{data.transformName} while you are using {CoordinateSpaceManager.ActiveCoordinateSpace.Name}/{CoordinateSpaceManager.ActiveCoordinateTransform.Name}. Creating a new probe will override these settings with the active ones.");
-                }
-                else
-                    AccountsNewProbeHelper(data);
+                //if (data.spaceName != CoordinateSpaceManager.ActiveCoordinateSpace.Name || data.transformName != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
+                //{
+                //    // We have a coordiante space/transform mis-match
+                //    QuestionDialogue qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
+                //    qDialogue.SetYesCallback(new Action(delegate { AccountsNewProbeHelper(data); }));
+                //    qDialogue.NewQuestion($"The saved insertion uses {data.spaceName}/{data.transformName} while you are using {CoordinateSpaceManager.ActiveCoordinateSpace.Name}/{CoordinateSpaceManager.ActiveCoordinateTransform.Name}. Creating a new probe will override these settings with the active ones.");
+                //}
+                //else
+                AccountsNewProbeHelper(data);
             }
 
-            
         }
 
         private void AccountsNewProbeHelper((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, string overrideName, Color color) data)

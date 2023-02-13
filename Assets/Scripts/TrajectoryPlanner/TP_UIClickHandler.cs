@@ -39,9 +39,6 @@ public class TP_UIClickHandler : MonoBehaviour
                 }
                 else if (Input.GetMouseButtonDown(0))
                 {
-#if UNITY_EDITOR
-                    Debug.Log("Mouse button down over UI element");
-#endif
                     switch (uiTarget.tag)
                     {
                         case "ProbePanel":

@@ -216,6 +216,7 @@ public class ProbeManager : MonoBehaviour
     private void Awake()
     {
         UUID = Guid.NewGuid().ToString();
+        UpdateName();
 
         defaultMaterials = new();
         // Request for ID and color if this is a normal probe

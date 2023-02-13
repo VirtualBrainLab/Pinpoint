@@ -15,12 +15,21 @@ public class ActiveExperimentUI : MonoBehaviour
     #region Insertion variables
     [SerializeField] private Transform _insertionPrefabParentT;
     [SerializeField] private GameObject _insertionPrefabGO;
+
+    private string _currentExperiment;
+    private Dictionary<string, ServerProbeInsertionUI> _activeInsertionUIs;
     #endregion
 
     #region Unity
     private void Awake()
     {
-        _optionList = GetComponent<TMP_Dropdown>();
+        _activeInsertionUIs = new Dictionary<string, ServerProbeInsertionUI>();
+    }
+
+    private void Start()
+    {
+        UpdateList();
+        UpdateUIPanels();
     }
     #endregion
 
@@ -48,58 +57,72 @@ public class ActiveExperimentUI : MonoBehaviour
     #region Insertions
     public void UpdateExperimentInsertionUIPanels()
     {
-        Debug.Log("Clearing and updating Insertion UI");
+        // don't bother updating if we are disabled
+        if (!gameObject.activeSelf)
+            return;
 
-        // Destroy all children
-        for (int i = _insertionPrefabParentT.childCount - 1; i >= 0; i--)
-            Destroy(_insertionPrefabParentT.GetChild(i).gameObject);
+        // If the experiment was changed, reset the whole panel
+        if (!_accountsManager.ActiveExperiment.Equals(_currentExperiment))
+            ResetUIPanels();
 
-        // Add new child prefabs that have the properties matched to the current experiment
+        // Then, update the data in the panels
+        UpdateUIPanels();
+    }
+
+    private void ResetUIPanels()
+    {
+        if (_activeInsertionUIs.Count > 0)
+            foreach (ServerProbeInsertionUI probeInsertionUI in _activeInsertionUIs.Values)
+                Destroy(probeInsertionUI.gameObject);
+        _activeInsertionUIs = new Dictionary<string, ServerProbeInsertionUI>();
+    }
+
+    private void UpdateUIPanels()
+    {
         var experimentData = _accountsManager.GetActiveExperimentInsertions();
 
-        foreach (ServerProbeInsertion insertion in experimentData.Values)
+        // Remove any panels that shouldn't exist
+        foreach (var panelUI in _activeInsertionUIs)
+            if (!experimentData.Keys.Contains(panelUI.Key))
+                Destroy(panelUI.Value.gameObject);
+
+        foreach (var kvp in experimentData)
         {
+            string UUID = kvp.Key;
+
+            if (!_activeInsertionUIs.ContainsKey(UUID))
+            {
+                // We don't have a panel yet for this insertion, add it now
+                GameObject newPanel = Instantiate(_insertionPrefabGO, _insertionPrefabParentT);
+                _activeInsertionUIs.Add(UUID, newPanel.GetComponent<ServerProbeInsertionUI>());
+            }
+
+            // Update this panel
+            ServerProbeInsertion insertionData = kvp.Value;
+            ServerProbeInsertionUI insertionUI = _activeInsertionUIs[UUID];
+
 #if UNITY_EDITOR
-            Debug.Log($"Creating insertion panel for {insertion.name}");
+            Debug.Log($"Updating insertion panel for {insertionData.name}");
 #endif
 
-            // Create a new prefab
-            GameObject insertionPrefab = Instantiate(_insertionPrefabGO, _insertionPrefabParentT);
-            ServerProbeInsertionUI insertionUI = insertionPrefab.GetComponent<ServerProbeInsertionUI>();
-
-            // Insertions should be marked as active if they are in the scene already
-            bool active = ProbeManager.instances.Any(x => experimentData.Keys.Contains(x.UUID));
-
-            Vector3 angles = new Vector3(insertion.phi, insertion.theta, insertion.spin);
+            // Get angles
+            Vector3 angles = new Vector3(insertionData.phi, insertionData.theta, insertionData.spin);
             if (Settings.UseIBLAngles)
                 angles = TP_Utils.World2IBL(angles);
 
-            insertionUI.SetInsertionData(_accountsManager, insertion.UUID, insertion.name, active);
-            insertionUI.SetColor(insertion.color);
+            // Set the insertion data and active state
+            insertionUI.SetInsertionData(_accountsManager, insertionData.UUID, insertionData.name, insertionData.active);
+            insertionUI.SetColor(insertionData.color);
 
             if (Settings.DisplayUM)
                 insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
-                    Mathf.RoundToInt(insertion.ap * 1000f), Mathf.RoundToInt(insertion.ml * 1000f), Mathf.RoundToInt(insertion.dv * 1000f),
+                    Mathf.RoundToInt(insertionData.ap * 1000f), Mathf.RoundToInt(insertionData.ml * 1000f), Mathf.RoundToInt(insertionData.dv * 1000f),
                     angles.x, angles.y, angles.z));
             else
                 insertionUI.UpdateDescription(string.Format("AP {0:0.00} ML {1:0.00} DV {2:0.00} Phi {3} Theta {4} Spin {5}",
-                    insertion.ap, insertion.ml, insertion.dv,
+                    insertionData.ap, insertionData.ml, insertionData.dv,
                     angles.x, angles.y, angles.z));
         }
-    }
-
-    public void SetInsertionActiveToggle(string UUID, bool state)
-    {
-        // Find the UI object and disable the active state
-#if UNITY_EDITOR
-        Debug.Log($"(Accounts) {UUID} was destroyed, disabling UI element, if it exists");
-#endif
-        foreach (ServerProbeInsertionUI serverProbeInsertionUI in _insertionPrefabParentT.GetComponentsInChildren<ServerProbeInsertionUI>())
-            if (serverProbeInsertionUI.UUID.Equals(UUID))
-            {
-                serverProbeInsertionUI.SetToggle(false);
-                return;
-            }
     }
     #endregion
 }
