@@ -19,6 +19,11 @@
             "ScriptingBackend": 1,
             "Il2CppCompilerConfiguration": 1,
             "UseIncrementalGC": true
+        },
+        {
+            "$type": "Unity.Build.Classic.ClassicCodeStrippingOptions, Unity.Build.Classic",
+            "StripEngineCode": true,
+            "ManagedStrippingLevel": 2
         }
     ]
 }
