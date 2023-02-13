@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using CoordinateSpaces;
 using CoordinateTransforms;
+using System.Collections.Generic;
 
 /// <summary>
 /// Representation of a probe insertion in a native CoordinateSpace and CoordinateTransform
@@ -12,12 +13,14 @@ using CoordinateTransforms;
 /// </summary>
 public class ProbeInsertion
 {
-    #region Coordinate vars
-    private CoordinateSpace _coordinateSpace;
-    private CoordinateTransform _coordinateTransform;
+    #region Static instances
+    public static HashSet<ProbeInsertion> Instances = new HashSet<ProbeInsertion>();
+    public static HashSet<ProbeInsertion> TargetableInstances = new HashSet<ProbeInsertion>();
+    #endregion
 
-    public CoordinateSpace CoordinateSpace { get { return _coordinateSpace; } }
-    public CoordinateTransform CoordinateTransform { get { return _coordinateTransform; } }
+    #region Coordinate vars
+    public CoordinateSpace CoordinateSpace { get; private set; }
+    public CoordinateTransform CoordinateTransform { get; private set; }
     #endregion
 
     #region pos/angle vars
@@ -55,10 +58,31 @@ public class ProbeInsertion
     }
     #endregion
 
+    #region other vars
+
+    private bool _targetable;
+    public bool Targetable {
+        get
+        {
+            return _targetable;
+        }
+
+        set
+        {
+            _targetable = value;
+            if (_targetable)
+                TargetableInstances.Add(this);
+            else
+                TargetableInstances.Remove(this);
+        }
+    }
+
+    #endregion
+
     #region constructor
 
     public ProbeInsertion(float ap, float ml, float dv, float phi, float theta, float spin, 
-        CoordinateSpace coordSpace, CoordinateTransform coordTransform)
+        CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
     {
         this.ap = ap;
         this.ml = ml;
@@ -66,17 +90,37 @@ public class ProbeInsertion
         this.phi = phi;
         this.theta = theta;
         this.spin = spin;
-        _coordinateSpace = coordSpace;
-        _coordinateTransform = coordTransform;
+        CoordinateSpace = coordSpace;
+        CoordinateTransform = coordTransform;
+        if (targetable)
+            Instances.Add(this);
     }
 
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
-        CoordinateSpace coordSpace, CoordinateTransform coordTransform)
+        CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
     {
         apmldv = tipPosition;
         this.angles = angles;
-        _coordinateSpace = coordSpace;
-        _coordinateTransform = coordTransform;
+        CoordinateSpace = coordSpace;
+        CoordinateTransform = coordTransform;
+        if (targetable)
+            Instances.Add(this);
+    }
+
+    public ProbeInsertion(ProbeInsertion otherInsertion, bool targetable = true)
+    {
+        apmldv = otherInsertion.apmldv;
+        angles = otherInsertion.angles;
+        CoordinateSpace = otherInsertion.CoordinateSpace;
+        CoordinateTransform = otherInsertion.CoordinateTransform;
+        if (targetable)
+            Instances.Add(this);
+    }
+
+    ~ProbeInsertion()
+    {
+        if (Instances.Contains(this))
+            Instances.Remove(this);
     }
 
     #endregion
@@ -85,27 +129,27 @@ public class ProbeInsertion
     /// Get the corresponding **un-transformed** coordinate in the CoordinateSpace
     /// </summary>
     /// <returns></returns>
-    public Vector3 PositionSpace()
+    public Vector3 PositionSpaceU()
     {
-        return _coordinateTransform.Transform2Space(apmldv);
+        return CoordinateTransform.Transform2Space(apmldv);
     }
 
     /// <summary>
     /// Get the corresponding **transformed** coordinate in World
     /// </summary>
     /// <returns></returns>
-    public Vector3 PositionWorld()
+    public Vector3 PositionWorldT()
     {
-        return _coordinateSpace.Space2World(_coordinateTransform.Transform2SpaceAxisChange(apmldv));
+        return CoordinateSpace.Space2World(CoordinateTransform.Transform2SpaceAxisChange(apmldv));
     }
 
     /// <summary>
     /// Get the corresponding **un-transformed** coordinate in World
     /// </summary>
     /// <returns></returns>
-    public Vector3 GetPositionWorldUnTransformed()
+    public Vector3 PositionWorldU()
     {
-        return _coordinateSpace.Space2World(PositionSpace());
+        return CoordinateSpace.Space2World(PositionSpaceU());
     }
 
     /// <summary>
@@ -115,25 +159,30 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 World2Transformed(Vector3 coordWorld)
     {
-        return _coordinateTransform.Space2Transform(_coordinateSpace.World2Space(coordWorld));
+        return CoordinateTransform.Space2Transform(CoordinateSpace.World2Space(coordWorld));
     }
 
     public Vector3 World2TransformedAxisChange(Vector3 coordWorld)
     {
-        return _coordinateTransform.Space2TransformAxisChange(_coordinateSpace.World2SpaceAxisChange(coordWorld));
+        return CoordinateTransform.Space2TransformAxisChange(CoordinateSpace.World2SpaceAxisChange(coordWorld));
     }
 
     public Vector3 Transformed2World(Vector3 coordTransformed)
     {
-        return _coordinateSpace.Space2World(_coordinateTransform.Transform2Space(coordTransformed));
+        return CoordinateSpace.Space2World(CoordinateTransform.Transform2Space(coordTransformed));
     }
     public Vector3 Transformed2WorldAxisChange(Vector3 coordTransformed)
     {
-        return _coordinateSpace.Space2WorldAxisChange(_coordinateTransform.Transform2SpaceAxisChange(coordTransformed));
+        return CoordinateSpace.Space2WorldAxisChange(CoordinateTransform.Transform2SpaceAxisChange(coordTransformed));
     }
 
     public override string ToString()
     {
-        return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, phi, theta, spin, _coordinateSpace.ToString(), _coordinateTransform.ToString());
+        return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, phi, theta, spin, CoordinateSpace.ToString(), CoordinateTransform.ToString());
+    }
+
+    public string PositionToString()
+    {
+        return $"AP: {Math.Round(ap*1000)} ML: {Math.Round(ml*1000)} DV: {Math.Round(dv*1000)}";
     }
 }

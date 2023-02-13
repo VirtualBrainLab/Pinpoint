@@ -118,6 +118,7 @@ namespace Unisave.HttpClient
             uploadHandler.Dispose();
 
             callback?.Invoke(request, downloadHandler);
+            request.Dispose();
         }
     }
 }

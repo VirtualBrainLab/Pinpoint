@@ -4,13 +4,14 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TrajectoryPlanner;
+using UnityEngine.Serialization;
 
 public class TP_UIClickHandler : MonoBehaviour
 {
     // Raycaster
     private GraphicRaycaster raycaster;
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
-    [SerializeField] private TP_InPlaneSlice inPlaneSlice;
+    [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
+    [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
     //[SerializeField] private UM_CameraController cameraController;
 
     // Start is called before the first frame update
@@ -28,32 +29,28 @@ public class TP_UIClickHandler : MonoBehaviour
             PointerEventData pointerData = new PointerEventData(EventSystem.current);
             GameObject uiTarget = GetUIRaycastTarget(pointerData);
 
-
             // Check if the element they are over is the in-plane slice element
             if (uiTarget != null)
             {
-                //cameraController.BlockDragging();
-
                 // check if this is the in-plane slice panel
                 if (uiTarget.name == "InPlaneSlicePanel")
                 {
-                    if (tpmanager.GetActiveProbeManager() != null)
-                        inPlaneSlice.InPlaneSliceHover(pointerData.position);
+                    _inPlaneSlice.InPlaneSliceHover(pointerData.position);
                 }
-                else
+                else if (Input.GetMouseButtonDown(0))
                 {
-                    // If the user clicks while over a UI element, check to see if it's a probe panel and activate that probe
-                    if (Input.GetMouseButtonDown(0))
+                    switch (uiTarget.tag)
                     {
-                        switch (uiTarget.tag)
-                        {
-                            case "ProbePanel":
-                                tpmanager.SetActiveProbe(uiTarget.GetComponent<TP_ProbePanel>().GetProbeController());
-                                break;
-                            case "AreaPanel":
-                                tpmanager.ClickSearchArea(uiTarget);
-                                break;
-                        }
+                        case "ProbePanel":
+                            _tpmanager.SetActiveProbe(uiTarget.GetComponent<TP_ProbePanel>().GetProbeController());
+                            break;
+                        case "AreaPanel":
+                            _tpmanager.ClickSearchArea(uiTarget);
+                            break;
+                        case "UIEvent":
+                            if (uiTarget.name.Equals("Text2ClipboardButton"))
+                                _tpmanager.CopyText();
+                            break;
                     }
                 }
             }

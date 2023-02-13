@@ -1,5 +1,3 @@
-using System;
-using Unisave;
 using Unisave.Facades;
 using Unisave.Facets;
 
@@ -22,10 +20,5 @@ public class PlayerDataFacet : Facet
         player.FillWith(givenPlayer);
 
         player.Save();
-    }
-
-    public string Greeting()
-    {
-        return "Hello world";
     }
 }

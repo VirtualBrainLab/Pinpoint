@@ -4,12 +4,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using TrajectoryPlanner;
+using UnityEngine.Serialization;
 
 public class TP_RecRegionSlider : MonoBehaviour
 {
-    [SerializeField] private TrajectoryPlannerManager tpmanager;
-    [SerializeField] private Slider uiSlider;
-    [SerializeField] private TextMeshProUGUI recRegionSizeText;
+    [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
+    [FormerlySerializedAs("uiSlider")] [SerializeField] private Slider _uiSlider;
+    [FormerlySerializedAs("recRegionSizeText")] [SerializeField] private TextMeshProUGUI _recRegionSizeText;
 
     private float[] np1Range = { 3.84f, 7.68f };
     private float[] np2Range = { 2.88f, 5.76f };
@@ -25,20 +26,25 @@ public class TP_RecRegionSlider : MonoBehaviour
         ranges.Add(np24Range);
     }
 
-    public void SliderValueChanged(float value)
+    public void SliderValueChanged()
     {
-        ProbeManager probeManager = tpmanager.GetActiveProbeManager();
+        if (UIManager.InputsFocused)
+            return;
+
+        ProbeManager probeManager = ProbeManager.ActiveProbeManager;
         if (probeManager != null)
         {
+            // Get the slider size from the active probe
+            float value = ((DefaultProbeController)ProbeManager.ActiveProbeManager.GetProbeController()).GetRecordingRegionSize();
+
             // Get active probe type from tpmanager
-            Debug.Log(probeManager.ProbeType);
             float[] range = ranges[type2index[probeManager.ProbeType]];
-            uiSlider.value = Round2Nearest(value, range);
-            probeManager.ChangeRecordingRegionSize(uiSlider.value);
+            _uiSlider.value = Round2Nearest(value, range);
+            probeManager.ChangeRecordingRegionSize(_uiSlider.value);
 
-            tpmanager.movedThisFrame = true;
+            probeManager.UpdateUI();
 
-            recRegionSizeText.text = "Recording region size: " + uiSlider.value;
+            _recRegionSizeText.text = "Recording region size: " + _uiSlider.value;
         }
     }
 

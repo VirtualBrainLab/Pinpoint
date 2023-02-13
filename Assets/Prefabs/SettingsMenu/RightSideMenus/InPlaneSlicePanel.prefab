@@ -547,7 +547,6 @@ GameObject:
   - component: {fileID: 5418626435328794258}
   - component: {fileID: 5418626435328794259}
   - component: {fileID: 5418626435328794256}
-  - component: {fileID: 5418626435328794257}
   m_Layer: 10
   m_Name: InPlaneSlice_GPU
   m_TagString: Untagged
@@ -620,19 +619,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &5418626435328794257
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5418626435328794262}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Size: {x: 1.0000005, y: 1.0000002, z: 0.000095367446}
-  m_Center: {x: 0.0000014305115, y: -0.000000044703484, z: 0}
 --- !u!1 &5418626435377505851
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,12 +712,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfcc216c6ab3ac9488f4d3ac691046a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tpmanager: {fileID: 0}
-  inPlaneSliceUIGO: {fileID: 5418626435377505851}
-  modelControl: {fileID: 0}
-  localPrefs: {fileID: 0}
-  areaText: {fileID: 5418626435172264580}
-  gpuInPlaneSliceGO: {fileID: 5418626435328794262}
+  _tpmanager: {fileID: 0}
+  _inPlaneSliceUigo: {fileID: 5418626435377505851}
+  _modelControl: {fileID: 0}
+  _areaText: {fileID: 5418626435172264580}
+  _textX: {fileID: 5418626435471893410}
+  _textY: {fileID: 5418626434867560523}
+  _gpuSliceRenderer: {fileID: 5418626435328794256}
 --- !u!1 &5418626435471893408
 GameObject:
   m_ObjectHideFlags: 0

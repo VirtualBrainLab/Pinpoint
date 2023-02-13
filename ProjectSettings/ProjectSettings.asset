@@ -44,8 +44,8 @@ PlayerSettings:
   m_HolographicTrackingLossScreen: {fileID: 0}
   defaultScreenWidth: 2560
   defaultScreenHeight: 1440
-  defaultScreenWidthWeb: 1900
-  defaultScreenHeightWeb: 1200
+  defaultScreenWidthWeb: 1920
+  defaultScreenHeightWeb: 1080
   m_StereoRenderingPath: 0
   m_ActiveColorSpace: 0
   m_MTRendering: 1
@@ -134,7 +134,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 0.8.3
+  bundleVersion: 0.8.4
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
