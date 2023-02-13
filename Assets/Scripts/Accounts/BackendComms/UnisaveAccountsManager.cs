@@ -11,7 +11,7 @@ using UnityEngine.Events;
 public class UnisaveAccountsManager : AccountsManager
 {
 #if UNITY_WEBGL && !UNITY_EDITOR
-    private const float UPDATE_RATE = 15f;
+    private const float UPDATE_RATE = 60f;
 #else
     private const float UPDATE_RATE = 120f;
 #endif
@@ -140,6 +140,7 @@ public class UnisaveAccountsManager : AccountsManager
     {
         Dirty = false;
         _savePanel.SetActive(false);
+        _lastSave = Time.realtimeSinceStartup;
 
         if (_player == null)
             return;
