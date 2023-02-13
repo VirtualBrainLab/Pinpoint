@@ -25,7 +25,7 @@ public class UnisaveAccountsManager : AccountsManager
     public UnityEvent InsertionListChangeEvent; // Fired when the insertion list is updated or when insertion data is updated
 
     public UnityEvent<string, string> InsertionNameChangeEvent; // Fired when a probe's name is updated
-    public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, Color color),bool> UpdateCallbackEvent { get; set; }
+    public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, string overrideName, Color color),bool> UpdateCallbackEvent { get; set; }
     #endregion
 
     #region current player data
@@ -118,6 +118,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void OverrideProbeName(string UUID, string newName)
     {
+        _player.UUID2InsertionData[UUID].name = newName;
         InsertionNameChangeEvent.Invoke(UUID, newName);
     }
 
@@ -313,7 +314,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     #region Data communication
 
-    public (Vector3 pos, Vector3 angles, int type, string cSpaceName, string cTransformName, string UUID, Color color) GetProbeInsertionData(string UUID)
+    public (Vector3 pos, Vector3 angles, int type, string cSpaceName, string cTransformName, string UUID, string overrideName, Color color) GetProbeInsertionData(string UUID)
     {
         if (_player.UUID2Experiment.ContainsKey(UUID))
         {
@@ -324,10 +325,11 @@ public class UnisaveAccountsManager : AccountsManager
                 serverProbeInsertion.probeType,
                 serverProbeInsertion.coordinateSpaceName, serverProbeInsertion.coordinateTransformName,
                 UUID,
+                serverProbeInsertion.name,
                 new Color(serverProbeInsertion.color[0], serverProbeInsertion.color[1], serverProbeInsertion.color[2]));
         }
         else
-            return (Vector3.zero, Vector3.zero, -1, null, null, null, Color.black);
+            return (Vector3.zero, Vector3.zero, -1, null, null, null, null, Color.black);
     }
 
     /// <summary>
