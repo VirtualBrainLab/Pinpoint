@@ -2661,7 +2661,7 @@ GameObject:
   - component: {fileID: 522056221171154655}
   m_Layer: 5
   m_Name: Text2ClipboardButton
-  m_TagString: Untagged
+  m_TagString: UIEvent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5431,7 +5431,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294072178
+    rgba: 4284518640
   m_fontColor: {r: 0.9411765, g: 0.5647059, b: 0.3764706, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -7004,6 +7004,9 @@ MonoBehaviour:
       m_Calls: []
   m_AlphaFadeSpeed: 0.15
   toggleEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  showEvent:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &2758057629132474612 stripped

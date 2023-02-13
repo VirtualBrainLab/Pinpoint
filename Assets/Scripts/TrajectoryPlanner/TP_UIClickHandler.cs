@@ -29,30 +29,31 @@ public class TP_UIClickHandler : MonoBehaviour
             PointerEventData pointerData = new PointerEventData(EventSystem.current);
             GameObject uiTarget = GetUIRaycastTarget(pointerData);
 
-
             // Check if the element they are over is the in-plane slice element
             if (uiTarget != null)
             {
                 // check if this is the in-plane slice panel
                 if (uiTarget.name == "InPlaneSlicePanel")
                 {
-                    if (ProbeManager.ActiveProbeManager != null)
-                        _inPlaneSlice.InPlaneSliceHover(pointerData.position);
+                    _inPlaneSlice.InPlaneSliceHover(pointerData.position);
                 }
-                else
+                else if (Input.GetMouseButtonDown(0))
                 {
-                    // If the user clicks while over a UI element, check to see if it's a probe panel and activate that probe
-                    if (Input.GetMouseButtonDown(0))
+#if UNITY_EDITOR
+                    Debug.Log("Mouse button down over UI element");
+#endif
+                    switch (uiTarget.tag)
                     {
-                        switch (uiTarget.tag)
-                        {
-                            case "ProbePanel":
-                                _tpmanager.SetActiveProbe(uiTarget.GetComponent<TP_ProbePanel>().GetProbeController());
-                                break;
-                            case "AreaPanel":
-                                _tpmanager.ClickSearchArea(uiTarget);
-                                break;
-                        }
+                        case "ProbePanel":
+                            _tpmanager.SetActiveProbe(uiTarget.GetComponent<TP_ProbePanel>().GetProbeController());
+                            break;
+                        case "AreaPanel":
+                            _tpmanager.ClickSearchArea(uiTarget);
+                            break;
+                        case "UIEvent":
+                            if (uiTarget.name.Equals("Text2ClipboardButton"))
+                                _tpmanager.CopyText();
+                            break;
                     }
                 }
             }

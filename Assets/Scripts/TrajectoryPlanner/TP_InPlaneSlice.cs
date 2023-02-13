@@ -127,6 +127,9 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     public void InPlaneSliceHover(Vector2 pointerData)
     {
+        if (ProbeManager.ActiveProbeManager == null)
+            return;
+
         Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
         int annotation = VolumeDatasetManager.AnnotationDataset.ValueAtIndex(Mathf.RoundToInt(inPlanePosition.x), Mathf.RoundToInt(inPlanePosition.y), Mathf.RoundToInt(inPlanePosition.z));
