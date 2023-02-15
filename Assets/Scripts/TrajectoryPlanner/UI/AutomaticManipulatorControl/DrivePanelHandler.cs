@@ -26,10 +26,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         /// </summary>
         public void DriveOrStopDepth()
         {
+            // Pressed while drive state is...
             switch (_driveState)
             {
                 case DriveState.Ready:
                     // Set UI for driving
+                    _statusText.text = "Driving to target...";
                     _buttonText.text = "Stop";
                     _driveState = DriveState.DrivingToTarget;
 
@@ -37,6 +39,16 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     StartDriveChain();
                     break;
                 case DriveState.DrivingToTarget:
+                    // Stop all movements and set UI to drive to surface
+                    CommunicationManager.Instance.Stop(state =>
+                    {
+                        if (!state) return;
+                        _buttonText.text = "Return to Surface";
+                        _statusText.text = "Ready to Drive";
+                        _timerText.text = "";
+                        _driveState = DriveState.AtTarget;
+                    });
+                    break;
                 case DriveState.DrivingToSurface:
                     // Stop all movements and reset UI
                     CommunicationManager.Instance.Stop(state =>
@@ -50,17 +62,18 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     break;
                 case DriveState.Settling:
                     // Skip settling and be at target
+                    _statusText.text = "";
                     _timerText.text = "Ready for Experiment";
                     _buttonText.text = "Return to surface";
                     _driveState = DriveState.AtTarget;
                     break;
                 case DriveState.AtTarget:
                     // Return to surface + 500 dv
-                    _buttonText.text = "Stop";
                     _statusText.text = "Returning to surface...";
+                    _buttonText.text = "Stop";
                     _driveState = DriveState.DrivingToSurface;
 
-                    // Run Drive
+                    // Run Drive Back to Surface
                     DriveBackToSurface();
                     break;
                 default:
@@ -204,23 +217,18 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 case <= 0:
                 {
                     // Set status to complete
-                    _statusText.text = "Drive Complete!";
+                    _statusText.text = "Drive complete";
+                    _timerText.text = "";
                     if (_driveState == DriveState.DrivingToTarget)
                     {
-                        // Set timer and button text
-                        _timerText.text = "Ready for Experiment";
+                        // Completed driving to target (finished settling)
                         _buttonText.text = "Return to surface";
-
-                        // Set drive state
                         _driveState = DriveState.AtTarget;
                     }
                     else
                     {
-                        // Set timer and button text
-                        _timerText.text = "";
+                        // Completed returning to surface
                         _buttonText.text = "Drive";
-
-                        // Set drive state
                         _driveState = DriveState.Ready;
                     }
 
