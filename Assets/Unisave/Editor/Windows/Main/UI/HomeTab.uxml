@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:Style src="HomeTab.uss"/>
+    
+    <engine:VisualElement class="home-image" />
+    
+    <engine:VisualElement class="quick-links">
+        <engine:Button name="link-guides" text="Guides"/>
+        <engine:Button name="link-documentation" text="Documentation"/>
+        <engine:Button name="link-discord" text="Discord"/>
+        <engine:Button name="link-pricing" text="Pricing"/>
+    </engine:VisualElement>
+    
+    <engine:VisualElement class="container">
+        <engine:Label class="welcome-text" text="Thank you for downloading Unisave! To get started, you can follow this checklist:"/>
+        <engine:VisualElement name="ci-register" class="checklist-item">
+            <engine:Label class="checklist-head" text="1. Create free cloud account"/>
+            <engine:Label class="checklist-text" text="Register at the Unisave website and create a game there. You can access the database or manage game releases there."/>
+            <engine:Button name="cb-register" class="checklist-button" text="Register an account"/>
+        </engine:VisualElement>
+        <engine:VisualElement name="ci-connect" class="checklist-item">
+            <engine:Label class="checklist-head" text="2. Set up cloud connection"/>
+            <engine:Label class="checklist-text" text="You need to connect this Unity project with your cloud game. Copy the connection tokens from web into the cloud connection tab of this window."/>
+            <engine:Button name="cb-connection-tab" class="checklist-button" text="Take me to the 'Cloud Connection' tab"/>
+        </engine:VisualElement>
+        <engine:VisualElement class="checklist-item">
+            <engine:Label class="checklist-head" text="3. Explore examples"/>
+            <engine:Label class="checklist-text" text="You can open an example scene and hit play. The example will use the cloud database and other cloud services."/>
+            <engine:Button name="cb-ex-chat" class="checklist-button" text="Example: Chat"/>
+            <engine:Button name="cb-ex-email-auth" class="checklist-button" text="Example: Email authentication"/>
+        </engine:VisualElement>
+        <engine:VisualElement class="checklist-item">
+            <engine:Label class="checklist-head" text="4. Build your dream game"/>
+            <engine:Label class="checklist-text" text="You can start building your custom backend server. Read some guides or explore the documentation to learn more."/>
+            <engine:Button name="cb-storing-player-data" class="checklist-button" text="Guide: Storing player data online"/>
+            <engine:Button name="cb-sending-emails" class="checklist-button" text="Docs: Sending emails"/>
+            <engine:Button name="cb-steam-microtransactions" class="checklist-button" text="Docs: Steam microtransactions"/>
+        </engine:VisualElement>
+        <engine:VisualElement class="checklist-item">
+            <engine:Label class="checklist-head" text="5. Ask when you get stuck"/>
+            <engine:Label class="checklist-text" text="Don't hesitate to join our Discord community, you can ask others or the devs directly. Or you can send us an email."/>
+            <engine:Button name="cb-discord" class="checklist-button" text="Join Discord"/>
+            <engine:Button name="cb-email" class="checklist-button" text="info@unisave.cloud"/>
+        </engine:VisualElement>
+    </engine:VisualElement>
+    
+    <engine:VisualElement class="container">
+        <engine:Label name="versions-label" text="Asset and framework versions..."/>
+    </engine:VisualElement>
+</engine:UXML>

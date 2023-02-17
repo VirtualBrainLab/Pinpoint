@@ -1,0 +1,144 @@
+/**************************
+* Upper uploading section *
+***************************/
+
+.container {
+    padding: 8px 10px;
+}
+
+.field {
+    padding: 2px 0;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.field .field-label {
+    width: 150px;
+}
+
+/**********************
+* Uploader State (us) *
+***********************/
+
+#us-uploading {
+    margin-top: 10px;
+    padding: 5px;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.5);
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+#us-uploading.is-hidden {
+    display: none;
+}
+
+#us-uploading__head {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#us-uploading__head > * {
+    flex-grow: 0;
+}
+
+#us-uploading__progress-bar {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#us-uploading__cancel {
+    align-self: flex-end;
+}
+
+#us-done {
+    margin-top: 10px;
+}
+
+#us-done.is-hidden {
+    display: none;
+}
+
+#us-done__message {
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+#us-done__output-container.is-hidden {
+    display: none;
+}
+
+#us-done__output {
+    white-space: normal;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#us-done ScrollView {
+    max-height: 100px;
+}
+
+#us-done__print {
+    align-self: flex-end;
+}
+
+/******************
+* Backend Folders *
+*******************/
+
+.backend-folders__titlebar {
+    padding: 3px 5px;
+    -unity-font-style: bold;
+    background-color: var(--unity-colors-inspector_titlebar-background);
+
+    border-top-width: 1px;
+    border-top-color: var(--unity-colors-inspector_titlebar-border_accent);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--unity-colors-inspector_titlebar-border);
+}
+
+/****************************
+* Add Backend Folder Button *
+****************************/
+
+.add-backend-folder__container {
+    align-content: center;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.add-backend-folder__button {
+    padding: 3px 25px;
+    flex-grow: 0;
+}
+
+/****************************
+* Backend Folder Definition *
+****************************/
+
+.backend-def {
+    padding: 8px 10px;
+}
+
+.backend-def:hover {
+    background-color: var(--unity-colors-inspector_titlebar-background-hover);
+}
+
+.backend-def__label {
+    margin: 0 3px;
+}
+
+.backend-def__actions {
+    flex-direction: row;
+}
+
+.backend-def__field {
+    width: 50px; /* and then flex-grows beyond */
+    flex-grow: 1;
+}
+
+.backend-def__field .unity-object-field__selector {
+    /* hides the selector button that displays
+    the little dialog window when clicked */
+    display: none;
+}

@@ -1,0 +1,52 @@
+.container {
+    margin: 10px;
+}
+
+.dashboard-link__container {
+    position: relative;
+    flex-direction: row;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-link__container Label {
+    margin-right: 10px;
+    white-space: normal;
+    flex-grow: 1;
+    width: 20px;
+}
+
+.dashboard-link__container Button {
+    flex-shrink: 0;
+}
+
+.connection-box {
+    padding: 10px;
+    
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
+.connection-box .field-line {
+    flex-direction: row;
+}
+
+.connection-box .field-line Label {
+    width: 90px;
+}
+
+.connection-box .field-line TextField {
+    margin-right: 0;
+    width: 50px;
+    flex-grow: 1;
+}
+
+.connection-box #empty-warning {
+    margin: 0;
+    margin-top: 10px;
+}
+
+.connection-box #empty-warning.is-hidden {
+    display: none;
+}

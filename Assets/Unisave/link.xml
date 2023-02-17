@@ -1,0 +1,4 @@
+<linker>
+    <!-- consider using [Preserve] attribute in source-code instead of listing types here -->
+    <!-- learn more: https://docs.unity3d.com/Manual/ManagedCodeStripping.html -->
+</linker>

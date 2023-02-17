@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:Style src="BackendTab.uss"/>
+    
+    <engine:VisualElement class="container">
+        <engine:VisualElement class="field">
+            <engine:Label class="field-label" text="Automatic uploading"/>
+            <engine:Toggle name="automatic-upload-toggle"/>
+        </engine:VisualElement>
+        <engine:VisualElement class="field">
+            <engine:Label class="field-label" text="Manual upload"/>
+            <engine:Button name="manual-upload-button" text="Upload"/>
+        </engine:VisualElement>
+        <engine:VisualElement class="field">
+            <engine:Label class="field-label" text="Last upload at"/>
+            <engine:Label name="last-upload-at-label" text="123"/>
+        </engine:VisualElement>
+        <engine:VisualElement class="field">
+            <engine:Label class="field-label" text="Backend hash"/>
+            <engine:Label name="backend-hash-label" text="123"/>
+        </engine:VisualElement>
+
+        <engine:VisualElement name="us-uploading">
+            <engine:VisualElement name="us-uploading__head">
+                <engine:Label text="Uploading..."/>
+                <engine:Label name="us-uploading__numbers" text="X / Y"/>
+            </engine:VisualElement>
+            <editor:ProgressBar name="us-uploading__progress-bar" high-value="1"/>
+            <engine:Button name="us-uploading__cancel" text="Cancel"/>
+        </engine:VisualElement>
+        
+        <engine:VisualElement name="us-done">
+            <engine:HelpBox name="us-done__message" message-type="Info" text="Backend has been compiled successfully."/>
+            <engine:VisualElement name="us-done__output-container">
+                <engine:Label name="us-done__output-label" text="Backend compiler output"/>
+                <engine:ScrollView>
+                    <engine:TextField name="us-done__output" multiline="true" readonly="true"/>
+                </engine:ScrollView>
+                <engine:Button name="us-done__print" text="Print to console"/>
+            </engine:VisualElement>
+        </engine:VisualElement>
+    </engine:VisualElement>
+
+    <engine:Label class="backend-folders__titlebar" text="Backend folders"/>
+
+    <engine:VisualElement name="enabled-backend-definitions">
+        <!-- visual elements go here -->
+        <!-- BackendDefinitionItem.uxml -->
+    </engine:VisualElement>
+    
+    <engine:VisualElement class="add-backend-folder__container">
+        <engine:Button class="add-backend-folder__button" text="Add Existing Folder..."/>
+    </engine:VisualElement>
+    
+    <engine:Label class="backend-folders__titlebar" text="Disabled backend folders"/>
+    
+    <engine:VisualElement name="disabled-backend-definitions">
+        <!-- visual elements go here -->
+        <!-- BackendDefinitionItem.uxml -->
+    </engine:VisualElement>
+    
+</engine:UXML>
