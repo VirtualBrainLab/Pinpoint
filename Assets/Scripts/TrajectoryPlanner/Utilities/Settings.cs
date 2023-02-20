@@ -381,7 +381,45 @@ public class Settings : MonoBehaviour
 
         return new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - long.Parse(timestampString) >= 86400;
     }
-    
+
+    #endregion
+
+    #region Accounts
+    private static bool s_stayLoggedIn;
+    private const string LOGGEDIN_STR = "stayloggedin";
+    private const bool LOGGEDIN_DEFAULT = true;
+    [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _stayLoggedInToggle;
+    //public UnityEvent DetectCollisionsChangedEvent;
+
+    public static bool StayLoggedIn
+    {
+        get { return s_stayLoggedIn; }
+        set
+        {
+            s_stayLoggedIn = value;
+            PlayerPrefs.SetInt(LOGGEDIN_STR, s_stayLoggedIn ? 1 : 0);
+            //Instance.DetectCollisionsChangedEvent.Invoke();
+        }
+    }
+    #endregion
+
+    #region API
+    private static bool s_probeDataPOST;
+    private const string PROBEDATA_STR = "probedatapost";
+    private const bool PROBEDATA_DEFAULT = false;
+    [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _probeDataPOSTToggle;
+    //public UnityEvent DetectCollisionsChangedEvent;
+
+    public static bool ProbeDataPOST
+    {
+        get { return s_probeDataPOST; }
+        set
+        {
+            s_probeDataPOST = value;
+            PlayerPrefs.SetInt(PROBEDATA_STR, PROBEDATA_DEFAULT ? 1 : 0);
+            //Instance.DetectCollisionsChangedEvent.Invoke();
+        }
+    }
     #endregion
 
     #region Unity
@@ -448,6 +486,10 @@ public class Settings : MonoBehaviour
         // Accounts
         StayLoggedIn = LoadBoolPref(LOGGEDIN_STR, LOGGEDIN_DEFAULT);
         _stayLoggedInToggle.SetIsOnWithoutNotify(StayLoggedIn);
+
+        // API
+        ProbeDataPOST = LoadBoolPref(PROBEDATA_STR, PROBEDATA_DEFAULT);
+        _probeDataPOSTToggle.SetIsOnWithoutNotify(ProbeDataPOST);
 
         // Ephys link
         EphysLinkServerIp = LoadStringPref("ephys_link_ip", "");
@@ -620,24 +662,6 @@ public class Settings : MonoBehaviour
 
     #endregion
 
-    #region Accounts
-    private static bool s_stayLoggedIn;
-    private const string LOGGEDIN_STR = "stayloggedin";
-    private const bool LOGGEDIN_DEFAULT = true;
-    [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _stayLoggedInToggle;
-    //public UnityEvent DetectCollisionsChangedEvent;
-
-    public static bool StayLoggedIn
-    {
-        get { return s_stayLoggedIn; }
-        set
-        {
-            s_stayLoggedIn = value;
-            PlayerPrefs.SetInt(LOGGEDIN_STR, s_stayLoggedIn ? 1 : 0);
-            //Instance.DetectCollisionsChangedEvent.Invoke();
-        }
-    }
-    #endregion
 
     #region Editor
 #if UNITY_EDITOR
