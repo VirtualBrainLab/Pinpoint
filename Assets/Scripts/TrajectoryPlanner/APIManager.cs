@@ -16,9 +16,11 @@ public class APIManager : MonoBehaviour
     {
         if (Settings.ProbeDataPOST && _probeDataRequest != null)
         {
+            //ProbeManager.ActiveProbeManager.GetProbeController().
             // add data
+            //_probeDataRequest.SetRequestHeader
 
-            _probeDataRequest.SendWebRequest();
+            //_probeDataRequest.SendWebRequest();
         }
     }
 #endregion
