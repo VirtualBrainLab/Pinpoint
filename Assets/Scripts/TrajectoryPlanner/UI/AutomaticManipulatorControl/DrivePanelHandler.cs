@@ -101,12 +101,14 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private const int RETURN_TO_SURFACE_DRIVE_SPEED = 100;
         private const int EXIT_DURA_MARGIN_SPEED = 25;
         private const int OUTSIDE_DRIVE_SPEED = 500; // Hard cap @ 1000 um/s
+        private const int PER_1000_SPEED = 1;
 #else
         private const float DRIVE_PAST_TARGET_DISTANCE = 0.2f;
         private const int DEPTH_DRIVE_BASE_SPEED = 2;
         private const int RETURN_TO_SURFACE_DRIVE_SPEED = 10;
         private const int EXIT_DURA_MARGIN_SPEED = 25;
         private const int OUTSIDE_DRIVE_SPEED = 100;
+        private const int PER_1000_SPEED = 1;
 #endif
         private const float DRIVE_BACK_TO_TARGET_DURATION = DRIVE_PAST_TARGET_DISTANCE * 1000 / DEPTH_DRIVE_BASE_SPEED;
         private const float EXIT_DURA_MARGIN_DURATION = 100f / EXIT_DURA_MARGIN_SPEED;
@@ -192,29 +194,22 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 var surfaceDriveDistance = Vector3.Distance(offsetAdjustedSurfacePosition,
                     ProbeManager.GetProbeController().Insertion.apmldv);
 
-                // Draw lines
-                Debug.DrawLine(ProbeManager.GetProbeController().Insertion.PositionWorldT(),
-                    offsetAdjustedTargetPositionWorldT, Color.red, 60);
-                Debug.DrawLine(ProbeManager.GetProbeController().Insertion.PositionWorldT(),
-                    offsetAdjustedSurfacePositionWorldT, Color.green, 60);
-
-
                 // Set target and surface
                 _targetDepth = position.w + targetDriveDistance;
                 _surfaceDepth = position.w - surfaceDriveDistance;
 
                 // Set drive speeds (base + 1 sec / 1000 um of depth)
-                _targetDriveSpeed = Mathf.RoundToInt(DEPTH_DRIVE_BASE_SPEED + targetDriveDistance);
+                _targetDriveSpeed = Mathf.RoundToInt(DEPTH_DRIVE_BASE_SPEED + targetDriveDistance * PER_1000_SPEED);
 
                 // Compute drive duration
-                targetDriveDistance += DRIVE_PAST_TARGET_DISTANCE;
-                _targetDriveDuration = targetDriveDistance * 1000f / _targetDriveSpeed +
-                                       DRIVE_BACK_TO_TARGET_DURATION +
-                                       Math.Max(120, targetDriveDistance * 600);
                 _surfaceDriveDuration = targetDriveDistance * 1000f / RETURN_TO_SURFACE_DRIVE_SPEED +
                                         EXIT_DURA_MARGIN_DURATION +
                                         (surfaceDriveDistance - targetDriveDistance - 0.1f) *
                                         1000f / OUTSIDE_DRIVE_SPEED;
+                targetDriveDistance += DRIVE_PAST_TARGET_DISTANCE;
+                _targetDriveDuration = targetDriveDistance * 1000f / _targetDriveSpeed +
+                                       DRIVE_BACK_TO_TARGET_DURATION +
+                                       Math.Max(120, targetDriveDistance * 60);
 
                 // Start drive chain
                 Drive200PastTarget();
