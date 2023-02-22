@@ -319,22 +319,22 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     RETURN_TO_SURFACE_DRIVE_SPEED, _ =>
                     {
                         print("At dura");
-                        // Reset manipulator drive states
-                        CommunicationManager.Instance.SetInsideBrain(ProbeManager.ManipulatorId, false,
-                            setting =>
+                        // Drive 100 um to move away from dura
+                        CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId, _duraDepth - .1f,
+                            EXIT_DURA_MARGIN_SPEED,
+                            i =>
                             {
-                                print("Set outside brain: "+setting);
-                                // Drive 100 um to move away from dura
-                                CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId, _duraDepth - .1f,
-                                    EXIT_DURA_MARGIN_SPEED,
-                                    i =>
+                                print("At dura margin: " + i);
+                                // Drive the rest of the way to the surface
+                                CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId,
+                                    _surfaceDepth, OUTSIDE_DRIVE_SPEED, j =>
                                     {
-                                        print("At dura margin: "+i);
-                                        // Drive the rest of the way to the surface
-                                        CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId,
-                                            _surfaceDepth, OUTSIDE_DRIVE_SPEED, j =>
+                                        print("At surface depth: " + j);
+                                        // Reset manipulator drive states
+                                        CommunicationManager.Instance.SetInsideBrain(ProbeManager.ManipulatorId, false,
+                                            setting =>
                                             {
-                                                print("At surface depth: "+j);
+                                                print("Set outside brain: " + setting);
                                                 CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId,
                                                     false,
                                                     1,
