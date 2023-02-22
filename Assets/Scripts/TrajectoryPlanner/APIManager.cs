@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -16,11 +17,18 @@ public class APIManager : MonoBehaviour
     {
         if (Settings.ProbeDataPOST && _probeDataRequest != null)
         {
-            //ProbeManager.ActiveProbeManager.GetProbeController().
-            // add data
-            //_probeDataRequest.SetRequestHeader
+            // Get all probes in the scene
+            List<ProbeManager> activeProbes = ProbeManager.instances;
 
-            //_probeDataRequest.SendWebRequest();
+            foreach (ProbeManager probeManager in activeProbes)
+            {
+                //ProbeManager.ActiveProbeManager.GetProbeController().
+                // add data
+                //_probeDataRequest.SetRequestHeader
+
+                //_probeDataRequest.SendWebRequest();
+            }
+
         }
     }
 #endregion

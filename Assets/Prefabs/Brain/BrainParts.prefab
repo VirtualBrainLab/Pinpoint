@@ -243,15 +243,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6a325379d55ee3449480bc27f118c11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sagittalSliceGO: {fileID: 1302158969162061497}
-  coronalSliceGO: {fileID: 1302158968379378329}
-  tpmanager: {fileID: 0}
-  modelControl: {fileID: 0}
-  localPrefs: {fileID: 0}
-  inPlaneSlice: {fileID: 0}
-  util: {fileID: 0}
-  dropdownMenu: {fileID: 0}
-  iblCoverageTextureAssetRef:
+  _sagittalSliceGo: {fileID: 1302158969162061497}
+  _coronalSliceGo: {fileID: 1302158968379378329}
+  _tpmanager: {fileID: 0}
+  _modelControl: {fileID: 0}
+  _inPlaneSlice: {fileID: 0}
+  _util: {fileID: 0}
+  _dropdownMenu: {fileID: 0}
+  _iblCoverageTextureAssetRef:
     m_AssetGUID: 427a7049607f12f4594cc689244380f8
     m_SubObjectName: 
     m_SubObjectType: 
@@ -748,8 +747,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f324621c77a995e4890a3565cee81812, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tpmanager: {fileID: 0}
-  rigGOs:
+  _tpmanager: {fileID: 0}
+  _rigGOs:
   - {fileID: 1302158968185546412}
   - {fileID: 1302158967759503946}
   - {fileID: 1302158967507098527}
@@ -757,6 +756,7 @@ MonoBehaviour:
   - {fileID: 1302158967569057394}
   - {fileID: 1302158969012861588}
   - {fileID: 1302158968131984694}
+  _rigUIParentGO: {fileID: 0}
 --- !u!1 &1302158968736254753
 GameObject:
   m_ObjectHideFlags: 0
@@ -766,6 +766,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1302158968736254752}
+  - component: {fileID: 9174059088518428344}
   m_Layer: 6
   m_Name: BrainParts
   m_TagString: Untagged
@@ -791,6 +792,30 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9174059088518428344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1302158968736254753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38c4030b59fa3a24482133a13484819f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _channelMapAssetRefs:
+  - m_AssetGUID: dc137180e37d5c5468236360256235ad
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 5d9fa4254b36d4242b097c3cd188bc25
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  _channelMapNames:
+  - neuropixel_1.0
+  - neuropixel_2.0
 --- !u!1 &1302158968772066709
 GameObject:
   m_ObjectHideFlags: 0
