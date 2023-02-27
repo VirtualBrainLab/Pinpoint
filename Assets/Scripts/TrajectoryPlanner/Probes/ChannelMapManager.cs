@@ -11,6 +11,8 @@ public class ChannelMapManager : MonoBehaviour
 
     private void Awake()
     {
+        _channelMaps = new();
+
         if (_channelMapAssetRefs.Count != _channelMapNames.Count)
             throw new System.Exception("(ChannelMapManager) Asset references must match number of names");
 

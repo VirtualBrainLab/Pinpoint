@@ -42,8 +42,9 @@ public class ProbeUIManager : MonoBehaviour
         Transform probePanelParentT = GameObject.Find("ProbePanelParent").transform;
         probePanelGO = Instantiate(_probePanelPrefab, probePanelParentT);
         probePanel = probePanelGO.GetComponent<TP_ProbePanel>();
-        probePanel.RegisterProbeController(_probeManager);
-        probePanel.RegisterProbeUIManager(this);
+        probePanel.name = $"{_probeManager.name}_panel_{GetOrder()}";
+        probePanel.SetChannelMap(_probeManager.ChannelMap.ChannelMapTexture);
+        probePanel.RegisterProbeManager(_probeManager);
 
         probePanelPxHeight = probePanel.GetPanelHeight();
         pxStep = probePanelPxHeight / 10;
@@ -112,12 +113,16 @@ public class ProbeUIManager : MonoBehaviour
     private void ProbedMovedHelper()
     {
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
-        (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)_probeManager.GetProbeController()).GetRecordingRegionHeight();
+        var channelCoords = ProbeManager.ActiveProbeManager.GetChannelRangemm();
+        ProbeInsertion insertion = ProbeManager.ActiveProbeManager.GetProbeController().Insertion;
 
-        (Vector3 startCoordWorld, Vector3 endCoordWorld) = _probeManager.GetProbeController().GetRecordingRegionWorld(_electrodeBase.transform);
-        Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorld);
-        Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorld);
+        Vector3 startCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.startPosmm;
+        Vector3 endCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.endPosmm;
+        Vector3 startCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
+        Vector3 endCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
 
+        Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU);
+        Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorldU);
 
         List<int> mmTickPositions = new List<int>();
         List<int> tickIdxs = new List<int>();
@@ -128,9 +133,8 @@ public class ProbeUIManager : MonoBehaviour
             // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
             // we also want to save the mm tick positions
 
-            float mmEndPos = mmStartPos + mmRecordingSize;
             List<int> mmPos = new List<int>();
-            for (int i = Mathf.Max(1,Mathf.CeilToInt(mmStartPos)); i <= Mathf.Min(9,Mathf.FloorToInt(mmEndPos)); i++)
+            for (int i = Mathf.Max(1,Mathf.CeilToInt(channelCoords.startPosmm)); i <= Mathf.Min(9,Mathf.FloorToInt(channelCoords.endPosmm)); i++)
                 mmPos.Add(i); // this is the list of values we are going to have to assign a position to
 
             int idx = 0;
@@ -139,7 +143,7 @@ public class ProbeUIManager : MonoBehaviour
                 if (idx >= mmPos.Count)
                     break;
 
-                float um = mmStartPos + (y / probePanelPxHeight) * (mmEndPos - mmStartPos);
+                float um = channelCoords.startPosmm + (y / probePanelPxHeight) * channelCoords.recordingSizemm;
                 if (um >= mmPos[idx])
                 {
                     mmTickPositions.Add(y);
@@ -159,7 +163,8 @@ public class ProbeUIManager : MonoBehaviour
         // Interpolate from the tip to the top, putting this data into the probe panel texture
         (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startApdvlr25, endApdvlr25);
 
-        probePanel.SetTipData(startApdvlr25, endApdvlr25, mmRecordingSize, Settings.RecordingRegionOnly);
+        // Update probePanel data
+        probePanel.SetTipData(startApdvlr25, endApdvlr25, channelCoords.startPosmm /10f, channelCoords.endPosmm/ 10f, channelCoords.recordingSizemm, Settings.RecordingRegionOnly);
 
         if (Settings.RecordingRegionOnly)
         {

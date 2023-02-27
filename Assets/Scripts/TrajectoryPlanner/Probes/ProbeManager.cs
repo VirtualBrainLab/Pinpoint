@@ -136,6 +136,8 @@ public class ProbeManager : MonoBehaviour
     [FormerlySerializedAs("probeColliders")] [SerializeField] private List<Collider> _probeColliders;
     [FormerlySerializedAs("probeUIManagers")] [SerializeField] private List<ProbeUIManager> _probeUIManagers;
     [FormerlySerializedAs("probeRenderer")] [SerializeField] private Renderer _probeRenderer;
+    [SerializeField] private RecordingRegion _recRegion;
+
     private AxisControl _axisControl;
     [SerializeField] private int _probeType;
     public int ProbeType => _probeType;
@@ -143,7 +145,26 @@ public class ProbeManager : MonoBehaviour
     [FormerlySerializedAs("probeController")] [SerializeField] private ProbeController _probeController;
 
     [FormerlySerializedAs("ghostMaterial")] [SerializeField] private Material _ghostMaterial;
+
     private Dictionary<GameObject, Material> defaultMaterials;
+
+    // Channel map
+    [SerializeField] private string _channelMapName;
+    private bool[] _channelSelection;
+    private List<Vector3> _channelCoords;
+    private float _channelMinY;
+    private float _channelMaxY;
+    /// <summary>
+    /// Return the minimum and maximum channel position in the current selection in mm
+    /// </summary>
+    public (float, float) GetChannelMinMaxYCoord { get { return (_channelMinY, _channelMaxY); } }
+    public ChannelMap ChannelMap { get; private set; }
+
+    // Probe position data
+    private Vector3 _tipCoordU;
+    private Vector3 _endCoordU;
+
+    public (Vector3 tipCoordU, Vector3 endCoordU) ProbeCoordsWorldU { get { return (_tipCoordU, _endCoordU); }} 
 
     // Text
     private const float minPhi = -180;
@@ -229,6 +250,8 @@ public class ProbeManager : MonoBehaviour
             }
         }
 
+        UpdateChannelMap();
+
         _probeRenderer.material.color = ProbeProperties.GetNextProbeColor();
 
         // Pull the tpmanager object and register this probe
@@ -243,6 +266,7 @@ public class ProbeManager : MonoBehaviour
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
 
         _probeController.FinishedMovingEvent.AddListener(UpdateName);
+        _probeController.MovedThisFrameEvent.AddListener(ProbeMoved);
     }
 
     private void Start()
@@ -375,18 +399,6 @@ public class ProbeManager : MonoBehaviour
         UpdateName();
     }
 
-    /// <summary>
-    /// Update the size of the recording region.
-    /// </summary>
-    /// <param name="newSize">New size of recording region in mm</param>
-    public void ChangeRecordingRegionSize(float newSize)
-    {
-        ((DefaultProbeController)_probeController).ChangeRecordingRegionSize(newSize);
-
-        // Update all the UI panels
-        UpdateUI();
-    }
-
 
     /// <summary>
     /// Move the probe
@@ -400,6 +412,67 @@ public class ProbeManager : MonoBehaviour
 
         ((DefaultProbeController)_probeController).MoveProbe_Keyboard();
     }
+
+    public void ProbeMoved()
+    {
+        ProbeInsertion insertion = _probeController.Insertion;
+        var channelCoords = GetChannelRangemm();
+        
+        // Update the world coordinates for the tip position
+        Vector3 startCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.startPosmm;
+        Vector3 endCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.endPosmm;
+        _tipCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
+        _endCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
+    }
+
+    #region Channel map
+    public (float startPosmm, float endPosmm, float recordingSizemm) GetChannelRangemm()
+    {
+        if (Settings.RecordingRegionOnly)
+        {
+            (float startPosmm, float endPosmm) = GetChannelMinMaxYCoord;
+            float recordingSizemm = endPosmm - startPosmm;
+
+            return (startPosmm, endPosmm, recordingSizemm);
+        }
+        else
+        {
+            return (0.2f, 10.2f, 10f);
+        }
+    }
+
+    /// <summary>
+    /// Update the channel map data according to the selected channels
+    /// Defaults to the first 384 channels
+    /// 
+    /// Sets channelMinY/channelMaxY in mm
+    /// </summary>
+    private void UpdateChannelMap()
+    {
+        // Default to the bottom 384 channels
+        _channelMinY = float.MaxValue;
+        _channelMaxY = float.MinValue;
+
+        ChannelMap = ChannelMapManager.GetChannelMap(_channelMapName);
+        _channelSelection = new bool[960];
+        for (int i = 0; i < 384; i++)
+            _channelSelection[i] = true;
+        _channelCoords = ChannelMap.GetChannelPositions(_channelSelection);
+        for (int i = 0; i < _channelCoords.Count; i++)
+        {
+            if (_channelCoords[i].y < _channelMinY)
+                _channelMinY = _channelCoords[i].y / 1000f; // coordinates are in um, so divide to mm
+            if (_channelCoords[i].y > _channelMaxY)
+                _channelMaxY = _channelCoords[i].y / 1000f;
+        }
+#if UNITY_EDITOR
+        Debug.Log($"Minimum channel coordinate {_channelMinY} max {_channelMaxY}");
+#endif
+
+        _recRegion.SetSize(_channelMinY, _channelMaxY);
+    }
+
+    #endregion
 
     #region Text
 
@@ -459,8 +532,6 @@ public class ProbeManager : MonoBehaviour
 #endif
     }
 
-#endregion
-
     private float round0(float input)
     {
         return Mathf.Round(input);
@@ -469,6 +540,9 @@ public class ProbeManager : MonoBehaviour
     {
         return Mathf.Round(input * 100) / 100;
     }
+
+    #endregion
+
 
     /// <summary>
     /// Re-scale probe panels 

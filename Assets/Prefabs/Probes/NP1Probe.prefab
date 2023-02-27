@@ -109,7 +109,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1420707051332254735}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 14.2, z: -5.7}
+  m_LocalPosition: {x: 0, y: 14, z: -5.7}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -563,7 +563,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2248518515669906170}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.12, z: 0}
+  m_LocalPosition: {x: 0, y: 1.92, z: 0}
   m_LocalScale: {x: 0.1, y: 3.84, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1086,9 +1086,11 @@ MonoBehaviour:
   _probeUIManagers:
   - {fileID: 4368194536080577050}
   _probeRenderer: {fileID: 2762817814583501863}
+  _recRegion: {fileID: 991304789899901869}
   _probeType: 1
   _probeController: {fileID: 2207803182506741358}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
+  _channelMapName: neuropixel_1.0
 --- !u!114 &4368194536080577050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1124,9 +1126,8 @@ MonoBehaviour:
   FinishedMovingEvent:
     m_PersistentCalls:
       m_Calls: []
+  Locked: 0
   _probeTipT: {fileID: 3485671869318689184}
-  _recordingRegionGOs:
-  - {fileID: 2248518515669906170}
   _rotateAround: {fileID: 7313519670166122196}
 --- !u!1 &4456090523800124213
 GameObject:
@@ -1222,6 +1223,7 @@ GameObject:
   - component: {fileID: 4586095260511238649}
   - component: {fileID: 1689476629270479027}
   - component: {fileID: 2762817814583501863}
+  - component: {fileID: 991304789899901869}
   m_Layer: 10
   m_Name: ProbeModel
   m_TagString: ProbeModel
@@ -1295,6 +1297,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &991304789899901869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4689155585747315394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5891b9fb1597b1d4fb9bf24f380cb581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _recordingRegionGOs:
+  - {fileID: 2248518515669906170}
 --- !u!1 &4940536664788631022
 GameObject:
   m_ObjectHideFlags: 0

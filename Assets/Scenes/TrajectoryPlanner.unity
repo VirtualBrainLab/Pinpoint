@@ -1499,17 +1499,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1509006805 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 341190944840142513, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-  m_PrefabInstance: {fileID: 341190943874437988}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8cf8a52094feb2d4f9a2d2d57343f9ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1537967822 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6193778552061300709, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
@@ -4581,6 +4570,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1302158968669684561, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
   m_PrefabInstance: {fileID: 1302158968208938923}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1302158968208938925 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8143391881934813996, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+  m_PrefabInstance: {fileID: 1302158968208938923}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1397446698413376552 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4161039994280164347, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -4669,8 +4663,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6193778550765170448, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6193778550765170453, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 0c293f080f6c91d4489c6ddc14f326ec, type: 2}
     - target: {fileID: 6193778550765170455, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.2
@@ -4745,8 +4743,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6193778552155365641, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6193778552155365646, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9e04d79f7c3c3534a9031f28643d20c1, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
 --- !u!1001 &7219995420540185579
@@ -5699,6 +5701,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2108153952}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _probeParentT
+      value: 
+      objectReference: {fileID: 1302158968208938925}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: searchControl
       value: 
       objectReference: {fileID: 1369876173}
@@ -5753,7 +5759,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: recRegionSlider
       value: 
-      objectReference: {fileID: 1509006805}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CollisionPanelGO
       value: 
@@ -5769,7 +5775,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _recRegionSlider
       value: 
-      objectReference: {fileID: 1509006805}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CraniotomyToolsGO
       value: 
@@ -5941,7 +5947,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[3].m_Target
       value: 
-      objectReference: {fileID: 1509006805}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[4].m_Target
       value: 

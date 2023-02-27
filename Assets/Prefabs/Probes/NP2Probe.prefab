@@ -1371,9 +1371,11 @@ MonoBehaviour:
   _probeUIManagers:
   - {fileID: 4456597164778458637}
   _probeRenderer: {fileID: 2814875528045951024}
+  _recRegion: {fileID: 70859987927150193}
   _probeType: 2
   _probeController: {fileID: 526263402789444364}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
+  _channelMapName: neuropixel_2.0
 --- !u!114 &526263402789444364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1392,9 +1394,8 @@ MonoBehaviour:
   FinishedMovingEvent:
     m_PersistentCalls:
       m_Calls: []
+  Locked: 0
   _probeTipT: {fileID: 3537694416159337911}
-  _recordingRegionGOs:
-  - {fileID: 2194279852132282093}
   _rotateAround: {fileID: 7221844362321588931}
 --- !u!114 &4456597164778458637
 MonoBehaviour:
@@ -1424,6 +1425,7 @@ GameObject:
   - component: {fileID: 4531438283835532782}
   - component: {fileID: 1600405420185050276}
   - component: {fileID: 2814875528045951024}
+  - component: {fileID: 70859987927150193}
   m_Layer: 10
   m_Name: ProbeModel
   m_TagString: ProbeModel
@@ -1497,6 +1499,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &70859987927150193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4635550240378812117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5891b9fb1597b1d4fb9bf24f380cb581, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _recordingRegionGOs:
+  - {fileID: 2194279852132282093}
 --- !u!1 &5032699606618890745
 GameObject:
   m_ObjectHideFlags: 0
@@ -1814,7 +1830,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6172157643229611607}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 14.2, z: -5.7}
+  m_LocalPosition: {x: 0, y: 14, z: -5.7}
   m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -113,16 +113,6 @@ public class PlaceholderProbeController : ProbeController
         return (Vector3.zero, Vector3.zero, Vector3.zero);
     }
 
-    public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld()
-    {
-        return (Vector3.zero, Vector3.zero);
-    }
-
-    public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld(Transform tipTransform)
-    {
-        return (Vector3.zero, Vector3.zero);
-    }
-
     /// <summary>
     /// Return the height of the bottom in mm and the total height
     /// </summary>

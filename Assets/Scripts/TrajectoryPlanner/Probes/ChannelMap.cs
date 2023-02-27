@@ -11,18 +11,23 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 /// </summary>
 public class ChannelMap
 {
-    private float[] xCoords;
-    private float[] yCoords;
-    private float[] zCoords;
+    public Texture2D ChannelMapTexture { get; private set; }
+
+    private int[] xCoords;
+    private int[] yCoords;
+    private int[] zCoords;
 
     // For now, we assume all channels have identical sizes
-    private float width;
-    private float height;
-    private float depth;
+    private int width;
+    private int height;
+    private int depth;
 
     static string SPLIT_RE = @",(?=(?:[^""]*""[^""]*"")*(?![^""]*""))";
     static string LINE_SPLIT_RE = @"\r\n|\n\r|\n|\r";
     static char[] TRIM_CHARS = { '\"' };
+
+    private const int MAP_WIDTH = 60;
+    private const int MAP_HEIGHT = 10000;
 
     /// <summary>
     /// Create a channel map by loading a CSV file from an AddressableAsset address
@@ -47,9 +52,18 @@ public class ChannelMap
 
         // Otherwise set up the x/y/z arrays
         int n = lines.Length - 1;
-        xCoords = new float[n];
-        yCoords = new float[n];
-        zCoords = new float[n];
+        xCoords = new int[n];
+        yCoords = new int[n];
+        zCoords = new int[n];
+
+        // Also set up the blank texture, we'll draw a 1 at each location that has a probe
+        // For now assume this is a Neuropixels probe
+        ChannelMapTexture = new Texture2D(MAP_WIDTH, MAP_HEIGHT, TextureFormat.R8, false); // we'll represent the texture at um scale
+        for (int x = 0; x < MAP_WIDTH; x++)
+            for (int y = 0; y < MAP_HEIGHT; y++)
+                ChannelMapTexture.SetPixel(x, y, Color.black);
+        ChannelMapTexture.wrapMode = TextureWrapMode.Clamp;
+        ChannelMapTexture.filterMode = FilterMode.Point;
 
         // don't need the header
         //var header = Regex.Split(lines[0], SPLIT_RE);
@@ -62,29 +76,36 @@ public class ChannelMap
             if (i == 1)
             {
                 // Set the fixed w/h/d from the first channel
-                width = float.Parse(values[4]);
-                height = float.Parse(values[5]);
-                depth = float.Parse(values[6]);
+                width = int.Parse(values[4], System.Globalization.NumberStyles.Any);
+                height = int.Parse(values[5], System.Globalization.NumberStyles.Any);
+                depth = int.Parse(values[6], System.Globalization.NumberStyles.Any);
             }
 
+            int idx = i - 1;
             // we're going to assume for now that electrodes are numbered in order
-            xCoords[i] = float.Parse(values[1]);
-            yCoords[i] = float.Parse(values[2]);
-            zCoords[i] = float.Parse(values[3]);
+            // CAUTION: note that the x/y are inverted! In Unity we're using Y to represent "up", but in the channel map X represents up. bad convention
+            xCoords[idx] = int.Parse(values[1], System.Globalization.NumberStyles.Any) + MAP_WIDTH / 2;
+            yCoords[idx] = int.Parse(values[2], System.Globalization.NumberStyles.Any);
+            zCoords[idx] = int.Parse(values[3], System.Globalization.NumberStyles.Any);
+
+            // using this channel's x/y/w/h data, set the channel map texture pixels
+            for (int x = xCoords[idx]; x < (xCoords[idx] + width); x++)
+                for (int y = yCoords[idx]; y < (yCoords[idx] + height); y++)
+                    ChannelMapTexture.SetPixel(x, y, Color.red);
         }
 
-
+        ChannelMapTexture.Apply();
     }
 
     public int ChannelCount { get { return xCoords.Length; } }
     
-    public List<(float, float, float)> GetChannelPositions(bool[] selected)
+    public List<Vector3> GetChannelPositions(bool[] selected)
     {
-        List<(float, float, float)> data = new();
+        List<Vector3> data = new();
 
-        for (int i = 0; i < xCoords.Length; i++)
+        for (int i = 0; i < selected.Length; i++)
             if (selected[i])
-                data.Add((xCoords[i], yCoords[i], zCoords[i]));
+                data.Add(new Vector3(xCoords[i], yCoords[i], zCoords[i]));
 
         return data;
     }

@@ -26,14 +26,13 @@ namespace TrajectoryPlanner
         // Managers and accessors
         [SerializeField] private CCFModelControl _modelControl;
         [SerializeField] private VolumeDatasetManager _vdmanager;
-        [SerializeField] private Transform _brainModel;
+        [SerializeField] private Transform _probeParentT;
         [FormerlySerializedAs("util")] [SerializeField] private TP_Utils _util;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
 
         // Settings
         [FormerlySerializedAs("probePrefabs")] [SerializeField] private List<GameObject> _probePrefabs;
         [FormerlySerializedAs("probePrefabIDs")] [SerializeField] private List<int> _probePrefabIDs;
-        [FormerlySerializedAs("recRegionSlider")] [SerializeField] private TP_RecRegionSlider _recRegionSlider;
         [FormerlySerializedAs("ccfCollider")] [SerializeField] private Collider _ccfCollider;
         [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
 
@@ -453,7 +452,7 @@ namespace TrajectoryPlanner
             if (visibleProbePanels >= 16)
                 return null;
 
-            GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
+            GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _probeParentT);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
 
             if (UUID != null)
@@ -544,27 +543,27 @@ namespace TrajectoryPlanner
                 // Increase the layout to have two rows, by shrinking all the ProbePanel objects to be 500 pixels tall
                 GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
                 Vector2 cellSize = probePanelParent.cellSize;
-                cellSize.y = 700;
+                cellSize.y = 720;
                 probePanelParent.cellSize = cellSize;
 
-                // now resize all existing probeUIs to be 700 tall
+                // now resize all existing probeUIs to be 720 tall
                 foreach (ProbeManager probeManager in ProbeManager.instances)
                 {
-                    probeManager.ResizeProbePanel(700);
+                    probeManager.ResizeProbePanel(720);
                 }
             }
             else if (visibleProbePanels <= 4)
             {
-                Debug.Log("Resizing panels to be 1400");
+                Debug.Log("Resizing panels to be 1440");
                 // now resize all existing probeUIs to be 1400 tall
                 GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
                 Vector2 cellSize = probePanelParent.cellSize;
-                cellSize.y = 1400;
+                cellSize.y = 1440;
                 probePanelParent.cellSize = cellSize;
 
                 foreach (ProbeManager probeManager in ProbeManager.instances)
                 {
-                    probeManager.ResizeProbePanel(1400);
+                    probeManager.ResizeProbePanel(1440);
                 }
             }
 

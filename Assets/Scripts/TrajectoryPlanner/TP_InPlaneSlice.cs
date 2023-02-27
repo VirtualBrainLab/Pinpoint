@@ -91,35 +91,43 @@ public class TP_InPlaneSlice : MonoBehaviour
             return;
         }
 
-        (Vector3 startCoordWorld, Vector3 endCoordWorld) = ProbeManager.ActiveProbeManager.GetProbeController().GetRecordingRegionWorld();
+        var channelRangeCoords = ProbeManager.ActiveProbeManager.GetChannelRangemm();
+
+        ProbeInsertion insertion = ProbeManager.ActiveProbeManager.GetProbeController().Insertion;
+
+        // Get the start/end coordinates of the probe recording region and convert them into *un-transformed* coordinates
+        (Vector3 startCoordWorldU, Vector3 endCoordWorldU) = ProbeManager.ActiveProbeManager.ProbeCoordsWorldU;
+
+        Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU);
+        Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorldU);
+        //(Vector3 startCoordWorld, Vector3 endCoordWorld) = ProbeManager.ActiveProbeManager.GetProbeController().GetRecordingRegionWorld();
         (_, upWorld, forwardWorld) = ProbeManager.ActiveProbeManager.GetProbeController().GetTipWorldU();
 
 #if UNITY_EDITOR
         // debug statements
-        Debug.DrawRay(startCoordWorld, upWorld, Color.green);
-        Debug.DrawRay(startCoordWorld, forwardWorld, Color.red);
+        Debug.DrawRay(startCoordWorldU, upWorld, Color.green);
+        Debug.DrawRay(endCoordWorldU, forwardWorld, Color.red);
 #endif
 
         // Calculate the size
-        float mmRecordingSize = Vector3.Distance(startCoordWorld, endCoordWorld);
 
         int type = ProbeManager.ActiveProbeManager.ProbeType;
         bool fourShank = type == 4 || type == 8;
 
         recordingRegionCenterPosition = fourShank ?
-            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2 + forwardWorld * 0.375f) :
-            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorld + upWorld * mmRecordingSize / 2);
+            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorld * channelRangeCoords.recordingSizemm / 2 + forwardWorld * 0.375f) :
+            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorld * channelRangeCoords.recordingSizemm / 2);
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
 
-        inPlaneScale = mmRecordingSize * 1.5f * 1000f / 25f * zoomFactor;
+        inPlaneScale = channelRangeCoords.recordingSizemm * 1.5f * 1000f / 25f * zoomFactor;
 
         _gpuSliceRenderer.sharedMaterial.SetVector("_RecordingRegionCenterPosition", recordingRegionCenterPosition);
         _gpuSliceRenderer.sharedMaterial.SetVector("_ForwardDirection", forwardWorld);
         _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", upWorld);
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", mmRecordingSize * 1000f / 25f);
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", channelRangeCoords.recordingSizemm * 1000f / 25f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_Scale", inPlaneScale);
-        float roundedMmRecSize = Mathf.Round(mmRecordingSize * 1.5f * zoomFactor * 100) / 100;
+        float roundedMmRecSize = Mathf.Round(channelRangeCoords.recordingSizemm * 1.5f * zoomFactor * 100) / 100;
         string formatted = string.Format("<- {0} mm ->", roundedMmRecSize);
         _textX.text = formatted;
         _textY.text = formatted;
