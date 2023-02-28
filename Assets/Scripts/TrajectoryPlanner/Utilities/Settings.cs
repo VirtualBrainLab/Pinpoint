@@ -408,7 +408,7 @@ public class Settings : MonoBehaviour
     private const string PROBEDATA_STR = "probedatapost";
     private const bool PROBEDATA_DEFAULT = false;
     [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _probeDataPOSTToggle;
-    //public UnityEvent DetectCollisionsChangedEvent;
+    public UnityEvent ProbeDataPostChangedEvent;
 
     public static bool ProbeDataPOST
     {
@@ -417,7 +417,7 @@ public class Settings : MonoBehaviour
         {
             s_probeDataPOST = value;
             PlayerPrefs.SetInt(PROBEDATA_STR, PROBEDATA_DEFAULT ? 1 : 0);
-            //Instance.DetectCollisionsChangedEvent.Invoke();
+            Instance.ProbeDataPostChangedEvent.Invoke();
         }
     }
     #endregion

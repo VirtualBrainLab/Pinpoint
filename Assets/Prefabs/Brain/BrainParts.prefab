@@ -1330,6 +1330,25 @@ MonoBehaviour:
   _channelMapNames:
   - neuropixel_1.0
   - neuropixel_2.0
+  _selectionLayerAssetRefs:
+  - m_AssetGUID: fe99e48da36bad34e85b018f75de5fe3
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: fe99e48da36bad34e85b018f75de5fe3
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 1fb2c7fd7018fc349bfbdc99f974a097
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  _selectionLayerNames:
+  - default
+  - np1_bottom_row
+  - np1_double_length
+  _allowedProbeTypes: 000000000000000000000000
+  _selectionOptionDropdown: {fileID: 0}
 --- !u!1001 &1458694940422952288
 PrefabInstance:
   m_ObjectHideFlags: 0

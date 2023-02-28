@@ -250,12 +250,15 @@ public class ProbeManager : MonoBehaviour
             }
         }
 
-        UpdateChannelMap();
-
         _probeRenderer.material.color = ProbeProperties.GetNextProbeColor();
 
         // Pull the tpmanager object and register this probe
         _probeController.Register(this);
+
+        // Get the channel map and selection layer
+        ChannelMap = ChannelMapManager.GetChannelMap(_channelMapName);
+        bool[] selectionLayer = ChannelMapManager.GetSelectionLayer("default");
+        UpdateChannelMap(selectionLayer);
 
         // Pull ephys link communication manager
         _ephysLinkCommunicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
@@ -447,16 +450,13 @@ public class ProbeManager : MonoBehaviour
     /// 
     /// Sets channelMinY/channelMaxY in mm
     /// </summary>
-    private void UpdateChannelMap()
+    public void UpdateChannelMap(bool[] selectionLayer)
     {
-        // Default to the bottom 384 channels
         _channelMinY = float.MaxValue;
         _channelMaxY = float.MinValue;
 
-        ChannelMap = ChannelMapManager.GetChannelMap(_channelMapName);
-        _channelSelection = new bool[960];
-        for (int i = 0; i < 384; i++)
-            _channelSelection[i] = true;
+        _channelSelection = selectionLayer;
+
         _channelCoords = ChannelMap.GetChannelPositions(_channelSelection);
         for (int i = 0; i < _channelCoords.Count; i++)
         {
@@ -470,6 +470,44 @@ public class ProbeManager : MonoBehaviour
 #endif
 
         _recRegion.SetSize(_channelMinY, _channelMaxY);
+    }
+
+    /// <summary>
+    /// Get a serialized representation of the channel ID data
+    /// </summary>
+    /// <returns></returns>
+    public string GetChannelAnnotationIDs()
+    {
+        // Get the channel data
+        var channelMapData = ChannelMap.GetChannelPositions();
+
+        string data = "probeID ";
+
+        // Populate the data string
+        Vector3 tipCoordWorldT = _probeController.ProbeTipT.position;
+
+        for (int i = 0; i < channelMapData.Count; i++)
+        {
+            // For now we'll ignore x changes and just use the y coordinate, this way we don't need to calculate the forward vector for the probe
+            // note that we're ignoring depth here, this assume the probe tip is on the electrode surface (which it should be)
+            Vector3 channelCoordWorldT = tipCoordWorldT + _probeController.ProbeTipT.up * channelMapData[i].y / 1000f;
+
+            // Now transform this into WorldU
+            ProbeInsertion insertion = _probeController.Insertion;
+            Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
+
+            int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
+            if (ID < 0) ID = -1;
+
+            data += $"{i},{ID};";
+        }
+
+        return data;
+    }
+
+    public void SetChannelVisibility(bool visible)
+    {
+        // TODO
     }
 
     #endregion

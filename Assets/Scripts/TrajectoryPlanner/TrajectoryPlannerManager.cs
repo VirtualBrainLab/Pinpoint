@@ -18,8 +18,15 @@ namespace TrajectoryPlanner
     {
         #region Events
         // TODO: Expose events for probes moving, UI updating, etc
-        //UnityEvent ProbeMovedEvent;
+
+        /// <summary>
+        /// Fired whenever any probe moves
+        /// </summary>
         [SerializeField] private UnityEvent _probesChangedEvent;
+
+        /// <summary>
+        /// Fire whenever the active probe changes
+        /// </summary>
         [SerializeField] private UnityEvent _activeProbeChangedEvent;
         #endregion
 

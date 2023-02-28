@@ -99,6 +99,16 @@ public class ChannelMap
 
     public int ChannelCount { get { return xCoords.Length; } }
     
+    public List<Vector3> GetChannelPositions()
+    {
+        List<Vector3> data = new();
+
+        for (int i = 0; i < xCoords.Length; i++)
+                data.Add(new Vector3(xCoords[i], yCoords[i], zCoords[i]));
+
+        return data;
+    }
+
     public List<Vector3> GetChannelPositions(bool[] selected)
     {
         List<Vector3> data = new();

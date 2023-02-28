@@ -1,34 +1,67 @@
+using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 
 public class APIManager : MonoBehaviour
 {
-    private UnityWebRequest _probeDataRequest;
+    #region Probe data variables
+    [SerializeField] TMP_InputField _probeDataHTTPTarget;
+    private float _lastDataSend;
+    private const float DATA_SEND_RATE = 1; // cap data sending at once per second maximum, it's fairly expensive to do
+    private bool _dirty = false;
 
-#region POST probe data target
-    public void UpdateProbeDataTarget(string targetURL)
+    #endregion
+
+    #region Unity
+    private void Awake()
     {
-        _probeDataRequest = new UnityWebRequest(targetURL, "POST");
-        SendProbeData();
+        _lastDataSend = float.MinValue;
     }
 
-    public void SendProbeData()
+    private void Update()
     {
-        if (Settings.ProbeDataPOST && _probeDataRequest != null)
+        if (_dirty && Settings.ProbeDataPOST && (Time.realtimeSinceStartup > (_lastDataSend + DATA_SEND_RATE)))
         {
-            // Get all probes in the scene
-            List<ProbeManager> activeProbes = ProbeManager.instances;
+            _dirty = false;
+            _lastDataSend = Time.realtimeSinceStartup;
+            StartCoroutine(SendProbeData());
+        }
+    }
+    #endregion
 
-            foreach (ProbeManager probeManager in activeProbes)
+    #region POST probe data target
+    public void UpdateProbeDataTarget()
+    {
+        _dirty = true;
+    }
+
+
+    private IEnumerator SendProbeData()
+    {
+        Debug.Log("(API) Sending probe data");
+
+        // For each probe, get the data string and send it to the request server
+        foreach (ProbeManager probeManager in ProbeManager.instances)
+        {
+
+            // add data
+            Debug.Log(probeManager.GetChannelAnnotationIDs());
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(probeManager.GetChannelAnnotationIDs());
+            using (UnityWebRequest www = UnityWebRequest.Put(_probeDataHTTPTarget.text, data))
             {
-                //ProbeManager.ActiveProbeManager.GetProbeController().
-                // add data
-                //_probeDataRequest.SetRequestHeader
+                yield return www.SendWebRequest();
 
-                //_probeDataRequest.SendWebRequest();
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.Log(www.error);
+                }
+                else
+                {
+                    Debug.Log("Upload complete!");
+                }
             }
-
         }
     }
 #endregion
