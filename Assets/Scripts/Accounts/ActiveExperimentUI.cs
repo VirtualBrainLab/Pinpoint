@@ -16,7 +16,6 @@ public class ActiveExperimentUI : MonoBehaviour
     [SerializeField] private Transform _insertionPrefabParentT;
     [SerializeField] private GameObject _insertionPrefabGO;
 
-    private string _currentExperiment;
     private Dictionary<string, ServerProbeInsertionUI> _activeInsertionUIs;
     #endregion
 
@@ -58,12 +57,11 @@ public class ActiveExperimentUI : MonoBehaviour
     public void UpdateExperimentInsertionUIPanels()
     {
         // don't bother updating if we are disabled
-        if (!gameObject.activeSelf)
-            return;
-
-        // If the experiment was changed, reset the whole panel
-        if (!_accountsManager.ActiveExperiment.Equals(_currentExperiment))
+        if (!gameObject.activeSelf || !_accountsManager.Connected)
+        {
             ResetUIPanels();
+            return;
+        }
 
         // Then, update the data in the panels
         UpdateUIPanels();
