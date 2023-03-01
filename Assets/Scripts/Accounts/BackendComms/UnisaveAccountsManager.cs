@@ -123,6 +123,8 @@ public class UnisaveAccountsManager : AccountsManager
 
         ExperimentListChangeEvent.Invoke();
         InsertionListChangeEvent.Invoke();
+
+        _emailLoginForm.ClearToken();
     }
 
 #endregion
