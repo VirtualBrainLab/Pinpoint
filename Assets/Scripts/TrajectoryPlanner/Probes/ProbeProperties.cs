@@ -20,6 +20,13 @@ public class ProbeProperties
     public static readonly int FONT_SIZE_ACRONYM = 24;
     public static readonly int FONT_SIZE_AREA = 18;
 
+    public enum ProbeType : int
+    {
+        Neuropixels1 = 0,
+        Neuropixels21 = 21,
+        Neuropixels24 = 24
+    }
+
     public static Color GetNextProbeColor()
     {
         // Generate list of indexes and remove those that have been used

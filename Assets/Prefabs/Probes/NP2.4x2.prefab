@@ -3674,9 +3674,11 @@ MonoBehaviour:
   - {fileID: 4981350787610940250}
   - {fileID: 1680033705420244464}
   _probeRenderer: {fileID: 7409922654742737101}
+  _recRegion: {fileID: 0}
   _probeType: 8
   _probeController: {fileID: 897778941437095604}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
+  _channelMapName: neuropixel_2.0
 --- !u!114 &897778941437095604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3695,16 +3697,8 @@ MonoBehaviour:
   FinishedMovingEvent:
     m_PersistentCalls:
       m_Calls: []
+  Locked: 0
   _probeTipT: {fileID: 4373075753628498810}
-  _recordingRegionGOs:
-  - {fileID: 6896843788505130512}
-  - {fileID: 8790212291502270615}
-  - {fileID: 2161067449959298110}
-  - {fileID: 209146349789154571}
-  - {fileID: 5979757662302127348}
-  - {fileID: 7652596474605630028}
-  - {fileID: 1174623775784253924}
-  - {fileID: 1337860830378586438}
   _rotateAround: {fileID: 2737065057749105214}
 --- !u!114 &8943063119080654576
 MonoBehaviour:

@@ -123,6 +123,8 @@ public class UnisaveAccountsManager : AccountsManager
 
         ExperimentListChangeEvent.Invoke();
         InsertionListChangeEvent.Invoke();
+
+        _emailLoginForm.ClearToken();
     }
 
 #endregion
@@ -175,8 +177,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void NewExperiment()
     {
-        string experimentName = $"Experiment {_player.Experiments.Count}";
-        _player.Experiments.Add(experimentName);
+        string experimentName = $"Experiment {_player.Experiment2UUID.Count}";
         _player.Experiment2UUID.Add(experimentName, new HashSet<string>());
 
         // If this is the first experiment the player created, save it for future reference
@@ -190,9 +191,19 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void EditExperiment(string origName, string newName)
     {
-        if (_player.Experiments.Contains(origName))
+        if (_player.Experiment2UUID.Keys.Contains(origName))
         {
-            _player.Experiments[_player.Experiments.IndexOf(origName)] = newName;
+            // Add me to the experiment list 
+            var data = _player.Experiment2UUID[origName];
+            _player.Experiment2UUID.Add(newName, data);
+            _player.Experiment2UUID.Remove(origName);
+
+            // Go through and fix all the items in the UUID2Experiment list
+            foreach (string UUID in _player.Experiment2UUID[newName])
+            {
+                _player.UUID2Experiment[UUID].Remove(origName);
+                _player.UUID2Experiment[UUID].Add(newName);
+            }
         }
         else
             Debug.LogError(string.Format("Experiment {0} does not exist", origName));
@@ -294,7 +305,7 @@ public class UnisaveAccountsManager : AccountsManager
     public List<string> GetExperiments()
     {
         if (_player != null)
-            return _player.Experiments;
+            return _player.Experiment2UUID.Keys.ToList();
         else
             return new List<string>();
     }
@@ -410,7 +421,7 @@ public class UnisaveAccountsManager : AccountsManager
             probeManager.name,
             apmldv.x, apmldv.y, apmldv.z,
             angles.x, angles.y, angles.z,
-            probeManager.ProbeType,
+            (int)probeManager.ProbeType,
             insertion.CoordinateSpace.Name,
             insertion.CoordinateTransform.Name,
             active, recorded,
@@ -451,7 +462,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     private void AddExperiment(string UUID, string experimentName)
     {
-        if (!_player.Experiments.Contains(experimentName))
+        if (!_player.Experiment2UUID.Keys.Contains(experimentName))
         {
             Debug.Log("Experiment doesn't exist");
             return;
@@ -464,9 +475,8 @@ public class UnisaveAccountsManager : AccountsManager
 
     private void RemoveExperiment(string experimentName)
     {
-        if (_player.Experiments.Contains(experimentName))
+        if (_player.Experiment2UUID.Keys.Contains(experimentName))
         {
-            _player.Experiments.Remove(experimentName);
             HashSet<string> UUIDs = GetUUIDsFromExperiment(experimentName);
 
             // remove the experiment from each UUID
@@ -526,7 +536,7 @@ public class UnisaveAccountsManager : AccountsManager
     {
         string list = "\n";
 
-        foreach (string experiment in _player.Experiments)
+        foreach (string experiment in _player.Experiment2UUID.Keys)
         {
             list += $"{experiment}\n";
             foreach (string UUID in GetUUIDsFromExperiment(experiment))

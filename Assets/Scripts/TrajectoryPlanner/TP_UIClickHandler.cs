@@ -42,7 +42,7 @@ public class TP_UIClickHandler : MonoBehaviour
                     switch (uiTarget.tag)
                     {
                         case "ProbePanel":
-                            _tpmanager.SetActiveProbe(uiTarget.GetComponent<TP_ProbePanel>().GetProbeController());
+                            _tpmanager.SetActiveProbe(uiTarget.GetComponent<TP_ProbePanel>().GetProbeManager());
                             break;
                         case "AreaPanel":
                             _tpmanager.ClickSearchArea(uiTarget);

@@ -18,22 +18,28 @@ namespace TrajectoryPlanner
     {
         #region Events
         // TODO: Expose events for probes moving, UI updating, etc
-        //UnityEvent ProbeMovedEvent;
+
+        /// <summary>
+        /// Fired whenever any probe moves
+        /// </summary>
         [SerializeField] private UnityEvent _probesChangedEvent;
+
+        /// <summary>
+        /// Fire whenever the active probe changes
+        /// </summary>
         [SerializeField] private UnityEvent _activeProbeChangedEvent;
         #endregion
 
         // Managers and accessors
         [SerializeField] private CCFModelControl _modelControl;
         [SerializeField] private VolumeDatasetManager _vdmanager;
-        [SerializeField] private Transform _brainModel;
+        [SerializeField] private Transform _probeParentT;
         [FormerlySerializedAs("util")] [SerializeField] private TP_Utils _util;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
 
         // Settings
         [FormerlySerializedAs("probePrefabs")] [SerializeField] private List<GameObject> _probePrefabs;
         [FormerlySerializedAs("probePrefabIDs")] [SerializeField] private List<int> _probePrefabIDs;
-        [FormerlySerializedAs("recRegionSlider")] [SerializeField] private TP_RecRegionSlider _recRegionSlider;
         [FormerlySerializedAs("ccfCollider")] [SerializeField] private Collider _ccfCollider;
         [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
 
@@ -179,8 +185,8 @@ namespace TrajectoryPlanner
             }
 
 
-            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.P))
-                _coenProbe = AddNewProbe(8).GetComponent<EightShankProbeControl>();
+            //if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.P))
+            //    _coenProbe = AddNewProbe(8).GetComponent<EightShankProbeControl>();
         }
 
         private void LateUpdate()
@@ -248,7 +254,7 @@ namespace TrajectoryPlanner
                     var probeInsertion = new ProbeInsertion(savedProbe.apmldv, savedProbe.angles,
                         coordinateSpaceOpts[savedProbe.coordinateSpaceName], coordinateTransformOpts[savedProbe.coordinateTransformName]);
 
-                    ProbeManager newProbeManager = AddNewProbe(savedProbe.type, probeInsertion,
+                    ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)savedProbe.type, probeInsertion,
                         savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
                         savedProbe.dropToSurfaceWithDepth, savedProbe.uuid);
                     newProbeManager.SetColor(savedProbe.color);
@@ -360,7 +366,7 @@ namespace TrajectoryPlanner
 
             if (!isGhost)
             {
-                _prevProbeType = probeManager.ProbeType;
+                _prevProbeType = (int)probeManager.ProbeType;
                 _prevInsertion = probeManager.GetProbeController().Insertion;
                 _prevManipulatorId = probeManager.ManipulatorId;
                 _prevZeroCoordinateOffset = probeManager.ZeroCoordinateOffset;
@@ -428,7 +434,7 @@ namespace TrajectoryPlanner
         private void RecoverActiveProbeController()
         {
             if (_restoredProbe) return;
-            AddNewProbe(_prevProbeType, _prevInsertion, _prevManipulatorId, _prevZeroCoordinateOffset, _prevBrainSurfaceOffset,
+            AddNewProbe((ProbeProperties.ProbeType)_prevProbeType, _prevInsertion, _prevManipulatorId, _prevZeroCoordinateOffset, _prevBrainSurfaceOffset,
                 false, _prevUUID);
             _restoredProbe = true;
         }
@@ -437,7 +443,7 @@ namespace TrajectoryPlanner
 
         public void AddNewProbeVoid(int probeType)
         {
-            AddNewProbe(probeType);
+            AddNewProbe((ProbeProperties.ProbeType) probeType);
         }
 
         /// <summary>
@@ -447,13 +453,13 @@ namespace TrajectoryPlanner
         /// </summary>
         /// <param name="probeType"></param>
         /// <returns></returns>
-        public ProbeManager AddNewProbe(int probeType, string UUID = null)
+        public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, string UUID = null)
         {
             CountProbePanels();
             if (visibleProbePanels >= 16)
                 return null;
 
-            GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == probeType)], _brainModel);
+            GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == (int)probeType)], _probeParentT);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
 
             if (UUID != null)
@@ -478,7 +484,7 @@ namespace TrajectoryPlanner
             return newProbe.GetComponent<ProbeManager>();
         }
 
-        public ProbeManager AddNewProbe(int probeType, ProbeInsertion insertion, string UUID = null)
+        public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, ProbeInsertion insertion, string UUID = null)
         {
             ProbeManager probeManager = AddNewProbe(probeType, UUID);
 
@@ -487,7 +493,7 @@ namespace TrajectoryPlanner
             return probeManager;
         }
         
-        public ProbeManager AddNewProbe(int probeType, ProbeInsertion insertion,
+        public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, ProbeInsertion insertion,
             string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
             // ReSharper disable once InconsistentNaming
             string UUID = null, bool isGhost = false)
@@ -544,27 +550,27 @@ namespace TrajectoryPlanner
                 // Increase the layout to have two rows, by shrinking all the ProbePanel objects to be 500 pixels tall
                 GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
                 Vector2 cellSize = probePanelParent.cellSize;
-                cellSize.y = 700;
+                cellSize.y = 720;
                 probePanelParent.cellSize = cellSize;
 
-                // now resize all existing probeUIs to be 700 tall
+                // now resize all existing probeUIs to be 720 tall
                 foreach (ProbeManager probeManager in ProbeManager.instances)
                 {
-                    probeManager.ResizeProbePanel(700);
+                    probeManager.ResizeProbePanel(720);
                 }
             }
             else if (visibleProbePanels <= 4)
             {
-                Debug.Log("Resizing panels to be 1400");
+                Debug.Log("Resizing panels to be 1440");
                 // now resize all existing probeUIs to be 1400 tall
                 GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
                 Vector2 cellSize = probePanelParent.cellSize;
-                cellSize.y = 1400;
+                cellSize.y = 1440;
                 probePanelParent.cellSize = cellSize;
 
                 foreach (ProbeManager probeManager in ProbeManager.instances)
                 {
-                    probeManager.ResizeProbePanel(1400);
+                    probeManager.ResizeProbePanel(1440);
                 }
             }
 
@@ -816,7 +822,7 @@ namespace TrajectoryPlanner
             List<ProbeManager> np24Probes = new List<ProbeManager>();
             List<ProbeManager> otherProbes = new List<ProbeManager>();
             foreach (ProbeManager pcontroller in ProbeManager.instances)
-                if (pcontroller.ProbeType == 4)
+                if (pcontroller.ProbeType == ProbeProperties.ProbeType.Neuropixels24)
                     np24Probes.Add(pcontroller);
                 else
                     otherProbes.Add(pcontroller);
@@ -876,7 +882,7 @@ namespace TrajectoryPlanner
                 ProbeInsertion probeInsertion = probe.GetProbeController().Insertion;
                 probeCoordinates[i] = (probeInsertion.apmldv, 
                     probeInsertion.angles,
-                    probe.ProbeType, probe.ManipulatorId,
+                    (int)probe.ProbeType, probe.ManipulatorId,
                     probeInsertion.CoordinateSpace.Name, probeInsertion.CoordinateTransform.Name,
                     probe.ZeroCoordinateOffset, probe.BrainSurfaceOffset, probe.IsSetToDropToSurfaceWithDepth,
                     probe.GetColor(),
@@ -948,7 +954,7 @@ namespace TrajectoryPlanner
         {
             ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
             return (insertion.apmldv, insertion.angles,
-                probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
+                (int)probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
                 probeManager.UUID);
         }
 
@@ -985,7 +991,7 @@ namespace TrajectoryPlanner
 
         private void AccountsNewProbeHelper((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, string overrideName, Color color) data)
         {
-            ProbeManager newProbeManager = AddNewProbe(data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
+            ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
             if (data.overrideName != null)
                 newProbeManager.OverrideName(data.overrideName);
             newProbeManager.SetColor(data.color);

@@ -159,6 +159,9 @@ public class EmailLoginForm : MonoBehaviour
             {
                 _statusText.text = "Autologin failed\nThis account does not exist,\nor the token was invalid";
                 _statusText.color = Color.red;
+
+                // Also clear the token
+                ClearToken();
             }
         }
     }
@@ -168,9 +171,16 @@ public class EmailLoginForm : MonoBehaviour
         Settings.StayLoggedIn = state;
         if (!state)
         {
-            PlayerPrefs.DeleteKey(UNISAVE_EMAIL_STR);
-            PlayerPrefs.DeleteKey(UNISAVE_TOKEN_STR);
+            ClearToken();
         }
     }
+
+    public void ClearToken()
+    {
+        PlayerPrefs.DeleteKey(UNISAVE_EMAIL_STR);
+        PlayerPrefs.DeleteKey(UNISAVE_TOKEN_STR);
+        PlayerPrefs.Save();
+    }
+
 }
 
