@@ -21,7 +21,7 @@ public class ChannelMapManager : MonoBehaviour
     [SerializeField] private TMP_Dropdown _selectionOptionDropdown;
 
     private static Dictionary<string, ChannelMap> _channelMaps;
-    private static Dictionary<string, bool[]> _selectionLayers;
+    private static Dictionary<int, Dictionary<string, bool[]>> _selectionLayers;
 
     #region Unity
 
@@ -31,6 +31,10 @@ public class ChannelMapManager : MonoBehaviour
 
         _channelMaps = new();
         _selectionLayers = new();
+        // Also initialize the selection layer options by probe type
+        _selectionLayers[0] = new();
+        _selectionLayers[21] = new();
+        _selectionLayers[24] = new();
 
         // Set up channel maps
         if (_channelMapAssetRefs.Count != _channelMapNames.Count)
@@ -49,7 +53,7 @@ public class ChannelMapManager : MonoBehaviour
         {
             var boolArrayTask = ConvertSelectionLayer2Bool(_selectionLayerAssetRefs[i]);
             await boolArrayTask;
-            _selectionLayers.Add(_selectionLayerNames[i], boolArrayTask.Result);
+            _selectionLayers[_allowedProbeTypes[i]].Add(_selectionLayerNames[i], boolArrayTask.Result);
         }
     }
 
@@ -64,10 +68,10 @@ public class ChannelMapManager : MonoBehaviour
             throw new System.Exception($"Channel map {channelMapName} does not exist");
     }
 
-    public static bool[] GetSelectionLayer(string selectionLayerName)
+    public static bool[] GetSelectionLayer(int probeType, string selectionLayerName)
     {
-        if (_selectionLayers.ContainsKey(selectionLayerName))
-            return _selectionLayers[selectionLayerName];
+        if (_selectionLayers[probeType].ContainsKey(selectionLayerName))
+            return _selectionLayers[probeType][selectionLayerName];
         else
             throw new System.Exception($"Selection layer name {selectionLayerName} does not exist");
     }
@@ -90,7 +94,7 @@ public class ChannelMapManager : MonoBehaviour
 
     public void SelectionLayerDropdownChanged()
     {
-        ProbeManager.ActiveProbeManager.UpdateChannelMap(_selectionLayers[_selectionLayerNames[_selectionOptionDropdown.value]]);
+        ProbeManager.ActiveProbeManager.UpdateChannelMap(_selectionLayers[((int)ProbeManager.ActiveProbeManager.ProbeType)][_selectionLayerNames[_selectionOptionDropdown.value]]);
     }
 
     #endregion

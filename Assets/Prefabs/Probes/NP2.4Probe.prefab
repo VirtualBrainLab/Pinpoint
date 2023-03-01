@@ -2607,7 +2607,7 @@ MonoBehaviour:
   - {fileID: 3819742175937011324}
   _probeRenderer: {fileID: 7409922654742737101}
   _recRegion: {fileID: 4965682246932661300}
-  _probeType: 4
+  _probeType: 24
   _probeController: {fileID: 897778941437095604}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
   _channelMapName: neuropixel_2.0

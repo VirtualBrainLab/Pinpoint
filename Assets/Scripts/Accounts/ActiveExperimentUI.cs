@@ -58,7 +58,7 @@ public class ActiveExperimentUI : MonoBehaviour
     public void UpdateExperimentInsertionUIPanels()
     {
         // don't bother updating if we are disabled
-        if (!gameObject.activeSelf)
+        if (!gameObject.activeSelf || !_accountsManager.Connected)
             return;
 
         // If the experiment was changed, reset the whole panel

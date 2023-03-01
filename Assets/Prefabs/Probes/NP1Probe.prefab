@@ -1087,7 +1087,7 @@ MonoBehaviour:
   - {fileID: 4368194536080577050}
   _probeRenderer: {fileID: 2762817814583501863}
   _recRegion: {fileID: 991304789899901869}
-  _probeType: 1
+  _probeType: 0
   _probeController: {fileID: 2207803182506741358}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
   _channelMapName: neuropixel_1.0

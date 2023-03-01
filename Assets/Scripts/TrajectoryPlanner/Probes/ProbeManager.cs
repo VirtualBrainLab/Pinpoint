@@ -140,7 +140,7 @@ public class ProbeManager : MonoBehaviour
 
     private AxisControl _axisControl;
     [SerializeField] private int _probeType;
-    public int ProbeType => _probeType;
+    public ProbeProperties.ProbeType ProbeType;
 
     [FormerlySerializedAs("probeController")] [SerializeField] private ProbeController _probeController;
 
@@ -236,6 +236,8 @@ public class ProbeManager : MonoBehaviour
 
     private void Awake()
     {
+        ProbeType = (ProbeProperties.ProbeType)_probeType;
+
         UUID = Guid.NewGuid().ToString();
         UpdateName();
 
@@ -257,7 +259,7 @@ public class ProbeManager : MonoBehaviour
 
         // Get the channel map and selection layer
         ChannelMap = ChannelMapManager.GetChannelMap(_channelMapName);
-        bool[] selectionLayer = ChannelMapManager.GetSelectionLayer("default");
+        bool[] selectionLayer = ChannelMapManager.GetSelectionLayer(_probeType, "default");
         UpdateChannelMap(selectionLayer);
 
         // Pull ephys link communication manager

@@ -113,8 +113,8 @@ public class ProbeUIManager : MonoBehaviour
     private void ProbedMovedHelper()
     {
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
-        var channelCoords = ProbeManager.ActiveProbeManager.GetChannelRangemm();
-        ProbeInsertion insertion = ProbeManager.ActiveProbeManager.GetProbeController().Insertion;
+        var channelCoords = _probeManager.GetChannelRangemm();
+        ProbeInsertion insertion = _probeManager.GetProbeController().Insertion;
 
         Vector3 startCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.startPosmm;
         Vector3 endCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.endPosmm;
@@ -316,5 +316,7 @@ public class ProbeUIManager : MonoBehaviour
 
         probePanelPxHeight = probePanel.GetPanelHeight();
         pxStep = probePanelPxHeight / 10;
+
+        probePanel.ResizeProbePanel(newPxHeight);
     }
 }

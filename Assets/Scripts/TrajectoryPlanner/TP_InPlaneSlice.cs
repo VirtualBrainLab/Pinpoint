@@ -111,8 +111,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         // Calculate the size
 
-        int type = ProbeManager.ActiveProbeManager.ProbeType;
-        bool fourShank = type == 4 || type == 8;
+        bool fourShank = ProbeManager.ActiveProbeManager.ProbeType == ProbeProperties.ProbeType.Neuropixels24;
 
         recordingRegionCenterPosition = fourShank ?
             VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorld * channelRangeCoords.recordingSizemm / 2 + forwardWorld * 0.375f) :

@@ -38,12 +38,6 @@ public class PlayerEntity : Entity
     public string activeExperiment;
 
     /// <summary>
-    /// List of strings, just the experiment names
-    /// </summary>
-    [Fillable]
-    public List<string> Experiments;
-
-    /// <summary>
     /// UUID -> ProbeInsertion
     /// Note that this key list is also the key list that handles 
     /// </summary>
@@ -67,7 +61,6 @@ public class PlayerEntity : Entity
 
     public PlayerEntity()
     {
-        Experiments = new List<string>();
         UUID2InsertionData = new Dictionary<string, ServerProbeInsertion>();
         UUID2Experiment = new Dictionary<string, HashSet<string>>();
         Experiment2UUID = new Dictionary<string, HashSet<string>>();

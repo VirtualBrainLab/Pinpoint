@@ -179,6 +179,7 @@ public class EmailLoginForm : MonoBehaviour
     {
         PlayerPrefs.DeleteKey(UNISAVE_EMAIL_STR);
         PlayerPrefs.DeleteKey(UNISAVE_TOKEN_STR);
+        PlayerPrefs.Save();
     }
 
 }

@@ -108,7 +108,7 @@ public class TP_ProbePanel : MonoBehaviour
         newText.GetComponent<TextMeshProUGUI>().text = areaName;
         newText.GetComponent<TextMeshProUGUI>().fontSize = fontSize;
         _textGOs.Add(newText);
-        newText.transform.localPosition = new Vector3(15, pxHeight);
+        newText.transform.localPosition = new Vector3(-37.5f, pxHeight - _probePanelPxHeight);
     }
 
     public void ResizeProbePanel(int newPxHeight)
