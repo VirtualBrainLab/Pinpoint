@@ -43,12 +43,15 @@ public class APIManager : MonoBehaviour
         Debug.Log("(API) Sending probe data");
 
         // For each probe, get the data string and send it to the request server
+
         foreach (ProbeManager probeManager in ProbeManager.instances)
         {
 
             // add data
-            Debug.Log(probeManager.GetChannelAnnotationIDs());
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(probeManager.GetChannelAnnotationIDs());
+            ProbeDataMessage msg = new ProbeDataMessage(probeManager.GetChannelAnnotationIDs());
+            Debug.Log(msg);
+
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(msg.ToString());
             using (UnityWebRequest www = UnityWebRequest.Put(_probeDataHTTPTarget.text, data))
             {
                 yield return www.SendWebRequest();
@@ -65,4 +68,19 @@ public class APIManager : MonoBehaviour
         }
     }
 #endregion
+}
+
+public class ProbeDataMessage
+{
+    public string text;
+
+    public ProbeDataMessage(string text)
+    {
+        this.text = text;
+    }
+
+    public override string ToString()
+    {
+        return JsonUtility.ToJson(this);
+    }
 }

@@ -481,7 +481,7 @@ public class ProbeManager : MonoBehaviour
         // Get the channel data
         var channelMapData = ChannelMap.GetChannelPositions();
 
-        string data = "probeID ";
+        string[] channelStrings = new string[channelMapData.Count];
 
         // Populate the data string
         Vector3 tipCoordWorldT = _probeController.ProbeTipT.position;
@@ -499,10 +499,12 @@ public class ProbeManager : MonoBehaviour
             int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
             if (ID < 0) ID = -1;
 
-            data += $"{i},{ID};";
+            channelStrings[i] = $"{i},{ID}";
         }
 
-        return data;
+        var returnString = $"example_data {string.Join(";", channelStrings)}";
+
+        return returnString;
     }
 
     public void SetChannelVisibility(bool visible)
