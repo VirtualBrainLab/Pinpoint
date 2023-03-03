@@ -360,7 +360,6 @@ public class DefaultProbeController : ProbeController
             ColliderManager.CheckForCollisions();
 
             // Update all the UI panels
-            ProbeManager.UpdateUI();
             FinishedMovingEvent.Invoke();
         }
     }
@@ -604,7 +603,7 @@ public class DefaultProbeController : ProbeController
 
             ColliderManager.CheckForCollisions();
 
-            ProbeManager.UpdateUI();
+            ProbeManager.UIUpdateEvent.Invoke();
 
             MovedThisFrameEvent.Invoke();
         }
@@ -699,7 +698,7 @@ public class DefaultProbeController : ProbeController
 
         // Tell the tpmanager we moved and update the UI elements
         MovedThisFrameEvent.Invoke();
-        ProbeManager.UpdateUI();
+        ProbeManager.UIUpdateEvent.Invoke();
     }
 
     public override void SetProbePosition(ProbeInsertion localInsertion)
@@ -717,13 +716,13 @@ public class DefaultProbeController : ProbeController
     /// Return the tip coordinates in **un-transformed** world coordinates
     /// </summary>
     /// <returns></returns>
-    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorldU()
+    public override (Vector3 tipCoordWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU()
     {
-        Vector3 tipCoordWorld = WorldT2WorldU(_probeTipT.position);
-        Vector3 tipUpWorld = (WorldT2WorldU(_probeTipT.position + _probeTipT.up) - tipCoordWorld).normalized;
-        Vector3 tipForwardWorld = (WorldT2WorldU(_probeTipT.position + _probeTipT.forward) - tipCoordWorld).normalized;
+        Vector3 tipCoordWorldU = WorldT2WorldU(_probeTipT.position);
+        Vector3 tipUpWorldU = (WorldT2WorldU(_probeTipT.position + _probeTipT.up) - tipCoordWorldU).normalized;
+        Vector3 tipForwardWorldU = (WorldT2WorldU(_probeTipT.position + _probeTipT.forward) - tipCoordWorldU).normalized;
 
-        return (tipCoordWorld, tipUpWorld, tipForwardWorld);
+        return (tipCoordWorldU, tipUpWorldU, tipForwardWorldU);
     }
 
     /// <summary>

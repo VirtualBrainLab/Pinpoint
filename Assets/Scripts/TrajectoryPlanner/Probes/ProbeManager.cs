@@ -35,7 +35,7 @@ public class ProbeManager : MonoBehaviour
 
     #region Events
 
-    public UnityEvent ProbeUIUpdateEvent;
+    public UnityEvent UIUpdateEvent;
     public UnityEvent ActivateProbeEvent;
     public UnityEvent EphysLinkControlChangeEvent;
 
@@ -148,10 +148,9 @@ public class ProbeManager : MonoBehaviour
 
     private Dictionary<GameObject, Material> defaultMaterials;
 
-    // Channel map
+    #region Channel map
     [SerializeField] private string _channelMapName;
-    private bool[] _channelSelection;
-    private List<Vector3> _channelCoords;
+    public string SelectionLayerName { get; private set; }
     private float _channelMinY;
     private float _channelMaxY;
     /// <summary>
@@ -159,12 +158,13 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public (float, float) GetChannelMinMaxYCoord { get { return (_channelMinY, _channelMaxY); } }
     public ChannelMap ChannelMap { get; private set; }
+    #endregion
 
     // Probe position data
-    private Vector3 _tipCoordU;
-    private Vector3 _endCoordU;
+    private Vector3 _recRegionBaseCoordU;
+    private Vector3 _recRegionTopCoordU;
 
-    public (Vector3 tipCoordU, Vector3 endCoordU) ProbeCoordsWorldU { get { return (_tipCoordU, _endCoordU); }} 
+    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU { get { return (_recRegionBaseCoordU, _recRegionTopCoordU); }} 
 
     // Text
     private const float minPhi = -180;
@@ -258,9 +258,8 @@ public class ProbeManager : MonoBehaviour
         _probeController.Register(this);
 
         // Get the channel map and selection layer
-        ChannelMap = ChannelMapManager.GetChannelMap(_channelMapName);
-        bool[] selectionLayer = ChannelMapManager.GetSelectionLayer(_probeType, "default");
-        UpdateChannelMap(selectionLayer);
+        ChannelMap = ChannelMapManager.GetChannelMap(ProbeType);
+        SelectionLayerName = "default";
 
         // Pull ephys link communication manager
         _ephysLinkCommunicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
@@ -279,6 +278,8 @@ public class ProbeManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"(ProbeManager) New probe created with UUID: {UUID}");
 #endif
+
+        UpdateSelectionLayer(SelectionLayerName);
     }
 
     /// <summary>
@@ -322,10 +323,10 @@ public class ProbeManager : MonoBehaviour
         else
         {
             ColliderManager.AddProbeColliderInstances(_probeColliders, false);
-            ProbeUIUpdateEvent.RemoveAllListeners();
+            UIUpdateEvent.RemoveAllListeners();
         }
 
-        ProbeUIUpdateEvent.Invoke();
+        UIUpdateEvent.Invoke();
         _probeController.MovedThisFrameEvent.Invoke();
     }
 
@@ -354,13 +355,6 @@ public class ProbeManager : MonoBehaviour
         _probeController.SetProbePosition(new ProbeInsertion(originalInsertion.apmldv, originalInsertion.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform));
     }
 
-    public void UpdateUI()
-    {
-        // Reset our probe UI panels
-        foreach (ProbeUIManager puimanager in _probeUIManagers)
-            puimanager.ProbeMoved();
-    }
-
     public void SetUIVisibility(bool state)
     {
         foreach (ProbeUIManager puimanager in _probeUIManagers)
@@ -372,7 +366,7 @@ public class ProbeManager : MonoBehaviour
     {
         UUID = newUUID;
         UpdateName();
-        ProbeUIUpdateEvent.Invoke();
+        UIUpdateEvent.Invoke();
     }
 
     /// <summary>
@@ -394,14 +388,13 @@ public class ProbeManager : MonoBehaviour
             else
                 name = UUID.Substring(0, 8);
         }
-
-        ProbeUIUpdateEvent.Invoke();
     }
 
     public void OverrideName(string newName)
     {
         _overrideName = newName;
         UpdateName();
+        UIUpdateEvent.Invoke();
     }
 
 
@@ -426,24 +419,29 @@ public class ProbeManager : MonoBehaviour
         // Update the world coordinates for the tip position
         Vector3 startCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.startPosmm;
         Vector3 endCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.endPosmm;
-        _tipCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
-        _endCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
+        _recRegionBaseCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
+        _recRegionTopCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
     }
 
     #region Channel map
     public (float startPosmm, float endPosmm, float recordingSizemm) GetChannelRangemm()
     {
-        if (Settings.RecordingRegionOnly)
-        {
-            (float startPosmm, float endPosmm) = GetChannelMinMaxYCoord;
-            float recordingSizemm = endPosmm - startPosmm;
+        (float startPosmm, float endPosmm) = GetChannelMinMaxYCoord;
+        float recordingSizemm = endPosmm - startPosmm;
 
-            return (startPosmm, endPosmm, recordingSizemm);
-        }
-        else
-        {
-            return (0.2f, 10.2f, 10f);
-        }
+        return (startPosmm, endPosmm, recordingSizemm);
+    }
+
+    public void UpdateSelectionLayer(string selectionLayerName)
+    {
+#if UNITY_EDITOR
+        Debug.Log($"Updating selection layer to {selectionLayerName}");
+#endif
+        SelectionLayerName = selectionLayerName;
+
+        UpdateChannelMap();
+
+        UIUpdateEvent.Invoke();
     }
 
     /// <summary>
@@ -452,14 +450,13 @@ public class ProbeManager : MonoBehaviour
     /// 
     /// Sets channelMinY/channelMaxY in mm
     /// </summary>
-    public void UpdateChannelMap(bool[] selectionLayer)
+    public void UpdateChannelMap()
     {
         _channelMinY = float.MaxValue;
         _channelMaxY = float.MinValue;
 
-        _channelSelection = selectionLayer;
+        var _channelCoords = ChannelMap.GetChannelPositions(SelectionLayerName);
 
-        _channelCoords = ChannelMap.GetChannelPositions(_channelSelection);
         for (int i = 0; i < _channelCoords.Count; i++)
         {
             if (_channelCoords[i].y < _channelMinY)
@@ -470,6 +467,8 @@ public class ProbeManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"Minimum channel coordinate {_channelMinY} max {_channelMaxY}");
 #endif
+        foreach (ProbeUIManager puiManager in _probeUIManagers)
+            puiManager.UpdateChannelMap();
 
         _recRegion.SetSize(_channelMinY, _channelMaxY);
     }
@@ -481,7 +480,7 @@ public class ProbeManager : MonoBehaviour
     public string GetChannelAnnotationIDs()
     {
         // Get the channel data
-        var channelMapData = ChannelMap.GetChannelPositions();
+        var channelMapData = ChannelMap.GetChannelPositions("all");
 
         string[] channelStrings = new string[channelMapData.Count];
 
@@ -593,10 +592,9 @@ public class ProbeManager : MonoBehaviour
     public void ResizeProbePanel(int newPxHeight)
     {
         foreach (ProbeUIManager puimanager in _probeUIManagers)
-        {
             puimanager.ResizeProbePanel(newPxHeight);
-            puimanager.ProbeMoved();
-        }
+
+        UIUpdateEvent.Invoke();
     }
 
 #region Brain surface coordinate
@@ -693,7 +691,7 @@ public class ProbeManager : MonoBehaviour
         // Set states
         IsEphysLinkControlled = register;
         EphysLinkControlChangeEvent.Invoke();
-        ProbeUIUpdateEvent.Invoke();
+        UIUpdateEvent.Invoke();
 
         if (register)
             _ephysLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
@@ -839,10 +837,10 @@ public class ProbeManager : MonoBehaviour
         {
             // We need to calculate the surface coordinate ourselves
             var tipExtensionDirection =
-                IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorld : Vector3.up;
+                IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
 
             var brainSurfaceCoordinate = annotationDataset.FindSurfaceCoordinate(
-                annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorld - tipExtensionDirection * 5),
+                annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
                 annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipExtensionDirection));
 
             if (float.IsNaN(brainSurfaceCoordinate.x))

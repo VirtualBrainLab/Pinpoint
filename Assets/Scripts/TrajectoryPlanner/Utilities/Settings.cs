@@ -43,24 +43,6 @@ public class Settings : MonoBehaviour
         }
     }
 
-    // Display just the recording region, or the entire length of the probe
-    private static bool s_recordingRegionOnly;
-    private const string RECREGION_STR = "recordingregion";
-    private const bool RECREGION_DEFAULT = true;
-    [FormerlySerializedAs("recordingRegionToggle")][SerializeField] private Toggle _recordingRegionToggle;
-    public UnityEvent RecordingRegionOnlyChangedEvent;
-
-    public static bool RecordingRegionOnly
-    {
-        get { return s_recordingRegionOnly; }
-        set
-        {
-            s_recordingRegionOnly = value;
-            PlayerPrefs.SetInt(RECREGION_STR, s_recordingRegionOnly ? 1 : 0);
-            Instance.RecordingRegionOnlyChangedEvent.Invoke();
-        }
-    }
-
     // Convert APML rotation to the probe's axis rotation
     private static bool s_convertAPML2probeAxis;
     private const string APML2PROBE_STR = "apml2probe";
@@ -437,9 +419,6 @@ public class Settings : MonoBehaviour
         // Load preferences from memory and set UI elements
         DetectCollisions = LoadBoolPref(COLLISIONS_STR, COLLISIONS_DEFAULT);
         _collisionsToggle.SetIsOnWithoutNotify(DetectCollisions);
-
-        RecordingRegionOnly = LoadBoolPref(RECREGION_STR, RECREGION_DEFAULT);
-        _recordingRegionToggle.SetIsOnWithoutNotify(RecordingRegionOnly);
 
         ConvertAPML2Probe = LoadBoolPref(APML2PROBE_STR, APML2PROBE_DEFAULT);
         _probeAxisToggle.SetIsOnWithoutNotify(ConvertAPML2Probe);

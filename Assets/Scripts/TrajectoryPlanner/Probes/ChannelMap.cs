@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -11,11 +13,13 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 /// </summary>
 public class ChannelMap
 {
-    public Texture2D ChannelMapTexture { get; private set; }
+    private Dictionary<string, Texture2D> _channelMapTextures;
 
-    private int[] xCoords;
-    private int[] yCoords;
-    private int[] zCoords;
+    private int[] _xCoords;
+    private int[] _yCoords;
+    private int[] _zCoords;
+    private Dictionary<string, bool[]> _selectionLayers;
+    private Dictionary<string, List<Vector3>> _selectionLayerCoords;
 
     // For now, we assume all channels have identical sizes
     private int width;
@@ -35,6 +39,10 @@ public class ChannelMap
     /// <param name="assetAddress"></param>
     public ChannelMap(AssetReference channelMapAsset)
     {
+        _channelMapTextures = new();
+        _selectionLayers = new();
+        _selectionLayerCoords = new();
+
         LoadAsset(channelMapAsset);
     }
 
@@ -52,21 +60,31 @@ public class ChannelMap
 
         // Otherwise set up the x/y/z arrays
         int n = lines.Length - 1;
-        xCoords = new int[n];
-        yCoords = new int[n];
-        zCoords = new int[n];
+        _xCoords = new int[n];
+        _yCoords = new int[n];
+        _zCoords = new int[n];
 
-        // Also set up the blank texture, we'll draw a 1 at each location that has a probe
-        // For now assume this is a Neuropixels probe
-        ChannelMapTexture = new Texture2D(MAP_WIDTH, MAP_HEIGHT, TextureFormat.R8, false); // we'll represent the texture at um scale
-        for (int x = 0; x < MAP_WIDTH; x++)
-            for (int y = 0; y < MAP_HEIGHT; y++)
-                ChannelMapTexture.SetPixel(x, y, Color.black);
-        ChannelMapTexture.wrapMode = TextureWrapMode.Clamp;
-        ChannelMapTexture.filterMode = FilterMode.Point;
+        // parse the header, pulling out the selection layers
+        var header = Regex.Split(lines[0], SPLIT_RE);
 
-        // don't need the header
-        //var header = Regex.Split(lines[0], SPLIT_RE);
+        List<(string name, int index)> selectionLayerInfo = new();
+
+        for (int i = 7; i < header.Length; i++)
+        {
+            Debug.Log($"Adding selection layer {header[i]}");
+            string selectionLayerName = header[i];
+            selectionLayerInfo.Add((selectionLayerName, i));
+
+            _selectionLayers.Add(selectionLayerName, new bool[n]);
+
+            Texture2D mapTexture = new Texture2D(MAP_WIDTH, MAP_HEIGHT, TextureFormat.R8, false);
+            for (int x = 0; x < MAP_WIDTH; x++)
+                for (int y = 0; y < MAP_HEIGHT; y++)
+                    mapTexture.SetPixel(x, y, Color.black);
+            mapTexture.wrapMode = TextureWrapMode.Clamp;
+            mapTexture.filterMode = FilterMode.Point;
+            _channelMapTextures.Add(selectionLayerName, mapTexture);
+        }
 
         for (var i = 1; i < lines.Length; i++)
         {
@@ -84,44 +102,65 @@ public class ChannelMap
             int idx = i - 1;
             // we're going to assume for now that electrodes are numbered in order
             // CAUTION: note that the x/y are inverted! In Unity we're using Y to represent "up", but in the channel map X represents up. bad convention
-            xCoords[idx] = int.Parse(values[1], System.Globalization.NumberStyles.Any) + MAP_WIDTH / 2;
-            yCoords[idx] = int.Parse(values[2], System.Globalization.NumberStyles.Any);
-            zCoords[idx] = int.Parse(values[3], System.Globalization.NumberStyles.Any);
+            _xCoords[idx] = int.Parse(values[1], System.Globalization.NumberStyles.Any) + MAP_WIDTH / 2;
+            _yCoords[idx] = int.Parse(values[2], System.Globalization.NumberStyles.Any);
+            _zCoords[idx] = int.Parse(values[3], System.Globalization.NumberStyles.Any);
 
-            // using this channel's x/y/w/h data, set the channel map texture pixels
-            for (int x = xCoords[idx]; x < (xCoords[idx] + width); x++)
-                for (int y = yCoords[idx]; y < (yCoords[idx] + height); y++)
-                    ChannelMapTexture.SetPixel(x, y, Color.red);
+            // For each selection layer, we need to set the channel bool[] and the pixel values
+            foreach (var selectionInfo in selectionLayerInfo)
+                if (int.Parse(values[selectionInfo.index], System.Globalization.NumberStyles.Any) == 1)
+                {
+                    // This row is true, so set the bool[]
+                    _selectionLayers[selectionInfo.name][idx] = true;
+
+                    // Then set the pixels for this electrode
+                    for (int x = _xCoords[idx]; x < (_xCoords[idx] + width); x++)
+                        for (int y = _yCoords[idx]; y < (_yCoords[idx] + height); y++)
+                            _channelMapTextures[selectionInfo.name].SetPixel(x, y, Color.red);
+                }
         }
 
-        ChannelMapTexture.Apply();
+        foreach (Texture2D tex in _channelMapTextures.Values)
+            tex.Apply();
+
+        // build the coordinate lists
+        foreach (string selectionLayerName in _selectionLayers.Keys)
+        {
+            List<Vector3> data = new();
+            bool[] selected = _selectionLayers[selectionLayerName];
+
+            for (int i = 0; i < selected.Length; i++)
+                if (selected[i])
+                    data.Add(new Vector3(_xCoords[i], _yCoords[i], _zCoords[i]));
+
+            _selectionLayerCoords.Add(selectionLayerName, data);
+        }
     }
 
-    public int ChannelCount { get { return xCoords.Length; } }
+    public int ChannelCount { get { return _xCoords.Length; } }
     
-    public List<Vector3> GetChannelPositions()
+    public List<Vector3> GetChannelPositions(string selectionLayer = "default")
     {
-        List<Vector3> data = new();
-
-        for (int i = 0; i < xCoords.Length; i++)
-                data.Add(new Vector3(xCoords[i], yCoords[i], zCoords[i]));
-
-        return data;
-    }
-
-    public List<Vector3> GetChannelPositions(bool[] selected)
-    {
-        List<Vector3> data = new();
-
-        for (int i = 0; i < selected.Length; i++)
-            if (selected[i])
-                data.Add(new Vector3(xCoords[i], yCoords[i], zCoords[i]));
-
-        return data;
+        return _selectionLayerCoords[selectionLayer];
     }
 
     public (float width, float height, float depth) GetChannelScale()
     {
         return (width, height, depth);
+    }
+
+    public Texture2D GetChannelMapTexture(string selectionLayer = "default")
+    {
+        return _channelMapTextures[selectionLayer];
+    }
+
+    public bool[] GetSelected(string selectionLayer = "default")
+    {
+        return _selectionLayers[selectionLayer];
+    }
+
+    public List<string> GetSelectionLayerNames()
+    {
+        return _selectionLayers.Keys.ToList();
     }
 }

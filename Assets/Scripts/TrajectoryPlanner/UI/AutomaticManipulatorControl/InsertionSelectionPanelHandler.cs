@@ -315,7 +315,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     AnnotationDataset.CoordinateSpace.World2Space(SelectedTargetInsertion[ProbeManager.ManipulatorId]
                         .PositionWorldU()),
                     AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(ProbeManager.GetProbeController()
-                        .GetTipWorldU().tipUpWorld));
+                        .GetTipWorldU().tipUpWorldU));
                 var brainSurfaceWorld = AnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
                 var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
 

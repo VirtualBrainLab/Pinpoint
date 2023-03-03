@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -12,110 +13,71 @@ public class ChannelMapManager : MonoBehaviour
     // TODO: All of these files that are being loaded as asset refs could be converted to assets in advance and then loaded as assets at runtime
     // scriptable objects?
 
-    [SerializeField] private List<AssetReference> _channelMapAssetRefs;
-    [SerializeField] private List<string> _channelMapNames;
-    [SerializeField] private List<AssetReference> _selectionLayerAssetRefs;
-    [SerializeField] private List<string> _selectionLayerNames;
-    [SerializeField] private List<int> _allowedProbeTypes;
+    [SerializeField] private AssetReference[] _channelMapAssetRefs;
+    [SerializeField] private int[] _channelMapProbeTypes;
 
     [SerializeField] private TMP_Dropdown _selectionOptionDropdown;
 
-    private static Dictionary<string, ChannelMap> _channelMaps;
-    private static Dictionary<int, Dictionary<string, bool[]>> _selectionLayers;
+    private static Dictionary<ProbeProperties.ProbeType, ChannelMap> _channelMaps;
 
     #region Unity
 
-    private async void Awake()
+    private void Awake()
     {
         Instance = this;
 
         _channelMaps = new();
-        _selectionLayers = new();
-        // Also initialize the selection layer options by probe type
-        _selectionLayers[0] = new();
-        _selectionLayers[21] = new();
-        _selectionLayers[24] = new();
 
         // Set up channel maps
-        if (_channelMapAssetRefs.Count != _channelMapNames.Count)
+        if (_channelMapAssetRefs.Length != _channelMapProbeTypes.Length)
             throw new System.Exception("(ChannelMapManager) Asset references must match number of names");
 
-        for (int i = 0; i < _channelMapAssetRefs.Count; i++)
+        for (int i = 0; i < _channelMapAssetRefs.Length; i++)
         {
-            _channelMaps.Add(_channelMapNames[i], new ChannelMap(_channelMapAssetRefs[i]));
-        }
-
-        // Set up selection layer dictionary
-        if (_selectionLayerAssetRefs.Count != _selectionLayerNames.Count)
-            throw new System.Exception("(ChannelMapManager) Select layer references must match number of names");
-
-        for (int i = 0; i < _selectionLayerAssetRefs.Count; i++)
-        {
-            var boolArrayTask = ConvertSelectionLayer2Bool(_selectionLayerAssetRefs[i]);
-            await boolArrayTask;
-            _selectionLayers[_allowedProbeTypes[i]].Add(_selectionLayerNames[i], boolArrayTask.Result);
+            _channelMaps.Add((ProbeProperties.ProbeType)_channelMapProbeTypes[i], new ChannelMap(_channelMapAssetRefs[i]));
         }
     }
 
     #endregion
 
     #region Public
-    public static ChannelMap GetChannelMap(string channelMapName)
+    public static ChannelMap GetChannelMap(ProbeProperties.ProbeType probeType)
     {
-        if (_channelMaps.ContainsKey(channelMapName))
-            return _channelMaps[channelMapName];
+        if (_channelMaps.ContainsKey(probeType))
+            return _channelMaps[probeType];
         else
-            throw new System.Exception($"Channel map {channelMapName} does not exist");
-    }
-
-    public static bool[] GetSelectionLayer(int probeType, string selectionLayerName)
-    {
-        if (_selectionLayers[probeType].ContainsKey(selectionLayerName))
-            return _selectionLayers[probeType][selectionLayerName];
-        else
-            throw new System.Exception($"Selection layer name {selectionLayerName} does not exist");
+            throw new System.Exception($"Channel map {(int)probeType} does not exist");
     }
 
     public static void UpdateSelectionDropdown()
     {
         // Filter the list of selection layers by the active probe type
-        List<int> matchingIndexes = Instance._allowedProbeTypes.FindAll((x) => x.Equals(ProbeManager.ActiveProbeManager.ProbeType));
-
-        var opts = new List<TMP_Dropdown.OptionData>();
-
-        foreach (int idx in matchingIndexes)
+        if (ProbeManager.ActiveProbeManager != null)
         {
-            opts.Add(new TMP_Dropdown.OptionData(Instance._selectionLayerNames[idx]));
-        }
+            ChannelMap activeChannelMap = ProbeManager.ActiveProbeManager.ChannelMap;
+            List<string> selectionLayerNames = activeChannelMap.GetSelectionLayerNames();
 
-        Instance._selectionOptionDropdown.options = opts;
-        Instance._selectionOptionDropdown.SetValueWithoutNotify(0);
+            int activeDropdownIdx = 0;
+            var opts = new List<TMP_Dropdown.OptionData>();
+
+            for (int i = 0; i < selectionLayerNames.Count; i++)
+            {
+                string selectionLayerName = selectionLayerNames[i];
+                opts.Add(new TMP_Dropdown.OptionData(selectionLayerName));
+                if (selectionLayerName.Equals(ProbeManager.ActiveProbeManager.SelectionLayerName))
+                    activeDropdownIdx = i;
+            }
+
+            Instance._selectionOptionDropdown.options = opts;
+            Instance._selectionOptionDropdown.SetValueWithoutNotify(activeDropdownIdx);
+        }
+        else
+            Instance._selectionOptionDropdown.ClearOptions();
     }
 
     public void SelectionLayerDropdownChanged()
     {
-        ProbeManager.ActiveProbeManager.UpdateChannelMap(_selectionLayers[((int)ProbeManager.ActiveProbeManager.ProbeType)][_selectionLayerNames[_selectionOptionDropdown.value]]);
-    }
-
-    #endregion
-
-    #region Private
-
-    private async Task<bool[]> ConvertSelectionLayer2Bool(AssetReference selectionLayerAssetRef)
-    {
-        // Load the asset CSV file
-        AsyncOperationHandle<TextAsset> loadHandler = Addressables.LoadAssetAsync<TextAsset>(selectionLayerAssetRef);
-        await loadHandler.Task;
-
-        string[] separated = loadHandler.Result.text.Split(' ');
-
-        bool[] selected = new bool[separated.Length];
-        for (int i = 0; i < separated.Length; i++)
-        {
-            selected[i] = int.Parse(separated[i]) == 1;
-        }
-
-        return selected;
+        ProbeManager.ActiveProbeManager.UpdateSelectionLayer(_selectionOptionDropdown.options[_selectionOptionDropdown.value].text);
     }
 
     #endregion

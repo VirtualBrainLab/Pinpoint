@@ -97,13 +97,6 @@ namespace TrajectoryPlanner
 
         Task annotationDatasetLoadTask;
 
-        // Track all input fields
-        private TMP_InputField[] _allInputFields;
-
-        // Track coen probe
-        private EightShankProbeControl _coenProbe;
-
-
         #region Unity
         private void Awake()
         {
@@ -212,9 +205,6 @@ namespace TrajectoryPlanner
 
                 _accountsManager.UpdateProbeData();
             }
-
-            if (_coenProbe != null && _coenProbe.MovedThisFrame)
-                ProbeManager.ActiveProbeManager.UpdateUI();
         }
 
         public void SetMovedThisFrame()
@@ -472,7 +462,7 @@ namespace TrajectoryPlanner
 
             UpdateQuickSettingsProbeIdText();
 
-            newProbeManager.ProbeUIUpdateEvent.AddListener(UpdateQuickSettings);
+            newProbeManager.UIUpdateEvent.AddListener(UpdateQuickSettings);
             newProbeManager.GetProbeController().MovedThisFrameEvent.AddListener(SetMovedThisFrame);
 
             // Add listener for SetActiveProbe
@@ -709,11 +699,10 @@ namespace TrajectoryPlanner
 
         #endregion
 
-        public void MoveAllProbes()
+        public void UpdateAllProbeUI()
         {
-            foreach (ProbeManager probeController in ProbeManager.instances)
-                foreach (ProbeUIManager puimanager in probeController.GetComponents<ProbeUIManager>())
-                    puimanager.ProbeMoved();        
+            foreach (ProbeManager probeManager in ProbeManager.instances)
+                probeManager.UIUpdateEvent.Invoke();
         }
 
         ///
@@ -782,7 +771,7 @@ namespace TrajectoryPlanner
             if (ProbeManager.ActiveProbeManager != null)
                 ProbeManager.ActiveProbeManager.CheckProbeTransformState();
 
-            MoveAllProbes();
+            UpdateAllProbeUI();
         }
 
         #endregion

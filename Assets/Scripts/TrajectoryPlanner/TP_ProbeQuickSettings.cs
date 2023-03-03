@@ -61,7 +61,7 @@ namespace TrajectoryPlanner
             {
                 gameObject.SetActive(true);
 
-                ProbeManager.ActiveProbeManager.ProbeUIUpdateEvent.AddListener(UpdateProbeIdText);
+                ProbeManager.ActiveProbeManager.UIUpdateEvent.AddListener(UpdateProbeIdText);
 
                 UpdateProbeIdText();
 
