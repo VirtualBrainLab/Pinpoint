@@ -41,11 +41,12 @@ public class ProbeManager : MonoBehaviour
 
     #endregion
 
+
+    #region Ephys Link
+
     // Internal flags that track whether we are in manual control or drag/link control mode
     public bool IsEphysLinkControlled { get; private set; }
     // ReSharper disable once InconsistentNaming
-
-    #region Ephys Link
 
     private CommunicationManager _ephysLinkCommunicationManager;
 
@@ -1014,4 +1015,58 @@ public class ProbeManager : MonoBehaviour
     }
 
 #endregion
+}
+
+[Serializable]
+public class ProbeData
+{
+    // ProbeInsertion
+    public Vector3 APMLDV;
+    public Vector3 Angles;
+
+    // CoordinateSpace/Transform
+    public string CoordSpaceName;
+    public string CoordTransformName;
+    public Vector4 ZeroCoordOffset;
+
+    // ChannelMap
+    public string SelectionLayerName;
+
+    // Data
+    public int Type;
+    public Color Color;
+    public string UUID;
+    public string Name;
+
+    // Ephys Link
+    public string ManipulatordID;
+    public float BrainSurfaceOffset;
+    public bool Drop2SurfaceWithDepth;
+
+    public static ProbeData ProbeManager2ProbeData(ProbeManager probeManager)
+    {
+        ProbeData data = new ProbeData();
+
+        ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
+
+        data.APMLDV = insertion.apmldv;
+        data.Angles = insertion.angles;
+
+        data.CoordSpaceName = insertion.CoordinateSpace.Name;
+        data.CoordTransformName = insertion.CoordinateTransform.Name;
+        data.ZeroCoordOffset = probeManager.ZeroCoordinateOffset;
+
+        data.SelectionLayerName = probeManager.SelectionLayerName;
+
+        data.Type = (int)probeManager.ProbeType;
+        data.Color = probeManager.GetColor();
+        data.UUID = probeManager.UUID;
+        data.Name = probeManager.name;
+
+        data.ManipulatordID = probeManager.ManipulatorId;
+        data.BrainSurfaceOffset = probeManager.BrainSurfaceOffset;
+        data.Drop2SurfaceWithDepth = probeManager.IsSetToDropToSurfaceWithDepth;
+
+        return data;
+    }
 }

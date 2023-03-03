@@ -85,7 +85,7 @@ public class ServerProbeInsertion
     public bool recorded;
     public string UUID;
     public float[] color;
-
+    
     public ServerProbeInsertion() { }
 
     public ServerProbeInsertion(string name, float ap, float ml, float dv, float phi, float theta, float spin,

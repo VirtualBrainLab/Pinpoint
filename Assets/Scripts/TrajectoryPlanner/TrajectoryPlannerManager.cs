@@ -214,46 +214,6 @@ namespace TrajectoryPlanner
 
         #endregion
 
-        public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
-        {
-            await annotationDatasetLoadTask;
-
-            if (_qDialogue)
-            {
-                if (UnityEngine.PlayerPrefs.GetInt("probecount", 0) > 0)
-                {
-                    var questionString = Settings.IsEphysLinkDataExpired()
-                        ? "Load previously saved probes?"
-                        : "Restore previous session?";
-
-                    _qDialogue.SetYesCallback(LoadSavedProbes);
-                    _qDialogue.NewQuestion(questionString);
-                }
-            }
-        }
-
-        private void LoadSavedProbes()
-        {
-            var savedProbes = Settings.LoadSavedProbeData();
-
-            foreach (var savedProbe in savedProbes)
-            {
-                // Don't duplicate probes by accident
-                if (!ProbeManager.instances.Any(x => x.UUID.Equals(savedProbe.uuid)))
-                {
-                    var probeInsertion = new ProbeInsertion(savedProbe.apmldv, savedProbe.angles,
-                        coordinateSpaceOpts[savedProbe.coordinateSpaceName], coordinateTransformOpts[savedProbe.coordinateTransformName]);
-
-                    ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)savedProbe.type, probeInsertion,
-                        savedProbe.manipulatorId, savedProbe.zeroCoordinateOffset, savedProbe.brainSurfaceOffset,
-                        savedProbe.dropToSurfaceWithDepth, savedProbe.uuid);
-                    newProbeManager.SetColor(savedProbe.color);
-                }
-            }
-
-            UpdateQuickSettings();
-        }
-
         public Task GetAnnotationDatasetLoadedTask()
         {
             return annotationDatasetLoadTask;
@@ -431,6 +391,10 @@ namespace TrajectoryPlanner
 
         #region Add Probe Functions
 
+        /// <summary>
+        /// Used in the editor when the add probe buttons are clicked in the scene
+        /// </summary>
+        /// <param name="probeType">Probe type parameter (e.g. 0/21/24 for neuropixels)</param>
         public void AddNewProbeVoid(int probeType)
         {
             AddNewProbe((ProbeProperties.ProbeType) probeType);
@@ -854,31 +818,67 @@ namespace TrajectoryPlanner
             _surfaceDebugGo.transform.position = worldPosition;
         }
 
+        #region Save and load probes on quit
+
         private void OnApplicationQuit()
         {
             var nonGhostProbeManagers = ProbeManager.instances.Where(manager => !manager.IsGhost).ToList();
-            var probeCoordinates =
-                new (Vector3 apmldv, Vector3 angles, 
-                int type, string manipulatorId,
-                string coordinateSpace, string coordinateTransform,
-                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-                Color color,
-                string uuid)[nonGhostProbeManagers.Count];
+            string[] data = new string[nonGhostProbeManagers.Count];
 
             for (int i =0; i< nonGhostProbeManagers.Count; i++)
             {
                 ProbeManager probe = nonGhostProbeManagers[i];
-                ProbeInsertion probeInsertion = probe.GetProbeController().Insertion;
-                probeCoordinates[i] = (probeInsertion.apmldv, 
-                    probeInsertion.angles,
-                    (int)probe.ProbeType, probe.ManipulatorId,
-                    probeInsertion.CoordinateSpace.Name, probeInsertion.CoordinateTransform.Name,
-                    probe.ZeroCoordinateOffset, probe.BrainSurfaceOffset, probe.IsSetToDropToSurfaceWithDepth,
-                    probe.GetColor(),
-                    probe.UUID);
+                data[i] = JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probe));
             }
-            Settings.SaveCurrentProbeData(probeCoordinates);
+            Settings.SaveCurrentProbeData(data);
         }
+
+        public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
+        {
+            await annotationDatasetLoadTask;
+
+            if (_qDialogue)
+            {
+                if (PlayerPrefs.GetInt("probecount", 0) > 0)
+                {
+                    var questionString = Settings.IsEphysLinkDataExpired()
+                        ? "Load previously saved probes?"
+                        : "Restore previous session?";
+
+                    _qDialogue.SetYesCallback(LoadSavedProbes);
+                    _qDialogue.NewQuestion(questionString);
+                }
+            }
+        }
+
+        private void LoadSavedProbes()
+        {
+            var savedProbes = Settings.LoadSavedProbeData();
+
+            foreach (var savedProbe in savedProbes)
+            {
+                ProbeData probeData = JsonUtility.FromJson<ProbeData>(savedProbe);
+
+                // Don't duplicate probes by accident
+                if (!ProbeManager.instances.Any(x => x.UUID.Equals(probeData.UUID)))
+                {
+                    var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
+                        coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
+
+                    ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
+                        probeData.ManipulatordID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                        probeData.Drop2SurfaceWithDepth, probeData.UUID);
+
+                    newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
+                    newProbeManager.OverrideName(probeData.Name);
+                    newProbeManager.SetColor(probeData.Color);
+                }
+            }
+
+            UpdateQuickSettings();
+        }
+
+        #endregion
 
         #region Mesh centers
 
