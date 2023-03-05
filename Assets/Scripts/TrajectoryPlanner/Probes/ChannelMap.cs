@@ -15,16 +15,16 @@ public class ChannelMap
 {
     private Dictionary<string, Texture2D> _channelMapTextures;
 
-    private int[] _xCoords;
-    private int[] _yCoords;
-    private int[] _zCoords;
+    private float[] _xCoords;
+    private float[] _yCoords;
+    private float[] _zCoords;
     private Dictionary<string, bool[]> _selectionLayers;
     private Dictionary<string, List<Vector3>> _selectionLayerCoords;
 
     // For now, we assume all channels have identical sizes
-    private int width;
-    private int height;
-    private int depth;
+    private float width;
+    private float height;
+    private float depth;
 
     static string SPLIT_RE = @",(?=(?:[^""]*""[^""]*"")*(?![^""]*""))";
     static string LINE_SPLIT_RE = @"\r\n|\n\r|\n|\r";
@@ -60,9 +60,9 @@ public class ChannelMap
 
         // Otherwise set up the x/y/z arrays
         int n = lines.Length - 1;
-        _xCoords = new int[n];
-        _yCoords = new int[n];
-        _zCoords = new int[n];
+        _xCoords = new float[n];
+        _yCoords = new float[n];
+        _zCoords = new float[n];
 
         // parse the header, pulling out the selection layers
         var header = Regex.Split(lines[0], SPLIT_RE);
@@ -94,17 +94,16 @@ public class ChannelMap
             if (i == 1)
             {
                 // Set the fixed w/h/d from the first channel
-                width = int.Parse(values[4], System.Globalization.NumberStyles.Any);
-                height = int.Parse(values[5], System.Globalization.NumberStyles.Any);
-                depth = int.Parse(values[6], System.Globalization.NumberStyles.Any);
+                width = float.Parse(values[4], System.Globalization.NumberStyles.Any);
+                height = float.Parse(values[5], System.Globalization.NumberStyles.Any);
+                depth = float.Parse(values[6], System.Globalization.NumberStyles.Any);
             }
 
             int idx = i - 1;
             // we're going to assume for now that electrodes are numbered in order
-            // CAUTION: note that the x/y are inverted! In Unity we're using Y to represent "up", but in the channel map X represents up. bad convention
-            _xCoords[idx] = int.Parse(values[1], System.Globalization.NumberStyles.Any) + MAP_WIDTH / 2;
-            _yCoords[idx] = int.Parse(values[2], System.Globalization.NumberStyles.Any);
-            _zCoords[idx] = int.Parse(values[3], System.Globalization.NumberStyles.Any);
+            _xCoords[idx] = float.Parse(values[1], System.Globalization.NumberStyles.Any) + MAP_WIDTH / 2;
+            _yCoords[idx] = float.Parse(values[2], System.Globalization.NumberStyles.Any);
+            _zCoords[idx] = float.Parse(values[3], System.Globalization.NumberStyles.Any);
 
             // For each selection layer, we need to set the channel bool[] and the pixel values
             foreach (var selectionInfo in selectionLayerInfo)
@@ -114,8 +113,8 @@ public class ChannelMap
                     _selectionLayers[selectionInfo.name][idx] = true;
 
                     // Then set the pixels for this electrode
-                    for (int x = _xCoords[idx]; x < (_xCoords[idx] + width); x++)
-                        for (int y = _yCoords[idx]; y < (_yCoords[idx] + height); y++)
+                    for (int x = Mathf.RoundToInt(_xCoords[idx]); x < (_xCoords[idx] + width); x++)
+                        for (int y = Mathf.RoundToInt(_yCoords[idx]); y < (_yCoords[idx] + height); y++)
                             _channelMapTextures[selectionInfo.name].SetPixel(x, y, Color.red);
                 }
         }
@@ -144,9 +143,9 @@ public class ChannelMap
         return _selectionLayerCoords[selectionLayer];
     }
 
-    public (float width, float height, float depth) GetChannelScale()
+    public Vector3 GetChannelScale()
     {
-        return (width, height, depth);
+        return new Vector3(width, height, depth);
     }
 
     public Texture2D GetChannelMapTexture(string selectionLayer = "default")

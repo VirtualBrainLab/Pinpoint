@@ -25,6 +25,14 @@ MonoBehaviour:
     m_Address: Assets/AddressableAssets/Probes/neuropixels_2.csv
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 84c32c4b155cbd54686f0eac3b733445
+    m_Address: Assets/AddressableAssets/Probes/ucla_128k.csv
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 746edc61d33840c428494b7abde3bf97
+    m_Address: Assets/AddressableAssets/Probes/ucla_256f.csv
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
   m_SchemaSet:

@@ -39,7 +39,6 @@ namespace TrajectoryPlanner
 
         // Settings
         [FormerlySerializedAs("probePrefabs")] [SerializeField] private List<GameObject> _probePrefabs;
-        [FormerlySerializedAs("probePrefabIDs")] [SerializeField] private List<int> _probePrefabIDs;
         [FormerlySerializedAs("ccfCollider")] [SerializeField] private Collider _ccfCollider;
         [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
 
@@ -413,7 +412,7 @@ namespace TrajectoryPlanner
             if (visibleProbePanels >= 16)
                 return null;
 
-            GameObject newProbe = Instantiate(_probePrefabs[_probePrefabIDs.FindIndex(x => x == (int)probeType)], _probeParentT);
+            GameObject newProbe = Instantiate(_probePrefabs.Find(x => x.GetComponent<ProbeManager>().ProbeType == probeType), _probeParentT);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
 
             if (UUID != null)

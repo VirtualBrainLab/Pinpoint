@@ -29,7 +29,7 @@ public class ProbeUIManager : MonoBehaviour
     /// <summary>
     /// Area that this probe goes through covering the most pixels
     /// </summary>
-    public string MaxArea;
+    public string MaxArea { get; private set; }
 
     private void Awake()
     {

@@ -140,7 +140,6 @@ public class ProbeManager : MonoBehaviour
     [SerializeField] private RecordingRegion _recRegion;
 
     private AxisControl _axisControl;
-    [SerializeField] private int _probeType;
     public ProbeProperties.ProbeType ProbeType;
 
     [FormerlySerializedAs("probeController")] [SerializeField] private ProbeController _probeController;
@@ -150,7 +149,6 @@ public class ProbeManager : MonoBehaviour
     private Dictionary<GameObject, Material> defaultMaterials;
 
     #region Channel map
-    [SerializeField] private string _channelMapName;
     public string SelectionLayerName { get; private set; }
     private float _channelMinY;
     private float _channelMaxY;
@@ -237,8 +235,6 @@ public class ProbeManager : MonoBehaviour
 
     private void Awake()
     {
-        ProbeType = (ProbeProperties.ProbeType)_probeType;
-
         UUID = Guid.NewGuid().ToString();
         UpdateName();
 
@@ -456,14 +452,15 @@ public class ProbeManager : MonoBehaviour
         _channelMinY = float.MaxValue;
         _channelMaxY = float.MinValue;
 
-        var _channelCoords = ChannelMap.GetChannelPositions(SelectionLayerName);
+        var channelCoords = ChannelMap.GetChannelPositions(SelectionLayerName);
+        Vector3 channelScale = ChannelMap.GetChannelScale();
 
-        for (int i = 0; i < _channelCoords.Count; i++)
+        for (int i = 0; i < channelCoords.Count; i++)
         {
-            if (_channelCoords[i].y < _channelMinY)
-                _channelMinY = _channelCoords[i].y / 1000f; // coordinates are in um, so divide to mm
-            if (_channelCoords[i].y > _channelMaxY)
-                _channelMaxY = _channelCoords[i].y / 1000f;
+            if (channelCoords[i].y < _channelMinY)
+                _channelMinY = channelCoords[i].y / 1000f; // coordinates are in um, so divide to mm
+            if (channelCoords[i].y > _channelMaxY)
+                _channelMaxY = channelCoords[i].y / 1000f + channelScale.y / 1000f;
         }
 #if UNITY_EDITOR
         Debug.Log($"Minimum channel coordinate {_channelMinY} max {_channelMaxY}");

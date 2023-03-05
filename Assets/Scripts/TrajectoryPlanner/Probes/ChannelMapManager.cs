@@ -14,7 +14,7 @@ public class ChannelMapManager : MonoBehaviour
     // scriptable objects?
 
     [SerializeField] private AssetReference[] _channelMapAssetRefs;
-    [SerializeField] private int[] _channelMapProbeTypes;
+    [SerializeField] private ProbeProperties.ProbeType[] _channelMapProbeTypes;
 
     [SerializeField] private TMP_Dropdown _selectionOptionDropdown;
 
@@ -34,7 +34,7 @@ public class ChannelMapManager : MonoBehaviour
 
         for (int i = 0; i < _channelMapAssetRefs.Length; i++)
         {
-            _channelMaps.Add((ProbeProperties.ProbeType)_channelMapProbeTypes[i], new ChannelMap(_channelMapAssetRefs[i]));
+            _channelMaps.Add(_channelMapProbeTypes[i], new ChannelMap(_channelMapAssetRefs[i]));
         }
     }
 

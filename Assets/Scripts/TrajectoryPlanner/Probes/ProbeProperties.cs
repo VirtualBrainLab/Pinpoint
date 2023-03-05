@@ -24,7 +24,10 @@ public class ProbeProperties
     {
         Neuropixels1 = 0,
         Neuropixels21 = 21,
-        Neuropixels24 = 24
+        Neuropixels24 = 24,
+        Neuropixels24x2 = 28,
+        UCLA128K = 128,
+        UCLA256F = 256
     }
 
     public static Color GetNextProbeColor()

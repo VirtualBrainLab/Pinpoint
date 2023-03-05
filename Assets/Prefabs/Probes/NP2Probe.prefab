@@ -1345,7 +1345,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad1015086aede554a95357c03335db5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ProbeUIUpdateEvent:
+  UIUpdateEvent:
     m_PersistentCalls:
       m_Calls: []
   ActivateProbeEvent:
@@ -1372,10 +1372,9 @@ MonoBehaviour:
   - {fileID: 4456597164778458637}
   _probeRenderer: {fileID: 2814875528045951024}
   _recRegion: {fileID: 70859987927150193}
-  _probeType: 21
+  ProbeType: 21
   _probeController: {fileID: 526263402789444364}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
-  _channelMapName: neuropixel_2.0
 --- !u!114 &526263402789444364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1413,7 +1412,6 @@ MonoBehaviour:
   _probeManager: {fileID: 4456597164778458634}
   _electrodeBase: {fileID: 6172157643229611607}
   _order: 0
-  MaxArea: 
 --- !u!1 &4635550240378812117
 GameObject:
   m_ObjectHideFlags: 0

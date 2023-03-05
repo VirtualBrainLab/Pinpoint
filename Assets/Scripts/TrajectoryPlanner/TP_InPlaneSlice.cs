@@ -111,10 +111,35 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         float recordingSizemmU = Vector3.Distance(startCoordWorldU, endCoordWorldU);
 
-        bool fourShank = ProbeManager.ActiveProbeManager.ProbeType == ProbeProperties.ProbeType.Neuropixels24;
+        // This could be improved by moving this check into a property attached to the probe type in some way
+        bool fourShank = ProbeManager.ActiveProbeManager.ProbeType == ProbeProperties.ProbeType.Neuropixels24
+            || ProbeManager.ActiveProbeManager.ProbeType == ProbeProperties.ProbeType.Neuropixels24x2
+            || ProbeManager.ActiveProbeManager.ProbeType == ProbeProperties.ProbeType.UCLA128K
+            || ProbeManager.ActiveProbeManager.ProbeType == ProbeProperties.ProbeType.UCLA256F;
+
+        // This needs to be improved by making it possible to attach shanks to the shader in some way, instead of relying on this per-shank check to render them properly
+        float shankSpacing = 0f;
+        switch (ProbeManager.ActiveProbeManager.ProbeType)
+        {
+            case ProbeProperties.ProbeType.Neuropixels24:
+                shankSpacing = 0.375f;
+                break;
+
+            case ProbeProperties.ProbeType.Neuropixels24x2:
+                shankSpacing = 0.375f;
+                break;
+
+            case ProbeProperties.ProbeType.UCLA128K:
+                shankSpacing = -0.2f;
+                break;
+
+            case ProbeProperties.ProbeType.UCLA256F:
+                shankSpacing = 0.5f;
+                break;
+        }
 
         recordingRegionCenterPosition = fourShank ?
-            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorldU * recordingSizemmU / 2 + forwardWorldU * 0.375f) :
+            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorldU * recordingSizemmU / 2 + forwardWorldU * shankSpacing) :
             VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorldU * recordingSizemmU / 2);
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
