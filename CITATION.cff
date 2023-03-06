@@ -1,0 +1,13 @@
+cff-version: 1.0.0
+message: "Your citations are critical for making it possible to get grant funding for Pinpoint in the future."
+authors:
+  - family-names: Birman
+    given-names: Daniel
+    orcid: https://orcid.org/0000-0003-3748-6289
+  - family-names: Yang
+    given-names: Kenneth J.
+  - family-names: Steinmetz
+    given-names: Nicholas A.
+title: Pinpoint: multi-probe trajectory planning for electrophysiology using an interactive web-based 3D environment
+version: v0.8.4
+date-released: 2023-02-13
