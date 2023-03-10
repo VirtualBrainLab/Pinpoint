@@ -22,7 +22,7 @@ Mouse brain artwork from https://scidraw.io/drawing/286
 
 # Citing
 
-[![DOI](https://zenodo.org/badge/7109268.svg)](https://doi.org/10.5281/zenodo.7109268)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7637442.svg)](https://doi.org/10.5281/zenodo.7109268)
 
 Your citations are critical for making it possible to get grant funding for Pinpoint in the future.
 
