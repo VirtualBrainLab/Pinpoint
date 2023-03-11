@@ -134,7 +134,7 @@ public class TP_InPlaneSlice : MonoBehaviour
                 break;
 
             case ProbeProperties.ProbeType.UCLA256F:
-                shankSpacing = 0.5f;
+                shankSpacing = -0.5f;
                 break;
         }
 
