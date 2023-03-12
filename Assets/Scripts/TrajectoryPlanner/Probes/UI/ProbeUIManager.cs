@@ -22,7 +22,6 @@ public class ProbeUIManager : MonoBehaviour
     private bool probeMovedDirty = false;
 
     private float probePanelPxHeight;
-    private float pxStep;
 
     private const int MINIMUM_AREA_PIXEL_HEIGHT = 7;
 
@@ -47,7 +46,6 @@ public class ProbeUIManager : MonoBehaviour
         probePanel.RegisterProbeManager(_probeManager);
 
         probePanelPxHeight = probePanel.GetPanelHeight();
-        pxStep = probePanelPxHeight / 10;
 
         GameObject main = GameObject.Find("main");
         modelControl = main.GetComponent<CCFModelControl>();
@@ -161,6 +159,8 @@ public class ProbeUIManager : MonoBehaviour
 
         // Interpolate from the tip to the top, putting this data into the probe panel texture
         (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startApdvlr25, endApdvlr25);
+
+        // Get the percentage height along the probe
 
         // Update probePanel data
         probePanel.SetTipData(startApdvlr25, endApdvlr25, channelCoords.startPosmm /10f, channelCoords.endPosmm/ 10f, channelCoords.recordingSizemm);
@@ -297,7 +297,6 @@ public class ProbeUIManager : MonoBehaviour
         probePanel.ResizeProbePanel(newPxHeight);
 
         probePanelPxHeight = probePanel.GetPanelHeight();
-        pxStep = probePanelPxHeight / 10;
 
         probePanel.ResizeProbePanel(newPxHeight);
     }

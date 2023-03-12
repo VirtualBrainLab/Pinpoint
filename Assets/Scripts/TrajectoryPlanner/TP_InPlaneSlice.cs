@@ -112,39 +112,52 @@ public class TP_InPlaneSlice : MonoBehaviour
         float recordingSizemmU = Vector3.Distance(startCoordWorldU, endCoordWorldU);
 
         // This could be improved by moving this check into a property attached to the probe type in some way
-        bool fourShank = ProbeManager.ActiveProbeManager.ProbeType == ProbeProperties.ProbeType.Neuropixels24
-            || ProbeManager.ActiveProbeManager.ProbeType == ProbeProperties.ProbeType.Neuropixels24x2
-            || ProbeManager.ActiveProbeManager.ProbeType == ProbeProperties.ProbeType.UCLA128K
-            || ProbeManager.ActiveProbeManager.ProbeType == ProbeProperties.ProbeType.UCLA256F;
+        bool fourShank = false;
+        bool twoShank = false;
 
         // This needs to be improved by making it possible to attach shanks to the shader in some way, instead of relying on this per-shank check to render them properly
         float shankSpacing = 0f;
+        float centerOffset = 0f;
+
         switch (ProbeManager.ActiveProbeManager.ProbeType)
         {
             case ProbeProperties.ProbeType.Neuropixels24:
-                shankSpacing = 0.375f;
+                shankSpacing = 0.25f;
+                centerOffset = 1.5f;
+                fourShank = true;
                 break;
 
             case ProbeProperties.ProbeType.Neuropixels24x2:
-                shankSpacing = 0.375f;
+                shankSpacing = 0.25f;
+                centerOffset = 1.5f;
+                fourShank = true;
                 break;
 
             case ProbeProperties.ProbeType.UCLA128K:
                 shankSpacing = -0.2f;
+                centerOffset = 1.5f;
+                fourShank = true;
                 break;
 
             case ProbeProperties.ProbeType.UCLA256F:
                 shankSpacing = -0.5f;
+                centerOffset = 0.5f;
+                twoShank = true;
                 break;
         }
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankSpacing", shankSpacing);
 
-        recordingRegionCenterPosition = fourShank ?
-            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorldU * recordingSizemmU / 2 + forwardWorldU * shankSpacing) :
-            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorldU * recordingSizemmU / 2);
+        Debug.Log((startApdvlr25, endApdvlr25));
+
+        recordingRegionCenterPosition = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + 
+            upWorldU * recordingSizemmU / 2 + 
+            forwardWorldU * shankSpacing * centerOffset);
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);
 
         inPlaneScale = recordingSizemmU * 1.5f * 1000f / 25f * zoomFactor;
+
 
         _gpuSliceRenderer.sharedMaterial.SetVector("_RecordingRegionCenterPosition", recordingRegionCenterPosition);
         _gpuSliceRenderer.sharedMaterial.SetVector("_ForwardDirection", forwardWorldU);
