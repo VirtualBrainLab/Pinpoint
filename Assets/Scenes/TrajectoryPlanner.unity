@@ -1071,6 +1071,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
+    - _TwoShankProbe: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
@@ -1905,15 +1906,15 @@ PrefabInstance:
       objectReference: {fileID: 1703646459}
     - target: {fileID: 341190943836035196, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 341190943836035196, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 341190943836035196, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 169.88
       objectReference: {fileID: 0}
     - target: {fileID: 341190943836276264, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -2009,19 +2010,19 @@ PrefabInstance:
       objectReference: {fileID: 1445581475}
     - target: {fileID: 341190944034978748, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 341190944034978748, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 341190944034978748, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 354.84
       objectReference: {fileID: 0}
     - target: {fileID: 341190944034978748, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -15
       objectReference: {fileID: 0}
     - target: {fileID: 341190944083206642, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_Name
@@ -2213,19 +2214,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 341190944410943211, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 341190944410943211, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 341190944410943211, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 384.91998
       objectReference: {fileID: 0}
     - target: {fileID: 341190944410943211, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -15
       objectReference: {fileID: 0}
     - target: {fileID: 341190944411999430, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
@@ -2888,6 +2889,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1594950975861842643, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_Text
+      value: http://localhost:37497/api/processors/100/config
+      objectReference: {fileID: 0}
+    - target: {fileID: 1594950975861842643, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_OnEndEdit.m_PersistentCalls.m_Calls.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -3235,6 +3240,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -160.57666
       objectReference: {fileID: 0}
+    - target: {fileID: 3261715761765630978, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_text
+      value: http://localhost:37497/api/message
+      objectReference: {fileID: 0}
     - target: {fileID: 3281950704911050635, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0.5
@@ -3299,6 +3308,10 @@ PrefabInstance:
       propertyPath: _editorFocusableGOs.Array.data[1]
       value: 
       objectReference: {fileID: 76833136}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: _editorFocusableInputs.Array.size
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: EditorFocusableInputs.Array.data[0]
       value: 
@@ -3379,6 +3392,10 @@ PrefabInstance:
       propertyPath: _editorFocusableInputs.Array.data[9]
       value: 
       objectReference: {fileID: 444598638}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: _editorFocusableInputs.Array.data[10]
+      value: 
+      objectReference: {fileID: 604468498}
     - target: {fileID: 3538570341407524062, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
