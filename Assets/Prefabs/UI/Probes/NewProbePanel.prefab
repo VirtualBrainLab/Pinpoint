@@ -1007,7 +1007,7 @@ PrefabInstance:
       propertyPath: m_text
       value: 'UCLA
 
-        128K'
+        256F'
       objectReference: {fileID: 0}
     - target: {fileID: 4210081665563304584, guid: f9accd13a2fd7cc4d80b9796ded8f33b, type: 3}
       propertyPath: m_IsActive
