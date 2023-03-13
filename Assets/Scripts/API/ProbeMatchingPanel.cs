@@ -47,10 +47,10 @@ public class ProbeMatchingPanel : MonoBehaviour
 
     public void ClearUI()
     {
-        _dropdownMenus.Clear();
+        _dropdownMenus?.Clear();
 
         for (int i = _matchingPanelParentT.childCount - 1; i >= 0; i--)
-            Destroy(_matchingPanelParentT.GetChild(i));
+            Destroy(_matchingPanelParentT.GetChild(i).gameObject);
     }
 
     /// <summary>

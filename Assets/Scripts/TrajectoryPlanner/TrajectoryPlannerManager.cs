@@ -203,6 +203,8 @@ namespace TrajectoryPlanner
                 _sliceRenderer.UpdateSlicePosition();
 
                 _accountsManager.UpdateProbeData();
+
+                _probesChangedEvent.Invoke();
             }
         }
 
