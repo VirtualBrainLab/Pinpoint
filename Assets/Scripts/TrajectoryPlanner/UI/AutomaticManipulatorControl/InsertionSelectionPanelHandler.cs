@@ -17,7 +17,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         {
             // Update manipulator ID text
             _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
-            _manipulatorIDText.color = ProbeManager.GetColor();
+            _manipulatorIDText.color = ProbeManager.Color;
 
             // Attach to dropdown events
             _shouldUpdateTargetInsertionOptionsEvent.AddListener(UpdateTargetInsertionOptions);

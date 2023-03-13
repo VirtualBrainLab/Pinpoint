@@ -106,7 +106,7 @@ namespace TrajectoryPlanner
         public void UpdateProbeIdText()
         {
             _probeIdText.text = ProbeManager.ActiveProbeManager.name;
-            _probeIdText.color = ProbeManager.ActiveProbeManager.GetColor();
+            _probeIdText.color = ProbeManager.ActiveProbeManager.Color;
         }
 
         private void UpdateAutomaticControlPanel()

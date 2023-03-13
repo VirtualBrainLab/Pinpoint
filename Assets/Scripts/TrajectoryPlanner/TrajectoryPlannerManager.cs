@@ -326,19 +326,16 @@ namespace TrajectoryPlanner
             // Cannot restore a ghost probe, so we set restored to true
             _restoredProbe = isGhost;
 
-            // Return color if not a ghost probe
-            if (probeManager.IsOriginal) ProbeProperties.ReturnProbeColor(probeManager.GetColor());
-
             // Destroy probe
             probeManager.Destroy();
             Destroy(probeManager.gameObject);
 
             // Cleanup UI if this was last probe in scene
-            if (ProbeManager.instances.Count > 0)
+            if (ProbeManager.Instances.Count > 0)
             {
                 if (isActiveProbe)
                 {
-                    SetActiveProbe(ProbeManager.instances[^1]);
+                    SetActiveProbe(ProbeManager.Instances[^1]);
                 }
 
                 if (isGhost)
@@ -485,7 +482,7 @@ namespace TrajectoryPlanner
         {
             visibleProbePanels = 0;
             if (Settings.ShowAllProbePanels)
-                foreach (ProbeManager probeManager in ProbeManager.instances)
+                foreach (ProbeManager probeManager in ProbeManager.Instances)
                     visibleProbePanels += probeManager.GetProbeUIManagers().Count;
             else
                 visibleProbePanels = ProbeManager.ActiveProbeManager != null ? 1 : 0;
@@ -507,7 +504,7 @@ namespace TrajectoryPlanner
                 probePanelParent.cellSize = cellSize;
 
                 // now resize all existing probeUIs to be 720 tall
-                foreach (ProbeManager probeManager in ProbeManager.instances)
+                foreach (ProbeManager probeManager in ProbeManager.Instances)
                 {
                     probeManager.ResizeProbePanel(720);
                 }
@@ -521,7 +518,7 @@ namespace TrajectoryPlanner
                 cellSize.y = 1440;
                 probePanelParent.cellSize = cellSize;
 
-                foreach (ProbeManager probeManager in ProbeManager.instances)
+                foreach (ProbeManager probeManager in ProbeManager.Instances)
                 {
                     probeManager.ResizeProbePanel(1440);
                 }
@@ -539,7 +536,7 @@ namespace TrajectoryPlanner
         public void SetActiveProbe(string UUID)
         {
             // Search for the probemanager corresponding to this UUID
-            foreach (ProbeManager probeManager in ProbeManager.instances)
+            foreach (ProbeManager probeManager in ProbeManager.Instances)
                 if (probeManager.UUID.Equals(UUID))
                 {
                     SetActiveProbe(probeManager);
@@ -567,7 +564,7 @@ namespace TrajectoryPlanner
             ProbeManager.ActiveProbeManager.SetActive(true);
 
             // Change the UI manager visibility and set transparency of probes
-            foreach (ProbeManager probeManager in ProbeManager.instances)
+            foreach (ProbeManager probeManager in ProbeManager.Instances)
             {
                 // Check visibility
                 var isActiveProbe = probeManager == ProbeManager.ActiveProbeManager;
@@ -594,7 +591,7 @@ namespace TrajectoryPlanner
 
         public void OverrideInsertionName(string UUID, string newName)
         {
-            foreach (ProbeManager probeManager in ProbeManager.instances)
+            foreach (ProbeManager probeManager in ProbeManager.Instances)
                 if (probeManager.UUID.Equals(UUID))
                     probeManager.OverrideName(newName);
         }
@@ -664,7 +661,7 @@ namespace TrajectoryPlanner
 
         public void UpdateAllProbeUI()
         {
-            foreach (ProbeManager probeManager in ProbeManager.instances)
+            foreach (ProbeManager probeManager in ProbeManager.Instances)
                 probeManager.UIUpdateEvent.Invoke();
         }
 
@@ -693,7 +690,7 @@ namespace TrajectoryPlanner
 
         public void SetGhostProbeVisibility()
         {
-            foreach (ProbeManager probeManager in ProbeManager.instances)
+            foreach (ProbeManager probeManager in ProbeManager.Instances)
             {
                 if (probeManager == ProbeManager.ActiveProbeManager)
                 {
@@ -711,10 +708,10 @@ namespace TrajectoryPlanner
         public void SetShowAllProbePanels()
         {
             if (Settings.ShowAllProbePanels)
-                foreach (ProbeManager probeManager in ProbeManager.instances)
+                foreach (ProbeManager probeManager in ProbeManager.Instances)
                     probeManager.SetUIVisibility(true);
             else
-                foreach (ProbeManager probeManager in ProbeManager.instances)
+                foreach (ProbeManager probeManager in ProbeManager.Instances)
                     probeManager.SetUIVisibility(ProbeManager.ActiveProbeManager == probeManager);
 
             RecalculateProbePanels();
@@ -773,7 +770,7 @@ namespace TrajectoryPlanner
             // first, sort probes so that np2.4 probes go first
             List<ProbeManager> np24Probes = new List<ProbeManager>();
             List<ProbeManager> otherProbes = new List<ProbeManager>();
-            foreach (ProbeManager pcontroller in ProbeManager.instances)
+            foreach (ProbeManager pcontroller in ProbeManager.Instances)
                 if (pcontroller.ProbeType == ProbeProperties.ProbeType.Neuropixels24)
                     np24Probes.Add(pcontroller);
                 else
@@ -821,7 +818,7 @@ namespace TrajectoryPlanner
 
         private void OnApplicationQuit()
         {
-            var nonGhostProbeManagers = ProbeManager.instances.Where(manager => !manager.IsGhost).ToList();
+            var nonGhostProbeManagers = ProbeManager.Instances.Where(manager => !manager.IsGhost).ToList();
             string[] data = new string[nonGhostProbeManagers.Count];
 
             for (int i =0; i< nonGhostProbeManagers.Count; i++)
@@ -859,7 +856,7 @@ namespace TrajectoryPlanner
                 ProbeData probeData = JsonUtility.FromJson<ProbeData>(savedProbe);
 
                 // Don't duplicate probes by accident
-                if (!ProbeManager.instances.Any(x => x.UUID.Equals(probeData.UUID)))
+                if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
                 {
                     var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
                         coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
@@ -870,7 +867,7 @@ namespace TrajectoryPlanner
 
                     newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
                     newProbeManager.OverrideName(probeData.Name);
-                    newProbeManager.SetColor(probeData.Color);
+                    newProbeManager.Color = probeData.Color;
                 }
             }
 
@@ -958,7 +955,7 @@ namespace TrajectoryPlanner
             if (!visible)
             {
                 // destroy the probe
-                ProbeManager probeManager = ProbeManager.instances.Find(x => x.UUID.Equals(data.UUID));
+                ProbeManager probeManager = ProbeManager.Instances.Find(x => x.UUID.Equals(data.UUID));
                 if (probeManager != null)
                     DestroyProbe(probeManager);
             }
@@ -982,7 +979,7 @@ namespace TrajectoryPlanner
             ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
             if (data.overrideName != null)
                 newProbeManager.OverrideName(data.overrideName);
-            newProbeManager.SetColor(data.color);
+            newProbeManager.Color = data.color;
         }
 
         #endregion

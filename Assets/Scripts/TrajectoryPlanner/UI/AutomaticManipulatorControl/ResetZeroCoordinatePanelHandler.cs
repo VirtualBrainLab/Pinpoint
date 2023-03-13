@@ -12,7 +12,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void Start()
         {
             _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
-            _manipulatorIDText.color = ProbeManager.GetColor();
+            _manipulatorIDText.color = ProbeManager.Color;
         }
         
         #endregion

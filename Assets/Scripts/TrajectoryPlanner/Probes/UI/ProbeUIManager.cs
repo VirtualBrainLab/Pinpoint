@@ -70,7 +70,7 @@ public class ProbeUIManager : MonoBehaviour
 
     public void UpdateColors()
     {
-        defaultColor = _probeManager.GetColor();
+        defaultColor = _probeManager.Color;
         defaultColor.a = 0.5f;
 
         selectedColor = defaultColor;

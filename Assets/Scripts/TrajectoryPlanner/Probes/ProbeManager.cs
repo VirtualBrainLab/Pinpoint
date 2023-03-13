@@ -21,13 +21,13 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
     #region Static fields
-    public static List<ProbeManager> instances = new List<ProbeManager>();
+    public static List<ProbeManager> Instances = new List<ProbeManager>();
     public static ProbeManager ActiveProbeManager;
-    void OnEnable() => instances.Add(this);
+    void OnEnable() => Instances.Add(this);
     void OnDestroy()
     {
-        if (instances.Contains(this))
-            instances.Remove(this);
+        if (Instances.Contains(this))
+            Instances.Remove(this);
     }
 
     public static HashSet<string> RightHandedManipulatorIDs { get; } = Settings.RightHandedManipulatorIds;
@@ -134,17 +134,17 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
     // Exposed fields to collect links to other components inside of the Probe prefab
-    [FormerlySerializedAs("probeColliders")] [SerializeField] private List<Collider> _probeColliders;
-    [FormerlySerializedAs("probeUIManagers")] [SerializeField] private List<ProbeUIManager> _probeUIManagers;
-    [FormerlySerializedAs("probeRenderer")] [SerializeField] private Renderer _probeRenderer;
+    [FormerlySerializedAs("probeColliders")][SerializeField] private List<Collider> _probeColliders;
+    [FormerlySerializedAs("probeUIManagers")][SerializeField] private List<ProbeUIManager> _probeUIManagers;
+    [FormerlySerializedAs("probeRenderer")][SerializeField] private Renderer _probeRenderer;
     [SerializeField] private RecordingRegion _recRegion;
 
     private AxisControl _axisControl;
     public ProbeProperties.ProbeType ProbeType;
 
-    [FormerlySerializedAs("probeController")] [SerializeField] private ProbeController _probeController;
+    [FormerlySerializedAs("probeController")][SerializeField] private ProbeController _probeController;
 
-    [FormerlySerializedAs("ghostMaterial")] [SerializeField] private Material _ghostMaterial;
+    [FormerlySerializedAs("ghostMaterial")][SerializeField] private Material _ghostMaterial;
 
     private Dictionary<GameObject, Material> defaultMaterials;
 
@@ -163,7 +163,7 @@ public class ProbeManager : MonoBehaviour
     private Vector3 _recRegionBaseCoordU;
     private Vector3 _recRegionTopCoordU;
 
-    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU { get { return (_recRegionBaseCoordU, _recRegionTopCoordU); }} 
+    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU { get { return (_recRegionBaseCoordU, _recRegionTopCoordU); } }
 
     // Text
     private const float minPhi = -180;
@@ -179,24 +179,28 @@ public class ProbeManager : MonoBehaviour
     private Vector3 brainSurfaceWorldT;
 
     #region Accessors
-
-    public Color GetColor()
+    public Color Color
     {
-        return _probeRenderer.material.color;
+        get
+        {
+            return _probeRenderer.material.color;
+        }
+
+        set
+        {
+            // try to return the current color
+            ProbeProperties.ReturnProbeColor(_probeRenderer.material.color);
+            // use up the new color (if it's a default color)
+            ProbeProperties.UseColor(value);
+
+            _probeRenderer.material.color = value;
+
+            foreach (ProbeUIManager puiManager in _probeUIManagers)
+                puiManager.UpdateColors();
+        }
     }
 
-    public void SetColor(Color color)
-    {
-        // try to return the current color
-        ProbeProperties.ReturnProbeColor(_probeRenderer.material.color);
-        // use up the new color (if it's a default color)
-        ProbeProperties.UseColor(color);
 
-        _probeRenderer.material.color = color;
-
-        foreach (ProbeUIManager puiManager in _probeUIManagers)
-            puiManager.UpdateColors();
-    }
 
     public void SetLock(bool locked)
     {
@@ -290,10 +294,11 @@ public class ProbeManager : MonoBehaviour
         foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.Destroy();
 
-        instances.Remove(this);
+        Instances.Remove(this);
         GetProbeController().Insertion.Targetable = false;
 
-        ProbeProperties.ReturnProbeColor(GetColor());
+        if (IsOriginal)
+            ProbeProperties.ReturnProbeColor(Color);
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
         
@@ -501,7 +506,7 @@ public class ProbeManager : MonoBehaviour
             channelStrings[i] = $"{i},{ID}";
         }
 
-        var returnString = $"example_data {string.Join(";", channelStrings)}";
+        var returnString = string.Join(";", channelStrings);
 
         return returnString;
     }
@@ -990,7 +995,7 @@ public class ProbeManager : MonoBehaviour
     public void SetMaterialsTransparent()
     {
         Debug.Log($"Setting materials for {name} to transparent");
-        var currentColorTint = new Color(GetColor().r, GetColor().g, GetColor().b, .2f);
+        var currentColorTint = new Color(Color.r, Color.g, Color.b, .2f);
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
             childRenderer.material = _ghostMaterial;
@@ -1056,7 +1061,7 @@ public class ProbeData
         data.SelectionLayerName = probeManager.SelectionLayerName;
 
         data.Type = (int)probeManager.ProbeType;
-        data.Color = probeManager.GetColor();
+        data.Color = probeManager.Color;
         data.UUID = probeManager.UUID;
         data.Name = probeManager.name;
 
