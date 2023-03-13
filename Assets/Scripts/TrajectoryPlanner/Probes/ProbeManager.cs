@@ -1044,6 +1044,9 @@ public class ProbeData
     public string UUID;
     public string Name;
 
+    // API
+    public string APITarget;
+
     // Ephys Link
     public string ManipulatordID;
     public float BrainSurfaceOffset;
@@ -1068,6 +1071,8 @@ public class ProbeData
         data.Color = probeManager.Color;
         data.UUID = probeManager.UUID;
         data.Name = probeManager.name;
+
+        data.APITarget = probeManager.APITarget;
 
         data.ManipulatordID = probeManager.ManipulatorId;
         data.BrainSurfaceOffset = probeManager.BrainSurfaceOffset;

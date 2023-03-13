@@ -49,8 +49,15 @@ public class APIManager : MonoBehaviour
         if (state)
         {
             // If the setting just got turned on we should query the server for "NP INFO" to get the list of active probes
-
+            _probeMatchingPanel.UpdateUI();
             StartCoroutine(GetProbeInfo_OpenEphys());
+        }
+        else
+        {
+            // Reset the timer
+            _dirty = false;
+            _lastDataSend = float.MinValue;
+            _probeMatchingPanel.ClearUI();
         }
     }
 

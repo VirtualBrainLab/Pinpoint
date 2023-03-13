@@ -868,6 +868,7 @@ namespace TrajectoryPlanner
                     newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
                     newProbeManager.OverrideName(probeData.Name);
                     newProbeManager.Color = probeData.Color;
+                    newProbeManager.APITarget = probeData.APITarget;
                 }
             }
 

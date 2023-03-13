@@ -23,15 +23,17 @@ public class ProbeMatchingPanel : MonoBehaviour
     private Dictionary<ProbeManager, ProbeMatchDropdown> _dropdownMenus;
     private List<string> _probeOpts;
 
-    private Dictionary<ProbeManager, string> _probeOptions;
+    private void Awake()
+    {
+        _dropdownMenus = new();
+    }
 
     /// <summary>
     /// Reset the UI to have one prefab for each ProbeManager in the scene
     /// </summary>
     public void UpdateUI()
     {
-        for (int i = _matchingPanelParentT.childCount; i > 0; i--)
-            Destroy(_matchingPanelParentT.GetChild(i));
+        ClearUI();
 
         foreach (ProbeManager probeManager in ProbeManager.Instances)
         {
@@ -41,8 +43,14 @@ public class ProbeMatchingPanel : MonoBehaviour
             ui.Register(probeManager);
             ui.UpdateText(probeManager.name, probeManager.Color);
         }
+    }
 
-        UpdateMatchingPanelOptions();
+    public void ClearUI()
+    {
+        _dropdownMenus.Clear();
+
+        for (int i = _matchingPanelParentT.childCount - 1; i >= 0; i--)
+            Destroy(_matchingPanelParentT.GetChild(i));
     }
 
     /// <summary>

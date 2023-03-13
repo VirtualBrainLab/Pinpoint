@@ -14,14 +14,33 @@ public class ProbeMatchDropdown : MonoBehaviour
     public void Register(ProbeManager probeManager)
     {
         _probeManager = probeManager;
+        _dropdown.onValueChanged.AddListener(DropdownChanged);
     }
 
     public void UpdateDropdown(List<string> opts)
     {
+        // Save the current option
+        string curOption = _dropdown.options[_dropdown.value].text;
+        int curIdx = -1;
+
         List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
-        foreach (string s in opts)
-            options.Add(new Dropdown.OptionData(s));
+
+        for (int i = 0; i < opts.Count; i++)
+        {
+            string opt = opts[i];
+            options.Add(new Dropdown.OptionData(opt));
+            if (opt.Equals(curOption))
+                curIdx = i;
+        }
+
         _dropdown.options = options;
+        if (curIdx >= 0)
+            _dropdown.SetValueWithoutNotify(curIdx);
+        else
+        {
+            _dropdown.SetValueWithoutNotify(0);
+            _probeManager.APITarget = _dropdown.options[0].text;
+        }
     }
 
     public void UpdateText(string text, Color color)
@@ -33,5 +52,6 @@ public class ProbeMatchDropdown : MonoBehaviour
     public void DropdownChanged(int index)
     {
         _probeManager.APITarget = _dropdown.options[index].text;
+        Debug.Log(_probeManager.APITarget);
     }
 }
