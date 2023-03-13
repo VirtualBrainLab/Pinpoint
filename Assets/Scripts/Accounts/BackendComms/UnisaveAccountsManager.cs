@@ -107,7 +107,7 @@ public class UnisaveAccountsManager : AccountsManager
             ServerProbeInsertion data = _player.UUID2InsertionData[UUID];
 
             Debug.Log($"Creating probe {UUID} if active: {data.active}");
-            if (data.active && !ProbeManager.instances.Any(x => x.UUID.Equals(UUID)))
+            if (data.active && !ProbeManager.Instances.Any(x => x.UUID.Equals(UUID)))
                 UpdateCallbackEvent(GetProbeInsertionData(data.UUID), true);
         }
 
@@ -415,7 +415,7 @@ public class UnisaveAccountsManager : AccountsManager
         ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
         Vector3 apmldv = insertion.apmldv;
         Vector3 angles = insertion.angles;
-        Color color = probeManager.GetColor();
+        Color color = probeManager.Color;
 
         ServerProbeInsertion serverProbeInsertion = new ServerProbeInsertion(
             probeManager.name,

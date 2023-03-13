@@ -179,6 +179,9 @@ public class ProbeManager : MonoBehaviour
     private Vector3 brainSurfaceWorldT;
 
     #region Accessors
+
+    public string APITarget { get; set; }
+
     public Color Color
     {
         get
@@ -241,6 +244,7 @@ public class ProbeManager : MonoBehaviour
     {
         UUID = Guid.NewGuid().ToString();
         UpdateName();
+        APITarget = name;
 
         defaultMaterials = new();
         // Request for ID and color if this is a normal probe

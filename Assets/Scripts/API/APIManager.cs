@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Networking;
 
 public class APIManager : MonoBehaviour
 {
+    #region exposed fields
+    [SerializeField] ProbeMatchingPanel _probeMatchingPanel;
+
+    #endregion
+
     #region Probe data variables
     [SerializeField] TMP_InputField _probeDataHTTPTarget;
     private float _lastDataSend;
     private const float DATA_SEND_RATE = 10f; // cap data sending at once per 10 s maximum, it's fairly expensive to do
     private bool _dirty = false;
 
-    private List<string> _probeOpts;
+    public UnityEvent<List<string>> ProbeOptionsChangedEvent;
     #endregion
 
     #region Unity
@@ -38,15 +44,28 @@ public class APIManager : MonoBehaviour
     /// <summary>
     /// The toggle enabling/disabling the API should trigger this
     /// </summary>
-    public void UpdateProbeDataSettingChange(bool state)
+    public void UpdateProbeDataSetting_OpenEphys(bool state)
     {
         if (state)
         {
             // If the setting just got turned on we should query the server for "NP INFO" to get the list of active probes
 
-            StartCoroutine(GetProbeInfo());
+            StartCoroutine(GetProbeInfo_OpenEphys());
         }
     }
+
+    ///// <summary>
+    ///// The toggle enabling/disabling the API should trigger this
+    ///// </summary>
+    //public void UpdateProbeDataSetting_SpikeGLX(bool state)
+    //{
+    //    if (state)
+    //    {
+    //        // If the setting just got turned on we should query the server for "NP INFO" to get the list of active probes
+
+    //        GetProbeInfo_SpikeGLX();
+    //    }
+    //}
 
     /// <summary>
     /// Trigger the API to send the Probe data to the current http server target
@@ -56,7 +75,7 @@ public class APIManager : MonoBehaviour
         _dirty = true;
     }
 
-    private IEnumerator GetProbeInfo()
+    private IEnumerator GetProbeInfo_OpenEphys()
     {
         var infoMessage = new ProbeDataMessage("NP INFO");
 
@@ -79,15 +98,28 @@ public class APIManager : MonoBehaviour
                 var infoJSON = LightJson.JsonValue.Parse(info).AsJsonObject;
                 var probeArray = infoJSON["probes"].AsJsonArray;
 
+                List<string> probeOpts = new();
+
                 foreach (var probe in probeArray)
                 {
                     var probeParsed = probe.AsJsonObject;
-                    _probeOpts.Add(probeParsed["name"]);
+                    probeOpts.Add(probeParsed["name"]);
                 }
+
+                ProbeOptionsChangedEvent.Invoke(probeOpts);
             }
         }
 
     }
+
+    //private void GetProbeInfo_SpikeGLX()
+    //{
+    //    List<string> probeOpts = new();
+    //    for (int i = 0; i < ProbeManager.Instances.Count; i++)
+    //        probeOpts.Add(i.ToString());
+
+    //    ProbeOptionsChangedEvent.Invoke(probeOpts);
+    //}
 
 
     private IEnumerator SendProbeData()
@@ -96,11 +128,14 @@ public class APIManager : MonoBehaviour
 
         // For each probe, get the data string and send it to the request server
 
-        foreach (ProbeManager probeManager in ProbeManager.instances)
+        foreach (ProbeManager probeManager in ProbeManager.Instances)
         {
 
             // add data
-            ProbeDataMessage msg = new ProbeDataMessage(probeManager.GetChannelAnnotationIDs());
+            string channelDataStr = probeManager.GetChannelAnnotationIDs();
+            string fullMsg = $"{probeManager.APITarget};{channelDataStr}";
+
+            ProbeDataMessage msg = new ProbeDataMessage(fullMsg);
             Debug.Log(msg);
 
             byte[] data = System.Text.Encoding.UTF8.GetBytes(msg.ToString());

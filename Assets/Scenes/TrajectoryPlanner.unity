@@ -1803,7 +1803,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19fb25874fe4004daf736f60d4c090c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _probeMatchingPanel: {fileID: 0}
   _probeDataHTTPTarget: {fileID: 604468498}
+  ProbeOptionsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!20 &2118380573 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 1302158968582126518, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
@@ -4148,6 +4152,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 70.93555
       objectReference: {fileID: 0}
+    - target: {fileID: 7114707561644845320, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: _apiManager
+      value: 
+      objectReference: {fileID: 2108153967}
     - target: {fileID: 7136927735706924113, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4194,7 +4202,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7223631046924877346, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: UpdateProbeDataSettingChange
+      value: UpdateProbeDataSetting_OpenEphys
       objectReference: {fileID: 0}
     - target: {fileID: 7223631046924877346, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -4248,6 +4256,10 @@ PrefabInstance:
       propertyPath: cameraController
       value: 
       objectReference: {fileID: 1445581475}
+    - target: {fileID: 7526886653883535609, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -18.800003
+      objectReference: {fileID: 0}
     - target: {fileID: 7532817799878068805, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: _accountsManager
       value: 
