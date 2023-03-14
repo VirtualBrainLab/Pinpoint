@@ -34,7 +34,7 @@ public class CoordinateEntryPanel : MonoBehaviour
     public void NewProbe()
     {
         // change the apmldv/depth text fields to match the prefix on this probe's insertion
-        string prefix = ProbeManager.ActiveProbeManager.GetProbeController().Insertion.CoordinateTransform.Prefix;
+        string prefix = ProbeManager.ActiveProbeManager.ProbeController.Insertion.CoordinateTransform.Prefix;
         _apText.text = prefix + "AP";
         _mlText.text = prefix + "ML";
         _dvText.text = prefix + "DV";
@@ -56,7 +56,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         }
 
         Vector3 apmldv;
-        Vector3 angles = ProbeManager.ActiveProbeManager.GetProbeController().Insertion.angles;
+        Vector3 angles = ProbeManager.ActiveProbeManager.ProbeController.Insertion.angles;
         float depth = float.NaN;
 
         if (ProbeManager.ActiveProbeManager.IsProbeInBrain())
@@ -65,7 +65,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         }
         else
         {
-            apmldv = ProbeManager.ActiveProbeManager.GetProbeController().Insertion.apmldv;
+            apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.apmldv;
         }
 
         float mult = Settings.DisplayUM ? 1000f : 1f;
@@ -108,7 +108,7 @@ public class CoordinateEntryPanel : MonoBehaviour
 
             Vector4 position = new Vector4(ap, ml, dv, depth) / 1000f;
 
-            ProbeManager.ActiveProbeManager.GetProbeController().SetProbePosition(position);
+            ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition(position);
         }
         catch
         {
@@ -127,9 +127,9 @@ public class CoordinateEntryPanel : MonoBehaviour
             if (Settings.UseIBLAngles)
                 angles = TP_Utils.IBL2World(angles);
 
-            ProbeManager.ActiveProbeManager.GetProbeController().SetProbeAngles(angles);
+            ProbeManager.ActiveProbeManager.ProbeController.SetProbeAngles(angles);
             if (ProbeManager.ActiveProbeManager.HasGhost)
-                ProbeManager.ActiveProbeManager.GhostProbeManager.GetProbeController().SetProbeAngles(angles);
+                ProbeManager.ActiveProbeManager.GhostProbeManager.ProbeController.SetProbeAngles(angles);
         }
         catch
         {

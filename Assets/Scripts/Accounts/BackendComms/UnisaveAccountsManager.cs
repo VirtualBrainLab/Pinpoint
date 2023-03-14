@@ -412,7 +412,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     private ServerProbeInsertion ProbeManager2ServerProbeInsertion(ProbeManager probeManager, bool active = true, bool recorded = false)
     {
-        ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
+        ProbeInsertion insertion = probeManager.ProbeController.Insertion;
         Vector3 apmldv = insertion.apmldv;
         Vector3 angles = insertion.angles;
         Color color = probeManager.Color;

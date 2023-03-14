@@ -118,7 +118,7 @@ public class ProbeUIManager : MonoBehaviour
     {
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
         var channelCoords = _probeManager.GetChannelRangemm();
-        ProbeInsertion insertion = _probeManager.GetProbeController().Insertion;
+        ProbeInsertion insertion = _probeManager.ProbeController.Insertion;
 
         Vector3 startCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.startPosmm;
         Vector3 endCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.endPosmm;

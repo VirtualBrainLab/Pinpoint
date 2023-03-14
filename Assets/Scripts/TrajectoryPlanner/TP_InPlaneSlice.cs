@@ -91,15 +91,15 @@ public class TP_InPlaneSlice : MonoBehaviour
             return;
         }
 
-        ProbeInsertion insertion = ProbeManager.ActiveProbeManager.GetProbeController().Insertion;
+        ProbeInsertion insertion = ProbeManager.ActiveProbeManager.ProbeController.Insertion;
 
         // Get the start/end coordinates of the probe recording region and convert them into *un-transformed* coordinates
         (Vector3 startCoordWorldU, Vector3 endCoordWorldU) = ProbeManager.ActiveProbeManager.RecRegionCoordWorldU;
 
         Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU);
         Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorldU);
-        //(Vector3 startCoordWorld, Vector3 endCoordWorld) = ProbeManager.ActiveProbeManager.GetProbeController().GetRecordingRegionWorld();
-        (_, upWorldU, forwardWorldU) = ProbeManager.ActiveProbeManager.GetProbeController().GetTipWorldU();
+        //(Vector3 startCoordWorld, Vector3 endCoordWorld) = ProbeManager.ActiveProbeManager.ProbeController.GetRecordingRegionWorld();
+        (_, upWorldU, forwardWorldU) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
 #if UNITY_EDITOR
         // debug statements

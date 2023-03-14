@@ -318,7 +318,7 @@ namespace TrajectoryPlanner
             if (!isGhost)
             {
                 _prevProbeType = (int)probeManager.ProbeType;
-                _prevInsertion = probeManager.GetProbeController().Insertion;
+                _prevInsertion = probeManager.ProbeController.Insertion;
                 _prevManipulatorId = probeManager.ManipulatorId;
                 _prevZeroCoordinateOffset = probeManager.ZeroCoordinateOffset;
                 _prevBrainSurfaceOffset = probeManager.BrainSurfaceOffset;
@@ -373,7 +373,7 @@ namespace TrajectoryPlanner
             }
 
             // Remove the probe's insertion from the list of insertions (does nothing if not found)
-            // ProbeManager.ActiveProbeManager.GetProbeController().Insertion.Targetable = false;
+            // ProbeManager.ActiveProbeManager.ProbeController.Insertion.Targetable = false;
 
             // Remove Probe
             DestroyProbe(ProbeManager.ActiveProbeManager);
@@ -418,14 +418,14 @@ namespace TrajectoryPlanner
                 newProbeManager.OverrideUUID(UUID);
 
             SetActiveProbe(newProbeManager);
-            newProbeManager.GetProbeController().Insertion.Targetable = true;
+            newProbeManager.ProbeController.Insertion.Targetable = true;
 
             spawnedThisFrame = true;
 
             UpdateQuickSettingsProbeIdText();
 
             newProbeManager.UIUpdateEvent.AddListener(UpdateQuickSettings);
-            newProbeManager.GetProbeController().MovedThisFrameEvent.AddListener(SetMovedThisFrame);
+            newProbeManager.ProbeController.MovedThisFrameEvent.AddListener(SetMovedThisFrame);
 
             // Add listener for SetActiveProbe
             newProbeManager.ActivateProbeEvent.AddListener(delegate { SetActiveProbe(newProbeManager); });
@@ -440,7 +440,7 @@ namespace TrajectoryPlanner
         {
             ProbeManager probeManager = AddNewProbe(probeType, UUID);
 
-            probeManager.GetProbeController().SetProbePosition(insertion);
+            probeManager.ProbeController.SetProbePosition(insertion);
 
             return probeManager;
         }
@@ -452,7 +452,7 @@ namespace TrajectoryPlanner
         {
             var probeManager = AddNewProbe(probeType, UUID);
 
-            probeManager.GetProbeController().SetProbePosition(insertion);
+            probeManager.ProbeController.SetProbePosition(insertion);
 
             // Repopulate Ephys Link information
             if (!Settings.IsEphysLinkDataExpired())
@@ -475,7 +475,7 @@ namespace TrajectoryPlanner
 
         public void CopyActiveProbe()
         {
-            AddNewProbe(ProbeManager.ActiveProbeManager.ProbeType, ProbeManager.ActiveProbeManager.GetProbeController().Insertion);
+            AddNewProbe(ProbeManager.ActiveProbeManager.ProbeType, ProbeManager.ActiveProbeManager.ProbeController.Insertion);
         }
 
         #endregion
@@ -611,7 +611,7 @@ namespace TrajectoryPlanner
         public void ResetActiveProbe()
         {
             if (ProbeManager.ActiveProbeManager != null)
-                ProbeManager.ActiveProbeManager.GetProbeController().ResetInsertion();
+                ProbeManager.ActiveProbeManager.ProbeController.ResetInsertion();
         }
 
         public void LockActiveProbe(bool locked)
@@ -919,8 +919,8 @@ namespace TrajectoryPlanner
                 prevTipSideLeft = true;
             }
 
-            apmldv = ProbeManager.ActiveProbeManager.GetProbeController().Insertion.CoordinateTransform.Space2Transform(apmldv - CoordinateSpaceManager.ActiveCoordinateSpace.RelativeOffset);
-            ProbeManager.ActiveProbeManager.GetProbeController().SetProbePosition(apmldv);
+            apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.CoordinateTransform.Space2Transform(apmldv - CoordinateSpaceManager.ActiveCoordinateSpace.RelativeOffset);
+            ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition(apmldv);
 
             prevTipID = berylID;
         }
@@ -940,7 +940,7 @@ namespace TrajectoryPlanner
 
         private (Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) Probe2ServerProbeInsertion(ProbeManager probeManager)
         {
-            ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
+            ProbeInsertion insertion = probeManager.ProbeController.Insertion;
             return (insertion.apmldv, insertion.angles,
                 (int)probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
                 probeManager.UUID);

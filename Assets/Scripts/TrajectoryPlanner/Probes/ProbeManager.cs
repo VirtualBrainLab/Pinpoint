@@ -180,6 +180,8 @@ public class ProbeManager : MonoBehaviour
 
     #region Accessors
 
+    public ProbeController ProbeController { get { return _probeController; } private set { } }
+    
     public string APITarget { get; set; }
 
     public Color Color
@@ -216,15 +218,6 @@ public class ProbeManager : MonoBehaviour
         {
             probeCollider.enabled = false;
         }
-    }
-
-    /// <summary>
-    ///     Get a reference to the probe's controller.
-    /// </summary>
-    /// <returns>Reference to this probe's controller</returns>
-    public ProbeController GetProbeController()
-    {
-        return _probeController;
     }
 
     /// <summary>
@@ -299,7 +292,7 @@ public class ProbeManager : MonoBehaviour
             puimanager.Destroy();
 
         Instances.Remove(this);
-        GetProbeController().Insertion.Targetable = false;
+        ProbeController.Insertion.Targetable = false;
 
         if (IsOriginal)
             ProbeProperties.ReturnProbeColor(Color);
@@ -1056,7 +1049,7 @@ public class ProbeData
     {
         ProbeData data = new ProbeData();
 
-        ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
+        ProbeInsertion insertion = probeManager.ProbeController.Insertion;
 
         data.APMLDV = insertion.apmldv;
         data.Angles = insertion.angles;

@@ -74,7 +74,7 @@ namespace TrajectoryPlanner
                     UpdateAutomaticControlPanel();
                 });
 
-                _lockBehavior.SetLockState(ProbeManager.ActiveProbeManager.GetProbeController().Locked);
+                _lockBehavior.SetLockState(ProbeManager.ActiveProbeManager.ProbeController.Locked);
 
                 UpdateCoordinates();
                 UpdateInteractable();
@@ -162,8 +162,8 @@ namespace TrajectoryPlanner
             }
             else
             {
-                ProbeManager.ActiveProbeManager.GetProbeController().ResetPosition();
-                ProbeManager.ActiveProbeManager.GetProbeController().SetProbePosition();
+                ProbeManager.ActiveProbeManager.ProbeController.ResetPosition();
+                ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition();
             }
 
             UpdateCoordinates();
@@ -187,18 +187,18 @@ namespace TrajectoryPlanner
                 // Spawn ghost
                 var originalProbeManager = ProbeManager.ActiveProbeManager;
                 var ghostProbeManager = _trajectoryPlannerManager.AddNewProbe(
-                    ProbeManager.ActiveProbeManager.ProbeType, ProbeManager.ActiveProbeManager.GetProbeController().Insertion, "",
+                    ProbeManager.ActiveProbeManager.ProbeType, ProbeManager.ActiveProbeManager.ProbeController.Insertion, "",
                     ProbeManager.ActiveProbeManager.ZeroCoordinateOffset, ProbeManager.ActiveProbeManager.BrainSurfaceOffset,
                     ProbeManager.ActiveProbeManager.IsSetToDropToSurfaceWithDepth, null, true);
     
                 // Configure ghost
-                var originalProbeInsertion = originalProbeManager.GetProbeController().Insertion;
+                var originalProbeInsertion = originalProbeManager.ProbeController.Insertion;
     
                 ghostProbeManager.SetMaterialsTransparent();
                 ghostProbeManager.DisableAllColliders();
     
                 // Deep copy overwrite the positions and angles of the insertion
-                ghostProbeManager.GetProbeController().SetProbePosition(new ProbeInsertion(originalProbeInsertion.ap,
+                ghostProbeManager.ProbeController.SetProbePosition(new ProbeInsertion(originalProbeInsertion.ap,
                     originalProbeInsertion.ml, originalProbeInsertion.dv, originalProbeInsertion.phi, originalProbeInsertion.theta,
                     originalProbeInsertion.spin, originalProbeInsertion.CoordinateSpace, originalProbeInsertion.CoordinateTransform));
                 
@@ -248,11 +248,11 @@ namespace TrajectoryPlanner
         public void AutomaticallyDriveManipulator()
         {
             // Gather info
-            var apmldv = ProbeManager.ActiveProbeManager.GhostProbeManager.GetProbeController().Insertion.apmldv;
-            var depth = ProbeManager.ActiveProbeManager.GhostProbeManager.GetProbeController().GetProbeDepth();
+            var apmldv = ProbeManager.ActiveProbeManager.GhostProbeManager.ProbeController.Insertion.apmldv;
+            var depth = ProbeManager.ActiveProbeManager.GhostProbeManager.ProbeController.GetProbeDepth();
 
             // Convert apmldv to world coordinate
-            var convertToWorld = ProbeManager.ActiveProbeManager.GhostProbeManager.GetProbeController().Insertion
+            var convertToWorld = ProbeManager.ActiveProbeManager.GhostProbeManager.ProbeController.Insertion
                 .Transformed2WorldAxisChange(apmldv);
 
             // Flip axes to match manipulator
@@ -272,7 +272,7 @@ namespace TrajectoryPlanner
                 posWithDepthAndCorrectAxes.z -= brainSurfaceAdjustment;
 
             // Adjust for phi
-            var probePhi = ProbeManager.ActiveProbeManager.GetProbeController().Insertion.phi * Mathf.Deg2Rad;
+            var probePhi = ProbeManager.ActiveProbeManager.ProbeController.Insertion.phi * Mathf.Deg2Rad;
             var phiCos = Mathf.Cos(probePhi);
             var phiSin = Mathf.Sin(probePhi);
             var phiAdjustedX = posWithDepthAndCorrectAxes.x * phiCos -
@@ -303,10 +303,10 @@ namespace TrajectoryPlanner
             lineRenderer.endWidth = 0.05f;
             lineRenderer.positionCount = 2;
             // Set start position (current position)
-            lineRenderer.SetPosition(0, ProbeManager.ActiveProbeManager.GetProbeController().ProbeTipT.position);
+            lineRenderer.SetPosition(0, ProbeManager.ActiveProbeManager.ProbeController.ProbeTipT.position);
             // Set end position (ghost position)
             lineRenderer.SetPosition(1,
-                ProbeManager.ActiveProbeManager.GhostProbeManager.GetProbeController().ProbeTipT.position);
+                ProbeManager.ActiveProbeManager.GhostProbeManager.ProbeController.ProbeTipT.position);
 
             // Send position to manipulator
             _communicationManager.SetCanWrite(ProbeManager.ActiveProbeManager.ManipulatorId, true, 1, canWrite =>

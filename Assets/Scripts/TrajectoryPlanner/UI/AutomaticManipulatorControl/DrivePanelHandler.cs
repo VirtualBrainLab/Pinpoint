@@ -89,7 +89,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 var driveDistance =
                     Vector3.Distance(
                         InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId].apmldv,
-                        ProbeManager.GetProbeController().Insertion.apmldv);
+                        ProbeManager.ProbeController.Insertion.apmldv);
 
                 _targetDepth = position.w + driveDistance;
 
