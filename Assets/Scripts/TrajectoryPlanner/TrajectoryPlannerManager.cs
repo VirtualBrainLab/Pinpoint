@@ -23,6 +23,11 @@ namespace TrajectoryPlanner
         /// Fired whenever any probe moves
         /// </summary>
         [SerializeField] private UnityEvent _probesChangedEvent;
+        
+        /// <summary>
+        /// Fired whenever a probe is added or removed
+        /// </summary>
+        [SerializeField] private UnityEvent _probeAddedOrRemovedEvent;
 
         /// <summary>
         /// Fire whenever the active probe changes
@@ -357,6 +362,8 @@ namespace TrajectoryPlanner
                 SetSurfaceDebugActive(false);
                 UpdateQuickSettings();
             }
+            
+            _probeAddedOrRemovedEvent.Invoke();
 
             ColliderManager.CheckForCollisions();
         }
@@ -431,7 +438,7 @@ namespace TrajectoryPlanner
             newProbeManager.ActivateProbeEvent.AddListener(delegate { SetActiveProbe(newProbeManager); });
 
             // Invoke the movement event
-            _probesChangedEvent.Invoke();
+            _probeAddedOrRemovedEvent.Invoke();
 
             return newProbe.GetComponent<ProbeManager>();
         }
