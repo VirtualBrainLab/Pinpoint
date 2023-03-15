@@ -98,6 +98,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU);
         Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorldU);
+
         //(Vector3 startCoordWorld, Vector3 endCoordWorld) = ProbeManager.ActiveProbeManager.ProbeController.GetRecordingRegionWorld();
         (_, upWorldU, forwardWorldU) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
@@ -122,7 +123,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         switch (ProbeManager.ActiveProbeManager.ProbeType)
         {
             case ProbeProperties.ProbeType.Neuropixels24:
-                shankSpacing = 0.25f;
+                shankSpacing = -0.25f;
                 centerOffset = 1.5f;
                 fourShank = true;
                 break;
@@ -150,6 +151,9 @@ public class TP_InPlaneSlice : MonoBehaviour
         recordingRegionCenterPosition = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + 
             upWorldU * recordingSizemmU / 2 + 
             forwardWorldU * shankSpacing * centerOffset);
+
+        Debug.Log((VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU),
+            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorldU * recordingSizemmU)));
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);
