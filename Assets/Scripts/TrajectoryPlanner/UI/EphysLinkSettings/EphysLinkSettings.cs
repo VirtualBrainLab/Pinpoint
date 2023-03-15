@@ -264,10 +264,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             }
             else
             {
-                var qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
-
                 // Disconnect from server
-                qDialogue.SetYesCallback(() =>
+                QuestionDialogue.SetYesCallback(() =>
                 {
                     foreach (var probeManager in ProbeManager.Instances
                                  .Where(probeManager => probeManager.IsEphysLinkControlled))
@@ -276,7 +274,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _communicationManager.DisconnectFromServer(UpdateConnectionUI);
                 });
 
-                qDialogue.NewQuestion(
+                QuestionDialogue.NewQuestion(
                     "Are you sure you want to disconnect?\nAll incomplete movements will be canceled.");
             }
         }

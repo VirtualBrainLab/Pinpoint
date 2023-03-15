@@ -341,9 +341,8 @@ public class ProbeManager : MonoBehaviour
     {
         if (_probeController.Insertion.CoordinateTransform != CoordinateSpaceManager.ActiveCoordinateTransform)
         {
-            QuestionDialogue qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
-            qDialogue.SetYesCallback(ChangeTransform);
-            qDialogue.NewQuestion("The coordinate transform in the scene is mis-matched with the transform in this Probe insertion. Do you want to replace the transform?");
+            QuestionDialogue.SetYesCallback(ChangeTransform);
+            QuestionDialogue.NewQuestion("The coordinate transform in the scene is mis-matched with the transform in this Probe insertion. Do you want to replace the transform?");
         }
     }
 
