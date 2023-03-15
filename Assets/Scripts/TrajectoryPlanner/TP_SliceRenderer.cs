@@ -16,7 +16,7 @@ public class TP_SliceRenderer : MonoBehaviour
     [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
     [FormerlySerializedAs("modelControl")] [SerializeField] private CCFModelControl _modelControl;
     [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
-    [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
+    [FormerlySerializedAs("util")] [SerializeField] private TP_Utils _util;
     [FormerlySerializedAs("dropdownMenu")] [SerializeField] private TMP_Dropdown _dropdownMenu;
     [FormerlySerializedAs("iblCoverageTextureAssetRef")] [SerializeField] private AssetReference _iblCoverageTextureAssetRef;
 
@@ -141,17 +141,16 @@ public class TP_SliceRenderer : MonoBehaviour
     {
         if (Settings.Slice3DDropdownOption > 0)
         {
-            ProbeManager activeProbeManager = _tpmanager.GetActiveProbeManager();
-            if (activeProbeManager == null) return;
+            if (ProbeManager.ActiveProbeManager == null) return;
 
             // the actual tip
-            Vector3 probeTipWorld = activeProbeManager.GetProbeController().ProbeTipT.position;
+            Vector3 probeTipWorld = ProbeManager.ActiveProbeManager.ProbeController.ProbeTipT.position;
             // position the slices along the real tip in world space
             _coronalSliceGo.transform.position = new Vector3(0f, 0f, probeTipWorld.z);
             _sagittalSliceGo.transform.position = new Vector3(probeTipWorld.x, 0f, 0f);
 
             // for CCF coordinates
-            (Vector3 tipCoordWorld, _, _) = activeProbeManager.GetProbeController().GetTipWorldU();
+            (Vector3 tipCoordWorld, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
             apWorldmm = tipCoordWorld.z + 6.6f;
             coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / 13.2f);

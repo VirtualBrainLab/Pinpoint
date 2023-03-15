@@ -83,12 +83,12 @@ namespace Unisave.Editor.Tutorial
                     preferences.BackendFolder = BackendFolderPath;
                     preferences.Save();
                     
-                    Uploader
-                        .GetDefaultInstance()
-                        .UploadBackend(
-                            verbose: true,
-                            useAnotherThread: true
-                        );
+                    // Uploader
+                    //     .GetDefaultInstance()
+                    //     .UploadBackend(
+                    //         verbose: true,
+                    //         useAnotherThread: true
+                    //     );
                 }
             });
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using UnityEngine.Networking;
+using UnityEngine.Scripting;
 
 namespace Unisave.Broadcasting.Sse
 {
@@ -17,6 +18,7 @@ namespace Unisave.Broadcasting.Sse
                 ?? throw new ArgumentNullException(nameof(eventHandler));
         }
         
+        [RequiredMember] // do not IL2CPP strip this away if the class is used
         protected override bool ReceiveData(byte[] receivedData, int dataLength)
         {
             string stringData = Encoding.UTF8.GetString(

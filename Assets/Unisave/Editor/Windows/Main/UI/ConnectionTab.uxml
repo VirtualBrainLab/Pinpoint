@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:Style src="ConnectionTab.uss"/>
+    
+    <engine:VisualElement class="container">
+        
+        <engine:VisualElement class="dashboard-link__container">
+            <engine:Label text="Copy connection credentials from the web dashboard"/>
+            <engine:Button name="open-dashboard-button" text="Open Dashboard"/>
+        </engine:VisualElement>
+        
+        <engine:VisualElement class="connection-box">
+            
+            <engine:VisualElement class="field-line">
+                <engine:Label text="Game Token" />
+                <engine:TextField name="game-token-field"/>
+            </engine:VisualElement>
+            <engine:VisualElement class="field-line">
+                <engine:Label text="Editor Key" />
+                <engine:TextField name="editor-key-field" password="true" mask-character="*"/>
+            </engine:VisualElement>
+            
+            <engine:HelpBox
+                    name="empty-warning"
+                    text="Connection credentials are missing. Copy them from the web dashboard."
+                    message-type="Warning"
+            />
+            
+        </engine:VisualElement>
+    </engine:VisualElement>
+
+    <engine:VisualElement class="container">
+        <engine:Foldout text="Advanced" value="false">
+            <engine:VisualElement class="field-line">
+                <engine:Label text="Server URL" />
+                <engine:TextField name="server-url-field"/>
+            </engine:VisualElement>
+        </engine:Foldout>
+    </engine:VisualElement>
+    
+</engine:UXML>

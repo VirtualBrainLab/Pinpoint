@@ -160,3 +160,7 @@ Assets/StreamingAssets/catalog.bin.meta
 Assets/StreamingAssets/catalog.bin
 Assets/Resources/PerformanceTestRunInfo.json.meta
 Assets/Resources/PerformanceTestRunInfo.json
+Assets/CleanFlatUI/*
+Assets/CleanFlatUI.zip
+
+Assets/Unisave/Resources/UnisavePreferencesFile.asset

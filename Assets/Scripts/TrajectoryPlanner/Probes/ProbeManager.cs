@@ -21,13 +21,13 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
     #region Static fields
-    public static List<ProbeManager> instances = new List<ProbeManager>();
+    public static List<ProbeManager> Instances = new List<ProbeManager>();
     public static ProbeManager ActiveProbeManager;
-    void OnEnable() => instances.Add(this);
+    void OnEnable() => Instances.Add(this);
     void OnDestroy()
     {
-        GetProbeController().Insertion.Targetable = false;
-        instances.Remove(this);
+        if (Instances.Contains(this))
+            Instances.Remove(this);
     }
 
     public static HashSet<string> RightHandedManipulatorIDs { get; private set; }
@@ -35,17 +35,18 @@ public class ProbeManager : MonoBehaviour
 
     #region Events
 
-    public UnityEvent ProbeUIUpdateEvent;
+    public UnityEvent UIUpdateEvent;
     public UnityEvent ActivateProbeEvent;
     public UnityEvent EphysLinkControlChangeEvent;
 
     #endregion
 
+
+    #region Ephys Link
+
     // Internal flags that track whether we are in manual control or drag/link control mode
     public bool IsEphysLinkControlled { get; private set; }
     // ReSharper disable once InconsistentNaming
-
-    #region Ephys Link
 
     private CommunicationManager _ephysLinkCommunicationManager;
 
@@ -133,17 +134,36 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
     // Exposed fields to collect links to other components inside of the Probe prefab
-    [FormerlySerializedAs("probeColliders")] [SerializeField] private List<Collider> _probeColliders;
-    [FormerlySerializedAs("probeUIManagers")] [SerializeField] private List<ProbeUIManager> _probeUIManagers;
-    [FormerlySerializedAs("probeRenderer")] [SerializeField] private Renderer _probeRenderer;
+    [FormerlySerializedAs("probeColliders")][SerializeField] private List<Collider> _probeColliders;
+    [FormerlySerializedAs("probeUIManagers")][SerializeField] private List<ProbeUIManager> _probeUIManagers;
+    [FormerlySerializedAs("probeRenderer")][SerializeField] private Renderer _probeRenderer;
+    [SerializeField] private RecordingRegion _recRegion;
+
     private AxisControl _axisControl;
-    [SerializeField] private int _probeType;
-    public int ProbeType => _probeType;
+    public ProbeProperties.ProbeType ProbeType;
 
-    [FormerlySerializedAs("probeController")] [SerializeField] private ProbeController _probeController;
+    [FormerlySerializedAs("probeController")][SerializeField] private ProbeController _probeController;
 
-    [FormerlySerializedAs("ghostMaterial")] [SerializeField] private Material _ghostMaterial;
+    [FormerlySerializedAs("ghostMaterial")][SerializeField] private Material _ghostMaterial;
+
     private Dictionary<GameObject, Material> defaultMaterials;
+
+    #region Channel map
+    public string SelectionLayerName { get; private set; }
+    private float _channelMinY;
+    private float _channelMaxY;
+    /// <summary>
+    /// Return the minimum and maximum channel position in the current selection in mm
+    /// </summary>
+    public (float, float) GetChannelMinMaxYCoord { get { return (_channelMinY, _channelMaxY); } }
+    public ChannelMap ChannelMap { get; private set; }
+    #endregion
+
+    // Probe position data
+    private Vector3 _recRegionBaseCoordU;
+    private Vector3 _recRegionTopCoordU;
+
+    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU { get { return (_recRegionBaseCoordU, _recRegionTopCoordU); } }
 
     // Text
     private const float minPhi = -180;
@@ -158,21 +178,38 @@ public class ProbeManager : MonoBehaviour
     private Vector3 brainSurfaceWorld;
     private Vector3 brainSurfaceWorldT;
 
-    // Colliders
-    private HashSet<Collider> _visibleProbeColliders;
-    private Dictionary<GameObject, Material> _visibleOtherColliders;
-
     #region Accessors
 
-    public Color GetColor()
+    public ProbeController ProbeController { get { return _probeController; } private set { } }
+    
+    public string APITarget { get; set; }
+
+    public Color Color
     {
-        return _probeRenderer.material.color;
+        get
+        {
+            return _probeRenderer.material.color;
+        }
+
+        set
+        {
+            // try to return the current color
+            ProbeProperties.ReturnProbeColor(_probeRenderer.material.color);
+            // use up the new color (if it's a default color)
+            ProbeProperties.UseColor(value);
+
+            _probeRenderer.material.color = value;
+
+            foreach (ProbeUIManager puiManager in _probeUIManagers)
+                puiManager.UpdateColors();
+        }
     }
 
-    public void SetColor(Color color)
+
+
+    public void SetLock(bool locked)
     {
-        ProbeProperties.ReturnProbeColor(_probeRenderer.material.color);
-        _probeRenderer.material.color = color;
+        _probeController.Locked = locked;
     }
 
     public void DisableAllColliders()
@@ -181,15 +218,6 @@ public class ProbeManager : MonoBehaviour
         {
             probeCollider.enabled = false;
         }
-    }
-
-    /// <summary>
-    ///     Get a reference to the probe's controller.
-    /// </summary>
-    /// <returns>Reference to this probe's controller</returns>
-    public ProbeController GetProbeController()
-    {
-        return _probeController;
     }
 
     /// <summary>
@@ -208,6 +236,8 @@ public class ProbeManager : MonoBehaviour
     private void Awake()
     {
         UUID = Guid.NewGuid().ToString();
+        UpdateName();
+        APITarget = name;
 
         defaultMaterials = new();
         // Request for ID and color if this is a normal probe
@@ -225,18 +255,20 @@ public class ProbeManager : MonoBehaviour
         // Pull the tpmanager object and register this probe
         _probeController.Register(this);
 
+        // Get the channel map and selection layer
+        ChannelMap = ChannelMapManager.GetChannelMap(ProbeType);
+        SelectionLayerName = "default";
+
         // Pull ephys link communication manager
         _ephysLinkCommunicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
 
         // Get access to the annotation dataset and world-space boundaries
         annotationDataset = VolumeDatasetManager.AnnotationDataset;
 
-        _visibleProbeColliders = new();
-        _visibleOtherColliders = new();
-
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
 
         _probeController.FinishedMovingEvent.AddListener(UpdateName);
+        _probeController.MovedThisFrameEvent.AddListener(ProbeMoved);
     }
 
     private void Start()
@@ -245,6 +277,7 @@ public class ProbeManager : MonoBehaviour
         Debug.Log($"(ProbeManager) New probe created with UUID: {UUID}");
 #endif
         RightHandedManipulatorIDs = Settings.RightHandedManipulatorIds;
+        UpdateSelectionLayer(SelectionLayerName);
     }
 
     /// <summary>
@@ -258,7 +291,11 @@ public class ProbeManager : MonoBehaviour
         foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.Destroy();
 
-        ProbeProperties.ReturnProbeColor(GetColor());
+        Instances.Remove(this);
+        ProbeController.Insertion.Targetable = false;
+
+        if (IsOriginal)
+            ProbeProperties.ReturnProbeColor(Color);
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
         
@@ -283,9 +320,12 @@ public class ProbeManager : MonoBehaviour
         if (active)
             ColliderManager.AddProbeColliderInstances(_probeColliders, true);
         else
+        {
             ColliderManager.AddProbeColliderInstances(_probeColliders, false);
+            UIUpdateEvent.RemoveAllListeners();
+        }
 
-        ProbeUIUpdateEvent.Invoke();
+        UIUpdateEvent.Invoke();
         _probeController.MovedThisFrameEvent.Invoke();
     }
 
@@ -301,9 +341,8 @@ public class ProbeManager : MonoBehaviour
     {
         if (_probeController.Insertion.CoordinateTransform != CoordinateSpaceManager.ActiveCoordinateTransform)
         {
-            QuestionDialogue qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
-            qDialogue.SetYesCallback(ChangeTransform);
-            qDialogue.NewQuestion("The coordinate transform in the scene is mis-matched with the transform in this Probe insertion. Do you want to replace the transform?");
+            QuestionDialogue.SetYesCallback(ChangeTransform);
+            QuestionDialogue.NewQuestion("The coordinate transform in the scene is mis-matched with the transform in this Probe insertion. Do you want to replace the transform?");
         }
     }
 
@@ -312,13 +351,6 @@ public class ProbeManager : MonoBehaviour
         ProbeInsertion originalInsertion = _probeController.Insertion;
         Debug.LogWarning("Insertion coordinates are not being transformed into the new space!! This might not be expected behavior");
         _probeController.SetProbePosition(new ProbeInsertion(originalInsertion.apmldv, originalInsertion.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform));
-    }
-
-    public void UpdateUI()
-    {
-        // Reset our probe UI panels
-        foreach (ProbeUIManager puimanager in _probeUIManagers)
-            puimanager.ProbeMoved();
     }
 
     public void SetUIVisibility(bool state)
@@ -332,7 +364,7 @@ public class ProbeManager : MonoBehaviour
     {
         UUID = newUUID;
         UpdateName();
-        ProbeUIUpdateEvent.Invoke();
+        UIUpdateEvent.Invoke();
     }
 
     /// <summary>
@@ -342,7 +374,7 @@ public class ProbeManager : MonoBehaviour
     {
         if (_overrideName != null)
         {
-            name = $"{_overrideName}-{UUID.Substring(0, 8)}";
+            name = _overrideName;
         }
         else
         {
@@ -352,28 +384,15 @@ public class ProbeManager : MonoBehaviour
                 name = $"{_probeUIManagers[0].MaxArea}-{UUID.Substring(0, 8)}";
             }
             else
-                name = "Probe_" + UUID.Substring(0, 8);
+                name = UUID.Substring(0, 8);
         }
-
-        ProbeUIUpdateEvent.Invoke();
     }
 
     public void OverrideName(string newName)
     {
         _overrideName = newName;
         UpdateName();
-    }
-
-    /// <summary>
-    /// Update the size of the recording region.
-    /// </summary>
-    /// <param name="newSize">New size of recording region in mm</param>
-    public void ChangeRecordingRegionSize(float newSize)
-    {
-        ((DefaultProbeController)_probeController).ChangeRecordingRegionSize(newSize);
-
-        // Update all the UI panels
-        UpdateUI();
+        UIUpdateEvent.Invoke();
     }
 
 
@@ -381,14 +400,119 @@ public class ProbeManager : MonoBehaviour
     /// Move the probe
     /// </summary>
     /// <returns>Whether or not the probe moved on this frame</returns>
-    public bool MoveProbe()
+    public void MoveProbe()
     {
         // Cancel movement if being controlled by EphysLink
         if (IsEphysLinkControlled)
-            return false;
+            return;
 
-        return ((DefaultProbeController)_probeController).MoveProbe_Keyboard();
+        ((DefaultProbeController)_probeController).MoveProbe_Keyboard();
     }
+
+    public void ProbeMoved()
+    {
+        ProbeInsertion insertion = _probeController.Insertion;
+        var channelCoords = GetChannelRangemm();
+        
+        // Update the world coordinates for the tip position
+        Vector3 startCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.startPosmm;
+        Vector3 endCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.endPosmm;
+        _recRegionBaseCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
+        _recRegionTopCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
+    }
+
+    #region Channel map
+    public (float startPosmm, float endPosmm, float recordingSizemm, float fullHeight) GetChannelRangemm()
+    {
+        (float startPosmm, float endPosmm) = GetChannelMinMaxYCoord;
+        float recordingSizemm = endPosmm - startPosmm;
+
+        return (startPosmm, endPosmm, recordingSizemm, ChannelMap.FullHeight);
+    }
+
+    public void UpdateSelectionLayer(string selectionLayerName)
+    {
+#if UNITY_EDITOR
+        Debug.Log($"Updating selection layer to {selectionLayerName}");
+#endif
+        SelectionLayerName = selectionLayerName;
+
+        UpdateChannelMap();
+
+        UIUpdateEvent.Invoke();
+    }
+
+    /// <summary>
+    /// Update the channel map data according to the selected channels
+    /// Defaults to the first 384 channels
+    /// 
+    /// Sets channelMinY/channelMaxY in mm
+    /// </summary>
+    public void UpdateChannelMap()
+    {
+        _channelMinY = float.MaxValue;
+        _channelMaxY = float.MinValue;
+
+        var channelCoords = ChannelMap.GetChannelPositions(SelectionLayerName);
+        Vector3 channelScale = ChannelMap.GetChannelScale();
+
+        for (int i = 0; i < channelCoords.Count; i++)
+        {
+            if (channelCoords[i].y < _channelMinY)
+                _channelMinY = channelCoords[i].y / 1000f; // coordinates are in um, so divide to mm
+            if (channelCoords[i].y > _channelMaxY)
+                _channelMaxY = channelCoords[i].y / 1000f + channelScale.y / 1000f;
+        }
+#if UNITY_EDITOR
+        Debug.Log($"Minimum channel coordinate {_channelMinY} max {_channelMaxY}");
+#endif
+        foreach (ProbeUIManager puiManager in _probeUIManagers)
+            puiManager.UpdateChannelMap();
+
+        _recRegion.SetSize(_channelMinY, _channelMaxY);
+    }
+
+    /// <summary>
+    /// Get a serialized representation of the channel ID data
+    /// </summary>
+    /// <returns></returns>
+    public string GetChannelAnnotationIDs()
+    {
+        // Get the channel data
+        var channelMapData = ChannelMap.GetChannelPositions("all");
+
+        string[] channelStrings = new string[channelMapData.Count];
+
+        // Populate the data string
+        Vector3 tipCoordWorldT = _probeController.ProbeTipT.position;
+
+        for (int i = 0; i < channelMapData.Count; i++)
+        {
+            // For now we'll ignore x changes and just use the y coordinate, this way we don't need to calculate the forward vector for the probe
+            // note that we're ignoring depth here, this assume the probe tip is on the electrode surface (which it should be)
+            Vector3 channelCoordWorldT = tipCoordWorldT + _probeController.ProbeTipT.up * channelMapData[i].y / 1000f;
+
+            // Now transform this into WorldU
+            ProbeInsertion insertion = _probeController.Insertion;
+            Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
+
+            int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
+            if (ID < 0) ID = -1;
+
+            channelStrings[i] = $"{i},{ID}";
+        }
+
+        var returnString = string.Join(";", channelStrings);
+
+        return returnString;
+    }
+
+    public void SetChannelVisibility(bool visible)
+    {
+        // TODO
+    }
+
+    #endregion
 
     #region Text
 
@@ -424,7 +548,7 @@ public class ProbeManager : MonoBehaviour
         Vector3 apmldvS = insertion.PositionSpaceU() + insertion.CoordinateSpace.RelativeOffset;
 
         Vector3 angles = Settings.UseIBLAngles ?
-            Utils.World2IBL(insertion.angles) :
+            TP_Utils.World2IBL(insertion.angles) :
             insertion.angles;
 
         (Vector3 entryCoordTranformed, float depthTransformed) = GetSurfaceCoordinateT();
@@ -437,7 +561,7 @@ public class ProbeManager : MonoBehaviour
             " Tip coordinate: (ccfAP:{12}, ccfML: {13}, ccfDV:{14})",
             name, 
             apStr, round0(entryCoordTranformed.x * mult), mlStr, round0(entryCoordTranformed.y * mult), dvStr, round0(entryCoordTranformed.z * mult), 
-            round2(Utils.CircDeg(angles.x, minPhi, maxPhi)), round2(angles.y), round2(Utils.CircDeg(angles.z, minSpin, maxSpin)),
+            round2(TP_Utils.CircDeg(angles.x, minPhi, maxPhi)), round2(angles.y), round2(TP_Utils.CircDeg(angles.z, minSpin, maxSpin)),
             depthStr, round0(depthTransformed * mult),
             round0(apmldvS.x * mult), round0(apmldvS.y * mult), round0(apmldvS.z * mult));
 
@@ -448,8 +572,6 @@ public class ProbeManager : MonoBehaviour
 #endif
     }
 
-#endregion
-
     private float round0(float input)
     {
         return Mathf.Round(input);
@@ -459,6 +581,9 @@ public class ProbeManager : MonoBehaviour
         return Mathf.Round(input * 100) / 100;
     }
 
+    #endregion
+
+
     /// <summary>
     /// Re-scale probe panels 
     /// </summary>
@@ -466,10 +591,9 @@ public class ProbeManager : MonoBehaviour
     public void ResizeProbePanel(int newPxHeight)
     {
         foreach (ProbeUIManager puimanager in _probeUIManagers)
-        {
             puimanager.ResizeProbePanel(newPxHeight);
-            puimanager.ProbeMoved();
-        }
+
+        UIUpdateEvent.Invoke();
     }
 
 #region Brain surface coordinate
@@ -566,7 +690,7 @@ public class ProbeManager : MonoBehaviour
         // Set states
         IsEphysLinkControlled = register;
         EphysLinkControlChangeEvent.Invoke();
-        ProbeUIUpdateEvent.Invoke();
+        UIUpdateEvent.Invoke();
 
         if (register)
             _ephysLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
@@ -717,10 +841,10 @@ public class ProbeManager : MonoBehaviour
         {
             // We need to calculate the surface coordinate ourselves
             var tipExtensionDirection =
-                IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorld : Vector3.up;
+                IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
 
             var brainSurfaceCoordinate = annotationDataset.FindSurfaceCoordinate(
-                annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorld - tipExtensionDirection * 5),
+                annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
                 annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipExtensionDirection));
 
             if (float.IsNaN(brainSurfaceCoordinate.x))
@@ -872,7 +996,7 @@ public class ProbeManager : MonoBehaviour
     public void SetMaterialsTransparent()
     {
         Debug.Log($"Setting materials for {name} to transparent");
-        var currentColorTint = new Color(GetColor().r, GetColor().g, GetColor().b, .2f);
+        var currentColorTint = new Color(Color.r, Color.g, Color.b, .2f);
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
             childRenderer.material = _ghostMaterial;
@@ -894,4 +1018,63 @@ public class ProbeManager : MonoBehaviour
     }
 
 #endregion
+}
+
+[Serializable]
+public class ProbeData
+{
+    // ProbeInsertion
+    public Vector3 APMLDV;
+    public Vector3 Angles;
+
+    // CoordinateSpace/Transform
+    public string CoordSpaceName;
+    public string CoordTransformName;
+    public Vector4 ZeroCoordOffset;
+
+    // ChannelMap
+    public string SelectionLayerName;
+
+    // Data
+    public int Type;
+    public Color Color;
+    public string UUID;
+    public string Name;
+
+    // API
+    public string APITarget;
+
+    // Ephys Link
+    public string ManipulatordID;
+    public float BrainSurfaceOffset;
+    public bool Drop2SurfaceWithDepth;
+
+    public static ProbeData ProbeManager2ProbeData(ProbeManager probeManager)
+    {
+        ProbeData data = new ProbeData();
+
+        ProbeInsertion insertion = probeManager.ProbeController.Insertion;
+
+        data.APMLDV = insertion.apmldv;
+        data.Angles = insertion.angles;
+
+        data.CoordSpaceName = insertion.CoordinateSpace.Name;
+        data.CoordTransformName = insertion.CoordinateTransform.Name;
+        data.ZeroCoordOffset = probeManager.ZeroCoordinateOffset;
+
+        data.SelectionLayerName = probeManager.SelectionLayerName;
+
+        data.Type = (int)probeManager.ProbeType;
+        data.Color = probeManager.Color;
+        data.UUID = probeManager.UUID;
+        data.Name = probeManager.name;
+
+        data.APITarget = probeManager.APITarget;
+
+        data.ManipulatordID = probeManager.ManipulatorId;
+        data.BrainSurfaceOffset = probeManager.BrainSurfaceOffset;
+        data.Drop2SurfaceWithDepth = probeManager.IsSetToDropToSurfaceWithDepth;
+
+        return data;
+    }
 }

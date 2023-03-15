@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:Style src="UnisaveMainWindow.uss"/>
+
+    <editor:Toolbar class="tabs-bar">
+        <editor:ToolbarToggle name="tab-head__Home" class="tab-head" text="Home"/>
+        <editor:ToolbarToggle name="tab-head__Connection" class="tab-head" text="Cloud Connection"/>
+        <editor:ToolbarToggle name="tab-head__Backend" class="tab-head" text="Backend Code"/>
+<!--        <editor:ToolbarToggle name="tab-head__Databases" class="tab-head" text="Databases"/>-->
+<!--        <editor:ToolbarToggle name="tab-head__Quotas" class="tab-head" text="Quotas"/>-->
+    </editor:Toolbar>
+    
+    <engine:ScrollView>
+        <engine:VisualElement name="tab-content__Home" class="tab-content">
+            <engine:Template name="HomeTabTemplate" src="HomeTab.uxml"/>
+            <engine:Instance template="HomeTabTemplate"/>
+        </engine:VisualElement>
+        <engine:VisualElement name="tab-content__Connection" class="tab-content">
+            <engine:Template name="ConnectionTabTemplate" src="ConnectionTab.uxml"/>
+            <engine:Instance template="ConnectionTabTemplate"/>
+        </engine:VisualElement>
+        <engine:VisualElement name="tab-content__Backend" class="tab-content">
+            <engine:Template name="BackendTabTemplate" src="BackendTab.uxml"/>
+            <engine:Instance template="BackendTabTemplate"/>
+        </engine:VisualElement>
+        <engine:VisualElement name="tab-content__Databases" class="tab-content">
+            <engine:Label text="Databases tab!"/>
+        </engine:VisualElement>
+        <engine:VisualElement name="tab-content__Quotas" class="tab-content">
+            <engine:Label text="Quotas tab!"/>
+        </engine:VisualElement>
+    </engine:ScrollView>
+    
+</engine:UXML>

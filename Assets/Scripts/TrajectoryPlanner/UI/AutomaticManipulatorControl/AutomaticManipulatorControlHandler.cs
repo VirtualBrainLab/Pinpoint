@@ -153,7 +153,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void OnEnable()
         {
             // Populate properties
-            ProbeManagers = ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
+            ProbeManagers = ProbeManager.Instances.Where(manager => manager.IsEphysLinkControlled).ToList();
             AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
             TargetInsertionsReference = ProbeInsertion.TargetableInstances;
 

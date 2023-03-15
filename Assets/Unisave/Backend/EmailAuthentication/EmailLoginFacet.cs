@@ -12,7 +12,7 @@ using Unisave.Utils;
  * You can extend the PlayerHasLoggedIn(...) method to perform logic
  * after a successful login attempt.
  */
-
+ 
 public class EmailLoginFacet : Facet
 {
     /// <summary>
@@ -21,20 +21,37 @@ public class EmailLoginFacet : Facet
     /// <param name="email">Player's email</param>
     /// <param name="password">Player's password</param>
     /// <returns>True when the login succeeds</returns>
-    public bool Login(string email, string password)
+    public (bool success, string token) Login(string email, string password)
+    {
+        var player = EmailAuthUtils.FindPlayer(email);
+
+        if (player == null)
+            return (false, null);
+
+        if (!Hash.Check(password, player.password))
+            return (false, null);
+
+        Auth.Login(player);
+        
+        PlayerHasLoggedIn(player, true);
+        
+        return (true, player.token);
+    }
+
+    public bool LoginViaToken(string email, string token)
     {
         var player = EmailAuthUtils.FindPlayer(email);
 
         if (player == null)
             return false;
 
-        if (!Hash.Check(password, player.password))
+        if (!token.Equals(player.token) || DateTime.UtcNow > player.tokenExpiration)
             return false;
 
         Auth.Login(player);
-        
+
         PlayerHasLoggedIn(player);
-        
+
         return true;
     }
 
@@ -42,12 +59,15 @@ public class EmailLoginFacet : Facet
     /// Called after successful login
     /// </summary>
     /// <param name="player">The player that has logged in</param>
-    private void PlayerHasLoggedIn(PlayerEntity player)
+    private void PlayerHasLoggedIn(PlayerEntity player, bool updateToken = false)
     {
         player.lastLoginAt = DateTime.UtcNow;
+        if (updateToken)
+        {
+            player.token = Guid.NewGuid().ToString();
+            player.tokenExpiration = DateTime.UtcNow.AddDays(7);
+        }
         player.Save();
-        
-        // You can perform any additional actions here
     }
 
     /// <summary>

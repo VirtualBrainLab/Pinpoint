@@ -28,7 +28,7 @@ public class ExperimentEditor : MonoBehaviour
     public void AddExperiment()
     {
         Debug.Log("Add");
-        _accountsManager.AddExperiment();
+        _accountsManager.NewExperiment();
         UpdateList();
     }
 
@@ -47,7 +47,7 @@ public class ExperimentEditor : MonoBehaviour
     public void RemoveExperiment (string experiment)
     {
         Debug.Log("Remove");
-        _accountsManager.RemoveExperiment(experiment);
+        _accountsManager.DeleteExperiment(experiment);
         UpdateList();
     }
 

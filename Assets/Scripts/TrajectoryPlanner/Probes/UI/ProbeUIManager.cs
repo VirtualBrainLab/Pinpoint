@@ -17,18 +17,18 @@ public class ProbeUIManager : MonoBehaviour
 
     private Color defaultColor;
     private Color selectedColor;
+    private bool _selected;
 
     private bool probeMovedDirty = false;
 
     private float probePanelPxHeight;
-    private float pxStep;
 
     private const int MINIMUM_AREA_PIXEL_HEIGHT = 7;
 
     /// <summary>
     /// Area that this probe goes through covering the most pixels
     /// </summary>
-    public string MaxArea;
+    public string MaxArea { get; private set; }
 
     private void Awake()
     {
@@ -41,11 +41,11 @@ public class ProbeUIManager : MonoBehaviour
         Transform probePanelParentT = GameObject.Find("ProbePanelParent").transform;
         probePanelGO = Instantiate(_probePanelPrefab, probePanelParentT);
         probePanel = probePanelGO.GetComponent<TP_ProbePanel>();
-        probePanel.RegisterProbeController(_probeManager);
-        probePanel.RegisterProbeUIManager(this);
+        probePanel.name = $"{_probeManager.name}_panel_{GetOrder()}";
+        UpdateChannelMap();
+        probePanel.RegisterProbeManager(_probeManager);
 
         probePanelPxHeight = probePanel.GetPanelHeight();
-        pxStep = probePanelPxHeight / 10;
 
         GameObject main = GameObject.Find("main");
         modelControl = main.GetComponent<CCFModelControl>();
@@ -55,6 +55,8 @@ public class ProbeUIManager : MonoBehaviour
 
         // Set probe to be un-selected
         ProbeSelected(false);
+
+        _probeManager.UIUpdateEvent.AddListener(UpdateUI);
     }
 
     private void Update()
@@ -63,17 +65,23 @@ public class ProbeUIManager : MonoBehaviour
         {
             ProbedMovedHelper();
             probeMovedDirty = false;
-            _probeManager.ProbeUIUpdateEvent.Invoke();
         }
     }
 
-    private void UpdateColors()
+    public void UpdateColors()
     {
-        defaultColor = _probeManager.GetColor();
+        defaultColor = _probeManager.Color;
         defaultColor.a = 0.5f;
 
         selectedColor = defaultColor;
         selectedColor.a = 0.75f;
+
+        UpdateUIManagerColor();
+    }
+
+    public void UpdateChannelMap()
+    {
+        probePanel.SetChannelMap(_probeManager.ChannelMap.GetChannelMapTexture(_probeManager.SelectionLayerName));
     }
 
     public int GetOrder()
@@ -86,7 +94,7 @@ public class ProbeUIManager : MonoBehaviour
         Destroy(probePanelGO);
     }
 
-    public void ProbeMoved()
+    public void UpdateUI()
     {
         probeMovedDirty = true;
     }
@@ -109,83 +117,65 @@ public class ProbeUIManager : MonoBehaviour
     private void ProbedMovedHelper()
     {
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
-        (float mmStartPos, float mmRecordingSize) = ((DefaultProbeController)_probeManager.GetProbeController()).GetRecordingRegionHeight();
+        var channelCoords = _probeManager.GetChannelRangemm();
+        ProbeInsertion insertion = _probeManager.ProbeController.Insertion;
 
-        (Vector3 startCoordWorld, Vector3 endCoordWorld) = _probeManager.GetProbeController().GetRecordingRegionWorld(_electrodeBase.transform);
-        Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorld);
-        Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorld);
+        Vector3 startCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.startPosmm;
+        Vector3 endCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.endPosmm;
+        Vector3 startCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
+        Vector3 endCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
 
+        Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU);
+        Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorldU);
 
         List<int> mmTickPositions = new List<int>();
         List<int> tickIdxs = new List<int>();
         List<int> tickHeights = new List<int>(); // this will be calculated in the second step
 
-        if (Settings.RecordingRegionOnly)
+        // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
+        // we also want to save the mm tick positions
+
+        List<int> mmPos = new List<int>();
+        for (int i = Mathf.Max(1,Mathf.CeilToInt(channelCoords.startPosmm)); i <= Mathf.Min(9,Mathf.FloorToInt(channelCoords.endPosmm)); i++)
+            mmPos.Add(i); // this is the list of values we are going to have to assign a position to
+
+        int idx = 0;
+        for (int y = 0; y < probePanelPxHeight; y++)
         {
-            // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
-            // we also want to save the mm tick positions
+            if (idx >= mmPos.Count)
+                break;
 
-            float mmEndPos = mmStartPos + mmRecordingSize;
-            List<int> mmPos = new List<int>();
-            for (int i = Mathf.Max(1,Mathf.CeilToInt(mmStartPos)); i <= Mathf.Min(9,Mathf.FloorToInt(mmEndPos)); i++)
-                mmPos.Add(i); // this is the list of values we are going to have to assign a position to
-
-            int idx = 0;
-            for (int y = 0; y < probePanelPxHeight; y++)
+            float um = channelCoords.startPosmm + (y / probePanelPxHeight) * channelCoords.recordingSizemm;
+            if (um >= mmPos[idx])
             {
-                if (idx >= mmPos.Count)
-                    break;
+                mmTickPositions.Add(y);
+                // We also need to keep track of *what* tick we are at with this position
+                // index 0 = 1000, 1 = 2000, ... 8 = 9000
+                tickIdxs.Add(9 - mmPos[idx]);
 
-                float um = mmStartPos + (y / probePanelPxHeight) * (mmEndPos - mmStartPos);
-                if (um >= mmPos[idx])
-                {
-                    mmTickPositions.Add(y);
-                    // We also need to keep track of *what* tick we are at with this position
-                    // index 0 = 1000, 1 = 2000, ... 8 = 9000
-                    tickIdxs.Add(9 - mmPos[idx]);
-
-                    idx++;
-                }
+                idx++;
             }
-        }
-        else
-        {
-            // apparently we don't save tick positions if we aren't in the reocrding region? This doesn't seem right
         }
 
         // Interpolate from the tip to the top, putting this data into the probe panel texture
         (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startApdvlr25, endApdvlr25);
 
-        probePanel.SetTipData(startApdvlr25, endApdvlr25, mmRecordingSize, Settings.RecordingRegionOnly);
+        // Get the percentage height along the probe
 
-        if (Settings.RecordingRegionOnly)
+        // Update probePanel data
+        probePanel.SetTipData(startApdvlr25, endApdvlr25, channelCoords.startPosmm / channelCoords.fullHeight, channelCoords.endPosmm/ channelCoords.fullHeight, channelCoords.recordingSizemm);
+
+        for (int y = 0; y < probePanelPxHeight; y++)
         {
-            for (int y = 0; y < probePanelPxHeight; y++)
+            // If the mm tick position matches with the position we're at, then add a depth line
+            bool depthLine = mmTickPositions.Contains(y);
+
+            // We also want to check if we're at at height line, in which case we'll add a little tick on the right side
+            bool heightLine = boundaryHeights.Contains(y);
+
+            if (depthLine)
             {
-                // If the mm tick position matches with the position we're at, then add a depth line
-                bool depthLine = mmTickPositions.Contains(y);
-
-                // We also want to check if we're at at height line, in which case we'll add a little tick on the right side
-                bool heightLine = boundaryHeights.Contains(y);
-
-                if (depthLine)
-                {
-                    tickHeights.Add(y);
-                }
-            }
-        }
-        else
-        {
-            // set all the other pixels
-            for (int y = 0; y < probePanelPxHeight; y++)
-            {
-                bool depthLine = y > 0 && y < probePanelPxHeight && y % (int)pxStep == 0;
-
-                if (depthLine)
-                {
-                    tickHeights.Add(y);
-                    tickIdxs.Add(9 - y / (int)pxStep);
-                }
+                tickHeights.Add(y);
             }
         }
 
@@ -290,7 +280,13 @@ public class ProbeUIManager : MonoBehaviour
 
     public void ProbeSelected(bool selected)
     {
-        if (selected)
+        _selected = selected;
+        UpdateUIManagerColor();
+    }
+
+    private void UpdateUIManagerColor()
+    {
+        if (_selected)
             probePanelGO.GetComponent<Image>().color = selectedColor;
         else
             probePanelGO.GetComponent<Image>().color = defaultColor;
@@ -301,6 +297,7 @@ public class ProbeUIManager : MonoBehaviour
         probePanel.ResizeProbePanel(newPxHeight);
 
         probePanelPxHeight = probePanel.GetPanelHeight();
-        pxStep = probePanelPxHeight / 10;
+
+        probePanel.ResizeProbePanel(newPxHeight);
     }
 }

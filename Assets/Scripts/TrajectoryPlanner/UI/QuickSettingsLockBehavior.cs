@@ -16,10 +16,21 @@ public class QuickSettingsLockBehavior : MonoBehaviour
     public void InvokeLockEvent()
     {
         _locked = !_locked;
+        UpdateSprite();
+        LockEvent.Invoke(_locked);
+    }
+
+    public void SetLockState(bool state)
+    {
+        _locked = state;
+        UpdateSprite();
+    }
+
+    private void UpdateSprite()
+    {
         if (_locked)
             _sprite.sprite = _lockSprite;
         else
             _sprite.sprite = _unlockSprite;
-        LockEvent.Invoke(_locked);
     }
 }

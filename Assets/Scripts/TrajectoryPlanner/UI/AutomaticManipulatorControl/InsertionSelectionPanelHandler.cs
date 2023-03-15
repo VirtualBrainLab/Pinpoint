@@ -17,7 +17,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         {
             // Update manipulator ID text
             _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
-            _manipulatorIDText.color = ProbeManager.GetColor();
+            _manipulatorIDText.color = ProbeManager.Color;
 
             // Attach to dropdown events
             _shouldUpdateTargetInsertionOptionsEvent.AddListener(UpdateTargetInsertionOptions);
@@ -100,7 +100,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 posWithDepthAndCorrectAxes.z -= brainSurfaceAdjustment;
 
             // Adjust for phi
-            var probePhi = ProbeManager.GetProbeController().Insertion.phi * Mathf.Deg2Rad;
+            var probePhi = ProbeManager.ProbeController.Insertion.phi * Mathf.Deg2Rad;
             var phiCos = Mathf.Cos(probePhi);
             var phiSin = Mathf.Sin(probePhi);
             var phiAdjustedX = posWithDepthAndCorrectAxes.x * phiCos -
@@ -241,7 +241,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             .Where(insertion =>
                 !SelectedTargetInsertion.Where(pair => pair.Key != ProbeManager.ManipulatorId)
                     .Select(pair => pair.Value).Contains(insertion) &&
-                insertion.angles == ProbeManager.GetProbeController().Insertion.angles);
+                insertion.angles == ProbeManager.ProbeController.Insertion.angles);
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
 
@@ -304,9 +304,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 // Calculate movement insertions
 
                 // DV axis
-                _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.GetProbeController().Insertion)
+                _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
                 {
-                    dv = ProbeManager.GetProbeController().Insertion
+                    dv = ProbeManager.ProbeController.Insertion
                         .World2TransformedAxisChange(PRE_DEPTH_DRIVE_BREGMA_OFFSET_W).z
                 };
 
@@ -314,8 +314,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 var brainSurfaceCoordinate = AnnotationDataset.FindSurfaceCoordinate(
                     AnnotationDataset.CoordinateSpace.World2Space(SelectedTargetInsertion[ProbeManager.ManipulatorId]
                         .PositionWorldU()),
-                    AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(ProbeManager.GetProbeController()
-                        .GetTipWorldU().tipUpWorld));
+                    AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(ProbeManager.ProbeController
+                        .GetTipWorldU().tipUpWorldU));
                 var brainSurfaceWorld = AnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
                 var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
 
@@ -339,7 +339,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 _lineGameObjects.dv.SetActive(true);
 
                 // Set line positions
-                _lineRenderers.dv.SetPosition(0, ProbeManager.GetProbeController().ProbeTipT.position);
+                _lineRenderers.dv.SetPosition(0, ProbeManager.ProbeController.ProbeTipT.position);
                 _lineRenderers.dv.SetPosition(1, _movementAxesInsertions.dv.PositionWorldT());
 
                 _lineRenderers.ap.SetPosition(0, _movementAxesInsertions.dv.PositionWorldT());

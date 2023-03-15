@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
@@ -7,20 +8,19 @@ using UnityEngine.Serialization;
 public class TP_ProbePanel : MonoBehaviour
 {
     //[SerializeField] private GameObject pixelsGO;
-    [FormerlySerializedAs("pixelsGPURenderer")] [SerializeField] private Renderer _pixelsGPURenderer;
+    [FormerlySerializedAs("pixelsGPURenderer")][SerializeField] private Renderer _channelRenderer;
+    [SerializeField] private Renderer _sliceRenderer;
     [FormerlySerializedAs("textPanelGO")] [SerializeField] private GameObject _textPanelGo;
     [FormerlySerializedAs("textPrefab")] [SerializeField] private GameObject _textPrefab;
     [FormerlySerializedAs("tickMarkGOs")] [SerializeField] private List<GameObject> _tickMarkGOs;
     [FormerlySerializedAs("probePanelPxHeight")] [SerializeField] private int _probePanelPxHeight = 500;
 
-    private ProbeManager _probeController;
-    private ProbeUIManager _probeUIManager;
-
-    private List<GameObject> textGOs;
+    private List<GameObject> _textGOs;
+    private ProbeManager _probeManager;
 
     private void Awake()
     {
-        textGOs = new List<GameObject>();
+        _textGOs = new List<GameObject>();
     }
 
     private void Start()
@@ -33,15 +33,37 @@ public class TP_ProbePanel : MonoBehaviour
     {
         await VolumeDatasetManager.Texture3DLoaded();
 
-        _pixelsGPURenderer.material.SetTexture("_AnnotationTexture", VolumeDatasetManager.AnnotationDatasetTexture3D);
+        _channelRenderer.material.SetTexture("_AnnotationTexture", VolumeDatasetManager.AnnotationDatasetTexture3D);
+        _sliceRenderer.material.SetTexture("_AnnotationTexture", VolumeDatasetManager.AnnotationDatasetTexture3D);
     }
 
-    public void SetTipData(Vector3 tipPosition, Vector3 endPosition, float recordingHeight, bool recordingRegionOnly)
+    public void RegisterProbeManager(ProbeManager probeManager)
     {
-        _pixelsGPURenderer.material.SetVector("_TipPosition", tipPosition);
-        _pixelsGPURenderer.material.SetVector("_EndPosition", endPosition);
-        _pixelsGPURenderer.material.SetFloat("_RecordingHeight", recordingHeight);
-        _pixelsGPURenderer.material.SetFloat("_RecordingRegionOnly", recordingRegionOnly ? 1 : 0);
+        _probeManager = probeManager;
+    }
+
+    public ProbeManager GetProbeManager()
+    {
+        return _probeManager;
+    }
+
+    public void SetChannelMap(Texture2D channelMapTexture)
+    {
+
+        _channelRenderer.material.SetTexture("_ChannelTexture", channelMapTexture);
+    }
+
+    public void SetTipData(Vector3 tipPosition, Vector3 endPosition, float tipPerc, float endPerc, float recordingHeight)
+    {
+        _channelRenderer.material.SetVector("_TipPosition", tipPosition);
+        _channelRenderer.material.SetVector("_EndPosition", endPosition);
+        _channelRenderer.material.SetFloat("_TipPerc", tipPerc);
+        _channelRenderer.material.SetFloat("_EndPerc", endPerc);
+        _channelRenderer.material.SetFloat("_RecordingHeight", recordingHeight);
+
+        _sliceRenderer.material.SetVector("_TipPosition", tipPosition);
+        _sliceRenderer.material.SetVector("_EndPosition", endPosition);
+        _sliceRenderer.material.SetFloat("_RecordingHeight", recordingHeight);
     }
 
     public float GetPanelHeight()
@@ -51,26 +73,15 @@ public class TP_ProbePanel : MonoBehaviour
 
     public void RegisterProbeUIManager(ProbeUIManager probeUImanager)
     {
-        _probeUIManager = probeUImanager;
-        gameObject.name = _probeController.name + "_panel_" + probeUImanager.GetOrder();
-    }
-
-    public void RegisterProbeController(ProbeManager probeController)
-    {
-        _probeController = probeController;
-    }
-
-    public ProbeManager GetProbeController()
-    {
-        return _probeController;
+        gameObject.name = "panel_" + probeUImanager.GetOrder();
     }
 
     public void UpdateText(List<int> heights, List<string> areaNames, int fontSize)
     {
         // [TODO] Replace this with a queue
-        foreach (GameObject go in textGOs)
+        foreach (GameObject go in _textGOs)
             Destroy(go);
-        textGOs.Clear();
+        _textGOs.Clear();
 
         // add the area names
         for (int i = 0; i < heights.Count; i++)
@@ -94,13 +105,14 @@ public class TP_ProbePanel : MonoBehaviour
         GameObject newText = Instantiate(_textPrefab, _textPanelGo.transform);
         newText.GetComponent<TextMeshProUGUI>().text = areaName;
         newText.GetComponent<TextMeshProUGUI>().fontSize = fontSize;
-        textGOs.Add(newText);
-        newText.transform.localPosition = new Vector3(15, pxHeight);
+        _textGOs.Add(newText);
+        newText.transform.localPosition = new Vector3(-37.5f, pxHeight - _probePanelPxHeight);
     }
 
     public void ResizeProbePanel(int newPxHeight)
     {
         _probePanelPxHeight = newPxHeight;
-        _pixelsGPURenderer.gameObject.transform.localScale = new Vector3(25, newPxHeight);
+        _channelRenderer.gameObject.transform.localScale = new Vector3(32, newPxHeight);
+        _sliceRenderer.gameObject.transform.localScale = new Vector3(4, newPxHeight);
     }
 }

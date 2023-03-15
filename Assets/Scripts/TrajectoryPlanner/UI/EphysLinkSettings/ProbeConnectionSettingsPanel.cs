@@ -24,7 +24,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             // Set probe name
             _probeIdText.text = probeManager.UUID[..8];
-            _probeIdText.color = probeManager.GetColor();
+            _probeIdText.color = probeManager.Color;
 
             // Register event functions
             ProbeManager.ZeroCoordinateOffsetChangedEvent.AddListener(UpdateZeroCoordinateInputFields);

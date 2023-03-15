@@ -44,11 +44,11 @@ public class RelativeCoordinatePanel : MonoBehaviour
 
     public void Set2Bregma()
     {
-        Settings.RelativeCoordinate = Utils.IBL_BREGMA;
+        Settings.RelativeCoordinate = TP_Utils.IBL_BREGMA;
     }
 
     public void Set2Lambda()
     {
-        Settings.RelativeCoordinate = Utils.IBL_LAMBDA;
+        Settings.RelativeCoordinate = TP_Utils.IBL_LAMBDA;
     }
 }

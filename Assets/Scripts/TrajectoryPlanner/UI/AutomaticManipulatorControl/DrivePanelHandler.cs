@@ -13,7 +13,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void Start()
         {
             _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
-            _manipulatorIDText.color = ProbeManager.GetColor();
+            _manipulatorIDText.color = ProbeManager.Color;
         }
 
         #endregion
@@ -190,9 +190,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 var targetDriveDistance =
                     Vector3.Distance(
                         InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId].apmldv,
-                        ProbeManager.GetProbeController().Insertion.apmldv);
+                        ProbeManager.ProbeController.Insertion.apmldv);
                 var surfaceDriveDistance = Vector3.Distance(offsetAdjustedSurfacePosition,
-                    ProbeManager.GetProbeController().Insertion.apmldv);
+                    ProbeManager.ProbeController.Insertion.apmldv);
 
                 // Set target and surface
                 _targetDepth = position.w + targetDriveDistance;

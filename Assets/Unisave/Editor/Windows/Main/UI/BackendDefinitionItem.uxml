@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:VisualElement class="backend-def">
+        <engine:Label class="backend-def__label" text="Assets/Unisave/Examples/..."/>
+        <engine:VisualElement class="backend-def__actions">
+            <engine:Button class="backend-def__button" text="Enable/Disable"/>
+            <editor:ObjectField class="backend-def__field"/>
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

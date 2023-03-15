@@ -107,16 +107,19 @@ public class ColliderManager : MonoBehaviour
     {
         foreach (Collider activeCollider in ActiveColliderInstances)
         {
-            foreach (Collider otherCollider in InactiveColliderInstances)
+            if (activeCollider != null)
             {
-                if (otherCollider != null)
+                foreach (Collider otherCollider in InactiveColliderInstances)
                 {
-                    Vector3 dir;
-                    float dist;
-                    if (Physics.ComputePenetration(activeCollider, activeCollider.transform.position, activeCollider.transform.rotation, otherCollider, otherCollider.transform.position, otherCollider.transform.rotation, out dir, out dist))
+                    if (otherCollider != null)
                     {
-                        CreateCollisionMesh(activeCollider, otherCollider);
-                        return true;
+                        Vector3 dir;
+                        float dist;
+                        if (Physics.ComputePenetration(activeCollider, activeCollider.transform.position, activeCollider.transform.rotation, otherCollider, otherCollider.transform.position, otherCollider.transform.rotation, out dir, out dist))
+                        {
+                            CreateCollisionMesh(activeCollider, otherCollider);
+                            return true;
+                        }
                     }
                 }
             }
@@ -152,9 +155,11 @@ public class ColliderManager : MonoBehaviour
         if (VisibleProbeColliders.Count > 0 || VisibleRigGOs.Count > 0)
         {
             foreach (Collider probeCollider in VisibleProbeColliders)
-                probeCollider.gameObject.GetComponent<Renderer>().enabled = false;
+                if (probeCollider != null)
+                    probeCollider.gameObject.GetComponent<Renderer>().enabled = false;
             foreach (KeyValuePair<GameObject, Material> kvp in VisibleRigGOs)
-                kvp.Key.GetComponent<Renderer>().material = kvp.Value;
+                if (kvp.Key != null)
+                    kvp.Key.GetComponent<Renderer>().material = kvp.Value;
 
             VisibleProbeColliders.Clear();
             VisibleRigGOs.Clear();

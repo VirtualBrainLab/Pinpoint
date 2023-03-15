@@ -34,6 +34,8 @@ namespace Unisave.Foundation
 					UnityEditor.AssetDatabase.CreateAsset(preferences, path);
 					UnityEditor.AssetDatabase.SaveAssets();
 					UnityEditor.AssetDatabase.Refresh();
+					
+					Debug.Log("[Unisave] Created the Unisave preferences file.");
 				#else
 					throw new InvalidOperationException(
 						"Unisave preferences have not been found. " +
@@ -168,7 +170,7 @@ namespace Unisave.Foundation
 		}
 
 		[SerializeField]
-		private string backendFolder = "Backend";
+		private string backendFolder = null;
 
 		/// <summary>
 		/// Upload backend automatically after compilation finishes
@@ -253,29 +255,5 @@ namespace Unisave.Foundation
 				#endif
 			}
 		}
-		
-		/// <summary>
-		/// File containing development env configuration
-		/// </summary>
-		public TextAsset DevelopmentEnv
-		{
-			get => developmentEnv;
-			set => developmentEnv = value;
-		}
-
-		[SerializeField]
-		private TextAsset developmentEnv;
-		
-		/// <summary>
-		/// File containing testing env configuration
-		/// </summary>
-		public TextAsset TestingEnv
-		{
-			get => testingEnv;
-			set => testingEnv = value;
-		}
-
-		[SerializeField]
-		private TextAsset testingEnv;
 	}
 }

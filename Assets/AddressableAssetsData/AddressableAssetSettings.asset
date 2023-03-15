@@ -46,6 +46,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3693e87d2b7c0ab4fa203210015d32dc, type: 2}
   - {fileID: 11400000, guid: 115bf21d424a3b24aaee51444ffb542d, type: 2}
   - {fileID: 11400000, guid: 59ffbdc4842bce949811dc8a3f2f6c37, type: 2}
+  - {fileID: 11400000, guid: eaf52d31609aae946b49dc61e431fd89, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -66,7 +67,7 @@ MonoBehaviour:
       - m_Id: 0dbfffed1e7d1434696f5a6193af38d3
         m_Value: ServerData/[BuildTarget]
       - m_Id: 8b0e868bf8565ef4ba5a95e7d57f666c
-        m_Value: http://data.virtualbrainlab.org/NPTrajData/0.8.1/[BuildTarget]
+        m_Value: http://data.virtualbrainlab.org/NPTrajData/0.8.5/[BuildTarget]
     m_ProfileEntryNames:
     - m_Id: b28712faecae3244489993d74caf0ba7
       m_Name: BuildTarget
@@ -117,7 +118,7 @@ MonoBehaviour:
           m_Key: HostingServiceUploadSpeed
         - m_AssemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
           m_ClassName: System.String
-          m_Data: ServerData/StandaloneWindows64
+          m_Data: ServerData/WebGL
           m_Key: ContentRoot
         - m_AssemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
           m_ClassName: System.Boolean

@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using Unisave.Editor.BackendFolders;
 using Unisave.Editor.BackendUploading;
 using Unisave.Foundation;
 using Unisave.Utils;
+using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 
 namespace Unisave.Editor
 {
@@ -228,7 +231,7 @@ namespace Unisave.Editor
             );
         }
         
-        [MenuItem("Assets/Create/Unisave/Player entity", false, 99)]
+        [MenuItem("Assets/Create/Unisave/Player entity", false, 95)]
         public static void CreatePlayerEntity()
         {
             var path = GetCurrentDirectoryPath();
@@ -239,37 +242,33 @@ namespace Unisave.Editor
                 null
             );
         }
+
+        [MenuItem("Assets/Create/Unisave/Backend folder definition file", false, 99)]
+        public static void CreateBackendFolderDefinition()
+        {
+            CreateAsset(
+                GetCurrentDirectoryPath() + "/MyBackend.asset",
+                AssetDatabase.LoadAssetAtPath<Texture2D>(
+                    EditorGUIUtility.isProSkin ?
+                        "Assets/Unisave/Images/NewAssetIconWhite.png" :
+                        "Assets/Unisave/Images/NewAssetIcon.png"
+                ),
+                path => {
+                    var def = ScriptableObject.CreateInstance<BackendFolderDefinition>();
+                    
+                    AssetDatabase.CreateAsset(def, path);
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+                }
+            );
+        }
         
         [MenuItem("Assets/Create/Unisave/Backend folder", false, 100)]
         public static void CreateBackendFolder()
         {
             var path = GetCurrentDirectoryPath();
 
-            if (AssetDatabase.IsValidFolder(path + "/Backend"))
-            {
-                EditorUtility.DisplayDialog(
-                    "Backend folder creation failed",
-                    "Folder named 'Backend' already exists in this directory.",
-                    "OK"
-                );
-                return;
-            }
-            
-            AssetDatabase.CreateFolder(path, "Backend");
-            
-            Templates.CreateScriptFromTemplate(
-                path + "/Backend/PlayerEntity.cs",
-                "PlayerEntity.txt",
-                null
-            );
-
-            var preferences = UnisavePreferences.LoadOrCreate();
-            preferences.BackendFolder = Str.Start(path + "/Backend", "Assets/")
-                .Substring("Assets/".Length); // remove the first assets folder
-            preferences.Save();
-            Debug.Log(
-                "New backend folder path has been stored in Unisave preferences"
-            );
+            BackendFolderUtility.CreateBackendFolder(path);
         }
         
         [MenuItem("Assets/Set folder as Unisave Backend", false, 500)]
@@ -282,20 +281,8 @@ namespace Unisave.Editor
                 Debug.LogError("Selected asset is not a folder");
                 return;
             }
-
-            if (path.StartsWith("Assets/"))
-                path = path.Substring("Assets/".Length);
             
-            var preferences = UnisavePreferences.LoadOrCreate();
-            preferences.BackendFolder = path;
-            preferences.Save();
-                    
-            Uploader
-                .GetDefaultInstance()
-                .UploadBackend(
-                    verbose: true,
-                    useAnotherThread: true
-                );
+            BackendFolderUtility.CreateDefinitionFileInFolder(path);
         }
 
         /////////////

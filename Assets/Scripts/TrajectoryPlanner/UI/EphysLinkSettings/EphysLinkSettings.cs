@@ -131,7 +131,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             var handledProbeIds = new HashSet<string>();
 
             // Add any new probes in scene to list
-            foreach (var probeManager in ProbeManager.instances.Where(manager => !manager.IsGhost))
+            foreach (var probeManager in ProbeManager.Instances.Where(manager => !manager.IsGhost))
             {
                 var probeId = probeManager.UUID;
 
@@ -180,7 +180,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             {
                 print("Available manipulators: " + availableIds.Length);
                 // Update probes with selectable options
-                var usedManipulatorIds = ProbeManager.instances
+                var usedManipulatorIds = ProbeManager.Instances
                     .Where(probeManager => probeManager.IsEphysLinkControlled)
                     .Select(probeManager => probeManager.ManipulatorId).ToHashSet();
                 foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
@@ -264,19 +264,17 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             }
             else
             {
-                var qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
-
                 // Disconnect from server
-                qDialogue.SetYesCallback(() =>
+                QuestionDialogue.SetYesCallback(() =>
                 {
-                    foreach (var probeManager in ProbeManager.instances
+                    foreach (var probeManager in ProbeManager.Instances
                                  .Where(probeManager => probeManager.IsEphysLinkControlled))
                         probeManager.SetIsEphysLinkControlled(false);
 
                     _communicationManager.DisconnectFromServer(UpdateConnectionUI);
                 });
 
-                qDialogue.NewQuestion(
+                QuestionDialogue.NewQuestion(
                     "Are you sure you want to disconnect?\nAll incomplete movements will be canceled.");
             }
         }

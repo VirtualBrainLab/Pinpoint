@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Reflection;
 using RSG;
 using LightJson;
-using Unisave.Exceptions;
 using Unisave.Foundation;
 using Unisave.Serialization;
 using Unisave.Serialization.Context;
@@ -77,26 +75,10 @@ namespace Unisave.Facets
             params object[] arguments
         )
         {
-            MethodInfo methodInfo = Facet.FindMethodByName(
-                facetType,
-                methodName
-            );
-
-            if (methodInfo.ReturnType != returnType)
-            {
-                throw new UnisaveException(
-                    $"OnFacet<{facetType.Name}>.Call<{returnType.Name}>" +
-                    $"(\"{methodName}\", ...)" +
-                    $" is incorrect (method returns different type), use:\n" +
-                    $"OnFacet<{facetType.Name}>.Call" +
-                    $"<{methodInfo.ReturnType.Name}>(...)"
-                );
-            }
-
             return PerformFacetCall(
                 facetType.FullName,
                 methodName,
-                Facet.SerializeArguments(methodInfo, arguments)
+                SerializeArguments(arguments)
             )
             .Then((JsonValue returnedValue) => {
                 return Serializer.FromJson(
@@ -114,25 +96,10 @@ namespace Unisave.Facets
             Type facetType, string methodName, params object[] arguments
         )
         {
-            MethodInfo methodInfo = Facet.FindMethodByName(
-                facetType,
-                methodName
-            );
-
-            if (methodInfo.ReturnType != typeof(void))
-            {
-                throw new UnisaveException(
-                    $"OnFacet<{facetType.Name}>.Call(\"{methodName}\", ...)" +
-                    $" is incorrect (method doesn't return void), use:\n" +
-                    $"OnFacet<{facetType.Name}>" +
-                    $".Call<{methodInfo.ReturnType.Name}>(...)"
-                );
-            }
-
             return PerformFacetCall(
                 facetType.Name,
                 methodName,
-                Facet.SerializeArguments(methodInfo, arguments)
+                SerializeArguments(arguments)
             )
             .Then(v => {}); // forget the return value, which is null anyways
         }
@@ -145,5 +112,38 @@ namespace Unisave.Facets
             string methodName,
             JsonArray arguments
         );
+        
+        private static JsonArray SerializeArguments(object[] arguments)
+        {
+            /*
+             * This class used to use the
+             * Facet.SerializeArguments(methodInfo, arguments)
+             * method, but IL2CPP code stripping makes the method info
+             * unavailable during runtime so this is a replacement.
+             */
+            
+            var jsonArgs = new JsonArray();
+
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                object arg = arguments[i];
+                Type scope = typeof(object); // most-generic type-scope
+
+                // raw JSON cannot have the "$type" field added,
+                // that would break the business logic
+                if (arg is JsonObject)
+                    scope = typeof(JsonObject);
+                
+                jsonArgs.Add(
+                    Serializer.ToJson(
+                        arg,
+                        scope,
+                        SerializationContext.ClientToServer
+                    )
+                );
+            }
+            
+            return jsonArgs;
+        }
     }
 }
