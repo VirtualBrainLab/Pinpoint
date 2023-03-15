@@ -9,7 +9,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 /// <summary>
 /// A channel map is a data holder which tracks the position of electrodes along a probe shank (or multiple shanks)
 /// 
-/// The "selected" 
+/// NOTE: Probes have a maximum height of 10mm in the current design!!! The code will (should) crash if you exceed this without increasing MAP_HEIGHT
 /// </summary>
 public class ChannelMap
 {
@@ -33,6 +33,8 @@ public class ChannelMap
     private const int MAP_WIDTH = 60;
     private const int MAP_HEIGHT = 10000;
 
+    public float FullHeight;
+
     /// <summary>
     /// Create a channel map by loading a CSV file from an AddressableAsset address
     /// </summary>
@@ -42,6 +44,8 @@ public class ChannelMap
         _channelMapTextures = new();
         _selectionLayers = new();
         _selectionLayerCoords = new();
+
+        FullHeight = MAP_HEIGHT / 1000f;
 
         LoadAsset(channelMapAsset);
     }

@@ -423,12 +423,12 @@ public class ProbeManager : MonoBehaviour
     }
 
     #region Channel map
-    public (float startPosmm, float endPosmm, float recordingSizemm) GetChannelRangemm()
+    public (float startPosmm, float endPosmm, float recordingSizemm, float fullHeight) GetChannelRangemm()
     {
         (float startPosmm, float endPosmm) = GetChannelMinMaxYCoord;
         float recordingSizemm = endPosmm - startPosmm;
 
-        return (startPosmm, endPosmm, recordingSizemm);
+        return (startPosmm, endPosmm, recordingSizemm, ChannelMap.FullHeight);
     }
 
     public void UpdateSelectionLayer(string selectionLayerName)

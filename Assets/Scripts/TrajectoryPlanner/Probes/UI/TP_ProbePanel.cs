@@ -61,8 +61,6 @@ public class TP_ProbePanel : MonoBehaviour
         _channelRenderer.material.SetFloat("_EndPerc", endPerc);
         _channelRenderer.material.SetFloat("_RecordingHeight", recordingHeight);
 
-        Debug.Log((tipPosition, endPosition));
-
         _sliceRenderer.material.SetVector("_TipPosition", tipPosition);
         _sliceRenderer.material.SetVector("_EndPosition", endPosition);
         _sliceRenderer.material.SetFloat("_RecordingHeight", recordingHeight);

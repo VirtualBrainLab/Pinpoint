@@ -163,7 +163,7 @@ public class ProbeUIManager : MonoBehaviour
         // Get the percentage height along the probe
 
         // Update probePanel data
-        probePanel.SetTipData(startApdvlr25, endApdvlr25, channelCoords.startPosmm /10f, channelCoords.endPosmm/ 10f, channelCoords.recordingSizemm);
+        probePanel.SetTipData(startApdvlr25, endApdvlr25, channelCoords.startPosmm / channelCoords.fullHeight, channelCoords.endPosmm/ channelCoords.fullHeight, channelCoords.recordingSizemm);
 
         for (int y = 0; y < probePanelPxHeight; y++)
         {

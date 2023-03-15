@@ -147,8 +147,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         }
         _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankSpacing", shankSpacing);
 
-        Debug.Log((startApdvlr25, endApdvlr25));
-
         recordingRegionCenterPosition = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + 
             upWorldU * recordingSizemmU / 2 + 
             forwardWorldU * shankSpacing * centerOffset);
