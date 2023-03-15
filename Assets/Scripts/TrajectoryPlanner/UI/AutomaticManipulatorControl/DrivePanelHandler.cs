@@ -153,9 +153,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId];
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
-                    ProbeManager.GetProbeController().Insertion.PositionWorldT() - targetPositionWorldT;
+                    ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
                 var offsetAdjustedRelativeTargetPositionWorldT =
-                    Vector3.ProjectOnPlane(relativePositionWorldT, ProbeManager.GetProbeController().ProbeTipT.up);
+                    Vector3.ProjectOnPlane(relativePositionWorldT, ProbeManager.ProbeController.ProbeTipT.up);
                 var offsetAdjustedTargetPositionWorldT =
                     targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
@@ -174,8 +174,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     targetInsertion.CoordinateTransform, false);
                 var surfacePositionWorldT = surfaceInsertion.PositionWorldT();
                 var surfacePlane = new Plane(Vector3.down, surfacePositionWorldT);
-                var direction = new Ray(ProbeManager.GetProbeController().Insertion.PositionWorldT(),
-                    ProbeManager.GetProbeController().ProbeTipT.up);
+                var direction = new Ray(ProbeManager.ProbeController.Insertion.PositionWorldT(),
+                    ProbeManager.ProbeController.ProbeTipT.up);
                 var offsetAdjustedSurfacePositionWorldT = Vector3.zero;
 
                 if (surfacePlane.Raycast(direction, out var distanceToSurface))
