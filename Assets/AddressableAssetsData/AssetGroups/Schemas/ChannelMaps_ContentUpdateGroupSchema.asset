@@ -12,5 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5834b5087d578d24c926ce20cd31e6d6, type: 3}
   m_Name: ChannelMaps_ContentUpdateGroupSchema
   m_EditorClassIdentifier: 
+<<<<<<< HEAD:Assets/Unisave/Resources/UnisavePreferencesFile.asset
+  serverUrl: https://unisave.cloud/
+  gameToken: J25J1cPWvldX2EjF0R223asp
+  backendFolder: 
+  automaticBackendUploading: 1
+  backendHash: 4ca2e9ff74431bd6ad3064ab87b8335f
+  developmentEnv: {fileID: 0}
+  testingEnv: {fileID: 0}
+=======
   m_Group: {fileID: 11400000, guid: eaf52d31609aae946b49dc61e431fd89, type: 2}
   m_StaticContent: 0
+>>>>>>> develop:Assets/AddressableAssetsData/AssetGroups/Schemas/ChannelMaps_ContentUpdateGroupSchema.asset

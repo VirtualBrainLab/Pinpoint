@@ -477,7 +477,7 @@ public class Settings : MonoBehaviour
         EphysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
         _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
         
-        _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulator_ids", "");
+        _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulators", null);
     }
 
     #endregion
