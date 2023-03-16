@@ -356,9 +356,6 @@ public class DefaultProbeController : ProbeController
             // If the probe was moved, set the new position
             SetProbePosition();
 
-            // Check collisions if we need to
-            ColliderManager.CheckForCollisions();
-
             // Update all the UI panels
             FinishedMovingEvent.Invoke();
         }
@@ -600,8 +597,6 @@ public class DefaultProbeController : ProbeController
             SetProbePosition();
 
             ProbeManager.SetAxisTransform(ProbeTipT);
-
-            ColliderManager.CheckForCollisions();
 
             ProbeManager.UIUpdateEvent.Invoke();
 

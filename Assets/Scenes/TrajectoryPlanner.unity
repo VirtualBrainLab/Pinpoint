@@ -1261,7 +1261,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: SetActiveProbeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -1320,6 +1320,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[3].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: SetActiveProbeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: SetActiveProbe
       objectReference: {fileID: 0}
@@ -1347,6 +1351,10 @@ PrefabInstance:
       propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
       objectReference: {fileID: 1835840601}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[3].m_Target
+      value: 
+      objectReference: {fileID: 2108153954}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: SetActiveProbeCallback.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -1388,6 +1396,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[3].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: InsertionListChangeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: UpdateExperimentInsertionUIPanels
       objectReference: {fileID: 0}
@@ -1406,6 +1418,10 @@ PrefabInstance:
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
       value: UpdateExperimentList
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[3].m_MethodName
+      value: UpdateAccountsTargetList
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: SetActiveProbeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -1448,6 +1464,10 @@ PrefabInstance:
       value: QuickSettingExpList, trajectoryplanner.accounts
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[3].m_TargetAssemblyTypeName
+      value: TrajectoryPlanner.TrajectoryPlannerManager, trajectoryplanner.core
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: SetActiveProbeCallback.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
       value: 
       objectReference: {fileID: 0}
@@ -1481,6 +1501,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
       propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 7375321954526526105, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+      propertyPath: ExperimentListChangeEvent.m_PersistentCalls.m_Calls.Array.data[3].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []

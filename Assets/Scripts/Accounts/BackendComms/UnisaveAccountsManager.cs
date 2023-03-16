@@ -40,6 +40,7 @@ public class UnisaveAccountsManager : AccountsManager
 
 #region current player data
     private PlayerEntity _player;
+    private List<ProbeInsertion> _activeInsertions;
     public bool Connected { get { return _player != null; } }
     public string ActiveExperiment { get { return _player.activeExperiment; } }
 #endregion

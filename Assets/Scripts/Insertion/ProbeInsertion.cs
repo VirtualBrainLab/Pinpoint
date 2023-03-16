@@ -121,6 +121,8 @@ public class ProbeInsertion
     {
         if (Instances.Contains(this))
             Instances.Remove(this);
+        if (TargetableInstances.Contains(this))
+            TargetableInstances.Remove(this);
     }
 
     #endregion

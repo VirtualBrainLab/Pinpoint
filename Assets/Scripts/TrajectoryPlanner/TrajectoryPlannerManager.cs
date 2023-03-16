@@ -192,6 +192,8 @@ namespace TrajectoryPlanner
             {
                 _movedThisFrame = false;
 
+                ColliderManager.CheckForCollisions();
+
                 _inPlaneSlice.UpdateInPlaneSlice();
 
                 if (Settings.ShowSurfaceCoordinate)
@@ -365,7 +367,7 @@ namespace TrajectoryPlanner
             
             _probeAddedOrRemovedEvent.Invoke();
 
-            ColliderManager.CheckForCollisions();
+            _movedThisFrame = true;
         }
 
         private void DestroyActiveProbeManager()
@@ -945,12 +947,30 @@ namespace TrajectoryPlanner
 
         #region Accounts
 
-        private (Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID) Probe2ServerProbeInsertion(ProbeManager probeManager)
+        private List<ProbeInsertion> _targetableAccountInsertions;
+
+        /// <summary>
+        /// Update the list of ProbeInsertion targets from the current available targets
+        /// </summary>
+        public void UpdateAccountsTargetList()
         {
-            ProbeInsertion insertion = probeManager.ProbeController.Insertion;
-            return (insertion.apmldv, insertion.angles,
-                (int)probeManager.ProbeType, insertion.CoordinateSpace.Name, insertion.CoordinateTransform.Name,
-                probeManager.UUID);
+            _targetableAccountInsertions.Clear();
+
+            foreach (var kvp in _accountsManager.GetActiveExperimentInsertions())
+                _targetableAccountInsertions.Add(ServerProbeInsertion2ProbeInsertion(kvp.Value));
+
+            Debug.Log(_targetableAccountInsertions.Count);
+        }
+
+        private ProbeInsertion ServerProbeInsertion2ProbeInsertion(ServerProbeInsertion serverInsertion)
+        {
+            ProbeInsertion insertion = new ProbeInsertion(serverInsertion.ap, serverInsertion.ml, serverInsertion.dv,
+                serverInsertion.phi, serverInsertion.theta, serverInsertion.spin,
+                coordinateSpaceOpts[serverInsertion.coordinateSpaceName],
+                coordinateTransformOpts[serverInsertion.coordinateTransformName],
+                true);
+
+            return insertion;
         }
 
         /// <summary>
