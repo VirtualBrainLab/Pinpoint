@@ -11,6 +11,7 @@ public class QuestionDialogue : MonoBehaviour
     public static QuestionDialogue Instance;
     #endregion
 
+    [SerializeField] private GameObject _uiPanel;
     [SerializeField] private TMP_Text _questionText;
 
     private static Action yesCallback;
@@ -27,19 +28,19 @@ public class QuestionDialogue : MonoBehaviour
     {
         if (yesCallback != null)
             yesCallback();
-        Instance.gameObject.SetActive(false);
+        Instance._uiPanel.SetActive(false);
     }
 
     public static void NoCallback()
     {
         if (noCallback != null)
             noCallback();
-        Instance.gameObject.SetActive(false);
+        Instance._uiPanel.SetActive(false);
     }
 
     public static void NewQuestion(string newText)
     {
-        Instance.gameObject.SetActive(true);
+        Instance._uiPanel.SetActive(true);
         Instance._questionText.text = newText;
     }
 
