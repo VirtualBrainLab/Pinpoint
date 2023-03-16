@@ -101,6 +101,10 @@ namespace TrajectoryPlanner
 
         Task annotationDatasetLoadTask;
 
+        #region Accounts variables
+        private List<ProbeInsertion> _targetableAccountInsertions;
+        #endregion
+
         #region Unity
         private void Awake()
         {
@@ -117,11 +121,14 @@ namespace TrajectoryPlanner
             coordinateTransformOpts.Add("Needles", new NeedlesTransform());
             coordinateTransformOpts.Add("IBL-Needles", new IBLNeedlesTransform());
 
+            // Initialize variables
             visibleProbePanels = 0;
-
             rigColliders = new List<Collider>();
             allNonActiveColliders = new List<Collider>();
             meshCenters = new Dictionary<int, Vector3>();
+            _targetableAccountInsertions = new();
+
+            // Load 3D meshes
             LoadMeshData();
             //Physics.autoSyncTransforms = true;
 
@@ -947,8 +954,6 @@ namespace TrajectoryPlanner
 
         #region Accounts
 
-        private List<ProbeInsertion> _targetableAccountInsertions;
-
         /// <summary>
         /// Update the list of ProbeInsertion targets from the current available targets
         /// </summary>
@@ -958,8 +963,6 @@ namespace TrajectoryPlanner
 
             foreach (var kvp in _accountsManager.GetActiveExperimentInsertions())
                 _targetableAccountInsertions.Add(ServerProbeInsertion2ProbeInsertion(kvp.Value));
-
-            Debug.Log(_targetableAccountInsertions.Count);
         }
 
         private ProbeInsertion ServerProbeInsertion2ProbeInsertion(ServerProbeInsertion serverInsertion)
