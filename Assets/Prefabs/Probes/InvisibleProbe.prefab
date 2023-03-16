@@ -124,8 +124,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4023158563732113569}
   - component: {fileID: 1087818186434613221}
+  - component: {fileID: 3689864066376315115}
   m_Layer: 10
-  m_Name: ProbePlaceholder
+  m_Name: InvisibleProbe
   m_TagString: Probe
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -160,4 +161,48 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ddce1525912ab84b866eab2789f752b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MovedThisFrameEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  FinishedMovingEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  Locked: 0
   _probeTipT: {fileID: 5680591440290342857}
+--- !u!114 &3689864066376315115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4368194536080577051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad1015086aede554a95357c03335db5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UIUpdateEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  ActivateProbeEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  EphysLinkControlChangeEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  ZeroCoordinateOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  BrainSurfaceOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  IsSetToDropToSurfaceWithDepthChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _probeColliders: []
+  _probeUIManagers: []
+  _probeRenderer: {fileID: 0}
+  _recRegion: {fileID: 0}
+  ProbeType: 0
+  _probeController: {fileID: 1087818186434613221}
+  _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
