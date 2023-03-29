@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 8116517813904742318}
   - component: {fileID: 8116517813904742316}
   - component: {fileID: 8116517813904742319}
+  - component: {fileID: 7612466971386049306}
   m_Layer: 5
   m_Name: HelpText
   m_TagString: Untagged
@@ -142,20 +143,35 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Thank you for using Pinpoint for planning your recordings. Add probes
-    using the buttons on the right side To control a probe, select it by left-clicking
-    and holding, then press one of the axis keys shown on the right. For example,
-    pressing [W] lets you drag the probe along the Anterior-Posterior axis. \n\nYou
-    can also click (or click and hold) the keyboard keys to move in that direction
-    in 10um increments. Press [SHIFT] for larger 100 um increments or [CTRL] for
-    1um.\n\nThe full list of controls are:\nTranslation [W/A/S/D]\t\tDV [Q/E]\nPitch
-    [R/F]   \t\t\t\tYaw [1/3]\t\nRoll [,/.]\t\t\t\tDepth [Z/X]\t\t  \t\nRecording
-    area [T/G]\n\nDelete probes with [Backspace] and recover with [CTRL+Backspace]\n\nTo
-    control the camera left click anywhere in the scene and drag. Right click and
-    drag to translate. Double click the blue/green/red handles on the mini-axis to
-    return the brain to a default position.\n\nPress [H] to close this menu.\n\nPinpoint
-    is developed by the Virtual Brain Lab team, part of the Steinmetz Lab at University
-    of Washington. Learn more about us at virtualbrainlab.org"
+  m_text: 'Thank you for using Pinpoint for planning your recordings.
+
+
+    Please
+    visit <color="blue">virtualbrainlab.org</color> for tutorials and additional
+    information about Pinpoint.
+
+
+    To get started quickly, use the "add new probe"
+    button to put a probe in the scene. Search for your brain region of interest
+    and use the snap button to move the probe tip to the center of the region. Make
+    fine adjustments with the axis keys (on the right) in 10 um increments. You can
+    adjust the probe angles in the probe panel or by using the keys (on the right).
+    Hold shift for larger increments and ctrl for smaller increments.
+
+
+    Once
+    positioned, the probe coordinate displayed in the viewer is the <b>entry coordinate</b>
+    relative to the reference coordinate (Bregma, by default). Once your live probe
+    is at the entry coordinate, you can move along the depth axis to reach the final
+    position.
+
+
+    Press [H] to close this menu.
+
+
+    Pinpoint is developed by
+    the Virtual Brain Lab team, part of the Steinmetz Lab at University of Washington
+    and the International Brain Laboratory.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -224,6 +240,33 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &7612466971386049306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8116517813904742305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92210525ab821c343b6149ff7f092a42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoveredColor:
+    serializedVersion: 2
+    rgba: 4294924544
+  pressedColor:
+    serializedVersion: 2
+    rgba: 4290183168
+  usedColor:
+    serializedVersion: 2
+    rgba: 4294902015
+  usedHoveredColor:
+    serializedVersion: 2
+    rgba: 4294795005
+  usedPressedColor:
+    serializedVersion: 2
+    rgba: 4291756239
 --- !u!1 &8116517814299126409
 GameObject:
   m_ObjectHideFlags: 0
@@ -287,7 +330,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.96862745, g: 0.94509804, b: 0.8901961, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
