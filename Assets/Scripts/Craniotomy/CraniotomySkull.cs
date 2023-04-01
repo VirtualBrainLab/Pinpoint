@@ -20,7 +20,8 @@ public class CraniotomySkull : MonoBehaviour
     public void Disable()
     {
         for (int i = 0; i < 5; i++)
-            skullRenderer.material.SetFloat(string.Format("_CraniotomySize_{0}", i), -1);
+            if (skullRenderer != null)
+                skullRenderer.material.SetFloat(string.Format("_CraniotomySize_{0}", i), -1);
     }
 
     public void Enable()
