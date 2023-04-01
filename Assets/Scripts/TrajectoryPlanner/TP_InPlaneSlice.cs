@@ -152,8 +152,8 @@ public class TP_InPlaneSlice : MonoBehaviour
             upWorldU * recordingSizemmU / 2 + 
             forwardWorldU * shankSpacing * centerOffset);
 
-        Debug.Log((VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU),
-            VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorldU * recordingSizemmU)));
+        //Debug.Log((VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU),
+        //    VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorldU * recordingSizemmU)));
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);
