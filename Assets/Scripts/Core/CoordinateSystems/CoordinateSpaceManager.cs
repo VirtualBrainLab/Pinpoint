@@ -1,11 +1,20 @@
 using UnityEngine;
 using CoordinateSpaces;
 using CoordinateTransforms;
+using UnityEngine.Events;
 
 public class CoordinateSpaceManager : MonoBehaviour
 {
     public static CoordinateSpace ActiveCoordinateSpace;
     public static CoordinateTransform ActiveCoordinateTransform;
+    public static CoordinateSpaceManager Instance;
+
+    public UnityEvent RelativeCoordinateChangedEvent;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     /// <summary>
     /// Convert a world coordinate into the corresponding world coordinate after transformation
@@ -41,5 +50,6 @@ public class CoordinateSpaceManager : MonoBehaviour
     public static void SetRelativeCoordinate(Vector3 coord)
     {
         ActiveCoordinateSpace.RelativeOffset = coord;
+        Instance.RelativeCoordinateChangedEvent.Invoke();
     }
 }
