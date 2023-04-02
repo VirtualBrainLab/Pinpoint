@@ -152,10 +152,12 @@ namespace TrajectoryPlanner
             await annotationDatasetLoadTask;
 
             // After annotation loads, check if the user wants to load previously used probes
-            CheckForSavedProbes(annotationDatasetLoadTask);
+            var savedProbeTask = CheckForSavedProbes(annotationDatasetLoadTask);
+            await savedProbeTask;
 
-            // Finally, load accounts
-            _accountsManager.DelayedStart();
+            // Finally, load accounts if we didn't load a query string
+            if (!savedProbeTask.Result)
+                _accountsManager.DelayedStart();
         }
 
         void Update()
@@ -890,14 +892,19 @@ namespace TrajectoryPlanner
             return string.Join(";", data);
         }
 
-        public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
+        /// <summary>
+        /// Check for saved probes in the query string on WebGL or by asking the user if they want to re-load the scene
+        /// </summary>
+        /// <param name="annotationDatasetLoadTask"></param>
+        /// <returns>true if WebGL query string contained data</returns>
+        public async Task<bool> CheckForSavedProbes(Task annotationDatasetLoadTask)
         {
             await annotationDatasetLoadTask;
 
             // On WebGL, check for a query string
 #if UNITY_WEBGL
             if (LoadSavedProbesWebGL())
-                return;
+                return true;
 #endif
 
             if (_qDialogue)
@@ -912,6 +919,8 @@ namespace TrajectoryPlanner
                     QuestionDialogue.NewQuestion(questionString);
                 }
             }
+
+            return false;
         }
 
 #if UNITY_WEBGL
@@ -921,9 +930,6 @@ namespace TrajectoryPlanner
 
             // get the url
             string appURL = Application.absoluteURL;
-
-            // for testing
-            appURL = "https://data.virtualbrainlab.org/Pinpoint/?Probes=eyJBUE1MRFYiOnsieCI6MC4wLCJ5IjowLjAsInoiOjAuMH0sIkFuZ2xlcyI6eyJ4IjotOTAuMCwieSI6LTIwLjAsInoiOjAuMH0sIkNvb3JkU3BhY2VOYW1lIjoiQ0NGIiwiQ29vcmRUcmFuc2Zvcm1OYW1lIjoiQ0NGIiwiWmVyb0Nvb3JkT2Zmc2V0Ijp7IngiOi1JbmZpbml0eSwieSI6LUluZmluaXR5LCJ6IjotSW5maW5pdHksInciOi1JbmZpbml0eX0sIlNlbGVjdGlvbkxheWVyTmFtZSI6ImRlZmF1bHQiLCJUeXBlIjowLCJDb2xvciI6eyJyIjowLjIzNTI5NDExODUyMzU5NzczLCJnIjowLjk0MTE3NjQ3NDA5NDM5MDksImIiOjAuODkwMTk2MDg0OTc2MTk2MywiYSI6MC4yMDAwMDAwMDI5ODAyMzIyNX0sIlVVSUQiOiJlNmI4NzdkNS00ZWJhLTQzOWItOTFkNi0yZWYzOWE4Y2JmZjMiLCJOYW1lIjoiZTZiODc3ZDUiLCJBUElUYXJnZXQiOiJlNmI4NzdkNSIsIk1hbmlwdWxhdG9yZElEIjoiIiwiQnJhaW5TdXJmYWNlT2Zmc2V0IjowLjAsIkRyb3AyU3VyZmFjZVdpdGhEZXB0aCI6dHJ1ZX07eyJBUE1MRFYiOnsieCI6MC4wLCJ5IjotMC4xMDAwMDAwMDE0OTAxMTYxMiwieiI6MC4wfSwiQW5nbGVzIjp7IngiOi05MC4wLCJ5IjowLjAsInoiOjAuMH0sIkNvb3JkU3BhY2VOYW1lIjoiQ0NGIiwiQ29vcmRUcmFuc2Zvcm1OYW1lIjoiQ0NGIiwiWmVyb0Nvb3JkT2Zmc2V0Ijp7IngiOi1JbmZpbml0eSwieSI6LUluZmluaXR5LCJ6IjotSW5maW5pdHksInciOi1JbmZpbml0eX0sIlNlbGVjdGlvbkxheWVyTmFtZSI6ImRlZmF1bHQiLCJUeXBlIjoyNCwiQ29sb3IiOnsiciI6MC45NDExNzY0NzQwOTQzOTA5LCJnIjowLjU2NDcwNTkwODI5ODQ5MjQsImIiOjAuMzc2NDcwNTk1NTk4MjIwOCwiYSI6MS4wfSwiVVVJRCI6ImE2YjhjYTdiLTNiNTEtNGU5Mi05Nzg2LWM4YTQ3ZjdhOTI3NyIsIk5hbWUiOiJhNmI4Y2E3YiIsIkFQSVRhcmdldCI6ImE2YjhjYTdiIiwiTWFuaXB1bGF0b3JkSUQiOiIiLCJCcmFpblN1cmZhY2VPZmZzZXQiOjAuMCwiRHJvcDJTdXJmYWNlV2l0aERlcHRoIjp0cnVlfQ==";
 
             // parse for query strings
             int queryIdx = appURL.IndexOf("?");
