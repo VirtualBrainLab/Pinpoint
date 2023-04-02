@@ -233,17 +233,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75822e5514edb0d42b76f8c24264f0e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &156279588 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3429419570152664820, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-  m_PrefabInstance: {fileID: 341190943874437988}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90cfd5407c9b9df47879902cf55dae71, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &160775271 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 193214259762620640, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -2983,7 +2972,7 @@ PrefabInstance:
     - target: {fileID: 1806035406376306268, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: _experimentDropdown
       value: 
-      objectReference: {fileID: 156279588}
+      objectReference: {fileID: 341190943874437990}
     - target: {fileID: 1890578862338769638, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3657,34 +3646,6 @@ PrefabInstance:
       value: QuickSettingsLockBehavior, trajectoryplanner.ui
       objectReference: {fileID: 0}
     - target: {fileID: 4306952370464967406, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
-    - target: {fileID: 4435462308243277936, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4435462308243277936, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4435462308243277936, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 2108153954}
-    - target: {fileID: 4435462308243277936, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4435462308243277936, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: LinkToVBLSite
-      objectReference: {fileID: 0}
-    - target: {fileID: 4435462308243277936, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: TrajectoryPlanner.TrajectoryPlannerManager, trajectoryplanner.core
-      objectReference: {fileID: 0}
-    - target: {fileID: 4435462308243277936, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
@@ -4716,6 +4677,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7e6e78da88137a441b7094a31778b709, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &341190943874437990 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3429419570152664820, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90cfd5407c9b9df47879902cf55dae71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &341190943874437991 stripped
