@@ -17,6 +17,13 @@ namespace TrajectoryPlanner
 {
     public class TrajectoryPlannerManager : MonoBehaviour
     {
+        #region Webgl only
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern void Copy2Clipboard(string str);
+#endif
+        #endregion
+
         #region Events
         // TODO: Expose events for probes moving, UI updating, etc
 
@@ -841,13 +848,18 @@ namespace TrajectoryPlanner
 
         public void ShareLink()
         {
-            var data = GetActiveProbeJSON();
-            var flattened = JsonUtility.ToJson(data);
+            var data = GetActiveProbeJSONFlattened();
 
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(flattened);
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(data);
             string encodedStr = System.Convert.ToBase64String(plainTextBytes);
 
             Debug.Log($"https://data.virtualbrainlab.org/Pinpoint/?Probes={encodedStr}");
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            Copy2Clipboard(updateStr);
+#else
+            GUIUtility.systemCopyBuffer = encodedStr;
+#endif
         }
 
         private string[] GetActiveProbeJSON()
@@ -867,15 +879,15 @@ namespace TrajectoryPlanner
         private string GetActiveProbeJSONFlattened()
         {
             var nonGhostProbeManagers = ProbeManager.Instances.Where(manager => !manager.IsGhost).ToList();
-            List<ProbeData> data = new();
+            List<string> data = new();
 
             for (int i = 0; i < nonGhostProbeManagers.Count; i++)
             {
                 ProbeManager probe = nonGhostProbeManagers[i];
-                data.Add(ProbeData.ProbeManager2ProbeData(probe));
+                data.Add(JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probe)));
             }
 
-            return JsonUtility.ToJson(data);
+            return string.Join(";", data);
         }
 
         public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
@@ -911,7 +923,7 @@ namespace TrajectoryPlanner
             string appURL = Application.absoluteURL;
 
             // for testing
-            //appURL = "https://data.virtualbrainlab.org/Pinpoint/?Probes=meow";
+            appURL = "https://data.virtualbrainlab.org/Pinpoint/?Probes=eyJBUE1MRFYiOnsieCI6MC4wLCJ5IjowLjAsInoiOjAuMH0sIkFuZ2xlcyI6eyJ4IjotOTAuMCwieSI6LTIwLjAsInoiOjAuMH0sIkNvb3JkU3BhY2VOYW1lIjoiQ0NGIiwiQ29vcmRUcmFuc2Zvcm1OYW1lIjoiQ0NGIiwiWmVyb0Nvb3JkT2Zmc2V0Ijp7IngiOi1JbmZpbml0eSwieSI6LUluZmluaXR5LCJ6IjotSW5maW5pdHksInciOi1JbmZpbml0eX0sIlNlbGVjdGlvbkxheWVyTmFtZSI6ImRlZmF1bHQiLCJUeXBlIjowLCJDb2xvciI6eyJyIjowLjIzNTI5NDExODUyMzU5NzczLCJnIjowLjk0MTE3NjQ3NDA5NDM5MDksImIiOjAuODkwMTk2MDg0OTc2MTk2MywiYSI6MC4yMDAwMDAwMDI5ODAyMzIyNX0sIlVVSUQiOiJlNmI4NzdkNS00ZWJhLTQzOWItOTFkNi0yZWYzOWE4Y2JmZjMiLCJOYW1lIjoiZTZiODc3ZDUiLCJBUElUYXJnZXQiOiJlNmI4NzdkNSIsIk1hbmlwdWxhdG9yZElEIjoiIiwiQnJhaW5TdXJmYWNlT2Zmc2V0IjowLjAsIkRyb3AyU3VyZmFjZVdpdGhEZXB0aCI6dHJ1ZX07eyJBUE1MRFYiOnsieCI6MC4wLCJ5IjotMC4xMDAwMDAwMDE0OTAxMTYxMiwieiI6MC4wfSwiQW5nbGVzIjp7IngiOi05MC4wLCJ5IjowLjAsInoiOjAuMH0sIkNvb3JkU3BhY2VOYW1lIjoiQ0NGIiwiQ29vcmRUcmFuc2Zvcm1OYW1lIjoiQ0NGIiwiWmVyb0Nvb3JkT2Zmc2V0Ijp7IngiOi1JbmZpbml0eSwieSI6LUluZmluaXR5LCJ6IjotSW5maW5pdHksInciOi1JbmZpbml0eX0sIlNlbGVjdGlvbkxheWVyTmFtZSI6ImRlZmF1bHQiLCJUeXBlIjoyNCwiQ29sb3IiOnsiciI6MC45NDExNzY0NzQwOTQzOTA5LCJnIjowLjU2NDcwNTkwODI5ODQ5MjQsImIiOjAuMzc2NDcwNTk1NTk4MjIwOCwiYSI6MS4wfSwiVVVJRCI6ImE2YjhjYTdiLTNiNTEtNGU5Mi05Nzg2LWM4YTQ3ZjdhOTI3NyIsIk5hbWUiOiJhNmI4Y2E3YiIsIkFQSVRhcmdldCI6ImE2YjhjYTdiIiwiTWFuaXB1bGF0b3JkSUQiOiIiLCJCcmFpblN1cmZhY2VPZmZzZXQiOjAuMCwiRHJvcDJTdXJmYWNlV2l0aERlcHRoIjp0cnVlfQ==";
 
             // parse for query strings
             int queryIdx = appURL.IndexOf("?");
@@ -921,18 +933,20 @@ namespace TrajectoryPlanner
                 queryStr = true;
 
                 string queryString = appURL.Substring(queryIdx);
-                Debug.Log(queryString);
+
                 NameValueCollection qscoll = System.Web.HttpUtility.ParseQueryString(queryString);
                 foreach (string query in qscoll)
                 {
                     if (query.Equals("Probes"))
                     {
                         string encodedStr = qscoll[query];
+                        Debug.Log(encodedStr);
 
                         var bytes = System.Convert.FromBase64String(encodedStr);
                         string probeArrayStr = System.Text.Encoding.UTF8.GetString(bytes);
 
-                        string[] savedProbes = JsonUtility.FromJson<string[]>(probeArrayStr);
+                        string[] savedProbes = probeArrayStr.Split(';');
+
                         LoadSavedProbesFromStringArray(savedProbes);
                         Debug.Log("Found Probes in URL querystring, setting to: " + savedProbes);
                     }

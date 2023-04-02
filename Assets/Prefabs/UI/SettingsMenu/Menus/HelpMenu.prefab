@@ -208,7 +208,6 @@ GameObject:
   - component: {fileID: 8116517813904742318}
   - component: {fileID: 8116517813904742316}
   - component: {fileID: 8116517813904742319}
-  - component: {fileID: 7612466971386049306}
   m_Layer: 5
   m_Name: HelpText
   m_TagString: Untagged
@@ -362,33 +361,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &7612466971386049306
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8116517813904742305}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92210525ab821c343b6149ff7f092a42, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hoveredColor:
-    serializedVersion: 2
-    rgba: 4294924544
-  pressedColor:
-    serializedVersion: 2
-    rgba: 4290183168
-  usedColor:
-    serializedVersion: 2
-    rgba: 4294902015
-  usedHoveredColor:
-    serializedVersion: 2
-    rgba: 4294795005
-  usedPressedColor:
-    serializedVersion: 2
-    rgba: 4291756239
 --- !u!1 &8116517814299126409
 GameObject:
   m_ObjectHideFlags: 0
