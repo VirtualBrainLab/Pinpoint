@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using System.Collections.Specialized;
 
 namespace TrajectoryPlanner
 {
@@ -101,10 +102,6 @@ namespace TrajectoryPlanner
 
         Task annotationDatasetLoadTask;
 
-        #region Accounts variables
-        private List<ProbeInsertion> _targetableAccountInsertions;
-        #endregion
-
         #region Unity
         private void Awake()
         {
@@ -126,7 +123,6 @@ namespace TrajectoryPlanner
             rigColliders = new List<Collider>();
             allNonActiveColliders = new List<Collider>();
             meshCenters = new Dictionary<int, Vector3>();
-            _targetableAccountInsertions = new();
 
             // Load 3D meshes
             LoadMeshData();
@@ -384,8 +380,6 @@ namespace TrajectoryPlanner
             {
                 // Remove ghost probe ref from original probe
                 ProbeManager.ActiveProbeManager.OriginalProbeManager.GhostProbeManager = null;
-                // Disable control UI
-                _probeQuickSettings.EnableAutomaticControlUI(false);
             }
 
             // Remove the probe's insertion from the list of insertions (does nothing if not found)
@@ -683,6 +677,12 @@ namespace TrajectoryPlanner
                 probeManager.UIUpdateEvent.Invoke();
         }
 
+        public void UpdateAllProbePositions()
+        {
+            foreach (ProbeManager probeManager in ProbeManager.Instances)
+                probeManager.ProbeController.SetProbePosition();
+        }
+
         ///
         /// SETTINGS
         /// 
@@ -836,20 +836,57 @@ namespace TrajectoryPlanner
 
         private void OnApplicationQuit()
         {
+            Settings.SaveCurrentProbeData(GetActiveProbeJSON());
+        }
+
+        public void ShareLink()
+        {
+            var data = GetActiveProbeJSON();
+            var flattened = JsonUtility.ToJson(data);
+
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(flattened);
+            string encodedStr = System.Convert.ToBase64String(plainTextBytes);
+
+            Debug.Log($"https://data.virtualbrainlab.org/Pinpoint/?Probes={encodedStr}");
+        }
+
+        private string[] GetActiveProbeJSON()
+        {
             var nonGhostProbeManagers = ProbeManager.Instances.Where(manager => !manager.IsGhost).ToList();
             string[] data = new string[nonGhostProbeManagers.Count];
 
-            for (int i =0; i< nonGhostProbeManagers.Count; i++)
+            for (int i = 0; i < nonGhostProbeManagers.Count; i++)
             {
                 ProbeManager probe = nonGhostProbeManagers[i];
                 data[i] = JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probe));
             }
-            Settings.SaveCurrentProbeData(data);
+
+            return data;
+        }
+
+        private string GetActiveProbeJSONFlattened()
+        {
+            var nonGhostProbeManagers = ProbeManager.Instances.Where(manager => !manager.IsGhost).ToList();
+            List<ProbeData> data = new();
+
+            for (int i = 0; i < nonGhostProbeManagers.Count; i++)
+            {
+                ProbeManager probe = nonGhostProbeManagers[i];
+                data.Add(ProbeData.ProbeManager2ProbeData(probe));
+            }
+
+            return JsonUtility.ToJson(data);
         }
 
         public async void CheckForSavedProbes(Task annotationDatasetLoadTask)
         {
             await annotationDatasetLoadTask;
+
+            // On WebGL, check for a query string
+#if UNITY_WEBGL
+            if (LoadSavedProbesWebGL())
+                return;
+#endif
 
             if (_qDialogue)
             {
@@ -859,16 +896,61 @@ namespace TrajectoryPlanner
                         ? "Load previously saved probes?"
                         : "Restore previous session?";
 
-                    QuestionDialogue.SetYesCallback(LoadSavedProbes);
+                    QuestionDialogue.SetYesCallback(LoadSavedProbesStandalone);
                     QuestionDialogue.NewQuestion(questionString);
                 }
             }
         }
 
-        private void LoadSavedProbes()
+#if UNITY_WEBGL
+        private bool LoadSavedProbesWebGL()
+        {
+            bool queryStr = false;
+
+            // get the url
+            string appURL = Application.absoluteURL;
+
+            // for testing
+            //appURL = "https://data.virtualbrainlab.org/Pinpoint/?Probes=meow";
+
+            // parse for query strings
+            int queryIdx = appURL.IndexOf("?");
+            if (queryIdx > 0)
+            {
+                Debug.Log("Found query string");
+                queryStr = true;
+
+                string queryString = appURL.Substring(queryIdx);
+                Debug.Log(queryString);
+                NameValueCollection qscoll = System.Web.HttpUtility.ParseQueryString(queryString);
+                foreach (string query in qscoll)
+                {
+                    if (query.Equals("Probes"))
+                    {
+                        string encodedStr = qscoll[query];
+
+                        var bytes = System.Convert.FromBase64String(encodedStr);
+                        string probeArrayStr = System.Text.Encoding.UTF8.GetString(bytes);
+
+                        string[] savedProbes = JsonUtility.FromJson<string[]>(probeArrayStr);
+                        LoadSavedProbesFromStringArray(savedProbes);
+                        Debug.Log("Found Probes in URL querystring, setting to: " + savedProbes);
+                    }
+                }
+            }
+
+            return queryStr;
+        }
+#endif
+
+        private void LoadSavedProbesStandalone()
         {
             var savedProbes = Settings.LoadSavedProbeData();
+            LoadSavedProbesFromStringArray(savedProbes);
+        }
 
+        private void LoadSavedProbesFromStringArray(string[] savedProbes)
+        {
             foreach (var savedProbe in savedProbes)
             {
                 ProbeData probeData = JsonUtility.FromJson<ProbeData>(savedProbe);
@@ -893,9 +975,9 @@ namespace TrajectoryPlanner
             UpdateQuickSettings();
         }
 
-        #endregion
+#endregion
 
-        #region Mesh centers
+#region Mesh centers
 
         private int prevTipID;
         private bool prevTipSideLeft;
@@ -941,29 +1023,18 @@ namespace TrajectoryPlanner
             prevTipID = berylID;
         }
 
-        #endregion
+#endregion
 
-        #region Text
+#region Text
 
         public void CopyText()
         {
             ProbeManager.ActiveProbeManager.Probe2Text();
         }
 
-        #endregion
+#endregion
 
-        #region Accounts
-
-        /// <summary>
-        /// Update the list of ProbeInsertion targets from the current available targets
-        /// </summary>
-        public void UpdateAccountsTargetList()
-        {
-            _targetableAccountInsertions.Clear();
-
-            foreach (var kvp in _accountsManager.GetActiveExperimentInsertions())
-                _targetableAccountInsertions.Add(ServerProbeInsertion2ProbeInsertion(kvp.Value));
-        }
+#region Accounts
 
         private ProbeInsertion ServerProbeInsertion2ProbeInsertion(ServerProbeInsertion serverInsertion)
         {
@@ -1015,7 +1086,15 @@ namespace TrajectoryPlanner
             newProbeManager.Color = data.color;
         }
 
-        #endregion
-    }
+#endregion
 
+#region Misc
+
+        public void LinkToVBLSite()
+        {
+            Application.OpenURL("https://virtualbrainlab.org");
+        }
+
+#endregion
+    }
 }
