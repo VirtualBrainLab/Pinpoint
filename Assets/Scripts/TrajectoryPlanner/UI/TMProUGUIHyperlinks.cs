@@ -81,36 +81,40 @@ public class TMProUGUIHyperlinks : MonoBehaviour, IPointerDownHandler, IPointerU
 
     private void LateUpdate()
     {
-        int linkIndex = GetLinkIndex();
-        if (linkIndex != -1) // Was pointer intersecting a link?
+        if (EventSystem.current.IsPointerOverGameObject())
         {
-            if (linkIndex != hoveredLinkIndex) // We started hovering above link (hover can be set from OnPointerDown!)
+            int linkIndex = GetLinkIndex();
+            if (linkIndex != -1) // Was pointer intersecting a link?
             {
-                if (hoveredLinkIndex != -1) ResetLinkColor(hoveredLinkIndex, startColors); // If we hovered above other link before
-                hoveredLinkIndex = linkIndex;
-                if (usedLinks.TryGetValue(linkIndex, out bool isUsed) && isUsed) // Has the link been already used?
+                if (linkIndex != hoveredLinkIndex) // We started hovering above link (hover can be set from OnPointerDown!)
                 {
-                    // If we have pressed on link, wandered away and came back, set the pressed color
-                    if (pressedLinkIndex == linkIndex) startColors = SetLinkColor(hoveredLinkIndex, usedPressedColor);
-                    else startColors = SetLinkColor(hoveredLinkIndex, usedHoveredColor);
-                }
-                else
-                {
-                    // If we have pressed on link, wandered away and came back, set the pressed color
-                    if (pressedLinkIndex == linkIndex) startColors = SetLinkColor(hoveredLinkIndex, pressedColor);
-                    else startColors = SetLinkColor(hoveredLinkIndex, hoveredColor);
+                    if (hoveredLinkIndex != -1) ResetLinkColor(hoveredLinkIndex, startColors); // If we hovered above other link before
+                    hoveredLinkIndex = linkIndex;
+                    if (usedLinks.TryGetValue(linkIndex, out bool isUsed) && isUsed) // Has the link been already used?
+                    {
+                        // If we have pressed on link, wandered away and came back, set the pressed color
+                        if (pressedLinkIndex == linkIndex) startColors = SetLinkColor(hoveredLinkIndex, usedPressedColor);
+                        else startColors = SetLinkColor(hoveredLinkIndex, usedHoveredColor);
+                    }
+                    else
+                    {
+                        // If we have pressed on link, wandered away and came back, set the pressed color
+                        if (pressedLinkIndex == linkIndex) startColors = SetLinkColor(hoveredLinkIndex, pressedColor);
+                        else startColors = SetLinkColor(hoveredLinkIndex, hoveredColor);
+                    }
                 }
             }
-        }
-        else if (hoveredLinkIndex != -1) // If we hovered above other link before
-        {
-            ResetLinkColor(hoveredLinkIndex, startColors);
-            hoveredLinkIndex = -1;
+            else if (hoveredLinkIndex != -1) // If we hovered above other link before
+            {
+                ResetLinkColor(hoveredLinkIndex, startColors);
+                hoveredLinkIndex = -1;
+            }
         }
     }
 
     private int GetLinkIndex()
     {
+        Debug.Log(TMP_TextUtilities.FindIntersectingLink(textMeshPro, Input.mousePosition, mainCamera));
         return TMP_TextUtilities.FindIntersectingLink(textMeshPro, Input.mousePosition, mainCamera);
     }
 
