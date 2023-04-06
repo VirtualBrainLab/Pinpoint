@@ -77,6 +77,7 @@ namespace TrajectoryPlanner
 
         // UI 
         [FormerlySerializedAs("qDialogue")] [SerializeField] QuestionDialogue _qDialogue;
+        [SerializeField] GameObject _logPanelGO;
 
         // Debug graphics
         [FormerlySerializedAs("surfaceDebugGO")] [SerializeField] private GameObject _surfaceDebugGo;
@@ -176,6 +177,9 @@ namespace TrajectoryPlanner
 
             if (Input.GetKeyDown(KeyCode.H) && !UIManager.InputsFocused)
                 _settingsPanel.ToggleSettingsMenu();
+
+            if (Input.GetKeyDown(KeyCode.L) && !UIManager.InputsFocused)
+                _logPanelGO.SetActive(!_logPanelGO.activeSelf);
 
             if (Input.anyKey && ProbeManager.ActiveProbeManager != null && !UIManager.InputsFocused)
             {
