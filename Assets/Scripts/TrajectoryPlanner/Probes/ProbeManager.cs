@@ -188,6 +188,8 @@ public class ProbeManager : MonoBehaviour
     {
         get
         {
+            if (_probeRenderer == null)
+                return new Color();
             return _probeRenderer.material.color;
         }
 
@@ -250,7 +252,8 @@ public class ProbeManager : MonoBehaviour
             }
         }
 
-        _probeRenderer.material.color = ProbeProperties.GetNextProbeColor();
+        if (_probeRenderer != null)
+            _probeRenderer.material.color = ProbeProperties.GetNextProbeColor();
 
         // Pull the tpmanager object and register this probe
         _probeController.Register(this);
@@ -450,6 +453,9 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateChannelMap()
     {
+        if (_recRegion == null)
+            return;
+
         _channelMinY = float.MaxValue;
         _channelMaxY = float.MinValue;
 

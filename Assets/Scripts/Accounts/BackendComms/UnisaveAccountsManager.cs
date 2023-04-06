@@ -20,7 +20,6 @@ public class UnisaveAccountsManager : AccountsManager
 
     [FormerlySerializedAs("registerPanelGO")] [SerializeField] private GameObject _registerPanelGo;
     [FormerlySerializedAs("experimentEditor")] [SerializeField] private ExperimentEditor _experimentEditor;
-    [FormerlySerializedAs("activeExpListBehavior")] [SerializeField] private ActiveExperimentUI _activeExperimentUI;
     [SerializeField] private GameObject _savePanel;
 
     [SerializeField] private EmailLoginForm _emailLoginForm;
@@ -40,7 +39,6 @@ public class UnisaveAccountsManager : AccountsManager
 
 #region current player data
     private PlayerEntity _player;
-    private List<ProbeInsertion> _activeInsertions;
     public bool Connected { get { return _player != null; } }
     public string ActiveExperiment { get { return _player.activeExperiment; } }
 #endregion
@@ -338,6 +336,7 @@ public class UnisaveAccountsManager : AccountsManager
 #endif
         _player.UUID2InsertionData[UUID].active = visible;
         UpdateCallbackEvent(GetProbeInsertionData(UUID), visible);
+        InsertionListChangeEvent.Invoke();
 
         Dirty = true;
     }
@@ -514,6 +513,10 @@ public class UnisaveAccountsManager : AccountsManager
         return _player.Experiment2UUID[experimentName];
     }
 
+    /// <summary>
+    /// Get the UUID -> ServerProbeInsertion data for all active insertions in the current experiment
+    /// </summary>
+    /// <returns>Dictionary containing UUID and ServerProbeInsertion values</returns>
     public Dictionary<string, ServerProbeInsertion> GetActiveExperimentInsertions()
     {
         if (_player == null)

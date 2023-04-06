@@ -18,7 +18,6 @@ namespace TrajectoryPlanner
         [SerializeField] private QuickSettingsLockBehavior _lockBehavior;
         
         private CommunicationManager _communicationManager;
-        private TrajectoryPlannerManager _trajectoryPlannerManager;
         private TMP_InputField[] _inputFields;
 
         #endregion
@@ -31,8 +30,6 @@ namespace TrajectoryPlanner
         private void Awake()
         {
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
-            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
-
             _inputFields = gameObject.GetComponentsInChildren<TMP_InputField>(true);
 
             UpdateInteractable(true);

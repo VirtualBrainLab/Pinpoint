@@ -352,11 +352,13 @@ namespace TrajectoryPlanner
             Destroy(probeManager.gameObject);
 
             // Cleanup UI if this was last probe in scene
-            if (ProbeManager.Instances.Count > 0)
+            var realProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder);
+
+            if (realProbes.Count() > 0)
             {
                 if (isActiveProbe)
                 {
-                    SetActiveProbe(ProbeManager.Instances[^1]);
+                    SetActiveProbe(realProbes.Last());
                 }
 
                 if (isGhost)
@@ -1056,7 +1058,7 @@ namespace TrajectoryPlanner
 
 #region Accounts
 
-        private ProbeInsertion ServerProbeInsertion2ProbeInsertion(ServerProbeInsertion serverInsertion)
+        public ProbeInsertion ServerProbeInsertion2ProbeInsertion(ServerProbeInsertion serverInsertion)
         {
             ProbeInsertion insertion = new ProbeInsertion(serverInsertion.ap, serverInsertion.ml, serverInsertion.dv,
                 serverInsertion.phi, serverInsertion.theta, serverInsertion.spin,
@@ -1085,14 +1087,6 @@ namespace TrajectoryPlanner
             }
             else
             {
-                //if (data.spaceName != CoordinateSpaceManager.ActiveCoordinateSpace.Name || data.transformName != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
-                //{
-                //    // We have a coordiante space/transform mis-match
-                //    QuestionDialogue qDialogue = GameObject.Find("QuestionDialoguePanel").GetComponent<QuestionDialogue>();
-                //    qDialogue.SetYesCallback(new Action(delegate { AccountsNewProbeHelper(data); }));
-                //    qDialogue.NewQuestion($"The saved insertion uses {data.spaceName}/{data.transformName} while you are using {CoordinateSpaceManager.ActiveCoordinateSpace.Name}/{CoordinateSpaceManager.ActiveCoordinateTransform.Name}. Creating a new probe will override these settings with the active ones.");
-                //}
-                //else
                 AccountsNewProbeHelper(data);
             }
 

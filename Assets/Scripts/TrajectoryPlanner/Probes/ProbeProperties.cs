@@ -22,6 +22,7 @@ public class ProbeProperties
 
     public enum ProbeType : int
     {
+        Placeholder = -1,
         Neuropixels1 = 0,
         Neuropixels21 = 21,
         Neuropixels24 = 24,
