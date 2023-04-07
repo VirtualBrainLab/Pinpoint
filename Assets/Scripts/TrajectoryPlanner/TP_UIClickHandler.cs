@@ -50,6 +50,8 @@ public class TP_UIClickHandler : MonoBehaviour
                         case "UIEvent":
                             if (uiTarget.name.Equals("Text2ClipboardButton"))
                                 _tpmanager.CopyText();
+                            else if (uiTarget.name.Equals("ShareButton_Background"))
+                                _tpmanager.ShareLink();
                             break;
                     }
                 }

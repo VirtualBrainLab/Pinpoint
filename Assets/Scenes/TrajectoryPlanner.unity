@@ -3044,6 +3044,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1446984310694699386, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     - target: {fileID: 1736498697129180698, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -3094,7 +3098,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2092818293898818938, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2092818293898818938, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -3350,6 +3354,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2822526365176310521, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_Navigation.m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2861832129008949390, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2870796119420490546, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -4736,6 +4744,14 @@ PrefabInstance:
       propertyPath: _tpmanager
       value: 
       objectReference: {fileID: 2108153954}
+    - target: {fileID: 8821007968557404670, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_Name
+      value: ShareButton_Background
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821007968557404670, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_TagString
+      value: UIEvent
+      objectReference: {fileID: 0}
     - target: {fileID: 8864569041690845623, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 

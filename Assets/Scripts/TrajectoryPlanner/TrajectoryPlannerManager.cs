@@ -12,6 +12,7 @@ using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using System.Collections.Specialized;
+using System.Runtime.InteropServices;
 
 namespace TrajectoryPlanner
 {
@@ -860,13 +861,16 @@ namespace TrajectoryPlanner
 
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(data);
             string encodedStr = System.Convert.ToBase64String(plainTextBytes);
+            string url = $"https://data.virtualbrainlab.org/Pinpoint/?Probes={encodedStr}";
 
-            Debug.Log($"https://data.virtualbrainlab.org/Pinpoint/?Probes={encodedStr}");
+#if UNITY_EDITOR
+            Debug.Log(url);
+#endif
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            Copy2Clipboard(updateStr);
+            Copy2Clipboard(url);
 #else
-            GUIUtility.systemCopyBuffer = encodedStr;
+            GUIUtility.systemCopyBuffer = url;
 #endif
         }
 
