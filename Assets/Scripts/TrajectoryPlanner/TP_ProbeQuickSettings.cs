@@ -57,7 +57,7 @@ namespace TrajectoryPlanner
 
                 UpdateProbeIdText();
 
-                _coordinatePanel.NewProbe();
+                _coordinatePanel.UpdateAxisLabels();
 
                 // Handle picking up events
                 ProbeManager.ActiveProbeManager.EphysLinkControlChangeEvent.AddListener(() =>

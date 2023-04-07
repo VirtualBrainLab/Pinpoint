@@ -31,14 +31,27 @@ public class CoordinateEntryPanel : MonoBehaviour
         _spinField.onEndEdit.AddListener(delegate { ApplyAngles(); });
     }
 
-    public void NewProbe()
+    public void UpdateAxisLabels()
     {
         // change the apmldv/depth text fields to match the prefix on this probe's insertion
-        string prefix = ProbeManager.ActiveProbeManager.ProbeController.Insertion.CoordinateTransform.Prefix;
-        _apText.text = prefix + "AP";
-        _mlText.text = prefix + "ML";
-        _dvText.text = prefix + "DV";
-        _depthText.text = prefix + "Depth";
+        if (ProbeManager.ActiveProbeManager != null)
+        {
+            string prefix = ProbeManager.ActiveProbeManager.ProbeController.Insertion.CoordinateTransform.Prefix;
+
+            if (Settings.ConvertAPML2Probe)
+            {
+                _apText.text = prefix + "Forward";
+                _mlText.text = prefix + "Right";
+            }
+            else
+            {
+                _apText.text = prefix + "AP";
+                _mlText.text = prefix + "ML";
+            }
+
+            _dvText.text = prefix + "DV";
+            _depthText.text = prefix + "Depth";
+        }
     }
 
     public void UpdateText()
@@ -66,6 +79,18 @@ public class CoordinateEntryPanel : MonoBehaviour
         else
         {
             apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.apmldv;
+        }
+
+        if (Settings.ConvertAPML2Probe)
+        {
+            float cos = Mathf.Cos(-angles.x * Mathf.Deg2Rad);
+            float sin = Mathf.Sin(-angles.x * Mathf.Deg2Rad);
+
+            float xRot = apmldv.x * cos - apmldv.y * sin;
+            float yRot = apmldv.x * sin + apmldv.y * cos;
+
+            apmldv.x = xRot;
+            apmldv.y = yRot;
         }
 
         float mult = Settings.DisplayUM ? 1000f : 1f;
@@ -126,6 +151,9 @@ public class CoordinateEntryPanel : MonoBehaviour
 
             if (Settings.UseIBLAngles)
                 angles = TP_Utils.IBL2World(angles);
+
+            if (Settings.ConvertAPML2Probe)
+                Debug.LogWarning("Converting back from probe angles is not yet implemented");
 
             ProbeManager.ActiveProbeManager.ProbeController.SetProbeAngles(angles);
             if (ProbeManager.ActiveProbeManager.HasGhost)

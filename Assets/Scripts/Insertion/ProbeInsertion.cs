@@ -33,7 +33,7 @@ public class ProbeInsertion
     public float spin;
 
     /// <summary>
-    /// The **transformed** coordinate in the active CoordinateSpace
+    /// The **transformed** coordinate in the active CoordinateSpace (AP, ML, DV)
     /// </summary>
     public Vector3 apmldv
     {
@@ -46,6 +46,9 @@ public class ProbeInsertion
         }
     }
 
+    /// <summary>
+    /// (Yaw, Pitch, Spin)
+    /// </summary>
     public Vector3 angles
     {
         get => new Vector3(phi, theta, spin);

@@ -536,18 +536,16 @@ public class ProbeManager : MonoBehaviour
         if (Settings.ConvertAPML2Probe)
         {
             Debug.LogWarning("Not working");
-            apStr = "not-implemented";
-            mlStr = "not-implemented";
-            dvStr = "not-implemented";
-            depthStr = "not-implemented";
+            apStr = prefix + "Forward";
+            mlStr = prefix + "Right";
         }
         else
         {
             apStr = prefix + "AP";
             mlStr = prefix + "ML";
-            dvStr = prefix + "DV";
-            depthStr = prefix + "Depth";
         }
+        dvStr = prefix + "DV";
+        depthStr = prefix + "Depth";
 
         float mult = Settings.DisplayUM ? 1000f : 1f;
 
@@ -558,7 +556,18 @@ public class ProbeManager : MonoBehaviour
             insertion.angles;
 
         (Vector3 entryCoordTranformed, float depthTransformed) = GetSurfaceCoordinateT();
-        
+
+        if (Settings.ConvertAPML2Probe)
+        {
+            float cos = Mathf.Cos(-angles.x * Mathf.Deg2Rad);
+            float sin = Mathf.Sin(-angles.x * Mathf.Deg2Rad);
+
+            float xRot = entryCoordTranformed.x * cos - entryCoordTranformed.y * sin;
+            float yRot = entryCoordTranformed.x * sin + entryCoordTranformed.y * cos;
+
+            entryCoordTranformed.x = xRot;
+            entryCoordTranformed.y = yRot;
+        }
 
         string updateStr = string.Format("{0} Surface coordinate: " + 
             "({1}:{2}, {3}:{4}, {5}:{6})" +
