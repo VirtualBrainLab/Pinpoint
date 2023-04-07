@@ -160,6 +160,18 @@ namespace TrajectoryPlanner
             // Finally, load accounts if we didn't load a query string
             if (!savedProbeTask.Result)
                 _accountsManager.DelayedStart();
+
+            if (!PlayerPrefs.HasKey("survey-done"))
+            {
+                QuestionDialogue.SetYesCallback(SendToSurvey);
+                QuestionDialogue.NewQuestion("Hello! We don't track users of Pinpoint, but we need to get grant funding. Would you be willing to spend 5 minutes answering a few questions about your use of Pinpoint?");
+            }
+        }
+
+        public void SendToSurvey()
+        {
+            PlayerPrefs.SetInt("survey-done", 1);
+            Application.OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSdz6TNhAxra9G3Kkynco_yfLjohHqAJa1jjG_tRTjZa3ZceLA/viewform?usp=sf_link");
         }
 
         void Update()
