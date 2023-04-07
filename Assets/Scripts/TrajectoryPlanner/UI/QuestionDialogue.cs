@@ -24,19 +24,7 @@ public class QuestionDialogue : MonoBehaviour
         Instance = this;
     }
 
-    public static void YesCallback()
-    {
-        if (yesCallback != null)
-            yesCallback();
-        Instance._uiPanel.SetActive(false);
-    }
-
-    public static void NoCallback()
-    {
-        if (noCallback != null)
-            noCallback();
-        Instance._uiPanel.SetActive(false);
-    }
+    #region Static functions
 
     public static void NewQuestion(string newText)
     {
@@ -53,4 +41,22 @@ public class QuestionDialogue : MonoBehaviour
     {
         noCallback = newCallback;
     }
+
+    #endregion
+
+    #region Public
+    public void YesCallback()
+    {
+        if (yesCallback != null)
+            yesCallback();
+        _uiPanel.SetActive(false);
+    }
+
+    public void NoCallback()
+    {
+        if (noCallback != null)
+            noCallback();
+        _uiPanel.SetActive(false);
+    }
+    #endregion
 }
