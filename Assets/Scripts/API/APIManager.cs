@@ -1,3 +1,4 @@
+using RainbowArt.CleanFlatUI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class APIManager : MonoBehaviour
 {
@@ -15,7 +17,6 @@ public class APIManager : MonoBehaviour
 
     #region exposed fields
     [SerializeField] ProbeMatchingPanel _probeMatchingPanel;
-
     #endregion
 
     #region Probe data variables
@@ -26,10 +27,16 @@ public class APIManager : MonoBehaviour
 
     public UnityEvent<List<string>> ProbeOptionsChangedEvent;
 
-    private int activeID;
+    [SerializeField] TMP_InputField _pxiInput;
+    private int _pxiID;
 
     private const string ENDPOINT_PROCESSORS = "/api/processors";
     private const string ENDPOINT_CONFIG = "/api/processors/<id>/config";
+    #endregion
+
+    #region Viewer variables
+    [SerializeField] DropdownMultiCheck _viewerDropdown;
+    List<string> _viewerTargets;
     #endregion
 
     #region Unity
@@ -72,6 +79,8 @@ public class APIManager : MonoBehaviour
             _dirty = false;
             _lastDataSend = float.MinValue;
             _probeMatchingPanel.ClearUI();
+            _viewerDropdown.ClearOptions();
+            _viewerDropdown.interactable = false;
         }
     }
 
@@ -102,6 +111,9 @@ public class APIManager : MonoBehaviour
         string url = _probeDataHTTPTarget.text.ToLower().Trim();
         string uri = $"{url}{ENDPOINT_PROCESSORS}";
 
+        // Clear variables
+        _viewerTargets = new();
+
         Debug.Log($"(APIManager) Sending GET to {uri}");
 
         using (UnityWebRequest www = UnityWebRequest.Get(uri))
@@ -114,7 +126,6 @@ public class APIManager : MonoBehaviour
             }
             else
             {
-                Debug.Log(www.downloadHandler.text);
                 var msg = LightJson.JsonValue.Parse(www.downloadHandler.text).AsJsonObject;
                 var processors = msg["processors"].AsJsonArray;
 
@@ -123,17 +134,50 @@ public class APIManager : MonoBehaviour
                     foreach (var processor in processors)
                     {
                         var processorObject = processor.AsJsonObject;
-                        if (((string)processorObject["name"]).Equals("Neuropix-PXI"))
+                        string name = (string)processorObject["name"];
+
+                        switch (name)
                         {
-                            activeID = processorObject["id"];
+                            case "Neuropix-PXI":
+                                _pxiID = processorObject["id"];
+                                _pxiInput.text = _pxiID.ToString();
+                                Debug.Log($"(APIManager-OpenEphys) Found Neuropix-PXI processor, setting active ID to {processorObject["id"]}");
+                                break;
+
+                            case "Probe Viewer":
+                                _viewerTargets.Add(processorObject["id"]);
+                                Debug.Log($"(APIManager-OpenEphys) Found Probe Viewer processor, adding ID to target options {processorObject["id"]}");
+                                break;
+                        }
+
+                        if (name.Equals("Neuropix-PXI"))
+                        {
+                            _pxiID = processorObject["id"];
                             Debug.Log($"(APIManager-OpenEphys) Found Neuropix-PXI processor, setting active ID to {processorObject["id"]}");
                         }
                     }
+
+#if UNITY_EDITOR
+                    // debugging code for in the editor
+                    if (_viewerTargets.Count == 0)
+                        _viewerTargets.Add("100");
+#endif
+
+                    // Setup the probe viewer dropdown
+                    int[] previousSelection = _viewerDropdown.SelectedOptions;
+
+                    _viewerDropdown.ClearOptions();
+                    _viewerDropdown.interactable = true;
+                    _viewerDropdown.AddOptions(_viewerTargets);
+                    if (previousSelection.Length > 0)
+                        _viewerDropdown.SelectedOptions = previousSelection;
+                    else if (_viewerDropdown.options.Count > 0)
+                        _viewerDropdown.SelectedOptions = new int[] {0};
                 }
             }
         }
 
-        if (activeID == 0)
+        if (_pxiID == 0)
         {
             Debug.Log("(APIManager-OpenEphys) Warning: no Neuropix-PXI processor was found");
         }
@@ -142,7 +186,7 @@ public class APIManager : MonoBehaviour
 
         var infoMessage = new ProbeDataMessage("NP INFO");
 
-        uri = $"{url}{ENDPOINT_CONFIG.Replace("<id>",activeID.ToString())}";
+        uri = $"{url}{ENDPOINT_CONFIG.Replace("<id>",_pxiID.ToString())}";
 
         Debug.Log($"Sending message {infoMessage} to {uri}");
         using (UnityWebRequest www = UnityWebRequest.Put(uri, infoMessage.ToString()))
@@ -173,6 +217,9 @@ public class APIManager : MonoBehaviour
             }
         }
 
+        // Send the current probe data immediately after setting everything up
+        UpdateProbeDataTarget();
+        _lastDataSend = float.MinValue;
     }
 
     //private void GetProbeInfo_SpikeGLX()
@@ -188,7 +235,6 @@ public class APIManager : MonoBehaviour
     private IEnumerator SendProbeData()
     {
         string url = _probeDataHTTPTarget.text.ToLower().Trim();
-        string uri = $"{url}{ENDPOINT_CONFIG.Replace("<id>", activeID.ToString())}";
 
         // For each probe, get the data string and send it to the request server
 
@@ -197,27 +243,35 @@ public class APIManager : MonoBehaviour
 
             // add data
             string channelDataStr = probeManager.GetChannelAnnotationIDs();
-            string fullMsg = $"{probeManager.APITarget};{channelDataStr}";
 
-            ProbeDataMessage msg = new ProbeDataMessage(fullMsg);
-            Debug.Log($"(APIManager-OpenEphys) Sending {msg} to {uri}");
-
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(msg.ToString());
-            using (UnityWebRequest www = UnityWebRequest.Put(uri, data))
+            foreach (int optIdx in _viewerDropdown.SelectedOptions)
             {
-                yield return www.SendWebRequest();
+                string processorID = _viewerTargets[optIdx];
 
-                if (www.result != UnityWebRequest.Result.Success)
+                string uri = $"{url}{ENDPOINT_CONFIG.Replace("<id>", processorID)}";
+                string fullMsg = $"{probeManager.APITarget};{channelDataStr}";
+
+                ProbeDataMessage msg = new ProbeDataMessage(fullMsg);
+                Debug.Log($"(APIManager-OpenEphys) Sending {msg} to {uri}");
+
+                byte[] data = System.Text.Encoding.UTF8.GetBytes(msg.ToString());
+                using (UnityWebRequest www = UnityWebRequest.Put(uri, data))
                 {
-                    Debug.Log(www.error);
-                }
-                else
-                {
-                    Debug.Log("Upload complete!");
+                    yield return www.SendWebRequest();
+
+                    if (www.result != UnityWebRequest.Result.Success)
+                    {
+                        Debug.Log(www.error);
+                    }
+                    else
+                    {
+                        Debug.Log("Upload complete!");
+                    }
                 }
             }
         }
     }
+
 #endregion
 }
 
