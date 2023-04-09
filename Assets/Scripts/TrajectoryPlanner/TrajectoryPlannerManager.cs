@@ -92,7 +92,6 @@ namespace TrajectoryPlanner
 
         // Local tracking variables
         private List<Collider> rigColliders;
-        private List<Collider> allNonActiveColliders;
         private bool _movedThisFrame;
 
 
@@ -130,7 +129,6 @@ namespace TrajectoryPlanner
             // Initialize variables
             visibleProbePanels = 0;
             rigColliders = new List<Collider>();
-            allNonActiveColliders = new List<Collider>();
             meshCenters = new Dictionary<int, Vector3>();
 
             // Load 3D meshes
@@ -307,59 +305,20 @@ namespace TrajectoryPlanner
             _searchControl.ClickArea(id);
         }
 
-        public TP_InPlaneSlice GetInPlaneSlice()
-        {
-            return _inPlaneSlice;
-        }
-        
-        public TP_ProbeQuickSettings GetProbeQuickSettings()
-        {
-            return _probeQuickSettings;
-        }
-        
-        public QuestionDialogue GetQuestionDialogue()
-        {
-            return _qDialogue;
-        }
-
-        public Collider CCFCollider()
-        {
-            return _ccfCollider;
-        }
-
-        public List<Collider> GetAllNonActiveColliders()
-        {
-            return allNonActiveColliders;
-        }
-
         // DESTROY AND REPLACE PROBES
 
         //[TODO] Replace this with some system that handles recovering probes by tracking their coordinate system or something?
         // Or maybe the probe coordinates should be an object that can be serialized?
-        private ProbeInsertion _prevInsertion;
-        private int _prevProbeType;
-        private string _prevManipulatorId;
-        private Vector4 _prevZeroCoordinateOffset;
-        private float _prevBrainSurfaceOffset;
         private bool _restoredProbe = true; // Can't restore anything at start
-        private string _prevUUID;
+        private string _prevProbeData;
 
         public void DestroyProbe(ProbeManager probeManager)
         {
             var isGhost = probeManager.IsGhost;
             var isActiveProbe = ProbeManager.ActiveProbeManager == probeManager;
             
-            Debug.Log("Destroying probe type " + _prevProbeType + " with coordinates");
-
             if (!isGhost)
-            {
-                _prevProbeType = (int)probeManager.ProbeType;
-                _prevInsertion = probeManager.ProbeController.Insertion;
-                _prevManipulatorId = probeManager.ManipulatorId;
-                _prevZeroCoordinateOffset = probeManager.ZeroCoordinateOffset;
-                _prevBrainSurfaceOffset = probeManager.BrainSurfaceOffset;
-                _prevUUID = probeManager.UUID;
-            }
+                _prevProbeData = JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probeManager));
 
             // Cannot restore a ghost probe, so we set restored to true
             _restoredProbe = isGhost;
@@ -420,8 +379,25 @@ namespace TrajectoryPlanner
         private void RecoverActiveProbeController()
         {
             if (_restoredProbe) return;
-            AddNewProbe((ProbeProperties.ProbeType)_prevProbeType, _prevInsertion, _prevManipulatorId, _prevZeroCoordinateOffset, _prevBrainSurfaceOffset,
-                false, _prevUUID);
+
+            ProbeData probeData = JsonUtility.FromJson<ProbeData>(_prevProbeData);
+
+            // Don't duplicate probes by accident
+            if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
+            {
+                var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
+                    coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
+
+                ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
+                    probeData.ManipulatordID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                    probeData.Drop2SurfaceWithDepth, probeData.UUID);
+
+                newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
+                newProbeManager.OverrideName(probeData.Name);
+                newProbeManager.Color = probeData.Color;
+                newProbeManager.APITarget = probeData.APITarget;
+            }
+
             _restoredProbe = true;
         }
 
