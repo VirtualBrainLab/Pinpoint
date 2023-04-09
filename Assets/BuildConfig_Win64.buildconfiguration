@@ -13,6 +13,12 @@
             "$version": 1,
             "BuildCurrentScene": true,
             "SceneInfos": []
+        },
+        {
+            "$type": "Unity.Build.Classic.ClassicScriptingSettings, Unity.Build.Classic",
+            "ScriptingBackend": 1,
+            "Il2CppCompilerConfiguration": 1,
+            "UseIncrementalGC": false
         }
     ]
 }
