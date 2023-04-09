@@ -769,16 +769,6 @@ namespace TrajectoryPlanner
                 _surfaceDebugGo.SetActive(false);
         }
 
-        public void SetCollisionPanelVisibility(bool visibility)
-        {
-            _collisionPanelGo.SetActive(visibility);
-        }
-
-        public string GetInVivoPrefix()
-        {
-            return CoordinateSpaceManager.ActiveCoordinateTransform.Prefix;
-        }
-
         #endregion
 
 
