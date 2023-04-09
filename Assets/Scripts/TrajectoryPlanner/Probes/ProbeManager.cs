@@ -323,10 +323,7 @@ public class ProbeManager : MonoBehaviour
         if (active)
             ColliderManager.AddProbeColliderInstances(_probeColliders, true);
         else
-        {
             ColliderManager.AddProbeColliderInstances(_probeColliders, false);
-            UIUpdateEvent.RemoveAllListeners();
-        }
 
         UIUpdateEvent.Invoke();
         _probeController.MovedThisFrameEvent.Invoke();
