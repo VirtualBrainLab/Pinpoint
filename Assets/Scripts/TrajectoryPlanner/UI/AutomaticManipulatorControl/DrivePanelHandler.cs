@@ -31,7 +31,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             {
                 case DriveState.Ready:
                     // Set UI for driving
-                    _statusText.text = "Driving to target...";
+                    _statusText.text = "Initializing drive...";
                     _buttonText.text = "Stop";
                     _driveState = DriveState.DrivingToTarget;
 
