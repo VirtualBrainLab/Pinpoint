@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CoordinateSpaces;
 using EphysLink;
 using UnityEngine;
 using UnityEngine.Events;
@@ -920,11 +921,13 @@ public class ProbeManager : MonoBehaviour
         {
             return;
         }
+        // Coordinate spaces
+        var sensapexSpace = new SensapexSpace();
+        
         // Apply zero coordinate offset
         var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
         
         // Apply axis negations
-        zeroCoordinateAdjustedManipulatorPosition.z *= -1;
         zeroCoordinateAdjustedManipulatorPosition.y *= RightHandedManipulatorIDs.Contains(ManipulatorId) ? 1 : -1;
 
         // Phi adjustment
@@ -952,14 +955,16 @@ public class ProbeManager : MonoBehaviour
             zeroCoordinateAdjustedManipulatorPosition.z -= brainSurfaceAdjustment;
 
         // Convert to world space
-        var zeroCoordinateAdjustedWorldPosition = new Vector4(zeroCoordinateAdjustedManipulatorPosition.y,
-            zeroCoordinateAdjustedManipulatorPosition.z, -zeroCoordinateAdjustedManipulatorPosition.x,
-            zeroCoordinateAdjustedManipulatorPosition.w);
+        var zeroCoordinateAdjustedWorldPosition =
+            sensapexSpace.Space2WorldAxisChange(zeroCoordinateAdjustedManipulatorPosition);
+        // var zeroCoordinateAdjustedWorldPosition = new Vector4(zeroCoordinateAdjustedManipulatorPosition.y,
+        //     zeroCoordinateAdjustedManipulatorPosition.z, -zeroCoordinateAdjustedManipulatorPosition.x,
+        //     zeroCoordinateAdjustedManipulatorPosition.w);
 
         // Set probe position (change axes to match probe)
         var zeroCoordinateApmldv = _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
         _probeController.SetProbePosition(new Vector4(zeroCoordinateApmldv.x, zeroCoordinateApmldv.y,
-            zeroCoordinateApmldv.z, zeroCoordinateAdjustedWorldPosition.w));
+            zeroCoordinateApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
 
 
         // Continue echoing position

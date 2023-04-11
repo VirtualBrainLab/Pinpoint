@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using CoordinateSpaces;
 using EphysLink;
 using TMPro;
 using UnityEngine;
@@ -83,12 +84,11 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             var convertToWorld = insertion.Transformed2WorldAxisChange(apmldv);
             // var convertToWorld = insertion.PositionWorld();
 
-            // Flip axes to match manipulator
-            var posWithDepthAndCorrectAxes = new Vector4(
-                -convertToWorld.z,
-                convertToWorld.x,
-                convertToWorld.y,
-                depth);
+            // Convert to Sensapex space
+            var sensapexSpace = new SensapexSpace();
+            var convertToSensapex = sensapexSpace.World2Space(convertToWorld);
+            var posWithDepthAndCorrectAxes =
+                new Vector4(convertToSensapex.x, convertToSensapex.y, convertToSensapex.z, depth);
 
             // Apply brain surface offset
             var brainSurfaceAdjustment = float.IsNaN(ProbeManager.BrainSurfaceOffset)
@@ -111,7 +111,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             posWithDepthAndCorrectAxes.y = phiAdjustedY;
 
             // Apply axis negations
-            posWithDepthAndCorrectAxes.z *= -1;
             posWithDepthAndCorrectAxes.y *=
                 ProbeManager.RightHandedManipulatorIDs.Contains(ProbeManager.ManipulatorId) ? 1 : -1;
 
@@ -207,7 +206,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private const int NUM_SEGMENTS = 2;
         private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0, 0.5f, 0);
         private const string MOVE_TO_TARGET_INSERTION_STR = "Move to Target Insertion";
-        private  const string STOP_MOVEMENT_STR = "Stop Movement";
+        private const string STOP_MOVEMENT_STR = "Stop Movement";
 
         #endregion
 
@@ -370,7 +369,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 MoveToTargetInsertion();
                 _moveButtonText.text = STOP_MOVEMENT_STR;
             }
-                
         }
 
         #endregion
