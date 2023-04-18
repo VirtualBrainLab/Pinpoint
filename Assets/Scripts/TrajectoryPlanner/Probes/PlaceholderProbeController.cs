@@ -49,11 +49,6 @@ public class PlaceholderProbeController : ProbeController
 
     #region Set Probe pos/angles
 
-    public override float GetProbeDepth()
-    {
-        throw new NotImplementedException();
-    }
-
     /// <summary>
     /// Set the probe position to the current apml/depth/phi/theta/spin values
     /// </summary>

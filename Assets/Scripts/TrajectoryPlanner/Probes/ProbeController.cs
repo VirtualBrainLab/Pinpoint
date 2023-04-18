@@ -21,8 +21,6 @@ public abstract class ProbeController : MonoBehaviour
 
     public abstract (Vector3 tipCoordWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU();
 
-    public abstract float GetProbeDepth();
-
     public abstract void ResetInsertion();
 
     public abstract void ResetPosition();

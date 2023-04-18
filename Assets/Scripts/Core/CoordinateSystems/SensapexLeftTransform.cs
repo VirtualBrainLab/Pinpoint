@@ -7,9 +7,9 @@ namespace CoordinateTransforms
     public sealed class SensapexLeftTransform : AffineTransform
     {
         public override string Name => "Sensapex Left";
-        public override string Prefix => "spx";
+        public override string Prefix => "spx-l";
 
-        public SensapexLeftTransform(Vector3 rotation) : base(Vector3.one, rotation)
+        public SensapexLeftTransform(Vector3 rotation) : base(new Vector3(1, -1, 1), rotation)
         {
         }
     }

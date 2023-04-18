@@ -30,7 +30,7 @@ namespace CoordinateTransforms
         /// <returns></returns>
         public override Vector3 Space2Transform(Vector3 ccfCoord)
         {
-            return _rotation * Vector3.Scale(ccfCoord, _scaling);
+            return Vector3.Scale(_rotation*ccfCoord, _scaling);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace CoordinateTransforms
         /// <returns></returns>
         public override Vector3 Transform2Space(Vector3 coordTransformed)
         {
-            return Vector3.Scale(_inverseRotation * coordTransformed, _inverseScaling);
+            return _inverseRotation*Vector3.Scale(coordTransformed, _inverseScaling);
         }
 
         /// <summary>
