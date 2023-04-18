@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using CoordinateSpaces;
+using CoordinateTransforms;
 using EphysLink;
 using TMPro;
 using UnityEngine;
@@ -78,44 +79,28 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         {
             // Gather info
             var apmldv = insertion.apmldv;
-            const float depth = 0;
 
             // Convert apmldv to world coordinate
             var convertToWorld = insertion.Transformed2WorldAxisChange(apmldv);
-            // var convertToWorld = insertion.PositionWorld();
 
             // Convert to Sensapex space
             var sensapexSpace = new SensapexSpace();
-            var convertToSensapex = sensapexSpace.World2Space(convertToWorld);
-            var posWithDepthAndCorrectAxes =
-                new Vector4(convertToSensapex.x, convertToSensapex.y, convertToSensapex.z, depth);
+            var sensapexTransform =
+                new SensapexRightTransform(new Vector3(0,0,ProbeManager.ProbeController.Insertion.phi));
+            var posInSensapexSpace = sensapexSpace.World2SpaceAxisChange(convertToWorld);
+            Vector4 posInSensapexTransform = sensapexTransform.Space2Transform(posInSensapexSpace);
 
             // Apply brain surface offset
             var brainSurfaceAdjustment = float.IsNaN(ProbeManager.BrainSurfaceOffset)
                 ? 0
                 : ProbeManager.BrainSurfaceOffset;
             if (ProbeManager.IsSetToDropToSurfaceWithDepth)
-                posWithDepthAndCorrectAxes.w -= brainSurfaceAdjustment;
+                posInSensapexTransform.w -= brainSurfaceAdjustment;
             else
-                posWithDepthAndCorrectAxes.z -= brainSurfaceAdjustment;
-
-            // Adjust for phi
-            var probePhi = ProbeManager.ProbeController.Insertion.phi * Mathf.Deg2Rad;
-            var phiCos = Mathf.Cos(probePhi);
-            var phiSin = Mathf.Sin(probePhi);
-            var phiAdjustedX = posWithDepthAndCorrectAxes.x * phiCos -
-                               posWithDepthAndCorrectAxes.y * phiSin;
-            var phiAdjustedY = posWithDepthAndCorrectAxes.x * phiSin +
-                               posWithDepthAndCorrectAxes.y * phiCos;
-            posWithDepthAndCorrectAxes.x = phiAdjustedX;
-            posWithDepthAndCorrectAxes.y = phiAdjustedY;
-
-            // Apply axis negations
-            posWithDepthAndCorrectAxes.y *=
-                ProbeManager.RightHandedManipulatorIDs.Contains(ProbeManager.ManipulatorId) ? 1 : -1;
+                posInSensapexTransform.z -= brainSurfaceAdjustment;
 
             // Apply coordinate offsets and return result
-            return posWithDepthAndCorrectAxes + ProbeManager.ZeroCoordinateOffset;
+            return posInSensapexTransform + ProbeManager.ZeroCoordinateOffset;
         }
 
         /// <summary>
