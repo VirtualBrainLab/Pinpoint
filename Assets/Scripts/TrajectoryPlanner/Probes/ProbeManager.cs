@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CoordinateSpaces;
 using CoordinateTransforms;
 using EphysLink;
+using TrajectoryPlanner.Probes;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -709,11 +710,14 @@ public class ProbeManager : MonoBehaviour
         if (register)
             _ephysLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
             {
-                Debug.Log("Manipulator Registered");
                 ManipulatorId = manipulatorId;
 
                 // Remove insertion from targeting options
                 _probeController.Insertion.Targetable = false;
+                
+                // Lock manual probe controls, enable manipulator behavior
+                _probeController.Locked = true;
+                gameObject.GetComponent<ManipulatorBehavior>().enabled = true;
 
                 if (calibrated)
                     // Bypass calibration and start echoing
@@ -738,7 +742,7 @@ public class ProbeManager : MonoBehaviour
         else
             _ephysLinkCommunicationManager.UnregisterManipulator(ManipulatorId, () =>
             {
-                Debug.Log("Manipulator Unregistered");
+                gameObject.GetComponent<ManipulatorBehavior>().enabled = false;
                 ResetManipulatorProperties();
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
