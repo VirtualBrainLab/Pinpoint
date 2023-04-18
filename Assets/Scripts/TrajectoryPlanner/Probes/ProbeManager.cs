@@ -922,9 +922,10 @@ public class ProbeManager : MonoBehaviour
         {
             return;
         }
+        
         // Coordinate space and transform
         var sensapexSpace = new SensapexSpace();
-        var sensapexTransform = new SensapexRightTransform(new Vector3(-_probeController.Insertion.phi * Mathf.Deg2Rad, 0, 0));
+        var sensapexTransform = new SensapexRightTransform(new Vector3(0, 0, _probeController.Insertion.phi));
         
         // Calculate last used direction (between depth and DV)
         var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
@@ -935,24 +936,9 @@ public class ProbeManager : MonoBehaviour
         // Apply zero coordinate offset
         var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
         
-        // Apply axis negations
-        // zeroCoordinateAdjustedManipulatorPosition.y *= RightHandedManipulatorIDs.Contains(ManipulatorId) ? 1 : -1;
-        
         // Convert to sensapex space
         var sensapexSpacePosition = sensapexTransform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
 
-        // Phi adjustment
-        var probePhi = -_probeController.Insertion.phi * Mathf.Deg2Rad;
-        _phiCos = Mathf.Cos(probePhi);
-        _phiSin = Mathf.Sin(probePhi);
-        var phiAdjustedX = zeroCoordinateAdjustedManipulatorPosition.x * _phiCos -
-                           zeroCoordinateAdjustedManipulatorPosition.y * _phiSin;
-        var phiAdjustedY = zeroCoordinateAdjustedManipulatorPosition.x * _phiSin +
-                           zeroCoordinateAdjustedManipulatorPosition.y * _phiCos;
-        zeroCoordinateAdjustedManipulatorPosition.x = phiAdjustedX;
-        zeroCoordinateAdjustedManipulatorPosition.y = phiAdjustedY;
-        
-        
         // Brain surface adjustment
         var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
         if (IsSetToDropToSurfaceWithDepth)
@@ -963,15 +949,11 @@ public class ProbeManager : MonoBehaviour
         // Convert to world space
         var zeroCoordinateAdjustedWorldPosition =
             sensapexSpace.Space2WorldAxisChange(sensapexSpacePosition);
-        // var zeroCoordinateAdjustedWorldPosition = new Vector4(zeroCoordinateAdjustedManipulatorPosition.y,
-        //     zeroCoordinateAdjustedManipulatorPosition.z, -zeroCoordinateAdjustedManipulatorPosition.x,
-        //     zeroCoordinateAdjustedManipulatorPosition.w);
 
         // Set probe position (change axes to match probe)
         var transformedApmldv = _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
         _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
             transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
-
 
         // Continue echoing position
         if (IsEphysLinkControlled)
