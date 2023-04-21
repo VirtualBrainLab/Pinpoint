@@ -129,6 +129,8 @@ public class APIManager : MonoBehaviour
                 var msg = LightJson.JsonValue.Parse(www.downloadHandler.text).AsJsonObject;
                 var processors = msg["processors"].AsJsonArray;
 
+                int probeViewerIdx = -1;
+
                 if (processors != null)
                 {
                     foreach (var processor in processors)
@@ -136,24 +138,25 @@ public class APIManager : MonoBehaviour
                         var processorObject = processor.AsJsonObject;
                         string name = (string)processorObject["name"];
 
-                        switch (name)
-                        {
-                            case "Neuropix-PXI":
-                                _pxiID = processorObject["id"];
-                                _pxiInput.text = _pxiID.ToString();
-                                Debug.Log($"(APIManager-OpenEphys) Found Neuropix-PXI processor, setting active ID to {processorObject["id"]}");
-                                break;
+                        //Debug.LogError($"Received processor with name: {name} and ID: {processorObject["id"]}");
 
-                            case "Probe Viewer":
-                                _viewerTargets.Add(processorObject["id"]);
-                                Debug.Log($"(APIManager-OpenEphys) Found Probe Viewer processor, adding ID to target options {processorObject["id"]}");
-                                break;
+                        if (name.Equals("Neuropix-PXI"))
+                        {
+                            _pxiID = processorObject["id"];
+                            _pxiInput.text = _pxiID.ToString();
+                            Debug.Log($"(APIManager-OpenEphys) Found Neuropix-PXI processor, setting active ID to {processorObject["id"]}");
+                        }
+                        else
+                        {
+                            _viewerTargets.Add($"{processorObject["id"]}: {name}");
+                            if (name.Contains("Probe"))
+                                probeViewerIdx = _viewerTargets.Count - 1;
                         }
 
                         if (name.Equals("Neuropix-PXI"))
                         {
                             _pxiID = processorObject["id"];
-                            Debug.Log($"(APIManager-OpenEphys) Found Neuropix-PXI processor, setting active ID to {processorObject["id"]}");
+                            Debug.Log($"(APIManager-OpenEphys) Found Probe Viewer, targeting outbound message to {processorObject["id"]}");
                         }
                     }
 
@@ -172,14 +175,16 @@ public class APIManager : MonoBehaviour
                     if (previousSelection.Length > 0)
                         _viewerDropdown.SelectedOptions = previousSelection;
                     else if (_viewerDropdown.options.Count > 0)
-                        _viewerDropdown.SelectedOptions = new int[] {0};
+                    {
+                        _viewerDropdown.SelectedOptions = (probeViewerIdx >= 0) ? new int[] { probeViewerIdx } : new int[] { 0 };
+                    }
                 }
             }
         }
 
         if (_pxiID == 0)
         {
-            Debug.Log("(APIManager-OpenEphys) Warning: no Neuropix-PXI processor was found");
+            Debug.LogError("(APIManager-OpenEphys) Warning: no Neuropix-PXI processor was found");
         }
 
         // Now, send the actual message to request info about the available probes
@@ -246,7 +251,7 @@ public class APIManager : MonoBehaviour
 
             foreach (int optIdx in _viewerDropdown.SelectedOptions)
             {
-                string processorID = _viewerTargets[optIdx];
+                string processorID = _viewerTargets[optIdx].Substring(0,3);
 
                 string uri = $"{url}{ENDPOINT_CONFIG.Replace("<id>", processorID)}";
                 string fullMsg = $"{probeManager.APITarget};{channelDataStr}";
