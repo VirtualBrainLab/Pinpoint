@@ -96,7 +96,7 @@ public class ProbeInsertion
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
         Instances.Add(this);
-        _targetable = targetable;
+        Targetable = targetable;
         Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
 
@@ -108,7 +108,7 @@ public class ProbeInsertion
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
         Instances.Add(this);
-        _targetable = targetable;
+        Targetable = targetable;
         Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
      
@@ -119,7 +119,7 @@ public class ProbeInsertion
         CoordinateSpace = otherInsertion.CoordinateSpace;
         CoordinateTransform = otherInsertion.CoordinateTransform;
         Instances.Add(this);
-        _targetable = targetable;
+        Targetable = targetable;
         Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
 
