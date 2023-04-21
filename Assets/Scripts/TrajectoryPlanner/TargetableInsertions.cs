@@ -33,12 +33,14 @@ public class TargetableInsertions : MonoBehaviour
                 if (!data[UUID].active)
                 {
                     // This probe is not active, so it needs to be made targetable
-                    ProbeInsertion insertion = _tpManager.ServerProbeInsertion2ProbeInsertion(data[UUID]);
+                    var insertionData = _tpManager.ServerProbeInsertion2ProbeInsertion(data[UUID]);
 
                     if (_targetableProbes.ContainsKey(UUID))
                     {
                         // update data
-                        _targetableProbes[UUID].ProbeController.SetProbePosition(insertion);
+                        _targetableProbes[UUID].ProbeController.SetSpaceTransform(insertionData.space, insertionData.transform);
+                        _targetableProbes[UUID].ProbeController.SetProbePosition(insertionData.apmldv);
+                        _targetableProbes[UUID].ProbeController.SetProbeAngles(insertionData.angles);
                     }
                     else
                     {
@@ -46,7 +48,9 @@ public class TargetableInsertions : MonoBehaviour
                         GameObject probeGO = Instantiate(_probePlaceholderPrefab, _targetableProbeParentT);
                         ProbeManager probeManager = probeGO.GetComponent<ProbeManager>();
                         probeManager.OverrideUUID(UUID);
-                        probeManager.ProbeController.SetProbePosition(insertion);
+                        probeManager.ProbeController.SetSpaceTransform(insertionData.space, insertionData.transform);
+                        probeManager.ProbeController.SetProbePosition(insertionData.apmldv);
+                        probeManager.ProbeController.SetProbeAngles(insertionData.angles);
                         _targetableProbes.Add(UUID, probeManager);
                     }
                     continue;
@@ -61,6 +65,12 @@ public class TargetableInsertions : MonoBehaviour
                 Destroy(probeManager.gameObject);
                 _targetableProbes.Remove(UUID);
             }
+        }
+
+        Debug.Log($"ProbeInsertions {ProbeInsertion.Instances.Count} Targetable {ProbeInsertion.TargetableInstances.Count}");
+        foreach (var probe in ProbeInsertion.TargetableInstances)
+        {
+            Debug.Log(probe.ToString());
         }
     }
 }

@@ -68,6 +68,11 @@ public class ProbeUIManager : MonoBehaviour
         }
     }
 
+    public Transform ShankTipT()
+    {
+        return _electrodeBase.transform;
+    }
+
     public void UpdateColors()
     {
         defaultColor = _probeManager.Color;

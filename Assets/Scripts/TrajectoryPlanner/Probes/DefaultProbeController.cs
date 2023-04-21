@@ -696,12 +696,12 @@ public class DefaultProbeController : ProbeController
         ProbeManager.UIUpdateEvent.Invoke();
     }
 
-    public override void SetProbePosition(ProbeInsertion localInsertion)
-    {
-        // localInsertion gets copied to Insertion
-        Insertion.apmldv = localInsertion.apmldv;
-        Insertion.angles = localInsertion.angles;
-    }
+    //public override void SetProbePosition(ProbeInsertion localInsertion)
+    //{
+    //    // localInsertion gets copied to Insertion
+    //    Insertion.apmldv = localInsertion.apmldv;
+    //    Insertion.angles = localInsertion.angles;
+    //}
 
     #endregion
 

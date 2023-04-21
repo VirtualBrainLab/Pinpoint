@@ -19,8 +19,8 @@ public class ProbeInsertion
     #endregion
 
     #region Coordinate vars
-    public CoordinateSpace CoordinateSpace { get; private set; }
-    public CoordinateTransform CoordinateTransform { get; private set; }
+    public CoordinateSpace CoordinateSpace { get; set; }
+    public CoordinateTransform CoordinateTransform { get; set; }
     #endregion
 
     #region pos/angle vars
@@ -95,8 +95,9 @@ public class ProbeInsertion
         this.spin = spin;
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
-        if (targetable)
-            Instances.Add(this);
+        Instances.Add(this);
+        _targetable = targetable;
+        Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
 
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
@@ -106,8 +107,9 @@ public class ProbeInsertion
         this.angles = angles;
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
-        if (targetable)
-            Instances.Add(this);
+        Instances.Add(this);
+        _targetable = targetable;
+        Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
 
     public ProbeInsertion(ProbeInsertion otherInsertion, bool targetable = true)
@@ -116,12 +118,14 @@ public class ProbeInsertion
         angles = otherInsertion.angles;
         CoordinateSpace = otherInsertion.CoordinateSpace;
         CoordinateTransform = otherInsertion.CoordinateTransform;
-        if (targetable)
-            Instances.Add(this);
+        Instances.Add(this);
+        _targetable = targetable;
+        Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
 
     ~ProbeInsertion()
     {
+        Debug.Log("Probe insertion destroyed");
         if (Instances.Contains(this))
             Instances.Remove(this);
         if (TargetableInstances.Contains(this))
@@ -190,4 +194,9 @@ public class ProbeInsertion
     {
         return $"AP: {Math.Round(ap*1000)} ML: {Math.Round(ml*1000)} DV: {Math.Round(dv*1000)}";
     }
+}
+
+public class ProbeInsertionData
+{
+
 }
