@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class TP_Utils : MonoBehaviour
 {
@@ -159,6 +161,79 @@ public class TP_Utils : MonoBehaviour
         Debug.LogFormat("Found {0} Doubles", data.Length);
 
         return data;
+    }
+
+    public void LoadCoverageData(Texture3D tex, string url)
+    {
+        StartCoroutine(LoadDataHelper(url, tex));
+    }
+
+    private IEnumerator LoadDataHelper(string uri, Texture3D tex)
+    {
+        // Pre-compute some colors
+        Color c10 = Color.white;
+        Color c30 = Color.Lerp(Color.white, Color.yellow, 0.5f);
+        Color c40 = Color.yellow;
+        Color c50 = Color.Lerp(Color.yellow, Color.red, 0.5f);
+        Color c60 = Color.red;
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
+        {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = uri.Split('/');
+            int page = pages.Length - 1;
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.ConnectionError:
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.ProtocolError:
+                    Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.Success:
+                    Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadedBytes);
+                    byte[] bytes = webRequest.downloadHandler.data;
+                    int idx = 0;
+                    for (int x = 0; x < 528; x++)
+                        for (int y = 0; y < 456; y++)
+                            for (int z = 0; z < 320; z++)
+                            {
+                                byte val = bytes[idx++];
+                                switch (val)
+                                {
+                                    case 0:
+                                        // pass
+                                        break;
+                                    case 10:
+                                        tex.SetPixel(x, z, y, c10);
+                                        break;
+                                    case 30:
+                                        tex.SetPixel(x, z, y, c30);
+                                        break;
+                                    case 40:
+                                        tex.SetPixel(x, z, y, c40);
+                                        break;
+                                    case 50:
+                                        tex.SetPixel(x, z, y, c50);
+                                        break;
+                                    case 60:
+                                        tex.SetPixel(x, z, y, c60);
+                                        break;
+                                }
+                                //if (val > 0)
+                                //{
+                                //    //float valf = val / 255f;
+                                //    //tex.SetPixel(x, z, y, new Color(valf, valf, valf));
+                                //}
+                            }
+                    tex.Apply();
+                    break;
+            }
+        }
     }
 
     private static Array LoadNPY(Stream stream)
