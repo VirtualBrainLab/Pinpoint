@@ -1,4 +1,5 @@
 using TMPro;
+using TrajectoryPlanner.Probes;
 using UnityEngine;
 
 namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
@@ -9,7 +10,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private void Start()
         {
-            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
+            _manipulatorIDText.text = "Manipulator " + ManipulatorBehaviorController.ManipulatorID;
             _manipulatorIDText.color = ProbeManager.Color;
         }
 
@@ -23,7 +24,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         public void ResetDuraOffset()
         {
             // Reset dura offset
-            ProbeManager.SetBrainSurfaceOffset();
+            ManipulatorBehaviorController.SetBrainSurfaceOffset();
         }
 
         #endregion
@@ -32,6 +33,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         [SerializeField] private TMP_Text _manipulatorIDText;
         public ProbeManager ProbeManager { private get; set; }
+        public ManipulatorBehaviorController ManipulatorBehaviorController { private get; set; }
 
         #endregion
     }

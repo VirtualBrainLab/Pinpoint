@@ -1,9 +1,9 @@
 using System.Linq;
 using EphysLink;
 using TMPro;
+using TrajectoryPlanner.Probes;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 namespace TrajectoryPlanner
 {
@@ -102,7 +102,12 @@ namespace TrajectoryPlanner
         /// </summary>
         public void ZeroDepth()
         {
-            ProbeManager.ActiveProbeManager.SetBrainSurfaceOffset();
+            var manipulatorBehaviorController =
+                ProbeManager.ActiveProbeManager.GetComponent<ManipulatorBehaviorController>();
+            if (manipulatorBehaviorController.enabled)
+                manipulatorBehaviorController.SetBrainSurfaceOffset();
+            else
+                ProbeManager.ActiveProbeManager.SetBrainSurfaceOffset();
 
             UpdateCoordinates();
         }

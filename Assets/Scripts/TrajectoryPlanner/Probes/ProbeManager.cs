@@ -753,7 +753,7 @@ public class ProbeManager : MonoBehaviour
                 
                 // Lock manual probe controls, enable manipulator behavior
                 _probeController.Locked = true;
-                gameObject.GetComponent<ManipulatorBehavior>().enabled = true;
+                gameObject.GetComponent<ManipulatorBehaviorController>().enabled = true;
 
                 if (calibrated)
                     // Bypass calibration and start echoing
@@ -778,7 +778,7 @@ public class ProbeManager : MonoBehaviour
         else
             _ephysLinkCommunicationManager.UnregisterManipulator(ManipulatorId, () =>
             {
-                gameObject.GetComponent<ManipulatorBehavior>().enabled = false;
+                gameObject.GetComponent<ManipulatorBehaviorController>().enabled = false;
                 ResetManipulatorProperties();
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
@@ -881,15 +881,7 @@ public class ProbeManager : MonoBehaviour
     {
         if (probeInBrain)
         {
-            // Just calculate the distance from the probe tip position to the brain surface            
-            if (IsEphysLinkControlled)
-            {
-                BrainSurfaceOffset -= Vector3.Distance(_brainSurface, _probeController.Insertion.apmldv);
-            }
-            else
-            {
-                _probeController.SetProbePosition(_brainSurface);
-            }
+            _probeController.SetProbePosition(_brainSurface);
         }
         else
         {
@@ -907,19 +899,11 @@ public class ProbeManager : MonoBehaviour
                 return;
             }
 
-            var brainSurfaceToWorld = annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
+            var brainSurfaceToTransformed =
+                _probeController.Insertion.World2Transformed(
+                    annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate));
 
-            if (IsEphysLinkControlled)
-            {
-                var depth = Vector3.Distance(_probeController.Insertion.World2Transformed(brainSurfaceToWorld),
-                    _probeController.Insertion.apmldv);
-                BrainSurfaceOffset += depth;
-                print("Depth: " + depth + " Total: " + BrainSurfaceOffset);
-            }
-            else
-            {
-                _probeController.SetProbePosition(_probeController.Insertion.World2Transformed(brainSurfaceToWorld));
-            }
+            _probeController.SetProbePosition(brainSurfaceToTransformed);
         }
         
 

@@ -2534,6 +2534,7 @@ GameObject:
   - component: {fileID: 1545133269317581810}
   - component: {fileID: 1889671296123998709}
   - component: {fileID: 3819742175937011324}
+  - component: {fileID: 1735286212646692649}
   m_Layer: 10
   m_Name: NP2.4Probe
   m_TagString: Probe
@@ -2695,6 +2696,29 @@ MonoBehaviour:
   _probeManager: {fileID: 8943063119080654583}
   _electrodeBase: {fileID: 2757399421754738177}
   _order: 3
+--- !u!114 &1735286212646692649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8943063119080654577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5df66603ba6f914f9c937a77777deff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _probeManager: {fileID: 8943063119080654583}
+  _probeController: {fileID: 897778941437095604}
+  ZeroCoordinateOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  BrainSurfaceOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  IsSetToDropToSurfaceWithDepthChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &3708168665352534330
 PrefabInstance:
   m_ObjectHideFlags: 0
