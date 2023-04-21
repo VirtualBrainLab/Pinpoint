@@ -111,7 +111,7 @@ public class ProbeInsertion
         _targetable = targetable;
         Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
-
+     
     public ProbeInsertion(ProbeInsertion otherInsertion, bool targetable = true)
     {
         apmldv = otherInsertion.apmldv;

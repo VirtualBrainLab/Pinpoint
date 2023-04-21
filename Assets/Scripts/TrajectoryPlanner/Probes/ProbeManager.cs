@@ -1043,7 +1043,9 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsTransparent()
     {
+#if UNITY_EDITOR
         Debug.Log($"Setting materials for {name} to transparent");
+#endif
         var currentColorTint = new Color(Color.r, Color.g, Color.b, .2f);
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
@@ -1059,7 +1061,9 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
+#if UNITY_EDITOR
         Debug.Log($"Setting materials for {name} to default");
+#endif
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
             if (defaultMaterials.ContainsKey(childRenderer.gameObject))
                 childRenderer.material = defaultMaterials[childRenderer.gameObject];
@@ -1101,13 +1105,11 @@ public class ProbeData
     {
         ProbeData data = new ProbeData();
 
-        ProbeInsertion insertion = probeManager.ProbeController.Insertion;
+        data.APMLDV = probeManager.ProbeController.Insertion.apmldv;
+        data.Angles = probeManager.ProbeController.Insertion.angles;
 
-        data.APMLDV = insertion.apmldv;
-        data.Angles = insertion.angles;
-
-        data.CoordSpaceName = insertion.CoordinateSpace.Name;
-        data.CoordTransformName = insertion.CoordinateTransform.Name;
+        data.CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
+        data.CoordTransformName = probeManager.ProbeController.Insertion.CoordinateTransform.Name;
         data.ZeroCoordOffset = probeManager.ZeroCoordinateOffset;
 
         data.SelectionLayerName = probeManager.SelectionLayerName;
