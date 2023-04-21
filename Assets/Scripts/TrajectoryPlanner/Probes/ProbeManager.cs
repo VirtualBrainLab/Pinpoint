@@ -29,8 +29,13 @@ public class ProbeManager : MonoBehaviour
     void OnEnable() => Instances.Add(this);
     void OnDestroy()
     {
+        Debug.Log($"Destroying probe: {name}");
         if (Instances.Contains(this))
             Instances.Remove(this);
+        // clean up the ProbeInsertion
+        ProbeInsertion.Instances.Remove(ProbeController.Insertion);
+        if (ProbeController.Insertion.Targetable)
+            ProbeInsertion.TargetableInstances.Remove(ProbeController.Insertion);
     }
 
     public static HashSet<string> RightHandedManipulatorIDs { get; private set; }
@@ -351,9 +356,8 @@ public class ProbeManager : MonoBehaviour
 
     private void ChangeTransform()
     {
-        ProbeInsertion originalInsertion = _probeController.Insertion;
         Debug.LogWarning("Insertion coordinates are not being transformed into the new space!! This might not be expected behavior");
-        _probeController.SetProbePosition(new ProbeInsertion(originalInsertion.apmldv, originalInsertion.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform));
+        _probeController.SetSpaceTransform(CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
 
     public void SetUIVisibility(bool state)
@@ -487,25 +491,57 @@ public class ProbeManager : MonoBehaviour
         // Get the channel data
         var channelMapData = ChannelMap.GetChannelPositions("all");
 
-        string[] channelStrings = new string[channelMapData.Count];
+        string[] channelStrings;
 
-        // Populate the data string
-        Vector3 tipCoordWorldT = _probeController.ProbeTipT.position;
-
-        for (int i = 0; i < channelMapData.Count; i++)
+        if (ProbeProperties.FourShank(ProbeType))
         {
-            // For now we'll ignore x changes and just use the y coordinate, this way we don't need to calculate the forward vector for the probe
-            // note that we're ignoring depth here, this assume the probe tip is on the electrode surface (which it should be)
-            Vector3 channelCoordWorldT = tipCoordWorldT + _probeController.ProbeTipT.up * channelMapData[i].y / 1000f;
+            channelStrings = new string[channelMapData.Count * 4];
 
-            // Now transform this into WorldU
-            ProbeInsertion insertion = _probeController.Insertion;
-            Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
+            for (int si = 0; si < 4; si++)
+            {
+                ProbeUIManager uiManager = _probeUIManagers[si];
+                Vector3 shankTipCoordWorldT = uiManager.ShankTipT().position;
 
-            int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
-            if (ID < 0) ID = -1;
+                for (int i = 0; i < channelMapData.Count; i++)
+                {
+                    // For now we'll ignore x changes and just use the y coordinate, this way we don't need to calculate the forward vector for the probe
+                    // note that we're ignoring depth here, this assume the probe tip is on the electrode surface (which it should be)
+                    Vector3 channelCoordWorldT = shankTipCoordWorldT + _probeController.ProbeTipT.up * channelMapData[i].y / 1000f;
 
-            channelStrings[i] = $"{i},{ID}";
+                    // Now transform this into WorldU
+                    ProbeInsertion insertion = _probeController.Insertion;
+                    Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
+
+                    int elecIdx = si * channelMapData.Count + i;
+                    int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
+                    if (ID < 0) ID = -1;
+
+                    channelStrings[elecIdx] = $"{elecIdx},{ID}";
+                }
+            }
+        }
+        else
+        {
+            channelStrings = new string[channelMapData.Count];
+
+            // Populate the data string
+            Vector3 tipCoordWorldT = _probeController.ProbeTipT.position;
+
+            for (int i = 0; i < channelMapData.Count; i++)
+            {
+                // For now we'll ignore x changes and just use the y coordinate, this way we don't need to calculate the forward vector for the probe
+                // note that we're ignoring depth here, this assume the probe tip is on the electrode surface (which it should be)
+                Vector3 channelCoordWorldT = tipCoordWorldT + _probeController.ProbeTipT.up * channelMapData[i].y / 1000f;
+
+                // Now transform this into WorldU
+                ProbeInsertion insertion = _probeController.Insertion;
+                Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
+
+                int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
+                if (ID < 0) ID = -1;
+
+                channelStrings[i] = $"{i},{ID}";
+            }
         }
 
         var returnString = string.Join(";", channelStrings);
@@ -1004,7 +1040,9 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsTransparent()
     {
+#if UNITY_EDITOR
         Debug.Log($"Setting materials for {name} to transparent");
+#endif
         var currentColorTint = new Color(Color.r, Color.g, Color.b, .2f);
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
@@ -1020,7 +1058,9 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void SetMaterialsDefault()
     {
+#if UNITY_EDITOR
         Debug.Log($"Setting materials for {name} to default");
+#endif
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
             if (defaultMaterials.ContainsKey(childRenderer.gameObject))
                 childRenderer.material = defaultMaterials[childRenderer.gameObject];
@@ -1062,13 +1102,11 @@ public class ProbeData
     {
         ProbeData data = new ProbeData();
 
-        ProbeInsertion insertion = probeManager.ProbeController.Insertion;
+        data.APMLDV = probeManager.ProbeController.Insertion.apmldv;
+        data.Angles = probeManager.ProbeController.Insertion.angles;
 
-        data.APMLDV = insertion.apmldv;
-        data.Angles = insertion.angles;
-
-        data.CoordSpaceName = insertion.CoordinateSpace.Name;
-        data.CoordTransformName = insertion.CoordinateTransform.Name;
+        data.CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
+        data.CoordTransformName = probeManager.ProbeController.Insertion.CoordinateTransform.Name;
         data.ZeroCoordOffset = probeManager.ZeroCoordinateOffset;
 
         data.SelectionLayerName = probeManager.SelectionLayerName;

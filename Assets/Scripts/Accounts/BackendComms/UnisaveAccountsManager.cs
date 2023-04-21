@@ -412,9 +412,8 @@ public class UnisaveAccountsManager : AccountsManager
 
     private ServerProbeInsertion ProbeManager2ServerProbeInsertion(ProbeManager probeManager, bool active = true, bool recorded = false)
     {
-        ProbeInsertion insertion = probeManager.ProbeController.Insertion;
-        Vector3 apmldv = insertion.apmldv;
-        Vector3 angles = insertion.angles;
+        Vector3 apmldv = probeManager.ProbeController.Insertion.apmldv;
+        Vector3 angles = probeManager.ProbeController.Insertion.angles;
         Color color = probeManager.Color;
 
         ServerProbeInsertion serverProbeInsertion = new ServerProbeInsertion(
@@ -422,8 +421,8 @@ public class UnisaveAccountsManager : AccountsManager
             apmldv.x, apmldv.y, apmldv.z,
             angles.x, angles.y, angles.z,
             (int)probeManager.ProbeType,
-            insertion.CoordinateSpace.Name,
-            insertion.CoordinateTransform.Name,
+            probeManager.ProbeController.Insertion.CoordinateSpace.Name,
+            probeManager.ProbeController.Insertion.CoordinateTransform.Name,
             active, recorded,
             probeManager.UUID,
             new float[] {color.r, color.g, color.b});

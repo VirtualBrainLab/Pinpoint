@@ -483,7 +483,9 @@ namespace TrajectoryPlanner
         {
             ProbeManager probeManager = AddNewProbe(probeType, UUID);
 
-            probeManager.ProbeController.SetProbePosition(insertion);
+            probeManager.ProbeController.SetProbePosition(insertion.apmldv);
+            probeManager.ProbeController.SetProbeAngles(insertion.angles);
+            probeManager.ProbeController.SetSpaceTransform(insertion.CoordinateSpace, insertion.CoordinateTransform);
 
             return probeManager;
         }
@@ -495,7 +497,9 @@ namespace TrajectoryPlanner
         {
             var probeManager = AddNewProbe(probeType, UUID);
 
-            probeManager.ProbeController.SetProbePosition(insertion);
+            probeManager.ProbeController.SetProbePosition(insertion.apmldv);
+            probeManager.ProbeController.SetProbeAngles(insertion.angles);
+            probeManager.ProbeController.SetSpaceTransform(insertion.CoordinateSpace, insertion.CoordinateTransform);
 
             // Repopulate Ephys Link information
             if (!Settings.IsEphysLinkDataExpired())
@@ -1073,15 +1077,13 @@ namespace TrajectoryPlanner
 
 #region Accounts
 
-        public ProbeInsertion ServerProbeInsertion2ProbeInsertion(ServerProbeInsertion serverInsertion)
+        public (Vector3 apmldv, Vector3 angles, CoordinateSpace space, CoordinateTransform transform, bool targetable) ServerProbeInsertion2ProbeInsertion(ServerProbeInsertion serverInsertion)
         {
-            ProbeInsertion insertion = new ProbeInsertion(serverInsertion.ap, serverInsertion.ml, serverInsertion.dv,
-                serverInsertion.phi, serverInsertion.theta, serverInsertion.spin,
+            return (new Vector3(serverInsertion.ap, serverInsertion.ml, serverInsertion.dv),
+                new Vector3(serverInsertion.phi, serverInsertion.theta, serverInsertion.spin),
                 coordinateSpaceOpts[serverInsertion.coordinateSpaceName],
                 coordinateTransformOpts[serverInsertion.coordinateTransformName],
                 true);
-
-            return insertion;
         }
 
         /// <summary>
