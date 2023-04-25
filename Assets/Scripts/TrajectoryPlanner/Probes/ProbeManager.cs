@@ -62,8 +62,6 @@ public class ProbeManager : MonoBehaviour
     ///     Manipulator ID from Ephys Link
     /// </summary>
     public string ManipulatorId { get; private set; }
-    private float _phiCos = 1f;
-    private float _phiSin;
     private Vector4 _zeroCoordinateOffset = Vector4.negativeInfinity;
 
     public Vector4 ZeroCoordinateOffset
@@ -716,6 +714,52 @@ public class ProbeManager : MonoBehaviour
     {
         return probeInBrain;
     }
+    
+    /// <summary>
+    ///     Set if the probe should be dropped to the surface with depth or with DV.
+    /// </summary>
+    /// <param name="dropToSurfaceWithDepth">Use depth if true, use DV if false</param>
+    public void SetDropToSurfaceWithDepth(bool dropToSurfaceWithDepth)
+    {
+        // Only make changes to brain surface offset axis if the offset is 0
+        if (!CanChangeBrainSurfaceOffsetAxis) return;
+        
+        // Apply change (if eligible)
+        IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
+    }
+    
+    /// <summary>
+    ///     Move probe to brain surface
+    /// </summary>
+    public void DropProbeToBrainSurface()
+    {
+        if (probeInBrain)
+        {
+            _probeController.SetProbePosition(_brainSurface);
+        }
+        else
+        {
+            // We need to calculate the surface coordinate ourselves
+            var tipExtensionDirection =
+                IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
+
+            var brainSurfaceCoordinate = annotationDataset.FindSurfaceCoordinate(
+                annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
+                annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipExtensionDirection));
+
+            if (float.IsNaN(brainSurfaceCoordinate.x))
+            {
+                Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
+                return;
+            }
+
+            var brainSurfaceToTransformed =
+                _probeController.Insertion.World2Transformed(
+                    annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate));
+
+            _probeController.SetProbePosition(brainSurfaceToTransformed);
+        }
+    }
 
 #endregion
 
@@ -812,127 +856,6 @@ public class ProbeManager : MonoBehaviour
         _probeController.Insertion.Targetable = true;
     }
     
-    /// <summary>
-    /// Set the automatic movement speed of this probe (when put under automatic control)
-    /// </summary>
-    /// <param name="speed">Speed in um/s</param>
-    public void SetAutomaticMovementSpeed(int speed)
-    {
-        // Ghosts don't have automatic movement speeds
-        if (IsGhost)
-        {
-            return;
-        }
-
-        AutomaticMovementSpeed = speed;
-    }
-    
-    /// <summary>
-    ///     Update x coordinate of manipulator space offset to zero coordinate.
-    /// </summary>
-    /// <param name="x">X coordinate</param>
-    public void SetZeroCoordinateOffsetX(float x)
-    {
-        var temp = ZeroCoordinateOffset;
-        temp.x = x;
-        ZeroCoordinateOffset = temp;
-    }
-
-    /// <summary>
-    ///     Update y coordinate of manipulator space offset to zero coordinate.
-    /// </summary>
-    /// <param name="y">Y coordinate</param>
-    public void SetZeroCoordinateOffsetY(float y)
-    {
-        var temp = ZeroCoordinateOffset;
-        temp.y = y;
-        ZeroCoordinateOffset = temp;
-    }
-
-
-    /// <summary>
-    ///     Update Z coordinate of manipulator space offset to zero coordinate.
-    /// </summary>
-    /// <param name="z">Z coordinate</param>
-    public void SetZeroCoordinateOffsetZ(float z)
-    {
-        var temp = ZeroCoordinateOffset;
-        temp.z = z;
-        ZeroCoordinateOffset = temp;
-    }
-
-
-    /// <summary>
-    ///     Update D coordinate of manipulator space offset to zero coordinate.
-    /// </summary>
-    /// <param name="depth">D coordinate</param>
-    public void SetZeroCoordinateOffsetDepth(float depth)
-    {
-        var temp = ZeroCoordinateOffset;
-        temp.w = depth;
-        ZeroCoordinateOffset = temp;
-    }
-
-    public Vector3 GetBrainSurface()
-    {
-        return _brainSurface;
-    }
-    
-    /// <summary>
-    ///     Move probe to brain surface
-    /// </summary>
-    public void DropProbeToBrainSurface()
-    {
-        if (probeInBrain)
-        {
-            _probeController.SetProbePosition(_brainSurface);
-        }
-        else
-        {
-            // We need to calculate the surface coordinate ourselves
-            var tipExtensionDirection =
-                IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
-
-            var brainSurfaceCoordinate = annotationDataset.FindSurfaceCoordinate(
-                annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
-                annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipExtensionDirection));
-
-            if (float.IsNaN(brainSurfaceCoordinate.x))
-            {
-                Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
-                return;
-            }
-
-            var brainSurfaceToTransformed =
-                _probeController.Insertion.World2Transformed(
-                    annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate));
-
-            _probeController.SetProbePosition(brainSurfaceToTransformed);
-        }
-    }
-
-    /// <summary>
-    ///     Manual adjustment of brain surface offset.
-    /// </summary>
-    /// <param name="increment">Amount to change the brain surface offset by</param>
-    public void IncrementBrainSurfaceOffset(float increment)
-    {
-        BrainSurfaceOffset += increment;
-    }
-
-    /// <summary>
-    ///     Set if the probe should be dropped to the surface with depth or with DV.
-    /// </summary>
-    /// <param name="dropToSurfaceWithDepth">Use depth if true, use DV if false</param>
-    public void SetDropToSurfaceWithDepth(bool dropToSurfaceWithDepth)
-    {
-        // Only make changes to brain surface offset axis if the offset is 0
-        if (!CanChangeBrainSurfaceOffsetAxis) return;
-        
-        // Apply change (if eligible)
-        IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
-    }
-
 #endregion
 
 #region Actions
@@ -1093,7 +1016,6 @@ public class ProbeData
 
         data.CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
         data.CoordTransformName = probeManager.ProbeController.Insertion.CoordinateTransform.Name;
-        data.ZeroCoordOffset = probeManager.ZeroCoordinateOffset;
 
         data.SelectionLayerName = probeManager.SelectionLayerName;
 
@@ -1104,8 +1026,10 @@ public class ProbeData
 
         data.APITarget = probeManager.APITarget;
 
-        data.ManipulatordID = probeManager.ManipulatorId;
-        data.BrainSurfaceOffset = probeManager.BrainSurfaceOffset;
+        // Manipulator Behavior data
+        data.ManipulatordID = probeManager.ManipulatorBehaviorController.ManipulatorID;
+        data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
+        data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
         data.Drop2SurfaceWithDepth = probeManager.IsSetToDropToSurfaceWithDepth;
 
         return data;

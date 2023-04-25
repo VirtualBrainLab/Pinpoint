@@ -18,21 +18,27 @@ namespace TrajectoryPlanner.Probes
 
         public string ManipulatorID { get; set; }
 
-        private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
+        private Vector4 _lastManipulatorPosition = Vector4.zero;
 
-        private Vector4 _zeroCoordinateOffset = Vector4.negativeInfinity;
+        private Vector4 _zeroCoordinateOffset = Vector4.zero;
 
+        /**
+         * Getter and setter or the zero coordinate offset of the manipulator.
+         * If passed a NaN value, the previous value is kept.
+         */
         public Vector4 ZeroCoordinateOffset
         {
             get => _zeroCoordinateOffset;
             set
             {
-                _zeroCoordinateOffset = value;
+                _zeroCoordinateOffset = new Vector4(float.IsNaN(value.x) ? _zeroCoordinateOffset.x : value.x,
+                    float.IsNaN(value.y) ? _zeroCoordinateOffset.y : value.y,
+                    float.IsNaN(value.z) ? _zeroCoordinateOffset.z : value.z,
+                    float.IsNaN(value.w) ? _zeroCoordinateOffset.w : value.w);
+
                 ZeroCoordinateOffsetChangedEvent.Invoke(value);
             }
         }
-
-        public UnityEvent<Vector4> ZeroCoordinateOffsetChangedEvent;
 
         private float _brainSurfaceOffset;
 
@@ -46,8 +52,8 @@ namespace TrajectoryPlanner.Probes
             }
         }
 
-        public UnityEvent<float> BrainSurfaceOffsetChangedEvent;
-
+        public bool CanChangeBrainSurfaceOffsetAxis => BrainSurfaceOffset == 0;
+        
         private bool _isSetToDropToSurfaceWithDepth = true;
 
         public bool IsSetToDropToSurfaceWithDepth
@@ -60,6 +66,12 @@ namespace TrajectoryPlanner.Probes
             }
         }
 
+        #endregion
+
+        #region Events
+
+        public UnityEvent<Vector4> ZeroCoordinateOffsetChangedEvent;
+        public UnityEvent<float> BrainSurfaceOffsetChangedEvent;
         public UnityEvent<bool> IsSetToDropToSurfaceWithDepthChangedEvent;
 
         #endregion
@@ -86,8 +98,7 @@ namespace TrajectoryPlanner.Probes
             if (_probeManager.IsProbeInBrain())
             {
                 // Just calculate the distance from the probe tip position to the brain surface            
-                BrainSurfaceOffset -=
-                    Vector3.Distance(_probeManager.GetBrainSurface(), _probeController.Insertion.apmldv);
+                BrainSurfaceOffset -= _probeManager.GetSurfaceCoordinateT().depthT;
             }
             else
             {
@@ -114,6 +125,28 @@ namespace TrajectoryPlanner.Probes
                     _probeController.Insertion.apmldv);
                 ;
             }
+        }
+
+        /// <summary>
+        ///     Manual adjustment of brain surface offset.
+        /// </summary>
+        /// <param name="increment">Amount to change the brain surface offset by</param>
+        public void IncrementBrainSurfaceOffset(float increment)
+        {
+            BrainSurfaceOffset += increment;
+        }
+        
+        /// <summary>
+        ///     Set if the probe should be dropped to the surface with depth or with DV.
+        /// </summary>
+        /// <param name="dropToSurfaceWithDepth">Use depth if true, use DV if false</param>
+        public void SetDropToSurfaceWithDepth(bool dropToSurfaceWithDepth)
+        {
+            // Only make changes to brain surface offset axis if the offset is 0
+            if (!CanChangeBrainSurfaceOffsetAxis) return;
+        
+            // Apply change (if eligible)
+            IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
         }
 
         #endregion
