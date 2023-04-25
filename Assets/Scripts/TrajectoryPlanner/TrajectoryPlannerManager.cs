@@ -13,6 +13,7 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 using System.Collections.Specialized;
 using System.Runtime.InteropServices;
+using TrajectoryPlanner.Probes;
 
 #if UNITY_EDITOR
 using System;
@@ -611,7 +612,7 @@ namespace TrajectoryPlanner
             // Replace the probe object and set to active
             ProbeManager.ActiveProbeManager = newActiveProbeManager;
             ProbeManager.ActiveProbeManager.SetActive(true);
-
+            
             // Change the UI manager visibility and set transparency of probes
             foreach (ProbeManager probeManager in ProbeManager.Instances)
             {

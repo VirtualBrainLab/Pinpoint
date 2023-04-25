@@ -81,7 +81,7 @@ namespace TrajectoryPlanner.Probes
         /// <summary>
         ///     Set manipulator space offset from brain surface as Depth from manipulator or probe coordinates.
         /// </summary>
-        public void SetBrainSurfaceOffset()
+        public void ComputeBrainSurfaceOffset()
         {
             if (_probeManager.IsProbeInBrain())
             {

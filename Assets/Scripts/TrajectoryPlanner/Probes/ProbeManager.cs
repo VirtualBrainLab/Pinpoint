@@ -188,7 +188,12 @@ public class ProbeManager : MonoBehaviour
 
     #region Accessors
 
-    public ProbeController ProbeController { get { return _probeController; } private set { } }
+    public ProbeController ProbeController { get => _probeController;
+        private set => _probeController = value;
+    }
+
+    public ManipulatorBehaviorController ManipulatorBehaviorController =>
+        gameObject.GetComponent<ManipulatorBehaviorController>();
     
     public string APITarget { get; set; }
 
@@ -806,8 +811,7 @@ public class ProbeManager : MonoBehaviour
         BrainSurfaceOffset = 0;
         _probeController.Insertion.Targetable = true;
     }
-
-
+    
     /// <summary>
     /// Set the automatic movement speed of this probe (when put under automatic control)
     /// </summary>
@@ -875,9 +879,9 @@ public class ProbeManager : MonoBehaviour
     }
     
     /// <summary>
-    ///     Set manipulator space offset from brain surface as Depth from manipulator or probe coordinates.
+    ///     Move probe to brain surface
     /// </summary>
-    public void SetBrainSurfaceOffset()
+    public void DropProbeToBrainSurface()
     {
         if (probeInBrain)
         {
@@ -905,8 +909,6 @@ public class ProbeManager : MonoBehaviour
 
             _probeController.SetProbePosition(brainSurfaceToTransformed);
         }
-        
-
     }
 
     /// <summary>

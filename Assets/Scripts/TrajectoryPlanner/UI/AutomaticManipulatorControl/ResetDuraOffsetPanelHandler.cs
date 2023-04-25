@@ -10,7 +10,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private void Start()
         {
-            _manipulatorIDText.text = "Manipulator " + ManipulatorBehaviorController.ManipulatorID;
+            _manipulatorBehaviorController = ProbeManager.gameObject.GetComponent<ManipulatorBehaviorController>();
+
+            _manipulatorIDText.text = "Manipulator " + _manipulatorBehaviorController.ManipulatorID;
             _manipulatorIDText.color = ProbeManager.Color;
         }
 
@@ -24,7 +26,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         public void ResetDuraOffset()
         {
             // Reset dura offset
-            ManipulatorBehaviorController.SetBrainSurfaceOffset();
+            _manipulatorBehaviorController.ComputeBrainSurfaceOffset();
         }
 
         #endregion
@@ -33,7 +35,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         [SerializeField] private TMP_Text _manipulatorIDText;
         public ProbeManager ProbeManager { private get; set; }
-        public ManipulatorBehaviorController ManipulatorBehaviorController { private get; set; }
+        private ManipulatorBehaviorController _manipulatorBehaviorController;
 
         #endregion
     }

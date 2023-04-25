@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TrajectoryPlanner.Probes;
 using UnityEngine;
 
 namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
@@ -52,7 +53,10 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             var resetDuraPanelGameObject = Instantiate(_duraOffsetPanel.ResetDuraOffsetPanelPrefab,
                 _duraOffsetPanel.PanelScrollViewContent.transform);
             var resetDuraPanelHandler = resetDuraPanelGameObject.GetComponent<ResetDuraOffsetPanelHandler>();
+
+
             _panels.Add(resetDuraPanelGameObject);
+
 
             // Setup
             resetDuraPanelHandler.ProbeManager = probeManager;
