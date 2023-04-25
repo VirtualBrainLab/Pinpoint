@@ -1,12 +1,17 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 
 public class VolumeDatasetManager : MonoBehaviour
 {
     public static CCFAnnotationDataset AnnotationDataset;
     public static Texture3D AnnotationDatasetTexture3D;
+
+    [SerializeField] private TP_Utils utils;
+    [SerializeField] private TMP_InputField coverageURL;
     
     // Annotations
     private byte[] datasetIndexes_bytes;
@@ -28,6 +33,20 @@ public class VolumeDatasetManager : MonoBehaviour
         _texture3DLoadedSource.SetResult(true);
 
         Debug.Log("(VDManager) Annotation dataset texture loaded");
+    }
+
+    public async void DelayedLoadCoverage(bool showCoverage)
+    {
+        if (showCoverage)
+            utils.LoadCoverageData(AnnotationDatasetTexture3D, coverageURL.text);
+        else
+        {
+            Task<Texture3D> textureTask = AddressablesRemoteLoader.LoadAnnotationTexture();
+            await textureTask;
+
+            AnnotationDatasetTexture3D = textureTask.Result;
+            AnnotationDatasetTexture3D.Apply();
+        }
     }
 
     /// <summary>
