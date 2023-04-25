@@ -1,4 +1,7 @@
 using System;
+using CoordinateSpaces;
+using CoordinateTransforms;
+using EphysLink;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -18,10 +21,6 @@ namespace TrajectoryPlanner.Probes
 
         public string ManipulatorID { get; set; }
 
-        private Vector4 _lastManipulatorPosition = Vector4.zero;
-
-        private Vector4 _zeroCoordinateOffset = Vector4.zero;
-
         /**
          * Getter and setter or the zero coordinate offset of the manipulator.
          * If passed a NaN value, the previous value is kept.
@@ -40,8 +39,6 @@ namespace TrajectoryPlanner.Probes
             }
         }
 
-        private float _brainSurfaceOffset;
-
         public float BrainSurfaceOffset
         {
             get => _brainSurfaceOffset;
@@ -52,19 +49,30 @@ namespace TrajectoryPlanner.Probes
             }
         }
 
-        public bool CanChangeBrainSurfaceOffsetAxis => BrainSurfaceOffset == 0;
-        
-        private bool _isSetToDropToSurfaceWithDepth = true;
-
         public bool IsSetToDropToSurfaceWithDepth
         {
             get => _isSetToDropToSurfaceWithDepth;
-            private set
+            set
             {
+                if (BrainSurfaceOffset != 0) return;
                 _isSetToDropToSurfaceWithDepth = value;
                 IsSetToDropToSurfaceWithDepthChangedEvent.Invoke(value);
             }
         }
+
+        public CoordinateSpace CoordinateSpace { get; set; }
+        public AffineTransform Transform { get; set; }
+
+        public bool IsRightHanded { get; set; }
+
+        #region Private internal fields
+
+        private Vector4 _lastManipulatorPosition = Vector4.zero;
+        private Vector4 _zeroCoordinateOffset = Vector4.zero;
+        private float _brainSurfaceOffset;
+        private bool _isSetToDropToSurfaceWithDepth = true;
+
+        #endregion
 
         #endregion
 
@@ -89,6 +97,47 @@ namespace TrajectoryPlanner.Probes
         #endregion
 
         #region Public Methods
+
+        public void Initialize(string manipulatorID, bool calibrated)
+        {
+            ManipulatorID = manipulatorID;
+            CoordinateSpace = new SensapexSpace();
+            Transform = IsRightHanded
+                ? new SensapexRightTransform(_probeController.Insertion.phi)
+                : new SensapexLeftTransform(_probeController.Insertion.phi);
+            _probeController.Locked = true;
+
+            if (calibrated)
+                // Bypass calibration and start echoing
+                CommunicationManager.Instance.BypassCalibration(manipulatorID, StartEchoing);
+            else
+                CommunicationManager.Instance.SetCanWrite(manipulatorID, true, 1,
+                    _ =>
+                    {
+                        CommunicationManager.Instance.Calibrate(manipulatorID,
+                            () =>
+                            {
+                                CommunicationManager.Instance.SetCanWrite(manipulatorID, false, 0, _ => StartEchoing());
+                            });
+                    });
+
+            void StartEchoing()
+            {
+                CommunicationManager.Instance.GetPos(manipulatorID, pos =>
+                {
+                    if (ZeroCoordinateOffset.Equals(Vector4.zero)) ZeroCoordinateOffset = pos;
+                    EchoPosition(pos);
+                });
+            }
+        }
+
+        public void Disable()
+        {
+            ManipulatorID = null;
+            _zeroCoordinateOffset = Vector4.zero;
+            _brainSurfaceOffset = 0;
+            enabled = false;
+        }
 
         /// <summary>
         ///     Set manipulator space offset from brain surface as Depth from manipulator or probe coordinates.
@@ -136,17 +185,44 @@ namespace TrajectoryPlanner.Probes
             BrainSurfaceOffset += increment;
         }
         
-        /// <summary>
-        ///     Set if the probe should be dropped to the surface with depth or with DV.
-        /// </summary>
-        /// <param name="dropToSurfaceWithDepth">Use depth if true, use DV if false</param>
-        public void SetDropToSurfaceWithDepth(bool dropToSurfaceWithDepth)
+        #endregion
+
+        #region Private Methods
+
+        private void EchoPosition(Vector4 pos)
         {
-            // Only make changes to brain surface offset axis if the offset is 0
-            if (!CanChangeBrainSurfaceOffsetAxis) return;
-        
-            // Apply change (if eligible)
-            IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
+            if (_probeController == null) return;
+            // Calculate last used direction for dropping to brain surface (between depth and DV)
+            var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
+            var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
+            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta >= dvDelta;
+            _lastManipulatorPosition = pos;
+
+            // Apply zero coordinate offset
+            var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
+
+            // Convert to sensapex space
+            var sensapexSpacePosition = Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
+
+            // Brain surface adjustment
+            var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+            if (IsSetToDropToSurfaceWithDepth)
+                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+            else
+                sensapexSpacePosition.z += brainSurfaceAdjustment;
+
+            // Convert to world space
+            var zeroCoordinateAdjustedWorldPosition =
+                CoordinateSpace.Space2WorldAxisChange(sensapexSpacePosition);
+
+            // Set probe position (change axes to match probe)
+            var transformedApmldv =
+                _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
+            _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
+
+            // Continue echoing position
+            CommunicationManager.Instance.GetPos(ManipulatorID, EchoPosition);
         }
 
         #endregion

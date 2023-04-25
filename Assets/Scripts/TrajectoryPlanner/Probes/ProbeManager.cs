@@ -88,15 +88,14 @@ public class ProbeManager : MonoBehaviour
     }
     public UnityEvent<float> BrainSurfaceOffsetChangedEvent;
 
-    public bool CanChangeBrainSurfaceOffsetAxis => BrainSurfaceOffset == 0;
-
     private bool _isSetToDropToSurfaceWithDepth = true;
 
     public bool IsSetToDropToSurfaceWithDepth
     {
         get => _isSetToDropToSurfaceWithDepth;
-        private set
+        set
         {
+            if (BrainSurfaceOffset != 0) return;
             _isSetToDropToSurfaceWithDepth = value;
             IsSetToDropToSurfaceWithDepthChangedEvent.Invoke(value);
         }
@@ -716,19 +715,6 @@ public class ProbeManager : MonoBehaviour
     }
     
     /// <summary>
-    ///     Set if the probe should be dropped to the surface with depth or with DV.
-    /// </summary>
-    /// <param name="dropToSurfaceWithDepth">Use depth if true, use DV if false</param>
-    public void SetDropToSurfaceWithDepth(bool dropToSurfaceWithDepth)
-    {
-        // Only make changes to brain surface offset axis if the offset is 0
-        if (!CanChangeBrainSurfaceOffsetAxis) return;
-        
-        // Apply change (if eligible)
-        IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
-    }
-    
-    /// <summary>
     ///     Move probe to brain surface
     /// </summary>
     public void DropProbeToBrainSurface()
@@ -763,10 +749,7 @@ public class ProbeManager : MonoBehaviour
 
 #endregion
 
-#region Ephys Link and Control
-
-#region Property Manipulators
-
+#region Ephys Link Control
 
     /// <summary>
     /// (un)Register a probe and begin echoing position.
@@ -782,7 +765,7 @@ public class ProbeManager : MonoBehaviour
         // Exit early if this was an invalid call
         switch (register)
         {
-            case true when IsEphysLinkControlled:
+            case true when ManipulatorBehaviorController.enabled:
             case true when string.IsNullOrEmpty(manipulatorId):
                 return;
         }
@@ -793,124 +776,22 @@ public class ProbeManager : MonoBehaviour
         UIUpdateEvent.Invoke();
 
         if (register)
-            _ephysLinkCommunicationManager.RegisterManipulator(manipulatorId, () =>
+            CommunicationManager.Instance.RegisterManipulator(manipulatorId, () =>
             {
-                ManipulatorId = manipulatorId;
-
-                // Remove insertion from targeting options
-                _probeController.Insertion.Targetable = false;
-                
-                // Lock manual probe controls, enable manipulator behavior
-                _probeController.Locked = true;
-                gameObject.GetComponent<ManipulatorBehaviorController>().enabled = true;
-
-                if (calibrated)
-                    // Bypass calibration and start echoing
-                    _ephysLinkCommunicationManager.BypassCalibration(manipulatorId, StartEchoing);
-                else
-                    // Enable write
-                    _ephysLinkCommunicationManager.SetCanWrite(manipulatorId, true, 1,
-                        _ =>
-                        {
-                            // Calibrate
-                            _ephysLinkCommunicationManager.Calibrate(manipulatorId,
-                                () =>
-                                {
-                                    // Disable write and start echoing
-                                    _ephysLinkCommunicationManager.SetCanWrite(manipulatorId, false, 0,
-                                        _ => StartEchoing());
-                                });
-                        });
+                ManipulatorBehaviorController.enabled = true;
+                ManipulatorBehaviorController.Initialize(manipulatorId, calibrated);
 
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
         else
-            _ephysLinkCommunicationManager.UnregisterManipulator(ManipulatorId, () =>
+            _ephysLinkCommunicationManager.UnregisterManipulator(manipulatorId, () =>
             {
-                gameObject.GetComponent<ManipulatorBehaviorController>().enabled = false;
-                ResetManipulatorProperties();
+                ManipulatorBehaviorController.Disable();
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
 
-
-        // Start echoing process
-        void StartEchoing()
-        {
-            // Read and start echoing position
-            _ephysLinkCommunicationManager.GetPos(manipulatorId, vector4 =>
-            {
-                if (ZeroCoordinateOffset.Equals(Vector4.negativeInfinity)) ZeroCoordinateOffset = vector4;
-                EchoPositionFromEphysLink(vector4);
-            });
-        }
-    }
-
-    /// <summary>
-    ///     Set manipulator properties such as ID and positional offsets back to defaults.
-    /// </summary>
-    private void ResetManipulatorProperties()
-    {
-        ManipulatorId = null;
-        ZeroCoordinateOffset = Vector4.negativeInfinity;
-        BrainSurfaceOffset = 0;
-        _probeController.Insertion.Targetable = true;
     }
     
-#endregion
-
-#region Actions
-
-    /// <summary>
-    ///     Echo given position in needles transform space to the probe.
-    /// </summary>
-    /// <param name="pos">Position of manipulator in needles transform</param>
-    private void EchoPositionFromEphysLink(Vector4 pos)
-    {
-        // Quit early if the probe has been removed
-        if (_probeController == null)
-        {
-            return;
-        }
-        
-        // Coordinate space and transform
-        var sensapexSpace = new SensapexSpace();
-        var sensapexTransform = new SensapexRightTransform(new Vector3(0, 0, _probeController.Insertion.phi));
-        
-        // Calculate last used direction (between depth and DV)
-        var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
-        var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
-        if (dvDelta > 0.0001 || depthDelta > 0.0001) SetDropToSurfaceWithDepth(depthDelta >= dvDelta);
-        _lastManipulatorPosition = pos;
-        
-        // Apply zero coordinate offset
-        var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
-        
-        // Convert to sensapex space
-        var sensapexSpacePosition = sensapexTransform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
-
-        // Brain surface adjustment
-        var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
-        if (IsSetToDropToSurfaceWithDepth)
-            zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
-        else
-            sensapexSpacePosition.z += brainSurfaceAdjustment;
-
-        // Convert to world space
-        var zeroCoordinateAdjustedWorldPosition =
-            sensapexSpace.Space2WorldAxisChange(sensapexSpacePosition);
-
-        // Set probe position (change axes to match probe)
-        var transformedApmldv = _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
-        _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-            transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
-
-        // Continue echoing position
-        if (IsEphysLinkControlled)
-            _ephysLinkCommunicationManager.GetPos(ManipulatorId, EchoPositionFromEphysLink);
-    }
-
-#endregion
-
 #endregion
 
 #region AxisControl

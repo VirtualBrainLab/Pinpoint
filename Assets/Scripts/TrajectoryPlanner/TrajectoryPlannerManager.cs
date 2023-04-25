@@ -1,25 +1,21 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CoordinateSpaces;
 using CoordinateTransforms;
 using EphysLink;
-using UITabs;
 using TMPro;
+using UITabs;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
-using System.Collections.Specialized;
-using System.Runtime.InteropServices;
-using TrajectoryPlanner.Probes;
 
-#if UNITY_EDITOR
-using System;
-using UnityEditor.Build;
-using UnityEditor.Build.Reporting;
-     
 public class MsvcStdextWorkaround : IPreprocessBuildWithReport
 {
     const string kWorkaroundFlag = "/D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS";
@@ -507,8 +503,8 @@ namespace TrajectoryPlanner
             {
                 probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
                 probeManager.BrainSurfaceOffset = brainSurfaceOffset;
-                probeManager.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
-                probeManager.ManipulatorBehaviorController.SetDropToSurfaceWithDepth(dropToSurfaceWithDepth);
+                probeManager.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
+                probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
                 var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
                 
                 if (communicationManager.IsConnected && !string.IsNullOrEmpty(manipulatorId))
@@ -872,8 +868,8 @@ namespace TrajectoryPlanner
         {
             var data = GetActiveProbeJSONFlattened();
 
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(data);
-            string encodedStr = System.Convert.ToBase64String(plainTextBytes);
+            var plainTextBytes = Encoding.UTF8.GetBytes(data);
+            string encodedStr = Convert.ToBase64String(plainTextBytes);
             string url = $"https://data.virtualbrainlab.org/Pinpoint/?Probes={encodedStr}";
 
 #if UNITY_EDITOR

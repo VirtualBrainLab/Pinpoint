@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
@@ -196,8 +195,8 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.SetDropToSurfaceWithDepth(false);
-            ProbeManager.ManipulatorBehaviorController.SetDropToSurfaceWithDepth(false);
+            ProbeManager.IsSetToDropToSurfaceWithDepth = false;
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = false;
             MoveProbeXYZ(0f, -1f, 0f, true);
         }
         else if (Input.GetKey(KeyCode.Q) && (keyHeld || keyHoldDelayPassed))
@@ -213,8 +212,8 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.SetDropToSurfaceWithDepth(false);
-            ProbeManager.ManipulatorBehaviorController.SetDropToSurfaceWithDepth(false);
+            ProbeManager.IsSetToDropToSurfaceWithDepth = false;
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = false;
             MoveProbeXYZ(0f, 1f, 0f, true);
         }
         else if (Input.GetKey(KeyCode.E) && (keyHeld || keyHoldDelayPassed))
@@ -232,8 +231,8 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.SetDropToSurfaceWithDepth(true);
-            ProbeManager.ManipulatorBehaviorController.SetDropToSurfaceWithDepth(true);
+            ProbeManager.IsSetToDropToSurfaceWithDepth = true;
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = true;
             MoveProbeDepth(1f, true);
         }
         else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
@@ -249,8 +248,8 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.SetDropToSurfaceWithDepth(true);
-            ProbeManager.ManipulatorBehaviorController.SetDropToSurfaceWithDepth(true);
+            ProbeManager.IsSetToDropToSurfaceWithDepth = true;
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = true;
             MoveProbeDepth(-1f, true);
         }
         else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))

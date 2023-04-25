@@ -43,7 +43,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         private void UpdateBrainSurfaceOffsetDropDirectionUI(bool withDepth)
         {
             _brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(withDepth ? 0 : 1);
-            _brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.CanChangeBrainSurfaceOffsetAxis;
+            _brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.BrainSurfaceOffset == 0 ||
+                                                                ProbeManager.ManipulatorBehaviorController
+                                                                    .BrainSurfaceOffset == 0;
         }
 
         private void UpdateBrainSurfaceOffsetValue(float offset)
@@ -194,8 +196,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="value">Selected direction: 0 = depth, 1 = DV</param>
         public void OnBrainSurfaceOffsetDirectionDropdownValueChanged(int value)
         {
-            ProbeManager.SetDropToSurfaceWithDepth(value == 0);
-            ProbeManager.ManipulatorBehaviorController.SetDropToSurfaceWithDepth(value == 0);
+            ProbeManager.IsSetToDropToSurfaceWithDepth = value == 0;
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = value == 0;
         }
 
         /// <summary>
