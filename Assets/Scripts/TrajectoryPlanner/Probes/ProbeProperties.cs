@@ -31,6 +31,25 @@ public class ProbeProperties
         UCLA256F = 256
     }
 
+    public static bool FourShank(ProbeType probeType)
+    {
+        switch (probeType)
+        {
+            case ProbeType.Placeholder:
+                return false;
+            case ProbeType.Neuropixels1:
+                return false;
+            case ProbeType.Neuropixels21:
+                return false;
+            case ProbeType.Neuropixels24:
+                return true;
+            case ProbeType.Neuropixels24x2:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public static Color GetNextProbeColor()
     {
         // Generate list of indexes and remove those that have been used

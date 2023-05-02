@@ -37,8 +37,8 @@ RectTransform:
   - {fileID: 1397446698401409187}
   - {fileID: 1397446697375895224}
   - {fileID: 1397446698378315455}
-  - {fileID: 2628154158742873766}
   - {fileID: 1135423155177761113}
+  - {fileID: 2628154158742873766}
   - {fileID: 5975079162054338526}
   m_Father: {fileID: 1397446698707892978}
   m_RootOrder: 0
@@ -146,8 +146,8 @@ RectTransform:
   - {fileID: 1397446698529060185}
   - {fileID: 1397446699110081701}
   - {fileID: 1397446698775628414}
-  - {fileID: 8220900519574087826}
   - {fileID: 7617655729257806911}
+  - {fileID: 8220900519574087826}
   - {fileID: 9083889321937526803}
   m_Father: {fileID: 1397446699424349103}
   m_RootOrder: 0
@@ -249,6 +249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a815308ce44176c419d9246ce48a0366, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _webglDisabledFeaturesGOs: []
   _menuParent: {fileID: 1397446698303444212}
 --- !u!114 &1397446698707892990
 MonoBehaviour:
@@ -1404,7 +1405,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6362176155741130746, guid: 31917de9d5bcdeb41bcec53193af2a87, type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 6362176155741130746, guid: 31917de9d5bcdeb41bcec53193af2a87, type: 3}
       propertyPath: m_AnchorMax.x
@@ -2090,7 +2091,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7791393514719519579, guid: cc6601c63a07fe749a2590fcbaebbf72, type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7791393514719519579, guid: cc6601c63a07fe749a2590fcbaebbf72, type: 3}
       propertyPath: m_AnchorMax.x
@@ -2442,7 +2443,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6098806792558251894, guid: b70a87a3ec1dc854597a7ec1c5f6bd89, type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6098806792558251894, guid: b70a87a3ec1dc854597a7ec1c5f6bd89, type: 3}
       propertyPath: m_AnchorMax.x
@@ -2588,7 +2589,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3614724519718329939, guid: f20ee284e0629b043a9cd4fb976fa2d8, type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3614724519718329939, guid: f20ee284e0629b043a9cd4fb976fa2d8, type: 3}
       propertyPath: m_AnchorMax.x
