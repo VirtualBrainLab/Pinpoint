@@ -117,7 +117,7 @@ namespace TrajectoryPlanner
         {
             if (ProbeManager.ActiveProbeManager.IsEphysLinkControlled)
             {
-                _communicationManager.GetPos(ProbeManager.ActiveProbeManager.ManipulatorId,
+                _communicationManager.GetPos(ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ManipulatorID,
                     zeroCoordinate => ProbeManager.ActiveProbeManager.ZeroCoordinateOffset = zeroCoordinate);
                 ProbeManager.ActiveProbeManager.BrainSurfaceOffset = 0;
             }

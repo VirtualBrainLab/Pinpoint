@@ -12,7 +12,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private void Start()
         {
-            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
+            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorBehaviorController.ManipulatorID;
             _manipulatorIDText.color = ProbeManager.Color;
         }
 
@@ -143,14 +143,15 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void StartDriveChain()
         {
             // Compute drive distance and duration
-            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorId, position =>
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, position =>
             {
                 // Remember dura depth
                 _duraDepth = position.w;
 
                 // Calibrate target insertion depth based on surface position
                 var targetInsertion =
-                    InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId];
+                    InsertionSelectionPanelHandler.SelectedTargetInsertion[
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID];
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
@@ -165,7 +166,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                         targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
 
                 // Update target insertion coordinate
-                InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId].apmldv =
+                InsertionSelectionPanelHandler
+                        .SelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID].apmldv =
                     offsetAdjustedTargetPosition;
 
                 // Compute return surface position (500 dv above surface)
@@ -189,7 +191,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 // Compute drive distances
                 var targetDriveDistance =
                     Vector3.Distance(
-                        InsertionSelectionPanelHandler.SelectedTargetInsertion[ProbeManager.ManipulatorId].apmldv,
+                        InsertionSelectionPanelHandler
+                            .SelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID].apmldv,
                         ProbeManager.ProbeController.Insertion.apmldv);
                 var surfaceDriveDistance = Vector3.Distance(offsetAdjustedSurfacePosition,
                     ProbeManager.ProbeController.Insertion.apmldv);
@@ -256,23 +259,26 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private void Drive200PastTarget()
         {
-            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, true, 1, canWrite =>
-            {
-                if (!canWrite) return;
-                // Set drive status
-                _statusText.text = "Driving to 200 µm past target...";
-
-                // Start timer
-                StartCoroutine(CountDownTimer(_targetDriveDuration));
-
-                // Drive
-                CommunicationManager.Instance.SetInsideBrain(ProbeManager.ManipulatorId, true, _ =>
+            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
+                canWrite =>
                 {
-                    CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId,
-                        _targetDepth + DRIVE_PAST_TARGET_DISTANCE, _targetDriveSpeed, _ => DriveBackToTarget(),
-                        Debug.LogError);
+                    if (!canWrite) return;
+                    // Set drive status
+                    _statusText.text = "Driving to 200 µm past target...";
+
+                    // Start timer
+                    StartCoroutine(CountDownTimer(_targetDriveDuration));
+
+                    // Drive
+                    CommunicationManager.Instance.SetInsideBrain(
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, _ =>
+                        {
+                            CommunicationManager.Instance.DriveToDepth(
+                                ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                _targetDepth + DRIVE_PAST_TARGET_DISTANCE, _targetDriveSpeed, _ => DriveBackToTarget(),
+                                Debug.LogError);
+                        });
                 });
-            });
         }
 
         private void DriveBackToTarget()
@@ -281,11 +287,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             _statusText.text = "Driving back to target...";
 
             // Drive
-            CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId,
+            CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                 _targetDepth, DEPTH_DRIVE_BASE_SPEED, _ =>
                 {
                     // Reset manipulator drive states
-                    CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, false, 1,
+                    CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                        false, 1,
                         _ =>
                         {
                             _statusText.text = "Settling... Please wait...";
@@ -300,46 +307,52 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void DriveBackToSurface()
         {
             // Drive
-            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, true, 1, canWrite =>
-            {
-                if (!canWrite) return;
-                // Set drive status
-                _statusText.text = "Driving back to surface...";
+            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
+                canWrite =>
+                {
+                    if (!canWrite) return;
+                    // Set drive status
+                    _statusText.text = "Driving back to surface...";
 
-                // Start timer
-                StartCoroutine(CountDownTimer(_surfaceDriveDuration));
+                    // Start timer
+                    StartCoroutine(CountDownTimer(_surfaceDriveDuration));
 
-                // Start driving back to dura
-                CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId, _duraDepth,
-                    RETURN_TO_SURFACE_DRIVE_SPEED, _ =>
-                    {
-                        print("At dura");
-                        // Drive 100 um to move away from dura
-                        CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId, _duraDepth - .1f,
-                            EXIT_DURA_MARGIN_SPEED,
-                            i =>
-                            {
-                                print("At dura margin: " + i);
-                                // Drive the rest of the way to the surface
-                                CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorId,
-                                    _surfaceDepth, OUTSIDE_DRIVE_SPEED, j =>
-                                    {
-                                        print("At surface depth: " + j);
-                                        // Reset manipulator drive states
-                                        CommunicationManager.Instance.SetInsideBrain(ProbeManager.ManipulatorId, false,
-                                            setting =>
-                                            {
-                                                print("Set outside brain: " + setting);
-                                                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId,
-                                                    false,
-                                                    1,
-                                                    _ => { _statusText.text = ""; },
-                                                    Debug.LogError);
-                                            }, Debug.LogError);
-                                    }, Debug.LogError);
-                            }, Debug.LogError);
-                    }, Debug.LogError);
-            });
+                    // Start driving back to dura
+                    CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                        _duraDepth,
+                        RETURN_TO_SURFACE_DRIVE_SPEED, _ =>
+                        {
+                            print("At dura");
+                            // Drive 100 um to move away from dura
+                            CommunicationManager.Instance.DriveToDepth(
+                                ProbeManager.ManipulatorBehaviorController.ManipulatorID, _duraDepth - .1f,
+                                EXIT_DURA_MARGIN_SPEED,
+                                i =>
+                                {
+                                    print("At dura margin: " + i);
+                                    // Drive the rest of the way to the surface
+                                    CommunicationManager.Instance.DriveToDepth(
+                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                        _surfaceDepth, OUTSIDE_DRIVE_SPEED, j =>
+                                        {
+                                            print("At surface depth: " + j);
+                                            // Reset manipulator drive states
+                                            CommunicationManager.Instance.SetInsideBrain(
+                                                ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
+                                                setting =>
+                                                {
+                                                    print("Set outside brain: " + setting);
+                                                    CommunicationManager.Instance.SetCanWrite(
+                                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                                        false,
+                                                        1,
+                                                        _ => { _statusText.text = ""; },
+                                                        Debug.LogError);
+                                                }, Debug.LogError);
+                                        }, Debug.LogError);
+                                }, Debug.LogError);
+                        }, Debug.LogError);
+                });
         }
 
         #endregion

@@ -111,7 +111,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             // Select the option corresponding to the current manipulator id
             var indexOfId = ProbeManager.IsEphysLinkControlled
-                ? Math.Max(0, idOptions.IndexOf(ProbeManager.ManipulatorId))
+                ? Math.Max(0, idOptions.IndexOf(ProbeManager.ManipulatorBehaviorController.ManipulatorID))
                 : 0;
             _manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
         }

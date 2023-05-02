@@ -52,10 +52,6 @@ public class ProbeManager : MonoBehaviour
 
     #region Ephys Link
 
-    /// <summary>
-    ///     Manipulator ID from Ephys Link
-    /// </summary>
-    public string ManipulatorId { get; private set; }
     private Vector4 _zeroCoordinateOffset = Vector4.negativeInfinity;
 
     public Vector4 ZeroCoordinateOffset

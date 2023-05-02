@@ -18,7 +18,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void Start()
         {
             // Update manipulator ID text
-            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
+            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorBehaviorController.ManipulatorID;
             _manipulatorIDText.color = ProbeManager.Color;
 
             // Attach to dropdown events
@@ -110,7 +110,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void UpdateTargetInsertionOptions(string fromManipulatorID)
         {
             // Skip if called from self
-            if (fromManipulatorID == ProbeManager.ManipulatorId) return;
+            if (fromManipulatorID == ProbeManager.ManipulatorBehaviorController.ManipulatorID) return;
 
             // Clear options
             _targetInsertionDropdown.ClearOptions();
@@ -125,7 +125,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // Restore selection (if possible)
             _targetInsertionDropdown.SetValueWithoutNotify(
                 _targetInsertionOptions.ToList()
-                    .IndexOf(SelectedTargetInsertion.GetValueOrDefault(ProbeManager.ManipulatorId, null)) + 1
+                    .IndexOf(SelectedTargetInsertion.GetValueOrDefault(
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, null)) + 1
             );
         }
 
@@ -135,7 +136,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void MoveToTargetInsertion()
         {
             // Check if a target insertion is selected
-            if (!SelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorId)) return;
+            if (!SelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController.ManipulatorID)) return;
 
             // Setup and compute movement
             _isMoving = true;
@@ -148,39 +149,45 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 ConvertInsertionToManipulatorPosition(_movementAxesInsertions.dv);
 
             // Move
-            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, true, 1, canWrite =>
-            {
-                if (canWrite)
-                    CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorId, dvPosition,
-                        automaticMovementSpeed, _ =>
-                        {
-                            CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorId, apPosition,
-                                automaticMovementSpeed, _ =>
-                                {
-                                    CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorId, mlPosition,
-                                        automaticMovementSpeed, _ =>
-                                        {
-                                            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorId, false,
-                                                1, _ =>
-                                                {
-                                                    // Hide lines
-                                                    _lineGameObjects.ap.SetActive(false);
-                                                    _lineGameObjects.ml.SetActive(false);
-                                                    _lineGameObjects.dv.SetActive(false);
+            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
+                canWrite =>
+                {
+                    if (canWrite)
+                        CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                            dvPosition,
+                            automaticMovementSpeed, _ =>
+                            {
+                                CommunicationManager.Instance.GotoPos(
+                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID, apPosition,
+                                    automaticMovementSpeed, _ =>
+                                    {
+                                        CommunicationManager.Instance.GotoPos(
+                                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, mlPosition,
+                                            automaticMovementSpeed, _ =>
+                                            {
+                                                CommunicationManager.Instance.SetCanWrite(
+                                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
+                                                    1, _ =>
+                                                    {
+                                                        // Hide lines
+                                                        _lineGameObjects.ap.SetActive(false);
+                                                        _lineGameObjects.ml.SetActive(false);
+                                                        _lineGameObjects.dv.SetActive(false);
 
-                                                    // Complete movement
-                                                    _isMoving = false;
-                                                    _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
-                                                }, Debug.LogError);
-                                        }, Debug.LogError);
-                                }, Debug.LogError);
-                        });
-            });
+                                                        // Complete movement
+                                                        _isMoving = false;
+                                                        _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
+                                                    }, Debug.LogError);
+                                            }, Debug.LogError);
+                                    }, Debug.LogError);
+                            });
+                });
         }
 
         private void UpdateMoveButtonInteractable()
         {
-            _moveButton.interactable = SelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorId);
+            _moveButton.interactable =
+                SelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
         }
 
         #endregion
@@ -223,7 +230,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private IEnumerable<ProbeInsertion> _targetInsertionOptions => TargetInsertionsReference
             .Where(insertion =>
-                !SelectedTargetInsertion.Where(pair => pair.Key != ProbeManager.ManipulatorId)
+                !SelectedTargetInsertion
+                    .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
                     .Select(pair => pair.Value).Contains(insertion) &&
                 insertion.angles == ProbeManager.ProbeController.Insertion.angles);
 
@@ -261,7 +269,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             if (insertion == null)
             {
                 // Remove record if no insertion selected
-                SelectedTargetInsertion.Remove(ProbeManager.ManipulatorId);
+                SelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
 
                 // Reset text fields
                 _apInputField.text = "";
@@ -277,7 +285,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             else
             {
                 // Update record if insertion selected
-                SelectedTargetInsertion[ProbeManager.ManipulatorId] = insertion;
+                SelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID] = insertion;
 
                 // Update text fields
                 _apInputField.text = (insertion.ap * 1000).ToString(CultureInfo.CurrentCulture);
@@ -296,8 +304,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
                 // Recalculate AP and ML based on pre-depth-drive DV
                 var brainSurfaceCoordinate = AnnotationDataset.FindSurfaceCoordinate(
-                    AnnotationDataset.CoordinateSpace.World2Space(SelectedTargetInsertion[ProbeManager.ManipulatorId]
-                        .PositionWorldU()),
+                    AnnotationDataset.CoordinateSpace.World2Space(
+                        SelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
+                            .PositionWorldU()),
                     AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(ProbeManager.ProbeController
                         .GetTipWorldU().tipUpWorldU));
                 var brainSurfaceWorld = AnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
@@ -334,7 +343,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             }
 
             // Update dropdown options
-            _shouldUpdateTargetInsertionOptionsEvent.Invoke(ProbeManager.ManipulatorId);
+            _shouldUpdateTargetInsertionOptionsEvent.Invoke(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
             UpdateMoveButtonInteractable();
         }
 
@@ -342,6 +351,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         {
             if (_isMoving)
                 // Movement in progress -> should stop movement
+            {
                 CommunicationManager.Instance.Stop(state =>
                 {
                     if (!state) return;
@@ -349,6 +359,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     _isMoving = false;
                     _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
                 });
+            }
             else
             {
                 MoveToTargetInsertion();

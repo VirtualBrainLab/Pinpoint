@@ -182,13 +182,13 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 // Update probes with selectable options
                 var usedManipulatorIds = ProbeManager.Instances
                     .Where(probeManager => probeManager.IsEphysLinkControlled)
-                    .Select(probeManager => probeManager.ManipulatorId).ToHashSet();
+                    .Select(probeManager => probeManager.ManipulatorBehaviorController.ManipulatorID).ToHashSet();
                 foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
                              values => values.probeConnectionSettingsPanel))
                 {
                     var manipulatorDropdownOptions = new List<string> { "-" };
                     manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
-                        id.Equals(probeConnectionSettingsPanel.ProbeManager.ManipulatorId) ||
+                        id.Equals(probeConnectionSettingsPanel.ProbeManager.ManipulatorBehaviorController.ManipulatorID) ||
                         !usedManipulatorIds.Contains(id)));
 
                     probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
