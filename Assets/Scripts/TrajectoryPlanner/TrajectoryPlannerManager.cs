@@ -415,8 +415,8 @@ namespace TrajectoryPlanner
                     coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
 
                 ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
-                    probeData.ManipulatordID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
-                    probeData.Drop2SurfaceWithDepth, probeData.UUID);
+                    probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                    probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
                 newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
                 newProbeManager.OverrideName(probeData.Name);
@@ -488,9 +488,7 @@ namespace TrajectoryPlanner
         }
         
         public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, ProbeInsertion insertion,
-            string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-            // ReSharper disable once InconsistentNaming
-            string UUID = null, bool isGhost = false)
+            string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isRightHanded, string UUID = null, bool isGhost = false)
         {
             var probeManager = AddNewProbe(probeType, UUID);
 
@@ -505,6 +503,7 @@ namespace TrajectoryPlanner
                 probeManager.ManipulatorBehaviorController.BrainSurfaceOffset = brainSurfaceOffset;
                 probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
                 probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
+                probeManager.ManipulatorBehaviorController.IsRightHanded = isRightHanded;
                 var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
                 
                 if (communicationManager.IsConnected && !string.IsNullOrEmpty(manipulatorId))
@@ -1001,8 +1000,8 @@ namespace TrajectoryPlanner
                         coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
 
                     ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
-                        probeData.ManipulatordID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
-                        probeData.Drop2SurfaceWithDepth, probeData.UUID);
+                        probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                        probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
                     newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
                     newProbeManager.OverrideName(probeData.Name);

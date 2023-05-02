@@ -38,7 +38,6 @@ public class ProbeManager : MonoBehaviour
             ProbeInsertion.TargetableInstances.Remove(ProbeController.Insertion);
     }
 
-    public static HashSet<string> RightHandedManipulatorIDs { get; private set; }
     #endregion
 
     #region Events
@@ -242,7 +241,6 @@ public class ProbeManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"(ProbeManager) New probe created with UUID: {UUID}");
 #endif
-        RightHandedManipulatorIDs = Settings.RightHandedManipulatorIds;
         UpdateSelectionLayer(SelectionLayerName);
     }
 
@@ -834,9 +832,10 @@ public class ProbeData
     public string APITarget;
 
     // Ephys Link
-    public string ManipulatordID;
+    public string ManipulatorID;
     public float BrainSurfaceOffset;
     public bool Drop2SurfaceWithDepth;
+    public bool IsRightHanded;
 
     public static ProbeData ProbeManager2ProbeData(ProbeManager probeManager)
     {
@@ -858,10 +857,11 @@ public class ProbeData
         data.APITarget = probeManager.APITarget;
 
         // Manipulator Behavior data
-        data.ManipulatordID = probeManager.ManipulatorBehaviorController.ManipulatorID;
+        data.ManipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
         data.Drop2SurfaceWithDepth = probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth;
+        data.IsRightHanded = probeManager.ManipulatorBehaviorController.IsRightHanded;
 
         return data;
     }

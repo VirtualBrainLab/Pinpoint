@@ -19,7 +19,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             _manipulatorId = manipulatorId;
             _manipulatorIdText.text = manipulatorId;
-            _handednessDropdown.value = ProbeManager.RightHandedManipulatorIDs.Contains(manipulatorId) ? 1 : 0;
+            // _handednessDropdown.value = ProbeManager.RightHandedManipulatorIDs.Contains(manipulatorId) ? 1 : 0;
         }
 
         #endregion
@@ -32,13 +32,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="value">Selected index of the handedness options (0 = left handed, 1 = right handed)</param>
         public void OnManipulatorHandednessValueChanged(int value)
         {
-            if (value == 1)
-                ProbeManager.RightHandedManipulatorIDs.Add(_manipulatorId);
-            else
-                ProbeManager.RightHandedManipulatorIDs.Remove(_manipulatorId);
+            // if (value == 1)
+            //     ProbeManager.RightHandedManipulatorIDs.Add(_manipulatorId);
+            // else
+            //     ProbeManager.RightHandedManipulatorIDs.Remove(_manipulatorId);
             
-            // Save changes
-            Settings.RightHandedManipulatorIds = ProbeManager.RightHandedManipulatorIDs;
         }
 
         #endregion
