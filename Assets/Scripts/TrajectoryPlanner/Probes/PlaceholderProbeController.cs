@@ -50,11 +50,6 @@ public class PlaceholderProbeController : ProbeController
 
     #region Set Probe pos/angles
 
-    public override float GetProbeDepth()
-    {
-        throw new NotImplementedException();
-    }
-
     public override void SetProbePosition()
     {
         SetProbePositionHelper();
