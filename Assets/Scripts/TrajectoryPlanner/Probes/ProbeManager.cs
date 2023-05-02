@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using CoordinateSpaces;
+using CoordinateTransforms;
 using EphysLink;
 using UnityEngine;
 using UnityEngine.Events;
@@ -956,47 +958,38 @@ public class ProbeManager : MonoBehaviour
         {
             return;
         }
+        
+        // Coordinate space and transform
+        var sensapexSpace = new SensapexSpace();
+        var sensapexTransform = new SensapexRightTransform(new Vector3(0, 0, _probeController.Insertion.phi));
+        
+        // Calculate last used direction (between depth and DV)
+        var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
+        var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
+        if (dvDelta > 0.0001 || depthDelta > 0.0001) SetDropToSurfaceWithDepth(depthDelta >= dvDelta);
+        _lastManipulatorPosition = pos;
+        
         // Apply zero coordinate offset
         var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
         
-        // Apply axis negations
-        zeroCoordinateAdjustedManipulatorPosition.z *= -1;
-        zeroCoordinateAdjustedManipulatorPosition.y *= RightHandedManipulatorIDs.Contains(ManipulatorId) ? 1 : -1;
+        // Convert to sensapex space
+        var sensapexSpacePosition = sensapexTransform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
 
-        // Phi adjustment
-        var probePhi = -_probeController.Insertion.phi * Mathf.Deg2Rad;
-        _phiCos = Mathf.Cos(probePhi);
-        _phiSin = Mathf.Sin(probePhi);
-        var phiAdjustedX = zeroCoordinateAdjustedManipulatorPosition.x * _phiCos -
-                           zeroCoordinateAdjustedManipulatorPosition.y * _phiSin;
-        var phiAdjustedY = zeroCoordinateAdjustedManipulatorPosition.x * _phiSin +
-                           zeroCoordinateAdjustedManipulatorPosition.y * _phiCos;
-        zeroCoordinateAdjustedManipulatorPosition.x = phiAdjustedX;
-        zeroCoordinateAdjustedManipulatorPosition.y = phiAdjustedY;
-        
-        // Calculate last used direction (between depth and DV)
-        var dvDelta = Math.Abs(zeroCoordinateAdjustedManipulatorPosition.z - _lastManipulatorPosition.z);
-        var depthDelta = Math.Abs(zeroCoordinateAdjustedManipulatorPosition.w - _lastManipulatorPosition.w);
-        if (dvDelta > 0.0001 || depthDelta > 0.0001) SetDropToSurfaceWithDepth(depthDelta >= dvDelta);
-        _lastManipulatorPosition = zeroCoordinateAdjustedManipulatorPosition;
-        
         // Brain surface adjustment
         var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
         if (IsSetToDropToSurfaceWithDepth)
             zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
         else
-            zeroCoordinateAdjustedManipulatorPosition.z -= brainSurfaceAdjustment;
+            sensapexSpacePosition.z += brainSurfaceAdjustment;
 
         // Convert to world space
-        var zeroCoordinateAdjustedWorldPosition = new Vector4(zeroCoordinateAdjustedManipulatorPosition.y,
-            zeroCoordinateAdjustedManipulatorPosition.z, -zeroCoordinateAdjustedManipulatorPosition.x,
-            zeroCoordinateAdjustedManipulatorPosition.w);
+        var zeroCoordinateAdjustedWorldPosition =
+            sensapexSpace.Space2WorldAxisChange(sensapexSpacePosition);
 
         // Set probe position (change axes to match probe)
-        var zeroCoordinateApmldv = _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
-        _probeController.SetProbePosition(new Vector4(zeroCoordinateApmldv.x, zeroCoordinateApmldv.y,
-            zeroCoordinateApmldv.z, zeroCoordinateAdjustedWorldPosition.w));
-
+        var transformedApmldv = _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
+        _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+            transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
 
         // Continue echoing position
         if (IsEphysLinkControlled)

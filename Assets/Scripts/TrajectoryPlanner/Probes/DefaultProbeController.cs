@@ -621,17 +621,12 @@ public class DefaultProbeController : ProbeController
 
     #region Set Probe pos/angles
     
-    public override float GetProbeDepth()
-    {
-        return depth;
-    }
-
     /// <summary>
     /// Set the probe position to the current apml/depth/phi/theta/spin values
     /// </summary>
     public override void SetProbePosition()
     {
-        SetProbePositionHelper(Insertion);
+        SetProbePositionHelper();
     }
 
     public void SetProbePosition(float depthOverride)
@@ -662,18 +657,17 @@ public class DefaultProbeController : ProbeController
     /// <summary>
     /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
     /// </summary>
-    /// <param name="localInsertion">new insertion position</param>
-    private void SetProbePositionHelper(ProbeInsertion localInsertion)
+    private void SetProbePositionHelper()
     {
         // Reset everything
         transform.position = _initialPosition;
         transform.rotation = _initialRotation;
 
         // Manually adjust the coordinates and rotation
-        transform.position += localInsertion.PositionWorldT();
-        transform.RotateAround(_rotateAround.position, transform.up, localInsertion.phi);
-        transform.RotateAround(_rotateAround.position, transform.forward, localInsertion.theta);
-        transform.RotateAround(_rotateAround.position, _rotateAround.up, localInsertion.spin);
+        transform.position += Insertion.PositionWorldT();
+        transform.RotateAround(_rotateAround.position, transform.up, Insertion.phi);
+        transform.RotateAround(_rotateAround.position, transform.forward, Insertion.theta);
+        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.spin);
 
         // Compute depth transform, if needed
         if (depth != 0f)
@@ -681,12 +675,9 @@ public class DefaultProbeController : ProbeController
             transform.position += -transform.up * depth;
             Vector3 depthAdjustment = Insertion.World2TransformedAxisChange(-transform.up) * depth;
 
-            localInsertion.apmldv += depthAdjustment;
+            Insertion.apmldv += depthAdjustment;
             depth = 0f;
         }
-
-        // save the data
-        Insertion = localInsertion;
 
         // update surface position
         ProbeManager.UpdateSurfacePosition();

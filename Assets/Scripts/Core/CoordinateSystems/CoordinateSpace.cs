@@ -11,8 +11,7 @@ namespace CoordinateSpaces
 
         public abstract Vector3 Dimensions { get; }
 
-        private Vector3 _relativeOffset = Vector3.zero;
-        public Vector3 RelativeOffset { get { return _relativeOffset; } set { _relativeOffset = value; } }
+        public Vector3 RelativeOffset { get; set; } = Vector3.zero;
 
         public abstract Vector3 Space2World(Vector3 coord);
         public abstract Vector3 World2Space(Vector3 world);
