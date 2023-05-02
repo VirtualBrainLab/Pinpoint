@@ -26,7 +26,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                 zeroCoordinate =>
                 {
-                    ProbeManager.ZeroCoordinateOffset = zeroCoordinate;
+                    ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinate;
                     ProbeManager.BrainSurfaceOffset = 0;
                 });
         }

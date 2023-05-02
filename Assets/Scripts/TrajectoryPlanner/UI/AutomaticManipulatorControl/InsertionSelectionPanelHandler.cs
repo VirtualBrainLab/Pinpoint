@@ -100,7 +100,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 posInSensapexTransform.z -= brainSurfaceAdjustment;
 
             // Apply coordinate offsets and return result
-            return posInSensapexTransform + ProbeManager.ZeroCoordinateOffset;
+            return posInSensapexTransform + ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
         }
 
         /// <summary>

@@ -52,20 +52,6 @@ public class ProbeManager : MonoBehaviour
 
     #region Ephys Link
 
-    private Vector4 _zeroCoordinateOffset = Vector4.negativeInfinity;
-
-    public Vector4 ZeroCoordinateOffset
-    {
-        get => _zeroCoordinateOffset;
-        set
-        {
-            _zeroCoordinateOffset = value;
-            ZeroCoordinateOffsetChangedEvent.Invoke(value);
-        }
-    }
-
-    public UnityEvent<Vector4> ZeroCoordinateOffsetChangedEvent;
-
     private float _brainSurfaceOffset;
     public float BrainSurfaceOffset
     {

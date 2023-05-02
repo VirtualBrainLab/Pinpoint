@@ -12,6 +12,17 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     /// </summary>
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
+        #region Unity
+
+        private void Start()
+        {
+            UpdateZeroCoordinateInputFields(ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset);
+            UpdateBrainSurfaceOffsetDropDirectionUI(ProbeManager.IsSetToDropToSurfaceWithDepth);
+            UpdateBrainSurfaceOffsetValue(ProbeManager.BrainSurfaceOffset);
+        }
+
+        #endregion
+
         #region Property Getters and Setters
 
         /// <summary>
@@ -27,7 +38,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _probeIdText.color = probeManager.Color;
 
             // Register event functions
-            ProbeManager.ZeroCoordinateOffsetChangedEvent.AddListener(UpdateZeroCoordinateInputFields);
+            ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.AddListener(
+                UpdateZeroCoordinateInputFields);
             ProbeManager.IsSetToDropToSurfaceWithDepthChangedEvent.AddListener(UpdateBrainSurfaceOffsetDropDirectionUI);
             ProbeManager.BrainSurfaceOffsetChangedEvent.AddListener(UpdateBrainSurfaceOffsetValue);
         }
@@ -51,17 +63,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         private void UpdateBrainSurfaceOffsetValue(float offset)
         {
             _brainSurfaceOffsetInputField.text = offset.ToString(CultureInfo.CurrentCulture);
-        }
-
-        #endregion
-
-        #region Unity
-
-        private void Start()
-        {
-            UpdateZeroCoordinateInputFields(ProbeManager.ZeroCoordinateOffset);
-            UpdateBrainSurfaceOffsetDropDirectionUI(ProbeManager.IsSetToDropToSurfaceWithDepth);
-            UpdateBrainSurfaceOffsetValue(ProbeManager.BrainSurfaceOffset);
         }
 
         #endregion

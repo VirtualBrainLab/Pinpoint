@@ -501,7 +501,7 @@ namespace TrajectoryPlanner
             // Repopulate Ephys Link information
             if (!Settings.IsEphysLinkDataExpired())
             {
-                probeManager.ZeroCoordinateOffset = zeroCoordinateOffset;
+                probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinateOffset;
                 probeManager.BrainSurfaceOffset = brainSurfaceOffset;
                 probeManager.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
                 probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
