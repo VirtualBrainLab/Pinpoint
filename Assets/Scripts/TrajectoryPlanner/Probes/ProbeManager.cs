@@ -52,9 +52,6 @@ public class ProbeManager : MonoBehaviour
 
     #region Ephys Link
 
-    private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
-    public int AutomaticMovementSpeed { get; private set; } = 500; // Default to 500 um/s
-
     /// <summary>
     ///     Reference to probe manager of this probe's ghost
     /// </summary>

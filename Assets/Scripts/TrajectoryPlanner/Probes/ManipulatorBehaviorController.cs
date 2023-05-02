@@ -9,6 +9,11 @@ namespace TrajectoryPlanner.Probes
 {
     public class ManipulatorBehaviorController : MonoBehaviour
     {
+        #region Constants
+
+        public const int AUTOMATIC_MOVEMENT_SPEED = 500;
+
+        #endregion
         #region Components
 
         [SerializeField] private ProbeManager _probeManager;

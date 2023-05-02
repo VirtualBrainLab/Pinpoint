@@ -5,6 +5,7 @@ using CoordinateSpaces;
 using CoordinateTransforms;
 using EphysLink;
 using TMPro;
+using TrajectoryPlanner.Probes;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -140,7 +141,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
             // Setup and compute movement
             _isMoving = true;
-            var automaticMovementSpeed = ProbeManager.AutomaticMovementSpeed;
             var apPosition =
                 ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ap);
             var mlPosition =
@@ -155,15 +155,15 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     if (canWrite)
                         CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                             dvPosition,
-                            automaticMovementSpeed, _ =>
+                            ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED, _ =>
                             {
                                 CommunicationManager.Instance.GotoPos(
                                     ProbeManager.ManipulatorBehaviorController.ManipulatorID, apPosition,
-                                    automaticMovementSpeed, _ =>
+                                    ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED, _ =>
                                     {
                                         CommunicationManager.Instance.GotoPos(
                                             ProbeManager.ManipulatorBehaviorController.ManipulatorID, mlPosition,
-                                            automaticMovementSpeed, _ =>
+                                            ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED, _ =>
                                             {
                                                 CommunicationManager.Instance.SetCanWrite(
                                                     ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
