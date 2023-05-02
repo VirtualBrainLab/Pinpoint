@@ -89,9 +89,14 @@ namespace TrajectoryPlanner.Probes
         /// <summary>
         /// Setup this instance
         /// </summary>
-        private void OnEnable()
+        private void Awake()
         {
             _annotationDataset = VolumeDatasetManager.AnnotationDataset;
+        }
+
+
+        private void OnEnable()
+        {
         }
 
         #endregion
@@ -184,7 +189,7 @@ namespace TrajectoryPlanner.Probes
         {
             BrainSurfaceOffset += increment;
         }
-        
+
         #endregion
 
         #region Private Methods

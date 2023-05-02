@@ -789,7 +789,6 @@ public class ProbeManager : MonoBehaviour
                 ManipulatorBehaviorController.Disable();
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
-
     }
     
 #endregion
