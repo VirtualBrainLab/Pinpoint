@@ -52,12 +52,6 @@ public class ProbeManager : MonoBehaviour
 
     #region Ephys Link
 
-    // Internal flags that track whether we are in manual control or drag/link control mode
-    public bool IsEphysLinkControlled { get; private set; }
-    // ReSharper disable once InconsistentNaming
-
-    private CommunicationManager _ephysLinkCommunicationManager;
-
     /// <summary>
     ///     Manipulator ID from Ephys Link
     /// </summary>
@@ -191,7 +185,17 @@ public class ProbeManager : MonoBehaviour
 
     public ManipulatorBehaviorController ManipulatorBehaviorController =>
         gameObject.GetComponent<ManipulatorBehaviorController>();
-    
+
+    public bool IsEphysLinkControlled
+    {
+        get => ManipulatorBehaviorController.enabled;
+        set
+        {
+            ManipulatorBehaviorController.enabled = value;
+            EphysLinkControlChangeEvent.Invoke();
+        }
+    }
+
     public string APITarget { get; set; }
 
     public Color Color
@@ -271,9 +275,6 @@ public class ProbeManager : MonoBehaviour
         // Get the channel map and selection layer
         ChannelMap = ChannelMapManager.GetChannelMap(ProbeType);
         SelectionLayerName = "default";
-
-        // Pull ephys link communication manager
-        _ephysLinkCommunicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
 
         // Get access to the annotation dataset and world-space boundaries
         annotationDataset = VolumeDatasetManager.AnnotationDataset;
@@ -771,21 +772,19 @@ public class ProbeManager : MonoBehaviour
         }
 
         // Set states
-        IsEphysLinkControlled = register;
-        EphysLinkControlChangeEvent.Invoke();
         UIUpdateEvent.Invoke();
 
         if (register)
             CommunicationManager.Instance.RegisterManipulator(manipulatorId, () =>
             {
-                ManipulatorBehaviorController.enabled = true;
+                IsEphysLinkControlled = true;
                 ManipulatorBehaviorController.Initialize(manipulatorId, calibrated);
-
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
         else
-            _ephysLinkCommunicationManager.UnregisterManipulator(manipulatorId, () =>
+            CommunicationManager.Instance.UnregisterManipulator(manipulatorId, () =>
             {
+                IsEphysLinkControlled = false;
                 ManipulatorBehaviorController.Disable();
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
