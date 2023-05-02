@@ -18,7 +18,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             UpdateZeroCoordinateInputFields(ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset);
             UpdateBrainSurfaceOffsetDropDirectionUI(ProbeManager.IsSetToDropToSurfaceWithDepth);
-            UpdateBrainSurfaceOffsetValue(ProbeManager.BrainSurfaceOffset);
+            UpdateBrainSurfaceOffsetValue(ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset);
         }
 
         #endregion
@@ -41,7 +41,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.AddListener(
                 UpdateZeroCoordinateInputFields);
             ProbeManager.IsSetToDropToSurfaceWithDepthChangedEvent.AddListener(UpdateBrainSurfaceOffsetDropDirectionUI);
-            ProbeManager.BrainSurfaceOffsetChangedEvent.AddListener(UpdateBrainSurfaceOffsetValue);
+            ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.AddListener(
+                UpdateBrainSurfaceOffsetValue);
         }
 
         private void UpdateZeroCoordinateInputFields(Vector4 offset)
@@ -55,9 +56,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         private void UpdateBrainSurfaceOffsetDropDirectionUI(bool withDepth)
         {
             _brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(withDepth ? 0 : 1);
-            _brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.BrainSurfaceOffset == 0 ||
-                                                                ProbeManager.ManipulatorBehaviorController
-                                                                    .BrainSurfaceOffset == 0;
+            _brainSurfaceOffsetDirectionDropdown.interactable =
+                ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset == 0 ||
+                ProbeManager.ManipulatorBehaviorController
+                    .BrainSurfaceOffset == 0;
         }
 
         private void UpdateBrainSurfaceOffsetValue(float offset)
@@ -207,7 +209,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="value">Input field value</param>
         public void OnBrainSurfaceOffsetValueUpdated(string value)
         {
-            ProbeManager.BrainSurfaceOffset = float.Parse(value);
+            ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset = float.Parse(value);
         }
 
         /// <summary>

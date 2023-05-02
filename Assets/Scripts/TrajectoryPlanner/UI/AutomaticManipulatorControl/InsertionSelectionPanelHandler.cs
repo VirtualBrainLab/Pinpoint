@@ -91,9 +91,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             Vector4 posInSensapexTransform = sensapexTransform.Space2Transform(posInSensapexSpace);
 
             // Apply brain surface offset
-            var brainSurfaceAdjustment = float.IsNaN(ProbeManager.BrainSurfaceOffset)
+            var brainSurfaceAdjustment = float.IsNaN(ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset)
                 ? 0
-                : ProbeManager.BrainSurfaceOffset;
+                : ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
             if (ProbeManager.IsSetToDropToSurfaceWithDepth)
                 posInSensapexTransform.w -= brainSurfaceAdjustment;
             else

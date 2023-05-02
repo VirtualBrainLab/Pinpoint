@@ -502,7 +502,7 @@ namespace TrajectoryPlanner
             if (!Settings.IsEphysLinkDataExpired())
             {
                 probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinateOffset;
-                probeManager.BrainSurfaceOffset = brainSurfaceOffset;
+                probeManager.ManipulatorBehaviorController.BrainSurfaceOffset = brainSurfaceOffset;
                 probeManager.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
                 probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
                 var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();

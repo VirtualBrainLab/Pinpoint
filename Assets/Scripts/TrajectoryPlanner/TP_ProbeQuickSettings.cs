@@ -119,7 +119,7 @@ namespace TrajectoryPlanner
             {
                 _communicationManager.GetPos(ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ManipulatorID,
                     zeroCoordinate => ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinate);
-                ProbeManager.ActiveProbeManager.BrainSurfaceOffset = 0;
+                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
             }
             else
             {

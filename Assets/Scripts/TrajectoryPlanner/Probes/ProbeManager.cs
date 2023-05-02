@@ -52,18 +52,6 @@ public class ProbeManager : MonoBehaviour
 
     #region Ephys Link
 
-    private float _brainSurfaceOffset;
-    public float BrainSurfaceOffset
-    {
-        get => _brainSurfaceOffset;
-        set
-        {
-            _brainSurfaceOffset = value;
-            BrainSurfaceOffsetChangedEvent.Invoke(value);
-        }
-    }
-    public UnityEvent<float> BrainSurfaceOffsetChangedEvent;
-
     private bool _isSetToDropToSurfaceWithDepth = true;
 
     public bool IsSetToDropToSurfaceWithDepth
@@ -71,7 +59,7 @@ public class ProbeManager : MonoBehaviour
         get => _isSetToDropToSurfaceWithDepth;
         set
         {
-            if (BrainSurfaceOffset != 0) return;
+            if (ManipulatorBehaviorController.BrainSurfaceOffset != 0) return;
             _isSetToDropToSurfaceWithDepth = value;
             IsSetToDropToSurfaceWithDepthChangedEvent.Invoke(value);
         }

@@ -27,7 +27,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 zeroCoordinate =>
                 {
                     ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinate;
-                    ProbeManager.BrainSurfaceOffset = 0;
+                    ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
                 });
         }
 
