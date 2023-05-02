@@ -228,7 +228,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private bool _isMoving;
 
-        private IEnumerable<ProbeInsertion> _targetInsertionOptions => TargetInsertionsReference
+        private IEnumerable<ProbeInsertion> _targetInsertionOptions => _targetableInsertions
             .Where(insertion =>
                 !SelectedTargetInsertion
                     .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
@@ -236,11 +236,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 insertion.angles == ProbeManager.ProbeController.Insertion.angles);
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
+        
+        private HashSet<ProbeInsertion> _targetableInsertions => ProbeManager.Instances.Where(manager => !manager.ManipulatorBehaviorController.enabled).Select(manager => manager.ProbeController.Insertion).ToHashSet();
 
 
         #region Shared
 
-        public static HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
         public static CCFAnnotationDataset AnnotationDataset { private get; set; }
         public static readonly Dictionary<string, ProbeInsertion> SelectedTargetInsertion = new();
         private static readonly UnityEvent<string> _shouldUpdateTargetInsertionOptionsEvent = new();
@@ -260,7 +261,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         {
             // Get selection as insertion
             var insertion = value > 0
-                ? TargetInsertionsReference.First(insertion =>
+                ? _targetableInsertions.First(insertion =>
                     insertion.PositionToString()
                         .Equals(_targetInsertionDropdown.options[_targetInsertionDropdown.value].text))
                 : null;

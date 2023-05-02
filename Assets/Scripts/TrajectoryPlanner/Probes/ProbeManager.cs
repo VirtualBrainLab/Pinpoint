@@ -34,8 +34,6 @@ public class ProbeManager : MonoBehaviour
             Instances.Remove(this);
         // clean up the ProbeInsertion
         ProbeInsertion.Instances.Remove(ProbeController.Insertion);
-        if (ProbeController.Insertion.Targetable)
-            ProbeInsertion.TargetableInstances.Remove(ProbeController.Insertion);
     }
 
     #endregion
@@ -223,7 +221,6 @@ public class ProbeManager : MonoBehaviour
             puimanager.Destroy();
 
         Instances.Remove(this);
-        ProbeController.Insertion.Targetable = false;
 
         ProbeProperties.ReturnProbeColor(Color);
 

@@ -444,7 +444,6 @@ namespace TrajectoryPlanner
                 newProbeManager.OverrideUUID(UUID);
 
             SetActiveProbe(newProbeManager);
-            newProbeManager.ProbeController.Insertion.Targetable = true;
 
             spawnedThisFrame = true;
 
