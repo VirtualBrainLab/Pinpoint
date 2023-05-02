@@ -51,10 +51,6 @@ public class ProbeManager : MonoBehaviour
 
     #region Ephys Link
 
-    /// <summary>
-    ///     Reference to probe manager of this probe's ghost
-    /// </summary>
-    public ProbeManager GhostProbeManager { get; set; }
 
     /// <summary>
     ///     Reference to probe manager of this probe's original probe (for if this is a ghost probe)
@@ -70,11 +66,6 @@ public class ProbeManager : MonoBehaviour
     ///     Getter property for if this probe is the original probe
     /// </summary>
     public bool IsOriginal => OriginalProbeManager == null;
-
-    /// <summary>
-    ///     Getter property for if this probe (an original) has a ghosting probe
-    /// </summary>
-    public bool HasGhost => GhostProbeManager != null;
 
     #endregion
 

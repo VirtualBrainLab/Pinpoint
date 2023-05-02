@@ -156,8 +156,6 @@ public class CoordinateEntryPanel : MonoBehaviour
                 Debug.LogWarning("Converting back from probe angles is not yet implemented");
 
             ProbeManager.ActiveProbeManager.ProbeController.SetProbeAngles(angles);
-            if (ProbeManager.ActiveProbeManager.HasGhost)
-                ProbeManager.ActiveProbeManager.GhostProbeManager.ProbeController.SetProbeAngles(angles);
         }
         catch
         {

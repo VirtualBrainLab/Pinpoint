@@ -388,13 +388,6 @@ namespace TrajectoryPlanner
 
         private void DestroyActiveProbeManager()
         {
-            // Extra steps for destroying the active probe if it's a ghost probe
-            if (ProbeManager.ActiveProbeManager.IsGhost)
-            {
-                // Remove ghost probe ref from original probe
-                ProbeManager.ActiveProbeManager.OriginalProbeManager.GhostProbeManager = null;
-            }
-
             // Remove the probe's insertion from the list of insertions (does nothing if not found)
             // ProbeManager.ActiveProbeManager.ProbeController.Insertion.Targetable = false;
 

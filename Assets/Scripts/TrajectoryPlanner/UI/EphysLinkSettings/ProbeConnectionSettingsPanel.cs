@@ -137,11 +137,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     else
                     {
                         EphysLinkSettings.UpdateManipulatorPanelAndSelection();
-
-                        // Cleanup ghost prove stuff if applicable
-                        if (!ProbeManager.HasGhost) return;
-                        DestroyProbeEvent.Invoke(ProbeManager.GhostProbeManager);
-                        ProbeManager.GhostProbeManager = null;
                     }
                 });
             else
