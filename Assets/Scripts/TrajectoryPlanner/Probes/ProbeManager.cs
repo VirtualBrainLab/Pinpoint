@@ -52,21 +52,6 @@ public class ProbeManager : MonoBehaviour
 
     #region Ephys Link
 
-    private bool _isSetToDropToSurfaceWithDepth = true;
-
-    public bool IsSetToDropToSurfaceWithDepth
-    {
-        get => _isSetToDropToSurfaceWithDepth;
-        set
-        {
-            if (ManipulatorBehaviorController.BrainSurfaceOffset != 0) return;
-            _isSetToDropToSurfaceWithDepth = value;
-            IsSetToDropToSurfaceWithDepthChangedEvent.Invoke(value);
-        }
-    }
-
-    public UnityEvent<bool> IsSetToDropToSurfaceWithDepthChangedEvent;
-
     private Vector4 _lastManipulatorPosition = Vector4.negativeInfinity;
     public int AutomaticMovementSpeed { get; private set; } = 500; // Default to 500 um/s
 
@@ -698,7 +683,7 @@ public class ProbeManager : MonoBehaviour
         {
             // We need to calculate the surface coordinate ourselves
             var tipExtensionDirection =
-                IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
+                ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
 
             var brainSurfaceCoordinate = annotationDataset.FindSurfaceCoordinate(
                 annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
@@ -879,7 +864,7 @@ public class ProbeData
         data.ManipulatordID = probeManager.ManipulatorBehaviorController.ManipulatorID;
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
-        data.Drop2SurfaceWithDepth = probeManager.IsSetToDropToSurfaceWithDepth;
+        data.Drop2SurfaceWithDepth = probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth;
 
         return data;
     }

@@ -94,7 +94,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             var brainSurfaceAdjustment = float.IsNaN(ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset)
                 ? 0
                 : ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
-            if (ProbeManager.IsSetToDropToSurfaceWithDepth)
+            if (ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth)
                 posInSensapexTransform.w -= brainSurfaceAdjustment;
             else
                 posInSensapexTransform.z -= brainSurfaceAdjustment;

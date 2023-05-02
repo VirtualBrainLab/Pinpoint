@@ -195,7 +195,6 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.IsSetToDropToSurfaceWithDepth = false;
             ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = false;
             MoveProbeXYZ(0f, -1f, 0f, true);
         }
@@ -212,7 +211,6 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.IsSetToDropToSurfaceWithDepth = false;
             ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = false;
             MoveProbeXYZ(0f, 1f, 0f, true);
         }
@@ -231,7 +229,6 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.IsSetToDropToSurfaceWithDepth = true;
             ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = true;
             MoveProbeDepth(1f, true);
         }
@@ -248,7 +245,6 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.IsSetToDropToSurfaceWithDepth = true;
             ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = true;
             MoveProbeDepth(-1f, true);
         }
