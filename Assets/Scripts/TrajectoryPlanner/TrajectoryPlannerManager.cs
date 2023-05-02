@@ -340,14 +340,12 @@ namespace TrajectoryPlanner
 
         public void DestroyProbe(ProbeManager probeManager)
         {
-            var isGhost = probeManager.IsGhost;
             var isActiveProbe = ProbeManager.ActiveProbeManager == probeManager;
             
-            if (!isGhost)
-                _prevProbeData = JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probeManager));
+            _prevProbeData = JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probeManager));
 
             // Cannot restore a ghost probe, so we set restored to true
-            _restoredProbe = isGhost;
+            _restoredProbe = false;
 
             // Destroy probe
             probeManager.Destroy();
@@ -361,11 +359,6 @@ namespace TrajectoryPlanner
                 if (isActiveProbe)
                 {
                     SetActiveProbe(realProbes.Last());
-                }
-
-                if (isGhost)
-                {
-                    UpdateQuickSettings();
                 }
             }
             else
@@ -504,9 +497,6 @@ namespace TrajectoryPlanner
                         _ => probeManager.SetIsEphysLinkControlled(false));
             }
             
-            // Set original probe manager early on
-            if (isGhost) probeManager.OriginalProbeManager = ProbeManager.ActiveProbeManager;
-
             return probeManager;
         }
 
@@ -614,8 +604,6 @@ namespace TrajectoryPlanner
                     puimanager.ProbeSelected(isActiveProbe);
 
                 // Update transparency for probe (if not ghost)
-                if (probeManager.IsGhost) continue;
-
                 if (!isActiveProbe && Settings.GhostInactiveProbes)
                     probeManager.SetMaterialsTransparent();
                 else
@@ -877,7 +865,7 @@ namespace TrajectoryPlanner
 
         private string[] GetActiveProbeJSON()
         {
-            var nonGhostProbeManagers = ProbeManager.Instances.Where(manager => !manager.IsGhost).ToList();
+            var nonGhostProbeManagers = ProbeManager.Instances;
             string[] data = new string[nonGhostProbeManagers.Count];
 
             for (int i = 0; i < nonGhostProbeManagers.Count; i++)
@@ -891,7 +879,7 @@ namespace TrajectoryPlanner
 
         private string GetActiveProbeJSONFlattened()
         {
-            var nonGhostProbeManagers = ProbeManager.Instances.Where(manager => !manager.IsGhost).ToList();
+            var nonGhostProbeManagers = ProbeManager.Instances;
             List<string> data = new();
 
             for (int i = 0; i < nonGhostProbeManagers.Count; i++)

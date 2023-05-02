@@ -81,8 +81,9 @@ namespace TrajectoryPlanner
             }
             else
             {
-                _positionFields.interactable = ProbeManager.ActiveProbeManager == null || !ProbeManager.ActiveProbeManager.IsEphysLinkControlled;
-                _angleFields.interactable = ProbeManager.ActiveProbeManager == null || !ProbeManager.ActiveProbeManager.IsGhost;
+                var interactable = ProbeManager.ActiveProbeManager != null && !ProbeManager.ActiveProbeManager.IsEphysLinkControlled;
+                _positionFields.interactable = interactable;
+                _angleFields.interactable = interactable;
             }
         }
 

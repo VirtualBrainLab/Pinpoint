@@ -131,7 +131,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             var handledProbeIds = new HashSet<string>();
 
             // Add any new probes in scene to list
-            foreach (var probeManager in ProbeManager.Instances.Where(manager => !manager.IsGhost))
+            foreach (var probeManager in ProbeManager.Instances)
             {
                 var probeId = probeManager.UUID;
 

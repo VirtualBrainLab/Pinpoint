@@ -49,26 +49,6 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
 
-    #region Ephys Link
-
-
-    /// <summary>
-    ///     Reference to probe manager of this probe's original probe (for if this is a ghost probe)
-    /// </summary>
-    public ProbeManager OriginalProbeManager { get; set; }
-
-    /// <summary>
-    ///     Getter property for if this probe is a ghost probe
-    /// </summary>
-    public bool IsGhost => OriginalProbeManager != null;
-
-    /// <summary>
-    ///     Getter property for if this probe is the original probe
-    /// </summary>
-    public bool IsOriginal => OriginalProbeManager == null;
-
-    #endregion
-
     #region Identifiers
     public string UUID { get; private set; }
     private string _overrideName;
@@ -87,7 +67,7 @@ public class ProbeManager : MonoBehaviour
 
     [FormerlySerializedAs("ghostMaterial")][SerializeField] private Material _ghostMaterial;
 
-    private Dictionary<GameObject, Material> defaultMaterials;
+    private Dictionary<GameObject, Material> _defaultMaterials;
 
     #region Channel map
     public string SelectionLayerName { get; private set; }
@@ -197,15 +177,11 @@ public class ProbeManager : MonoBehaviour
         UpdateName();
         APITarget = name;
 
-        defaultMaterials = new();
-        // Request for ID and color if this is a normal probe
-        if (IsOriginal)
+        // Record default materials
+        _defaultMaterials = new Dictionary<GameObject, Material>();
+        foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
-            // Record default materials
-            foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
-            {
-                defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
-            }
+            _defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
         }
 
         if (_probeRenderer != null)
@@ -249,8 +225,7 @@ public class ProbeManager : MonoBehaviour
         Instances.Remove(this);
         ProbeController.Insertion.Targetable = false;
 
-        if (IsOriginal)
-            ProbeProperties.ReturnProbeColor(Color);
+        ProbeProperties.ReturnProbeColor(Color);
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
         
@@ -777,8 +752,8 @@ public class ProbeManager : MonoBehaviour
         {
             childRenderer.material = _ghostMaterial;
 
-            // Tint transparent material for non-ghost probes
-            if (!IsGhost) childRenderer.material.color = currentColorTint;
+            // Apply tint to the material
+            childRenderer.material.color = currentColorTint;
         }
     }
 
@@ -791,8 +766,8 @@ public class ProbeManager : MonoBehaviour
         Debug.Log($"Setting materials for {name} to default");
 #endif
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
-            if (defaultMaterials.ContainsKey(childRenderer.gameObject))
-                childRenderer.material = defaultMaterials[childRenderer.gameObject];
+            if (_defaultMaterials.ContainsKey(childRenderer.gameObject))
+                childRenderer.material = _defaultMaterials[childRenderer.gameObject];
     }
 
 #endregion
