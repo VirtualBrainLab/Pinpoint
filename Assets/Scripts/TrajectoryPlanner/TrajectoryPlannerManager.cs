@@ -11,8 +11,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
-//using System.Collections.Specialized;
-//using System.Runtime.InteropServices;
+#if UNITY_WEBGL
+using System.Collections.Specialized;
+#endif
 
 #if UNITY_EDITOR
 

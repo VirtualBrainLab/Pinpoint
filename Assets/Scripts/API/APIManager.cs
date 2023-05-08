@@ -3,7 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+#if !UNITY_WEBGL
 using System.Security.Policy;
+#endif
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -17,15 +19,15 @@ public class APIManager : MonoBehaviour
     private static extern void Copy2Clipboard(string str);
 #endif
 
-    #region static
+#region static
     public static APIManager Instance;
-    #endregion
+#endregion
 
-    #region exposed fields
+#region exposed fields
     [SerializeField] ProbeMatchingPanel _probeMatchingPanel;
-    #endregion
+#endregion
 
-    #region Probe data variables
+#region Probe data variables
     [SerializeField] TMP_InputField _probeDataHTTPTarget;
     private float _lastDataSend;
     private const float DATA_SEND_RATE = 10f; // cap data sending at once per 10 s maximum, it's fairly expensive to do
@@ -38,14 +40,14 @@ public class APIManager : MonoBehaviour
 
     private const string ENDPOINT_PROCESSORS = "/api/processors";
     private const string ENDPOINT_CONFIG = "/api/processors/<id>/config";
-    #endregion
+#endregion
 
-    #region Viewer variables
+#region Viewer variables
     [SerializeField] DropdownMultiCheck _viewerDropdown;
     List<string> _viewerTargets;
-    #endregion
+#endregion
 
-    #region Unity
+#region Unity
     private void Awake()
     {
         if (Instance != null)
@@ -64,9 +66,9 @@ public class APIManager : MonoBehaviour
             SendAllProbeData();
         }
     }
-    #endregion
+#endregion
 
-    #region POST probe data target
+#region POST probe data target
 
     /// <summary>
     /// The toggle enabling/disabling the API should trigger this
@@ -294,7 +296,7 @@ public class APIManager : MonoBehaviour
 #endif
     }
 
-    #endregion
+#endregion
 }
 
 public class ProbeDataMessage
