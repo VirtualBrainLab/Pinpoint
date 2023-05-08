@@ -1,222 +1,170 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using LightJson;
+using System.Threading.Tasks;
+using Unisave.Editor.BackendUploading.Snapshotting;
+using Unisave.Editor.BackendUploading.States;
+using Unisave.Editor.Windows.Main;
 using Unisave.Foundation;
 using Unisave.Utils;
 using UnityEngine;
 
 namespace Unisave.Editor.BackendUploading
 {
-    /// <summary>
-    /// Uploads backend folder to the server
-    /// </summary>
     public class Uploader
     {
-        private readonly UnisavePreferences preferences;
+        // singleton instance backing field
+        private static Uploader instance;
+        
+        /// <summary>
+        /// Singleton instance of the uploader
+        /// </summary>
+        public static Uploader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new Uploader(UnisavePreferences.LoadOrCreate());
 
+                return instance;
+            }
+        }
+
+        private readonly UnisavePreferences preferences;
         private readonly ApiUrl apiUrl;
 
-        /// <summary>
-        /// Whether the automatic backend uploading is enabled
-        /// </summary>
-        public bool AutomaticUploadingEnabled
-            => preferences.AutomaticBackendUploading;
+        public bool AutomaticUploadingEnabled =>
+            preferences.AutomaticBackendUploading;
+
+        public bool IsCloudConnectionSetUp =>
+            !string.IsNullOrEmpty(preferences.GameToken)
+            && !string.IsNullOrEmpty(preferences.EditorKey);
 
         /// <summary>
-        /// Creates the default instance of the uploader
-        /// that uses correct preferences.
+        /// Backend uploader state
         /// </summary>
-        public static Uploader GetDefaultInstance()
-        {
-            // NOTE: There's not an easy way to keep the value.
-            // Static field gets reset when the game is started.
-            // It would have to use editor preferences which is an overkill.
-            
-            return new Uploader(
-                UnisavePreferences.LoadOrCreate()
-            );
-        }
+        public BaseState State { get; private set; }
+        
+        /// <summary>
+        /// Triggered when the uploader state changes
+        /// </summary>
+        public event Action OnStateChange;
+        
+        /// <summary>
+        /// Holds the uploading task, when one is running
+        /// </summary>
+        private Task uploadingTask;
 
         private Uploader(UnisavePreferences preferences)
         {
             this.preferences = preferences;
 
             apiUrl = new ApiUrl(preferences.ServerUrl);
+
+            State = BaseState.RestoreFromEditorPrefs(preferences.GameToken);
         }
 
         /// <summary>
         /// Performs all the uploading
         /// </summary>
-        /// <param name="verbose">Print additional info</param>
-        /// <param name="useAnotherThread">
-        /// If true, the networking will happen in a background thread so
-        /// that the UI is responsive. BUT! if I start a background thread
-        /// right after assembly compilation, it gets killed unexpectedly
-        /// for some reason. So there the execution has to be single-threaded.
+        /// <param name="verbose">Print additional info to console</param>
+        /// <param name="blockThread">
+        /// When called from UI, it should be non-blocking. When called after
+        /// assembly compilation it needs to be blocking otherwise the .NET
+        /// runtime refreshes the new assembly code and the upload gets killed
+        /// half-way through.
         /// </param>
-        public void UploadBackend(bool verbose, bool useAnotherThread)
+        public void UploadBackend(bool verbose, bool blockThread)
         {
+            // check that there isn't another upload running
+            if (uploadingTask != null && !uploadingTask.IsCompleted)
+            {
+                Debug.LogWarning(
+                    "[Unisave] Ignoring backend upload, " +
+                    "because another one is still running."
+                );
+                return;
+            }
+            
+            // announce the beginning
             if (verbose)
                 Debug.Log("[Unisave] Starting backend upload...");
-
-            List<BackendFile> files = RecalculateBackendHashAndGetFileList(
-                out string backendHash
-            );
+            
+            // recalculate backend hash and store it in preferences
+            var snapshot = BackendSnapshot.Take();
+            StoreBackendHash(snapshot);
             
             // NOTE: preferences.Save() not needed since both values are
             // stored inside EditorPrefs
             preferences.LastBackendUploadAt = DateTime.Now;
-            preferences.LastUploadedBackendHash = backendHash;
+            preferences.LastUploadedBackendHash = snapshot.BackendHash;
 
-            // NOTE: Debug Methods are thread-safe
-            // https://answers.unity.com/questions/714590/
-            // thread-safety-and-debuglog.html
+            // forget whatever state is persisted
+            BaseState.ClearEditorPrefs(preferences.GameToken);
             
-            // do the rest of computation involving networking in the background
-            if (useAnotherThread)
+            // switch to the uploading state
+            var uploadingState = new StateUploading();
+            State = uploadingState;
+            OnStateChange?.Invoke();
+            
+            // prepare the uploading job
+            var job = new UploadingJob(
+                verbose: verbose,
+                gameToken: preferences.GameToken,
+                editorKey: preferences.EditorKey,
+                apiUrl: apiUrl,
+                snapshot: snapshot,
+                uploadingState: uploadingState,
+                setState: s => {
+                    State = s;
+                    if (!blockThread) // only when in UI thread
+                        OnStateChange?.Invoke();
+                }
+            );
+
+            // called when the uploading job finishes
+            void DoneCallback()
             {
-                var backgroundThread = new Thread(() => {
-                    BackgroundJob(files, backendHash, verbose);
-                });
-                backgroundThread.Start();
+                uploadingTask = null;
+                
+                // persist uploader state
+                State?.StoreToEditorPrefs(preferences.GameToken);
+                
+                // Focus unisave window on error
+                if (State is StateException || State is StateCompilationError)
+                    UnisaveMainWindow.ShowTab(MainWindowTab.Backend);
             }
-            else // well, not always in the background
+
+            // run the uploading job
+            if (blockThread)
             {
-                BackgroundJob(files, backendHash, verbose);
+                // needs to run on different thread,
+                // otherwise we deadlock ourselves by doing .Wait()
+                Task.Run(() => job.Run()).Wait();
+                
+                // we trigger the state change event once, after everything is done
+                OnStateChange?.Invoke();
+                
+                DoneCallback();
+            }
+            else
+            {
+                uploadingTask = job.Run(DoneCallback);
             }
         }
 
         /// <summary>
-        /// Part the of the uploading that can happen in the background
-        /// on another thread
+        /// If there's a running upload, it gets cancelled, otherwise nothing happens
         /// </summary>
-        private void BackgroundJob(
-            List<BackendFile> files, string backendHash, bool verbose
-        )
+        public void CancelRunningUpload()
         {
-            /*
-             * WARNING: You run in another thread, be aware of what you touch!
-             */
-            
-            // check server reachability
-            if (!Http.UrlReachable(apiUrl.Index()))
-            {
-                Debug.LogError(
-                    $"Unisave server at '{apiUrl.Index()}' is not reachable.\n"
-                    + "If you want to work offline, you can go to "
-                    + "Window/Unisave/Preferences and disable automatic "
-                    + "backend uploading."
-                );
+            StateUploading state = State as StateUploading;
+
+            if (state == null)
                 return;
-            }
-
-            // send all file paths, hashes and global hash to the server
-            // and initiate the upload
-            JsonObject startResponse = Http.Post(
-                apiUrl.BackendUpload_Start(),
-                new JsonObject()
-                    .Add("game_token", preferences.GameToken)
-                    .Add("editor_key", preferences.EditorKey)
-                    
-                    .Add("backend_hash", backendHash)
-                    .Add("framework_version", FrameworkMeta.Version)
-                    .Add(
-                        "backend_folder_path",
-                        "Assets/" + preferences.BackendFolder
-                    )
-                    .Add("files", new JsonArray(
-                        files.Select(f => (JsonValue) new JsonObject()
-                            .Add("path", f.Path)
-                            .Add("hash", f.Hash)
-                        ).ToArray()
-                    ))
-            );
-
-            // finish upload if requested
-            if (startResponse["upload_has_finished"].AsBoolean)
-            {
-                if (verbose)
-                {
-                    Debug.Log(
-                        "[Unisave] Backend upload done, this backend " +
-                        "has already been uploaded."
-                    );
-                }
-
-                return;
-            }
-
-            var filePathsToUpload = new HashSet<string>(
-                startResponse["files_to_upload"]
-                    .AsJsonArray
-                    .Select(x => x.AsString)
-            );
             
-            // filter out files that needn't be uploaded
-            IEnumerable<BackendFile> filteredFiles = files.Where(
-                f => filePathsToUpload.Contains(f.Path)
-            );
-
-            // send individual files the server has asked for
-            foreach (var file in filteredFiles)
-            {
-                Http.Post(
-                    apiUrl.BackendUpload_File(),
-                    new JsonObject()
-                        .Add("game_token", preferences.GameToken)
-                        .Add("editor_key", preferences.EditorKey)
-                    
-                        .Add("backend_hash", backendHash)
-                        .Add("file", new JsonObject()
-                            .Add("path", file.Path)
-                            .Add("hash", file.Hash)
-                            .Add("file_type", file.FileType)
-                            .Add(
-                                "content",
-                                Convert.ToBase64String(
-                                    file.ContentForUpload())
-                                )
-                            )
-                );
-                
-                if (verbose)
-                    Debug.Log($"Uploaded '{file.Path}'");
-            }
-
-            // finish the upload
-            JsonObject finishResponse = Http.Post(
-                apiUrl.BackendUpload_Finish(),
-                new JsonObject()
-                    .Add("game_token", preferences.GameToken)
-                    .Add("editor_key", preferences.EditorKey)
-                
-                    .Add("backend_hash", backendHash)
-            );
-
-            if (verbose)
-            {
-                Debug.Log(
-                    "[Unisave] Backend upload done, starting server compilation..."
-                );
-            }
-
-            // print result of the compilation
-            if (!finishResponse["compiler_success"].AsBoolean)
-            {
-                Debug.LogError(
-                    "[Unisave] Server compile error:\n" +
-                    finishResponse["compiler_output"].AsString
-                );
-            }
-            else
-            {
-                if (verbose)
-                    Debug.Log("[Unisave] Server compilation done.");
-            }
+            state.CancellationTokenSource.Cancel();
         }
-
+        
         /// <summary>
         /// Goes through the backend folder and updates the backend hash
         /// stored in unisave preferences
@@ -228,43 +176,19 @@ namespace Unisave.Editor.BackendUploading
         {
             string lastUploadedHash = preferences.LastUploadedBackendHash;
             
-            // (throw away file list and ignore the hash (it has been stored))
-            RecalculateBackendHashAndGetFileList(out string currentHash);
+            var snapshot = BackendSnapshot.Take();
+            StoreBackendHash(snapshot);
 
-            return lastUploadedHash != currentHash;
+            return lastUploadedHash != snapshot.BackendHash;
         }
 
-        private List<BackendFile> RecalculateBackendHashAndGetFileList(
-            out string backendHash
-        )
+        private void StoreBackendHash(BackendSnapshot snapshot)
         {
-            // list all backend folders
-            var backendFolders = new string[] {
-                "Assets/" + preferences.BackendFolder
-            };
-
-            // get list of files to be uploaded
-            var files = new List<BackendFile>();
-            files.AddRange(CSharpFile.FindFiles(backendFolders));
-            files.AddRange(SOFile.FindFiles(backendFolders));
-            
-            // compute file hashes
-            files.ForEach(f => f.ComputeHash());
-            
-            // get all file hashes
-            List<string> hashes = files.Select(f => f.Hash).ToList();
-            
-            // add hashes of contextual data (e.g. framework version)
-            hashes.Add(Hash.MD5(FrameworkMeta.Version));
-            
-            // compute backend hash
-            backendHash = Hash.CompositeMD5(hashes);
-            
-            // store the backend hash
-            preferences.BackendHash = backendHash;
-            preferences.Save();
-
-            return files;
+            if (preferences.BackendHash != snapshot.BackendHash)
+            {
+                preferences.BackendHash = snapshot.BackendHash;
+                preferences.Save();
+            }
         }
     }
 }

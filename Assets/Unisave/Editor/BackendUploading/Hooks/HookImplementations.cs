@@ -9,23 +9,44 @@ namespace Unisave.Editor.BackendUploading.Hooks
     public static class HookImplementations
     {
         /// <summary>
+        /// Called often, whenever the backend definition files structure
+        /// might have been a modified.
+        /// </summary>
+        public static void OnBackendFolderStructureChange()
+        {
+            // perform the same backend upload checks as in assembly compilation
+            OnAssemblyCompilationFinished();
+        }
+        
+        /// <summary>
         /// Called often, whenever code in the Unity project changes.
         /// It recalculates the backend hash and if it changes and automatic
         /// upload is enabled, it will perform the automatic upload.
         /// </summary>
         public static void OnAssemblyCompilationFinished()
         {
-            var uploader = Uploader.GetDefaultInstance();
-            
-            bool upload = uploader.RecalculateBackendHash();
+            var uploader = Uploader.Instance;
 
-            if (upload && uploader.AutomaticUploadingEnabled)
-            {
-                uploader.UploadBackend(
-                    verbose: false,
-                    useAnotherThread: false
-                );
-            }
+            // disabled automatic uploading -> do nothing
+            if (!uploader.AutomaticUploadingEnabled)
+                return;
+            
+            // no cloud connection -> do nothing
+            if (!uploader.IsCloudConnectionSetUp)
+                return;
+            
+            // recalculate hash and save it in the preferences file
+            bool upload = uploader.RecalculateBackendHash();
+            
+            // if no upload needed, do nothing
+            if (!upload)
+                return;
+            
+            // run the upload
+            uploader.UploadBackend(
+                verbose: false,
+                blockThread: true
+            );
         }
 
         /// <summary>
@@ -51,13 +72,13 @@ namespace Unisave.Editor.BackendUploading.Hooks
         /// </summary>
         private static void PerformAutomaticUploadIfEnabled()
         {
-            var uploader = Uploader.GetDefaultInstance();
+            var uploader = Uploader.Instance;
             
             if (uploader.AutomaticUploadingEnabled)
             {
                 uploader.UploadBackend(
                     verbose: true, // here we ARE verbose, since we're building
-                    useAnotherThread: false
+                    blockThread: true
                 );
             }
         }
@@ -69,8 +90,7 @@ namespace Unisave.Editor.BackendUploading.Hooks
         private static void TryToRegisterTheBuild(BuildReport report)
         {
             // check that the backendHash in preferences is up to date
-            bool uploadNeeded = Uploader.GetDefaultInstance()
-                .RecalculateBackendHash();
+            bool uploadNeeded = Uploader.Instance.RecalculateBackendHash();
 
             if (uploadNeeded)
             {

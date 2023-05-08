@@ -144,13 +144,13 @@ public class TP_SliceRenderer : MonoBehaviour
             if (ProbeManager.ActiveProbeManager == null) return;
 
             // the actual tip
-            Vector3 probeTipWorld = ProbeManager.ActiveProbeManager.GetProbeController().ProbeTipT.position;
+            Vector3 probeTipWorld = ProbeManager.ActiveProbeManager.ProbeController.ProbeTipT.position;
             // position the slices along the real tip in world space
             _coronalSliceGo.transform.position = new Vector3(0f, 0f, probeTipWorld.z);
             _sagittalSliceGo.transform.position = new Vector3(probeTipWorld.x, 0f, 0f);
 
             // for CCF coordinates
-            (Vector3 tipCoordWorld, _, _) = ProbeManager.ActiveProbeManager.GetProbeController().GetTipWorldU();
+            (Vector3 tipCoordWorld, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
             apWorldmm = tipCoordWorld.z + 6.6f;
             coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / 13.2f);

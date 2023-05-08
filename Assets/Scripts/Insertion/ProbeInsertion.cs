@@ -19,8 +19,8 @@ public class ProbeInsertion
     #endregion
 
     #region Coordinate vars
-    public CoordinateSpace CoordinateSpace { get; private set; }
-    public CoordinateTransform CoordinateTransform { get; private set; }
+    public CoordinateSpace CoordinateSpace { get; set; }
+    public CoordinateTransform CoordinateTransform { get; set; }
     #endregion
 
     #region pos/angle vars
@@ -33,7 +33,7 @@ public class ProbeInsertion
     public float spin;
 
     /// <summary>
-    /// The **transformed** coordinate in the active CoordinateSpace
+    /// The **transformed** coordinate in the active CoordinateSpace (AP, ML, DV)
     /// </summary>
     public Vector3 apmldv
     {
@@ -46,6 +46,9 @@ public class ProbeInsertion
         }
     }
 
+    /// <summary>
+    /// (Yaw, Pitch, Spin)
+    /// </summary>
     public Vector3 angles
     {
         get => new Vector3(phi, theta, spin);
@@ -92,8 +95,9 @@ public class ProbeInsertion
         this.spin = spin;
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
-        if (targetable)
-            Instances.Add(this);
+        Instances.Add(this);
+        Targetable = targetable;
+        Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
 
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
@@ -103,24 +107,28 @@ public class ProbeInsertion
         this.angles = angles;
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
-        if (targetable)
-            Instances.Add(this);
+        Instances.Add(this);
+        Targetable = targetable;
+        Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
-
+     
     public ProbeInsertion(ProbeInsertion otherInsertion, bool targetable = true)
     {
         apmldv = otherInsertion.apmldv;
         angles = otherInsertion.angles;
         CoordinateSpace = otherInsertion.CoordinateSpace;
         CoordinateTransform = otherInsertion.CoordinateTransform;
-        if (targetable)
-            Instances.Add(this);
+        Instances.Add(this);
+        Targetable = targetable;
+        Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
 
     ~ProbeInsertion()
     {
         if (Instances.Contains(this))
             Instances.Remove(this);
+        if (TargetableInstances.Contains(this))
+            TargetableInstances.Remove(this);
     }
 
     #endregion
@@ -185,4 +193,9 @@ public class ProbeInsertion
     {
         return $"AP: {Math.Round(ap*1000)} ML: {Math.Round(ml*1000)} DV: {Math.Round(dv*1000)}";
     }
+}
+
+public class ProbeInsertionData
+{
+
 }

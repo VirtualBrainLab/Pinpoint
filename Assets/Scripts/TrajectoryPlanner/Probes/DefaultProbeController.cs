@@ -6,7 +6,6 @@ using UnityEngine.Serialization;
 public class DefaultProbeController : ProbeController
 {
     #region Movement Constants
-    private const float REC_HEIGHT_SPEED = 0.1f;
     private const float MOVE_INCREMENT_TAP = 0.010f; // move 1 um per tap
     private const float MOVE_INCREMENT_TAP_FAST = 0.100f;
     private const float MOVE_INCREMENT_TAP_SLOW = 0.001f;
@@ -34,12 +33,6 @@ public class DefaultProbeController : ProbeController
     private const float maxTheta = 0f;
     #endregion
 
-    #region Recording region
-    private float minRecordHeight;
-    private float maxRecordHeight; // get this by measuring the height of the recording rectangle and subtracting from 10
-    private float recordingRegionSizeY;
-    #endregion
-
     #region Defaults
     // in ap/ml/dv
     private Vector3 defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
@@ -57,7 +50,6 @@ public class DefaultProbeController : ProbeController
 
     // References
     [SerializeField] private Transform _probeTipT;
-    [FormerlySerializedAs("recordingRegionGOs")] [SerializeField] private List<GameObject> _recordingRegionGOs;
     [FormerlySerializedAs("rotateAround")] [SerializeField] private Transform _rotateAround;
 
     public override Transform ProbeTipT { get { return _probeTipT; } }
@@ -77,8 +69,6 @@ public class DefaultProbeController : ProbeController
 
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
-
-        UpdateRecordingRegionVars();
 
         Insertion = new ProbeInsertion(defaultStart, defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
@@ -361,29 +351,12 @@ public class DefaultProbeController : ProbeController
         if (Input.GetKeyUp(KeyCode.Period))
             keyHeld = false;
 
-        // Recording region controls
-        if (Input.GetKey(KeyCode.T))
-        {
-            moved = true;
-            ShiftRecordingRegion(1f);
-        }
-        if (Input.GetKey(KeyCode.G))
-        {
-            moved = true;
-            ShiftRecordingRegion(-1f);
-        }
-
-
         if (moved)
         {
             // If the probe was moved, set the new position
             SetProbePosition();
 
-            // Check collisions if we need to
-            ColliderManager.CheckForCollisions();
-
             // Update all the UI panels
-            ProbeManager.UpdateUI();
             FinishedMovingEvent.Invoke();
         }
     }
@@ -625,9 +598,7 @@ public class DefaultProbeController : ProbeController
 
             ProbeManager.SetAxisTransform(ProbeTipT);
 
-            ColliderManager.CheckForCollisions();
-
-            ProbeManager.UpdateUI();
+            ProbeManager.UIUpdateEvent.Invoke();
 
             MovedThisFrameEvent.Invoke();
         }
@@ -648,63 +619,14 @@ public class DefaultProbeController : ProbeController
 
     #endregion
 
-    #region Recording region UI
-    public void ChangeRecordingRegionSize(float newSize)
-    {
-        recordingRegionSizeY = newSize;
-
-        foreach (GameObject go in _recordingRegionGOs)
-        {
-            // This is a little complicated if we want to do it right (since you can accidentally scale the recording region off the probe.
-            // For now, we will just reset the y position to be back at the bottom of the probe.
-            Vector3 scale = go.transform.localScale;
-            scale.y = newSize;
-            go.transform.localScale = scale;
-            Vector3 pos = go.transform.localPosition;
-            pos.y = newSize / 2f + 0.2f;
-            go.transform.localPosition = pos;
-        }
-
-        UpdateRecordingRegionVars();
-    }
-
-    /// <summary>
-    /// Move the recording region up or down
-    /// </summary>
-    /// <param name="dir">-1 or 1 to indicate direction</param>
-    private void ShiftRecordingRegion(float dir)
-    {
-        // Loop over recording regions to handle 4-shank (and 8-shank) probes
-        foreach (GameObject recordingRegion in _recordingRegionGOs)
-        {
-            Vector3 localPosition = recordingRegion.transform.localPosition;
-            float localRecordHeightSpeed = Input.GetKey(KeyCode.LeftShift) ? REC_HEIGHT_SPEED * 2 : REC_HEIGHT_SPEED;
-            localPosition.y = Mathf.Clamp(localPosition.y + dir * localRecordHeightSpeed, minRecordHeight, maxRecordHeight);
-            recordingRegion.transform.localPosition = localPosition;
-        }
-    }
-
-    private void UpdateRecordingRegionVars()
-    {
-        minRecordHeight = _recordingRegionGOs[0].transform.localPosition.y;
-        maxRecordHeight = minRecordHeight + (10 - _recordingRegionGOs[0].transform.localScale.y);
-    }
-
-    #endregion
-
     #region Set Probe pos/angles
     
-    public override float GetProbeDepth()
-    {
-        return depth;
-    }
-
     /// <summary>
     /// Set the probe position to the current apml/depth/phi/theta/spin values
     /// </summary>
     public override void SetProbePosition()
     {
-        SetProbePositionHelper(Insertion);
+        SetProbePositionHelper();
     }
 
     public void SetProbePosition(float depthOverride)
@@ -735,18 +657,17 @@ public class DefaultProbeController : ProbeController
     /// <summary>
     /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
     /// </summary>
-    /// <param name="localInsertion">new insertion position</param>
-    private void SetProbePositionHelper(ProbeInsertion localInsertion)
+    private void SetProbePositionHelper()
     {
         // Reset everything
         transform.position = _initialPosition;
         transform.rotation = _initialRotation;
 
         // Manually adjust the coordinates and rotation
-        transform.position += localInsertion.PositionWorldT();
-        transform.RotateAround(_rotateAround.position, transform.up, localInsertion.phi);
-        transform.RotateAround(_rotateAround.position, transform.forward, localInsertion.theta);
-        transform.RotateAround(_rotateAround.position, _rotateAround.up, localInsertion.spin);
+        transform.position += Insertion.PositionWorldT();
+        transform.RotateAround(_rotateAround.position, transform.up, Insertion.phi);
+        transform.RotateAround(_rotateAround.position, transform.forward, Insertion.theta);
+        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.spin);
 
         // Compute depth transform, if needed
         if (depth != 0f)
@@ -754,27 +675,24 @@ public class DefaultProbeController : ProbeController
             transform.position += -transform.up * depth;
             Vector3 depthAdjustment = Insertion.World2TransformedAxisChange(-transform.up) * depth;
 
-            localInsertion.apmldv += depthAdjustment;
+            Insertion.apmldv += depthAdjustment;
             depth = 0f;
         }
-
-        // save the data
-        Insertion = localInsertion;
 
         // update surface position
         ProbeManager.UpdateSurfacePosition();
 
         // Tell the tpmanager we moved and update the UI elements
         MovedThisFrameEvent.Invoke();
-        ProbeManager.UpdateUI();
+        ProbeManager.UIUpdateEvent.Invoke();
     }
 
-    public override void SetProbePosition(ProbeInsertion localInsertion)
-    {
-        // localInsertion gets copied to Insertion
-        Insertion.apmldv = localInsertion.apmldv;
-        Insertion.angles = localInsertion.angles;
-    }
+    //public override void SetProbePosition(ProbeInsertion localInsertion)
+    //{
+    //    // localInsertion gets copied to Insertion
+    //    Insertion.apmldv = localInsertion.apmldv;
+    //    Insertion.angles = localInsertion.angles;
+    //}
 
     #endregion
 
@@ -784,13 +702,13 @@ public class DefaultProbeController : ProbeController
     /// Return the tip coordinates in **un-transformed** world coordinates
     /// </summary>
     /// <returns></returns>
-    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorldU()
+    public override (Vector3 tipCoordWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU()
     {
-        Vector3 tipCoordWorld = WorldT2WorldU(_probeTipT.position);
-        Vector3 tipUpWorld = (WorldT2WorldU(_probeTipT.position + _probeTipT.up) - tipCoordWorld).normalized;
-        Vector3 tipForwardWorld = (WorldT2WorldU(_probeTipT.position + _probeTipT.forward) - tipCoordWorld).normalized;
+        Vector3 tipCoordWorldU = WorldT2WorldU(_probeTipT.position);
+        Vector3 tipUpWorldU = (WorldT2WorldU(_probeTipT.position + _probeTipT.up) - tipCoordWorldU).normalized;
+        Vector3 tipForwardWorldU = (WorldT2WorldU(_probeTipT.position + _probeTipT.forward) - tipCoordWorldU).normalized;
 
-        return (tipCoordWorld, tipUpWorld, tipForwardWorld);
+        return (tipCoordWorldU, tipUpWorldU, tipForwardWorldU);
     }
 
     /// <summary>
@@ -803,50 +721,6 @@ public class DefaultProbeController : ProbeController
         return Insertion.CoordinateSpace.Space2World(Insertion.CoordinateTransform.Transform2Space(Insertion.CoordinateTransform.Space2TransformAxisChange(Insertion.CoordinateSpace.World2Space(coordWorldT))));
     }
 
-    public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld()
-    {
-        return GetRecordingRegionWorld(probeTipOffset.transform);
-    }
-
-    public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld(Transform tipTransform)
-    {
-        if (Settings.RecordingRegionOnly)
-        {
-            // only rec region
-            (float mmStartPos, float mmRecordingSize) = GetRecordingRegionHeight();
-
-            Vector3 startCoordWorld = WorldT2WorldU(tipTransform.position + tipTransform.up * mmStartPos);
-            Vector3 endCoordWorld = WorldT2WorldU(tipTransform.position + tipTransform.up * (mmStartPos + mmRecordingSize));
-
-#if UNITY_EDITOR
-            //GameObject.Find("recording_bot").transform.position = startCoordWorld;
-            //GameObject.Find("recording_top").transform.position = endCoordWorld;
-#endif
-            return (startCoordWorld, endCoordWorld);
-        }
-        else
-        {
-            return (WorldT2WorldU(tipTransform.position), WorldT2WorldU(tipTransform.position + tipTransform.up * 10f));
-        }
-    }
-
-    /// <summary>
-    /// Return the height of the bottom in mm and the total height
-    /// </summary>
-    /// <returns>float array [0]=bottom, [1]=height</returns>
-    public (float, float) GetRecordingRegionHeight()
-    {
-        return (_recordingRegionGOs[0].transform.localPosition.y - minRecordHeight, recordingRegionSizeY);
-    }
-
-    /// <summary>
-    /// Return the current size of the recording region
-    /// </summary>
-    /// <returns>size of the recording region</returns>
-    public float GetRecordingRegionSize()
-    {
-        return recordingRegionSizeY;
-    }
 
     #endregion
 

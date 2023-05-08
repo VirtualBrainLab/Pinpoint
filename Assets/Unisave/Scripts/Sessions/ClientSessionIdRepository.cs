@@ -61,7 +61,9 @@ namespace Unisave.Sessions
         private void RememberInPlayerPrefs()
         {
             #if UNITY_EDITOR
-                PlayerPrefs.SetString(PlayerPrefsKey, new JsonObject()
+                string keySuffix = ":" + Application.dataPath; // to work with project cloners    
+                
+                PlayerPrefs.SetString(PlayerPrefsKey + keySuffix, new JsonObject()
                     .Add("StoredAt", Serializer.ToJson(DateTime.UtcNow))
                     .Add("SessionId", id)
                     .ToString()
@@ -73,8 +75,10 @@ namespace Unisave.Sessions
         private string LoadFromPlayerPrefs()
         {
             #if UNITY_EDITOR
+
+                string keySuffix = ":" + Application.dataPath; // to work with project cloners
             
-                var raw = PlayerPrefs.GetString(PlayerPrefsKey);
+                var raw = PlayerPrefs.GetString(PlayerPrefsKey + keySuffix);
                 JsonObject json = null;
 
                 if (string.IsNullOrWhiteSpace(raw))

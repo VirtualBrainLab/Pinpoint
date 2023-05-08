@@ -1,0 +1,66 @@
+.home-image {
+    background-color: rgba(0, 0, 0, 0.2);
+    background-image: url("/Assets/Unisave/Images/PropertiesLogoWhite.png");
+    -unity-background-scale-mode: scale-to-fit;
+    padding-top: 30%;
+    margin: 10px;
+    border-radius: 2px;
+}
+
+.quick-links {
+    flex-direction: row;
+    margin: 10px;
+    margin-left: 5px;
+    margin-top: 0px;
+}
+
+.quick-links Button {
+    flex-grow: 1;
+    margin: 0;
+    margin-left: 5px;
+}
+
+.container {
+    margin: 10px;
+}
+
+.welcome-text {
+    margin-bottom: 10px;
+    white-space: normal;
+}
+
+.checklist-item {
+    margin: 10px 0;
+}
+
+.checklist-item.checklist-item--hidden {
+    margin: 0;
+}
+
+.checklist-item.checklist-item--hidden > * {
+    display: none;
+}
+
+.checklist-item.checklist-item--hidden > .checklist-head {
+    display: flex;
+    -unity-font-style: italic;
+    opacity: 0.3;
+    font-size: 14px;
+    margin: 0;
+}
+
+.checklist-head {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.checklist-text {
+    padding-left: 10px;
+    margin-bottom: 5px;
+    white-space: normal;
+}
+
+.checklist-button {
+    margin-left: 10px;
+    align-self: flex-start;
+}

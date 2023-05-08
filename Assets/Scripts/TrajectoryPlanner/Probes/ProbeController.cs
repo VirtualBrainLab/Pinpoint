@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
+using CoordinateSpaces;
+using CoordinateTransforms;
 
 public abstract class ProbeController : MonoBehaviour
 {
@@ -19,12 +21,7 @@ public abstract class ProbeController : MonoBehaviour
 
     public abstract Transform ProbeTipT { get; }
 
-    public abstract (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorldU();
-
-    public abstract (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld();
-    public abstract (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld(Transform tipTransform);
-
-    public abstract float GetProbeDepth();
+    public abstract (Vector3 tipCoordWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU();
 
     public abstract void ResetInsertion();
 
@@ -38,7 +35,14 @@ public abstract class ProbeController : MonoBehaviour
 
     public abstract void SetProbePosition(Vector4 positionDepth);
 
-    public abstract void SetProbePosition(ProbeInsertion localInsertion);
+    public void SetSpaceTransform(CoordinateSpace space, CoordinateTransform Transform)
+    {
+        Insertion.CoordinateSpace = space;
+        Insertion.CoordinateTransform = Transform;
+        SetProbePosition();
+    }
 
     public abstract void SetProbeAngles(Vector3 angles);
+
+
 }

@@ -7,39 +7,56 @@ using UnityEngine.Serialization;
 
 public class QuestionDialogue : MonoBehaviour
 {
+    #region static
+    public static QuestionDialogue Instance;
+    #endregion
+
+    [SerializeField] private GameObject _uiPanel;
     [SerializeField] private TMP_Text _questionText;
 
-    private Action yesCallback;
-    private Action noCallback;
+    private static Action yesCallback;
+    private static Action noCallback;
 
+    private void Awake()
+    {
+        if (Instance != null)
+            throw new Exception("There should only be one Singleton of QuestionDialogue in the scene");
+        Instance = this;
+    }
 
+    #region Static functions
+
+    public static void NewQuestion(string newText)
+    {
+        Instance._uiPanel.SetActive(true);
+        Instance._questionText.text = newText;
+    }
+
+    public static void SetYesCallback(Action newCallback)
+    {
+        yesCallback = newCallback;
+    }
+
+    public static void SetNoCallback(Action newCallback)
+    {
+        noCallback = newCallback;
+    }
+
+    #endregion
+
+    #region Public
     public void YesCallback()
     {
         if (yesCallback != null)
             yesCallback();
-        gameObject.SetActive(false);
+        _uiPanel.SetActive(false);
     }
 
     public void NoCallback()
     {
         if (noCallback != null)
             noCallback();
-        gameObject.SetActive(false);
+        _uiPanel.SetActive(false);
     }
-
-    public void NewQuestion(string newText)
-    {
-        gameObject.SetActive(true);
-        _questionText.text = newText;
-    }
-
-    public void SetYesCallback(Action newCallback)
-    {
-        yesCallback = newCallback;
-    }
-
-    public void SetNoCallback(Action newCallback)
-    {
-        noCallback = newCallback;
-    }
+    #endregion
 }

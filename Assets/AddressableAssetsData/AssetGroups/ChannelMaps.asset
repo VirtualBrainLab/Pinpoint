@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ChannelMaps
+  m_EditorClassIdentifier: 
+  m_GroupName: ChannelMaps
+  m_Data:
+    m_SerializedData: []
+  m_GUID: edfc08336e8737945a5382729804fd5f
+  m_SerializeEntries:
+  - m_GUID: dc137180e37d5c5468236360256235ad
+    m_Address: Assets/AddressableAssets/Probes/neuropixels_1.csv
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 5d9fa4254b36d4242b097c3cd188bc25
+    m_Address: Assets/AddressableAssets/Probes/neuropixels_2.csv
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 84c32c4b155cbd54686f0eac3b733445
+    m_Address: Assets/AddressableAssets/Probes/ucla_128k.csv
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 746edc61d33840c428494b7abde3bf97
+    m_Address: Assets/AddressableAssets/Probes/ucla_256f.csv
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 53509559aa7c7b6409b006d301ad91be, type: 2}
+    - {fileID: 11400000, guid: ce54932983a541443a8099725fcadc63, type: 2}

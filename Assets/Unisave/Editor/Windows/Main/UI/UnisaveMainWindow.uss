@@ -1,0 +1,30 @@
+.tabs-bar {
+    flex-shrink: 0;
+}
+
+.tab-head {
+    flex-grow: 1;
+    border-right-width: 0;
+}
+
+.tab-head > VisualElement {
+    justify-content: center;
+}
+
+.tab-head.is-warning > VisualElement {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--unity-colors-warning-text);
+}
+
+.tab-head.is-error > VisualElement {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--unity-colors-error-text);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content--active {
+    display: flex;
+}

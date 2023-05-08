@@ -20,7 +20,6 @@ public class UnisaveAccountsManager : AccountsManager
 
     [FormerlySerializedAs("registerPanelGO")] [SerializeField] private GameObject _registerPanelGo;
     [FormerlySerializedAs("experimentEditor")] [SerializeField] private ExperimentEditor _experimentEditor;
-    [FormerlySerializedAs("activeExpListBehavior")] [SerializeField] private ActiveExperimentUI _activeExperimentUI;
     [SerializeField] private GameObject _savePanel;
 
     [SerializeField] private EmailLoginForm _emailLoginForm;
@@ -107,7 +106,7 @@ public class UnisaveAccountsManager : AccountsManager
             ServerProbeInsertion data = _player.UUID2InsertionData[UUID];
 
             Debug.Log($"Creating probe {UUID} if active: {data.active}");
-            if (data.active && !ProbeManager.instances.Any(x => x.UUID.Equals(UUID)))
+            if (data.active && !ProbeManager.Instances.Any(x => x.UUID.Equals(UUID)))
                 UpdateCallbackEvent(GetProbeInsertionData(data.UUID), true);
         }
 
@@ -123,6 +122,8 @@ public class UnisaveAccountsManager : AccountsManager
 
         ExperimentListChangeEvent.Invoke();
         InsertionListChangeEvent.Invoke();
+
+        _emailLoginForm.ClearToken();
     }
 
 #endregion
@@ -175,8 +176,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void NewExperiment()
     {
-        string experimentName = $"Experiment {_player.Experiments.Count}";
-        _player.Experiments.Add(experimentName);
+        string experimentName = $"Experiment {_player.Experiment2UUID.Count}";
         _player.Experiment2UUID.Add(experimentName, new HashSet<string>());
 
         // If this is the first experiment the player created, save it for future reference
@@ -190,9 +190,19 @@ public class UnisaveAccountsManager : AccountsManager
 
     public void EditExperiment(string origName, string newName)
     {
-        if (_player.Experiments.Contains(origName))
+        if (_player.Experiment2UUID.Keys.Contains(origName))
         {
-            _player.Experiments[_player.Experiments.IndexOf(origName)] = newName;
+            // Add me to the experiment list 
+            var data = _player.Experiment2UUID[origName];
+            _player.Experiment2UUID.Add(newName, data);
+            _player.Experiment2UUID.Remove(origName);
+
+            // Go through and fix all the items in the UUID2Experiment list
+            foreach (string UUID in _player.Experiment2UUID[newName])
+            {
+                _player.UUID2Experiment[UUID].Remove(origName);
+                _player.UUID2Experiment[UUID].Add(newName);
+            }
         }
         else
             Debug.LogError(string.Format("Experiment {0} does not exist", origName));
@@ -294,7 +304,7 @@ public class UnisaveAccountsManager : AccountsManager
     public List<string> GetExperiments()
     {
         if (_player != null)
-            return _player.Experiments;
+            return _player.Experiment2UUID.Keys.ToList();
         else
             return new List<string>();
     }
@@ -326,6 +336,7 @@ public class UnisaveAccountsManager : AccountsManager
 #endif
         _player.UUID2InsertionData[UUID].active = visible;
         UpdateCallbackEvent(GetProbeInsertionData(UUID), visible);
+        InsertionListChangeEvent.Invoke();
 
         Dirty = true;
     }
@@ -401,18 +412,17 @@ public class UnisaveAccountsManager : AccountsManager
 
     private ServerProbeInsertion ProbeManager2ServerProbeInsertion(ProbeManager probeManager, bool active = true, bool recorded = false)
     {
-        ProbeInsertion insertion = probeManager.GetProbeController().Insertion;
-        Vector3 apmldv = insertion.apmldv;
-        Vector3 angles = insertion.angles;
-        Color color = probeManager.GetColor();
+        Vector3 apmldv = probeManager.ProbeController.Insertion.apmldv;
+        Vector3 angles = probeManager.ProbeController.Insertion.angles;
+        Color color = probeManager.Color;
 
         ServerProbeInsertion serverProbeInsertion = new ServerProbeInsertion(
             probeManager.name,
             apmldv.x, apmldv.y, apmldv.z,
             angles.x, angles.y, angles.z,
-            probeManager.ProbeType,
-            insertion.CoordinateSpace.Name,
-            insertion.CoordinateTransform.Name,
+            (int)probeManager.ProbeType,
+            probeManager.ProbeController.Insertion.CoordinateSpace.Name,
+            probeManager.ProbeController.Insertion.CoordinateTransform.Name,
             active, recorded,
             probeManager.UUID,
             new float[] {color.r, color.g, color.b});
@@ -451,7 +461,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     private void AddExperiment(string UUID, string experimentName)
     {
-        if (!_player.Experiments.Contains(experimentName))
+        if (!_player.Experiment2UUID.Keys.Contains(experimentName))
         {
             Debug.Log("Experiment doesn't exist");
             return;
@@ -464,9 +474,8 @@ public class UnisaveAccountsManager : AccountsManager
 
     private void RemoveExperiment(string experimentName)
     {
-        if (_player.Experiments.Contains(experimentName))
+        if (_player.Experiment2UUID.Keys.Contains(experimentName))
         {
-            _player.Experiments.Remove(experimentName);
             HashSet<string> UUIDs = GetUUIDsFromExperiment(experimentName);
 
             // remove the experiment from each UUID
@@ -503,6 +512,10 @@ public class UnisaveAccountsManager : AccountsManager
         return _player.Experiment2UUID[experimentName];
     }
 
+    /// <summary>
+    /// Get the UUID -> ServerProbeInsertion data for all active insertions in the current experiment
+    /// </summary>
+    /// <returns>Dictionary containing UUID and ServerProbeInsertion values</returns>
     public Dictionary<string, ServerProbeInsertion> GetActiveExperimentInsertions()
     {
         if (_player == null)
@@ -526,7 +539,7 @@ public class UnisaveAccountsManager : AccountsManager
     {
         string list = "\n";
 
-        foreach (string experiment in _player.Experiments)
+        foreach (string experiment in _player.Experiment2UUID.Keys)
         {
             list += $"{experiment}\n";
             foreach (string UUID in GetUUIDsFromExperiment(experiment))

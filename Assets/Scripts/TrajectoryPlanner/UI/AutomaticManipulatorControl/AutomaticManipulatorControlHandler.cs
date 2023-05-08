@@ -146,13 +146,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         #endregion
 
-        #region Step 4
-
-        private bool _isDriving;
-        private float _driveDuration;
-
-        #endregion
-
         #endregion
 
         #region Unity
@@ -160,7 +153,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         private void OnEnable()
         {
             // Populate properties
-            ProbeManagers = ProbeManager.instances.Where(manager => manager.IsEphysLinkControlled).ToList();
+            ProbeManagers = ProbeManager.Instances.Where(manager => manager.IsEphysLinkControlled).ToList();
             AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
             TargetInsertionsReference = ProbeInsertion.TargetableInstances;
 

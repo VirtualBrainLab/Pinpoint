@@ -110,4 +110,13 @@ public class CraniotomyPanel : MonoBehaviour
             _craniotomySkull.SetCraniotomySize(size);
         }
     }
+
+    public void SnapActiveCraniotomy2Probe()
+    {
+        Vector3 apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.apmldv;
+        _positionSpace.x = apmldv.x;
+        _positionSpace.y = apmldv.y;
+        UpdateCraniotomy();
+        UpdateText();
+    }
 }

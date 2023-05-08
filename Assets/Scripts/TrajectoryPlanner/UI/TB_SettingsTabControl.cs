@@ -7,7 +7,17 @@ namespace UITabs
 {
     public class TB_SettingsTabControl : MonoBehaviour
     {
+        [SerializeField] private List<GameObject> _webglDisabledFeaturesGOs;
+
         [FormerlySerializedAs("menuParent")] [SerializeField] private GameObject _menuParent;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        private void OnEnable()
+        {
+            foreach (GameObject go in _webglDisabledFeaturesGOs)
+                go.SetActive(false);
+        }
+#endif
 
         public void UpdateMenuVisibility(int menuPosition)
         {

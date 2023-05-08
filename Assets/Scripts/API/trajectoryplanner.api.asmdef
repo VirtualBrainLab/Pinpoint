@@ -1,0 +1,19 @@
+{
+    "name": "trajectoryplanner.api",
+    "rootNamespace": "",
+    "references": [
+        "GUID:7e45fd9ef3568e944946569af99430de",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:160da71e82fca504abe6ab7833979cdb",
+        "GUID:70bb1e15c633f124aaefadd846c63184"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

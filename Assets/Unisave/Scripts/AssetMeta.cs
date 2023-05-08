@@ -6,8 +6,8 @@ namespace Unisave
     public static class AssetMeta
     {
         /// <summary>
-        /// Version of the asset (same as the framework version)
+        /// Version of the asset
         /// </summary>
-        public static readonly string Version = FrameworkMeta.Version;
+        public static readonly string Version = "0.11.0-rc.1";
     }
 }

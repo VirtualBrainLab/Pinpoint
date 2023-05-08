@@ -91,15 +91,14 @@ namespace Unisave.HttpClient
         {
             // TODO: enforce SSL certificates
             
-            var downloadHandler = new DownloadHandlerBuffer();
+            using var downloadHandler = new DownloadHandlerBuffer();
 
-            UploadHandler uploadHandler = null;
-            if (payload != null)
-                uploadHandler = new UploadHandlerRaw(
+            using var uploadHandler = (payload == null) ? null :
+                new UploadHandlerRaw(
                     Encoding.UTF8.GetBytes(payload.ToString())
                 );
 
-            var request = new UnityWebRequest(
+            using UnityWebRequest request = new UnityWebRequest(
                 url,
                 method,
                 downloadHandler,
@@ -109,16 +108,16 @@ namespace Unisave.HttpClient
             if (headers != null)
                 foreach (var pair in headers)
                     request.SetRequestHeader(pair.Key, pair.Value);
-            
+
             if (payload != null)
+            {
+                request.SetRequestHeader("Accept", "application/json");
                 request.SetRequestHeader("Content-Type", "application/json");
+            }
 
             yield return request.SendWebRequest();
-
-            uploadHandler.Dispose();
-
+            
             callback?.Invoke(request, downloadHandler);
-            request.Dispose();
         }
     }
 }

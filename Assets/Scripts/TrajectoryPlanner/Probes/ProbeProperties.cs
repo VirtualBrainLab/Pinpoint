@@ -20,6 +20,36 @@ public class ProbeProperties
     public static readonly int FONT_SIZE_ACRONYM = 24;
     public static readonly int FONT_SIZE_AREA = 18;
 
+    public enum ProbeType : int
+    {
+        Placeholder = -1,
+        Neuropixels1 = 0,
+        Neuropixels21 = 21,
+        Neuropixels24 = 24,
+        Neuropixels24x2 = 28,
+        UCLA128K = 128,
+        UCLA256F = 256
+    }
+
+    public static bool FourShank(ProbeType probeType)
+    {
+        switch (probeType)
+        {
+            case ProbeType.Placeholder:
+                return false;
+            case ProbeType.Neuropixels1:
+                return false;
+            case ProbeType.Neuropixels21:
+                return false;
+            case ProbeType.Neuropixels24:
+                return true;
+            case ProbeType.Neuropixels24x2:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public static Color GetNextProbeColor()
     {
         // Generate list of indexes and remove those that have been used

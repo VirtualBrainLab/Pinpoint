@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using CoordinateSpaces;
+using CoordinateTransforms;
 
 public class PlaceholderProbeController : ProbeController
 {
@@ -49,19 +50,10 @@ public class PlaceholderProbeController : ProbeController
 
     #region Set Probe pos/angles
 
-    public override float GetProbeDepth()
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Set the probe position to the current apml/depth/phi/theta/spin values
-    /// </summary>
     public override void SetProbePosition()
     {
-        SetProbePosition(Insertion);
+        SetProbePositionHelper();
     }
-
 
     public override void SetProbePosition(Vector3 position)
     {
@@ -82,21 +74,17 @@ public class PlaceholderProbeController : ProbeController
     /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
     /// </summary>
     /// <param name="localInsertion">new insertion position</param>
-    public override void SetProbePosition(ProbeInsertion localInsertion)
+    private void SetProbePositionHelper()
     {
         // Reset everything
         transform.position = _initialPosition;
         transform.rotation = _initialRotation;
 
         // Manually adjust the coordinates and rotation
-        transform.position += localInsertion.PositionWorldT();
-        transform.RotateAround(_probeTipT.position, transform.up, localInsertion.phi);
-        transform.RotateAround(_probeTipT.position, transform.forward, localInsertion.theta);
-        transform.RotateAround(_probeTipT.position, _probeTipT.up, localInsertion.spin);
-
-        // save the data
-        Insertion.apmldv = localInsertion.apmldv;
-        Insertion.angles = localInsertion.angles;
+        transform.position += Insertion.PositionWorldT();
+        transform.RotateAround(_probeTipT.position, transform.up, Insertion.phi);
+        transform.RotateAround(_probeTipT.position, transform.forward, Insertion.theta);
+        transform.RotateAround(_probeTipT.position, _probeTipT.up, Insertion.spin);
     }
 
     #endregion
@@ -107,20 +95,10 @@ public class PlaceholderProbeController : ProbeController
     /// Return the tip coordinates in **un-transformed** world coordinates
     /// </summary>
     /// <returns></returns>
-    public override (Vector3 tipCoordWorld, Vector3 tipUpWorld, Vector3 tipForwardWorld) GetTipWorldU()
+    public override (Vector3 tipCoordWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU()
     {
         // not implemented
         return (Vector3.zero, Vector3.zero, Vector3.zero);
-    }
-
-    public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld()
-    {
-        return (Vector3.zero, Vector3.zero);
-    }
-
-    public override (Vector3 startCoordWorld, Vector3 endCoordWorld) GetRecordingRegionWorld(Transform tipTransform)
-    {
-        return (Vector3.zero, Vector3.zero);
     }
 
     /// <summary>

@@ -43,24 +43,6 @@ public class Settings : MonoBehaviour
         }
     }
 
-    // Display just the recording region, or the entire length of the probe
-    private static bool s_recordingRegionOnly;
-    private const string RECREGION_STR = "recordingregion";
-    private const bool RECREGION_DEFAULT = true;
-    [FormerlySerializedAs("recordingRegionToggle")][SerializeField] private Toggle _recordingRegionToggle;
-    public UnityEvent RecordingRegionOnlyChangedEvent;
-
-    public static bool RecordingRegionOnly
-    {
-        get { return s_recordingRegionOnly; }
-        set
-        {
-            s_recordingRegionOnly = value;
-            PlayerPrefs.SetInt(RECREGION_STR, s_recordingRegionOnly ? 1 : 0);
-            Instance.RecordingRegionOnlyChangedEvent.Invoke();
-        }
-    }
-
     // Convert APML rotation to the probe's axis rotation
     private static bool s_convertAPML2probeAxis;
     private const string APML2PROBE_STR = "apml2probe";
@@ -381,7 +363,45 @@ public class Settings : MonoBehaviour
 
         return new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - long.Parse(timestampString) >= 86400;
     }
-    
+
+    #endregion
+
+    #region Accounts
+    private static bool s_stayLoggedIn;
+    private const string LOGGEDIN_STR = "stayloggedin";
+    private const bool LOGGEDIN_DEFAULT = true;
+    [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _stayLoggedInToggle;
+    //public UnityEvent DetectCollisionsChangedEvent;
+
+    public static bool StayLoggedIn
+    {
+        get { return s_stayLoggedIn; }
+        set
+        {
+            s_stayLoggedIn = value;
+            PlayerPrefs.SetInt(LOGGEDIN_STR, s_stayLoggedIn ? 1 : 0);
+            //Instance.DetectCollisionsChangedEvent.Invoke();
+        }
+    }
+    #endregion
+
+    #region API
+    private static bool s_probeDataPOST;
+    private const string PROBEDATA_STR = "probedatapost";
+    private const bool PROBEDATA_DEFAULT = false;
+    [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _probeDataPOSTToggle;
+    public UnityEvent<bool> ProbeDataPostChangedEvent;
+
+    public static bool ProbeDataPOST
+    {
+        get { return s_probeDataPOST; }
+        set
+        {
+            s_probeDataPOST = value;
+            PlayerPrefs.SetInt(PROBEDATA_STR, PROBEDATA_DEFAULT ? 1 : 0);
+            Instance.ProbeDataPostChangedEvent.Invoke(s_probeDataPOST);
+        }
+    }
     #endregion
 
     #region Unity
@@ -399,9 +419,6 @@ public class Settings : MonoBehaviour
         // Load preferences from memory and set UI elements
         DetectCollisions = LoadBoolPref(COLLISIONS_STR, COLLISIONS_DEFAULT);
         _collisionsToggle.SetIsOnWithoutNotify(DetectCollisions);
-
-        RecordingRegionOnly = LoadBoolPref(RECREGION_STR, RECREGION_DEFAULT);
-        _recordingRegionToggle.SetIsOnWithoutNotify(RecordingRegionOnly);
 
         ConvertAPML2Probe = LoadBoolPref(APML2PROBE_STR, APML2PROBE_DEFAULT);
         _probeAxisToggle.SetIsOnWithoutNotify(ConvertAPML2Probe);
@@ -449,6 +466,10 @@ public class Settings : MonoBehaviour
         StayLoggedIn = LoadBoolPref(LOGGEDIN_STR, LOGGEDIN_DEFAULT);
         _stayLoggedInToggle.SetIsOnWithoutNotify(StayLoggedIn);
 
+        // API
+        ProbeDataPOST = LoadBoolPref(PROBEDATA_STR, PROBEDATA_DEFAULT);
+        _probeDataPOSTToggle.SetIsOnWithoutNotify(ProbeDataPOST);
+
         // Ephys link
         EphysLinkServerIp = LoadStringPref("ephys_link_ip", "");
         _ephysLinkServerIpInput.text = _ephysLinkServerIp;
@@ -456,7 +477,7 @@ public class Settings : MonoBehaviour
         EphysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
         _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
         
-        _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulator_ids", "");
+        _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulators", null);
     }
 
     #endregion
@@ -525,51 +546,14 @@ public class Settings : MonoBehaviour
     /// Return an array with information about the positions of probes that were saved from the last session
     /// </summary>
     /// <returns></returns>
-    public static (Vector3 apmldv, Vector3 angles, int type, string manipulatorId, string coordinateSpaceName, string
-        coordinateTransformName, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-        Color color,
-        string uuid)[] LoadSavedProbeData()
+    public static string[] LoadSavedProbeData()
     {
         int probeCount = PlayerPrefs.GetInt("probecount", 0);
 
-        var savedProbes =
-            new (Vector3 apmldv, Vector3 angles,
-                int type, string manipulatorId,
-                string coordinateSpaceName, string coordinateTransformName,
-                Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-                Color color,
-                string uuid)[probeCount];
+        string[] savedProbes = new string[probeCount];
 
         for (int i = 0; i < probeCount; i++)
-        {
-            float ap = PlayerPrefs.GetFloat("ap" + i);
-            float ml = PlayerPrefs.GetFloat("ml" + i);
-            float dv = PlayerPrefs.GetFloat("dv" + i);
-            float phi = PlayerPrefs.GetFloat("phi" + i);
-            float theta = PlayerPrefs.GetFloat("theta" + i);
-            float spin = PlayerPrefs.GetFloat("spin" + i);
-            int type = PlayerPrefs.GetInt("type" + i);
-            var manipulatorId = PlayerPrefs.GetString("manipulator_id" + i);
-            string coordSpaceName = PlayerPrefs.GetString("coord_space" + i);
-            string coordTransName = PlayerPrefs.GetString("coord_trans" + i);
-            var x = PlayerPrefs.GetFloat("x" + i);
-            var y = PlayerPrefs.GetFloat("y" + i);
-            var z = PlayerPrefs.GetFloat("z" + i);
-            var d = PlayerPrefs.GetFloat("d" + i);
-            var brainSurfaceOffset = PlayerPrefs.GetFloat("brain_surface_offset" + i);
-            var dropToSurfaceWithDepth = PlayerPrefs.GetInt("drop_to_surface_with_depth" + i) == 1;
-            var color = new Color(PlayerPrefs.GetFloat("col_r" + i),
-                PlayerPrefs.GetFloat("col_g" + i),
-                PlayerPrefs.GetFloat("col_b" + i));
-            string uuid = PlayerPrefs.GetString("uuid" + i);
-
-            savedProbes[i] = (new Vector3(ap, ml, dv), new Vector3(phi, theta, spin),
-                type, manipulatorId,
-                coordSpaceName, coordTransName,
-                new Vector4(x, y, z, d), brainSurfaceOffset, dropToSurfaceWithDepth,
-                color,
-                uuid);
-        }
+            savedProbes[i] = PlayerPrefs.GetString($"probe_{i}");
 
         return savedProbes;
     }
@@ -578,38 +562,10 @@ public class Settings : MonoBehaviour
     /// Save the data about all of the probes passed in through allProbeData
     /// </summary>
     /// <param name="allProbeData">tip position, angles, and type for probes</param>
-    public static void SaveCurrentProbeData(
-        (Vector3 apmldv, Vector3 angles, int type, string manipulatorId, string coordinateSpace, string
-            coordinateTransform, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth,
-            Color color,
-            string uuid)[] allProbeData)
+    public static void SaveCurrentProbeData(string[] allProbeData)
     {
         for (int i = 0; i < allProbeData.Length; i++)
-        {
-            var currentProbeData = allProbeData[i];
-
-            PlayerPrefs.SetFloat("ap" + i, currentProbeData.apmldv.x);
-            PlayerPrefs.SetFloat("ml" + i, currentProbeData.apmldv.y);
-            PlayerPrefs.SetFloat("dv" + i, currentProbeData.apmldv.z);
-            PlayerPrefs.SetFloat("phi" + i, currentProbeData.angles.x);
-            PlayerPrefs.SetFloat("theta" + i, currentProbeData.angles.y);
-            PlayerPrefs.SetFloat("spin" + i, currentProbeData.angles.z);
-            PlayerPrefs.SetInt("type" + i, currentProbeData.type);
-            PlayerPrefs.SetString("manipulator_id" + i, currentProbeData.manipulatorId);
-            PlayerPrefs.SetString("coord_space" + i, currentProbeData.coordinateSpace);
-            PlayerPrefs.SetString("coord_trans" + i, currentProbeData.coordinateTransform);
-            PlayerPrefs.SetFloat("x" + i, currentProbeData.zeroCoordinateOffset.x);
-            PlayerPrefs.SetFloat("y" + i, currentProbeData.zeroCoordinateOffset.y);
-            PlayerPrefs.SetFloat("z" + i, currentProbeData.zeroCoordinateOffset.z);
-            PlayerPrefs.SetFloat("d" + i, currentProbeData.zeroCoordinateOffset.w);
-            PlayerPrefs.SetFloat("brain_surface_offset" + i, allProbeData[i].brainSurfaceOffset);
-            PlayerPrefs.SetInt("drop_to_surface_with_depth" + i,
-                allProbeData[i].dropToSurfaceWithDepth ? 1 : 0);
-            PlayerPrefs.SetFloat("col_r" + i, allProbeData[i].color.r);
-            PlayerPrefs.SetFloat("col_g" + i, allProbeData[i].color.g);
-            PlayerPrefs.SetFloat("col_b" + i, allProbeData[i].color.b);
-            PlayerPrefs.SetString("uuid" + i, allProbeData[i].uuid);
-        }
+            PlayerPrefs.SetString($"probe_{i}", allProbeData[i]);
 
         PlayerPrefs.SetInt("probecount", allProbeData.Length);
         PlayerPrefs.SetString("timestamp",
@@ -620,24 +576,6 @@ public class Settings : MonoBehaviour
 
     #endregion
 
-    #region Accounts
-    private static bool s_stayLoggedIn;
-    private const string LOGGEDIN_STR = "stayloggedin";
-    private const bool LOGGEDIN_DEFAULT = true;
-    [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _stayLoggedInToggle;
-    //public UnityEvent DetectCollisionsChangedEvent;
-
-    public static bool StayLoggedIn
-    {
-        get { return s_stayLoggedIn; }
-        set
-        {
-            s_stayLoggedIn = value;
-            PlayerPrefs.SetInt(LOGGEDIN_STR, s_stayLoggedIn ? 1 : 0);
-            //Instance.DetectCollisionsChangedEvent.Invoke();
-        }
-    }
-    #endregion
 
     #region Editor
 #if UNITY_EDITOR
