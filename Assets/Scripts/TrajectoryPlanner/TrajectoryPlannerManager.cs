@@ -13,6 +13,7 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 #if UNITY_WEBGL
 using System.Collections.Specialized;
+using System.Runtime.InteropServices;
 #endif
 
 #if UNITY_EDITOR
@@ -23,7 +24,7 @@ using System.Collections.Specialized;
 
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-     
+
 public class MsvcStdextWorkaround : IPreprocessBuildWithReport
 {
     const string kWorkaroundFlag = "/D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS";
@@ -50,6 +51,11 @@ public class MsvcStdextWorkaround : IPreprocessBuildWithReport
 
 namespace TrajectoryPlanner
 {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern void Copy2Clipboard(string str);
+#endif
+
     public class TrajectoryPlannerManager : MonoBehaviour
     {
 

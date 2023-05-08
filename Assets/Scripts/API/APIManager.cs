@@ -3,14 +3,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-#if !UNITY_WEBGL
-using System.Security.Policy;
-#endif
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+#if UNITY_WEBGL && !UNITY_EDITOR
+using System.Runtime.InteropServices;
+#endif
+#if !UNITY_WEBGL
+using System.Security.Policy;
+#endif
 
 public class APIManager : MonoBehaviour
 {
