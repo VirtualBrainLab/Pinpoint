@@ -296,32 +296,6 @@ namespace TrajectoryPlanner
             InVivoTransformChanged(Settings.InvivoTransform);
         }
 
-        /// <summary>
-        /// Transform a coordinate from the active transform space back to CCF space
-        /// </summary>
-        /// <param name="fromCoord"></param>
-        /// <returns></returns>
-        public Vector3 CoordinateTransformToCCF(Vector3 fromCoord)
-        {
-            if (CoordinateSpaceManager.ActiveCoordinateTransform != null)
-                return CoordinateSpaceManager.ActiveCoordinateTransform.Transform2Space(fromCoord);
-            else
-                return fromCoord;
-        }
-
-        /// <summary>
-        /// Transform a coordinate from CCF space into the active transform space
-        /// </summary>
-        /// <param name="ccfCoord"></param>
-        /// <returns></returns>
-        public Vector3 CoordinateTransformFromCCF(Vector3 ccfCoord)
-        {
-            if (CoordinateSpaceManager.ActiveCoordinateTransform != null)
-                return CoordinateSpaceManager.ActiveCoordinateTransform.Space2Transform(ccfCoord);
-            else
-                return ccfCoord;
-        }
-
         public void ClickSearchArea(GameObject target)
         {
             _searchControl.ClickArea(target);
