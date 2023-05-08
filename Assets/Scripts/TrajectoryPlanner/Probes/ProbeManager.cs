@@ -61,8 +61,6 @@ public class ProbeManager : MonoBehaviour
     ///     Manipulator ID from Ephys Link
     /// </summary>
     public string ManipulatorId { get; private set; }
-    private float _phiCos = 1f;
-    private float _phiSin;
     private Vector4 _zeroCoordinateOffset = Vector4.negativeInfinity;
 
     public Vector4 ZeroCoordinateOffset
