@@ -51,13 +51,13 @@ public class MsvcStdextWorkaround : IPreprocessBuildWithReport
 
 namespace TrajectoryPlanner
 {
-#if UNITY_WEBGL && !UNITY_EDITOR
-    [DllImport("__Internal")]
-    private static extern void Copy2Clipboard(string str);
-#endif
 
     public class TrajectoryPlannerManager : MonoBehaviour
     {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        private static extern void Copy2Clipboard(string str);
+#endif
 
         #region Events
         // TODO: Expose events for probes moving, UI updating, etc
