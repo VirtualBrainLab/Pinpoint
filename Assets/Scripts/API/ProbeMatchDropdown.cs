@@ -11,17 +11,22 @@ public class ProbeMatchDropdown : MonoBehaviour
     [SerializeField] private Dropdown _dropdown;
     private ProbeManager _probeManager;
 
+    public UnityEvent DropdownChangedEvent;
+
     public void Register(ProbeManager probeManager)
     {
         _probeManager = probeManager;
+
+        _dropdown.onValueChanged.RemoveAllListeners();
         _dropdown.onValueChanged.AddListener(DropdownChanged);
+
+        UpdateText(probeManager.name, probeManager.Color);
     }
 
     public void UpdateDropdown(List<string> opts)
     {
         // Save the current option
-        string curOption = _dropdown.options[_dropdown.value].text;
-        int curIdx = -1;
+        int targetIdx = -1;
 
         List<Dropdown.OptionData> options = new List<Dropdown.OptionData>();
 
@@ -29,29 +34,31 @@ public class ProbeMatchDropdown : MonoBehaviour
         {
             string opt = opts[i];
             options.Add(new Dropdown.OptionData(opt));
-            if (opt.Equals(curOption))
-                curIdx = i;
+            if (opt.Equals(_probeManager.APITarget))
+                targetIdx = i;
         }
 
         _dropdown.options = options;
-        if (curIdx >= 0)
-            _dropdown.SetValueWithoutNotify(curIdx);
+        if (targetIdx >= 0)
+            _dropdown.SetValueWithoutNotify(targetIdx);
         else
         {
-            _dropdown.SetValueWithoutNotify(0);
-            _probeManager.APITarget = _dropdown.options[0].text;
+            // If it's not possible to target this particular target, reset the APITarget
+            _dropdown.SetValueWithoutNotify(0); // None option
+            _probeManager.APITarget = null;
         }
     }
 
-    public void UpdateText(string text, Color color)
+    private void UpdateText(string text, Color color)
     {
         _text.text = text;
+        color.a = 1;
         _text.color = color;
     }
 
     public void DropdownChanged(int index)
     {
         _probeManager.APITarget = _dropdown.options[index].text;
-        Debug.Log(_probeManager.APITarget);
+        DropdownChangedEvent.Invoke();
     }
 }

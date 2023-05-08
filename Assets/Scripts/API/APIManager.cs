@@ -61,7 +61,7 @@ public class APIManager : MonoBehaviour
         {
             _dirty = false;
             _lastDataSend = Time.realtimeSinceStartup;
-            StartCoroutine(SendProbeData());
+            SendAllProbeData();
         }
     }
     #endregion
@@ -106,7 +106,7 @@ public class APIManager : MonoBehaviour
     /// <summary>
     /// Trigger the API to send the Probe data to the current http server target
     /// </summary>
-    public void UpdateProbeDataTarget()
+    public void TriggerAPIPush()
     {
         _dirty = true;
     }
@@ -217,6 +217,7 @@ public class APIManager : MonoBehaviour
                 var probeArray = infoJSON["probes"].AsJsonArray;
 
                 List<string> probeOpts = new();
+                probeOpts.Add("None");
 
                 foreach (var probe in probeArray)
                 {
@@ -229,7 +230,7 @@ public class APIManager : MonoBehaviour
         }
 
         // Send the current probe data immediately after setting everything up
-        UpdateProbeDataTarget();
+        TriggerAPIPush();
         _lastDataSend = float.MinValue;
     }
 
@@ -242,42 +243,42 @@ public class APIManager : MonoBehaviour
     //    ProbeOptionsChangedEvent.Invoke(probeOpts);
     //}
 
-
-    private IEnumerator SendProbeData()
+    private void SendAllProbeData()
     {
         string url = _probeDataHTTPTarget.text.ToLower().Trim();
 
-        // For each probe, get the data string and send it to the request server
-
+        Debug.Log($"(APIManager-OpenEphys) Sending probe data for {ProbeManager.Instances.Count} probes");
         foreach (ProbeManager probeManager in ProbeManager.Instances)
         {
+            if (probeManager.APITarget == null || probeManager.APITarget.Equals("None"))
+                continue;
+            StartCoroutine(SendProbeData(probeManager, url));
+        }
+    }
 
-            // add data
-            string channelDataStr = probeManager.GetChannelAnnotationIDs();
+    private IEnumerator SendProbeData(ProbeManager probeManager, string url)
+    {            
+        // add data
+        string channelDataStr = probeManager.GetChannelAnnotationIDs();
 
-            foreach (int optIdx in _viewerDropdown.SelectedOptions)
+        foreach (int optIdx in _viewerDropdown.SelectedOptions)
+        {
+            string processorID = _viewerTargets[optIdx].Substring(0,3);
+
+            string uri = $"{url}{ENDPOINT_CONFIG.Replace("<id>", processorID)}";
+            string fullMsg = $"{probeManager.APITarget};{channelDataStr}";
+
+            ProbeDataMessage msg = new ProbeDataMessage(fullMsg);
+            Debug.Log($"(APIManager-OpenEphys) Sending {msg} to {uri}");
+
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(msg.ToString());
+            using (UnityWebRequest www = UnityWebRequest.Put(uri, data))
             {
-                string processorID = _viewerTargets[optIdx].Substring(0,3);
+                yield return www.SendWebRequest();
 
-                string uri = $"{url}{ENDPOINT_CONFIG.Replace("<id>", processorID)}";
-                string fullMsg = $"{probeManager.APITarget};{channelDataStr}";
-
-                ProbeDataMessage msg = new ProbeDataMessage(fullMsg);
-                Debug.Log($"(APIManager-OpenEphys) Sending {msg} to {uri}");
-
-                byte[] data = System.Text.Encoding.UTF8.GetBytes(msg.ToString());
-                using (UnityWebRequest www = UnityWebRequest.Put(uri, data))
+                if (www.result != UnityWebRequest.Result.Success)
                 {
-                    yield return www.SendWebRequest();
-
-                    if (www.result != UnityWebRequest.Result.Success)
-                    {
-                        Debug.Log(www.error);
-                    }
-                    else
-                    {
-                        Debug.Log("Upload complete!");
-                    }
+                    Debug.Log(www.error);
                 }
             }
         }
