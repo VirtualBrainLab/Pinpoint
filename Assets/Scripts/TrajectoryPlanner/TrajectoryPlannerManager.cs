@@ -11,8 +11,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
-using System.Collections.Specialized;
-using System.Runtime.InteropServices;
+//using System.Collections.Specialized;
+//using System.Runtime.InteropServices;
 
 #if UNITY_EDITOR
 
@@ -51,12 +51,6 @@ namespace TrajectoryPlanner
 {
     public class TrajectoryPlannerManager : MonoBehaviour
     {
-        #region Webgl only
-#if UNITY_WEBGL && !UNITY_EDITOR
-    [DllImport("__Internal")]
-    private static extern void Copy2Clipboard(string str);
-#endif
-        #endregion
 
         #region Events
         // TODO: Expose events for probes moving, UI updating, etc

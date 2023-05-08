@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,6 +12,11 @@ using UnityEngine.UI;
 
 public class APIManager : MonoBehaviour
 {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern void Copy2Clipboard(string str);
+#endif
+
     #region static
     public static APIManager Instance;
     #endregion
@@ -277,7 +283,17 @@ public class APIManager : MonoBehaviour
         }
     }
 
-#endregion
+    public void CopyChannelData2Clipboard()
+    {
+        string all = $"[{string.Join(",", ProbeManager.GetAllChannelAnnotationData())}]";
+#if UNITY_WEBGL && !UNITY_EDITOR
+        Copy2Clipboard(all);
+#else
+        GUIUtility.systemCopyBuffer = all;
+#endif
+    }
+
+    #endregion
 }
 
 public class ProbeDataMessage
