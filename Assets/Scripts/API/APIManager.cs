@@ -28,6 +28,7 @@ public class APIManager : MonoBehaviour
 
 #region exposed fields
     [SerializeField] ProbeMatchingPanel _probeMatchingPanel;
+    [SerializeField] Toggle _openEphysToggle;
 #endregion
 
 #region Probe data variables
@@ -196,6 +197,8 @@ public class APIManager : MonoBehaviour
         if (_pxiID == 0)
         {
             Debug.LogError("(APIManager-OpenEphys) Warning: no Neuropix-PXI processor was found");
+            _openEphysToggle.SetIsOnWithoutNotify(false);
+            yield break;
         }
 
         // Now, send the actual message to request info about the available probes
@@ -212,6 +215,8 @@ public class APIManager : MonoBehaviour
             if (www.result != UnityWebRequest.Result.Success)
             {
                 Debug.Log(www.error);
+                _openEphysToggle.SetIsOnWithoutNotify(false);
+                yield break;
             }
             else
             {
