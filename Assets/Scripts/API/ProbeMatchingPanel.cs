@@ -87,6 +87,9 @@ public class ProbeMatchingPanel : MonoBehaviour
 
     private void UpdateMatchingPanelOptions()
     {
+        if (_probeOpts == null)
+            return;
+
         foreach (ProbeMatchDropdown ui in _dropdownMenus.Values)
         {
             ui.UpdateDropdown(_probeOpts);
