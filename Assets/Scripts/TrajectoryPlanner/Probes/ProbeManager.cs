@@ -363,7 +363,6 @@ public class ProbeManager : MonoBehaviour
 
     private void ChangeTransform()
     {
-        Debug.LogWarning("Insertion coordinates are not being transformed into the new space!! This might not be expected behavior");
         _probeController.SetSpaceTransform(CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
 
