@@ -35,10 +35,22 @@ public abstract class ProbeController : MonoBehaviour
 
     public abstract void SetProbePosition(Vector4 positionDepth);
 
-    public void SetSpaceTransform(CoordinateSpace space, CoordinateTransform Transform)
+    /// <summary>
+    /// Override the current CoordinateSpace and CoordinateTransform with new ones.
+    /// Make sure to translate the probe position into the new space appropriately.
+    /// </summary>
+    /// <param name="space"></param>
+    /// <param name="transform"></param>
+    public void SetSpaceTransform(CoordinateSpace space, CoordinateTransform transform)
     {
+        // Covnert the tip coordinate into the new space
+        var tipData = GetTipWorldU();
+        Vector3 tipCoordNewSpace = transform.Space2Transform(space.World2Space(tipData.tipCoordWorldU));
+        Insertion.apmldv = tipCoordNewSpace;
+        // Set the transforms
         Insertion.CoordinateSpace = space;
-        Insertion.CoordinateTransform = Transform;
+        Insertion.CoordinateTransform = transform;
+        // Set the probe position
         SetProbePosition();
     }
 

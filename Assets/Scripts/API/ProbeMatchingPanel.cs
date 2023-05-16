@@ -28,23 +28,41 @@ public class ProbeMatchingPanel : MonoBehaviour
         _dropdownMenus = new();
     }
 
+    private void OnEnable()
+    {
+        UpdateUI();
+    }
+
     /// <summary>
-    /// Reset the UI to have one prefab for each ProbeManager in the scene
+    /// Ensure that each probe manager has a matching ProbeMatchDropdown prefab instantiated
     /// </summary>
     public void UpdateUI()
     {
-        ClearUI();
+        if (!isActiveAndEnabled)
+            return;
 
         foreach (ProbeManager probeManager in ProbeManager.Instances)
         {
-            GameObject go = Instantiate(_matchingPanelPrefab, _matchingPanelParentT);
-            ProbeMatchDropdown ui = go.GetComponent<ProbeMatchDropdown>();
-            _dropdownMenus.Add(probeManager, ui);
-            ui.Register(probeManager);
-            ui.UpdateText(probeManager.name, probeManager.Color);
+            if (_dropdownMenus.ContainsKey(probeManager))
+            {
+                // re-register to ensure we are linked properly with the dropdown options
+                _dropdownMenus[probeManager].Register(probeManager);
+            }
+            else
+            {
+                // build a new prefab
+                GameObject go = Instantiate(_matchingPanelPrefab, _matchingPanelParentT);
+                ProbeMatchDropdown ui = go.GetComponent<ProbeMatchDropdown>();
+                _dropdownMenus.Add(probeManager, ui);
+                ui.Register(probeManager);
+                ui.DropdownChangedEvent.AddListener(_apiManager.TriggerAPIPush);
+            }
         }
+
+        UpdateMatchingPanelOptions();
     }
 
+    // Clear the probe matching panel UI entirely
     public void ClearUI()
     {
         _dropdownMenus?.Clear();
@@ -69,6 +87,9 @@ public class ProbeMatchingPanel : MonoBehaviour
 
     private void UpdateMatchingPanelOptions()
     {
+        if (_probeOpts == null)
+            return;
+
         foreach (ProbeMatchDropdown ui in _dropdownMenus.Values)
         {
             ui.UpdateDropdown(_probeOpts);

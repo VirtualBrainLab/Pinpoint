@@ -97,7 +97,6 @@ public class ProbeInsertion
 
     ~ProbeInsertion()
     {
-        Debug.Log("Probe insertion destroyed");
         if (Instances.Contains(this))
             Instances.Remove(this);
     }

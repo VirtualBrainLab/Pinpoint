@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CoordinateSpaces;
 using CoordinateTransforms;
 using EphysLink;
@@ -76,6 +77,16 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public (float, float) GetChannelMinMaxYCoord { get { return (_channelMinY, _channelMaxY); } }
     public ChannelMap ChannelMap { get; private set; }
+
+
+    /// <summary>
+    /// Get the channel map information from all active ProbeManager instances
+    /// </summary>
+    /// <returns>Array of "name:data" strings, including quotes</returns>
+    public static string[] GetAllChannelAnnotationData()
+    {
+        return Instances.Select(x => $"\"{x.name}:{x.GetChannelAnnotationIDs()}\"").ToArray();
+    }
     #endregion
 
     // Probe position data
@@ -173,7 +184,6 @@ public class ProbeManager : MonoBehaviour
     {
         UUID = Guid.NewGuid().ToString();
         UpdateName();
-        APITarget = name;
 
         // Record default materials
         _defaultMaterials = new Dictionary<GameObject, Material>();
@@ -272,7 +282,6 @@ public class ProbeManager : MonoBehaviour
 
     private void ChangeTransform()
     {
-        Debug.LogWarning("Insertion coordinates are not being transformed into the new space!! This might not be expected behavior");
         _probeController.SetSpaceTransform(CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
 

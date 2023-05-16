@@ -8,18 +8,30 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+#if UNITY_WEBGL && !UNITY_EDITOR
+using System.Runtime.InteropServices;
+#endif
+#if !UNITY_WEBGL
+using System.Security.Policy;
+#endif
 
 public class APIManager : MonoBehaviour
 {
-    #region static
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern void Copy2Clipboard(string str);
+#endif
+
+#region static
     public static APIManager Instance;
-    #endregion
+#endregion
 
-    #region exposed fields
+#region exposed fields
     [SerializeField] ProbeMatchingPanel _probeMatchingPanel;
-    #endregion
+    [SerializeField] Toggle _openEphysToggle;
+#endregion
 
-    #region Probe data variables
+#region Probe data variables
     [SerializeField] TMP_InputField _probeDataHTTPTarget;
     private float _lastDataSend;
     private const float DATA_SEND_RATE = 10f; // cap data sending at once per 10 s maximum, it's fairly expensive to do
@@ -32,14 +44,14 @@ public class APIManager : MonoBehaviour
 
     private const string ENDPOINT_PROCESSORS = "/api/processors";
     private const string ENDPOINT_CONFIG = "/api/processors/<id>/config";
-    #endregion
+#endregion
 
-    #region Viewer variables
+#region Viewer variables
     [SerializeField] DropdownMultiCheck _viewerDropdown;
     List<string> _viewerTargets;
-    #endregion
+#endregion
 
-    #region Unity
+#region Unity
     private void Awake()
     {
         if (Instance != null)
@@ -55,12 +67,12 @@ public class APIManager : MonoBehaviour
         {
             _dirty = false;
             _lastDataSend = Time.realtimeSinceStartup;
-            StartCoroutine(SendProbeData());
+            SendAllProbeData();
         }
     }
-    #endregion
+#endregion
 
-    #region POST probe data target
+#region POST probe data target
 
     /// <summary>
     /// The toggle enabling/disabling the API should trigger this
@@ -100,7 +112,7 @@ public class APIManager : MonoBehaviour
     /// <summary>
     /// Trigger the API to send the Probe data to the current http server target
     /// </summary>
-    public void UpdateProbeDataTarget()
+    public void TriggerAPIPush()
     {
         _dirty = true;
     }
@@ -185,6 +197,8 @@ public class APIManager : MonoBehaviour
         if (_pxiID == 0)
         {
             Debug.LogError("(APIManager-OpenEphys) Warning: no Neuropix-PXI processor was found");
+            _openEphysToggle.SetIsOnWithoutNotify(false);
+            yield break;
         }
 
         // Now, send the actual message to request info about the available probes
@@ -201,6 +215,8 @@ public class APIManager : MonoBehaviour
             if (www.result != UnityWebRequest.Result.Success)
             {
                 Debug.Log(www.error);
+                _openEphysToggle.SetIsOnWithoutNotify(false);
+                yield break;
             }
             else
             {
@@ -211,6 +227,7 @@ public class APIManager : MonoBehaviour
                 var probeArray = infoJSON["probes"].AsJsonArray;
 
                 List<string> probeOpts = new();
+                probeOpts.Add("None");
 
                 foreach (var probe in probeArray)
                 {
@@ -223,7 +240,7 @@ public class APIManager : MonoBehaviour
         }
 
         // Send the current probe data immediately after setting everything up
-        UpdateProbeDataTarget();
+        TriggerAPIPush();
         _lastDataSend = float.MinValue;
     }
 
@@ -236,45 +253,55 @@ public class APIManager : MonoBehaviour
     //    ProbeOptionsChangedEvent.Invoke(probeOpts);
     //}
 
-
-    private IEnumerator SendProbeData()
+    private void SendAllProbeData()
     {
         string url = _probeDataHTTPTarget.text.ToLower().Trim();
 
-        // For each probe, get the data string and send it to the request server
-
+        Debug.Log($"(APIManager-OpenEphys) Sending probe data for {ProbeManager.Instances.Count} probes");
         foreach (ProbeManager probeManager in ProbeManager.Instances)
         {
+            if (probeManager.APITarget == null || probeManager.APITarget.Equals("None"))
+                continue;
+            StartCoroutine(SendProbeData(probeManager, url));
+        }
+    }
 
-            // add data
-            string channelDataStr = probeManager.GetChannelAnnotationIDs();
+    private IEnumerator SendProbeData(ProbeManager probeManager, string url)
+    {            
+        // add data
+        string channelDataStr = probeManager.GetChannelAnnotationIDs();
 
-            foreach (int optIdx in _viewerDropdown.SelectedOptions)
+        foreach (int optIdx in _viewerDropdown.SelectedOptions)
+        {
+            string processorID = _viewerTargets[optIdx].Substring(0,3);
+
+            string uri = $"{url}{ENDPOINT_CONFIG.Replace("<id>", processorID)}";
+            string fullMsg = $"{probeManager.APITarget};{channelDataStr}";
+
+            ProbeDataMessage msg = new ProbeDataMessage(fullMsg);
+            Debug.Log($"(APIManager-OpenEphys) Sending {msg} to {uri}");
+
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(msg.ToString());
+            using (UnityWebRequest www = UnityWebRequest.Put(uri, data))
             {
-                string processorID = _viewerTargets[optIdx].Substring(0,3);
+                yield return www.SendWebRequest();
 
-                string uri = $"{url}{ENDPOINT_CONFIG.Replace("<id>", processorID)}";
-                string fullMsg = $"{probeManager.APITarget};{channelDataStr}";
-
-                ProbeDataMessage msg = new ProbeDataMessage(fullMsg);
-                Debug.Log($"(APIManager-OpenEphys) Sending {msg} to {uri}");
-
-                byte[] data = System.Text.Encoding.UTF8.GetBytes(msg.ToString());
-                using (UnityWebRequest www = UnityWebRequest.Put(uri, data))
+                if (www.result != UnityWebRequest.Result.Success)
                 {
-                    yield return www.SendWebRequest();
-
-                    if (www.result != UnityWebRequest.Result.Success)
-                    {
-                        Debug.Log(www.error);
-                    }
-                    else
-                    {
-                        Debug.Log("Upload complete!");
-                    }
+                    Debug.Log(www.error);
                 }
             }
         }
+    }
+
+    public void CopyChannelData2Clipboard()
+    {
+        string all = $"[{string.Join(",", ProbeManager.GetAllChannelAnnotationData())}]";
+#if UNITY_WEBGL && !UNITY_EDITOR
+        Copy2Clipboard(all);
+#else
+        GUIUtility.systemCopyBuffer = all;
+#endif
     }
 
 #endregion
