@@ -85,11 +85,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             var convertToWorld = insertion.Transformed2WorldAxisChange(apmldv);
 
             // Convert to Sensapex space
-            var sensapexSpace = new SensapexSpace();
-            var sensapexTransform =
-                new SensapexRightTransform(ProbeManager.ProbeController.Insertion.phi);
-            var posInSensapexSpace = sensapexSpace.World2SpaceAxisChange(convertToWorld);
-            Vector4 posInSensapexTransform = sensapexTransform.Space2Transform(posInSensapexSpace);
+            var posInSensapexSpace = ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2SpaceAxisChange(convertToWorld);
+            Vector4 posInSensapexTransform = ProbeManager.ManipulatorBehaviorController.Transform.Space2Transform(posInSensapexSpace);
 
             // Apply brain surface offset
             var brainSurfaceAdjustment = float.IsNaN(ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset)

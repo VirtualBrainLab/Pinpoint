@@ -68,7 +68,17 @@ namespace TrajectoryPlanner.Probes
         public CoordinateSpace CoordinateSpace { get; set; }
         public AffineTransform Transform { get; set; }
 
-        public bool IsRightHanded { get; set; }
+        public bool IsRightHanded
+        {
+            get => _isRightHanded;
+            set
+            {
+                _isRightHanded = value;
+                Transform = IsRightHanded
+                    ? new SensapexRightTransform(_probeController.Insertion.phi)
+                    : new SensapexLeftTransform(_probeController.Insertion.phi);
+            }
+        }
 
         #region Private internal fields
 
@@ -76,6 +86,7 @@ namespace TrajectoryPlanner.Probes
         private Vector4 _zeroCoordinateOffset = Vector4.zero;
         private float _brainSurfaceOffset;
         private bool _isSetToDropToSurfaceWithDepth = true;
+        private bool _isRightHanded = false;
 
         #endregion
 
