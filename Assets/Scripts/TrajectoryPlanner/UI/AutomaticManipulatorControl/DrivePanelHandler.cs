@@ -97,9 +97,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
 #if UNITY_EDITOR
         private const float DRIVE_PAST_TARGET_DISTANCE = 0.01f;
-        private const int DEPTH_DRIVE_BASE_SPEED = 10; // Hard cap @ 100 um/s
-        private const int RETURN_TO_SURFACE_DRIVE_SPEED = 100;
-        private const int EXIT_DURA_MARGIN_SPEED = 25;
+        private const int DEPTH_DRIVE_BASE_SPEED = 500; // Hard cap @ 100 um/s
+        private const int RETURN_TO_SURFACE_DRIVE_SPEED = 500;
+        private const int EXIT_DURA_MARGIN_SPEED = 1000;
         private const int OUTSIDE_DRIVE_SPEED = 500; // Hard cap @ 1000 um/s
         private const int PER_1000_SPEED = 1;
 #else
@@ -155,8 +155,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
+                var probeTipTUp = ProbeManager.ProbeController.ProbeTipT.up;
                 var offsetAdjustedRelativeTargetPositionWorldT =
-                    Vector3.ProjectOnPlane(relativePositionWorldT, ProbeManager.ProbeController.ProbeTipT.up);
+                    Vector3.ProjectOnPlane(relativePositionWorldT, probeTipTUp);
                 var offsetAdjustedTargetPositionWorldT =
                     targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
@@ -176,8 +177,7 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                     targetInsertion.CoordinateTransform, false);
                 var surfacePositionWorldT = surfaceInsertion.PositionWorldT();
                 var surfacePlane = new Plane(Vector3.down, surfacePositionWorldT);
-                var direction = new Ray(ProbeManager.ProbeController.Insertion.PositionWorldT(),
-                    ProbeManager.ProbeController.ProbeTipT.up);
+                var direction = new Ray(ProbeManager.ProbeController.Insertion.PositionWorldT(), probeTipTUp);
                 var offsetAdjustedSurfacePositionWorldT = Vector3.zero;
 
                 if (surfacePlane.Raycast(direction, out var distanceToSurface))

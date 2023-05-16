@@ -127,7 +127,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             // Exit early if not active
             if (!gameObject.activeSelf) return;
-            
+
             var handledProbeIds = new HashSet<string>();
 
             // Add any new probes in scene to list
@@ -188,7 +188,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 {
                     var manipulatorDropdownOptions = new List<string> { "-" };
                     manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
-                        id.Equals(probeConnectionSettingsPanel.ProbeManager.ManipulatorBehaviorController.ManipulatorID) ||
+                        id.Equals(probeConnectionSettingsPanel.ProbeManager.ManipulatorBehaviorController
+                            .ManipulatorID) ||
                         !usedManipulatorIds.Contains(id)));
 
                     probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);

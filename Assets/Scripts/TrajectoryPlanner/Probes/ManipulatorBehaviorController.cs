@@ -14,6 +14,47 @@ namespace TrajectoryPlanner.Probes
         public const int AUTOMATIC_MOVEMENT_SPEED = 500;
 
         #endregion
+
+        #region Private Methods
+
+        private void EchoPosition(Vector4 pos)
+        {
+            if (_probeController == null && !enabled) return;
+            // Calculate last used direction for dropping to brain surface (between depth and DV)
+            var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
+            var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
+            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta >= dvDelta;
+            _lastManipulatorPosition = pos;
+
+            // Apply zero coordinate offset
+            var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
+
+            // Convert to sensapex space
+            var sensapexSpacePosition = Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
+
+            // Brain surface adjustment
+            var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+            if (IsSetToDropToSurfaceWithDepth)
+                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+            else
+                sensapexSpacePosition.z += brainSurfaceAdjustment;
+
+            // Convert to world space
+            var zeroCoordinateAdjustedWorldPosition =
+                CoordinateSpace.Space2WorldAxisChange(sensapexSpacePosition);
+
+            // Set probe position (change axes to match probe)
+            var transformedApmldv =
+                _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
+            _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
+
+            // Continue echoing position
+            CommunicationManager.Instance.GetPos(ManipulatorID, EchoPosition);
+        }
+
+        #endregion
+
         #region Components
 
         [SerializeField] private ProbeManager _probeManager;
@@ -86,7 +127,7 @@ namespace TrajectoryPlanner.Probes
         private Vector4 _zeroCoordinateOffset = Vector4.zero;
         private float _brainSurfaceOffset;
         private bool _isSetToDropToSurfaceWithDepth = true;
-        private bool _isRightHanded = false;
+        private bool _isRightHanded;
 
         #endregion
 
@@ -103,7 +144,7 @@ namespace TrajectoryPlanner.Probes
         #region Unity
 
         /// <summary>
-        /// Setup this instance
+        ///     Setup this instance
         /// </summary>
         private void Awake()
         {
@@ -204,46 +245,6 @@ namespace TrajectoryPlanner.Probes
         public void IncrementBrainSurfaceOffset(float increment)
         {
             BrainSurfaceOffset += increment;
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private void EchoPosition(Vector4 pos)
-        {
-            if (_probeController == null && !enabled) return;
-            // Calculate last used direction for dropping to brain surface (between depth and DV)
-            var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
-            var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
-            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta >= dvDelta;
-            _lastManipulatorPosition = pos;
-
-            // Apply zero coordinate offset
-            var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
-
-            // Convert to sensapex space
-            var sensapexSpacePosition = Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
-
-            // Brain surface adjustment
-            var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
-            if (IsSetToDropToSurfaceWithDepth)
-                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
-            else
-                sensapexSpacePosition.z += brainSurfaceAdjustment;
-
-            // Convert to world space
-            var zeroCoordinateAdjustedWorldPosition =
-                CoordinateSpace.Space2WorldAxisChange(sensapexSpacePosition);
-
-            // Set probe position (change axes to match probe)
-            var transformedApmldv =
-                _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
-            _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-                transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
-
-            // Continue echoing position
-            CommunicationManager.Instance.GetPos(ManipulatorID, EchoPosition);
         }
 
         #endregion

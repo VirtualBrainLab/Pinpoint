@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using CoordinateSpaces;
-using CoordinateTransforms;
 using EphysLink;
 using TMPro;
 using TrajectoryPlanner.Probes;
@@ -85,8 +83,10 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             var convertToWorld = insertion.Transformed2WorldAxisChange(apmldv);
 
             // Convert to Sensapex space
-            var posInSensapexSpace = ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2SpaceAxisChange(convertToWorld);
-            Vector4 posInSensapexTransform = ProbeManager.ManipulatorBehaviorController.Transform.Space2Transform(posInSensapexSpace);
+            var posInSensapexSpace =
+                ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2SpaceAxisChange(convertToWorld);
+            Vector4 posInSensapexTransform =
+                ProbeManager.ManipulatorBehaviorController.Transform.Space2Transform(posInSensapexSpace);
 
             // Apply brain surface offset
             var brainSurfaceAdjustment = float.IsNaN(ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset)
@@ -233,8 +233,10 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 insertion.angles == ProbeManager.ProbeController.Insertion.angles);
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
-        
-        private HashSet<ProbeInsertion> _targetableInsertions => ProbeManager.Instances.Where(manager => !manager.ManipulatorBehaviorController.enabled).Select(manager => manager.ProbeController.Insertion).ToHashSet();
+
+        private static IEnumerable<ProbeInsertion> _targetableInsertions => ProbeManager.Instances
+            .Where(manager => !manager.IsEphysLinkControlled)
+            .Select(manager => manager.ProbeController.Insertion).ToHashSet();
 
 
         #region Shared
