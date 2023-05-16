@@ -1,4 +1,5 @@
 using TMPro;
+using TrajectoryPlanner.Probes;
 using UnityEngine;
 
 namespace TrajectoryPlanner.UI.EphysLinkSettings
@@ -8,7 +9,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     /// </summary>
     public class ManipulatorConnectionSettingsPanel : MonoBehaviour
     {
-
         #region Getters and Setters
 
         /// <summary>
@@ -17,9 +17,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="manipulatorId">ID of the manipulator this panel is representing</param>
         public void SetManipulatorId(string manipulatorId)
         {
-            _manipulatorId = manipulatorId;
             _manipulatorIdText.text = manipulatorId;
-            _handednessDropdown.value = ProbeManager.RightHandedManipulatorIDs.Contains(manipulatorId) ? 1 : 0;
+            // _manipulatorBehaviorController = ProbeManager.Instances
+            //     .Find(manager => manager.ManipulatorBehaviorController.ManipulatorID == manipulatorId)
+            //     .ManipulatorBehaviorController;
+            // _handednessDropdown.value = _manipulatorBehaviorController.IsRightHanded ? 1 : 0;
         }
 
         #endregion
@@ -32,13 +34,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="value">Selected index of the handedness options (0 = left handed, 1 = right handed)</param>
         public void OnManipulatorHandednessValueChanged(int value)
         {
-            if (value == 1)
-                ProbeManager.RightHandedManipulatorIDs.Add(_manipulatorId);
-            else
-                ProbeManager.RightHandedManipulatorIDs.Remove(_manipulatorId);
-            
-            // Save changes
-            Settings.RightHandedManipulatorIds = ProbeManager.RightHandedManipulatorIDs;
+            _manipulatorBehaviorController.IsRightHanded = value == 1;
         }
 
         #endregion
@@ -50,11 +46,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private TMP_Text _manipulatorIdText;
         [SerializeField] private TMP_Dropdown _handednessDropdown;
 
-        #endregion
-
-        #region Properties
-
-        private string _manipulatorId;
+        private ManipulatorBehaviorController _manipulatorBehaviorController;
 
         #endregion
 

@@ -15,7 +15,6 @@ public class ProbeInsertion
 {
     #region Static instances
     public static HashSet<ProbeInsertion> Instances = new HashSet<ProbeInsertion>();
-    public static HashSet<ProbeInsertion> TargetableInstances = new HashSet<ProbeInsertion>();
     #endregion
 
     #region Coordinate vars
@@ -61,27 +60,6 @@ public class ProbeInsertion
     }
     #endregion
 
-    #region other vars
-
-    private bool _targetable;
-    public bool Targetable {
-        get
-        {
-            return _targetable;
-        }
-
-        set
-        {
-            _targetable = value;
-            if (_targetable)
-                TargetableInstances.Add(this);
-            else
-                TargetableInstances.Remove(this);
-        }
-    }
-
-    #endregion
-
     #region constructor
 
     public ProbeInsertion(float ap, float ml, float dv, float phi, float theta, float spin, 
@@ -96,8 +74,6 @@ public class ProbeInsertion
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
         Instances.Add(this);
-        Targetable = targetable;
-        Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
 
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
@@ -108,8 +84,6 @@ public class ProbeInsertion
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
         Instances.Add(this);
-        Targetable = targetable;
-        Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
      
     public ProbeInsertion(ProbeInsertion otherInsertion, bool targetable = true)
@@ -119,16 +93,12 @@ public class ProbeInsertion
         CoordinateSpace = otherInsertion.CoordinateSpace;
         CoordinateTransform = otherInsertion.CoordinateTransform;
         Instances.Add(this);
-        Targetable = targetable;
-        Debug.Log($"Insertion created with settings: {ToString()} and targetable {targetable}");
     }
 
     ~ProbeInsertion()
     {
         if (Instances.Contains(this))
             Instances.Remove(this);
-        if (TargetableInstances.Contains(this))
-            TargetableInstances.Remove(this);
     }
 
     #endregion

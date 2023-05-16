@@ -340,18 +340,6 @@ public class Settings : MonoBehaviour
     [SerializeField] private TMP_InputField _ephysLinkServerIpInput;
     [SerializeField] private TMP_InputField _ephysLinkServerPortInput;
 
-    private static string _rightHandedManipulatorIds;
-    public static HashSet<string> RightHandedManipulatorIds
-    {
-        get => _rightHandedManipulatorIds == null ? new HashSet<string>() : _rightHandedManipulatorIds.Split(',').ToHashSet();
-        set
-        {
-            _rightHandedManipulatorIds = string.Join(",", value);
-            PlayerPrefs.SetString("right_handed_manipulators", _rightHandedManipulatorIds);
-            PlayerPrefs.Save();
-        }
-    }
-
     /// <summary>
     ///     Return if it has been more than 24 hours since the last launch.
     /// </summary>
@@ -476,8 +464,6 @@ public class Settings : MonoBehaviour
 
         EphysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
         _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
-        
-        _rightHandedManipulatorIds = LoadStringPref("right_handed_manipulators", null);
     }
 
     #endregion

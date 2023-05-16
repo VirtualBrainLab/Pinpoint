@@ -50,6 +50,9 @@ public class PlaceholderProbeController : ProbeController
 
     #region Set Probe pos/angles
 
+    /// <summary>
+    /// Set the probe position to the current apml/depth/phi/theta/spin values
+    /// </summary>
     public override void SetProbePosition()
     {
         SetProbePositionHelper();

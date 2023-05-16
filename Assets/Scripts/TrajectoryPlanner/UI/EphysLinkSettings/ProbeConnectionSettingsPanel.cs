@@ -12,6 +12,18 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     /// </summary>
     public class ProbeConnectionSettingsPanel : MonoBehaviour
     {
+        #region Unity
+
+        private void Start()
+        {
+            UpdateZeroCoordinateInputFields(ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset);
+            UpdateBrainSurfaceOffsetDropDirectionUI(ProbeManager.ManipulatorBehaviorController
+                .IsSetToDropToSurfaceWithDepth);
+            UpdateBrainSurfaceOffsetValue(ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset);
+        }
+
+        #endregion
+
         #region Property Getters and Setters
 
         /// <summary>
@@ -27,9 +39,12 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _probeIdText.color = probeManager.Color;
 
             // Register event functions
-            ProbeManager.ZeroCoordinateOffsetChangedEvent.AddListener(UpdateZeroCoordinateInputFields);
-            ProbeManager.IsSetToDropToSurfaceWithDepthChangedEvent.AddListener(UpdateBrainSurfaceOffsetDropDirectionUI);
-            ProbeManager.BrainSurfaceOffsetChangedEvent.AddListener(UpdateBrainSurfaceOffsetValue);
+            ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.AddListener(
+                UpdateZeroCoordinateInputFields);
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepthChangedEvent.AddListener(
+                UpdateBrainSurfaceOffsetDropDirectionUI);
+            ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.AddListener(
+                UpdateBrainSurfaceOffsetValue);
         }
 
         private void UpdateZeroCoordinateInputFields(Vector4 offset)
@@ -43,23 +58,15 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         private void UpdateBrainSurfaceOffsetDropDirectionUI(bool withDepth)
         {
             _brainSurfaceOffsetDirectionDropdown.SetValueWithoutNotify(withDepth ? 0 : 1);
-            _brainSurfaceOffsetDirectionDropdown.interactable = ProbeManager.CanChangeBrainSurfaceOffsetAxis;
+            _brainSurfaceOffsetDirectionDropdown.interactable =
+                ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset == 0 ||
+                ProbeManager.ManipulatorBehaviorController
+                    .BrainSurfaceOffset == 0;
         }
 
         private void UpdateBrainSurfaceOffsetValue(float offset)
         {
             _brainSurfaceOffsetInputField.text = offset.ToString(CultureInfo.CurrentCulture);
-        }
-
-        #endregion
-
-        #region Unity
-
-        private void Start()
-        {
-            UpdateZeroCoordinateInputFields(ProbeManager.ZeroCoordinateOffset);
-            UpdateBrainSurfaceOffsetDropDirectionUI(ProbeManager.IsSetToDropToSurfaceWithDepth);
-            UpdateBrainSurfaceOffsetValue(ProbeManager.BrainSurfaceOffset);
         }
 
         #endregion
@@ -109,7 +116,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             // Select the option corresponding to the current manipulator id
             var indexOfId = ProbeManager.IsEphysLinkControlled
-                ? Math.Max(0, idOptions.IndexOf(ProbeManager.ManipulatorId))
+                ? Math.Max(0, idOptions.IndexOf(ProbeManager.ManipulatorBehaviorController.ManipulatorID))
                 : 0;
             _manipulatorIdDropdown.SetValueWithoutNotify(indexOfId);
         }
@@ -130,11 +137,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     else
                     {
                         EphysLinkSettings.UpdateManipulatorPanelAndSelection();
-
-                        // Cleanup ghost prove stuff if applicable
-                        if (!ProbeManager.HasGhost) return;
-                        DestroyProbeEvent.Invoke(ProbeManager.GhostProbeManager);
-                        ProbeManager.GhostProbeManager = null;
                     }
                 });
             else
@@ -154,7 +156,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="x">X coordinate</param>
         public void OnZeroCoordinateXInputFieldEndEdit(string x)
         {
-            ProbeManager.SetZeroCoordinateOffsetX(float.Parse(x));
+            ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset =
+                new Vector4(float.Parse(x), float.NaN, float.NaN, float.NaN);
         }
 
         /// <summary>
@@ -163,7 +166,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="y">Y coordinate</param>
         public void OnZeroCoordinateYInputFieldEndEdit(string y)
         {
-            ProbeManager.SetZeroCoordinateOffsetY(float.Parse(y));
+            ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset =
+                new Vector4(float.NaN, float.Parse(y), float.NaN, float.NaN);
         }
 
         /// <summary>
@@ -172,7 +176,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="z">Z coordinate</param>
         public void OnZeroCoordinateZInputFieldEndEdit(string z)
         {
-            ProbeManager.SetZeroCoordinateOffsetZ(float.Parse(z));
+            ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset =
+                new Vector4(float.NaN, float.NaN, float.Parse(z), float.NaN);
         }
 
         /// <summary>
@@ -181,7 +186,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="d">Depth coordinate</param>
         public void OnZeroCoordinateDInputFieldEndEdit(string d)
         {
-            ProbeManager.SetZeroCoordinateOffsetDepth(float.Parse(d));
+            ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset =
+                new Vector4(float.NaN, float.NaN, float.NaN, float.Parse(d));
         }
 
         /// <summary>
@@ -190,7 +196,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="value">Selected direction: 0 = depth, 1 = DV</param>
         public void OnBrainSurfaceOffsetDirectionDropdownValueChanged(int value)
         {
-            ProbeManager.SetDropToSurfaceWithDepth(value == 0);
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = value == 0;
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = value == 0;
         }
 
         /// <summary>
@@ -199,7 +206,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="value">Input field value</param>
         public void OnBrainSurfaceOffsetValueUpdated(string value)
         {
-            ProbeManager.BrainSurfaceOffset = float.Parse(value);
+            ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset = float.Parse(value);
         }
 
         /// <summary>
@@ -208,7 +215,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <param name="amount">Amount to increment by (negative numbers are valid)</param>
         public void IncrementBrainSurfaceOffset(float amount)
         {
-            ProbeManager.IncrementBrainSurfaceOffset(amount);
+            ProbeManager.ManipulatorBehaviorController.IncrementBrainSurfaceOffset(amount);
         }
 
         #endregion

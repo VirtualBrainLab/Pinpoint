@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TrajectoryPlanner.Probes;
 using UnityEngine;
 
 namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
@@ -52,7 +53,10 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             var resetDuraPanelGameObject = Instantiate(_duraOffsetPanel.ResetDuraOffsetPanelPrefab,
                 _duraOffsetPanel.PanelScrollViewContent.transform);
             var resetDuraPanelHandler = resetDuraPanelGameObject.GetComponent<ResetDuraOffsetPanelHandler>();
+
+
             _panels.Add(resetDuraPanelGameObject);
+
 
             // Setup
             resetDuraPanelHandler.ProbeManager = probeManager;
@@ -140,12 +144,6 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         public List<ProbeManager> ProbeManagers { private get; set; }
         public CCFAnnotationDataset AnnotationDataset { private get; set; }
 
-        #region Step 2
-
-        public HashSet<ProbeInsertion> TargetInsertionsReference { private get; set; }
-
-        #endregion
-
         #endregion
 
         #region Unity
@@ -155,10 +153,8 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
             // Populate properties
             ProbeManagers = ProbeManager.Instances.Where(manager => manager.IsEphysLinkControlled).ToList();
             AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
-            TargetInsertionsReference = ProbeInsertion.TargetableInstances;
 
             // Setup shared resources for panels
-            InsertionSelectionPanelHandler.TargetInsertionsReference = TargetInsertionsReference;
             InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
 
 

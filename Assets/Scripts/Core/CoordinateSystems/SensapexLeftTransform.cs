@@ -9,7 +9,7 @@ namespace CoordinateTransforms
         public override string Name => "Sensapex Left";
         public override string Prefix => "spx-l";
 
-        public SensapexLeftTransform(Vector3 rotation) : base(new Vector3(1, -1, 1), rotation)
+        public SensapexLeftTransform(float phi) : base(new Vector3(1, -1, 1), new Vector3(0, 0, phi))
         {
         }
     }
