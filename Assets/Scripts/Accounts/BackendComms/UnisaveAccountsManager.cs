@@ -52,6 +52,7 @@ public class UnisaveAccountsManager : AccountsManager
     private void Awake()
     {
         _lastSave = Time.realtimeSinceStartup;
+        _savePanel.SetActive(false);
     }
 
     public void DelayedStart()
@@ -84,6 +85,11 @@ public class UnisaveAccountsManager : AccountsManager
 #region Login/logout
     public void Login()
     {
+        // if the user tries to login, close the register panel
+        if (_registerPanelGo.activeSelf)
+            _registerPanelGo.SetActive(false);
+
+        // call the login facet
         OnFacet<PlayerDataFacet>
             .Call<PlayerEntity>(nameof(PlayerDataFacet.LoadPlayerEntity))
             .Then(LoadPlayerCallback)

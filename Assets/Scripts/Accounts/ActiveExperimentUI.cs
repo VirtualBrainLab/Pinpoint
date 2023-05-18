@@ -101,10 +101,6 @@ public class ActiveExperimentUI : MonoBehaviour
             ServerProbeInsertion insertionData = kvp.Value;
             ServerProbeInsertionUI insertionUI = _activeInsertionUIs[UUID];
 
-#if UNITY_EDITOR
-            Debug.Log($"Updating insertion panel for {insertionData.name}");
-#endif
-
             // Get angles
             Vector3 angles = new Vector3(insertionData.phi, insertionData.theta, insertionData.spin);
             if (Settings.UseIBLAngles)
