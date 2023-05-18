@@ -25,15 +25,26 @@ public class UnisaveAccountsManager : AccountsManager
     [SerializeField] private EmailLoginForm _emailLoginForm;
 
 #region Events
-    public UnityEvent<string> SetActiveProbeEvent; // Fired when a user clicks on an insertion (to set it to the active probe)
 
-    public UnityEvent ExperimentListChangeEvent; // Fired when the experiment list is updated
+    /// <summary>
+    /// Fired when a user clicks on an insertion to set it to the active probe
+    /// </summary>
+    public UnityEvent<string> SetActiveProbeEvent;
+
+    /// <summary>
+    /// Fired when the experiment list is updated
+    /// </summary>
+    public UnityEvent ExperimentListChangeEvent;
+
     /// <summary>
     /// Fired when the insertion list for the current active experiment was changed
     /// </summary>
-    public UnityEvent InsertionListChangeEvent; // Fired when the insertion list is updated or when insertion data is updated
+    public UnityEvent InsertionListChangeEvent;
 
-    public UnityEvent<string, string> InsertionNameChangeEvent; // Fired when a probe's name is updated
+    /// <summary>
+    /// Fired when the name of a probe is updated
+    /// </summary>
+    public UnityEvent<string, string> InsertionNameChangeEvent;
     public Action<(Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, string overrideName, Color color),bool> UpdateCallbackEvent { get; set; }
 #endregion
 
@@ -125,11 +136,15 @@ public class UnisaveAccountsManager : AccountsManager
     {
         Debug.Log("(AccountsManager) Player logged out");
         _player = null;
+        Debug.Log("here0");
 
         ExperimentListChangeEvent.Invoke();
+        Debug.Log("here1");
         InsertionListChangeEvent.Invoke();
+        Debug.Log("here2");
 
         _emailLoginForm.ClearToken();
+        Debug.Log("here3");
     }
 
 #endregion
