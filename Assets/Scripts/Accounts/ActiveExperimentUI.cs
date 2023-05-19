@@ -79,6 +79,7 @@ public class ActiveExperimentUI : MonoBehaviour
 
     private void UpdateUIPanels()
     {
+        Debug.Log("UI panels updated");
         var experimentData = _accountsManager.GetActiveExperimentInsertions();
 
         // Remove any panels that shouldn't exist
