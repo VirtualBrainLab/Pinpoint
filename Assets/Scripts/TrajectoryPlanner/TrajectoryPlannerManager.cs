@@ -1005,7 +1005,7 @@ namespace TrajectoryPlanner
         public void SetProbeTipPositionToCCFNode(CCFTreeNode targetNode)
         {
             if (ProbeManager.ActiveProbeManager == null) return;
-            int berylID = _modelControl.GetBerylID(targetNode.ID);
+            int berylID = CCFModelControl.GetBerylID(targetNode.ID);
             Vector3 apmldv = meshCenters[berylID];
 
             if (berylID==prevTipID && prevTipSideLeft)

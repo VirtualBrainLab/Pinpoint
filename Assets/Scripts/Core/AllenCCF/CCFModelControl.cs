@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -5,6 +6,10 @@ using UnityEngine;
 
 public class CCFModelControl : MonoBehaviour
 {
+    #region Static fields
+    public static CCFModelControl Instance { get; private set; }
+    #endregion
+
     public CCFTree tree;
 
     //private int lowQualityDepth = 5;
@@ -16,7 +21,7 @@ public class CCFModelControl : MonoBehaviour
     private int[] defaultNodes;
     private int defaultDepth;
 
-    private Dictionary<int, Color> ccfAreaColors;
+    private static Dictionary<int, Color> ccfAreaColors;
     private Dictionary<int, Color> ccfAreaColorsMinDepth;
     private Dictionary<int, string> ccfAreaAcronyms;
     private Dictionary<int, string> ccfAreaNames;
@@ -51,6 +56,10 @@ public class CCFModelControl : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null)
+            throw new Exception("Duplicate CCFModelControl class");
+        Instance = this;
+
         // Initialize
         ccfAreaColors = new Dictionary<int, Color>();
         ccfAreaColorsMinDepth = new Dictionary<int, Color>();
@@ -143,7 +152,7 @@ public class CCFModelControl : MonoBehaviour
             string name = (string)data[i]["name"];
             string shortName = (string)data[i]["acronym"];
             string hexColorString = data[i]["color_hex_code"].ToString();
-            Color color = ParseHexColor(hexColorString);
+            Color color = TP_Utils.Hex2Color(hexColorString);
 
             if (name.Equals("root"))
             {
@@ -256,14 +265,7 @@ public class CCFModelControl : MonoBehaviour
         return tree.findNode(ID);
     }
 
-    private Color ParseHexColor(string hexString)
-    {
-        Color color;
-        ColorUtility.TryParseHtmlString(hexString, out color);
-        return color;
-    }
-
-    public Color GetCCFAreaColor(int ID)
+    public static Color GetCCFAreaColor(int ID)
     {
         ID = RemapID(ID);
         if (ccfAreaColors.ContainsKey(ID))
@@ -281,11 +283,11 @@ public class CCFModelControl : MonoBehaviour
             return Color.black;
     }
 
-    public string ID2Acronym(int ID)
+    public static string ID2Acronym(int ID)
     {
         ID = RemapID(ID);
-        if (ccfAreaAcronyms.ContainsKey(ID))
-            return ccfAreaAcronyms[ID];
+        if (Instance.ccfAreaAcronyms.ContainsKey(ID))
+            return Instance.ccfAreaAcronyms[ID];
         else
             return "-";
     }
@@ -304,11 +306,11 @@ public class CCFModelControl : MonoBehaviour
         return ccfAreaAcronyms.ContainsValue(acronym);
     }
 
-    public string ID2AreaName(int ID)
+    public static string ID2AreaName(int ID)
     {
         ID = RemapID(ID);
-        if (ccfAreaNames.ContainsKey(ID))
-            return ccfAreaNames[ID];
+        if (Instance.ccfAreaNames.ContainsKey(ID))
+            return Instance.ccfAreaNames[ID];
         else
             return "-";
     }
@@ -341,12 +343,12 @@ public class CCFModelControl : MonoBehaviour
         return ret;
     }
 
-    public int RemapID(int ID)
+    public static int RemapID(int ID)
     {
         // cosmos remapping strictly supercedes beryl remapping
-        if (useCosmosRemap)
+        if (Instance.useCosmosRemap)
             return GetCosmosID(ID);
-        else if (useBerylRemap)
+        else if (Instance.useBerylRemap)
             return GetBerylID(ID);
         else
             return ID;
@@ -380,17 +382,17 @@ public class CCFModelControl : MonoBehaviour
             Debug.LogWarning("Material name [" + materialName + "] missing from material options");
     }
 
-    public int GetBerylID(int ID)
+    public static int GetBerylID(int ID)
     {
-        if (berylRemap.ContainsKey(ID))
-            return berylRemap[ID];
+        if (Instance.berylRemap.ContainsKey(ID))
+            return Instance.berylRemap[ID];
         else
             return -1;
     }
-    public int GetCosmosID(int ID)
+    public static int GetCosmosID(int ID)
     {
-        if (cosmosRemap.ContainsKey(ID))
-            return cosmosRemap[ID];
+        if (Instance.cosmosRemap.ContainsKey(ID))
+            return Instance.cosmosRemap[ID];
         else
             return -1;
     }

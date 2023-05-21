@@ -181,7 +181,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
         int annotation = VolumeDatasetManager.AnnotationDataset.ValueAtIndex(Mathf.RoundToInt(inPlanePosition.x), Mathf.RoundToInt(inPlanePosition.y), Mathf.RoundToInt(inPlanePosition.z));
-        annotation = _modelControl.RemapID(annotation);
+        annotation = CCFModelControl.RemapID(annotation);
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -190,9 +190,9 @@ public class TP_InPlaneSlice : MonoBehaviour
         }
 
         if (Settings.UseAcronyms)
-            _areaText.text = _modelControl.ID2Acronym(annotation);
+            _areaText.text = CCFModelControl.ID2Acronym(annotation);
         else
-            _areaText.text = _modelControl.ID2AreaName(annotation);
+            _areaText.text = CCFModelControl.ID2AreaName(annotation);
     }
 
     private Vector3 CalculateInPlanePosition(Vector2 pointerData)
