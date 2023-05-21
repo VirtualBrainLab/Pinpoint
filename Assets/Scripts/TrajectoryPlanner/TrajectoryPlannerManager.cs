@@ -8,8 +8,6 @@ using CoordinateTransforms;
 using EphysLink;
 using TMPro;
 using UITabs;
-using UnityEditor.Build;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
