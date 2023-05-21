@@ -85,7 +85,7 @@ public class ProbeManager : MonoBehaviour
     /// <returns>Array of "name:data" strings, including quotes</returns>
     public static string[] GetAllChannelAnnotationData()
     {
-        return Instances.Select(x => $"\"{x.name}:{x.GetChannelAnnotationIDs()}\"").ToArray();
+        return Instances.Select(x => $"\"{x.name}:{x.GetChannelAnnotationIDs(false)}\"").ToArray();
     }
     #endregion
 
@@ -411,16 +411,16 @@ public class ProbeManager : MonoBehaviour
     /// Get a serialized representation of the channel ID data
     /// </summary>
     /// <returns></returns>
-    public string GetChannelAnnotationIDs()
+    public string GetChannelAnnotationIDs(bool collapsed = true)
     {
         // Get the channel data
         var channelMapData = ChannelMap.GetChannelPositions("all");
 
-        string[] channelStrings;
+        List<(int idx, int ID, string acronym, string color)> channelAnnotationData = new();
 
         if (ProbeProperties.FourShank(ProbeType))
         {
-            channelStrings = new string[channelMapData.Count * 4];
+            //channelStrings = new string[channelMapData.Count * 4];
 
             for (int si = 0; si < 4; si++)
             {
@@ -441,13 +441,15 @@ public class ProbeManager : MonoBehaviour
                     int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
                     if (ID < 0) ID = -1;
 
-                    channelStrings[elecIdx] = $"{elecIdx},{ID}";
+                    string acronym = CCFModelControl.ID2Acronym(ID);
+                    Color color = CCFModelControl.GetCCFAreaColor(ID);
+
+                    channelAnnotationData.Add((elecIdx, ID, acronym, TP_Utils.Color2Hex(color)));
                 }
             }
         }
         else
         {
-            channelStrings = new string[channelMapData.Count];
 
             // Populate the data string
             Vector3 tipCoordWorldT = _probeController.ProbeTipT.position;
@@ -465,13 +467,50 @@ public class ProbeManager : MonoBehaviour
                 int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
                 if (ID < 0) ID = -1;
 
-                channelStrings[i] = $"{i},{ID}";
+                string acronym = CCFModelControl.ID2Acronym(ID);
+                Color color = CCFModelControl.GetCCFAreaColor(ID);
+
+                channelAnnotationData.Add((i, ID, acronym, TP_Utils.Color2Hex(color)));
             }
         }
 
-        var returnString = string.Join(";", channelStrings);
+        string[] channelStrings;
 
-        return returnString;
+        // If the data need to be collapsed, combine all channel IDs that are the same
+        if (collapsed)
+        {
+            List<(string idxRange, string acronym, string color)> collapsedAnnotationData = new();
+
+            int firstIdx = 0;
+            int curID = channelAnnotationData[0].ID;
+            string curAcronym = channelAnnotationData[0].acronym;
+            string curColor = channelAnnotationData[0].color;
+
+            for (int curIdx = 1; curIdx < channelAnnotationData.Count; curIdx++)
+            {
+                var data = channelAnnotationData[curIdx];
+                if (data.ID != curID)
+                {
+                    // save the previous indexes as a range, then start a new one
+                    collapsedAnnotationData.Add(($"{firstIdx}-{curIdx-1}",curAcronym,curColor));
+                    // start new
+                    firstIdx = curIdx;
+                    curID = channelAnnotationData[curIdx].ID;
+                    curAcronym = channelAnnotationData[curIdx].acronym;
+                    curColor = channelAnnotationData[curIdx].color;
+                }
+            }
+
+            // make sure to get the final set of data
+            if (firstIdx < (channelAnnotationData.Count-1))
+                collapsedAnnotationData.Add(($"{firstIdx}-{channelAnnotationData.Count - 1}", curAcronym, curColor));
+
+            channelStrings = collapsedAnnotationData.Select(x => $"{x.idxRange},{x.acronym},{x.color}").ToArray();
+        }
+        else
+            channelStrings = channelAnnotationData.Select(x => $"{x.idx},{x.ID},{x.acronym},{x.color}").ToArray();
+
+        return string.Join(";", channelStrings);
     }
 
     public void SetChannelVisibility(bool visible)
