@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using CoordinateSpaces;
 using CoordinateTransforms;
 using EphysLink;
@@ -44,10 +45,32 @@ namespace TrajectoryPlanner.Probes
                 CoordinateSpace.Space2WorldAxisChange(sensapexSpacePosition);
 
             // Set probe position (change axes to match probe)
+            var insertion = _probeController.Insertion;
             var transformedApmldv =
-                _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
+                insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
             _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
                 transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
+            
+            // Log every 10hz
+            if (Time.time - _lastLoggedTime >= 0.1)
+            {
+                _lastLoggedTime = Time.time;
+                var tipPos = _probeController.ProbeTipT.position;
+                
+                // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
+                string[] data =
+                {
+                    "ephys_link", Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture), ManipulatorID,
+                    pos.x.ToString(CultureInfo.InvariantCulture), pos.y.ToString(CultureInfo.InvariantCulture),
+                    pos.z.ToString(CultureInfo.InvariantCulture), pos.w.ToString(CultureInfo.InvariantCulture),
+                    insertion.phi.ToString(CultureInfo.InvariantCulture),
+                    insertion.theta.ToString(CultureInfo.InvariantCulture),
+                    insertion.spin.ToString(CultureInfo.InvariantCulture),
+                    tipPos.x.ToString(CultureInfo.InvariantCulture), tipPos.y.ToString(CultureInfo.InvariantCulture),
+                    tipPos.z.ToString(CultureInfo.InvariantCulture)
+                };
+                OutputLog.Instance.Log(data);
+            }
 
             // Continue echoing position
             CommunicationManager.Instance.GetPos(ManipulatorID, EchoPosition);
@@ -63,7 +86,7 @@ namespace TrajectoryPlanner.Probes
 
         #endregion
 
-        #region Manipulator Properties
+        #region Properties
 
         public string ManipulatorID { get; set; }
 
@@ -128,6 +151,7 @@ namespace TrajectoryPlanner.Probes
         private float _brainSurfaceOffset;
         private bool _isSetToDropToSurfaceWithDepth = true;
         private bool _isRightHanded;
+        private float _lastLoggedTime;
 
         #endregion
 

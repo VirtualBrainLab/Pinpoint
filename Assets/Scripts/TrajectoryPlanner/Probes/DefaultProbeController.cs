@@ -109,7 +109,10 @@ public class DefaultProbeController : ProbeController
     {
         // drag movement takes precedence
         if (dragging || Locked)
+        {
+            keyHeld = false;
             return;
+        }
 
         bool moved = false;
         bool keyHoldDelayPassed = (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay;

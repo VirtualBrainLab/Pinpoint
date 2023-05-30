@@ -288,9 +288,9 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
                 SelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID] = insertion;
 
                 // Update text fields
-                _apInputField.text = (insertion.ap * 1000).ToString(CultureInfo.CurrentCulture);
-                _mlInputField.text = (insertion.ml * 1000).ToString(CultureInfo.CurrentCulture);
-                _dvInputField.text = (insertion.dv * 1000).ToString(CultureInfo.CurrentCulture);
+                _apInputField.text = (insertion.ap * 1000).ToString(CultureInfo.InvariantCulture);
+                _mlInputField.text = (insertion.ml * 1000).ToString(CultureInfo.InvariantCulture);
+                _dvInputField.text = (insertion.dv * 1000).ToString(CultureInfo.InvariantCulture);
                 _depthInputField.text = "0";
 
                 // Calculate movement insertions

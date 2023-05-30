@@ -28,7 +28,7 @@ public class OutputLog : MonoBehaviour
     /// Log data to the internal log
     /// </summary>
     /// <param name="data">Columns of data, the first value should be the data type</param>
-    public static void Log(IEnumerable<string> data)
+    public void Log(IEnumerable<string> data)
     {
         Instance._logField.text += $"{string.Join(',',data)}\n";
     }

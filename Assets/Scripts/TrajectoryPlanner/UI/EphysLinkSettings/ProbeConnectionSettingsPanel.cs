@@ -49,10 +49,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         private void UpdateZeroCoordinateInputFields(Vector4 offset)
         {
-            _xInputField.text = offset.x.ToString(CultureInfo.CurrentCulture);
-            _yInputField.text = offset.y.ToString(CultureInfo.CurrentCulture);
-            _zInputField.text = offset.z.ToString(CultureInfo.CurrentCulture);
-            _dInputField.text = offset.w.ToString(CultureInfo.CurrentCulture);
+            _xInputField.text = offset.x.ToString(CultureInfo.InvariantCulture);
+            _yInputField.text = offset.y.ToString(CultureInfo.InvariantCulture);
+            _zInputField.text = offset.z.ToString(CultureInfo.InvariantCulture);
+            _dInputField.text = offset.w.ToString(CultureInfo.InvariantCulture);
         }
 
         private void UpdateBrainSurfaceOffsetDropDirectionUI(bool withDepth)
@@ -66,7 +66,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         private void UpdateBrainSurfaceOffsetValue(float offset)
         {
-            _brainSurfaceOffsetInputField.text = offset.ToString(CultureInfo.CurrentCulture);
+            _brainSurfaceOffsetInputField.text = offset.ToString(CultureInfo.InvariantCulture);
         }
 
         #endregion
