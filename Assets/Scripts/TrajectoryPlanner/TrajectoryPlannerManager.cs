@@ -158,10 +158,10 @@ namespace TrajectoryPlanner
             CoordinateSpaceManager.ActiveCoordinateSpace = coordinateSpaceOpts["CCF"];
 
             coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
-            coordinateTransformOpts.Add("CCF", new CCFTransform());
-            coordinateTransformOpts.Add("MRI", new MRILinearTransform());
-            coordinateTransformOpts.Add("Needles", new NeedlesTransform());
-            coordinateTransformOpts.Add("IBL-Needles", new IBLNeedlesTransform());
+            coordinateTransformOpts.Add("Allen CCF", new CCFTransform());
+            coordinateTransformOpts.Add("Qiu2018", new MRILinearTransform());
+            coordinateTransformOpts.Add("Dorr2008", new NeedlesTransform());
+            coordinateTransformOpts.Add("IBL-Dorr2008", new IBLNeedlesTransform());
 
             // Initialize variables
             visibleProbePanels = 0;
