@@ -69,7 +69,7 @@ namespace TrajectoryPlanner.Probes
                     tipPos.x.ToString(CultureInfo.InvariantCulture), tipPos.y.ToString(CultureInfo.InvariantCulture),
                     tipPos.z.ToString(CultureInfo.InvariantCulture)
                 };
-                OutputLog.Instance.Log(data);
+                OutputLog.Log(data);
             }
 
             // Continue echoing position

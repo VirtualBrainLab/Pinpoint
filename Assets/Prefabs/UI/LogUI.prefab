@@ -200,7 +200,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1360496807581360599}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: OutputLog, trajectoryplanner.log
         m_MethodName: CopyText2Clipboard
         m_Mode: 1
@@ -702,9 +702,8 @@ GameObject:
   - component: {fileID: 4225364627726879432}
   - component: {fileID: 1353686099026011995}
   - component: {fileID: 6812191733744348309}
-  - component: {fileID: 1360496807581360599}
   m_Layer: 5
-  m_Name: Log
+  m_Name: LogUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -769,19 +768,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1360496807581360599
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8555262948055096064}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd4f9e3286e6db74bb9859f921fbaed3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _logField: {fileID: 1952724800671400970}
 --- !u!1 &8932512145738769645
 GameObject:
   m_ObjectHideFlags: 0
