@@ -58,6 +58,8 @@ namespace TrajectoryPlanner
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern void Copy2Clipboard(string str);
+        
+        WebGLInput.captureAllKeyboardInput = true;
 #endif
 
         #region Events
