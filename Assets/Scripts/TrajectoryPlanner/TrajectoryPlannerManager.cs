@@ -55,6 +55,8 @@ namespace TrajectoryPlanner
 
     public class TrajectoryPlannerManager : MonoBehaviour
     {
+        private const int MAX_VISIBLE_PROBE_PANELS = 16;
+
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern void Copy2Clipboard(string str);
@@ -115,6 +117,7 @@ namespace TrajectoryPlanner
 
         // UI 
         [FormerlySerializedAs("qDialogue")] [SerializeField] QuestionDialogue _qDialogue;
+        [SerializeField] GameObject _showAllProbePanelsGO;
         [SerializeField] GameObject _logPanelGO;
 
         // Debug graphics
@@ -419,8 +422,6 @@ namespace TrajectoryPlanner
         public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, string UUID = null)
         {
             CountProbePanels();
-            if (visibleProbePanels >= 16)
-                return null;
 
             GameObject newProbe = Instantiate(_probePrefabs.Find(x => x.GetComponent<ProbeManager>().ProbeType == probeType), _probeParentT);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
@@ -499,6 +500,16 @@ namespace TrajectoryPlanner
                     visibleProbePanels += probeManager.GetProbeUIManagers().Count;
             else
                 visibleProbePanels = ProbeManager.ActiveProbeManager != null ? 1 : 0;
+
+            if (visibleProbePanels > MAX_VISIBLE_PROBE_PANELS)
+            {
+                // Disable the option for users to show all probe panels
+                Settings.ShowAllProbePanels = false;
+                _showAllProbePanelsGO.GetComponent<Toggle>().interactable = false;
+                _showAllProbePanelsGO.GetComponent<Toggle>().SetIsOnWithoutNotify(false);
+            }
+            else
+                _showAllProbePanelsGO.GetComponent<Toggle>().interactable = true;
         }
 
         private void RecalculateProbePanels()
