@@ -1,12 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
-using UnityEditor;
+using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using TrajectoryPlanner;
 using UnityEngine.Serialization;
 
 public class TP_SliceRenderer : MonoBehaviour
@@ -28,10 +24,30 @@ public class TP_SliceRenderer : MonoBehaviour
     private Material saggitalSliceMaterial;
     private Material coronalSliceMaterial;
 
+    private float xCoronal = 5.7f;
+    private float yCorSag = 4f;
+    private float zSaggital = 6.6f;
+    private Vector3[] _coronalOriginalCoords;
+    private Vector3[] _sagittalOriginalCoords;
+
     private void Awake()
     {
         saggitalSliceMaterial = _sagittalSliceGo.GetComponent<Renderer>().material;
         coronalSliceMaterial = _coronalSliceGo.GetComponent<Renderer>().material;
+
+        _coronalOriginalCoords = new Vector3[] {
+                new Vector3(-xCoronal, -yCorSag, 0f),
+                new Vector3(xCoronal, -yCorSag, 0f),
+                new Vector3(-xCoronal, yCorSag, 0f),
+                new Vector3(xCoronal, yCorSag, 0f)
+            };
+
+        _sagittalOriginalCoords = new Vector3[] {
+                new Vector3(0f, -yCorSag, -zSaggital),
+                new Vector3(0f, -yCorSag, zSaggital),
+                new Vector3(0f, yCorSag, -zSaggital),
+                new Vector3(0f, yCorSag, zSaggital)
+            };
 
         loaded = false;
     }
@@ -142,16 +158,25 @@ public class TP_SliceRenderer : MonoBehaviour
         if (Settings.Slice3DDropdownOption > 0)
         {
             if (ProbeManager.ActiveProbeManager == null) return;
-
-            // the actual tip
-            Vector3 probeTipWorld = ProbeManager.ActiveProbeManager.ProbeController.ProbeTipT.position;
-            // position the slices along the real tip in world space
-            _coronalSliceGo.transform.position = new Vector3(0f, 0f, probeTipWorld.z);
-            _sagittalSliceGo.transform.position = new Vector3(probeTipWorld.x, 0f, 0f);
-
-            // for CCF coordinates
+            // Use the un-transformed CCF coordinates to obtain the position in the CCF volume
             (Vector3 tipCoordWorld, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
+            // vertex order -x-y, +x-y, -x+y, +x+y
+
+            // compute the world vertex positions from the raw coordinates
+            // then get the four corners, and warp these according to the active warp
+            Vector3[] newCoronalVerts = new Vector3[4];
+            Vector3[] newSagittalVerts = new Vector3[4];
+            for (int i = 0; i < _coronalOriginalCoords.Length; i++)
+            {
+                newCoronalVerts[i] = CoordinateSpaceManager.WorldU2WorldT(new Vector3(_coronalOriginalCoords[i].x, _coronalOriginalCoords[i].y, tipCoordWorld.z));
+                newSagittalVerts[i] = CoordinateSpaceManager.WorldU2WorldT(new Vector3(tipCoordWorld.x, _sagittalOriginalCoords[i].y, _sagittalOriginalCoords[i].z));
+            }
+
+            _coronalSliceGo.GetComponent<MeshFilter>().mesh.vertices = newCoronalVerts;
+            _sagittalSliceGo.GetComponent<MeshFilter>().mesh.vertices = newSagittalVerts;
+
+            // Use that coordinate to render the actual slice position
             apWorldmm = tipCoordWorld.z + 6.6f;
             coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / 13.2f);
 
