@@ -55,7 +55,7 @@ public class ProbeMatchingPanel : MonoBehaviour
                 ProbeMatchDropdown ui = go.GetComponent<ProbeMatchDropdown>();
                 _dropdownMenus.Add(probeManager, ui);
                 ui.Register(probeManager);
-                ui.DropdownChangedEvent.AddListener(_apiManager.TriggerAPIPush);
+                ui.DropdownChangedEvent.AddListener(APIManager.TriggerAPIPush);
             }
         }
 
