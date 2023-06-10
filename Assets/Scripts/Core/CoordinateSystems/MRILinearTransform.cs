@@ -11,9 +11,9 @@ namespace CoordinateTransforms
         //AP_SCALE = 1.031  # multiplicative factor on AP dimension
 
 
-        public override string Name { get { return "MRI"; } }
+        public override string Name { get { return "Qiu2018"; } }
 
-        public override string Prefix { get { return "mt"; } }
+        public override string Prefix { get { return "q18"; } }
 
         /// <summary>
         /// Angles are (yaw, pitch, spin)

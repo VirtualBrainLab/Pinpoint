@@ -3058,11 +3058,11 @@ MonoBehaviour:
     m_Options:
     - m_Text: CCF Atlas
       m_Image: {fileID: 0}
-    - m_Text: MRI Transform
+    - m_Text: Qiu2018 (default)
       m_Image: {fileID: 0}
-    - m_Text: Needles Transform
+    - m_Text: Dorr2008
       m_Image: {fileID: 0}
-    - m_Text: IBL Needles Transform
+    - m_Text: IBL-Dorr2008
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
@@ -8042,7 +8042,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3083274347254332316, guid: ccb05abfadf2adb40913f92c0327f4fc, type: 3}
       propertyPath: m_Text
-      value: 3.85
+      value: 4.15
       objectReference: {fileID: 0}
     - target: {fileID: 3083274347384374709, guid: ccb05abfadf2adb40913f92c0327f4fc, type: 3}
       propertyPath: m_AnchorMax.x

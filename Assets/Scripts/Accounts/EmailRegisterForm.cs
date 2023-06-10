@@ -80,6 +80,7 @@ public class EmailRegisterForm : MonoBehaviour
         {
             statusText.text = "Password confirmation does not match";
             statusText.color = Color.red;
+            registerButton.enabled = true;
             return;
         }
         

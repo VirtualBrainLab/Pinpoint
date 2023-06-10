@@ -4,9 +4,9 @@ namespace CoordinateTransforms
 {
     public class NeedlesTransform : AffineTransform
     {
-        public override string Name { get { return "Needles"; } }
+        public override string Name { get { return "Dorr2008"; } }
 
-        public override string Prefix { get { return "ne"; } }
+        public override string Prefix { get { return "d08"; } }
 
 
         //private Vector3 invivoConversionAPMLDV = new Vector3(-1.087f, 1f, -0.952f);
@@ -24,9 +24,9 @@ namespace CoordinateTransforms
 
     public class IBLNeedlesTransform : AffineTransform
     {
-        public override string Name { get { return "IBL-Needles"; } }
+        public override string Name { get { return "IBL-Dorr2008"; } }
 
-        public override string Prefix { get { return "ibl"; } }
+        public override string Prefix { get { return "i-d08"; } }
 
 
         //private Vector3 invivoConversionAPMLDV = new Vector3(-1.087f, 1f, -0.952f);

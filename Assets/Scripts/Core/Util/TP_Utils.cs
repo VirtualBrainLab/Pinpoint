@@ -60,7 +60,7 @@ public class TP_Utils : MonoBehaviour
 
     public static string Color2Hex(Color color)
     {
-        return $"{Mathf.RoundToInt(color.r)*255:X2}{Mathf.RoundToInt(color.g):X2}{Mathf.RoundToInt(color.b):X2}";
+        return $"{Mathf.RoundToInt(color.r*255):X2}{Mathf.RoundToInt(color.g*255):X2}{Mathf.RoundToInt(color.b*255):X2}";
     }
 
     // From Math3d: http://wiki.unity3d.com/index.php/3d_Math_functions

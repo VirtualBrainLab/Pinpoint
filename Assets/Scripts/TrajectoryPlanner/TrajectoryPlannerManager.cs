@@ -55,9 +55,13 @@ namespace TrajectoryPlanner
 
     public class TrajectoryPlannerManager : MonoBehaviour
     {
+        private const int MAX_VISIBLE_PROBE_PANELS = 16;
+
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern void Copy2Clipboard(string str);
+        
+        WebGLInput.captureAllKeyboardInput = true;
 #endif
 
         #region Events
@@ -113,6 +117,7 @@ namespace TrajectoryPlanner
 
         // UI 
         [FormerlySerializedAs("qDialogue")] [SerializeField] QuestionDialogue _qDialogue;
+        [SerializeField] GameObject _showAllProbePanelsGO;
         [SerializeField] GameObject _logPanelGO;
 
         // Debug graphics
@@ -156,10 +161,10 @@ namespace TrajectoryPlanner
             CoordinateSpaceManager.ActiveCoordinateSpace = coordinateSpaceOpts["CCF"];
 
             coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
-            coordinateTransformOpts.Add("CCF", new CCFTransform());
-            coordinateTransformOpts.Add("MRI", new MRILinearTransform());
-            coordinateTransformOpts.Add("Needles", new NeedlesTransform());
-            coordinateTransformOpts.Add("IBL-Needles", new IBLNeedlesTransform());
+            coordinateTransformOpts.Add("Allen CCF", new CCFTransform());
+            coordinateTransformOpts.Add("Qiu2018", new MRILinearTransform());
+            coordinateTransformOpts.Add("Dorr2008", new NeedlesTransform());
+            coordinateTransformOpts.Add("IBL-Dorr2008", new IBLNeedlesTransform());
 
             // Initialize variables
             visibleProbePanels = 0;
@@ -417,8 +422,6 @@ namespace TrajectoryPlanner
         public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, string UUID = null)
         {
             CountProbePanels();
-            if (visibleProbePanels >= 16)
-                return null;
 
             GameObject newProbe = Instantiate(_probePrefabs.Find(x => x.GetComponent<ProbeManager>().ProbeType == probeType), _probeParentT);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
@@ -497,6 +500,16 @@ namespace TrajectoryPlanner
                     visibleProbePanels += probeManager.GetProbeUIManagers().Count;
             else
                 visibleProbePanels = ProbeManager.ActiveProbeManager != null ? 1 : 0;
+
+            if (visibleProbePanels > MAX_VISIBLE_PROBE_PANELS)
+            {
+                // Disable the option for users to show all probe panels
+                Settings.ShowAllProbePanels = false;
+                _showAllProbePanelsGO.GetComponent<Toggle>().interactable = false;
+                _showAllProbePanelsGO.GetComponent<Toggle>().SetIsOnWithoutNotify(false);
+            }
+            else
+                _showAllProbePanelsGO.GetComponent<Toggle>().interactable = true;
         }
 
         private void RecalculateProbePanels()

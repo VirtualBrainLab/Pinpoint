@@ -393,11 +393,13 @@ public class ProbeManager : MonoBehaviour
 
         for (int i = 0; i < channelCoords.Count; i++)
         {
+            Debug.Log(channelCoords[i]);
             if (channelCoords[i].y < _channelMinY)
                 _channelMinY = channelCoords[i].y / 1000f; // coordinates are in um, so divide to mm
             if (channelCoords[i].y > _channelMaxY)
                 _channelMaxY = channelCoords[i].y / 1000f + channelScale.y / 1000f;
         }
+
 #if UNITY_EDITOR
         Debug.Log($"Minimum channel coordinate {_channelMinY} max {_channelMaxY}");
 #endif
@@ -405,6 +407,64 @@ public class ProbeManager : MonoBehaviour
             puiManager.UpdateChannelMap();
 
         _recRegion.SetSize(_channelMinY, _channelMaxY);
+    }
+
+    /// <summary>
+    /// Get a serialized representation of the depth information on each shank of this probe
+    /// 
+    /// SpikeGLX format
+    /// (
+    /// </summary>
+    /// <returns></returns>
+    public string GetProbeDepthIDs()
+    {
+        if (ProbeProperties.FourShank(ProbeType))
+        {
+            // do something else
+            return "";
+        }
+        {
+            // Create a list of range, acronym color
+            List<(int bot, int top, string acronym, Color color)> probeAnnotationData = new();
+            float height = _channelMaxY - _channelMinY;
+
+            float curBottom = _channelMinY * 1000f;
+            int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(_recRegionBaseCoordU)); ;
+            // Lerp between the base and top coordinate in small steps'
+
+            for (float perc = 0f; perc < 1f; perc += 0.01f)
+            {
+                Vector3 coordU = Vector3.Lerp(_recRegionBaseCoordU, _recRegionTopCoordU, perc);
+                int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(coordU));
+                if (ID < 0) ID = -1;
+
+                if (ID != lastID)
+                {
+                    // Save the current step
+                    probeAnnotationData.Add((Mathf.RoundToInt(curBottom*1000), Mathf.RoundToInt(perc * height * 1000), CCFModelControl.ID2Acronym(ID), CCFModelControl.GetCCFAreaColor(ID)));
+                    curBottom = perc * height;
+                    lastID = ID;
+                }
+            }
+
+            // Save the final step
+            probeAnnotationData.Add((Mathf.RoundToInt(curBottom*1000), Mathf.RoundToInt(height*1000), CCFModelControl.ID2Acronym(lastID), CCFModelControl.GetCCFAreaColor(lastID)));
+
+            // Flatten the list data according to the SpikeGLX format
+            // [probe, shank](startpos, endpos, r, g, b, name)
+            // [0,0](0,1000,200,0,0,cortex)
+
+            string probeStr = "[0,0]";
+
+            foreach (var data in probeAnnotationData)
+            {
+                probeStr += $"({data.bot},{data.top}," +
+                    $"{Mathf.RoundToInt(data.color.r*255)},{Mathf.RoundToInt(data.color.g * 255)},{Mathf.RoundToInt(data.color.b * 255)}," +
+                    $"{data.acronym})";
+            }
+
+            return probeStr;
+        }
     }
 
     /// <summary>
