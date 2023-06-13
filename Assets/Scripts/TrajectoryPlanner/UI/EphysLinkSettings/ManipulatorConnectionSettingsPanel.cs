@@ -9,6 +9,19 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     /// </summary>
     public class ManipulatorConnectionSettingsPanel : MonoBehaviour
     {
+        #region Properties
+
+        private string _manipulatorId;
+        public string ManipulatorId
+        {
+            set
+            {
+                _manipulatorId = value;
+                _manipulatorIdText.text = value;
+            }
+        }
+
+        #endregion
         #region Getters and Setters
 
         /// <summary>

@@ -337,8 +337,8 @@ public class Settings : MonoBehaviour
         }
     }
     
-    [SerializeField] private TMP_InputField _ephysLinkServerIpInput;
-    [SerializeField] private TMP_InputField _ephysLinkServerPortInput;
+    [SerializeField] private InputField _ephysLinkServerIpInput;
+    [SerializeField] private InputField _ephysLinkServerPortInput;
 
     /// <summary>
     ///     Return if it has been more than 24 hours since the last launch.
