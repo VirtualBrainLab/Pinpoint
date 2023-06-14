@@ -76,9 +76,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
                     _attachedProbe = null;
 
-                    // Update probe properties section
-                    UpdateProbePropertiesSectionState();
-
                     // Inform others a change was made
                     _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
                 });
@@ -97,9 +94,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 {
                     _attachedProbe = newProbeManager;
                     _ephysLinkSettings.LinkedProbes.Add(_attachedProbe);
-
-                    // Update probe properties section
-                    UpdateProbePropertiesSectionState();
 
                     // Inform others a change was made
                     _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
@@ -217,6 +211,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             // Update probe properties section
             UpdateProbePropertiesSectionState();
+
+            // Update color of dropdown to match probe
+            var colorBlockCopy = _linkedProbeDropdown.colors;
+            colorBlockCopy.normalColor = _attachedProbe ? _attachedProbe.Color : Color.white;
+            _linkedProbeDropdown.colors = colorBlockCopy;
         }
 
         /// <summary>

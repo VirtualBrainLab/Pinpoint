@@ -3784,6 +3784,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 382584097}
     - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: _ephysCopilotPanelGameObject
+      value: 
+      objectReference: {fileID: 1696303671}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: EditorFocusableGOs.Array.data[0]
       value: 
       objectReference: {fileID: 1445793942}

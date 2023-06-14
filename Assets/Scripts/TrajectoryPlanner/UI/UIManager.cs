@@ -35,7 +35,7 @@ public class UIManager : MonoBehaviour
 
     public static bool InputsFocused
     {
-        get { return FocusableInputs.Any(x => x != null ? x.isFocused : false) || FocusableGOs.Any(x => x != null ? x.activeSelf : false); }
+        get { return FocusableInputs.Any(x => x != null && x.isFocused) || FocusableGOs.Any(x => x != null && x.activeSelf); }
     }
 
     public void EnableEphysCopilotPanel(bool enable = true)
