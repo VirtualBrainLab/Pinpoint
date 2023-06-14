@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
+namespace TrajectoryPlanner.UI.EphysCopilot
 {
     public class InsertionSelectionPanelHandler : MonoBehaviour
     {

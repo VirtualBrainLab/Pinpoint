@@ -2,7 +2,7 @@ using TMPro;
 using TrajectoryPlanner.Probes;
 using UnityEngine;
 
-namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
+namespace TrajectoryPlanner.UI.EphysCopilot
 {
     public class ResetDuraOffsetPanelHandler : MonoBehaviour
     {

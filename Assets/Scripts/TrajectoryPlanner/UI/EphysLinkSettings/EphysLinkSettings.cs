@@ -5,7 +5,6 @@ using EphysLink;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace TrajectoryPlanner.UI.EphysLinkSettings
@@ -28,11 +27,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         // Manipulators
         [SerializeField] private GameObject _manipulatorList;
         [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
-        [SerializeField] private Button _automaticControlButton;
         [SerializeField] private Text _copilotButtonText;
-
-        // Events
-        [SerializeField] private UnityEvent<ProbeManager> _destroyProbeEvent;
 
         #endregion
 
@@ -187,7 +182,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         }
 
         /// <summary>
-        ///     Toggle automatic manipulator control panel
+        ///     Toggle Ephys Copilot panel
         /// </summary>
         public void ToggleCopilotPanel()
         {

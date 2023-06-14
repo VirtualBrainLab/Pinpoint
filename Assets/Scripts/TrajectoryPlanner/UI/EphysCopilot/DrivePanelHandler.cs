@@ -4,7 +4,7 @@ using EphysLink;
 using TMPro;
 using UnityEngine;
 
-namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
+namespace TrajectoryPlanner.UI.EphysCopilot
 {
     public class DrivePanelHandler : MonoBehaviour
     {
