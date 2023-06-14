@@ -211,15 +211,15 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 341190945112364104, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
   m_PrefabInstance: {fileID: 341190943874437988}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &109261099 stripped
+--- !u!114 &102904201 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6594170519983668292, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_CorrespondingSourceObject: {fileID: 2245154662678266898, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
   m_PrefabInstance: {fileID: 341190943874437988}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Script: {fileID: 11500000, guid: d199490a83bb2b844b9695cbf13b01ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &121884410 stripped
@@ -426,17 +426,6 @@ MonoBehaviour:
 --- !u!114 &444598638 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4052051049631092385, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-  m_PrefabInstance: {fileID: 341190943874437988}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &466331096 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2753834447277193350, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
   m_PrefabInstance: {fileID: 341190943874437988}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -1682,6 +1671,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cfe4069a636d24749b8858eb289cac65, type: 3}
+--- !u!114 &1423792798 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2173216677024310698, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d199490a83bb2b844b9695cbf13b01ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1445581475 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1302158968978081032, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
@@ -3783,6 +3783,10 @@ PrefabInstance:
       propertyPath: _whiteUIText.Array.data[2]
       value: 
       objectReference: {fileID: 382584097}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: _ephysCopilotPanelGameObject
+      value: 
+      objectReference: {fileID: 1696303671}
     - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: EditorFocusableGOs.Array.data[0]
       value: 
@@ -6427,15 +6431,15 @@ PrefabInstance:
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ephysLinkServerIpInput
       value: 
-      objectReference: {fileID: 109261099}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _ephysLinkServerIpInput
       value: 
-      objectReference: {fileID: 109261099}
+      objectReference: {fileID: 102904201}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ephysLinkServerPortInput
       value: 
-      objectReference: {fileID: 466331096}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ghostInactiveAreasToggle
       value: 
@@ -6447,7 +6451,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _ephysLinkServerPortInput
       value: 
-      objectReference: {fileID: 466331096}
+      objectReference: {fileID: 1423792798}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _ghostInactiveAreasToggle
       value: 
@@ -7610,7 +7614,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _probeAddedOrRemovedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: UpdateProbePanels
+      value: InvokeShouldUpdateProbesListEvent
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _probeAddedOrRemovedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName

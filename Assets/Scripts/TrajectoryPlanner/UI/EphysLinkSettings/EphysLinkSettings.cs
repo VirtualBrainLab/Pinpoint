@@ -5,6 +5,7 @@ using EphysLink;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace TrajectoryPlanner.UI.EphysLinkSettings
@@ -14,56 +15,42 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     /// </summary>
     public class EphysLinkSettings : MonoBehaviour
     {
-        #region Variables
+        #region Components
 
         #region Serialized Fields
 
         // Server connection
-        [SerializeField] private TMP_Text _serverConnectedText;
-        [SerializeField] private TMP_InputField _ipAddressInputField;
-        [SerializeField] private TMP_InputField _portInputField;
+        [SerializeField] private InputField _ipAddressInputField;
+        [SerializeField] private InputField _portInputField;
+        [SerializeField] private Text _connectButtonText;
         [SerializeField] private TMP_Text _connectionErrorText;
-        [SerializeField] private TMP_Text _connectButtonText;
 
         // Manipulators
         [SerializeField] private GameObject _manipulatorList;
         [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
         [SerializeField] private Button _automaticControlButton;
-        [SerializeField] private TMP_Text _automaticControlButtonText;
-
-        // Probes in scene
-        [SerializeField] private GameObject _probeList;
-        [SerializeField] private GameObject _probeConnectionPanelPrefab;
+        [SerializeField] private Text _copilotButtonText;
 
         // Events
         [SerializeField] private UnityEvent<ProbeManager> _destroyProbeEvent;
 
         #endregion
 
-        #region Components
-
-        private CommunicationManager _communicationManager;
         private UIManager _uiManager;
 
         #endregion
 
         #region Properties
 
-        private bool AutomaticControlIsEnabled => _automaticControlButtonText.text.Contains("Disable");
+        private bool _ephysCopilotIsEnabled => _copilotButtonText.text.Contains("Hide");
 
-        #endregion
 
-        #region Session variables
-
-        private readonly Dictionary<string, (ManipulatorConnectionSettingsPanel manipulatorConnectionSettingsPanel,
+        private readonly Dictionary<string, (ManipulatorConnectionPanel manipulatorConnectionSettingsPanel,
                 GameObject gameObject)>
             _manipulatorIdToManipulatorConnectionSettingsPanel = new();
 
-        private readonly Dictionary<string, (ProbeConnectionSettingsPanel probeConnectionSettingsPanel, GameObject
-                gameObject)>
-            _probeIdToProbeConnectionSettingsPanels = new();
-
-        #endregion
+        public HashSet<ProbeManager> LinkedProbes { get; } = new();
+        public UnityEvent ShouldUpdateProbesListEvent { get; } = new();
 
         #endregion
 
@@ -72,25 +59,14 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         private void Awake()
         {
             // Get/Set Components
-            _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
             _uiManager = GameObject.Find("MainCanvas").GetComponent<UIManager>();
-            ProbeConnectionSettingsPanel.DestroyProbeEvent = _destroyProbeEvent;
         }
-
-        // private void FixedUpdate()
-        // {
-        //     // Update probe panels whenever they change
-        //     if (ProbeManager.instances.Count(manager => !manager.IsGhost) !=
-        //         _probeIdToProbeConnectionSettingsPanels.Count)
-        //         UpdateProbePanels();
-        // }
 
         private void OnEnable()
         {
-            if (!_communicationManager.IsConnected) return;
             // Update UI elements every time the settings panel is opened
-            UpdateProbePanels();
-            UpdateConnectionUI();
+            UpdateConnectionPanel();
+            UpdateManipulatorPanels();
         }
 
         #endregion
@@ -100,18 +76,63 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <summary>
         ///     Populate UI elements with current connection settings.
         /// </summary>
-        private void UpdateConnectionUI()
+        private void UpdateConnectionPanel()
         {
             // Connection UI
             _connectionErrorText.text = "";
-            _connectButtonText.text = _communicationManager.IsConnected ? "Disconnect" : "Connect";
-            _serverConnectedText.text =
-                (_communicationManager.IsConnected ? "Connected" : "Connect") + " to server at";
+            _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
+        }
 
-            // Update available manipulators and their panels
-            if (_communicationManager.IsConnected)
+        private void UpdateManipulatorPanels()
+        {
+            if (CommunicationManager.Instance.IsConnected)
             {
-                UpdateManipulatorPanelAndSelection();
+                CommunicationManager.Instance.GetManipulators(availableIDs =>
+                {
+                    // Keep track of handled manipulator panels
+                    var handledManipulatorIds = new HashSet<string>();
+
+                    // Add any new manipulators in scene to list
+                    foreach (var manipulatorID in availableIDs)
+                    {
+                        // Create new manipulator connection settings panel if the manipulator is new
+                        if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorID))
+                        {
+                            // Instantiate panel
+                            var manipulatorConnectionSettingsPanelGameObject =
+                                Instantiate(_manipulatorConnectionPanelPrefab, _manipulatorList.transform);
+                            var manipulatorConnectionSettingsPanel =
+                                manipulatorConnectionSettingsPanelGameObject
+                                    .GetComponent<ManipulatorConnectionPanel>();
+
+                            // Set manipulator id
+                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID);
+
+                            // Add to dictionary
+                            _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorID,
+                                new ValueTuple<ManipulatorConnectionPanel, GameObject>(
+                                    manipulatorConnectionSettingsPanel, manipulatorConnectionSettingsPanelGameObject));
+                        }
+
+                        // Mark ID as handled
+                        handledManipulatorIds.Add(manipulatorID);
+                    }
+
+                    // Remove any manipulators that are not connected anymore
+                    foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys
+                                 .Except(handledManipulatorIds).ToList())
+                    {
+                        _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
+                        Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].gameObject);
+                    }
+
+                    // Reorder panels to match order of availableIds
+                    foreach (var manipulatorId in availableIDs)
+                    {
+                        _manipulatorIdToManipulatorConnectionSettingsPanel[manipulatorId].gameObject.transform
+                            .SetAsLastSibling();
+                    }
+                });
             }
             else
             {
@@ -123,136 +144,21 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             }
         }
 
-        public void UpdateProbePanels()
-        {
-            // Exit early if not active
-            if (!gameObject.activeSelf) return;
-
-            var handledProbeIds = new HashSet<string>();
-
-            // Add any new probes in scene to list
-            foreach (var probeManager in ProbeManager.Instances)
-            {
-                var probeId = probeManager.UUID;
-
-                // Create probe connection settings panel if the probe is new
-                if (!_probeIdToProbeConnectionSettingsPanels.ContainsKey(probeId))
-                {
-                    var probeConnectionSettingsPanelGameObject =
-                        Instantiate(_probeConnectionPanelPrefab, _probeList.transform);
-                    var probeConnectionSettingsPanel =
-                        probeConnectionSettingsPanelGameObject.GetComponent<ProbeConnectionSettingsPanel>();
-
-                    probeConnectionSettingsPanel.SetProbeManager(probeManager);
-                    probeConnectionSettingsPanel.EphysLinkSettings = this;
-
-                    _probeIdToProbeConnectionSettingsPanels.Add(probeId,
-                        new ValueTuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
-                            probeConnectionSettingsPanelGameObject));
-                }
-                else
-                {
-                    // Update probeManager in probe connection settings panel
-                    _probeIdToProbeConnectionSettingsPanels[probeId].probeConnectionSettingsPanel
-                        .SetProbeManager(probeManager);
-                }
-
-                handledProbeIds.Add(probeId);
-            }
-
-            // Remove any probe that is not in the scene anymore
-            foreach (var removedProbeId in _probeIdToProbeConnectionSettingsPanels.Keys.Except(handledProbeIds)
-                         .ToList())
-            {
-                Destroy(_probeIdToProbeConnectionSettingsPanels[removedProbeId].gameObject);
-                _probeIdToProbeConnectionSettingsPanels.Remove(removedProbeId);
-            }
-
-            UpdateManipulatorPanelAndSelection();
-        }
-
-        /// <summary>
-        ///     Updates the list of available manipulators to connect to and the selection options for probes.
-        /// </summary>
-        public void UpdateManipulatorPanelAndSelection()
-        {
-            _communicationManager.GetManipulators(availableIds =>
-            {
-                print("Available manipulators: " + availableIds.Length);
-                // Update probes with selectable options
-                var usedManipulatorIds = ProbeManager.Instances
-                    .Where(probeManager => probeManager.IsEphysLinkControlled)
-                    .Select(probeManager => probeManager.ManipulatorBehaviorController.ManipulatorID).ToHashSet();
-                foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
-                             values => values.probeConnectionSettingsPanel))
-                {
-                    var manipulatorDropdownOptions = new List<string> { "-" };
-                    manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
-                        id.Equals(probeConnectionSettingsPanel.ProbeManager.ManipulatorBehaviorController
-                            .ManipulatorID) ||
-                        !usedManipulatorIds.Contains(id)));
-
-                    probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
-                }
-
-                // Handle manipulator panels
-                var handledManipulatorIds = new HashSet<string>();
-
-                // Add any new manipulators in scene to list
-                foreach (var manipulatorId in availableIds)
-                {
-                    // Create new manipulator connection settings panel if the manipulator is new
-                    if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorId))
-                    {
-                        var manipulatorConnectionSettingsPanelGameObject =
-                            Instantiate(_manipulatorConnectionPanelPrefab, _manipulatorList.transform);
-                        var manipulatorConnectionSettingsPanel =
-                            manipulatorConnectionSettingsPanelGameObject
-                                .GetComponent<ManipulatorConnectionSettingsPanel>();
-
-                        manipulatorConnectionSettingsPanel.SetManipulatorId(manipulatorId);
-
-                        _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorId,
-                            new ValueTuple<ManipulatorConnectionSettingsPanel, GameObject>(
-                                manipulatorConnectionSettingsPanel, manipulatorConnectionSettingsPanelGameObject));
-                    }
-
-                    handledManipulatorIds.Add(manipulatorId);
-                }
-
-                // Remove any manipulators that are not connected anymore
-                foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys
-                             .Except(handledManipulatorIds).ToList())
-                {
-                    Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].gameObject);
-                    _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
-                }
-
-                // Enable or disable automatic control depending on whether any manipulators are used
-                _automaticControlButton.interactable = usedManipulatorIds.Count > 0;
-
-                // Close automatic control panel if no manipulators are used
-                if (usedManipulatorIds.Count == 0 && AutomaticControlIsEnabled)
-                    _automaticControlButton.onClick.Invoke();
-            });
-        }
-
         /// <summary>
         ///     Handle when connect/disconnect button is pressed.
         /// </summary>
         public void OnConnectDisconnectPressed()
         {
-            if (!_communicationManager.IsConnected)
+            if (!CommunicationManager.Instance.IsConnected)
             {
                 // Attempt to connect to server
                 try
                 {
-                    _serverConnectedText.text = "Connecting to server at";
                     _connectButtonText.text = "Connecting...";
-                    _communicationManager.ConnectToServer(_ipAddressInputField.text, int.Parse(_portInputField.text),
-                        UpdateConnectionUI, err =>
+                    CommunicationManager.Instance.ConnectToServer(_ipAddressInputField.text,
+                        int.Parse(_portInputField.text),
+                        UpdateConnectionPanel, err =>
                         {
-                            _serverConnectedText.text = "Connect to server at";
                             _connectionErrorText.text = err;
                             _connectButtonText.text = "Connect";
                         }
@@ -272,7 +178,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                                  .Where(probeManager => probeManager.IsEphysLinkControlled))
                         probeManager.SetIsEphysLinkControlled(false);
 
-                    _communicationManager.DisconnectFromServer(UpdateConnectionUI);
+                    CommunicationManager.Instance.DisconnectFromServer(UpdateConnectionPanel);
                 });
 
                 QuestionDialogue.NewQuestion(
@@ -283,12 +189,17 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <summary>
         ///     Toggle automatic manipulator control panel
         /// </summary>
-        public void ToggleAutomaticManipulatorControlPanel()
+        public void ToggleCopilotPanel()
         {
-            _automaticControlButtonText.text = !AutomaticControlIsEnabled
-                ? "Disable Automatic Manipulator Control"
-                : "Enable Automatic Manipulator Control";
-            _uiManager.EnableAutomaticManipulatorControlPanel(AutomaticControlIsEnabled);
+            _copilotButtonText.text = !_ephysCopilotIsEnabled
+                ? "Hide Ephys Copilot"
+                : "Show Ephys Copilot";
+            _uiManager.EnableEphysCopilotPanel(_ephysCopilotIsEnabled);
+        }
+
+        public void InvokeShouldUpdateProbesListEvent()
+        {
+            ShouldUpdateProbesListEvent.Invoke();
         }
 
         #endregion

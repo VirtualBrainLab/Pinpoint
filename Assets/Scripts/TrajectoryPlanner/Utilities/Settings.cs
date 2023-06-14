@@ -337,8 +337,8 @@ public class Settings : MonoBehaviour
         }
     }
     
-    [SerializeField] private TMP_InputField _ephysLinkServerIpInput;
-    [SerializeField] private TMP_InputField _ephysLinkServerPortInput;
+    [SerializeField] private InputField _ephysLinkServerIpInput;
+    [SerializeField] private InputField _ephysLinkServerPortInput;
 
     /// <summary>
     ///     Return if it has been more than 24 hours since the last launch.
@@ -350,6 +350,19 @@ public class Settings : MonoBehaviour
         if (timestampString == "") return false;
 
         return new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - long.Parse(timestampString) >= 86400;
+    }
+
+    private static string _ephysLinkRightHandedManipulators;
+
+    public static string EphysLinkRightHandedManipulators
+    {
+        get => _ephysLinkRightHandedManipulators;
+        set
+        {
+            _ephysLinkRightHandedManipulators = value;
+            PlayerPrefs.SetString("ephys_link_right_handed_manipulators", value);
+            PlayerPrefs.Save();
+        }
     }
 
     #endregion
@@ -464,6 +477,8 @@ public class Settings : MonoBehaviour
 
         EphysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
         _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
+        
+        EphysLinkRightHandedManipulators = LoadStringPref("ephys_link_right_handed_manipulators", "");
     }
 
     #endregion
