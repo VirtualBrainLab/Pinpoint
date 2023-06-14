@@ -136,7 +136,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     }
                     else
                     {
-                        EphysLinkSettings.UpdateManipulatorPanelAndSelection();
+                        // EphysLinkSettings.UpdateManipulatorPanelAndSelection();
                     }
                 });
             else
@@ -146,7 +146,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             {
                 ProbeManager.SetIsEphysLinkControlled(true,
                     _manipulatorIdDropdown.options[index].text,
-                    onSuccess: () => { EphysLinkSettings.UpdateManipulatorPanelAndSelection(); });
+                    onSuccess: () =>
+                    {
+                        // EphysLinkSettings.UpdateManipulatorPanelAndSelection();
+                    });
             }
         }
 

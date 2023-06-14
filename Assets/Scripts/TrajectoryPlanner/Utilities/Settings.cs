@@ -352,6 +352,19 @@ public class Settings : MonoBehaviour
         return new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - long.Parse(timestampString) >= 86400;
     }
 
+    private static string _ephysLinkRightHandedManipulators;
+
+    public static string EphysLinkRightHandedManipulators
+    {
+        get => _ephysLinkRightHandedManipulators;
+        set
+        {
+            _ephysLinkRightHandedManipulators = value;
+            PlayerPrefs.SetString("ephys_link_right_handed_manipulators", value);
+            PlayerPrefs.Save();
+        }
+    }
+
     #endregion
 
     #region Accounts

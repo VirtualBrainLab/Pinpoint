@@ -1,6 +1,8 @@
+using System.Linq;
 using TMPro;
 using TrajectoryPlanner.Probes;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TrajectoryPlanner.UI.EphysLinkSettings
 {
@@ -9,20 +11,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     /// </summary>
     public class ManipulatorConnectionSettingsPanel : MonoBehaviour
     {
-        #region Properties
-
-        private string _manipulatorId;
-        public string ManipulatorId
-        {
-            set
-            {
-                _manipulatorId = value;
-                _manipulatorIdText.text = value;
-            }
-        }
-
-        #endregion
-        #region Getters and Setters
+        #region Constructor
 
         /// <summary>
         ///     Set the manipulator ID this panel is representing.
@@ -35,6 +24,29 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             //     .Find(manager => manager.ManipulatorBehaviorController.ManipulatorID == manipulatorId)
             //     .ManipulatorBehaviorController;
             // _handednessDropdown.value = _manipulatorBehaviorController.IsRightHanded ? 1 : 0;
+        }
+
+        public void Initialize(EphysLinkSettings settingsMenu, string manipulatorID)
+        {
+            // Set properties
+            _ephysLinkSettings = settingsMenu;
+            _manipulatorId = manipulatorID;
+
+            // Initialize components
+            _manipulatorIdText.text = manipulatorID;
+            UpdateLinkableProbeOptions();
+
+            var attachedProbe = ProbeManager.Instances.Find(manager =>
+                manager.ManipulatorBehaviorController.ManipulatorID == manipulatorID);
+            if (attachedProbe)
+            {
+                _handednessDropdown.value = attachedProbe.ManipulatorBehaviorController.IsRightHanded ? 1 : 0;
+            }
+            else
+            {
+                _handednessDropdown.value =
+                    Settings.EphysLinkRightHandedManipulators.Split("\n").Contains(manipulatorID) ? 1 : 0;
+            }
         }
 
         #endregion
@@ -50,18 +62,47 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _manipulatorBehaviorController.IsRightHanded = value == 1;
         }
 
-        #endregion
+        /// <summary>
+        /// Updates the list of linkable probes and re-selects the previously selected probe if it is still available.
+        /// </summary>
+        private void UpdateLinkableProbeOptions()
+        {
+            // Capture current selection
+            var previouslyLinkedProbe = _linkedProbeDropdown.options[_linkedProbeDropdown.value].text;
+            
+            // Repopulate dropdown options
+            _linkedProbeDropdown.ClearOptions();
+            var availableProbes = ProbeManager.Instances.Except(_ephysLinkSettings.LinkedProbes)
+                .Select(manager => manager.UUID).ToList();
+            _linkedProbeDropdown.AddOptions(availableProbes);
+            
+            // Select attached probe if it exists
+            _linkedProbeDropdown.value = Mathf.Max(0, availableProbes.IndexOf(previouslyLinkedProbe));
+        }
 
-        #region Variables
+        #endregion
 
         #region Components
 
         [SerializeField] private TMP_Text _manipulatorIdText;
-        [SerializeField] private TMP_Dropdown _handednessDropdown;
+        [SerializeField] private Dropdown _handednessDropdown;
+        [SerializeField] private Dropdown _linkedProbeDropdown;
+
+        [SerializeField] private GameObject _probePropertiesSection;
+        [SerializeField] private InputField _zeroCoordinateXInputField;
+        [SerializeField] private InputField _zeroCoordinateYInputField;
+        [SerializeField] private InputField _zeroCoordinateZInputField;
+        [SerializeField] private InputField _zeroCoordinateDInputField;
+        [SerializeField] private InputField _brainOffsetInputField;
 
         private ManipulatorBehaviorController _manipulatorBehaviorController;
 
         #endregion
+
+        #region Properties
+
+        private EphysLinkSettings _ephysLinkSettings;
+        private string _manipulatorId;
 
         #endregion
     }

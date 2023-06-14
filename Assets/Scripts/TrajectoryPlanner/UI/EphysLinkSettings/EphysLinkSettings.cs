@@ -14,8 +14,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     /// </summary>
     public class EphysLinkSettings : MonoBehaviour
     {
-        #region Variables
-
         #region Components
 
         #region Serialized Fields
@@ -45,19 +43,13 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         private bool AutomaticControlIsEnabled => _automaticControlButtonText.text.Contains("Hide");
 
-        #endregion
-
-        #region Session variables
 
         private readonly Dictionary<string, (ManipulatorConnectionSettingsPanel manipulatorConnectionSettingsPanel,
                 GameObject gameObject)>
             _manipulatorIdToManipulatorConnectionSettingsPanel = new();
 
-        private readonly Dictionary<string, (ProbeConnectionSettingsPanel probeConnectionSettingsPanel, GameObject
-                gameObject)>
-            _probeIdToProbeConnectionSettingsPanels = new();
-
-        #endregion
+        public HashSet<ProbeManager> LinkedProbes { get; } = new();
+        public UnityEvent LinkedProbeIdsChangedEvent { get; } = new();
 
         #endregion
 
@@ -107,16 +99,16 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         private void UpdateManipulatorPanels()
         {
-            CommunicationManager.Instance.GetManipulators(availableIds =>
+            CommunicationManager.Instance.GetManipulators(availableIDs =>
             {
                 // Handle manipulator panels
                 var handledManipulatorIds = new HashSet<string>();
 
                 // Add any new manipulators in scene to list
-                foreach (var manipulatorId in availableIds)
+                foreach (var manipulatorID in availableIDs)
                 {
                     // Create new manipulator connection settings panel if the manipulator is new
-                    if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorId))
+                    if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorID))
                     {
                         // Instantiate panel
                         var manipulatorConnectionSettingsPanelGameObject =
@@ -126,16 +118,16 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                                 .GetComponent<ManipulatorConnectionSettingsPanel>();
 
                         // Set manipulator id
-                        manipulatorConnectionSettingsPanel.ManipulatorId = manipulatorId;
+                        manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID);
 
                         // Add to dictionary
-                        _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorId,
+                        _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorID,
                             new ValueTuple<ManipulatorConnectionSettingsPanel, GameObject>(
                                 manipulatorConnectionSettingsPanel, manipulatorConnectionSettingsPanelGameObject));
                     }
 
                     // Mark ID as handled
-                    handledManipulatorIds.Add(manipulatorId);
+                    handledManipulatorIds.Add(manipulatorID);
                 }
 
                 // Remove any manipulators that are not connected anymore
@@ -147,7 +139,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 }
                 
                 // Reorder panels to match order of availableIds
-                foreach (var manipulatorId in availableIds)
+                foreach (var manipulatorId in availableIDs)
                 {
                     _manipulatorIdToManipulatorConnectionSettingsPanel[manipulatorId].gameObject.transform.SetAsLastSibling();
                 }
@@ -205,67 +197,67 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <summary>
         ///     Updates the list of available manipulators to connect to and the selection options for probes.
         /// </summary>
-        public void UpdateManipulatorPanelAndSelection()
-        {
-            CommunicationManager.Instance.GetManipulators(availableIds =>
-            {
-                // Update probes with selectable options
-                var usedManipulatorIds = ProbeManager.Instances
-                    .Where(probeManager => probeManager.IsEphysLinkControlled)
-                    .Select(probeManager => probeManager.ManipulatorBehaviorController.ManipulatorID).ToHashSet();
-                foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
-                             values => values.probeConnectionSettingsPanel))
-                {
-                    var manipulatorDropdownOptions = new List<string> { "-" };
-                    manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
-                        id.Equals(probeConnectionSettingsPanel.ProbeManager.ManipulatorBehaviorController
-                            .ManipulatorID) ||
-                        !usedManipulatorIds.Contains(id)));
-
-                    probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
-                }
-
-                // Handle manipulator panels
-                var handledManipulatorIds = new HashSet<string>();
-
-                // Add any new manipulators in scene to list
-                foreach (var manipulatorId in availableIds)
-                {
-                    // Create new manipulator connection settings panel if the manipulator is new
-                    if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorId))
-                    {
-                        var manipulatorConnectionSettingsPanelGameObject =
-                            Instantiate(_manipulatorConnectionPanelPrefab, _manipulatorList.transform);
-                        var manipulatorConnectionSettingsPanel =
-                            manipulatorConnectionSettingsPanelGameObject
-                                .GetComponent<ManipulatorConnectionSettingsPanel>();
-
-                        manipulatorConnectionSettingsPanel.SetManipulatorId(manipulatorId);
-
-                        _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorId,
-                            new ValueTuple<ManipulatorConnectionSettingsPanel, GameObject>(
-                                manipulatorConnectionSettingsPanel, manipulatorConnectionSettingsPanelGameObject));
-                    }
-
-                    handledManipulatorIds.Add(manipulatorId);
-                }
-
-                // Remove any manipulators that are not connected anymore
-                foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys
-                             .Except(handledManipulatorIds).ToList())
-                {
-                    Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].gameObject);
-                    _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
-                }
-
-                // Enable or disable automatic control depending on whether any manipulators are used
-                _automaticControlButton.interactable = usedManipulatorIds.Count > 0;
-
-                // Close automatic control panel if no manipulators are used
-                if (usedManipulatorIds.Count == 0 && AutomaticControlIsEnabled)
-                    _automaticControlButton.onClick.Invoke();
-            });
-        }
+        // public void UpdateManipulatorPanelAndSelection()
+        // {
+        //     CommunicationManager.Instance.GetManipulators(availableIds =>
+        //     {
+        //         // Update probes with selectable options
+        //         var usedManipulatorIds = ProbeManager.Instances
+        //             .Where(probeManager => probeManager.IsEphysLinkControlled)
+        //             .Select(probeManager => probeManager.ManipulatorBehaviorController.ManipulatorID).ToHashSet();
+        //         foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
+        //                      values => values.probeConnectionSettingsPanel))
+        //         {
+        //             var manipulatorDropdownOptions = new List<string> { "-" };
+        //             manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
+        //                 id.Equals(probeConnectionSettingsPanel.ProbeManager.ManipulatorBehaviorController
+        //                     .ManipulatorID) ||
+        //                 !usedManipulatorIds.Contains(id)));
+        //
+        //             probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
+        //         }
+        //
+        //         // Handle manipulator panels
+        //         var handledManipulatorIds = new HashSet<string>();
+        //
+        //         // Add any new manipulators in scene to list
+        //         foreach (var manipulatorId in availableIds)
+        //         {
+        //             // Create new manipulator connection settings panel if the manipulator is new
+        //             if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorId))
+        //             {
+        //                 var manipulatorConnectionSettingsPanelGameObject =
+        //                     Instantiate(_manipulatorConnectionPanelPrefab, _manipulatorList.transform);
+        //                 var manipulatorConnectionSettingsPanel =
+        //                     manipulatorConnectionSettingsPanelGameObject
+        //                         .GetComponent<ManipulatorConnectionSettingsPanel>();
+        //
+        //                 manipulatorConnectionSettingsPanel.SetManipulatorId(manipulatorId);
+        //
+        //                 _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorId,
+        //                     new ValueTuple<ManipulatorConnectionSettingsPanel, GameObject>(
+        //                         manipulatorConnectionSettingsPanel, manipulatorConnectionSettingsPanelGameObject));
+        //             }
+        //
+        //             handledManipulatorIds.Add(manipulatorId);
+        //         }
+        //
+        //         // Remove any manipulators that are not connected anymore
+        //         foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys
+        //                      .Except(handledManipulatorIds).ToList())
+        //         {
+        //             Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].gameObject);
+        //             _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
+        //         }
+        //
+        //         // Enable or disable automatic control depending on whether any manipulators are used
+        //         _automaticControlButton.interactable = usedManipulatorIds.Count > 0;
+        //
+        //         // Close automatic control panel if no manipulators are used
+        //         if (usedManipulatorIds.Count == 0 && AutomaticControlIsEnabled)
+        //             _automaticControlButton.onClick.Invoke();
+        //     });
+        // }
 
         /// <summary>
         ///     Handle when connect/disconnect button is pressed.
