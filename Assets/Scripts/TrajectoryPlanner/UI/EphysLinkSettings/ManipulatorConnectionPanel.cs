@@ -98,12 +98,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _attachedProbe = newProbeManager;
                     _ephysLinkSettings.LinkedProbes.Add(_attachedProbe);
 
-                    // Attach update event listeners
-                    _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.AddListener(
-                        UpdateZeroCoordinateOffsetInputFields);
-                    _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.AddListener(
-                        UpdateBrainSurfaceOffsetInputField);
-
                     // Update probe properties section
                     UpdateProbePropertiesSectionState();
 
@@ -114,7 +108,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         }
 
         /// <summary>
-        /// Update zero coordinate offset X-axis to the given value
+        ///     Update zero coordinate offset X-axis to the given value
         /// </summary>
         /// <param name="newValue">New offset X-axis value</param>
         public void UpdateZeroCoordinateOffsetX(string newValue)
@@ -122,9 +116,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
                 new Vector4(float.Parse(newValue), float.NaN, float.NaN, float.NaN);
         }
-        
+
         /// <summary>
-        /// Update zero coordinate offset Y-axis to the given value
+        ///     Update zero coordinate offset Y-axis to the given value
         /// </summary>
         /// <param name="newValue">New offset Y-axis value</param>
         public void UpdateZeroCoordinateOffsetY(string newValue)
@@ -132,9 +126,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
                 new Vector4(float.NaN, float.Parse(newValue), float.NaN, float.NaN);
         }
-        
+
         /// <summary>
-        /// Update zero coordinate offset Z-axis to the given value
+        ///     Update zero coordinate offset Z-axis to the given value
         /// </summary>
         /// <param name="newValue">New offset Z-axis value</param>
         public void UpdateZeroCoordinateOffsetZ(string newValue)
@@ -142,9 +136,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
                 new Vector4(float.NaN, float.NaN, float.Parse(newValue), float.NaN);
         }
-        
+
         /// <summary>
-        /// Update zero coordinate offset D-axis to the given value
+        ///     Update zero coordinate offset D-axis to the given value
         /// </summary>
         /// <param name="newValue">New offset D-axis value</param>
         public void UpdateZeroCoordinateOffsetD(string newValue)
@@ -152,9 +146,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
                 new Vector4(float.NaN, float.NaN, float.NaN, float.Parse(newValue));
         }
-        
+
         /// <summary>
-        /// Update brain surface offset to the given value
+        ///     Update brain surface offset to the given value
         /// </summary>
         /// <param name="newValue">New brain surface offset value</param>
         public void UpdateBrainSurfaceOffset(string newValue)
@@ -163,7 +157,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         }
 
         /// <summary>
-        /// Increment the brain surface offset by 100 µm
+        ///     Increment the brain surface offset by 100 µm
         /// </summary>
         /// <param name="positive">Increment in the positive direction or not</param>
         public void IncrementBrainSurfaceOffset(bool positive)
@@ -186,6 +180,12 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 UpdateZeroCoordinateOffsetInputFields(_attachedProbe.ManipulatorBehaviorController
                     .ZeroCoordinateOffset);
                 UpdateBrainSurfaceOffsetInputField(_attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset);
+
+                // Attach update event listeners
+                _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.AddListener(
+                    UpdateZeroCoordinateOffsetInputFields);
+                _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.AddListener(
+                    UpdateBrainSurfaceOffsetInputField);
             }
             else
             {
