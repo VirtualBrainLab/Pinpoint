@@ -182,7 +182,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         }
 
         /// <summary>
-        ///     Toggle automatic manipulator control panel
+        ///     Toggle Ephys Copilot panel
         /// </summary>
         public void ToggleCopilotPanel()
         {
