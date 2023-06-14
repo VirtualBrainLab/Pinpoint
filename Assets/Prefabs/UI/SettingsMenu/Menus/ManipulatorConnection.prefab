@@ -1719,7 +1719,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _manipulatorIdText: {fileID: 8699707721372442200}
-  _handednessDropdown: {fileID: 0}
+  _handednessDropdown: {fileID: 3448694691357484443}
   _linkedProbeDropdown: {fileID: 5200381531337403621}
   _probePropertiesSection: {fileID: 5769491651499729191}
   _zeroCoordinateXInputField: {fileID: 3125666136600695602}
@@ -2021,6 +2021,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 42e05797583bf7342b6111a7180be832, type: 3}
+--- !u!114 &3448694691357484443 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2888971184303583130, guid: 42e05797583bf7342b6111a7180be832, type: 3}
+  m_PrefabInstance: {fileID: 561707988866451969}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7708065006426254603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d0b652f32a2cc243917e4028fa0f046, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &7708065005295514658 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7868661802129718819, guid: 42e05797583bf7342b6111a7180be832, type: 3}
@@ -3046,6 +3057,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 8274064034965112684}
     m_Modifications:
     - target: {fileID: 2888971184303583130, guid: 42e05797583bf7342b6111a7180be832, type: 3}
+      propertyPath: m_Value
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2888971184303583130, guid: 42e05797583bf7342b6111a7180be832, type: 3}
+      propertyPath: m_Transition
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2888971184303583130, guid: 42e05797583bf7342b6111a7180be832, type: 3}
       propertyPath: m_Options.m_Options.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -3294,7 +3313,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: 400
+  m_MinWidth: 560
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
