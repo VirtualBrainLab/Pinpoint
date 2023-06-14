@@ -1726,7 +1726,7 @@ MonoBehaviour:
   _zeroCoordinateYInputField: {fileID: 160239390153252692}
   _zeroCoordinateZInputField: {fileID: 6402253996257102098}
   _zeroCoordinateDInputField: {fileID: 8872759665276583042}
-  _brainOffsetInputField: {fileID: 3529476872428658600}
+  _brainSurfaceOffsetInputField: {fileID: 3529476872428658600}
 --- !u!114 &7145065099748536085
 MonoBehaviour:
   m_ObjectHideFlags: 0

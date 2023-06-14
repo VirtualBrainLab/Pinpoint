@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -70,6 +71,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 {
                     _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
                     _attachedProbe = null;
+                    _probePropertiesSection.SetActive(false);
 
                     // Inform others a change was made
                     _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
@@ -79,10 +81,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             {
                 // Disconnect currently attached probe
                 if (_attachedProbe)
-                {
                     _attachedProbe.SetIsEphysLinkControlled(false,
                         onSuccess: () => { _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe); });
-                }
 
                 // Find the new probe and attach it
                 var selectedProbeUUID = _linkedProbeDropdown.options[value].text;
@@ -92,11 +92,24 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _attachedProbe = newProbeManager;
                     _ephysLinkSettings.LinkedProbes.Add(_attachedProbe);
 
+                    // Attach update event listeners
+                    _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.AddListener(
+                        UpdateZeroCoordinateOffsetInputFields);
+                    _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.AddListener(
+                        UpdateBrainSurfaceOffsetInputField);
+
+                    // Setup probe properties section
+                    _probePropertiesSection.SetActive(true);
+                    UpdateZeroCoordinateOffsetInputFields(_attachedProbe.ManipulatorBehaviorController
+                        .ZeroCoordinateOffset);
+                    UpdateBrainSurfaceOffsetInputField(_attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset);
+
                     // Inform others a change was made
                     _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
                 });
             }
         }
+
 
         /// <summary>
         ///     Updates the list of linkable probes and re-selects the previously selected probe if it is still available.
@@ -120,6 +133,27 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _linkedProbeDropdown.value = Mathf.Max(0, availableProbes.IndexOf(previouslyLinkedProbeUUID));
         }
 
+        /// <summary>
+        /// Update input fields for zero coordinate offset.
+        /// </summary>
+        /// <param name="zeroCoordinateOffset">New zero coordinate offset</param>
+        private void UpdateZeroCoordinateOffsetInputFields(Vector4 zeroCoordinateOffset)
+        {
+            _zeroCoordinateXInputField.text = zeroCoordinateOffset.x.ToString(CultureInfo.InvariantCulture);
+            _zeroCoordinateYInputField.text = zeroCoordinateOffset.y.ToString(CultureInfo.InvariantCulture);
+            _zeroCoordinateZInputField.text = zeroCoordinateOffset.z.ToString(CultureInfo.InvariantCulture);
+            _zeroCoordinateDInputField.text = zeroCoordinateOffset.w.ToString(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Update input field for brain surface offset.
+        /// </summary>
+        /// <param name="brainSurfaceOffset">New brain surface offset</param>
+        private void UpdateBrainSurfaceOffsetInputField(float brainSurfaceOffset)
+        {
+            _brainSurfaceOffsetInputField.text = brainSurfaceOffset.ToString(CultureInfo.InvariantCulture);
+        }
+
         #endregion
 
         #region Components
@@ -133,7 +167,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private InputField _zeroCoordinateYInputField;
         [SerializeField] private InputField _zeroCoordinateZInputField;
         [SerializeField] private InputField _zeroCoordinateDInputField;
-        [SerializeField] private InputField _brainOffsetInputField;
+        [SerializeField] private InputField _brainSurfaceOffsetInputField;
 
         private ProbeManager _attachedProbe;
 
