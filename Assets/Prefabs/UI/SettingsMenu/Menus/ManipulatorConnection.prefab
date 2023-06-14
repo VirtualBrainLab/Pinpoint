@@ -3158,12 +3158,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2888971184303583130, guid: 42e05797583bf7342b6111a7180be832, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnManipulatorHandednessValueChanged
+      value: OnLinkedProbeSelectionChanged
       objectReference: {fileID: 0}
     - target: {fileID: 2888971184303583130, guid: 42e05797583bf7342b6111a7180be832, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: TrajectoryPlanner.UI.EphysLinkSettings.ManipulatorConnectionSettingsPanel,
-        trajectoryplanner.ui.ephyslinksettings
+      value: TrajectoryPlanner.UI.EphysLinkSettings.ManipulatorConnectionPanel, trajectoryplanner.ui.ephyslinksettings
       objectReference: {fileID: 0}
     - target: {fileID: 2888971184303583130, guid: 42e05797583bf7342b6111a7180be832, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName

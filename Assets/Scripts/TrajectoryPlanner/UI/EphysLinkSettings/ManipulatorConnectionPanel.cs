@@ -23,8 +23,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             UpdateLinkableProbeOptions();
 
             // Get attached probe (could be null)
-            _attachedProbe = ProbeManager.Instances.Find(manager =>
-                manager.ManipulatorBehaviorController.ManipulatorID == manipulatorID);
+            _attachedProbe = ProbeManager.Instances.Find(manager => manager.IsEphysLinkControlled &&
+                                                                    manager.ManipulatorBehaviorController
+                                                                        .ManipulatorID == manipulatorID);
 
             // Apply handedness from memory or default to right handed
             if (_attachedProbe)
@@ -32,7 +33,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             else
                 _handednessDropdown.value =
                     Settings.EphysLinkRightHandedManipulators.Split("\n").Contains(manipulatorID) ? 1 : 0;
-            
+
             // Register event listeners for updating probes list
             settingsMenu.ShouldUpdateProbesListEvent.AddListener(UpdateLinkableProbeOptions);
         }
@@ -60,6 +61,43 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             Settings.EphysLinkRightHandedManipulators = string.Join("\n", currentRightHandedManipulators);
         }
 
+        public void OnLinkedProbeSelectionChanged(int value)
+        {
+            if (value == 0)
+            {
+                // With values != 0, there definitely was an attached probe before
+                _attachedProbe.SetIsEphysLinkControlled(false, _manipulatorId, onSuccess: () =>
+                {
+                    _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
+                    _attachedProbe = null;
+
+                    // Inform others a change was made
+                    _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
+                });
+            }
+            else
+            {
+                // Disconnect currently attached probe
+                if (_attachedProbe)
+                {
+                    _attachedProbe.SetIsEphysLinkControlled(false,
+                        onSuccess: () => { _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe); });
+                }
+
+                // Find the new probe and attach it
+                var selectedProbeUUID = _linkedProbeDropdown.options[value].text;
+                var newProbeManager = ProbeManager.Instances.Find(manager => manager.UUID == selectedProbeUUID);
+                newProbeManager.SetIsEphysLinkControlled(true, _manipulatorId, onSuccess: () =>
+                {
+                    _attachedProbe = newProbeManager;
+                    _ephysLinkSettings.LinkedProbes.Add(_attachedProbe);
+
+                    // Inform others a change was made
+                    _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
+                });
+            }
+        }
+
         /// <summary>
         ///     Updates the list of linkable probes and re-selects the previously selected probe if it is still available.
         /// </summary>
@@ -68,11 +106,12 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             // Capture current selection (either from the previous selection or from the attached probe)
             var previouslyLinkedProbeUUID = _attachedProbe
                 ? _attachedProbe.UUID
-                : _linkedProbeDropdown.options[_linkedProbeDropdown.value].text;
+                : "";
 
             // Repopulate dropdown options
             _linkedProbeDropdown.ClearOptions();
-            var availableProbes = ProbeManager.Instances.Except(_ephysLinkSettings.LinkedProbes)
+            var availableProbes = ProbeManager.Instances.Where(manager =>
+                    manager.UUID == previouslyLinkedProbeUUID || !_ephysLinkSettings.LinkedProbes.Contains(manager))
                 .Select(manager => manager.UUID).ToList();
             availableProbes.Insert(0, "None");
             _linkedProbeDropdown.AddOptions(availableProbes);
