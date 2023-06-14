@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TrajectoryPlanner.Probes;
+using TrajectoryPlanner.UI.AutomaticManipulatorControl;
 using UnityEngine;
 
-namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
+namespace TrajectoryPlanner.UI.EphysCopilot
 {
-    public class AutomaticManipulatorControlHandler : MonoBehaviour
+    public class EphysCopilotHandler : MonoBehaviour
     {
         #region Internal UI Functions
 
