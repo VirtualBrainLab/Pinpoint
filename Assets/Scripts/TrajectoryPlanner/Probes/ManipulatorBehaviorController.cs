@@ -104,7 +104,7 @@ namespace TrajectoryPlanner.Probes
                     float.IsNaN(value.z) ? _zeroCoordinateOffset.z : value.z,
                     float.IsNaN(value.w) ? _zeroCoordinateOffset.w : value.w);
 
-                ZeroCoordinateOffsetChangedEvent.Invoke(value);
+                ZeroCoordinateOffsetChangedEvent.Invoke(_zeroCoordinateOffset);
             }
         }
 
@@ -114,7 +114,7 @@ namespace TrajectoryPlanner.Probes
             set
             {
                 _brainSurfaceOffset = value;
-                BrainSurfaceOffsetChangedEvent.Invoke(value);
+                BrainSurfaceOffsetChangedEvent.Invoke(_brainSurfaceOffset);
             }
         }
 

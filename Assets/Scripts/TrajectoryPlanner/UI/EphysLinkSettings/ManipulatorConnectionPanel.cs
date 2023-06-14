@@ -113,6 +113,64 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             }
         }
 
+        /// <summary>
+        /// Update zero coordinate offset X-axis to the given value
+        /// </summary>
+        /// <param name="newValue">New offset X-axis value</param>
+        public void UpdateZeroCoordinateOffsetX(string newValue)
+        {
+            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
+                new Vector4(float.Parse(newValue), float.NaN, float.NaN, float.NaN);
+        }
+        
+        /// <summary>
+        /// Update zero coordinate offset Y-axis to the given value
+        /// </summary>
+        /// <param name="newValue">New offset Y-axis value</param>
+        public void UpdateZeroCoordinateOffsetY(string newValue)
+        {
+            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
+                new Vector4(float.NaN, float.Parse(newValue), float.NaN, float.NaN);
+        }
+        
+        /// <summary>
+        /// Update zero coordinate offset Z-axis to the given value
+        /// </summary>
+        /// <param name="newValue">New offset Z-axis value</param>
+        public void UpdateZeroCoordinateOffsetZ(string newValue)
+        {
+            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
+                new Vector4(float.NaN, float.NaN, float.Parse(newValue), float.NaN);
+        }
+        
+        /// <summary>
+        /// Update zero coordinate offset D-axis to the given value
+        /// </summary>
+        /// <param name="newValue">New offset D-axis value</param>
+        public void UpdateZeroCoordinateOffsetD(string newValue)
+        {
+            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
+                new Vector4(float.NaN, float.NaN, float.NaN, float.Parse(newValue));
+        }
+        
+        /// <summary>
+        /// Update brain surface offset to the given value
+        /// </summary>
+        /// <param name="newValue">New brain surface offset value</param>
+        public void UpdateBrainSurfaceOffset(string newValue)
+        {
+            _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset = float.Parse(newValue);
+        }
+
+        /// <summary>
+        /// Increment the brain surface offset by 100 µm
+        /// </summary>
+        /// <param name="positive">Increment in the positive direction or not</param>
+        public void IncrementBrainSurfaceOffset(bool positive)
+        {
+            _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset += positive ? 0.1f : -0.1f;
+        }
+
         #endregion
 
         #region Helper Functions
