@@ -2,10 +2,9 @@ using System;
 using System.Collections;
 using EphysLink;
 using TMPro;
-using TrajectoryPlanner.UI.EphysCopilot;
 using UnityEngine;
 
-namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
+namespace TrajectoryPlanner.UI.EphysCopilot
 {
     public class DrivePanelHandler : MonoBehaviour
     {

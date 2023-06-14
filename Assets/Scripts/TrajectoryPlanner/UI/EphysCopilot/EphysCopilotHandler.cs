@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TrajectoryPlanner.UI.AutomaticManipulatorControl;
 using UnityEngine;
 
 namespace TrajectoryPlanner.UI.EphysCopilot
