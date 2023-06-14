@@ -1,17 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CoordinateSpaces;
-using CoordinateTransforms;
-using EphysLink;
-using TMPro;
-using UITabs;
-using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 #if UNITY_WEBGL
 using System.Collections.Specialized;
 using System.Runtime.InteropServices;
@@ -22,9 +8,22 @@ using System.Runtime.InteropServices;
 // This code fixes a bug that is also fixed by upgrading to 2021.3.14f1 or newer
 // see https://forum.unity.com/threads/workaround-for-building-with-il2cpp-with-visual-studio-2022-17-4.1355570/
 // please remove this code when Unity version exceeds this!
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using CoordinateSpaces;
+using CoordinateTransforms;
+using EphysLink;
+using TMPro;
+using UITabs;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class MsvcStdextWorkaround : IPreprocessBuildWithReport
 {
@@ -478,8 +477,8 @@ namespace TrajectoryPlanner
                 var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
                 
                 if (communicationManager.IsConnected && !string.IsNullOrEmpty(manipulatorId))
-                    probeManager.SetIsEphysLinkControlled(true, manipulatorId, true, null,
-                        _ => probeManager.SetIsEphysLinkControlled(false));
+                    probeManager.SetIsEphysLinkControlled(true, manipulatorId,
+                        onError: _ => probeManager.SetIsEphysLinkControlled(false));
             }
             
             return probeManager;

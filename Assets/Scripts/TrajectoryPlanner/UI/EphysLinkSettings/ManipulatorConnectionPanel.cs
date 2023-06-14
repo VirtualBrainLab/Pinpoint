@@ -19,14 +19,14 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _ephysLinkSettings = settingsMenu;
             _manipulatorId = manipulatorID;
 
-            // Initialize components
-            _manipulatorIdText.text = manipulatorID;
-            UpdateLinkableProbeOptions();
-
             // Get attached probe (could be null)
             _attachedProbe = ProbeManager.Instances.Find(manager => manager.IsEphysLinkControlled &&
                                                                     manager.ManipulatorBehaviorController
                                                                         .ManipulatorID == manipulatorID);
+
+            // Initialize components
+            _manipulatorIdText.text = manipulatorID;
+            UpdateLinkableProbeOptions();
 
             // Apply handedness from memory or default to right handed
             if (_attachedProbe)
@@ -62,6 +62,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             Settings.EphysLinkRightHandedManipulators = string.Join("\n", currentRightHandedManipulators);
         }
 
+        /// <summary>
+        ///     Handle selecting (or deselecting) a probe to attach to this manipulator
+        /// </summary>
+        /// <param name="value">The selected index</param>
         public void OnLinkedProbeSelectionChanged(int value)
         {
             if (value == 0)
@@ -71,7 +75,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 {
                     _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
                     _attachedProbe = null;
-                    _probePropertiesSection.SetActive(false);
+
+                    // Update probe properties section
+                    UpdateProbePropertiesSectionState();
 
                     // Inform others a change was made
                     _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
@@ -98,15 +104,34 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.AddListener(
                         UpdateBrainSurfaceOffsetInputField);
 
-                    // Setup probe properties section
-                    _probePropertiesSection.SetActive(true);
-                    UpdateZeroCoordinateOffsetInputFields(_attachedProbe.ManipulatorBehaviorController
-                        .ZeroCoordinateOffset);
-                    UpdateBrainSurfaceOffsetInputField(_attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset);
+                    // Update probe properties section
+                    UpdateProbePropertiesSectionState();
 
                     // Inform others a change was made
                     _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
                 });
+            }
+        }
+
+        #endregion
+
+        #region Helper Functions
+
+        /// <summary>
+        ///     Refresh probe properties section
+        /// </summary>
+        private void UpdateProbePropertiesSectionState()
+        {
+            if (_attachedProbe)
+            {
+                _probePropertiesSection.SetActive(true);
+                UpdateZeroCoordinateOffsetInputFields(_attachedProbe.ManipulatorBehaviorController
+                    .ZeroCoordinateOffset);
+                UpdateBrainSurfaceOffsetInputField(_attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset);
+            }
+            else
+            {
+                _probePropertiesSection.SetActive(false);
             }
         }
 
@@ -131,10 +156,13 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             // Select previously selected probe if it exists
             _linkedProbeDropdown.value = Mathf.Max(0, availableProbes.IndexOf(previouslyLinkedProbeUUID));
+
+            // Update probe properties section
+            UpdateProbePropertiesSectionState();
         }
 
         /// <summary>
-        /// Update input fields for zero coordinate offset.
+        ///     Update input fields for zero coordinate offset.
         /// </summary>
         /// <param name="zeroCoordinateOffset">New zero coordinate offset</param>
         private void UpdateZeroCoordinateOffsetInputFields(Vector4 zeroCoordinateOffset)
@@ -146,7 +174,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         }
 
         /// <summary>
-        /// Update input field for brain surface offset.
+        ///     Update input field for brain surface offset.
         /// </summary>
         /// <param name="brainSurfaceOffset">New brain surface offset</param>
         private void UpdateBrainSurfaceOffsetInputField(float brainSurfaceOffset)

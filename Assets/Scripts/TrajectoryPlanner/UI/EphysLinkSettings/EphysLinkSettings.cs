@@ -59,7 +59,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             // Get/Set Components
             _uiManager = GameObject.Find("MainCanvas").GetComponent<UIManager>();
-            ProbeConnectionSettingsPanel.DestroyProbeEvent = _destroyProbeEvent;
         }
 
         private void OnEnable()
