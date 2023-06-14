@@ -5,6 +5,7 @@ using EphysLink;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace TrajectoryPlanner.UI.EphysLinkSettings
@@ -28,7 +29,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private GameObject _manipulatorList;
         [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
         [SerializeField] private Button _automaticControlButton;
-        [SerializeField] private Text _automaticControlButtonText;
+        [SerializeField] private Text _copilotButtonText;
 
         // Events
         [SerializeField] private UnityEvent<ProbeManager> _destroyProbeEvent;
@@ -41,7 +42,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         #region Properties
 
-        private bool AutomaticControlIsEnabled => _automaticControlButtonText.text.Contains("Hide");
+        private bool _ephysCopilotIsEnabled => _copilotButtonText.text.Contains("Hide");
 
 
         private readonly Dictionary<string, (ManipulatorConnectionPanel manipulatorConnectionSettingsPanel,
@@ -143,119 +144,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             }
         }
 
-        // public void UpdateProbePanels()
-        // {
-        //     // Exit early if not active
-        //     if (!gameObject.activeSelf) return;
-        //
-        //     var handledProbeIds = new HashSet<string>();
-        //
-        //     // Add any new probes in scene to list
-        //     foreach (var probeManager in ProbeManager.Instances)
-        //     {
-        //         var probeId = probeManager.UUID;
-        //
-        //         // Create probe connection settings panel if the probe is new
-        //         if (!_probeIdToProbeConnectionSettingsPanels.ContainsKey(probeId))
-        //         {
-        //             var probeConnectionSettingsPanelGameObject =
-        //                 Instantiate(_probeConnectionPanelPrefab, _probeList.transform);
-        //             var probeConnectionSettingsPanel =
-        //                 probeConnectionSettingsPanelGameObject.GetComponent<ProbeConnectionSettingsPanel>();
-        //
-        //             probeConnectionSettingsPanel.SetProbeManager(probeManager);
-        //             probeConnectionSettingsPanel.EphysLinkSettings = this;
-        //
-        //             _probeIdToProbeConnectionSettingsPanels.Add(probeId,
-        //                 new ValueTuple<ProbeConnectionSettingsPanel, GameObject>(probeConnectionSettingsPanel,
-        //                     probeConnectionSettingsPanelGameObject));
-        //         }
-        //         else
-        //         {
-        //             // Update probeManager in probe connection settings panel
-        //             _probeIdToProbeConnectionSettingsPanels[probeId].probeConnectionSettingsPanel
-        //                 .SetProbeManager(probeManager);
-        //         }
-        //
-        //         handledProbeIds.Add(probeId);
-        //     }
-        //
-        //     // Remove any probe that is not in the scene anymore
-        //     foreach (var removedProbeId in _probeIdToProbeConnectionSettingsPanels.Keys.Except(handledProbeIds)
-        //                  .ToList())
-        //     {
-        //         Destroy(_probeIdToProbeConnectionSettingsPanels[removedProbeId].gameObject);
-        //         _probeIdToProbeConnectionSettingsPanels.Remove(removedProbeId);
-        //     }
-        //
-        //     UpdateManipulatorPanelAndSelection();
-        // }
-
-        /// <summary>
-        ///     Updates the list of available manipulators to connect to and the selection options for probes.
-        /// </summary>
-        // public void UpdateManipulatorPanelAndSelection()
-        // {
-        //     CommunicationManager.Instance.GetManipulators(availableIds =>
-        //     {
-        //         // Update probes with selectable options
-        //         var usedManipulatorIds = ProbeManager.Instances
-        //             .Where(probeManager => probeManager.IsEphysLinkControlled)
-        //             .Select(probeManager => probeManager.ManipulatorBehaviorController.ManipulatorID).ToHashSet();
-        //         foreach (var probeConnectionSettingsPanel in _probeIdToProbeConnectionSettingsPanels.Values.Select(
-        //                      values => values.probeConnectionSettingsPanel))
-        //         {
-        //             var manipulatorDropdownOptions = new List<string> { "-" };
-        //             manipulatorDropdownOptions.AddRange(availableIds.Where(id =>
-        //                 id.Equals(probeConnectionSettingsPanel.ProbeManager.ManipulatorBehaviorController
-        //                     .ManipulatorID) ||
-        //                 !usedManipulatorIds.Contains(id)));
-        //
-        //             probeConnectionSettingsPanel.SetManipulatorIdDropdownOptions(manipulatorDropdownOptions);
-        //         }
-        //
-        //         // Handle manipulator panels
-        //         var handledManipulatorIds = new HashSet<string>();
-        //
-        //         // Add any new manipulators in scene to list
-        //         foreach (var manipulatorId in availableIds)
-        //         {
-        //             // Create new manipulator connection settings panel if the manipulator is new
-        //             if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorId))
-        //             {
-        //                 var manipulatorConnectionSettingsPanelGameObject =
-        //                     Instantiate(_manipulatorConnectionPanelPrefab, _manipulatorList.transform);
-        //                 var manipulatorConnectionSettingsPanel =
-        //                     manipulatorConnectionSettingsPanelGameObject
-        //                         .GetComponent<ManipulatorConnectionSettingsPanel>();
-        //
-        //                 manipulatorConnectionSettingsPanel.SetManipulatorId(manipulatorId);
-        //
-        //                 _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorId,
-        //                     new ValueTuple<ManipulatorConnectionSettingsPanel, GameObject>(
-        //                         manipulatorConnectionSettingsPanel, manipulatorConnectionSettingsPanelGameObject));
-        //             }
-        //
-        //             handledManipulatorIds.Add(manipulatorId);
-        //         }
-        //
-        //         // Remove any manipulators that are not connected anymore
-        //         foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys
-        //                      .Except(handledManipulatorIds).ToList())
-        //         {
-        //             Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].gameObject);
-        //             _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
-        //         }
-        //
-        //         // Enable or disable automatic control depending on whether any manipulators are used
-        //         _automaticControlButton.interactable = usedManipulatorIds.Count > 0;
-        //
-        //         // Close automatic control panel if no manipulators are used
-        //         if (usedManipulatorIds.Count == 0 && AutomaticControlIsEnabled)
-        //             _automaticControlButton.onClick.Invoke();
-        //     });
-        // }
-
         /// <summary>
         ///     Handle when connect/disconnect button is pressed.
         /// </summary>
@@ -303,10 +191,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// </summary>
         public void ToggleCopilotPanel()
         {
-            _automaticControlButtonText.text = !AutomaticControlIsEnabled
-                ? "Disable Automatic Manipulator Control"
-                : "Enable Automatic Manipulator Control";
-            _uiManager.EnableAutomaticManipulatorControlPanel(AutomaticControlIsEnabled);
+            _copilotButtonText.text = !_ephysCopilotIsEnabled
+                ? "Hide Ephys Copilot"
+                : "Show Ephys Copilot";
+            _uiManager.EnableEphysCopilotPanel(_ephysCopilotIsEnabled);
         }
 
         public void InvokeShouldUpdateProbesListEvent()

@@ -8,15 +8,14 @@ public class UIManager : MonoBehaviour
 {
     #region Components
 
-    [FormerlySerializedAs("EditorFocusableInputs")] [SerializeField]
-    private List<TMP_InputField> _editorFocusableInputs;
+    [SerializeField] private List<TMP_InputField> _editorFocusableInputs;
 
     [FormerlySerializedAs("EditorFocusableGOs")] [SerializeField]
     private List<GameObject> _editorFocusableGOs;
 
     [SerializeField] private List<TMP_Text> _whiteUIText;
 
-    [SerializeField] private GameObject _automaticControlPanelGameObject;
+    [SerializeField] private GameObject _ephysCopilotPanelGameObject;
 
     #endregion
 
@@ -39,9 +38,9 @@ public class UIManager : MonoBehaviour
         get { return FocusableInputs.Any(x => x != null ? x.isFocused : false) || FocusableGOs.Any(x => x != null ? x.activeSelf : false); }
     }
 
-    public void EnableAutomaticManipulatorControlPanel(bool enable = true)
+    public void EnableEphysCopilotPanel(bool enable = true)
     {
-        _automaticControlPanelGameObject.SetActive(enable);
+        _ephysCopilotPanelGameObject.SetActive(enable);
     }
 
     public void SetBackgroundWhite(bool state)
