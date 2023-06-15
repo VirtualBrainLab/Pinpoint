@@ -258,7 +258,6 @@ namespace TrajectoryPlanner.Probes
 
                 BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
                     _probeController.Insertion.apmldv);
-                ;
             }
         }
 

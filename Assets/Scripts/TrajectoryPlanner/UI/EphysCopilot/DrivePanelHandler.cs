@@ -198,6 +198,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     ProbeManager.ProbeController.Insertion.apmldv);
 
                 // Set target and surface
+                print("Position.w: " + position.w + " targetDriveDistance: " + targetDriveDistance);
                 _targetDepth = position.w + targetDriveDistance;
                 _surfaceDepth = position.w - surfaceDriveDistance;
 
@@ -273,6 +274,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     CommunicationManager.Instance.SetInsideBrain(
                         ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, _ =>
                         {
+                            print("200+ depth: "+ (_targetDepth + DRIVE_PAST_TARGET_DISTANCE));
                             CommunicationManager.Instance.DriveToDepth(
                                 ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                                 _targetDepth + DRIVE_PAST_TARGET_DISTANCE, _targetDriveSpeed, _ => DriveBackToTarget(),
@@ -285,6 +287,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         {
             // Set drive status
             _statusText.text = "Driving back to target...";
+            
+            print("Target depth: "+_targetDepth);
 
             // Drive
             CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
