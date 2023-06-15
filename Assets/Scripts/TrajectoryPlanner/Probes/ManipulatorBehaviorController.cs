@@ -187,10 +187,10 @@ namespace TrajectoryPlanner.Probes
         public void Initialize(string manipulatorID, bool calibrated)
         {
             ManipulatorID = manipulatorID;
-            CoordinateSpace = new SensapexSpace();
+            CoordinateSpace = new NewScaleSpace();
             Transform = IsRightHanded
                 ? new SensapexRightTransform(_probeController.Insertion.phi)
-                : new SensapexLeftTransform(_probeController.Insertion.phi);
+                : new NewScaleLeftTransform(_probeController.Insertion.phi, _probeController.Insertion.theta);
             _probeController.Locked = true;
 
             if (calibrated)
