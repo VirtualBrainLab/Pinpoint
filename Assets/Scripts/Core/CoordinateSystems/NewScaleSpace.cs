@@ -14,7 +14,7 @@ namespace CoordinateSpaces
         /// <returns>World space coordinates</returns>
         public override Vector3 Space2World(Vector3 coord)
         {
-            return new Vector3(coord.x, -coord.z, -coord.y);
+            return new Vector3(coord.x, coord.z, -coord.y);
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace CoordinateSpaces
         /// <returns>New Scale Space coordinates</returns>
         public override Vector3 World2Space(Vector3 world)
         {
-            return new Vector3(world.x, -world.z, -world.y);
+            return new Vector3(world.x, -world.z, world.y);
         }
 
         public override Vector3 Space2WorldAxisChange(Vector3 coord)
