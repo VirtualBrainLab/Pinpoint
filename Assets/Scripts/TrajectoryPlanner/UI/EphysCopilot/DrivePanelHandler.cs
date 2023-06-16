@@ -199,8 +199,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Set target and surface
                 print("Position.w: " + position.w + " targetDriveDistance: " + targetDriveDistance);
-                _targetDepth = position.w + targetDriveDistance;
-                _surfaceDepth = position.w - surfaceDriveDistance;
+                _targetDepth = position.w - targetDriveDistance;
+                _surfaceDepth = position.w + surfaceDriveDistance;
 
                 // Set drive speeds (base + 1 sec / 1000 um of depth)
                 _targetDriveSpeed = Mathf.RoundToInt(DEPTH_DRIVE_BASE_SPEED + targetDriveDistance * PER_1000_SPEED);

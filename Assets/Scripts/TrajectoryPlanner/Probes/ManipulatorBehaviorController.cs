@@ -26,12 +26,18 @@ namespace TrajectoryPlanner.Probes
             var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
             if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta >= dvDelta;
             _lastManipulatorPosition = pos;
+            
+            print("pos: " + pos);
 
             // Apply zero coordinate offset
             var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
+            
+            print("zeroCoordinateAdjustedManipulatorPosition: " + zeroCoordinateAdjustedManipulatorPosition);
 
             // Convert to sensapex space
             var sensapexSpacePosition = Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
+            
+            print("sensapexSpacePosition: " + sensapexSpacePosition);
 
             // Brain surface adjustment
             var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
@@ -39,10 +45,14 @@ namespace TrajectoryPlanner.Probes
                 zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
             else
                 sensapexSpacePosition.z += CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
-
+            
+            print("depth offset (sensapex space): " + sensapexSpacePosition);
+ 
             // Convert to world space
             var zeroCoordinateAdjustedWorldPosition =
                 CoordinateSpace.Space2World(sensapexSpacePosition);
+            
+            print("World space: " + zeroCoordinateAdjustedWorldPosition);
 
             // Set probe position (change axes to match probe)
             var insertion = _probeController.Insertion;
