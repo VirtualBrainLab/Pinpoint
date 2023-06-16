@@ -26,31 +26,45 @@ namespace TrajectoryPlanner.Probes
             var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
             if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
             _lastManipulatorPosition = pos;
-            
+
             // Apply zero coordinate offset
             var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
-            
+
             // Convert to sensapex space
-            var manipulatorSpacePosition = Transform.Transform2SpaceAxisChange(zeroCoordinateAdjustedManipulatorPosition);
-            
+            var manipulatorSpacePosition =
+                Transform.Transform2SpaceAxisChange(zeroCoordinateAdjustedManipulatorPosition);
+
             // Brain surface adjustment
             // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
             var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
             if (IsSetToDropToSurfaceWithDepth)
-                zeroCoordinateAdjustedManipulatorPosition.w += CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
+                zeroCoordinateAdjustedManipulatorPosition.w +=
+                    CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
             else
-                manipulatorSpacePosition.z += CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
-            
+                manipulatorSpacePosition.z +=
+                    CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
+
             // Convert to world space
             var zeroCoordinateAdjustedWorldPosition =
                 CoordinateSpace.Space2World(manipulatorSpacePosition);
-            
+
             // Set probe position (change axes to match probe)
             var insertion = _probeController.Insertion;
             var transformedApmldv =
                 insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
-            _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-                transformedApmldv.z, 0));
+
+            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+            if (ManipulatorType == "new_scale")
+            {
+                _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                    transformedApmldv.z, 0));
+            }
+            else
+            {
+                _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                    transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
+            }
+
 
             // Log every 10hz
             if (Time.time - _lastLoggedTime >= 0.1)
@@ -90,6 +104,8 @@ namespace TrajectoryPlanner.Probes
         #region Properties
 
         public string ManipulatorID { get; set; }
+
+        public string ManipulatorType { get; set; }
 
         /**
          * Getter and setter or the zero coordinate offset of the manipulator.

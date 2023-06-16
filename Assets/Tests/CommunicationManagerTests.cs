@@ -48,8 +48,9 @@ namespace Tests
             // Get manipulators
             var state = State.None;
 
+            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
             _communicationManager.GetManipulators(
-                returnedManipulators =>
+                (returnedManipulators, _) =>
                 {
                     _manipulators = returnedManipulators;
                     state = State.Success;
