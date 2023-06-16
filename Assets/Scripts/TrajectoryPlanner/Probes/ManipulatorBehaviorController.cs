@@ -24,42 +24,33 @@ namespace TrajectoryPlanner.Probes
             // Calculate last used direction for dropping to brain surface (between depth and DV)
             var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
             var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
-            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta >= dvDelta;
+            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
             _lastManipulatorPosition = pos;
             
-            print("pos: " + pos);
-
             // Apply zero coordinate offset
             var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
             
-            print("zeroCoordinateAdjustedManipulatorPosition: " + zeroCoordinateAdjustedManipulatorPosition);
-
             // Convert to sensapex space
-            var sensapexSpacePosition = Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
+            var manipulatorSpacePosition = Transform.Transform2SpaceAxisChange(zeroCoordinateAdjustedManipulatorPosition);
             
-            print("sensapexSpacePosition: " + sensapexSpacePosition);
-
             // Brain surface adjustment
+            // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
             var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
             if (IsSetToDropToSurfaceWithDepth)
-                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+                zeroCoordinateAdjustedManipulatorPosition.w += CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
             else
-                sensapexSpacePosition.z += CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
+                manipulatorSpacePosition.z += CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
             
-            print("depth offset (sensapex space): " + sensapexSpacePosition);
- 
             // Convert to world space
             var zeroCoordinateAdjustedWorldPosition =
-                CoordinateSpace.Space2World(sensapexSpacePosition);
+                CoordinateSpace.Space2World(manipulatorSpacePosition);
             
-            print("World space: " + zeroCoordinateAdjustedWorldPosition);
-
             // Set probe position (change axes to match probe)
             var insertion = _probeController.Insertion;
             var transformedApmldv =
                 insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
             _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-                transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
+                transformedApmldv.z, 0));
 
             // Log every 10hz
             if (Time.time - _lastLoggedTime >= 0.1)

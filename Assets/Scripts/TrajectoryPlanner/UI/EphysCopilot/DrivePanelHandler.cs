@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using CoordinateTransforms;
 using EphysLink;
 using TMPro;
 using UnityEngine;
@@ -198,9 +199,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     ProbeManager.ProbeController.Insertion.apmldv);
 
                 // Set target and surface
-                print("Position.w: " + position.w + " targetDriveDistance: " + targetDriveDistance);
-                _targetDepth = position.w - targetDriveDistance;
-                _surfaceDepth = position.w + surfaceDriveDistance;
+                _targetDepth = position.w + ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * targetDriveDistance;
+                _surfaceDepth = position.w + ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2SpaceAxisChange(Vector3.up).z * surfaceDriveDistance;
 
                 // Set drive speeds (base + 1 sec / 1000 um of depth)
                 _targetDriveSpeed = Mathf.RoundToInt(DEPTH_DRIVE_BASE_SPEED + targetDriveDistance * PER_1000_SPEED);
@@ -274,10 +274,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     CommunicationManager.Instance.SetInsideBrain(
                         ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, _ =>
                         {
-                            print("200+ depth: "+ (_targetDepth + DRIVE_PAST_TARGET_DISTANCE));
+                            // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
                             CommunicationManager.Instance.DriveToDepth(
                                 ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                _targetDepth + DRIVE_PAST_TARGET_DISTANCE, _targetDriveSpeed, _ => DriveBackToTarget(),
+                                _targetDepth + ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2SpaceAxisChange(Vector3.down).z*DRIVE_PAST_TARGET_DISTANCE, _targetDriveSpeed, _ => DriveBackToTarget(),
                                 Debug.LogError);
                         });
                 });
@@ -328,8 +328,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         {
                             print("At dura");
                             // Drive 100 um to move away from dura
+                            // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
                             CommunicationManager.Instance.DriveToDepth(
-                                ProbeManager.ManipulatorBehaviorController.ManipulatorID, _duraDepth - .1f,
+                                ProbeManager.ManipulatorBehaviorController.ManipulatorID, _duraDepth + ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2SpaceAxisChange(Vector3.up).z * .1f,
                                 EXIT_DURA_MARGIN_SPEED,
                                 i =>
                                 {
