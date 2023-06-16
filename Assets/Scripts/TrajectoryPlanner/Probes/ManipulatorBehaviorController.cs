@@ -38,11 +38,11 @@ namespace TrajectoryPlanner.Probes
             if (IsSetToDropToSurfaceWithDepth)
                 zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
             else
-                sensapexSpacePosition.z += brainSurfaceAdjustment;
+                sensapexSpacePosition.z += CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
 
             // Convert to world space
             var zeroCoordinateAdjustedWorldPosition =
-                CoordinateSpace.Space2WorldAxisChange(sensapexSpacePosition);
+                CoordinateSpace.Space2World(sensapexSpacePosition);
 
             // Set probe position (change axes to match probe)
             var insertion = _probeController.Insertion;
@@ -50,13 +50,13 @@ namespace TrajectoryPlanner.Probes
                 insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
             _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
                 transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
-            
+
             // Log every 10hz
             if (Time.time - _lastLoggedTime >= 0.1)
             {
                 _lastLoggedTime = Time.time;
                 var tipPos = _probeController.ProbeTipT.position;
-                
+
                 // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
                 string[] data =
                 {
