@@ -35,7 +35,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             {
                 _handednessDropdown.value = _attachedProbe.ManipulatorBehaviorController.IsRightHanded ? 1 : 0;
                 _attachedProbe.ManipulatorBehaviorController.ManipulatorType = type;
-                print("Set type to: "+ type);
             }
             else
                 _handednessDropdown.value =

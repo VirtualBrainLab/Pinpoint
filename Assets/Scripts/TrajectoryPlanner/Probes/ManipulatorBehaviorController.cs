@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using CoordinateSpaces;
 using CoordinateTransforms;
 using EphysLink;
@@ -203,35 +204,52 @@ namespace TrajectoryPlanner.Probes
 
         public void Initialize(string manipulatorID, bool calibrated)
         {
-            ManipulatorID = manipulatorID;
-            CoordinateSpace = new NewScaleSpace();
-            Transform = IsRightHanded
-                ? new SensapexRightTransform(_probeController.Insertion.phi)
-                : new NewScaleLeftTransform(_probeController.Insertion.phi, _probeController.Insertion.theta);
-            _probeController.Locked = true;
-
-            if (calibrated)
-                // Bypass calibration and start echoing
-                CommunicationManager.Instance.BypassCalibration(manipulatorID, StartEchoing);
-            else
-                CommunicationManager.Instance.SetCanWrite(manipulatorID, true, 1,
-                    _ =>
-                    {
-                        CommunicationManager.Instance.Calibrate(manipulatorID,
-                            () =>
-                            {
-                                CommunicationManager.Instance.SetCanWrite(manipulatorID, false, 0, _ => StartEchoing());
-                            });
-                    });
-
-            void StartEchoing()
+            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+            CommunicationManager.Instance.GetManipulators((ids, type) =>
             {
-                CommunicationManager.Instance.GetPos(manipulatorID, pos =>
+                if (!ids.Contains(manipulatorID)) return;
+
+                ManipulatorID = manipulatorID;
+                if (type == "sensapex")
                 {
-                    if (ZeroCoordinateOffset.Equals(Vector4.zero)) ZeroCoordinateOffset = pos;
-                    EchoPosition(pos);
-                });
-            }
+                    CoordinateSpace = new SensapexSpace();
+                    Transform = IsRightHanded
+                        ? new SensapexRightTransform(_probeController.Insertion.phi)
+                        : new SensapexLeftTransform(_probeController.Insertion.phi);
+                }
+                else
+                {
+                    CoordinateSpace = new NewScaleSpace();
+                    Transform = new NewScaleLeftTransform(_probeController.Insertion.phi,
+                        _probeController.Insertion.theta);
+                }
+
+                _probeController.Locked = true;
+
+                if (calibrated)
+                    // Bypass calibration and start echoing
+                    CommunicationManager.Instance.BypassCalibration(manipulatorID, StartEchoing);
+                else
+                    CommunicationManager.Instance.SetCanWrite(manipulatorID, true, 1,
+                        _ =>
+                        {
+                            CommunicationManager.Instance.Calibrate(manipulatorID,
+                                () =>
+                                {
+                                    CommunicationManager.Instance.SetCanWrite(manipulatorID, false, 0,
+                                        _ => StartEchoing());
+                                });
+                        });
+
+                void StartEchoing()
+                {
+                    CommunicationManager.Instance.GetPos(manipulatorID, pos =>
+                    {
+                        if (ZeroCoordinateOffset.Equals(Vector4.zero)) ZeroCoordinateOffset = pos;
+                        EchoPosition(pos);
+                    });
+                }
+            });
         }
 
         public void Disable()
