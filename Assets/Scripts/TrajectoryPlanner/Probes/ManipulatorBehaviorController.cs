@@ -33,7 +33,7 @@ namespace TrajectoryPlanner.Probes
 
             // Convert to sensapex space
             var manipulatorSpacePosition =
-                Transform.Transform2SpaceAxisChange(zeroCoordinateAdjustedManipulatorPosition);
+                Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
 
             // Brain surface adjustment
             // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
@@ -56,15 +56,11 @@ namespace TrajectoryPlanner.Probes
 
             // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
             if (ManipulatorType == "new_scale")
-            {
                 _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
                     transformedApmldv.z, 0));
-            }
             else
-            {
                 _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
                     transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
-            }
 
 
             // Log every 10hz
