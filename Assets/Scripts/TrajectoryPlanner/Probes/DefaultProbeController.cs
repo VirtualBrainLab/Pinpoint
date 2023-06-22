@@ -421,19 +421,64 @@ public class DefaultProbeController : ProbeController
                 }, Debug.LogError);
         }
         else
-        {
             Insertion.apmldv = targetAPMLDV;
-        }
         
     }
 
     public void MoveProbeDepth(float depth, bool pressed)
     {
-        float speed = pressed ?
+        var speed = pressed
+            ?
             keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
             keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
-        this.depth += depth * speed;
+        var targetDriveDistance = depth * speed;
+
+        if (ManipulatorKeyboardControl)
+            // Get current position to compute the target position
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, pos =>
+            {
+                var targetDepth = pos.w +
+                                  ProbeManager.ManipulatorBehaviorController.CoordinateSpace
+                                      .World2SpaceAxisChange(Vector3.down).z * targetDriveDistance;
+
+                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                    true, 1,
+                    canWrite =>
+                    {
+                        if (!canWrite) return;
+
+                        CommunicationManager.Instance.SetInsideBrain(
+                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, true,
+                            _ =>
+                            {
+                                // Disable/ignore more input until movement is done
+                                ManipulatorKeyboardControl = false;
+
+                                // Move the manipulator
+                                CommunicationManager.Instance.DriveToDepth(
+                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                    targetDepth, ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
+                                    _ =>
+                                    {
+                                        CommunicationManager.Instance.SetInsideBrain(
+                                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
+                                            _ =>
+                                            {
+                                                CommunicationManager.Instance.SetCanWrite(
+                                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID, false, 1,
+                                                    _ =>
+                                                    {
+                                                        // Re-enable input once movement is done
+                                                        ManipulatorKeyboardControl = true;
+                                                    }, Debug.LogError);
+                                            });
+                                    }, Debug.LogError);
+                            });
+                    }, Debug.LogError);
+            });
+        else
+            this.depth += targetDriveDistance;
     }
 
     public void RotateProbe(float phi, float theta, bool pressed)
