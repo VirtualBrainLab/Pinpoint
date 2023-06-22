@@ -18,9 +18,12 @@ public class OutputLog : MonoBehaviour
     private List<string> _log;
     [SerializeField] private TMP_InputField _logField;
 
+#if UNITY_EDITOR
     private float _lastLogTime;
+#endif
     private const float LOG_TIME_WARNING = 1f;
     private const int MAX_LOG_LINES = 60;
+    private bool _warned;
 
     private void Awake()
     {
@@ -29,7 +32,10 @@ public class OutputLog : MonoBehaviour
         Instance = this;
 
         _log = new();
+
+#if UNITY_EDITOR
         _lastLogTime = float.MinValue;
+#endif
     }
 
     /// <summary>
@@ -38,9 +44,14 @@ public class OutputLog : MonoBehaviour
     /// <param name="data">Columns of data, the first value should be the data type</param>
     public static void Log(IEnumerable<string> data)
     {
-        if ((Time.realtimeSinceStartup - Instance._lastLogTime) < LOG_TIME_WARNING)
+#if UNITY_EDITOR
+        if (!Instance._warned && (Time.realtimeSinceStartup - Instance._lastLogTime) < LOG_TIME_WARNING)
+        {
             Debug.LogWarning("(OutputLog) You are logging data too quickly -- this could eventually cause memory problems");
+            Instance._warned = true;
+        }
         Instance._lastLogTime = Time.realtimeSinceStartup;
+#endif
 
         Instance._log.Add(string.Join(',', data));
         Instance.UpdateLogText();
