@@ -58,10 +58,12 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
-Assets/Resources_moved/AllenCCF/*.obj
-Assets/Resources_moved/AllenCCF/*.obj.meta
+# AddressableAssets
+Assets/AddressableAssets/3D/*
+Assets/AddressableAssets/IBL/*
+Assets/AddressableAssets/Textures/*
+
 ServerData/*
-Assets/AddressableAssets/*
 Assets/Best HTTP/*
 
 
