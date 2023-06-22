@@ -74,33 +74,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _lineRenderers.ml.positionCount = _lineRenderers.dv.positionCount = NUM_SEGMENTS;
         }
 
-        private Vector4 ConvertInsertionToManipulatorPosition(ProbeInsertion insertion)
-        {
-            // Gather info
-            var apmldv = insertion.apmldv;
-
-            // Convert apmldv to world coordinate
-            var convertToWorld = insertion.Transformed2WorldAxisChange(apmldv);
-
-            // Convert to Sensapex space
-            var posInSensapexSpace =
-                ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2Space(convertToWorld);
-            Vector4 posInSensapexTransform =
-                ProbeManager.ManipulatorBehaviorController.Transform.Space2Transform(posInSensapexSpace);
-
-            // Apply brain surface offset
-            var brainSurfaceAdjustment = float.IsNaN(ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset)
-                ? 0
-                : ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
-            if (ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth)
-                posInSensapexTransform.w -= brainSurfaceAdjustment;
-            else
-                posInSensapexTransform.z -= brainSurfaceAdjustment;
-
-            // Apply coordinate offsets and return result
-            return posInSensapexTransform + ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
-        }
-
         /// <summary>
         ///     Update the target insertion dropdown options.
         ///     Try to maintain/restore previous selection
@@ -139,11 +112,11 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Setup and compute movement
             _isMoving = true;
             var apPosition =
-                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ap);
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ap.apmldv);
             var mlPosition =
-                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ml);
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ml.apmldv);
             var dvPosition =
-                ConvertInsertionToManipulatorPosition(_movementAxesInsertions.dv);
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions.dv.apmldv);
 
             // Move
             CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,

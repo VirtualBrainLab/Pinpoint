@@ -334,10 +334,6 @@ public class ProbeManager : MonoBehaviour
     /// <returns>Whether or not the probe moved on this frame</returns>
     public void MoveProbe()
     {
-        // Cancel movement if being controlled by EphysLink
-        if (IsEphysLinkControlled)
-            return;
-
         ((DefaultProbeController)_probeController).MoveProbe_Keyboard();
     }
 
