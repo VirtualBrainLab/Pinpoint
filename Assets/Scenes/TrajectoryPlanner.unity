@@ -3287,6 +3287,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -682
       objectReference: {fileID: 0}
+    - target: {fileID: 1175936587513345476, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2108153954}
+    - target: {fileID: 1175936587513345476, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: AddNewProbeVoid
+      objectReference: {fileID: 0}
+    - target: {fileID: 1175936587513345476, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 1386578852705045263, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3326,6 +3338,18 @@ PrefabInstance:
     - target: {fileID: 1736498697129180698, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -602.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1777536954157744748, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2108153954}
+    - target: {fileID: 1777536954157744748, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: AddNewProbeVoid
+      objectReference: {fileID: 0}
+    - target: {fileID: 1777536954157744748, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 1806035406376306268, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: _accountsManager
@@ -3394,6 +3418,18 @@ PrefabInstance:
     - target: {fileID: 2132371950299426361, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: Settings, trajectoryplanner.core.utilities
+      objectReference: {fileID: 0}
+    - target: {fileID: 2299261407200501439, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2108153954}
+    - target: {fileID: 2299261407200501439, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: AddNewProbeVoid
+      objectReference: {fileID: 0}
+    - target: {fileID: 2299261407200501439, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 2355195214867702199, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
@@ -5821,7 +5857,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1302158968859411074, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1302158968859411085, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: m_IsActive
@@ -5865,7 +5901,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: _channelMapAssetRefs.Array.size
-      value: 8
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: _selectionLayerNames.Array.size
@@ -5881,7 +5917,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: _channelMapProbeTypes.Array.size
-      value: 8
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: _selectionLayerNames.Array.data[1]
@@ -5928,8 +5964,20 @@ PrefabInstance:
       value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: _channelMapProbeTypes.Array.data[8]
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: _channelMapProbeTypes.Array.data[9]
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: _selectionLayerAssetRefs.Array.size
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: _channelMapProbeTypes.Array.data[10]
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: _channelMapAssetRefs.Array.data[1].m_AssetGUID
@@ -5957,6 +6005,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: _channelMapAssetRefs.Array.data[7].m_AssetGUID
+      value: f1ddfb9f17fe7ac4bb5bb3feedfd1a20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: _channelMapAssetRefs.Array.data[8].m_AssetGUID
+      value: f1ddfb9f17fe7ac4bb5bb3feedfd1a20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: _channelMapAssetRefs.Array.data[9].m_AssetGUID
+      value: f1ddfb9f17fe7ac4bb5bb3feedfd1a20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: _channelMapAssetRefs.Array.data[10].m_AssetGUID
       value: f1ddfb9f17fe7ac4bb5bb3feedfd1a20
       objectReference: {fileID: 0}
     - target: {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
@@ -7394,7 +7454,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _probePrefabs.Array.size
-      value: 7
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: probePrefabIDs.Array.size
@@ -7444,6 +7504,18 @@ PrefabInstance:
       propertyPath: _probePrefabs.Array.data[6]
       value: 
       objectReference: {fileID: 4368194536080577051, guid: 6891811463e7bf8479053eb1eb1eefe9, type: 3}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _probePrefabs.Array.data[7]
+      value: 
+      objectReference: {fileID: 4368194536080577051, guid: fb43e89f3ab62794a9da5def11da869c, type: 3}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _probePrefabs.Array.data[8]
+      value: 
+      objectReference: {fileID: 4368194536080577051, guid: 522e9cff57601f04092f13575c3dfdbf, type: 3}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _probePrefabs.Array.data[9]
+      value: 
+      objectReference: {fileID: 4368194536080577051, guid: c2478d085fb8dc949a40d0951e320e94, type: 3}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: probePrefabIDs.Array.data[3]
       value: 8

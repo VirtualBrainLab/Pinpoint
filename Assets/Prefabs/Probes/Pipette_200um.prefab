@@ -144,7 +144,7 @@ Transform:
   m_GameObject: {fileID: 2698243037706463709}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1.9200001, z: 0}
-  m_LocalScale: {x: 0.05, y: 3.84, z: 0.05}
+  m_LocalScale: {x: 0.225, y: 3.84, z: 0.225}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3485671869318689184}
@@ -229,7 +229,7 @@ Transform:
   m_GameObject: {fileID: 2888827817699935360}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 5, z: 0}
-  m_LocalScale: {x: 0.025, y: 5, z: 0.025}
+  m_LocalScale: {x: 0.2, y: 5, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3485671869318689184}
@@ -342,7 +342,7 @@ Transform:
   m_GameObject: {fileID: 3111241596161049373}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 5, z: 0}
-  m_LocalScale: {x: 0.1, y: 5, z: 0.1}
+  m_LocalScale: {x: 0.3, y: 5, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2248518515080878615}
@@ -552,7 +552,7 @@ GameObject:
   - component: {fileID: 2207803182506741358}
   - component: {fileID: 2498329367781421407}
   m_Layer: 10
-  m_Name: Pipette_25um
+  m_Name: Pipette_200um
   m_TagString: Probe
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -604,7 +604,7 @@ MonoBehaviour:
   - {fileID: 4368194536080577050}
   _probeRenderer: {fileID: 6032446061409588127}
   _recRegion: {fileID: 3380668106613600159}
-  ProbeType: 25
+  ProbeType: 200
   _probeController: {fileID: 2207803182506741358}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
 --- !u!114 &4368194536080577050

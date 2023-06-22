@@ -41,7 +41,10 @@ public class ProbeProperties
         Neuropixels24x2 = 28,
         UCLA128K = 128,
         UCLA256F = 256,
-        Pipette = 25
+        Pipette25 = 25,
+        Pipette50 = 50,
+        Pipette100 = 100,
+        Pipette200 = 200
     }
 
     public static bool FourShank(ProbeType probeType)
@@ -58,7 +61,13 @@ public class ProbeProperties
                 return true;
             case ProbeType.Neuropixels24x2:
                 return true;
-            case ProbeType.Pipette:
+            case ProbeType.Pipette25:
+                return false;
+            case ProbeType.Pipette50:
+                return false;
+            case ProbeType.Pipette100:
+                return false;
+            case ProbeType.Pipette200:
                 return false;
             default:
                 return false;
