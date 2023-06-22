@@ -391,7 +391,6 @@ public class ProbeManager : MonoBehaviour
 
         for (int i = 0; i < channelCoords.Count; i++)
         {
-            Debug.Log(channelCoords[i]);
             if (channelCoords[i].y < _channelMinY)
                 _channelMinY = channelCoords[i].y / 1000f; // coordinates are in um, so divide to mm
             if (channelCoords[i].y > _channelMaxY)
@@ -405,7 +404,7 @@ public class ProbeManager : MonoBehaviour
         }
 
 #if UNITY_EDITOR
-        Debug.Log($"Minimum channel coordinate {_channelMinY} max {_channelMaxY}");
+        Debug.Log($"(ProbeManager) Minimum channel coordinate {_channelMinY} max {_channelMaxY}");
 #endif
         foreach (ProbeUIManager puiManager in _probeUIManagers)
             puiManager.UpdateChannelMap();
