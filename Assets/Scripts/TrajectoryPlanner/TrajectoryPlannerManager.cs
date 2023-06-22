@@ -1,13 +1,3 @@
-#if UNITY_WEBGL
-using System.Collections.Specialized;
-using System.Runtime.InteropServices;
-#endif
-
-#if UNITY_EDITOR
-
-// This code fixes a bug that is also fixed by upgrading to 2021.3.14f1 or newer
-// see https://forum.unity.com/threads/workaround-for-building-with-il2cpp-with-visual-studio-2022-17-4.1355570/
-// please remove this code when Unity version exceeds this!
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +14,18 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+
+#if UNITY_WEBGL
+using System.Collections.Specialized;
+using System.Runtime.InteropServices;
+#endif
+
+#if UNITY_EDITOR
+
+// This code fixes a bug that is also fixed by upgrading to 2021.3.14f1 or newer
+// see https://forum.unity.com/threads/workaround-for-building-with-il2cpp-with-visual-studio-2022-17-4.1355570/
+// please remove this code when Unity version exceeds this!
+
 
 public class MsvcStdextWorkaround : IPreprocessBuildWithReport
 {
