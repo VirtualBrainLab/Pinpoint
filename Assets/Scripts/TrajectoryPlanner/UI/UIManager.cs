@@ -6,6 +6,10 @@ using UnityEngine.Serialization;
 
 public class UIManager : MonoBehaviour
 {
+    #region Static
+    public static UIManager Instance;
+    #endregion
+
     #region Components
 
     [SerializeField] private List<TMP_InputField> _editorFocusableInputs;
@@ -16,6 +20,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private List<TMP_Text> _whiteUIText;
 
     [SerializeField] private GameObject _ephysCopilotPanelGameObject;
+    [SerializeField] private GameObject _settingsPanel;
 
     #endregion
 
@@ -29,13 +34,17 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
         FocusableInputs.UnionWith(_editorFocusableInputs);
         FocusableGOs.UnionWith(_editorFocusableGOs);
     }
 
     public static bool InputsFocused
     {
-        get { return FocusableInputs.Any(x => x != null && x.isFocused) || FocusableGOs.Any(x => x != null && x.activeSelf); }
+        get {
+            return Instance._settingsPanel.activeSelf || FocusableInputs.Any(x => x != null && x.isFocused) || FocusableGOs.Any(x => x != null && x.activeSelf);
+        }
     }
 
     public void EnableEphysCopilotPanel(bool enable = true)

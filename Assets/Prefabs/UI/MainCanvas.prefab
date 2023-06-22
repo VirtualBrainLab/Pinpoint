@@ -196,7 +196,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   _whiteUIText: []
-  _automaticControlPanelGameObject: {fileID: 0}
+  _ephysCopilotPanelGameObject: {fileID: 0}
+  _settingsPanel: {fileID: 341190943640726960}
 --- !u!1001 &313233569129278197
 PrefabInstance:
   m_ObjectHideFlags: 0

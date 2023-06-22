@@ -225,7 +225,7 @@ namespace TrajectoryPlanner
                 return;
             }
 
-            if (Input.GetKeyDown(KeyCode.H) && !UIManager.InputsFocused)
+            if (Input.GetKeyDown(KeyCode.H))
                 _settingsPanel.ToggleSettingsMenu();
 
             if (Input.GetKeyDown(KeyCode.L) && !UIManager.InputsFocused)
