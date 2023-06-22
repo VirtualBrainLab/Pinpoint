@@ -84,7 +84,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             // Convert to Sensapex space
             var posInSensapexSpace =
-                ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2SpaceAxisChange(convertToWorld);
+                ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2Space(convertToWorld);
             Vector4 posInSensapexTransform =
                 ProbeManager.ManipulatorBehaviorController.Transform.Space2Transform(posInSensapexSpace);
 

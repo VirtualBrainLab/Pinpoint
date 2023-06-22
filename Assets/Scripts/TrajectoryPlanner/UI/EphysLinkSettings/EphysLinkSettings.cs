@@ -82,7 +82,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             if (CommunicationManager.Instance.IsConnected)
             {
-                CommunicationManager.Instance.GetManipulators(availableIDs =>
+                // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+                CommunicationManager.Instance.GetManipulators((availableIDs, type) =>
                 {
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
@@ -101,7 +102,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                                     .GetComponent<ManipulatorConnectionPanel>();
 
                             // Set manipulator id
-                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID);
+                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID, type);
 
                             // Add to dictionary
                             _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorID,

@@ -13,11 +13,12 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     {
         #region Constructor
 
-        public void Initialize(EphysLinkSettings settingsMenu, string manipulatorID)
+        public void Initialize(EphysLinkSettings settingsMenu, string manipulatorID, string type)
         {
             // Set properties
             _ephysLinkSettings = settingsMenu;
             _manipulatorId = manipulatorID;
+            _type = type;
 
             // Get attached probe (could be null)
             _attachedProbe = ProbeManager.Instances.Find(manager => manager.IsEphysLinkControlled &&
@@ -28,9 +29,13 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _manipulatorIdText.text = manipulatorID;
             UpdateLinkableProbeOptions();
 
-            // Apply handedness from memory or default to right handed
+            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+            // Apply handedness from memory or default to right handed, also pass along manipulator type
             if (_attachedProbe)
+            {
                 _handednessDropdown.value = _attachedProbe.ManipulatorBehaviorController.IsRightHanded ? 1 : 0;
+                _attachedProbe.ManipulatorBehaviorController.ManipulatorType = type;
+            }
             else
                 _handednessDropdown.value =
                     Settings.EphysLinkRightHandedManipulators.Split("\n").Contains(manipulatorID) ? 1 : 0;
@@ -94,6 +99,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 {
                     _attachedProbe = newProbeManager;
                     _ephysLinkSettings.LinkedProbes.Add(_attachedProbe);
+                    // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+                    _attachedProbe.ManipulatorBehaviorController.ManipulatorType = _type;
 
                     // Inform others a change was made
                     _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
@@ -262,6 +269,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         private EphysLinkSettings _ephysLinkSettings;
         private string _manipulatorId;
+        private string _type;
 
         #endregion
     }

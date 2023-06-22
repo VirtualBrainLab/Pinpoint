@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using CoordinateSpaces;
 using CoordinateTransforms;
 using EphysLink;
@@ -24,39 +25,50 @@ namespace TrajectoryPlanner.Probes
             // Calculate last used direction for dropping to brain surface (between depth and DV)
             var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
             var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
-            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta >= dvDelta;
+            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
             _lastManipulatorPosition = pos;
 
             // Apply zero coordinate offset
             var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
 
             // Convert to sensapex space
-            var sensapexSpacePosition = Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
+            var manipulatorSpacePosition =
+                Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
 
             // Brain surface adjustment
+            // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
             var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
             if (IsSetToDropToSurfaceWithDepth)
-                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+                zeroCoordinateAdjustedManipulatorPosition.w +=
+                    CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
             else
-                sensapexSpacePosition.z += brainSurfaceAdjustment;
+                manipulatorSpacePosition.z +=
+                    CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
 
             // Convert to world space
             var zeroCoordinateAdjustedWorldPosition =
-                CoordinateSpace.Space2WorldAxisChange(sensapexSpacePosition);
+                CoordinateSpace.Space2World(manipulatorSpacePosition);
 
             // Set probe position (change axes to match probe)
             var insertion = _probeController.Insertion;
             var transformedApmldv =
                 insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
-            _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-                transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
-            
+
+            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+            if (ManipulatorType == "new_scale")
+                _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                    transformedApmldv.z, 0));
+            else
+                _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                    transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
+
+
             // Log every 10hz
             if (Time.time - _lastLoggedTime >= 0.1)
             {
                 _lastLoggedTime = Time.time;
                 var tipPos = _probeController.ProbeTipT.position;
-                
+
                 // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
                 string[] data =
                 {
@@ -89,6 +101,8 @@ namespace TrajectoryPlanner.Probes
         #region Properties
 
         public string ManipulatorID { get; set; }
+
+        public string ManipulatorType { get; set; }
 
         /**
          * Getter and setter or the zero coordinate offset of the manipulator.
@@ -186,35 +200,52 @@ namespace TrajectoryPlanner.Probes
 
         public void Initialize(string manipulatorID, bool calibrated)
         {
-            ManipulatorID = manipulatorID;
-            CoordinateSpace = new SensapexSpace();
-            Transform = IsRightHanded
-                ? new SensapexRightTransform(_probeController.Insertion.phi)
-                : new SensapexLeftTransform(_probeController.Insertion.phi);
-            _probeController.Locked = true;
-
-            if (calibrated)
-                // Bypass calibration and start echoing
-                CommunicationManager.Instance.BypassCalibration(manipulatorID, StartEchoing);
-            else
-                CommunicationManager.Instance.SetCanWrite(manipulatorID, true, 1,
-                    _ =>
-                    {
-                        CommunicationManager.Instance.Calibrate(manipulatorID,
-                            () =>
-                            {
-                                CommunicationManager.Instance.SetCanWrite(manipulatorID, false, 0, _ => StartEchoing());
-                            });
-                    });
-
-            void StartEchoing()
+            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+            CommunicationManager.Instance.GetManipulators((ids, type) =>
             {
-                CommunicationManager.Instance.GetPos(manipulatorID, pos =>
+                if (!ids.Contains(manipulatorID)) return;
+
+                ManipulatorID = manipulatorID;
+                if (type == "sensapex")
                 {
-                    if (ZeroCoordinateOffset.Equals(Vector4.zero)) ZeroCoordinateOffset = pos;
-                    EchoPosition(pos);
-                });
-            }
+                    CoordinateSpace = new SensapexSpace();
+                    Transform = IsRightHanded
+                        ? new SensapexRightTransform(_probeController.Insertion.phi)
+                        : new SensapexLeftTransform(_probeController.Insertion.phi);
+                }
+                else
+                {
+                    CoordinateSpace = new NewScaleSpace();
+                    Transform = new NewScaleLeftTransform(_probeController.Insertion.phi,
+                        _probeController.Insertion.theta);
+                }
+
+                _probeController.Locked = true;
+
+                if (calibrated)
+                    // Bypass calibration and start echoing
+                    CommunicationManager.Instance.BypassCalibration(manipulatorID, StartEchoing);
+                else
+                    CommunicationManager.Instance.SetCanWrite(manipulatorID, true, 1,
+                        _ =>
+                        {
+                            CommunicationManager.Instance.Calibrate(manipulatorID,
+                                () =>
+                                {
+                                    CommunicationManager.Instance.SetCanWrite(manipulatorID, false, 0,
+                                        _ => StartEchoing());
+                                });
+                        });
+
+                void StartEchoing()
+                {
+                    CommunicationManager.Instance.GetPos(manipulatorID, pos =>
+                    {
+                        if (ZeroCoordinateOffset.Equals(Vector4.zero)) ZeroCoordinateOffset = pos;
+                        EchoPosition(pos);
+                    });
+                }
+            });
         }
 
         public void Disable()
@@ -258,7 +289,6 @@ namespace TrajectoryPlanner.Probes
 
                 BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
                     _probeController.Insertion.apmldv);
-                ;
             }
         }
 

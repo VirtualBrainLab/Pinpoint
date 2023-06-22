@@ -103,12 +103,14 @@ namespace EphysLink
 
     #region Callback Parameters Data Format (Output)
 
+    // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
     /// <summary>
     ///     Returned callback data format containing available manipulator IDs and error message.
     /// </summary>
     public struct GetManipulatorsCallbackParameters
     {
         public string[] manipulators;
+        public string type;
         public string error;
     }
 
