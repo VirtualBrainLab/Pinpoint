@@ -16,7 +16,15 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: eb9eb3c822ec72b468349d4e785d6617
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: f1ddfb9f17fe7ac4bb5bb3feedfd1a20
+    m_Address: Assets/AddressableAssets/Probes/pipette.csv
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 64c963c2ae3683240948c96550cd9a30
+    m_Address: Assets/AddressableAssets/Probes/neuropixels_2_1shank.csv
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
   m_SchemaSet:

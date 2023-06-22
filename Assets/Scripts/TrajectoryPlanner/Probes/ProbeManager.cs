@@ -382,8 +382,6 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateChannelMap()
     {
-        if (_recRegion == null)
-            return;
 
         _channelMinY = float.MaxValue;
         _channelMaxY = float.MinValue;
@@ -400,13 +398,20 @@ public class ProbeManager : MonoBehaviour
                 _channelMaxY = channelCoords[i].y / 1000f + channelScale.y / 1000f;
         }
 
+        if (_channelMaxY == _channelMinY)
+        {
+            // if the channel min/max are identical, default to the height of the channel map
+            _channelMaxY = ChannelMap.FullHeight;
+        }
+
 #if UNITY_EDITOR
         Debug.Log($"Minimum channel coordinate {_channelMinY} max {_channelMaxY}");
 #endif
         foreach (ProbeUIManager puiManager in _probeUIManagers)
             puiManager.UpdateChannelMap();
 
-        _recRegion.SetSize(_channelMinY, _channelMaxY);
+        if (_recRegion != null)
+            _recRegion.SetSize(_channelMinY, _channelMaxY);
     }
 
     /// <summary>
