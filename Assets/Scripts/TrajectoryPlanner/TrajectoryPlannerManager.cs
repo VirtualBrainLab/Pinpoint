@@ -8,8 +8,6 @@ using CoordinateTransforms;
 using EphysLink;
 using TMPro;
 using UITabs;
-using UnityEditor.Build;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -22,6 +20,8 @@ using System.Runtime.InteropServices;
 
 #if UNITY_EDITOR
 
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
 // This code fixes a bug that is also fixed by upgrading to 2021.3.14f1 or newer
 // see https://forum.unity.com/threads/workaround-for-building-with-il2cpp-with-visual-studio-2022-17-4.1355570/
 // please remove this code when Unity version exceeds this!
