@@ -67,7 +67,7 @@ MonoBehaviour:
       - m_Id: 0dbfffed1e7d1434696f5a6193af38d3
         m_Value: ServerData/[BuildTarget]
       - m_Id: 8b0e868bf8565ef4ba5a95e7d57f666c
-        m_Value: http://data.virtualbrainlab.org/NPTrajData/0.8.6/[BuildTarget]
+        m_Value: http://data.virtualbrainlab.org/NPTrajData/0.9.0/[BuildTarget]
     m_ProfileEntryNames:
     - m_Id: b28712faecae3244489993d74caf0ba7
       m_Name: BuildTarget

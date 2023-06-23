@@ -7,7 +7,7 @@ namespace CoordinateTransforms
         public override string Name => "Sensapex Right";
         public override string Prefix => "spx-r";
 
-        public SensapexRightTransform(Vector3 rotation) : base(Vector3.one, rotation)
+        public SensapexRightTransform(float phi) : base(Vector3.one, new Vector3(0, 0, phi))
         {
         }
 

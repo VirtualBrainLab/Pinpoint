@@ -1,9 +1,8 @@
-using System;
 using EphysLink;
 using TMPro;
 using UnityEngine;
 
-namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
+namespace TrajectoryPlanner.UI.EphysCopilot
 {
     public class ResetZeroCoordinatePanelHandler : MonoBehaviour
     {
@@ -11,10 +10,10 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
 
         private void Start()
         {
-            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorId;
+            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorBehaviorController.ManipulatorID;
             _manipulatorIDText.color = ProbeManager.Color;
         }
-        
+
         #endregion
 
         #region UI Functions
@@ -24,11 +23,12 @@ namespace TrajectoryPlanner.UI.AutomaticManipulatorControl
         /// </summary>
         public void ResetZeroCoordinate()
         {
-            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorId, zeroCoordinate =>
-            {
-                ProbeManager.ZeroCoordinateOffset = zeroCoordinate;
-                ProbeManager.BrainSurfaceOffset = 0;
-            });
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                zeroCoordinate =>
+                {
+                    ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinate;
+                    ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
+                });
         }
 
         #endregion

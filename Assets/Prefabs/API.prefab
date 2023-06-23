@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8855238678724398054}
   - component: {fileID: 8855238678724398055}
+  - component: {fileID: 6342473834483349189}
+  - component: {fileID: 8840621713594384739}
   m_Layer: 0
   m_Name: API
   m_TagString: Untagged
@@ -45,6 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _probeMatchingPanel: {fileID: 0}
+  _openEphysToggle: {fileID: 0}
+  _spikeGLXAPI: {fileID: 0}
   _probeDataHTTPTarget: {fileID: 0}
   ProbeOptionsChangedEvent:
     m_PersistentCalls:
@@ -61,3 +65,29 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  _pxiInput: {fileID: 0}
+  _viewerDropdown: {fileID: 0}
+--- !u!114 &6342473834483349189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8855238678724398056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f601d57b95f0554e8b1cd8a0975729a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8840621713594384739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8855238678724398056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 570d2bb63f42a7743b389fdbf448435d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

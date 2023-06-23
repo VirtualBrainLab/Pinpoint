@@ -406,6 +406,7 @@ GameObject:
   - component: {fileID: 2207803182506741358}
   - component: {fileID: 4368194536080577050}
   - component: {fileID: 8669119637230080819}
+  - component: {fileID: 495829694153505361}
   m_Layer: 10
   m_Name: UCLA_256F
   m_TagString: Probe
@@ -530,6 +531,29 @@ MonoBehaviour:
   _probeManager: {fileID: 4368194536080577053}
   _electrodeBase: {fileID: 4022866909165347514}
   _order: 1
+--- !u!114 &495829694153505361
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4368194536080577051}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5df66603ba6f914f9c937a77777deff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _probeManager: {fileID: 4368194536080577053}
+  _probeController: {fileID: 2207803182506741358}
+  ZeroCoordinateOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  BrainSurfaceOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  IsSetToDropToSurfaceWithDepthChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4672643646536599077
 GameObject:
   m_ObjectHideFlags: 0

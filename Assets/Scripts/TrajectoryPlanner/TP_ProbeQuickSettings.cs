@@ -1,9 +1,9 @@
 using System.Linq;
 using EphysLink;
 using TMPro;
+using TrajectoryPlanner.Probes;
 using UnityEngine;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 namespace TrajectoryPlanner
 {
@@ -81,8 +81,9 @@ namespace TrajectoryPlanner
             }
             else
             {
-                _positionFields.interactable = ProbeManager.ActiveProbeManager != null ? !ProbeManager.ActiveProbeManager.IsEphysLinkControlled : true;
-                _angleFields.interactable = ProbeManager.ActiveProbeManager == null || !ProbeManager.ActiveProbeManager.IsGhost;
+                var interactable = ProbeManager.ActiveProbeManager != null && !ProbeManager.ActiveProbeManager.IsEphysLinkControlled;
+                _positionFields.interactable = interactable;
+                _angleFields.interactable = interactable;
             }
         }
 
@@ -102,7 +103,10 @@ namespace TrajectoryPlanner
         /// </summary>
         public void ZeroDepth()
         {
-            ProbeManager.ActiveProbeManager.SetBrainSurfaceOffset();
+            if (ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.enabled)
+                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ComputeBrainSurfaceOffset();
+            else
+                ProbeManager.ActiveProbeManager.DropProbeToBrainSurface();
 
             UpdateCoordinates();
         }
@@ -114,9 +118,9 @@ namespace TrajectoryPlanner
         {
             if (ProbeManager.ActiveProbeManager.IsEphysLinkControlled)
             {
-                _communicationManager.GetPos(ProbeManager.ActiveProbeManager.ManipulatorId,
-                    zeroCoordinate => ProbeManager.ActiveProbeManager.ZeroCoordinateOffset = zeroCoordinate);
-                ProbeManager.ActiveProbeManager.BrainSurfaceOffset = 0;
+                _communicationManager.GetPos(ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                    zeroCoordinate => ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinate);
+                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
             }
             else
             {

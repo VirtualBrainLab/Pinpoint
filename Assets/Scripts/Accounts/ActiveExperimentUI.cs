@@ -79,6 +79,7 @@ public class ActiveExperimentUI : MonoBehaviour
 
     private void UpdateUIPanels()
     {
+        Debug.Log("UI panels updated");
         var experimentData = _accountsManager.GetActiveExperimentInsertions();
 
         // Remove any panels that shouldn't exist
@@ -100,10 +101,6 @@ public class ActiveExperimentUI : MonoBehaviour
             // Update this panel
             ServerProbeInsertion insertionData = kvp.Value;
             ServerProbeInsertionUI insertionUI = _activeInsertionUIs[UUID];
-
-#if UNITY_EDITOR
-            Debug.Log($"Updating insertion panel for {insertionData.name}");
-#endif
 
             // Get angles
             Vector3 angles = new Vector3(insertionData.phi, insertionData.theta, insertionData.spin);

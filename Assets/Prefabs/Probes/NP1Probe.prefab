@@ -1020,6 +1020,7 @@ GameObject:
   - component: {fileID: 4368194536080577053}
   - component: {fileID: 4368194536080577050}
   - component: {fileID: 2207803182506741358}
+  - component: {fileID: 2498329367781421407}
   m_Layer: 10
   m_Name: NP1Probe
   m_TagString: Probe
@@ -1060,7 +1061,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad1015086aede554a95357c03335db5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ProbeUIUpdateEvent:
+  UIUpdateEvent:
     m_PersistentCalls:
       m_Calls: []
   ActivateProbeEvent:
@@ -1087,10 +1088,9 @@ MonoBehaviour:
   - {fileID: 4368194536080577050}
   _probeRenderer: {fileID: 2762817814583501863}
   _recRegion: {fileID: 991304789899901869}
-  _probeType: 0
+  ProbeType: 0
   _probeController: {fileID: 2207803182506741358}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
-  _channelMapName: neuropixel_1.0
 --- !u!114 &4368194536080577050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1107,7 +1107,6 @@ MonoBehaviour:
   _probeManager: {fileID: 4368194536080577053}
   _electrodeBase: {fileID: 1420707051332254735}
   _order: 0
-  MaxArea: 
 --- !u!114 &2207803182506741358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1129,6 +1128,29 @@ MonoBehaviour:
   Locked: 0
   _probeTipT: {fileID: 3485671869318689184}
   _rotateAround: {fileID: 7313519670166122196}
+--- !u!114 &2498329367781421407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4368194536080577051}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5df66603ba6f914f9c937a77777deff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _probeManager: {fileID: 4368194536080577053}
+  _probeController: {fileID: 2207803182506741358}
+  ZeroCoordinateOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  BrainSurfaceOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  IsSetToDropToSurfaceWithDepthChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4456090523800124213
 GameObject:
   m_ObjectHideFlags: 0

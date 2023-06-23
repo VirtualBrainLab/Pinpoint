@@ -66,11 +66,5 @@ public class TargetableInsertions : MonoBehaviour
                 _targetableProbes.Remove(UUID);
             }
         }
-
-        Debug.Log($"ProbeInsertions {ProbeInsertion.Instances.Count} Targetable {ProbeInsertion.TargetableInstances.Count}");
-        foreach (var probe in ProbeInsertion.TargetableInstances)
-        {
-            Debug.Log(probe.ToString());
-        }
     }
 }

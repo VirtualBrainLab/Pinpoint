@@ -9,7 +9,7 @@ namespace CoordinateSpaces
         public override Vector3 Dimensions => new(20, 20, 20);
         
         /// <summary>
-        /// Convert coordinates from Sensapex space to Unit world space
+        /// Convert coordinates from Sensapex space to Unity world space
         /// </summary>
         /// <param name="coord">X, Y, Z coordinate in Sensapex space</param>
         /// <returns>World space coordinates</returns>

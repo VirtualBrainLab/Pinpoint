@@ -10,7 +10,6 @@ public class ProbeUIManager : MonoBehaviour
     private TP_ProbePanel probePanel;
 
     [FormerlySerializedAs("probeManager")] [SerializeField] private ProbeManager _probeManager;
-    private CCFModelControl modelControl;
 
     [FormerlySerializedAs("electrodeBase")] [SerializeField] private GameObject _electrodeBase;
     [FormerlySerializedAs("order")] [SerializeField] private int _order;
@@ -48,7 +47,6 @@ public class ProbeUIManager : MonoBehaviour
         probePanelPxHeight = probePanel.GetPanelHeight();
 
         GameObject main = GameObject.Find("main");
-        modelControl = main.GetComponent<CCFModelControl>();
 
         // Set color properly
         UpdateColors();
@@ -217,7 +215,7 @@ public class ProbeUIManager : MonoBehaviour
             // Round to int
             int ID = VolumeDatasetManager.AnnotationDataset.ValueAtIndex(Mathf.RoundToInt(interpolatedPosition.x), Mathf.RoundToInt(interpolatedPosition.y), Mathf.RoundToInt(interpolatedPosition.z));
             // convert to Beryl ID (if modelControl is set to do that)
-            ID = modelControl.RemapID(ID);
+            ID = CCFModelControl.RemapID(ID);
             //interpolated[i] = modelControl.GetCCFAreaColor(ID);
 
             if (ID != prevID)
@@ -274,11 +272,11 @@ public class ProbeUIManager : MonoBehaviour
             }
         }
 
-        MaxArea = modelControl.ID2Acronym(maxAreaID);
+        MaxArea = CCFModelControl.ID2Acronym(maxAreaID);
 
         areaNames = Settings.UseAcronyms ?
-            areaIDs.ConvertAll(x => modelControl.ID2Acronym(x)) :
-            areaIDs.ConvertAll(x => modelControl.ID2AreaName(x));
+            areaIDs.ConvertAll(x => CCFModelControl.ID2Acronym(x)) :
+            areaIDs.ConvertAll(x => CCFModelControl.ID2AreaName(x));
 
         return (areaPositionPixels, centerHeightsPixels, areaNames);
     }

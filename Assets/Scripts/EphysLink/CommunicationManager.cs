@@ -148,18 +148,19 @@ namespace EphysLink
 
         #region Event Handlers
 
+        // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
         /// <summary>
         ///     Get manipulators event sender.
         /// </summary>
         /// <param name="onSuccessCallback">Callback function to handle incoming manipulator ID's</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GetManipulators(Action<string[]> onSuccessCallback, Action<string> onErrorCallback = null)
+        public void GetManipulators(Action<string[], string> onSuccessCallback, Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<GetManipulatorsCallbackParameters>(data =>
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback(data.manipulators);
+                    onSuccessCallback(data.manipulators, data.type);
                 }
                 else
                 {

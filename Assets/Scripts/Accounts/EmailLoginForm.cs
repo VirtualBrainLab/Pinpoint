@@ -58,68 +58,74 @@ public class EmailLoginForm : MonoBehaviour
         //_statusText.enabled = false;
     }
 
-    public async void OnLoginClicked()
+    public void OnLoginClicked()
     {
 
         // Save the email
         PlayerPrefs.SetString(UNISAVE_EMAIL_STR, _emailField.text);
 
         if (loggedIn)
+            LogoutAsync();
+        else
+            LoginAsync();
+
+    }
+
+    private async void LoginAsync()
+    {
+        if (_emailField.text.Length == 0 || _passwordField.text.Length == 0)
         {
-            _statusText.enabled = false;
-            loggedIn = false;
-            _loginButton.GetComponentInChildren<TMP_Text>().text = "Login";
+            _statusText.enabled = true;
+            _statusText.text = "Please enter a username and password";
+            _statusText.color = Color.red;
+            return;
+        }
 
-            _accountsManager.SavePlayer();
+        _statusText.enabled = true;
+        _statusText.text = "Logging in...";
+        _statusText.color = Color.yellow;
+        loggedIn = false;
 
-            var logoutResponse = await OnFacet<EmailLoginFacet>.CallAsync<bool>(nameof(EmailLoginFacet.Logout));
+        // Note that we send a hashed password to avoid ever sending a plain text password
+        var loginResponse = await OnFacet<EmailLoginFacet>.CallAsync<(bool success, string token)>(
+            nameof(EmailLoginFacet.Login),
+            _emailField.text,
+            _passwordField.text
+        );
 
-            _accountsManager.LogoutCleanup();
+        if (loginResponse.success)
+        {
+            if (_stayLoggedInToggle)
+                PlayerPrefs.SetString(UNISAVE_TOKEN_STR, loginResponse.token);
+            Debug.Log($"Received token {loginResponse.token}");
+
+            _statusText.text = string.Format("Logged into: {0}", _emailField.text);
+            _statusText.color = Color.green;
+
+            // setup logout logic
+            loggedIn = true;
+            _loginButton.GetComponentInChildren<TMP_Text>().text = "Logout";
+
+            _accountsManager.Login();
         }
         else
         {
-            if (_emailField.text.Length == 0 || _passwordField.text.Length == 0)
-            {
-                _statusText.enabled = true;
-                _statusText.text = "Please enter a username and password";
-                _statusText.color = Color.red;
-                return;
-            }
-
-            _statusText.enabled = true;
-            _statusText.text = "Logging in...";
-            _statusText.color = Color.yellow;
-            loggedIn = false;
-
-            // Note that we send a hashed password to avoid ever sending a plain text password
-            var loginResponse = await OnFacet<EmailLoginFacet>.CallAsync<(bool success, string token)>(
-                nameof(EmailLoginFacet.Login),
-                _emailField.text,
-                _passwordField.text
-            );
-
-            if (loginResponse.success)
-            {
-                if (_stayLoggedInToggle)
-                    PlayerPrefs.SetString(UNISAVE_TOKEN_STR, loginResponse.token);
-                Debug.Log($"Received token {loginResponse.token}");
-
-                _statusText.text = string.Format("Logged into: {0}", _emailField.text);
-                _statusText.color = Color.green;
-
-                // setup logout logic
-                loggedIn = true;
-                _loginButton.GetComponentInChildren<TMP_Text>().text = "Logout";
-
-                _accountsManager.Login();
-            }
-            else
-            {
-                _statusText.text = "This account does not exist,\nor the password is not valid";
-                _statusText.color = Color.red;
-            }
+            _statusText.text = "This account does not exist,\nor the password is not valid";
+            _statusText.color = Color.red;
         }
+    }
 
+    private async void LogoutAsync()
+    {
+        _statusText.enabled = false;
+        loggedIn = false;
+        _loginButton.GetComponentInChildren<TMP_Text>().text = "Login";
+
+        _accountsManager.SavePlayer();
+
+        var logoutResponse = await OnFacet<EmailLoginFacet>.CallAsync<bool>(nameof(EmailLoginFacet.Logout));
+
+        _accountsManager.LogoutCleanup();
     }
 
     public async void AttemptLoginViaTokenAsync()

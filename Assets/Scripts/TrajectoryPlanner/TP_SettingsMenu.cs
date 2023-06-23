@@ -38,7 +38,10 @@ namespace UITabs
                 foreach (TMP_InputField inputField in transform.GetComponentsInChildren<TMP_InputField>())
                 {
                     if (inputField.isFocused)
+                    {
+                        Debug.Log(inputField.name);
                         return;
+                    }
                 }
                 _settingsMenuGo.SetActive(false);
             }

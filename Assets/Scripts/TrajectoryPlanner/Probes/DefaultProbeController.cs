@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+using EphysLink;
+using TrajectoryPlanner.Probes;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
@@ -108,9 +109,12 @@ public class DefaultProbeController : ProbeController
 
     public void MoveProbe_Keyboard()
     {
-        // drag movement takes precedence
-        if (dragging || Locked)
+        // Exit when using drag movement or when Locked and not under keyboard control
+        if (dragging || (Locked && !ManipulatorKeyboardControl))
+        {
+            keyHeld = false;
             return;
+        }
 
         bool moved = false;
         bool keyHoldDelayPassed = (Time.realtimeSinceStartup - keyPressTime) > keyHoldDelay;
@@ -196,7 +200,7 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.SetDropToSurfaceWithDepth(false);
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = false;
             MoveProbeXYZ(0f, -1f, 0f, true);
         }
         else if (Input.GetKey(KeyCode.Q) && (keyHeld || keyHoldDelayPassed))
@@ -212,7 +216,7 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.SetDropToSurfaceWithDepth(false);
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = false;
             MoveProbeXYZ(0f, 1f, 0f, true);
         }
         else if (Input.GetKey(KeyCode.E) && (keyHeld || keyHoldDelayPassed))
@@ -230,7 +234,7 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.SetDropToSurfaceWithDepth(true);
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = true;
             MoveProbeDepth(1f, true);
         }
         else if (Input.GetKey(KeyCode.Z) && (keyHeld || keyHoldDelayPassed))
@@ -246,7 +250,7 @@ public class DefaultProbeController : ProbeController
         {
             moved = true;
             keyPressTime = Time.realtimeSinceStartup;
-            ProbeManager.SetDropToSurfaceWithDepth(true);
+            ProbeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = true;
             MoveProbeDepth(-1f, true);
         }
         else if (Input.GetKey(KeyCode.X) && (keyHeld || keyHoldDelayPassed))
@@ -258,107 +262,115 @@ public class DefaultProbeController : ProbeController
         if (Input.GetKeyUp(KeyCode.X))
             keyHeld = false;
 
-        // Rotations
+        // Rotations (not allowed with manipulator keyboard controls)
 
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (!ManipulatorKeyboardControl)
         {
-            moved = true;
-            keyPressTime = Time.realtimeSinceStartup;
-            RotateProbe(-1f, 0f, true);
-        }
-        else if (Input.GetKey(KeyCode.Alpha1) && (keyHeld || keyHoldDelayPassed))
-        {
-            keyHeld = true;
-            moved = true;
-            RotateProbe(-1f, 0f, false);
-        }
-        if (Input.GetKeyUp(KeyCode.Alpha1))
-            keyHeld = false;
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                moved = true;
+                keyPressTime = Time.realtimeSinceStartup;
+                RotateProbe(-1f, 0f, true);
+            }
+            else if (Input.GetKey(KeyCode.Alpha1) && (keyHeld || keyHoldDelayPassed))
+            {
+                keyHeld = true;
+                moved = true;
+                RotateProbe(-1f, 0f, false);
+            }
 
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            moved = true;
-            keyPressTime = Time.realtimeSinceStartup;
-            RotateProbe(1f, 0f, true);
-        }
-        else if (Input.GetKey(KeyCode.Alpha3) && (keyHeld || keyHoldDelayPassed))
-        {
-            keyHeld = true;
-            moved = true;
-            RotateProbe(1f, 0f, false);
-        }
-        if (Input.GetKeyUp(KeyCode.Alpha3))
-            keyHeld = false;
+            if (Input.GetKeyUp(KeyCode.Alpha1))
+                keyHeld = false;
 
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            moved = true;
-            keyPressTime = Time.realtimeSinceStartup;
-            RotateProbe(0f, 1f, true);
-        }
-        else if (Input.GetKey(KeyCode.R) && (keyHeld || keyHoldDelayPassed))
-        {
-            keyHeld = true;
-            moved = true;
-            RotateProbe(0f, 1f, false);
-        }
-        if (Input.GetKeyUp(KeyCode.R))
-            keyHeld = false;
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                moved = true;
+                keyPressTime = Time.realtimeSinceStartup;
+                RotateProbe(1f, 0f, true);
+            }
+            else if (Input.GetKey(KeyCode.Alpha3) && (keyHeld || keyHoldDelayPassed))
+            {
+                keyHeld = true;
+                moved = true;
+                RotateProbe(1f, 0f, false);
+            }
 
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            moved = true;
-            keyPressTime = Time.realtimeSinceStartup;
-            RotateProbe(0f, -1f, true);
-        }
-        else if (Input.GetKey(KeyCode.F) && (keyHeld || keyHoldDelayPassed))
-        {
-            keyHeld = true;
-            moved = true;
-            RotateProbe(0f, -1f, false);
-        }
-        if (Input.GetKeyUp(KeyCode.F))
-            keyHeld = false;
+            if (Input.GetKeyUp(KeyCode.Alpha3))
+                keyHeld = false;
 
-        // Spin controls
-        if (Input.GetKeyDown(KeyCode.Comma))
-        {
-            moved = true;
-            keyPressTime = Time.realtimeSinceStartup;
-            SpinProbe(-1f, true);
-        }
-        else if (Input.GetKey(KeyCode.Comma) && (keyHeld || keyHoldDelayPassed))
-        {
-            keyHeld = true;
-            moved = true;
-            SpinProbe(-1f, false);
-        }
-        if (Input.GetKeyUp(KeyCode.Comma))
-            keyHeld = false;
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                moved = true;
+                keyPressTime = Time.realtimeSinceStartup;
+                RotateProbe(0f, 1f, true);
+            }
+            else if (Input.GetKey(KeyCode.R) && (keyHeld || keyHoldDelayPassed))
+            {
+                keyHeld = true;
+                moved = true;
+                RotateProbe(0f, 1f, false);
+            }
 
-        if (Input.GetKeyDown(KeyCode.Period))
-        {
-            moved = true;
-            keyPressTime = Time.realtimeSinceStartup;
-            SpinProbe(1f, true);
-        }
-        else if (Input.GetKey(KeyCode.Period) && (keyHeld || keyHoldDelayPassed))
-        {
-            keyHeld = true;
-            moved = true;
-            SpinProbe(1f, false);
-        }
-        if (Input.GetKeyUp(KeyCode.Period))
-            keyHeld = false;
+            if (Input.GetKeyUp(KeyCode.R))
+                keyHeld = false;
 
-        if (moved)
-        {
-            // If the probe was moved, set the new position
-            SetProbePosition();
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                moved = true;
+                keyPressTime = Time.realtimeSinceStartup;
+                RotateProbe(0f, -1f, true);
+            }
+            else if (Input.GetKey(KeyCode.F) && (keyHeld || keyHoldDelayPassed))
+            {
+                keyHeld = true;
+                moved = true;
+                RotateProbe(0f, -1f, false);
+            }
 
-            // Update all the UI panels
-            FinishedMovingEvent.Invoke();
+            if (Input.GetKeyUp(KeyCode.F))
+                keyHeld = false;
+
+            // Spin controls
+            if (Input.GetKeyDown(KeyCode.Comma))
+            {
+                moved = true;
+                keyPressTime = Time.realtimeSinceStartup;
+                SpinProbe(-1f, true);
+            }
+            else if (Input.GetKey(KeyCode.Comma) && (keyHeld || keyHoldDelayPassed))
+            {
+                keyHeld = true;
+                moved = true;
+                SpinProbe(-1f, false);
+            }
+
+            if (Input.GetKeyUp(KeyCode.Comma))
+                keyHeld = false;
+
+            if (Input.GetKeyDown(KeyCode.Period))
+            {
+                moved = true;
+                keyPressTime = Time.realtimeSinceStartup;
+                SpinProbe(1f, true);
+            }
+            else if (Input.GetKey(KeyCode.Period) && (keyHeld || keyHoldDelayPassed))
+            {
+                keyHeld = true;
+                moved = true;
+                SpinProbe(1f, false);
+            }
+
+            if (Input.GetKeyUp(KeyCode.Period))
+                keyHeld = false;
         }
+
+        // Apply movements
+        if (!moved) return;
+        // If the probe was moved, set the new position
+        SetProbePosition();
+
+        // Update all the UI panels
+        FinishedMovingEvent.Invoke();
     }
 
     #endregion
@@ -368,23 +380,105 @@ public class DefaultProbeController : ProbeController
 
     public void MoveProbeXYZ(float x, float y, float z, bool pressed)
     {
-        float speed = pressed ?
+        var speed = pressed ?
             keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
             keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
         // Get the xyz transformation
-        Vector3 xyz = new Vector3(x, y, z) * speed;
+        var xyz = new Vector3(x, y, z) * speed;
         // Rotate to match the probe axis directions
-        Insertion.apmldv += Insertion.World2TransformedAxisChange(xyz);
+
+        var targetAPMLDV = Insertion.apmldv + Insertion.World2TransformedAxisChange(xyz);
+
+        if (ManipulatorKeyboardControl)
+        {
+            print("Moving manipulator");
+            // Compute the target position
+            var targetPosition =
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(targetAPMLDV);
+
+            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
+                canWrite =>
+                {
+                    if (!canWrite) return;
+
+                    // Disable/ignore more input until movement is done
+                    ManipulatorKeyboardControl = false;
+
+                    // Move the manipulator
+                    CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                        targetPosition, ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
+                        _ =>
+                        {
+                            CommunicationManager.Instance.SetCanWrite(
+                                ProbeManager.ManipulatorBehaviorController.ManipulatorID, false, 1,
+                                _ =>
+                                {
+                                    // Re-enable input once movement is done
+                                    ManipulatorKeyboardControl = true;
+                                }, Debug.LogError);
+                        }, Debug.LogError);
+                }, Debug.LogError);
+        }
+        else
+            Insertion.apmldv = targetAPMLDV;
+        
     }
 
     public void MoveProbeDepth(float depth, bool pressed)
     {
-        float speed = pressed ?
+        var speed = pressed
+            ?
             keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
             keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
-        this.depth += depth * speed;
+        var targetDriveDistance = depth * speed;
+
+        if (ManipulatorKeyboardControl)
+            // Get current position to compute the target position
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, pos =>
+            {
+                var targetDepth = pos.w +
+                                  ProbeManager.ManipulatorBehaviorController.CoordinateSpace
+                                      .World2SpaceAxisChange(Vector3.down).z * targetDriveDistance;
+
+                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                    true, 1,
+                    canWrite =>
+                    {
+                        if (!canWrite) return;
+
+                        CommunicationManager.Instance.SetInsideBrain(
+                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, true,
+                            _ =>
+                            {
+                                // Disable/ignore more input until movement is done
+                                ManipulatorKeyboardControl = false;
+
+                                // Move the manipulator
+                                CommunicationManager.Instance.DriveToDepth(
+                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                    targetDepth, ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
+                                    _ =>
+                                    {
+                                        CommunicationManager.Instance.SetInsideBrain(
+                                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
+                                            _ =>
+                                            {
+                                                CommunicationManager.Instance.SetCanWrite(
+                                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID, false, 1,
+                                                    _ =>
+                                                    {
+                                                        // Re-enable input once movement is done
+                                                        ManipulatorKeyboardControl = true;
+                                                    }, Debug.LogError);
+                                            });
+                                    }, Debug.LogError);
+                            });
+                    }, Debug.LogError);
+            });
+        else
+            this.depth += targetDriveDistance;
     }
 
     public void RotateProbe(float phi, float theta, bool pressed)

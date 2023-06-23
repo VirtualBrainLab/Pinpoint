@@ -6,17 +6,21 @@ using UnityEngine.Serialization;
 
 public class UIManager : MonoBehaviour
 {
+    #region Static
+    public static UIManager Instance;
+    #endregion
+
     #region Components
 
-    [FormerlySerializedAs("EditorFocusableInputs")] [SerializeField]
-    private List<TMP_InputField> _editorFocusableInputs;
+    [SerializeField] private List<TMP_InputField> _editorFocusableInputs;
 
     [FormerlySerializedAs("EditorFocusableGOs")] [SerializeField]
     private List<GameObject> _editorFocusableGOs;
 
     [SerializeField] private List<TMP_Text> _whiteUIText;
 
-    [SerializeField] private GameObject _automaticControlPanelGameObject;
+    [SerializeField] private GameObject _ephysCopilotPanelGameObject;
+    [SerializeField] private GameObject _settingsPanel;
 
     #endregion
 
@@ -30,18 +34,22 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
         FocusableInputs.UnionWith(_editorFocusableInputs);
         FocusableGOs.UnionWith(_editorFocusableGOs);
     }
 
     public static bool InputsFocused
     {
-        get { return FocusableInputs.Any(x => x != null ? x.isFocused : false) || FocusableGOs.Any(x => x != null ? x.activeSelf : false); }
+        get {
+            return Instance._settingsPanel.activeSelf || FocusableInputs.Any(x => x != null && x.isFocused) || FocusableGOs.Any(x => x != null && x.activeSelf);
+        }
     }
 
-    public void EnableAutomaticManipulatorControlPanel(bool enable = true)
+    public void EnableEphysCopilotPanel(bool enable = true)
     {
-        _automaticControlPanelGameObject.SetActive(enable);
+        _ephysCopilotPanelGameObject.SetActive(enable);
     }
 
     public void SetBackgroundWhite(bool state)
