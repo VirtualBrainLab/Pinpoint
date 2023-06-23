@@ -166,6 +166,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset += positive ? 0.1f : -0.1f;
         }
 
+        public void UpdateKeyboardControlState(bool state)
+        {
+            _attachedProbe.ProbeController.ManipulatorKeyboardControl = state;
+        }
+
         #endregion
 
         #region Helper Functions
@@ -260,6 +265,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private InputField _zeroCoordinateZInputField;
         [SerializeField] private InputField _zeroCoordinateDInputField;
         [SerializeField] private InputField _brainSurfaceOffsetInputField;
+        [SerializeField] private Toggle _keyboardControlToggle;
 
         private ProbeManager _attachedProbe;
 

@@ -18,6 +18,7 @@ public abstract class ProbeController : MonoBehaviour
     public UnityEvent FinishedMovingEvent;
 
     public bool Locked;
+    public bool ManipulatorKeyboardControl;
 
     public abstract Transform ProbeTipT { get; }
 
