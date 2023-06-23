@@ -1,4 +1,3 @@
-#if !UNITY_WEBGL
 // this entire class does not exist on WebGL
 
 using System;
@@ -75,5 +74,3 @@ public class APISpikeGLX : MonoBehaviour
     #endregion
 
 }
-
-#endif
