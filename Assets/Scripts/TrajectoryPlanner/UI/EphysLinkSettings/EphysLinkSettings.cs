@@ -76,6 +76,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             // Connection UI
             _connectionErrorText.text = "";
             _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
+            
+            // Update Manipulator Panels
+            UpdateManipulatorPanels();
         }
 
         private void UpdateManipulatorPanels()
