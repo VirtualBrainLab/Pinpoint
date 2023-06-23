@@ -61,8 +61,6 @@ namespace TrajectoryPlanner
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern void Copy2Clipboard(string str);
-        
-        WebGLInput.captureAllKeyboardInput = true;
 #endif
 
         #region Events
@@ -154,6 +152,10 @@ namespace TrajectoryPlanner
         #region Unity
         private void Awake()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        WebGLInput.captureAllKeyboardInput = true;
+#endif
+
             SetProbeControl(false);
 
             // Deal with coordinate spaces and transforms
@@ -288,7 +290,7 @@ namespace TrajectoryPlanner
             _movedThisFrame = true;
         }
 
-        #endregion
+#endregion
 
         public Task GetAnnotationDatasetLoadedTask()
         {
@@ -402,7 +404,7 @@ namespace TrajectoryPlanner
             _restoredProbe = true;
         }
 
-        #region Add Probe Functions
+#region Add Probe Functions
 
         /// <summary>
         /// Used in the editor when the add probe buttons are clicked in the scene
@@ -491,7 +493,7 @@ namespace TrajectoryPlanner
             AddNewProbe(ProbeManager.ActiveProbeManager.ProbeType, ProbeManager.ActiveProbeManager.ProbeController.Insertion);
         }
 
-        #endregion
+#endregion
 
         private void CountProbePanels()
         {
@@ -640,7 +642,7 @@ namespace TrajectoryPlanner
             ProbeManager.ActiveProbeManager.SetLock(locked);
         }
 
-        #region Warping
+#region Warping
 
         public void WarpBrain()
         {
@@ -667,9 +669,9 @@ namespace TrajectoryPlanner
 
 
 
-        #endregion
+#endregion
 
-        #region Colliders
+#region Colliders
 
         public void UpdateRigColliders(IEnumerable<Collider> newRigColliders, bool keep)
         {
@@ -680,7 +682,7 @@ namespace TrajectoryPlanner
                     rigColliders.Remove(collider);
         }
 
-        #endregion
+#endregion
 
         public void UpdateAllProbeUI()
         {
@@ -699,7 +701,7 @@ namespace TrajectoryPlanner
         /// 
 
 
-        #region Settings
+#region Settings
 
         public void SetGhostAreaVisibility()
         {
@@ -763,9 +765,9 @@ namespace TrajectoryPlanner
             UpdateAllProbeUI();
         }
 
-        #endregion
+#endregion
 
-        #region Setting Helper Functions
+#region Setting Helper Functions
 
 
         public void SetSurfaceDebugActive(bool active)
@@ -776,7 +778,7 @@ namespace TrajectoryPlanner
                 _surfaceDebugGo.SetActive(false);
         }
 
-        #endregion
+#endregion
 
 
 
@@ -833,7 +835,7 @@ namespace TrajectoryPlanner
             _surfaceDebugGo.transform.position = worldPosition;
         }
 
-        #region Save and load probes on quit
+#region Save and load probes on quit
 
         private void OnApplicationQuit()
         {
