@@ -580,7 +580,7 @@ GameObject:
   - component: {fileID: 1445278465348587323}
   - component: {fileID: 5483421187078802668}
   m_Layer: 5
-  m_Name: AutomaticManipulatorControlPanel
+  m_Name: EphysCopilotPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
