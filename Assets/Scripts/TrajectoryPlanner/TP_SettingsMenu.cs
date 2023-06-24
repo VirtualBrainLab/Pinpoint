@@ -21,7 +21,7 @@ namespace UITabs
 
         public void ToggleSettingsMenu()
         {
-            if (!_settingsMenuGo.activeSelf)
+            if (!_settingsMenuGo.activeSelf && !UIManager.InputsFocused)
             {
                 // Hide the help text
                 _settingsMenuGo.SetActive(true);
