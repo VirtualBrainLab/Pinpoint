@@ -103,7 +103,7 @@ public class Settings : MonoBehaviour
     private const string USEACRONYMS_STR = "acronyms";
     private const bool USEACRONYMS_DEFAULT = true;
     [FormerlySerializedAs("acronymToggle")][SerializeField] private Toggle _acronymToggle;
-    public UnityEvent UseAcronymsChangedEvent;
+    public UnityEvent<bool> UseAcronymsChangedEvent;
 
     public static bool UseAcronyms
     {
@@ -112,7 +112,7 @@ public class Settings : MonoBehaviour
         {
             s_useAcronyms = value;
             PlayerPrefs.SetInt(USEACRONYMS_STR, s_useAcronyms ? 1 : 0);
-            Instance.UseAcronymsChangedEvent.Invoke();
+            Instance.UseAcronymsChangedEvent.Invoke(s_useAcronyms);
         }
     }
 
