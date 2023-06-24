@@ -229,7 +229,7 @@ namespace TrajectoryPlanner
                 return;
             }
 
-            if (Input.GetKeyDown(KeyCode.H))
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.H))
                 _settingsPanel.ToggleSettingsMenu();
 
             if (Input.GetKeyDown(KeyCode.L) && !UIManager.InputsFocused)

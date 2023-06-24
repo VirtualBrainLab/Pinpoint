@@ -211,6 +211,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 341190945112364104, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
   m_PrefabInstance: {fileID: 341190943874437988}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &94756719 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 341190943640726960, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &102904201 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2245154662678266898, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -3824,6 +3829,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1696303671}
     - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: _editorFocusableGOs.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: EditorFocusableGOs.Array.data[0]
       value: 
       objectReference: {fileID: 1445793942}
@@ -3843,6 +3852,10 @@ PrefabInstance:
       propertyPath: _editorFocusableGOs.Array.data[1]
       value: 
       objectReference: {fileID: 76833136}
+    - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: _editorFocusableGOs.Array.data[2]
+      value: 
+      objectReference: {fileID: 94756719}
     - target: {fileID: 3336044886673126097, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: _editorFocusableInputs.Array.size
       value: 11
