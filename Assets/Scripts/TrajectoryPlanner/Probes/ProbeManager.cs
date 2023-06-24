@@ -141,14 +141,14 @@ public class ProbeManager : MonoBehaviour
         set
         {
             // try to return the current color
-            ProbeProperties.ReturnProbeColor(_probeRenderer.material.color);
-            // use up the new color (if it's a default color)
-            ProbeProperties.UseColor(value);
+            ProbeProperties.ReturnColor(_probeRenderer.material.color);
 
             _probeRenderer.material.color = value;
 
             foreach (ProbeUIManager puiManager in _probeUIManagers)
                 puiManager.UpdateColors();
+
+            UIUpdateEvent.Invoke();
         }
     }
 
@@ -193,7 +193,7 @@ public class ProbeManager : MonoBehaviour
         }
 
         if (_probeRenderer != null)
-            _probeRenderer.material.color = ProbeProperties.GetNextProbeColor();
+            _probeRenderer.material.color = ProbeProperties.NextColor;
 
         // Pull the tpmanager object and register this probe
         _probeController.Register(this);
@@ -232,7 +232,7 @@ public class ProbeManager : MonoBehaviour
 
         Instances.Remove(this);
 
-        ProbeProperties.ReturnProbeColor(Color);
+        ProbeProperties.ReturnColor(Color);
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
         

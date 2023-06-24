@@ -628,7 +628,7 @@ namespace TrajectoryPlanner
 
         public void UpdateQuickSettingsProbeIdText()
         {
-            _probeQuickSettings.UpdateProbeIdText();
+            _probeQuickSettings.UpdateQuickUI();
         }
 
         public void ResetActiveProbe()

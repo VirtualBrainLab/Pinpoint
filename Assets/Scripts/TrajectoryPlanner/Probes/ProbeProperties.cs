@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ProbeProperties
 {
+    #region Colors
     public static List<Color> ProbeColors = new List<Color> {
         new Color(0.12156862745098039f, 0.4666666666666667f, 0.7058823529411765f, 1.0f),
         new Color(0.6823529411764706f, 0.7803921568627451f, 0.9098039215686274f, 1.0f),
@@ -26,8 +27,25 @@ public class ProbeProperties
         new Color(0.6196078431372549f, 0.8549019607843137f, 0.8980392156862745f, 1.0f)
     };
 
-    private static int[] _colorOpts = Enumerable.Range(0, ProbeColors.Count).ToArray();
-    private static List<int> _usedColors = new List<int>();
+    private static Queue<int> _colorIdxQueue = new Queue<int>(Enumerable.Range(0, ProbeColors.Count));
+
+    /// <summary>
+    /// Get the next Probe Color
+    /// </summary>
+    public static Color NextColor { get { return ProbeColors[_colorIdxQueue.Dequeue()]; } }
+
+    /// <summary>
+    /// If the passed Color is a default probe color, return it the back of the queue
+    /// </summary>
+    /// <param name="color"></param>
+    public static void ReturnColor(Color color)
+    {
+        int idx = ProbeColors.FindIndex(x => x.Equals(color));
+        if (idx >= 0)
+            _colorIdxQueue.Enqueue(idx);
+    }
+
+    #endregion
 
     public static readonly int FONT_SIZE_ACRONYM = 24;
     public static readonly int FONT_SIZE_AREA = 18;
@@ -72,34 +90,6 @@ public class ProbeProperties
             default:
                 return false;
         }
-    }
-
-    public static Color GetNextProbeColor()
-    {
-        // Generate list of indexes and remove those that have been used
-        int[] indexes = _colorOpts.Except(_usedColors).ToArray();
-
-        // Pick one randomly
-        int randIdx = Mathf.FloorToInt(Random.value * indexes.Length);
-
-        Color next = ProbeColors[randIdx];
-        _usedColors.Add(randIdx);
-
-        return next;
-    }
-
-    public static void UseColor(Color color)
-    {
-        int idx = ProbeColors.FindIndex(x => x.Equals(color));
-        if (idx >= 0)
-            _usedColors.Add(idx);
-    }
-
-    public static void ReturnProbeColor(Color returnColor)
-    {
-        int idx = ProbeColors.FindIndex(x => x.Equals(returnColor));
-        if (idx >= 0)
-            _usedColors.Remove(idx);
     }
 
     ///
