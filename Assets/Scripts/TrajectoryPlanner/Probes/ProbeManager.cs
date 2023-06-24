@@ -129,21 +129,21 @@ public class ProbeManager : MonoBehaviour
 
     public string APITarget { get; set; }
 
+    private Color _color;
     public Color Color
     {
         get
         {
-            if (_probeRenderer == null)
-                return new Color();
-            return _probeRenderer.material.color;
+            return _color;
         }
 
         set
         {
             // try to return the current color
-            ProbeProperties.ReturnColor(_probeRenderer.material.color);
+            ProbeProperties.ReturnColor(_color);
 
-            _probeRenderer.material.color = value;
+            _color = value;
+            _probeRenderer.material.color = _color;
 
             foreach (ProbeUIManager puiManager in _probeUIManagers)
                 puiManager.UpdateColors();
@@ -192,9 +192,6 @@ public class ProbeManager : MonoBehaviour
             _defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
         }
 
-        if (_probeRenderer != null)
-            _probeRenderer.material.color = ProbeProperties.NextColor;
-
         // Pull the tpmanager object and register this probe
         _probeController.Register(this);
 
@@ -217,6 +214,9 @@ public class ProbeManager : MonoBehaviour
         Debug.Log($"(ProbeManager) New probe created with UUID: {UUID}");
 #endif
         UpdateSelectionLayer(SelectionLayerName);
+
+        if (_probeRenderer != null)
+            Color = ProbeProperties.NextColor;
     }
 
     /// <summary>
