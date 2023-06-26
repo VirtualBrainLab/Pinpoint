@@ -121,7 +121,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8493615845065584824}
   m_HandleRect: {fileID: 8361295466311985757}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -580,7 +580,7 @@ GameObject:
   - component: {fileID: 1445278465348587323}
   - component: {fileID: 5483421187078802668}
   m_Layer: 5
-  m_Name: AutomaticManipulatorControlPanel
+  m_Name: EphysCopilotPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -650,15 +650,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _zeroCoordinatePanel:
     ResetZeroCoordinatePanelPrefab: {fileID: 8263761920505935187, guid: 8e78152cb80513c45b3c35cb5a96432f, type: 3}
-    PanelScrollView: {fileID: 2904017589487271391}
     PanelScrollViewContent: {fileID: 7072317697882447797}
   _gotoPanel:
     InsertionSelectionPanelPrefab: {fileID: 4424500575015542408, guid: 3c4cf558240cec14abf3dd9882eba899, type: 3}
-    PanelScrollView: {fileID: 687500095747171540}
     PanelScrollViewContent: {fileID: 7125810125362052674}
   _duraOffsetPanel:
     ResetDuraOffsetPanelPrefab: {fileID: 8263761920505935187, guid: b9c529c14db0a5043baffd6a8baecaf4, type: 3}
-    PanelScrollView: {fileID: 6248915284573402155}
     PanelScrollViewContent: {fileID: 8370024288020303656}
   _drivePanel:
     DrivePanelPrefab: {fileID: 8263761920505935187, guid: 57f71b59395523648b1afe91354e6e46, type: 3}
@@ -986,7 +983,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5041640443237617115}
   m_HandleRect: {fileID: 3068108255336848725}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3002,7 +2999,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5713203697382717340}
   m_HandleRect: {fileID: 538386439288270413}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
