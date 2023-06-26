@@ -19,6 +19,9 @@ public class TP_Search : MonoBehaviour
     private List<GameObject> localAreaPanels;
     public List<CCFTreeNode> activeBrainAreas { get; private set; }
 
+    private const int ACRONYM_FONT_SIZE = 24;
+    private const int FULL_FONT_SIZE = 14;
+
     void Awake()
     {
         localAreaPanels = new List<GameObject>();
@@ -29,7 +32,7 @@ public class TP_Search : MonoBehaviour
             GameObject areaPanel = Instantiate(_areaPanelPrefab, _areaPanelsParentGo.transform);
             areaPanel.GetComponentInChildren<Button>().onClick.AddListener(() =>
             {
-                _tpmanager.SetProbeTipPositionToCCFNode(areaPanel.GetComponent<TP_SearchAreaPanel>().GetNode());
+                _tpmanager.SetProbeTipPositionToCCFNode(areaPanel.GetComponent<TP_SearchAreaPanel>().Node);
             });
             localAreaPanels.Add(areaPanel);
             areaPanel.SetActive(false);
@@ -93,7 +96,7 @@ public class TP_Search : MonoBehaviour
                     areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.ShortName;
                 else
                     areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.Name;
-                areaPanel.GetComponent<TP_SearchAreaPanel>().SetNode(areaNode);
+                areaPanel.GetComponent<TP_SearchAreaPanel>().Node = areaNode;
                 areaPanel.GetComponent<Image>().color = areaNode.Color;
                 areaPanel.SetActive(true);
             }
@@ -104,7 +107,7 @@ public class TP_Search : MonoBehaviour
 
     public void ClickArea(GameObject target)
     {
-        CCFTreeNode targetNode = target.GetComponent<TP_SearchAreaPanel>().GetNode();
+        CCFTreeNode targetNode = target.GetComponent<TP_SearchAreaPanel>().Node;
         // Depending on whether the node is in the base set or not we will load it temporarily or just set it to have a different material
         SelectBrainArea(targetNode);
     }
@@ -176,5 +179,14 @@ public class TP_Search : MonoBehaviour
     {
         foreach (CCFTreeNode node in activeBrainAreas)
             _tpmanager.WarpNode(node);
+    }
+
+    /// <summary>
+    /// Change the font size based on whether the "acronyms only" setting has been updated
+    /// </summary>
+    public void UpdateSearchFontSize(bool acronyms)
+    {
+        foreach (GameObject searchPanel in localAreaPanels)
+            searchPanel.GetComponent<TP_SearchAreaPanel>().SetFontSize(acronyms ? ACRONYM_FONT_SIZE : FULL_FONT_SIZE);
     }
 }
