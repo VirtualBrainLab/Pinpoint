@@ -380,9 +380,13 @@ public class DefaultProbeController : ProbeController
 
     public void MoveProbeXYZ(float x, float y, float z, bool pressed)
     {
-        var speed = pressed ?
-            keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
-            keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
+        var speed = pressed || ManipulatorKeyboardControl
+            ? keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP
+            : keyFast
+                ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime
+                : keySlow
+                    ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime
+                    : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
         // Get the positional deltas
         var deltas = new Vector3(x, y, z) * speed;
@@ -436,10 +440,13 @@ public class DefaultProbeController : ProbeController
 
     public void MoveProbeDepth(float depth, bool pressed)
     {
-        var speed = pressed
-            ?
-            keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
-            keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
+        var speed = pressed || ManipulatorKeyboardControl
+            ? keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP
+            : keyFast
+                ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime
+                : keySlow
+                    ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime
+                    : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
         var targetDriveDistance = depth * speed;
 
