@@ -440,21 +440,25 @@ public class DefaultProbeController : ProbeController
         var targetDriveDistance = depth * speed;
 
         if (ManipulatorKeyboardControl)
+        {
+            // Disable/ignore more input until movement is done
+            ManipulatorKeyboardControl = false;
+            
+            // Convert to manipulator axes (world -> space)
+            targetDriveDistance = ProbeManager.ManipulatorBehaviorController.CoordinateSpace
+                                                                            .World2SpaceAxisChange(Vector3.down).z * targetDriveDistance;
+            
             // Get current position to compute the target position
             CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                 pos =>
                 {
-                    var targetDepth = pos.w +
-                                      ProbeManager.ManipulatorBehaviorController.CoordinateSpace
-                                          .World2SpaceAxisChange(Vector3.down).z * targetDriveDistance;
+                    // Apply delta and move manipulator
+                    var targetDepth = pos.w + targetDriveDistance;
 
                     CommunicationManager.Instance.SetInsideBrain(
                         ProbeManager.ManipulatorBehaviorController.ManipulatorID, true,
                         _ =>
                         {
-                            // Disable/ignore more input until movement is done
-                            ManipulatorKeyboardControl = false;
-
                             // Move the manipulator
                             CommunicationManager.Instance.DriveToDepth(
                                 ProbeManager.ManipulatorBehaviorController.ManipulatorID,
@@ -471,6 +475,7 @@ public class DefaultProbeController : ProbeController
                                 }, Debug.LogError);
                         }, Debug.LogError);
                 }, Debug.LogError);
+        }
         else
             this.depth += targetDriveDistance;
     }
