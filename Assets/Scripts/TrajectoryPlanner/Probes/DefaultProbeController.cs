@@ -396,46 +396,35 @@ public class DefaultProbeController : ProbeController
 
         if (ManipulatorKeyboardControl)
         {
-            // Activate writing
-            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
-                canWrite =>
+            // Disable/ignore more input until movement is done
+            ManipulatorKeyboardControl = false;
+
+            // Convert to manipulator axes (world -> space -> transform)
+            deltas = ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2SpaceAxisChange(deltas);
+            deltas = ProbeManager.ManipulatorBehaviorController.Transform.Space2Transform(deltas);
+
+            // Get manipulator position
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                pos =>
                 {
-                    if (!canWrite) return;
-                    
-                    // Disable/ignore more input until movement is done
-                    ManipulatorKeyboardControl = false;
+                    // Apply delta and move manipulator
+                    var targetPosition = pos + new Vector4(deltas.x, deltas.y, deltas.z);
 
-                    // Convert to manipulator axes (world -> space -> transform)
-                    deltas = ProbeManager.ManipulatorBehaviorController.CoordinateSpace.World2SpaceAxisChange(deltas);
-                    deltas = ProbeManager.ManipulatorBehaviorController.Transform.Space2Transform(deltas);
-
-                    // Get manipulator position
-                    CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                        pos =>
+                    CommunicationManager.Instance.GotoPos(
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                        targetPosition, ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
+                        _ =>
                         {
-                            // Apply delta and move manipulator
-                            var targetPosition = pos + new Vector4(deltas.x, deltas.y, deltas.z);
-
-                            CommunicationManager.Instance.GotoPos(
-                                ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                targetPosition, ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
-                                _ =>
-                                {
-                                    // Clean up
-                                    CommunicationManager.Instance.SetCanWrite(
-                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, false, 1,
-                                        _ =>
-                                        {
-                                            // Re-enable input once movement is done
-                                            ManipulatorKeyboardControl = true;
-                                        }, Debug.LogError);
-                                }, Debug.LogError);
+                            // Clean up
+                            // Re-enable input once movement is done
+                            ManipulatorKeyboardControl = true;
                         }, Debug.LogError);
                 }, Debug.LogError);
         }
         else
+        {
             Insertion.apmldv = targetAPMLDV;
-        
+        }
     }
 
     public void MoveProbeDepth(float depth, bool pressed)
@@ -451,50 +440,36 @@ public class DefaultProbeController : ProbeController
         var targetDriveDistance = depth * speed;
 
         if (ManipulatorKeyboardControl)
-            // Activate writing
-            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                true, 1,
-                canWrite =>
+            // Get current position to compute the target position
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                pos =>
                 {
-                    if (!canWrite) return;
+                    var targetDepth = pos.w +
+                                      ProbeManager.ManipulatorBehaviorController.CoordinateSpace
+                                          .World2SpaceAxisChange(Vector3.down).z * targetDriveDistance;
 
-                    // Get current position to compute the target position
-                    CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                        pos =>
+                    CommunicationManager.Instance.SetInsideBrain(
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, true,
+                        _ =>
                         {
-                            var targetDepth = pos.w +
-                                              ProbeManager.ManipulatorBehaviorController.CoordinateSpace
-                                                  .World2SpaceAxisChange(Vector3.down).z * targetDriveDistance;
+                            // Disable/ignore more input until movement is done
+                            ManipulatorKeyboardControl = false;
 
-                            CommunicationManager.Instance.SetInsideBrain(
-                                ProbeManager.ManipulatorBehaviorController.ManipulatorID, true,
+                            // Move the manipulator
+                            CommunicationManager.Instance.DriveToDepth(
+                                ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                targetDepth, ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
                                 _ =>
                                 {
-                                    // Disable/ignore more input until movement is done
-                                    ManipulatorKeyboardControl = false;
-
-                                    // Move the manipulator
-                                    CommunicationManager.Instance.DriveToDepth(
-                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                        targetDepth, ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
+                                    CommunicationManager.Instance.SetInsideBrain(
+                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
                                         _ =>
                                         {
-                                            CommunicationManager.Instance.SetInsideBrain(
-                                                ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
-                                                _ =>
-                                                {
-                                                    CommunicationManager.Instance.SetCanWrite(
-                                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
-                                                        1,
-                                                        _ =>
-                                                        {
-                                                            // Re-enable input once movement is done
-                                                            ManipulatorKeyboardControl = true;
-                                                        }, Debug.LogError);
-                                                }, Debug.LogError);
+                                            // Re-enable input once movement is done
+                                            ManipulatorKeyboardControl = true;
                                         }, Debug.LogError);
                                 }, Debug.LogError);
-                    }, Debug.LogError);
+                        }, Debug.LogError);
                 }, Debug.LogError);
         else
             this.depth += targetDriveDistance;
