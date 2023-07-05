@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Linq;
+using EphysLink;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -37,8 +38,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 _attachedProbe.ManipulatorBehaviorController.ManipulatorType = type;
             }
             else
+            {
                 _handednessDropdown.value =
                     Settings.EphysLinkRightHandedManipulators.Split("\n").Contains(manipulatorID) ? 1 : 0;
+            }
 
             // Register event listeners for updating probes list
             settingsMenu.ShouldUpdateProbesListEvent.AddListener(UpdateLinkableProbeOptions);
@@ -166,9 +169,19 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset += positive ? 0.1f : -0.1f;
         }
 
+        /// <summary>
+        ///     Activate or deactivate keyboard control of the manipulator
+        /// </summary>
+        /// <param name="state">True to enable keyboard control, False otherwise</param>
         public void UpdateKeyboardControlState(bool state)
         {
-            _attachedProbe.ProbeController.ManipulatorKeyboardControl = state;
+            CommunicationManager.Instance.SetCanWrite(_attachedProbe.ManipulatorBehaviorController.ManipulatorID, state,
+                1,
+                _ => { _attachedProbe.ProbeController.ManipulatorKeyboardControl = state; }, err =>
+                {
+                    _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
+                    Debug.LogError(err);
+                });
         }
 
         #endregion
