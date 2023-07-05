@@ -206,11 +206,11 @@ namespace TrajectoryPlanner
             if (!savedProbeTask.Result)
                 _accountsManager.DelayedStart();
 
-            if (!PlayerPrefs.HasKey("survey-done"))
-            {
-                QuestionDialogue.SetYesCallback(SendToSurvey);
-                QuestionDialogue.NewQuestion("Hello! We don't track users of Pinpoint, but we need to get grant funding. Would you be willing to spend 5 minutes answering a few questions about your use of Pinpoint?");
-            }
+            //if (!PlayerPrefs.HasKey("survey-done"))
+            //{
+            //    QuestionDialogue.SetYesCallback(SendToSurvey);
+            //    QuestionDialogue.NewQuestion("Hello! We don't track users of Pinpoint, but we need to get grant funding. Would you be willing to spend 5 minutes answering a few questions about your use of Pinpoint?");
+            //}
         }
 
         public void SendToSurvey()
