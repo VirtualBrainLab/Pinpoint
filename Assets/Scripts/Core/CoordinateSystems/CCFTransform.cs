@@ -9,7 +9,7 @@ namespace CoordinateTransforms
         {
             get
             {
-                return "CCF";
+                return "Allen CCF";
             }
         }
 
