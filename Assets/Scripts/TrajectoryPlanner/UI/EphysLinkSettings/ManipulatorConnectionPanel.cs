@@ -182,6 +182,23 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
                     Debug.LogError(err);
                 });
+            
+            // Enable/disable return to zero coordinate button
+            _returnToZeroCoordinateButton.interactable = state;
+        }
+
+        /// <summary>
+        ///     Return manipulator back to zero coordinate
+        /// </summary>
+        public void ReturnToZeroCoordinate()
+        {
+            // Disable keyboard control
+            _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
+
+            // Move manipulator back to zero coordinate
+            _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate(
+                _ => _attachedProbe.ProbeController.ManipulatorKeyboardControl = true,
+                _ => _attachedProbe.ProbeController.ManipulatorKeyboardControl = true);
         }
 
         #endregion
@@ -278,7 +295,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private InputField _zeroCoordinateZInputField;
         [SerializeField] private InputField _zeroCoordinateDInputField;
         [SerializeField] private InputField _brainSurfaceOffsetInputField;
-        [SerializeField] private Toggle _keyboardControlToggle;
+        [SerializeField] private Button _returnToZeroCoordinateButton;
 
         private ProbeManager _attachedProbe;
 
@@ -289,6 +306,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         private EphysLinkSettings _ephysLinkSettings;
         private string _manipulatorId;
         private string _type;
+        
+        private bool _returningToZeroCoordinate;
 
         #endregion
     }
