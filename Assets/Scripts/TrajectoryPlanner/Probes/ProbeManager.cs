@@ -96,10 +96,10 @@ public class ProbeManager : MonoBehaviour
     public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU { get { return (_recRegionBaseCoordU, _recRegionTopCoordU); } }
 
     // Text
-    private const float minPhi = -180;
-    private const float maxPhi = 180f;
-    private const float minSpin = -180f;
-    private const float maxSpin = 180f;
+    private const float minYaw = -180;
+    private const float maxYaw = 180f;
+    private const float minRoll = -180f;
+    private const float maxRoll = 180f;
 
     // Brain surface position
     private CCFAnnotationDataset annotationDataset;
@@ -368,6 +368,7 @@ public class ProbeManager : MonoBehaviour
         UpdateChannelMap();
 
         UIUpdateEvent.Invoke();
+        
     }
 
     /// <summary>
@@ -407,6 +408,9 @@ public class ProbeManager : MonoBehaviour
 
         if (_recRegion != null)
             _recRegion.SetSize(_channelMinY, _channelMaxY);
+
+        // Update the in-plane slice
+        ProbeController.MovedThisFrameEvent.Invoke();
     }
 
     /// <summary>
@@ -421,50 +425,70 @@ public class ProbeManager : MonoBehaviour
         if (ProbeProperties.FourShank(ProbeType))
         {
             // do something else
-            return "";
-        }
-        {
-            // Create a list of range, acronym color
-            List<(int bot, int top, string acronym, Color color)> probeAnnotationData = new();
-            float height = _channelMaxY - _channelMinY;
-
-            float curBottom = _channelMinY * 1000f;
-            int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(_recRegionBaseCoordU)); ;
-            // Lerp between the base and top coordinate in small steps'
-
-            for (float perc = 0f; perc < 1f; perc += 0.01f)
-            {
-                Vector3 coordU = Vector3.Lerp(_recRegionBaseCoordU, _recRegionTopCoordU, perc);
-                int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(coordU));
-                if (ID < 0) ID = -1;
-
-                if (ID != lastID)
-                {
-                    // Save the current step
-                    probeAnnotationData.Add((Mathf.RoundToInt(curBottom*1000), Mathf.RoundToInt(perc * height * 1000), CCFModelControl.ID2Acronym(ID), CCFModelControl.GetCCFAreaColor(ID)));
-                    curBottom = perc * height;
-                    lastID = ID;
-                }
-            }
-
-            // Save the final step
-            probeAnnotationData.Add((Mathf.RoundToInt(curBottom*1000), Mathf.RoundToInt(height*1000), CCFModelControl.ID2Acronym(lastID), CCFModelControl.GetCCFAreaColor(lastID)));
-
-            // Flatten the list data according to the SpikeGLX format
-            // [probe, shank](startpos, endpos, r, g, b, name)
-            // [0,0](0,1000,200,0,0,cortex)
-
-            string probeStr = "[0,0]";
-
-            foreach (var data in probeAnnotationData)
-            {
-                probeStr += $"({data.bot},{data.top}," +
-                    $"{Mathf.RoundToInt(data.color.r*255)},{Mathf.RoundToInt(data.color.g * 255)},{Mathf.RoundToInt(data.color.b * 255)}," +
-                    $"{data.acronym})";
-            }
-
+            string probeStr = "";
+            for (int si = 0; si < 4; si++)
+                probeStr += perShankDepthIDs(si);
             return probeStr;
         }
+        {
+            return perShankDepthIDs(0);
+        }
+    }
+
+    private string perShankDepthIDs(int shank)
+    {
+        // Create a list of range, acronym color
+        List<(int bot, int top, string acronym, Color color)> probeAnnotationData = new();
+        float height = _channelMaxY - _channelMinY;
+
+        float curBottom = 0f;
+
+        ProbeUIManager uiManager = _probeUIManagers[shank];
+        Vector3 baseCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMinY;
+        Vector3 topCoordWorldT = baseCoordWorldT + _probeController.ProbeTipT.up * _channelMaxY;
+
+        // convert to worldU
+        ProbeInsertion insertion = _probeController.Insertion;
+        Vector3 baseCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(baseCoordWorldT))));
+        Vector3 topCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(topCoordWorldT))));
+
+        int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(baseCoordWorldU)); ;
+        // Lerp between the base and top coordinate in small steps'
+
+        for (float perc = 0f; perc < 1f; perc += 0.01f)
+        {
+
+            Vector3 coordU = Vector3.Lerp(baseCoordWorldU, topCoordWorldU, perc);
+            int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(coordU));
+            if (ID < 0) ID = -1;
+
+            if (ID != lastID)
+            {
+                // Save the current step
+                float newHeight = perc * height * 1000;
+                probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinY * 1000f), Mathf.RoundToInt(newHeight + _channelMinY * 1000f), CCFModelControl.ID2Acronym(ID), CCFModelControl.GetCCFAreaColor(ID)));
+                curBottom = newHeight;
+                lastID = ID;
+            }
+        }
+
+        // Save the final step
+        probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinY * 1000f), Mathf.RoundToInt(height * 1000 + _channelMinY * 1000f), CCFModelControl.ID2Acronym(lastID), CCFModelControl.GetCCFAreaColor(lastID)));
+
+        // Flatten the list data according to the SpikeGLX format
+        // [probe, shank](startpos, endpos, r, g, b, name)
+        // [0,0](0,1000,200,0,0,cortex)
+
+        string probeStr = $"[{APITarget},{shank}]";
+
+        foreach (var data in probeAnnotationData)
+        {
+            probeStr += $"({data.bot},{data.top}," +
+                $"{Mathf.RoundToInt(data.color.r * 255)},{Mathf.RoundToInt(data.color.g * 255)},{Mathf.RoundToInt(data.color.b * 255)}," +
+                $"{data.acronym})";
+        }
+
+        return probeStr;
     }
 
     /// <summary>
@@ -636,7 +660,7 @@ public class ProbeManager : MonoBehaviour
             " Tip coordinate: (ccfAP:{12}, ccfML: {13}, ccfDV:{14})",
             name, 
             apStr, round0(entryCoordTranformed.x * mult), mlStr, round0(entryCoordTranformed.y * mult), dvStr, round0(entryCoordTranformed.z * mult), 
-            round2(TP_Utils.CircDeg(angles.x, minPhi, maxPhi)), round2(angles.y), round2(TP_Utils.CircDeg(angles.z, minSpin, maxSpin)),
+            round2(TP_Utils.CircDeg(angles.x, minYaw, maxYaw)), round2(angles.y), round2(TP_Utils.CircDeg(angles.z, minRoll, maxRoll)),
             depthStr, round0(depthTransformed * mult),
             round0(apmldvS.x * mult), round0(apmldvS.y * mult), round0(apmldvS.z * mult));
 
