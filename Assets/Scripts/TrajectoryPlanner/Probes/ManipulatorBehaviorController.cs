@@ -75,9 +75,9 @@ namespace TrajectoryPlanner.Probes
                     "ephys_link", Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture), ManipulatorID,
                     pos.x.ToString(CultureInfo.InvariantCulture), pos.y.ToString(CultureInfo.InvariantCulture),
                     pos.z.ToString(CultureInfo.InvariantCulture), pos.w.ToString(CultureInfo.InvariantCulture),
-                    insertion.phi.ToString(CultureInfo.InvariantCulture),
-                    insertion.theta.ToString(CultureInfo.InvariantCulture),
-                    insertion.spin.ToString(CultureInfo.InvariantCulture),
+                    insertion.yaw.ToString(CultureInfo.InvariantCulture),
+                    insertion.pitch.ToString(CultureInfo.InvariantCulture),
+                    insertion.roll.ToString(CultureInfo.InvariantCulture),
                     tipPos.x.ToString(CultureInfo.InvariantCulture), tipPos.y.ToString(CultureInfo.InvariantCulture),
                     tipPos.z.ToString(CultureInfo.InvariantCulture)
                 };
@@ -153,8 +153,8 @@ namespace TrajectoryPlanner.Probes
             {
                 _isRightHanded = value;
                 Transform = IsRightHanded
-                    ? new SensapexRightTransform(_probeController.Insertion.phi)
-                    : new SensapexLeftTransform(_probeController.Insertion.phi);
+                    ? new SensapexRightTransform(_probeController.Insertion.yaw)
+                    : new SensapexLeftTransform(_probeController.Insertion.yaw);
             }
         }
 
@@ -210,14 +210,14 @@ namespace TrajectoryPlanner.Probes
                 {
                     CoordinateSpace = new SensapexSpace();
                     Transform = IsRightHanded
-                        ? new SensapexRightTransform(_probeController.Insertion.phi)
-                        : new SensapexLeftTransform(_probeController.Insertion.phi);
+                        ? new SensapexRightTransform(_probeController.Insertion.yaw)
+                        : new SensapexLeftTransform(_probeController.Insertion.yaw);
                 }
                 else
                 {
                     CoordinateSpace = new NewScaleSpace();
-                    Transform = new NewScaleLeftTransform(_probeController.Insertion.phi,
-                        _probeController.Insertion.theta);
+                    Transform = new NewScaleLeftTransform(_probeController.Insertion.yaw,
+                        _probeController.Insertion.pitch);
                 }
 
                 _probeController.Locked = true;
