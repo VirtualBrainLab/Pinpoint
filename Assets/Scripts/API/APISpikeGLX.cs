@@ -94,7 +94,6 @@ public class APISpikeGLX : MonoBehaviour
         // Get the probe data
         foreach (ProbeManager probeManager in ProbeManager.Instances)
         {
-            Debug.Log(probeManager.APITarget);
             if (probeManager.APITarget == null || probeManager.APITarget.Equals("None"))
                 continue;
             SendProbeData(probeManager);

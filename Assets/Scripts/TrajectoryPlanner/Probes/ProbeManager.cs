@@ -445,15 +445,18 @@ public class ProbeManager : MonoBehaviour
 
         ProbeUIManager uiManager = _probeUIManagers[shank];
         Vector3 baseCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMinY;
-        Vector3 topCoordWorldT = baseCoordWorldT + _probeController.ProbeTipT.up * _channelMaxY;
+        Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMaxY;
 
         // convert to worldU
         ProbeInsertion insertion = _probeController.Insertion;
         Vector3 baseCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(baseCoordWorldT))));
         Vector3 topCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(topCoordWorldT))));
 
-        int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(baseCoordWorldU)); ;
+        int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(baseCoordWorldU));
+        if (lastID < 0) lastID = -1;
         // Lerp between the base and top coordinate in small steps'
+
+        float _channelMinUM = _channelMinY * 1000f;
 
         for (float perc = 0f; perc < 1f; perc += 0.01f)
         {
@@ -465,15 +468,15 @@ public class ProbeManager : MonoBehaviour
             if (ID != lastID)
             {
                 // Save the current step
-                float newHeight = perc * height * 1000;
-                probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinY * 1000f), Mathf.RoundToInt(newHeight + _channelMinY * 1000f), CCFModelControl.ID2Acronym(ID), CCFModelControl.GetCCFAreaColor(ID)));
+                float newHeight = perc * height * 1000f;
+                probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinUM), Mathf.RoundToInt(newHeight + _channelMinUM), CCFModelControl.ID2Acronym(ID), CCFModelControl.GetCCFAreaColor(ID)));
                 curBottom = newHeight;
                 lastID = ID;
             }
         }
 
         // Save the final step
-        probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinY * 1000f), Mathf.RoundToInt(height * 1000 + _channelMinY * 1000f), CCFModelControl.ID2Acronym(lastID), CCFModelControl.GetCCFAreaColor(lastID)));
+        probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinUM), Mathf.RoundToInt(height * 1000 + _channelMinUM), CCFModelControl.ID2Acronym(lastID), CCFModelControl.GetCCFAreaColor(lastID)));
 
         // Flatten the list data according to the SpikeGLX format
         // [probe, shank](startpos, endpos, r, g, b, name)
