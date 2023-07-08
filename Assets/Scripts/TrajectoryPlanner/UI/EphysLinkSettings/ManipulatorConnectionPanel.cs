@@ -182,7 +182,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
                     Debug.LogError(err);
                 });
-            
+
             // Enable/disable return to zero coordinate button
             _returnToZeroCoordinateButton.interactable = state;
         }
@@ -192,13 +192,43 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// </summary>
         public void ReturnToZeroCoordinate()
         {
-            // Disable keyboard control
-            _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
+            if (_returningToZeroCoordinate)
+            {
+                // Return in progress, should stop
+                _returnToZeroCoordinateButtonText.text = "Stopping...";
 
-            // Move manipulator back to zero coordinate
-            _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate(
-                _ => _attachedProbe.ProbeController.ManipulatorKeyboardControl = true,
-                _ => _attachedProbe.ProbeController.ManipulatorKeyboardControl = true);
+                CommunicationManager.Instance.Stop(stopState =>
+                {
+                    // Update text
+                    _returnToZeroCoordinateButtonText.text =
+                        stopState ? "Return to Zero Coordinate" : "Failed to Stop, Try Again";
+
+                    // Re-enable keyboard control if stop was successful
+                    _attachedProbe.ProbeController.ManipulatorKeyboardControl = stopState;
+                    
+                    // Update flag
+                    _returningToZeroCoordinate = !stopState;
+                });
+            }
+            else
+            {
+                // Disable keyboard control
+                _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
+
+                // Set button text and update flag
+                _returnToZeroCoordinateButtonText.text = "Stop";
+                _returningToZeroCoordinate = true;
+
+                // Move manipulator back to zero coordinate
+                _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate(_ => PostMoveAction(), _ => PostMoveAction());
+
+                void PostMoveAction()
+                {
+                    _returnToZeroCoordinateButtonText.text = "Return to Zero Coordinate";
+                    _attachedProbe.ProbeController.ManipulatorKeyboardControl = true;
+                    _returningToZeroCoordinate = false;
+                }
+            }
         }
 
         #endregion
@@ -296,6 +326,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private InputField _zeroCoordinateDInputField;
         [SerializeField] private InputField _brainSurfaceOffsetInputField;
         [SerializeField] private Button _returnToZeroCoordinateButton;
+        [SerializeField] private Text _returnToZeroCoordinateButtonText;
 
         private ProbeManager _attachedProbe;
 
@@ -306,7 +337,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         private EphysLinkSettings _ephysLinkSettings;
         private string _manipulatorId;
         private string _type;
-        
+
         private bool _returningToZeroCoordinate;
 
         #endregion

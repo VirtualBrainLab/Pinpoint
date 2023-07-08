@@ -1873,6 +1873,7 @@ MonoBehaviour:
   _zeroCoordinateDInputField: {fileID: 8872759665276583042}
   _brainSurfaceOffsetInputField: {fileID: 3529476872428658600}
   _returnToZeroCoordinateButton: {fileID: 899946326353513394}
+  _returnToZeroCoordinateButtonText: {fileID: 3945481360224806470}
 --- !u!114 &7145065099748536085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2643,6 +2644,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3945481360224806470 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1917941435178448969, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
+  m_PrefabInstance: {fileID: 3196658493005209103}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &4864814776895557404 stripped
