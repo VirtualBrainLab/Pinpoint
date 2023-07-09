@@ -22,9 +22,10 @@ public class Settings : MonoBehaviour
 {
     public static Settings Instance;
 
+    public static InternalData data;
+
     #region Probe settings
     // Collision detection
-    private static bool s_collisions;
     private const string COLLISIONS_STR = "collisions";
     private const bool COLLISIONS_DEFAULT = true;
     [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _collisionsToggle;
@@ -32,17 +33,16 @@ public class Settings : MonoBehaviour
 
     public static bool DetectCollisions
     {
-        get { return s_collisions; }
+        get { return data.s_collisions; }
         set
         {
-            s_collisions = value;
-            PlayerPrefs.SetInt(COLLISIONS_STR, s_collisions ? 1 : 0);
+            data.s_collisions = value;
+            PlayerPrefs.SetInt(COLLISIONS_STR, data.s_collisions ? 1 : 0);
             Instance.DetectCollisionsChangedEvent.Invoke();
         }
     }
 
     // Convert APML rotation to the probe's axis rotation
-    private static bool s_convertAPML2probeAxis;
     private const string APML2PROBE_STR = "apml2probe";
     private const bool APML2PROBE_DEFAULT = false;
     [FormerlySerializedAs("probeAxisToggle")][SerializeField] private Toggle _probeAxisToggle;
@@ -50,16 +50,15 @@ public class Settings : MonoBehaviour
 
     public static bool ConvertAPML2Probe
     {
-        get { return s_convertAPML2probeAxis; }
+        get { return data.s_convertAPML2probeAxis; }
         set
         {
-            s_convertAPML2probeAxis = value;
-            PlayerPrefs.SetInt(APML2PROBE_STR, s_convertAPML2probeAxis ? 1 : 0);
+            data.s_convertAPML2probeAxis = value;
+            PlayerPrefs.SetInt(APML2PROBE_STR, data.s_convertAPML2probeAxis ? 1 : 0);
             Instance.ConvertAPML2ProbeChangedEvent.Invoke();
         }
     }
 
-    private static bool s_useIBLAngles;
     private const string USEIBLANGLES_STR = "iblangles";
     private const bool USEIBLANGLES_DEFAULT = true;
     [FormerlySerializedAs("iblAngleToggle")][SerializeField] private Toggle _iblAngleToggle;
@@ -67,16 +66,15 @@ public class Settings : MonoBehaviour
 
     public static bool UseIBLAngles
     {
-        get { return s_useIBLAngles; }
+        get { return data.s_useIBLAngles; }
         set
         {
-            s_useIBLAngles = value;
-            PlayerPrefs.SetInt(USEIBLANGLES_STR, s_useIBLAngles ? 1 : 0);
+            data.s_useIBLAngles = value;
+            PlayerPrefs.SetInt(USEIBLANGLES_STR, data.s_useIBLAngles ? 1 : 0);
             Instance.UseIBLAnglesChangedEvent.Invoke();
         }
     }
 
-    private static bool s_axisControl;
     private const string AXISCONTROL_STR = "axiscontrol";
     private const bool AXISCONTROL_DEFAULT = true;
     [FormerlySerializedAs("axisControlToggle")][SerializeField] private Toggle _axisControlToggle;
@@ -84,11 +82,11 @@ public class Settings : MonoBehaviour
 
     public static bool AxisControl
     {
-        get { return s_axisControl; }
+        get { return data.s_axisControl; }
         set
         {
-            s_axisControl = value;
-            PlayerPrefs.SetInt(AXISCONTROL_STR, s_axisControl ? 1 : 0);
+            data.s_axisControl = value;
+            PlayerPrefs.SetInt(AXISCONTROL_STR, data.s_axisControl ? 1 : 0);
             Instance.AxisControlChangedEvent.Invoke();
         }
     }
@@ -97,7 +95,6 @@ public class Settings : MonoBehaviour
 
     #region Area settings
     // Use acronyms or full areas
-    private static bool s_useAcronyms;
     private const string USEACRONYMS_STR = "acronyms";
     private const bool USEACRONYMS_DEFAULT = true;
     [FormerlySerializedAs("acronymToggle")][SerializeField] private Toggle _acronymToggle;
@@ -105,17 +102,16 @@ public class Settings : MonoBehaviour
 
     public static bool UseAcronyms
     {
-        get { return s_useAcronyms; }
+        get { return data.s_useAcronyms; }
         set
         {
-            s_useAcronyms = value;
-            PlayerPrefs.SetInt(USEACRONYMS_STR, s_useAcronyms ? 1 : 0);
-            Instance.UseAcronymsChangedEvent.Invoke(s_useAcronyms);
+            data.s_useAcronyms = value;
+            PlayerPrefs.SetInt(USEACRONYMS_STR, data.s_useAcronyms ? 1 : 0);
+            Instance.UseAcronymsChangedEvent.Invoke(data.s_useAcronyms);
         }
     }
 
     // Use Beryl regions instead of ALL CCF regions
-    private static bool s_useBeryl;
     private const string USEBERYL_STR = "beryl";
     private const bool USEBERYL_DEFAULT = true;
     [FormerlySerializedAs("useBerylToggle")][SerializeField] private Toggle _useBerylToggle;
@@ -123,12 +119,12 @@ public class Settings : MonoBehaviour
 
     public static bool UseBeryl
     {
-        get { return s_useBeryl; }
+        get { return data.s_useBeryl; }
         set
         {
-            s_useBeryl = value;
-            PlayerPrefs.SetInt(USEBERYL_STR, s_useBeryl ? 1 : 0);
-            Instance.UseBerylChangedEvent.Invoke(s_useBeryl);
+            data.s_useBeryl = value;
+            PlayerPrefs.SetInt(USEBERYL_STR, data.s_useBeryl ? 1 : 0);
+            Instance.UseBerylChangedEvent.Invoke(data.s_useBeryl);
         }
     }
 
@@ -137,7 +133,6 @@ public class Settings : MonoBehaviour
     #region Graphics settings
 
     // Show the surface coordinate sphere
-    private static bool s_showSurfaceCoord;
     private const string SHOWSURFACECOORD_STR = "surfacecoord";
     private const bool SHOWSURFACECOORD_DEFAULT = true;
     [FormerlySerializedAs("surfaceToggle")][SerializeField] private Toggle _surfaceToggle;
@@ -145,18 +140,17 @@ public class Settings : MonoBehaviour
 
     public static bool ShowSurfaceCoordinate
     {
-        get { return s_showSurfaceCoord; }
+        get { return data.s_showSurfaceCoord; }
         set
         {
-            s_showSurfaceCoord = value;
-            PlayerPrefs.SetInt(SHOWSURFACECOORD_STR, s_showSurfaceCoord ? 1 : 0);
+            data.s_showSurfaceCoord = value;
+            PlayerPrefs.SetInt(SHOWSURFACECOORD_STR, data.s_showSurfaceCoord ? 1 : 0);
             Instance.SurfaceCoordChangedEvent.Invoke();
         }
     }
 
 
     // Display the in-plane slice
-    private static bool s_inplane;
     private const string SHOWINPLANE_STR = "inplane";
     private const bool SHOWINPLANE_DEFAULT = true;
     [FormerlySerializedAs("inplaneToggle")][SerializeField] private Toggle _inplaneToggle;
@@ -164,16 +158,15 @@ public class Settings : MonoBehaviour
 
     public static bool ShowInPlaneSlice
     {
-        get { return s_inplane; }
+        get { return data.s_inplane; }
         set
         {
-            s_inplane = value;
-            PlayerPrefs.SetInt(SHOWINPLANE_STR, s_inplane ? 1 : 0);
+            data.s_inplane = value;
+            PlayerPrefs.SetInt(SHOWINPLANE_STR, data.s_inplane ? 1 : 0);
             Instance.ShowInPlaneChangedEvent.Invoke();
         }
     }
 
-    private static bool s_ghostInactiveProbes;
     private const string GHOSTINACTIVEPROBES_STR = "ghostinactive";
     private const bool GHOSTINACTIVEPROBES_DEFAULT = true;
     [FormerlySerializedAs("ghostInactiveProbesToggle")][SerializeField] private Toggle _ghostInactiveProbesToggle;
@@ -181,17 +174,16 @@ public class Settings : MonoBehaviour
 
     public static bool GhostInactiveProbes
     {
-        get { return s_ghostInactiveProbes; }
+        get { return data.s_ghostInactiveProbes; }
         set
         {
-            s_ghostInactiveProbes = value;
-            PlayerPrefs.SetInt(GHOSTINACTIVEPROBES_STR, s_ghostInactiveProbes ? 1 : 0);
+            data.s_ghostInactiveProbes = value;
+            PlayerPrefs.SetInt(GHOSTINACTIVEPROBES_STR, data.s_ghostInactiveProbes ? 1 : 0);
             Instance.GhostInactiveProbesChangedEvent.Invoke();
         }
     }
 
 
-    private static bool s_ghostInactiveAreas;
     private const string GHOSTINACTIVEAREAS_STR = "ghostinactive_areas";
     private const bool GHOSTINACTIVEAREAS_DEFAULT = false;
     [FormerlySerializedAs("ghostInactiveAreasToggle")][SerializeField] private Toggle _ghostInactiveAreasToggle;
@@ -199,16 +191,15 @@ public class Settings : MonoBehaviour
 
     public static bool GhostInactiveAreas
     {
-        get { return s_ghostInactiveAreas; }
+        get { return data.s_ghostInactiveAreas; }
         set
         {
-            s_ghostInactiveAreas = value;
-            PlayerPrefs.SetInt(GHOSTINACTIVEAREAS_STR, s_ghostInactiveAreas ? 1 : 0);
+            data.s_ghostInactiveAreas = value;
+            PlayerPrefs.SetInt(GHOSTINACTIVEAREAS_STR, data.s_ghostInactiveAreas ? 1 : 0);
             Instance.GhostInactiveAreasChangedEvent.Invoke();
         }
     }
 
-    private static bool s_displayUM;
     private const string DISPLAYUM_STR = "displayum";
     private const bool DISPLAYUM_DEFAULT = true;
     [FormerlySerializedAs("displayUmToggle")][SerializeField] private Toggle _displayUmToggle;
@@ -216,16 +207,15 @@ public class Settings : MonoBehaviour
 
     public static bool DisplayUM
     {
-        get { return s_displayUM; }
+        get { return data.s_displayUM; }
         set
         {
-            s_displayUM = value;
-            PlayerPrefs.SetInt(DISPLAYUM_STR, s_displayUM ? 1 : 0);
+            data.s_displayUM = value;
+            PlayerPrefs.SetInt(DISPLAYUM_STR, data.s_displayUM ? 1 : 0);
             Instance.DisplayUMChangedEvent.Invoke();
         }
     }
 
-    private static bool s_showAllProbePanels;
     private const string SHOWALLPROBEPANELS_STR = "showallpanels";
     private const bool SHOWALLPROBEPANELS_DEFAULT = true;
     [FormerlySerializedAs("showAllProbePanelsToggle")][SerializeField] private Toggle _showAllProbePanelsToggle;
@@ -233,11 +223,11 @@ public class Settings : MonoBehaviour
 
     public static bool ShowAllProbePanels
     {
-        get { return s_showAllProbePanels; }
+        get { return data.s_showAllProbePanels; }
         set
         {
-            s_showAllProbePanels = value;
-            PlayerPrefs.SetInt(SHOWALLPROBEPANELS_STR, s_showAllProbePanels ? 1 : 0);
+            data.s_showAllProbePanels = value;
+            PlayerPrefs.SetInt(SHOWALLPROBEPANELS_STR, data.s_showAllProbePanels ? 1 : 0);
             Instance.ShowAllProbePanelsChangedEvent.Invoke();
         }
     }
@@ -248,7 +238,6 @@ public class Settings : MonoBehaviour
     #region Atlas
 
     // Display the 3D area slice
-    private static int s_slice3d;
     private const string SHOW3DSLICE_STR = "slice3d";
     private const int SHOW3DSLICE_DEFAULT = 0;
     [FormerlySerializedAs("slice3dDropdown")][SerializeField] private TMP_Dropdown _slice3dDropdown;
@@ -256,33 +245,31 @@ public class Settings : MonoBehaviour
 
     public static int Slice3DDropdownOption
     {
-        get { return s_slice3d; }
+        get { return data.s_slice3d; }
         set
         {
-            s_slice3d = value;
-            PlayerPrefs.SetInt(SHOW3DSLICE_STR, s_slice3d);
-            Instance.Slice3DChangedEvent.Invoke(s_slice3d);
+            data.s_slice3d = value;
+            PlayerPrefs.SetInt(SHOW3DSLICE_STR, data.s_slice3d);
+            Instance.Slice3DChangedEvent.Invoke(data.s_slice3d);
         }
     }
 
-    private static Vector3 s_relCoord;
     private const string RELATIVECOORD_STR = "relcoord";
     private readonly Vector3 RELCOORD_DEFAULT = new Vector3(5.4f, 5.7f, 0.332f);
     public UnityEvent<Vector3> RelativeCoordinateChangedEvent;
 
     public static Vector3 RelativeCoordinate
     {
-        get { return s_relCoord; }
+        get { return data.s_relCoord; }
         set
         {
-            s_relCoord = value;
-            SaveVector3Pref(RELATIVECOORD_STR, s_relCoord);
-            Instance.RelativeCoordinateChangedEvent.Invoke(s_relCoord);
+            data.s_relCoord = value;
+            SaveVector3Pref(RELATIVECOORD_STR, data.s_relCoord);
+            Instance.RelativeCoordinateChangedEvent.Invoke(data.s_relCoord);
         }
     }
 
 
-    private static int s_invivoTransform;
     private const string INVIVO_STR = "invivo";
     private const int INVIVO_DEFAULT = 1;
     [FormerlySerializedAs("invivoDropdown")][SerializeField] private TMP_Dropdown _invivoDropdown;
@@ -292,17 +279,16 @@ public class Settings : MonoBehaviour
     {
         get
         {
-            return s_invivoTransform;
+            return data.s_invivoTransform;
         }
         set
         {
-            s_invivoTransform = value;
-            PlayerPrefs.SetInt(INVIVO_STR, s_invivoTransform);
-            Instance.InvivoTransformChangedEvent.Invoke(s_invivoTransform);
+            data.s_invivoTransform = value;
+            PlayerPrefs.SetInt(INVIVO_STR, data.s_invivoTransform);
+            Instance.InvivoTransformChangedEvent.Invoke(data.s_invivoTransform);
         }
     }
 
-    private static float s_blDistance;
     private const string BREGMALAMBDA_STR = "bldist";
     private const float BREGMALAMBDA_DEFAULT = 4.15f;
     [SerializeField] private Slider _blSlider;
@@ -312,13 +298,13 @@ public class Settings : MonoBehaviour
     {
         get
         {
-            return s_blDistance;
+            return data.s_blDistance;
         }
         set
         {
-            s_blDistance = value;
-            PlayerPrefs.SetFloat(BREGMALAMBDA_STR, s_blDistance);
-            Instance.BregmaLambdaChangedEvent.Invoke(s_blDistance);
+            data.s_blDistance = value;
+            PlayerPrefs.SetFloat(BREGMALAMBDA_STR, data.s_blDistance);
+            Instance.BregmaLambdaChangedEvent.Invoke(data.s_blDistance);
         }
     }
 
@@ -327,13 +313,12 @@ public class Settings : MonoBehaviour
     #region Ephys Link
 
     public UnityEvent<string> EphysLinkServerIpChangedEvent;
-    private static string _ephysLinkServerIp;
     public static string EphysLinkServerIp
     {
-        get => _ephysLinkServerIp;
+        get => data._ephysLinkServerIp;
         set
         {
-            _ephysLinkServerIp = value;
+            data._ephysLinkServerIp = value;
             PlayerPrefs.SetString("ephys_link_ip", value);
             PlayerPrefs.Save();
             Instance.EphysLinkServerIpChangedEvent.Invoke(value);
@@ -341,14 +326,13 @@ public class Settings : MonoBehaviour
     }
     
     public UnityEvent<int> EphysLinkServerPortChangedEvent;
-    private static int _ephysLinkServerPort;
 
     public static int EphysLinkServerPort
     {
-        get => _ephysLinkServerPort;
+        get => data._ephysLinkServerPort;
         set
         {
-            _ephysLinkServerPort = value;
+            data._ephysLinkServerPort = value;
             PlayerPrefs.SetInt("ephys_link_port", value);
             PlayerPrefs.Save();
             Instance.EphysLinkServerPortChangedEvent.Invoke(value);
@@ -370,14 +354,13 @@ public class Settings : MonoBehaviour
         return new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds() - long.Parse(timestampString) >= 86400;
     }
 
-    private static string _ephysLinkRightHandedManipulators;
 
     public static string EphysLinkRightHandedManipulators
     {
-        get => _ephysLinkRightHandedManipulators;
+        get => data._ephysLinkRightHandedManipulators;
         set
         {
-            _ephysLinkRightHandedManipulators = value;
+            data._ephysLinkRightHandedManipulators = value;
             PlayerPrefs.SetString("ephys_link_right_handed_manipulators", value);
             PlayerPrefs.Save();
         }
@@ -386,7 +369,6 @@ public class Settings : MonoBehaviour
     #endregion
 
     #region Accounts
-    private static bool s_stayLoggedIn;
     private const string LOGGEDIN_STR = "stayloggedin";
     private const bool LOGGEDIN_DEFAULT = true;
     [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _stayLoggedInToggle;
@@ -394,18 +376,17 @@ public class Settings : MonoBehaviour
 
     public static bool StayLoggedIn
     {
-        get { return s_stayLoggedIn; }
+        get { return data.s_stayLoggedIn; }
         set
         {
-            s_stayLoggedIn = value;
-            PlayerPrefs.SetInt(LOGGEDIN_STR, s_stayLoggedIn ? 1 : 0);
+            data.s_stayLoggedIn = value;
+            PlayerPrefs.SetInt(LOGGEDIN_STR, data.s_stayLoggedIn ? 1 : 0);
             //Instance.DetectCollisionsChangedEvent.Invoke();
         }
     }
     #endregion
 
     #region API
-    private static bool s_probeDataPOST;
     private const string PROBEDATA_STR = "probedatapost";
     private const bool PROBEDATA_DEFAULT = false;
     [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _probeDataPOSTToggle;
@@ -413,12 +394,12 @@ public class Settings : MonoBehaviour
 
     public static bool ProbeDataPOST
     {
-        get { return s_probeDataPOST; }
+        get { return data.s_probeDataPOST; }
         set
         {
-            s_probeDataPOST = value;
+            data.s_probeDataPOST = value;
             PlayerPrefs.SetInt(PROBEDATA_STR, PROBEDATA_DEFAULT ? 1 : 0);
-            Instance.ProbeDataPostChangedEvent.Invoke(s_probeDataPOST);
+            Instance.ProbeDataPostChangedEvent.Invoke(data.s_probeDataPOST);
         }
     }
     #endregion
@@ -431,77 +412,91 @@ public class Settings : MonoBehaviour
         if (Instance != null)
             Debug.LogError("Make sure there is only one Settings object in the scene!");
         Instance = this;
+
+        LoadSettings();
     }
     
     private void Start()
     {
-        // Load preferences from memory and set UI elements
+        ApplySettings();
+    }
+
+    private void LoadSettings()
+    {
         DetectCollisions = LoadBoolPref(COLLISIONS_STR, COLLISIONS_DEFAULT);
+        ConvertAPML2Probe = LoadBoolPref(APML2PROBE_STR, APML2PROBE_DEFAULT);
+        UseIBLAngles = LoadBoolPref(USEIBLANGLES_STR, USEIBLANGLES_DEFAULT);
+        UseAcronyms = LoadBoolPref(USEACRONYMS_STR, USEACRONYMS_DEFAULT);
+        Slice3DDropdownOption = LoadIntPref(SHOW3DSLICE_STR, SHOW3DSLICE_DEFAULT);
+        ShowSurfaceCoordinate = LoadBoolPref(SHOWSURFACECOORD_STR, SHOWSURFACECOORD_DEFAULT);
+        ShowInPlaneSlice = LoadBoolPref(SHOWINPLANE_STR, SHOWINPLANE_DEFAULT);
+        UseBeryl = LoadBoolPref(USEBERYL_STR, USEBERYL_DEFAULT);
+        GhostInactiveProbes = LoadBoolPref(GHOSTINACTIVEPROBES_STR, GHOSTINACTIVEPROBES_DEFAULT);
+        GhostInactiveAreas = LoadBoolPref(GHOSTINACTIVEAREAS_STR, GHOSTINACTIVEAREAS_DEFAULT);
+        RelativeCoordinate = LoadVector3Pref(RELATIVECOORD_STR, RELCOORD_DEFAULT);
+        DisplayUM = LoadBoolPref(DISPLAYUM_STR, DISPLAYUM_DEFAULT);
+        AxisControl = LoadBoolPref(AXISCONTROL_STR, AXISCONTROL_DEFAULT);
+        ShowAllProbePanels = LoadBoolPref(SHOWALLPROBEPANELS_STR, SHOWALLPROBEPANELS_DEFAULT);
+        InvivoTransform = LoadIntPref(INVIVO_STR, INVIVO_DEFAULT);
+        BregmaLambdaDistance = LoadFloatPref(BREGMALAMBDA_STR, BREGMALAMBDA_DEFAULT);
+
+        // accounts
+        ProbeDataPOST = LoadBoolPref(PROBEDATA_STR, PROBEDATA_DEFAULT);
+        StayLoggedIn = LoadBoolPref(LOGGEDIN_STR, LOGGEDIN_DEFAULT);
+
+        // ephys link
+        EphysLinkServerIp = LoadStringPref("ephys_link_ip", "");
+        EphysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
+        EphysLinkRightHandedManipulators = LoadStringPref("ephys_link_right_handed_manipulators", "");
+    }
+
+    private void ApplySettings()
+    {
+        // Load preferences from memory and set UI elements
         _collisionsToggle.SetIsOnWithoutNotify(DetectCollisions);
 
-        ConvertAPML2Probe = LoadBoolPref(APML2PROBE_STR, APML2PROBE_DEFAULT);
         _probeAxisToggle.SetIsOnWithoutNotify(ConvertAPML2Probe);
 
-        UseIBLAngles = LoadBoolPref(USEIBLANGLES_STR, USEIBLANGLES_DEFAULT);
         _iblAngleToggle.SetIsOnWithoutNotify(UseIBLAngles);
 
-        UseAcronyms = LoadBoolPref(USEACRONYMS_STR, USEACRONYMS_DEFAULT);
         _acronymToggle.SetIsOnWithoutNotify(UseAcronyms);
 
-        Slice3DDropdownOption = LoadIntPref(SHOW3DSLICE_STR, SHOW3DSLICE_DEFAULT);
         _slice3dDropdown.SetValueWithoutNotify(Slice3DDropdownOption);
 
-        ShowSurfaceCoordinate = LoadBoolPref(SHOWSURFACECOORD_STR, SHOWSURFACECOORD_DEFAULT);
         _surfaceToggle.SetIsOnWithoutNotify(ShowSurfaceCoordinate);
 
-        ShowInPlaneSlice = LoadBoolPref(SHOWINPLANE_STR, SHOWINPLANE_DEFAULT);
         _inplaneToggle.SetIsOnWithoutNotify(ShowInPlaneSlice);
 
-        UseBeryl = LoadBoolPref(USEBERYL_STR, USEBERYL_DEFAULT);
         _useBerylToggle.SetIsOnWithoutNotify(UseBeryl);
 
-        GhostInactiveProbes = LoadBoolPref(GHOSTINACTIVEPROBES_STR, GHOSTINACTIVEPROBES_DEFAULT);
         _ghostInactiveProbesToggle.SetIsOnWithoutNotify(GhostInactiveProbes);
 
-        GhostInactiveAreas = LoadBoolPref(GHOSTINACTIVEAREAS_STR, GHOSTINACTIVEAREAS_DEFAULT);
         _ghostInactiveAreasToggle.SetIsOnWithoutNotify(GhostInactiveAreas);
 
         // Default to Bregma
-        RelativeCoordinate = LoadVector3Pref(RELATIVECOORD_STR, RELCOORD_DEFAULT);
 
 
-        DisplayUM = LoadBoolPref(DISPLAYUM_STR, DISPLAYUM_DEFAULT);
         _displayUmToggle.SetIsOnWithoutNotify(DisplayUM);
 
-        AxisControl = LoadBoolPref(AXISCONTROL_STR, AXISCONTROL_DEFAULT);
         _axisControlToggle.SetIsOnWithoutNotify(AxisControl);
 
-        ShowAllProbePanels = LoadBoolPref(SHOWALLPROBEPANELS_STR, SHOWALLPROBEPANELS_DEFAULT);
         _showAllProbePanelsToggle.SetIsOnWithoutNotify(ShowAllProbePanels);
 
         // Atlas
-        InvivoTransform = LoadIntPref(INVIVO_STR, INVIVO_DEFAULT);
         _invivoDropdown.SetValueWithoutNotify(InvivoTransform);
 
-        BregmaLambdaDistance = LoadFloatPref(BREGMALAMBDA_STR, BREGMALAMBDA_DEFAULT);
         _blSlider.value = BregmaLambdaDistance;
 
         // Accounts
-        StayLoggedIn = LoadBoolPref(LOGGEDIN_STR, LOGGEDIN_DEFAULT);
         _stayLoggedInToggle.SetIsOnWithoutNotify(StayLoggedIn);
 
         // API
-        ProbeDataPOST = LoadBoolPref(PROBEDATA_STR, PROBEDATA_DEFAULT);
         _probeDataPOSTToggle.SetIsOnWithoutNotify(ProbeDataPOST);
 
         // Ephys link
-        EphysLinkServerIp = LoadStringPref("ephys_link_ip", "");
-        _ephysLinkServerIpInput.text = _ephysLinkServerIp;
+        _ephysLinkServerIpInput.text = data._ephysLinkServerIp;
 
-        EphysLinkServerPort = LoadIntPref("ephys_link_port", 8081);
-        _ephysLinkServerPortInput.text = _ephysLinkServerPort.ToString();
-        
-        EphysLinkRightHandedManipulators = LoadStringPref("ephys_link_right_handed_manipulators", "");
+        _ephysLinkServerPortInput.text = data._ephysLinkServerPort.ToString();
     }
 
     #endregion
@@ -621,5 +616,47 @@ public class Settings : MonoBehaviour
         Debug.Log("(Settings) All PlayerPrefs Deleted");
     }
 #endif
+    #endregion
+
+
+    #region Serialization
+
+    public static string Settings2String()
+    {
+        return JsonUtility.ToJson(data);
+    }
+
+    public static void String2Settings(string settingsString)
+    {
+        data = JsonUtility.FromJson<InternalData>(settingsString);
+        // Run the apply function to recover all settings properly
+        Instance.ApplySettings();
+    }
+
+    [Serializable]
+    public struct InternalData
+    {
+        public bool s_showSurfaceCoord;
+        public bool s_inplane;
+        public bool s_ghostInactiveProbes;
+        public bool s_ghostInactiveAreas;
+        public bool s_displayUM;
+        public bool s_showAllProbePanels;
+        public int s_slice3d;
+        public Vector3 s_relCoord;
+        public int s_invivoTransform;
+        public float s_blDistance;
+        public string _ephysLinkServerIp;
+        public int _ephysLinkServerPort;
+        public string _ephysLinkRightHandedManipulators;
+        public bool s_stayLoggedIn;
+        public bool s_probeDataPOST;
+        public bool s_collisions;
+        public bool s_convertAPML2probeAxis;
+        public bool s_useIBLAngles;
+        public bool s_axisControl;
+        public bool s_useAcronyms;
+        public bool s_useBeryl;
+    }
     #endregion
 }
