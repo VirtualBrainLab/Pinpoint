@@ -119,6 +119,9 @@ namespace TrajectoryPlanner
         [SerializeField] GameObject _showAllProbePanelsGO;
         [SerializeField] GameObject _logPanelGO;
 
+        // Bregma-labmda distance
+        [SerializeField] BregmaLambdaBehavior _blDistance;
+
         // Debug graphics
         [FormerlySerializedAs("surfaceDebugGO")] [SerializeField] private GameObject _surfaceDebugGo;
 
@@ -312,7 +315,6 @@ namespace TrajectoryPlanner
             }
 
             // Set the warp setting
-
             InVivoTransformChanged(Settings.InvivoTransform);
         }
 
@@ -755,7 +757,26 @@ namespace TrajectoryPlanner
         public void InVivoTransformChanged(int invivoOption)
         {
             Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
-            CoordinateSpaceManager.ActiveCoordinateTransform = coordinateTransformOpts.Values.ElementAt(invivoOption);
+            if (Settings.BregmaLambdaDistance == 4.15f)
+            {
+                // if the BL distance is the default, just set the transform
+                SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
+            }
+            else
+            {
+                // if isn't the default, then we have to adjust the transform now
+                SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
+                ChangeBLDistance(Settings.BregmaLambdaDistance);
+            }
+        }
+
+#endregion
+
+#region Setting Helper Functions
+
+        private void SetNewTransform(CoordinateTransform newTransform)
+        {
+            CoordinateSpaceManager.ActiveCoordinateTransform = newTransform;
             WarpBrain();
 
             // Update the warp functions in the craniotomy control panel
@@ -763,16 +784,13 @@ namespace TrajectoryPlanner
             _craniotomyPanel.Space2World = CoordinateSpaceManager.Transformed2WorldAxisChange;
 
             // Check if active probe is a mis-match
-            if (ProbeManager.ActiveProbeManager != null)
-                ProbeManager.ActiveProbeManager.CheckProbeTransformState();
+
+            // Check all probes for mis-matches
+            foreach (ProbeManager probeManager in ProbeManager.Instances)
+                probeManager.Update2ActiveTransform();
 
             UpdateAllProbeUI();
         }
-
-#endregion
-
-#region Setting Helper Functions
-
 
         public void SetSurfaceDebugActive(bool active)
         {
@@ -1097,9 +1115,63 @@ namespace TrajectoryPlanner
             newProbeManager.Color = data.color;
         }
 
-#endregion
+        #endregion
 
-#region Misc
+        #region BLDistance
+
+        private CoordinateTransform originalTransform;
+
+        /// <summary>
+        /// Change the bregma-lamba distance. By default this is 4.15f, so if it isn't that value, then we need to add an isometric scaling to the current transform
+        /// </summary>
+        /// <param name="blDistance"></param>
+        public void ChangeBLDistance(float blDistance)
+        {
+            float blRatio = blDistance / 4.15f;
+#if UNITY_EDITOR
+            Debug.Log($"(BL Distance) Re-scaling to {blRatio}");
+#endif
+
+            if (CoordinateSpaceManager.ActiveCoordinateTransform.Name != "Custom")
+                originalTransform = CoordinateSpaceManager.ActiveCoordinateTransform;
+
+            // There's no easy way to implement this without a refactor of the CoordinateTransform code, because you can't pull out the transform matrix.
+
+            // For now what we'll do is switch through the current transform, and replace it with a new version that's been scaled
+
+            CoordinateTransform newTransform;
+
+            switch (originalTransform.Prefix)
+            {
+                case "ccf":
+                    // the ccf transform is the unity transform, so just build a new affine transform that scales
+                    newTransform = new CustomAffineTransform(blRatio * Vector3.one, Vector3.zero);
+                    break;
+
+                case "q18":
+                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.031f, 0.952f, -0.885f), new Vector3(0f, -5f, 0f));
+                    break;
+
+                case "d08":
+                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, -5f, 0f));
+                    break;
+
+                case "i-d08":
+                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, 0f, 0f));
+                    break;
+
+                default:
+                    Debug.LogError("Previous transform is not scalable");
+                    return;
+            }
+
+            // Apply the new transform
+            SetNewTransform(newTransform);
+        }
+
+        #endregion
+
+        #region Misc
 
         public void LinkToVBLSite()
         {

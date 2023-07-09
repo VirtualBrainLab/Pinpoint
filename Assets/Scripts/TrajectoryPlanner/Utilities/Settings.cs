@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -304,6 +302,26 @@ public class Settings : MonoBehaviour
         }
     }
 
+    private static float s_blDistance;
+    private const string BREGMALAMBDA_STR = "bldist";
+    private const float BREGMALAMBDA_DEFAULT = 4.15f;
+    [SerializeField] private Slider _blSlider;
+    public UnityEvent<float> BregmaLambdaChangedEvent;
+
+    public static float BregmaLambdaDistance
+    {
+        get
+        {
+            return s_blDistance;
+        }
+        set
+        {
+            s_blDistance = value;
+            PlayerPrefs.SetFloat(BREGMALAMBDA_STR, s_blDistance);
+            Instance.BregmaLambdaChangedEvent.Invoke(s_blDistance);
+        }
+    }
+
     #endregion
 
     #region Ephys Link
@@ -451,8 +469,6 @@ public class Settings : MonoBehaviour
         // Default to Bregma
         RelativeCoordinate = LoadVector3Pref(RELATIVECOORD_STR, RELCOORD_DEFAULT);
 
-        InvivoTransform = LoadIntPref(INVIVO_STR, INVIVO_DEFAULT);
-        _invivoDropdown.SetValueWithoutNotify(InvivoTransform);
 
         DisplayUM = LoadBoolPref(DISPLAYUM_STR, DISPLAYUM_DEFAULT);
         _displayUmToggle.SetIsOnWithoutNotify(DisplayUM);
@@ -462,6 +478,13 @@ public class Settings : MonoBehaviour
 
         ShowAllProbePanels = LoadBoolPref(SHOWALLPROBEPANELS_STR, SHOWALLPROBEPANELS_DEFAULT);
         _showAllProbePanelsToggle.SetIsOnWithoutNotify(ShowAllProbePanels);
+
+        // Atlas
+        InvivoTransform = LoadIntPref(INVIVO_STR, INVIVO_DEFAULT);
+        _invivoDropdown.SetValueWithoutNotify(InvivoTransform);
+
+        BregmaLambdaDistance = LoadFloatPref(BREGMALAMBDA_STR, BREGMALAMBDA_DEFAULT);
+        _blSlider.value = BregmaLambdaDistance;
 
         // Accounts
         StayLoggedIn = LoadBoolPref(LOGGEDIN_STR, LOGGEDIN_DEFAULT);
@@ -516,6 +539,17 @@ public class Settings : MonoBehaviour
     private string LoadStringPref(string prefStr, string defaultValue)
     {
         return PlayerPrefs.HasKey(prefStr) ? PlayerPrefs.GetString(prefStr) : defaultValue;
+    }
+
+    /// <summary>
+    /// Load a float preference
+    /// </summary>
+    /// <param name="prefStr">string accessor</param>
+    /// <param name="defaultValue">default value if the setting is blank</param>
+    /// <returns></returns>
+    private float LoadFloatPref(string prefStr, float defaultValue)
+    {
+        return PlayerPrefs.HasKey(prefStr) ? PlayerPrefs.GetFloat(prefStr) : defaultValue;
     }
 
     private Vector3 LoadVector3Pref(string prefStr, Vector3 defaultValue)

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CoordinateSpaces;
-using CoordinateTransforms;
 using EphysLink;
 using TrajectoryPlanner.Probes;
 using UnityEngine;
@@ -271,16 +269,7 @@ public class ProbeManager : MonoBehaviour
         ActivateProbeEvent.Invoke();
     }
 
-    public void CheckProbeTransformState()
-    {
-        if (_probeController.Insertion.CoordinateTransform != CoordinateSpaceManager.ActiveCoordinateTransform)
-        {
-            QuestionDialogue.SetYesCallback(ChangeTransform);
-            QuestionDialogue.NewQuestion("The coordinate transform in the scene is mis-matched with the transform in this Probe insertion. Do you want to replace the transform?");
-        }
-    }
-
-    private void ChangeTransform()
+    public void Update2ActiveTransform()
     {
         _probeController.SetSpaceTransform(CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
