@@ -6,6 +6,7 @@ public class DefaultProbeController : ProbeController
 {
     #region Movement Constants
     private const float MOVE_INCREMENT_TAP = 0.010f; // move 1 um per tap
+    private const float MOVE_INCREMENT_TAP_ULTRA = 1.000f;
     private const float MOVE_INCREMENT_TAP_FAST = 0.100f;
     private const float MOVE_INCREMENT_TAP_SLOW = 0.001f;
     private const float MOVE_INCREMENT_HOLD = 0.100f; // move 50 um per second when holding
@@ -20,6 +21,7 @@ public class DefaultProbeController : ProbeController
     #endregion
 
     #region Key hold flags
+    private bool keyUltra = false;
     private bool keyFast = false;
     private bool keySlow = false;
     private bool keyHeld = false; // If a key is held, we will skip re-checking the key hold delay for any other keys that are added
@@ -101,6 +103,7 @@ public class DefaultProbeController : ProbeController
 
     private void CheckForSpeedKeys()
     {
+        keyUltra = Input.GetKey(KeyCode.Space);
         keyFast = Input.GetKey(KeyCode.LeftShift);
         keySlow = Input.GetKey(KeyCode.LeftControl);
     }
@@ -379,7 +382,7 @@ public class DefaultProbeController : ProbeController
     public void MoveProbeXYZ(float x, float y, float z, bool pressed)
     {
         var speed = pressed || ManipulatorKeyboardControl
-            ? keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP
+            ? keyUltra ? MOVE_INCREMENT_TAP_ULTRA : keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP
             : keyFast
                 ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime
                 : keySlow
