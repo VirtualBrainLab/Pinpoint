@@ -621,12 +621,12 @@ public class Settings : MonoBehaviour
 
     #region Serialization
 
-    public static string Settings2String()
+    public static string ToSaveString()
     {
         return JsonUtility.ToJson(data);
     }
 
-    public static void String2Settings(string settingsString)
+    public static void RecoverFromSaveString(string settingsString)
     {
         data = JsonUtility.FromJson<InternalData>(settingsString);
         // Run the apply function to recover all settings properly

@@ -866,11 +866,16 @@ namespace TrajectoryPlanner
 
         public void ShareLink()
         {
+            // Probe data
             var data = GetActiveProbeJSONFlattened();
-
             var plainTextBytes = Encoding.UTF8.GetBytes(data);
             string encodedStr = Convert.ToBase64String(plainTextBytes);
-            string url = $"https://data.virtualbrainlab.org/Pinpoint/?Probes={encodedStr}";
+
+            // Settings data
+            var settingsData = Settings.ToSaveString();
+            string settingsStr = Convert.ToBase64String(Encoding.UTF8.GetBytes(settingsData));
+
+            string url = $"https://data.virtualbrainlab.org/Pinpoint/?Probes={encodedStr}&Settings={settingsStr}";
 
 #if UNITY_EDITOR
             Debug.Log(url);
@@ -965,7 +970,6 @@ namespace TrajectoryPlanner
                     if (query.Equals("Probes"))
                     {
                         string encodedStr = qscoll[query];
-                        Debug.Log(encodedStr);
 
                         var bytes = System.Convert.FromBase64String(encodedStr);
                         string probeArrayStr = System.Text.Encoding.UTF8.GetString(bytes);
@@ -974,6 +978,16 @@ namespace TrajectoryPlanner
 
                         LoadSavedProbesFromStringArray(savedProbes);
                         Debug.Log("Found Probes in URL querystring, setting to: " + savedProbes);
+                    }
+                    if (query.Equals("Settings"))
+                    {
+                        string settingsStr = qscoll[query];
+                        Debug.Log(settingsStr);
+                        
+                        var bytes = System.Convert.FromBase64String(encodedStr);
+                        string settingsStr = System.Text.Encoding.UTF8.GetString(bytes);
+
+                        Settings.RecoverFromSaveString(settingsStr);
                     }
                 }
             }
