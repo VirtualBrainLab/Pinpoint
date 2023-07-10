@@ -56,7 +56,6 @@ namespace TrajectoryPlanner
 
     public class TrajectoryPlannerManager : MonoBehaviour
     {
-        private const int MAX_VISIBLE_PROBE_PANELS = 16;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
@@ -88,6 +87,7 @@ namespace TrajectoryPlanner
         [SerializeField] private Transform _probeParentT;
         [FormerlySerializedAs("util")] [SerializeField] private TP_Utils _util;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
+        [SerializeField] private ProbePanelManager _probePanelManager;
 
         // Settings
         [FormerlySerializedAs("probePrefabs")] [SerializeField] private List<GameObject> _probePrefabs;
@@ -116,7 +116,6 @@ namespace TrajectoryPlanner
 
         // UI 
         [FormerlySerializedAs("qDialogue")] [SerializeField] QuestionDialogue _qDialogue;
-        [SerializeField] GameObject _showAllProbePanelsGO;
         [SerializeField] GameObject _logPanelGO;
 
         // Bregma-labmda distance
@@ -430,7 +429,7 @@ namespace TrajectoryPlanner
         /// <returns></returns>
         public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, string UUID = null)
         {
-            CountProbePanels();
+            _probePanelManager.CountProbePanels();
 
             GameObject newProbe = Instantiate(_probePrefabs.Find(x => x.GetComponent<ProbeManager>().ProbeType == probeType), _probeParentT);
             var newProbeManager = newProbe.GetComponent<ProbeManager>();
@@ -501,65 +500,6 @@ namespace TrajectoryPlanner
 
 #endregion
 
-        private void CountProbePanels()
-        {
-            visibleProbePanels = 0;
-            if (Settings.ShowAllProbePanels)
-                foreach (ProbeManager probeManager in ProbeManager.Instances)
-                    visibleProbePanels += probeManager.GetProbeUIManagers().Count;
-            else
-                visibleProbePanels = ProbeManager.ActiveProbeManager != null ? 1 : 0;
-
-            if (visibleProbePanels > MAX_VISIBLE_PROBE_PANELS)
-            {
-                // Disable the option for users to show all probe panels
-                Settings.ShowAllProbePanels = false;
-                _showAllProbePanelsGO.GetComponent<Toggle>().interactable = false;
-                _showAllProbePanelsGO.GetComponent<Toggle>().SetIsOnWithoutNotify(false);
-            }
-            else
-                _showAllProbePanelsGO.GetComponent<Toggle>().interactable = true;
-        }
-
-        private void RecalculateProbePanels()
-        {
-            CountProbePanels();
-
-            // Set number of columns based on whether we need 8 probes or more
-            GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>().constraintCount = (visibleProbePanels > 8) ? 8 : 4;
-
-            if (visibleProbePanels > 4)
-            {
-                // Increase the layout to have two rows, by shrinking all the ProbePanel objects to be 500 pixels tall
-                GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
-                Vector2 cellSize = probePanelParent.cellSize;
-                cellSize.y = 720;
-                probePanelParent.cellSize = cellSize;
-
-                // now resize all existing probeUIs to be 720 tall
-                foreach (ProbeManager probeManager in ProbeManager.Instances)
-                {
-                    probeManager.ResizeProbePanel(720);
-                }
-            }
-            else if (visibleProbePanels <= 4)
-            {
-                Debug.Log("Resizing panels to be 1440");
-                // now resize all existing probeUIs to be 1400 tall
-                GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
-                Vector2 cellSize = probePanelParent.cellSize;
-                cellSize.y = 1440;
-                probePanelParent.cellSize = cellSize;
-
-                foreach (ProbeManager probeManager in ProbeManager.Instances)
-                {
-                    probeManager.ResizeProbePanel(1440);
-                }
-            }
-
-            // Finally, re-order panels if needed to put 2.4 probes first followed by 1.0 / 2.0
-            ReOrderProbePanels();
-        }
 
         public Material GetCollisionMaterial()
         {
@@ -615,7 +555,7 @@ namespace TrajectoryPlanner
             }
 
             // Change the height of the probe panels, if needed
-            RecalculateProbePanels();
+            _probePanelManager.RecalculateProbePanels();
             
             _activeProbeChangedEvent.Invoke();
         }
@@ -751,7 +691,7 @@ namespace TrajectoryPlanner
                 foreach (ProbeManager probeManager in ProbeManager.Instances)
                     probeManager.SetUIVisibility(ProbeManager.ActiveProbeManager == probeManager);
 
-            RecalculateProbePanels();
+            _probePanelManager.RecalculateProbePanels();
         }
 
         public void InVivoTransformChanged(int invivoOption)
@@ -803,49 +743,6 @@ namespace TrajectoryPlanner
 #endregion
 
 
-
-        public void ReOrderProbePanels()
-        {
-            Debug.Log("Re-ordering probe panels");
-            Dictionary<float, ProbeUIManager> sorted = new Dictionary<float, ProbeUIManager>();
-
-            int probeIndex = 0;
-            // first, sort probes so that np2.4 probes go first
-            List<ProbeManager> np24Probes = new List<ProbeManager>();
-            List<ProbeManager> otherProbes = new List<ProbeManager>();
-            foreach (ProbeManager pcontroller in ProbeManager.Instances)
-                if (pcontroller.ProbeType == ProbeProperties.ProbeType.Neuropixels24)
-                    np24Probes.Add(pcontroller);
-                else
-                    otherProbes.Add(pcontroller);
-            // now sort by order within each puimanager
-            foreach (ProbeManager pcontroller in np24Probes)
-            {
-                List<ProbeUIManager> puimanagers = pcontroller.GetProbeUIManagers();
-                foreach (ProbeUIManager puimanager in pcontroller.GetProbeUIManagers())
-                    sorted.Add(probeIndex + puimanager.GetOrder() / 10f, puimanager);
-                probeIndex++;
-            }
-            foreach (ProbeManager pcontroller in otherProbes)
-            {
-                List<ProbeUIManager> puimanagers = pcontroller.GetProbeUIManagers();
-                foreach (ProbeUIManager puimanager in pcontroller.GetProbeUIManagers())
-                    sorted.Add(probeIndex + puimanager.GetOrder() / 10f, puimanager);
-                probeIndex++;
-            }
-
-            // now sort the list according to the keys
-            float[] keys = new float[sorted.Count];
-            sorted.Keys.CopyTo(keys, 0);
-            Array.Sort(keys);
-
-            // and finally, now put the probe panel game objects in order
-            for (int i = 0; i < keys.Length; i++)
-            {
-                GameObject probePanel = sorted[keys[i]].GetProbePanel().gameObject;
-                probePanel.transform.SetAsLastSibling();
-            }
-        }
 
         public void SetIBLTools(bool state)
         {
@@ -1004,15 +901,33 @@ namespace TrajectoryPlanner
 
         private void LoadSavedProbesFromStringArray(string[] savedProbes)
         {
-            foreach (var savedProbe in savedProbes)
+            foreach (string savedProbe in savedProbes)
             {
+                Debug.Log(savedProbe);
+
                 ProbeData probeData = JsonUtility.FromJson<ProbeData>(savedProbe);
 
                 // Don't duplicate probes by accident
                 if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
                 {
-                    var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
-                        coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
+                    CoordinateSpace probeOrigSpace = coordinateSpaceOpts[probeData.CoordSpaceName];
+                    CoordinateTransform probeOrigTransform = coordinateTransformOpts[probeData.CoordTransformName];
+
+                    ProbeInsertion probeInsertion;
+                    //if (probeOrigTransform.Name != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
+                    //{
+                    //    Debug.LogError($"[TODO] Need to warn user when transforming a probe into the active coordinate space!!");
+                    //    Vector3 newAPMLDV = CoordinateSpaceManager.ActiveCoordinateTransform.Space2Transform(probeOrigTransform.Transform2Space(probeData.APMLDV));
+
+                    //    probeInsertion = new ProbeInsertion(newAPMLDV, probeData.Angles,
+                    //        CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
+                    //}
+                    //else
+                    //{
+                        probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
+                            CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
+                    //}
+
 
                     ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
                         probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
@@ -1133,8 +1048,6 @@ namespace TrajectoryPlanner
 
         #region BLDistance
 
-        private CoordinateTransform originalTransform;
-
         /// <summary>
         /// Change the bregma-lamba distance. By default this is 4.15f, so if it isn't that value, then we need to add an isometric scaling to the current transform
         /// </summary>
@@ -1147,7 +1060,7 @@ namespace TrajectoryPlanner
 #endif
 
             if (CoordinateSpaceManager.ActiveCoordinateTransform.Name != "Custom")
-                originalTransform = CoordinateSpaceManager.ActiveCoordinateTransform;
+                CoordinateSpaceManager.OriginalTransform = CoordinateSpaceManager.ActiveCoordinateTransform;
 
             // There's no easy way to implement this without a refactor of the CoordinateTransform code, because you can't pull out the transform matrix.
 
@@ -1155,7 +1068,7 @@ namespace TrajectoryPlanner
 
             CoordinateTransform newTransform;
 
-            switch (originalTransform.Prefix)
+            switch (CoordinateSpaceManager.OriginalTransform.Prefix)
             {
                 case "ccf":
                     // the ccf transform is the unity transform, so just build a new affine transform that scales
