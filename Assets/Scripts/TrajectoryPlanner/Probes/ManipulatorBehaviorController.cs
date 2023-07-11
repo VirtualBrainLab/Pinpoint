@@ -144,7 +144,7 @@ namespace TrajectoryPlanner.Probes
         }
 
         public CoordinateSpace CoordinateSpace { get; set; }
-        public AffineTransform Transform { get; set; }
+        public CoordinateTransform Transform { get; set; }
 
         public bool IsRightHanded
         {
