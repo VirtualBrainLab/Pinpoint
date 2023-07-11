@@ -144,7 +144,7 @@ namespace TrajectoryPlanner.Probes
         }
 
         public CoordinateSpace CoordinateSpace { get; set; }
-        public AffineTransform Transform { get; set; }
+        public CoordinateTransform Transform { get; set; }
 
         public bool IsRightHanded
         {
@@ -351,6 +351,12 @@ namespace TrajectoryPlanner.Probes
             }, Debug.LogError);
         }
 
+        /// <summary>
+        ///     Drive manipulator depth by a given delta in world space
+        /// </summary>
+        /// <param name="worldSpaceDelta">Distance to drive depth in world space coordinates</param>
+        /// <param name="onSuccessCallback">Action on success</param>
+        /// <param name="onErrorCallback">Action on error</param>
         public void MoveDepthByWorldSpaceDelta(float worldSpaceDelta, Action<bool> onSuccessCallback, Action<string>
             onErrorCallback = null)
         {
@@ -377,6 +383,18 @@ namespace TrajectoryPlanner.Probes
                             }, Debug.LogError);
                     }, Debug.LogError);
             }, Debug.LogError);
+        }
+
+        /// <summary>
+        ///     Drive the manipulator back to the zero coordinate position
+        /// </summary>
+        /// <param name="onSuccessCallback">Action on success</param>
+        /// <param name="onErrorCallBack">Action on failure</param>
+        public void MoveBackToZeroCoordinate(Action<Vector4> onSuccessCallback, Action<string> onErrorCallBack)
+        {
+            // Send move command
+            CommunicationManager.Instance.GotoPos(ManipulatorID, ZeroCoordinateOffset, AUTOMATIC_MOVEMENT_SPEED,
+                onSuccessCallback, onErrorCallBack);
         }
 
         #endregion

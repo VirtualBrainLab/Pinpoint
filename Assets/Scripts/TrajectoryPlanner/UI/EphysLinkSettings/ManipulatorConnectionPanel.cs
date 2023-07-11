@@ -31,6 +31,18 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             UpdateLinkableProbeOptions();
 
             // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+            // Show or hide handedness dropdown depending on manipulator type
+            if (type == "new_scale")
+            {
+                _handednessDropdown.value = 0;
+                _handednessGroup.SetActive(false);
+            }
+            else
+            {
+                _handednessGroup.SetActive(true);
+            }
+
+            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
             // Apply handedness from memory or default to right handed, also pass along manipulator type
             if (_attachedProbe)
             {
@@ -81,6 +93,12 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 // With values != 0, there definitely was an attached probe before
                 _attachedProbe.SetIsEphysLinkControlled(false, _manipulatorId, onSuccess: () =>
                 {
+                    // Disable keyboard control
+                    _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
+                    _enableManualControlToggle.SetIsOnWithoutNotify(false);
+
+
+                    // Remove probe from linked probes list
                     _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
                     _attachedProbe = null;
 
@@ -93,7 +111,15 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 // Disconnect currently attached probe
                 if (_attachedProbe)
                     _attachedProbe.SetIsEphysLinkControlled(false,
-                        onSuccess: () => { _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe); });
+                        onSuccess: () =>
+                        {
+                            // Disable keyboard control
+                            _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
+                            _enableManualControlToggle.SetIsOnWithoutNotify(false);
+
+                            // Remove probe from linked probes list
+                            _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
+                        });
 
                 // Find the new probe and attach it
                 var selectedProbeUUID = _linkedProbeDropdown.options[value].text;
@@ -182,6 +208,54 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
                     Debug.LogError(err);
                 });
+
+            // Enable/disable return to zero coordinate button
+            _returnToZeroCoordinateButton.interactable = state;
+        }
+
+        /// <summary>
+        ///     Return manipulator back to zero coordinate
+        /// </summary>
+        public void ReturnToZeroCoordinate()
+        {
+            if (_returningToZeroCoordinate)
+            {
+                // Return in progress, should stop
+                _returnToZeroCoordinateButtonText.text = "Stopping...";
+
+                CommunicationManager.Instance.Stop(stopState =>
+                {
+                    // Update text
+                    _returnToZeroCoordinateButtonText.text =
+                        stopState ? "Return to Zero Coordinate" : "Failed to Stop, Try Again";
+
+                    // Re-enable keyboard control if stop was successful
+                    _attachedProbe.ProbeController.ManipulatorKeyboardControl = stopState;
+
+                    // Update flag
+                    _returningToZeroCoordinate = !stopState;
+                });
+            }
+            else
+            {
+                // Disable keyboard control
+                _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
+
+                // Set button text and update flag
+                _returnToZeroCoordinateButtonText.text = "Stop";
+                _returningToZeroCoordinate = true;
+
+                // Move manipulator back to zero coordinate
+                _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate(_ => PostMoveAction(),
+                    _ => PostMoveAction());
+
+                void PostMoveAction()
+                {
+                    _returnToZeroCoordinateButtonText.text = "Return to Zero Coordinate";
+                    _attachedProbe.ProbeController.ManipulatorKeyboardControl = true;
+                    _returningToZeroCoordinate = false;
+                }
+            }
         }
 
         #endregion
@@ -269,6 +343,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         #region Components
 
         [SerializeField] private TMP_Text _manipulatorIdText;
+        [SerializeField] private GameObject _handednessGroup;
         [SerializeField] private Dropdown _handednessDropdown;
         [SerializeField] private Dropdown _linkedProbeDropdown;
 
@@ -278,7 +353,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private InputField _zeroCoordinateZInputField;
         [SerializeField] private InputField _zeroCoordinateDInputField;
         [SerializeField] private InputField _brainSurfaceOffsetInputField;
-        [SerializeField] private Toggle _keyboardControlToggle;
+        [SerializeField] private Button _returnToZeroCoordinateButton;
+        [SerializeField] private Text _returnToZeroCoordinateButtonText;
+        [SerializeField] private Toggle _enableManualControlToggle;
 
         private ProbeManager _attachedProbe;
 
@@ -289,6 +366,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         private EphysLinkSettings _ephysLinkSettings;
         private string _manipulatorId;
         private string _type;
+
+        private bool _returningToZeroCoordinate;
 
         #endregion
     }

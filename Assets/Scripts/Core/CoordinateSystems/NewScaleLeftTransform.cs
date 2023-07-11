@@ -2,13 +2,41 @@ using UnityEngine;
 
 namespace CoordinateTransforms
 {
-    public class NewScaleLeftTransform : AffineTransform
+    public class NewScaleLeftTransform : CoordinateTransform
     {
-        public NewScaleLeftTransform(float phi, float theta) : base(Vector3.one, new Vector3(theta, 0, phi))
+        private readonly Quaternion _inverseRotation;
+        private readonly Quaternion _rotation;
+
+        public NewScaleLeftTransform(float yaw, float pitch)
         {
+            var yawRotation = Quaternion.AngleAxis(yaw, Vector3.back);
+            var pitchRotation = Quaternion.AngleAxis(pitch, yawRotation * Vector3.right);
+
+            _rotation = yawRotation * pitchRotation;
+            _inverseRotation = Quaternion.Inverse(_rotation);
         }
 
         public override string Name => "New Scale Left";
         public override string Prefix => "ns-l";
+
+        public override Vector3 Transform2Space(Vector3 coordTransformed)
+        {
+            return _inverseRotation * coordTransformed;
+        }
+
+        public override Vector3 Space2Transform(Vector3 coordSpace)
+        {
+            return _rotation * coordSpace;
+        }
+
+        public override Vector3 Transform2SpaceAxisChange(Vector3 coordTransformed)
+        {
+            return coordTransformed;
+        }
+
+        public override Vector3 Space2TransformAxisChange(Vector3 coordSpace)
+        {
+            return coordSpace;
+        }
     }
 }
