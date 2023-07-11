@@ -1864,6 +1864,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _manipulatorIdText: {fileID: 8699707721372442200}
+  _handednessGroup: {fileID: 8999800724767590326}
   _handednessDropdown: {fileID: 3448694691357484443}
   _linkedProbeDropdown: {fileID: 5200381531337403621}
   _probePropertiesSection: {fileID: 5769491651499729191}
@@ -1874,6 +1875,7 @@ MonoBehaviour:
   _brainSurfaceOffsetInputField: {fileID: 3529476872428658600}
   _returnToZeroCoordinateButton: {fileID: 899946326353513394}
   _returnToZeroCoordinateButtonText: {fileID: 3945481360224806470}
+  _enableManualControlToggle: {fileID: 3897188312319433914}
 --- !u!114 &7145065099748536085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2815,6 +2817,17 @@ PrefabInstance:
       objectReference: {fileID: 12800000, guid: e3265ab4bf004d28a9537516768c1c75, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dfac08edcafb9f84c983ded9893eb24a, type: 3}
+--- !u!114 &3897188312319433914 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 361426552227846459, guid: dfac08edcafb9f84c983ded9893eb24a, type: 3}
+  m_PrefabInstance: {fileID: 3679884651506550145}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7217165428005376119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &5836458058341303149 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7200921800037074668, guid: dfac08edcafb9f84c983ded9893eb24a, type: 3}

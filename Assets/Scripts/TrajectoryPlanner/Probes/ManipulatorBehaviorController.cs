@@ -392,11 +392,8 @@ namespace TrajectoryPlanner.Probes
         /// <param name="onErrorCallBack">Action on failure</param>
         public void MoveBackToZeroCoordinate(Action<Vector4> onSuccessCallback, Action<string> onErrorCallBack)
         {
-            // Compute zero coordinate
-            var zeroCoordinate = CoordinateSpace.Name == "NewScale" ? 7.5f * Vector4.one : 10 * Vector4.one;
-
             // Send move command
-            CommunicationManager.Instance.GotoPos(ManipulatorID, zeroCoordinate, AUTOMATIC_MOVEMENT_SPEED,
+            CommunicationManager.Instance.GotoPos(ManipulatorID, ZeroCoordinateOffset, AUTOMATIC_MOVEMENT_SPEED,
                 onSuccessCallback, onErrorCallBack);
         }
 
