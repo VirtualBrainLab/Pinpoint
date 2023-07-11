@@ -413,7 +413,7 @@ GameObject:
   - component: {fileID: 2740718974103214447}
   - component: {fileID: 6216450312129986884}
   m_Layer: 5
-  m_Name: PhiField
+  m_Name: YawField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1331,7 +1331,7 @@ GameObject:
   - component: {fileID: 6429529014976784022}
   - component: {fileID: 3264174117162513665}
   m_Layer: 5
-  m_Name: SpinField
+  m_Name: RollField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3340,7 +3340,7 @@ GameObject:
   - component: {fileID: 2333059665297845773}
   - component: {fileID: 9130500160647048814}
   m_Layer: 5
-  m_Name: SpinText
+  m_Name: RollText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3394,7 +3394,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Roll (spin)
+  m_text: Roll
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3475,7 +3475,7 @@ GameObject:
   - component: {fileID: 2432878716429543602}
   - component: {fileID: 1345061144091729390}
   m_Layer: 5
-  m_Name: ThetaText
+  m_Name: PitchText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3529,7 +3529,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Pitch (theta)
+  m_text: Pitch
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3611,7 +3611,7 @@ GameObject:
   - component: {fileID: 6026584682281581957}
   - component: {fileID: 179280910081543160}
   m_Layer: 5
-  m_Name: ThetaField
+  m_Name: PitchField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4132,7 +4132,7 @@ GameObject:
   - component: {fileID: 1880196881783108444}
   - component: {fileID: 9169877679920279510}
   m_Layer: 5
-  m_Name: PhiText
+  m_Name: YawText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4186,7 +4186,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Yaw (phi)
+  m_text: Yaw
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4401,7 +4401,7 @@ GameObject:
   - component: {fileID: 6606885910327028956}
   - component: {fileID: 3649124345907682414}
   m_Layer: 5
-  m_Name: ProbeCoordText (1)
+  m_Name: ProbeAngleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

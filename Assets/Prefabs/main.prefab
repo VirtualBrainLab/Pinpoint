@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 8016510558008620337}
   - component: {fileID: 8016510558008620336}
   - component: {fileID: 8016510558008620339}
+  - component: {fileID: 7425579377242974598}
   m_Layer: 0
   m_Name: main
   m_TagString: Untagged
@@ -49,7 +50,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d93ba8ff78b44b64b806ea677c9151d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heightPerToggle: 20
   loadBerylDepth: 0
   overrideNetwork: 1
   brainRegionMaterials:
@@ -75,27 +75,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e3da6b77c935b441931d7f2baa3b435, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _probesChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _probeAddedOrRemovedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _activeProbeChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
   _modelControl: {fileID: 0}
   _vdmanager: {fileID: 0}
-  _localPrefs: {fileID: 8016510558008620337}
-  _brainModel: {fileID: 0}
+  _probeParentT: {fileID: 0}
   _util: {fileID: 8016510558008620342}
-  _acontrol: {fileID: 0}
   _accountsManager: {fileID: 0}
+  _probePanelManager: {fileID: 0}
   _probePrefabs:
   - {fileID: 4368194536080577051, guid: 61b9881781d2c0844a324a8271642e17, type: 3}
   - {fileID: 4456597164778458636, guid: 5a989b1f005f06940b1c2a2cdfbfd705, type: 3}
   - {fileID: 8943063119080654577, guid: c6cbe13bba479184aa05bff7d11023f5, type: 3}
   - {fileID: 8943063119080654577, guid: ff3683f32bd116e439d7151532626d56, type: 3}
-  _probePrefabIDs: 01000000020000000400000008000000
-  _recRegionSlider: {fileID: 0}
   _ccfCollider: {fileID: 0}
   _inPlaneSlice: {fileID: 0}
   _probeQuickSettings: {fileID: 0}
   _relCoordPanel: {fileID: 0}
   _sliceRenderer: {fileID: 0}
   _searchControl: {fileID: 0}
-  _searchInput: {fileID: 0}
   _settingsPanel: {fileID: 0}
   _collisionPanelGo: {fileID: 0}
   _collisionMaterial: {fileID: 2100000, guid: 1ea6edd2a7b9f3f4195eb54f7d735bb7, type: 2}
@@ -105,13 +110,10 @@ MonoBehaviour:
   _meshCenterText: {fileID: 0}
   _canvasParent: {fileID: 0}
   _qDialogue: {fileID: 0}
+  _logPanelGO: {fileID: 0}
+  _blDistance: {fileID: 0}
   _surfaceDebugGo: {fileID: 0}
-  _whiteUIText:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  _probePanelAcronymTextFontSize: 24
-  _probePanelAreaTextFontSize: 14
+  _craniotomyPanel: {fileID: 0}
 --- !u!114 &8016510558008620342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,23 +139,89 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _collisionsToggle: {fileID: 0}
-  _recordingRegionToggle: {fileID: 0}
-  _acronymToggle: {fileID: 0}
-  _depthToggle: {fileID: 0}
+  DetectCollisionsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
   _probeAxisToggle: {fileID: 0}
-  _slice3dDropdown: {fileID: 0}
-  _inplaneToggle: {fileID: 0}
-  _invivoDropdown: {fileID: 0}
+  ConvertAPML2ProbeChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
   _iblAngleToggle: {fileID: 0}
+  UseIBLAnglesChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _axisControlToggle: {fileID: 0}
+  AxisControlChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _acronymToggle: {fileID: 0}
+  UseAcronymsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _useBerylToggle: {fileID: 0}
+  UseBerylChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
   _surfaceToggle: {fileID: 0}
+  SurfaceCoordChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _inplaneToggle: {fileID: 0}
+  ShowInPlaneChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _ghostInactiveProbesToggle: {fileID: 0}
+  GhostInactiveProbesChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _ghostInactiveAreasToggle: {fileID: 0}
+  GhostInactiveAreasChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _displayUmToggle: {fileID: 0}
+  DisplayUMChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _showAllProbePanelsToggle: {fileID: 0}
+  ShowAllProbePanelsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _probePanelHeightSlider: {fileID: 0}
+  ProbePanelHeightChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _slice3dDropdown: {fileID: 0}
+  Slice3DChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  RelativeCoordinateChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _invivoDropdown: {fileID: 0}
+  InvivoTransformChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _blSlider: {fileID: 0}
+  BregmaLambdaChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  EphysLinkServerIpChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  EphysLinkServerPortChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
   _ephysLinkServerIpInput: {fileID: 0}
   _ephysLinkServerPortInput: {fileID: 0}
-  _axisControlToggle: {fileID: 0}
-  _showAllProbePanelsToggle: {fileID: 0}
-  _useBerylToggle: {fileID: 0}
-  _displayUmToggle: {fileID: 0}
-  _ghostInactiveProbesToggle: {fileID: 0}
-  _ghostInactiveAreasToggle: {fileID: 0}
+  _stayLoggedInToggle: {fileID: 0}
+  _openEphysDataToggle: {fileID: 0}
+  OpenEphysDataToggleEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _spikeGLXDataToggle: {fileID: 0}
+  SpikeGLXDataToggleEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &8016510558008620336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166,6 +234,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e87526a9529a5046892704c80bce5ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  utils: {fileID: 0}
+  coverageURL: {fileID: 0}
 --- !u!114 &8016510558008620339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,3 +251,17 @@ MonoBehaviour:
   addressablesStorageRemotePath: https://data.virtualbrainlab.org/AddressablesStorage
   buildVersion: 0.2.2
   delayCatalogLoad: 0
+--- !u!114 &7425579377242974598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8016510558008620298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b4e617602841734dbcd7b99c53da7fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _collisionPanelGO: {fileID: 0}
+  _collisionMaterial: {fileID: 2100000, guid: 1ea6edd2a7b9f3f4195eb54f7d735bb7, type: 2}

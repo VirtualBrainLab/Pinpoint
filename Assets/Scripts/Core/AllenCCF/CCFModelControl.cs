@@ -283,9 +283,11 @@ public class CCFModelControl : MonoBehaviour
             return Color.black;
     }
 
-    public static string ID2Acronym(int ID)
+    public static string ID2Acronym(int ID, bool remap = true)
     {
-        ID = RemapID(ID);
+        if (remap)
+            ID = RemapID(ID);
+
         if (Instance.ccfAreaAcronyms.ContainsKey(ID))
             return Instance.ccfAreaAcronyms[ID];
         else
