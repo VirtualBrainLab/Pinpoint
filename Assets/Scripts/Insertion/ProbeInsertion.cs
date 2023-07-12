@@ -27,9 +27,9 @@ public class ProbeInsertion
     public float ap;
     public float ml;
     public float dv;
-    public float phi;
-    public float theta;
-    public float spin;
+    public float yaw;
+    public float pitch;
+    public float roll;
 
     /// <summary>
     /// The **transformed** coordinate in the active CoordinateSpace (AP, ML, DV)
@@ -50,27 +50,27 @@ public class ProbeInsertion
     /// </summary>
     public Vector3 angles
     {
-        get => new Vector3(phi, theta, spin);
+        get => new Vector3(yaw, pitch, roll);
         set
         {
-            phi = value.x;
-            theta = value.y;
-            spin = value.z;
+            yaw = value.x;
+            pitch = value.y;
+            roll = value.z;
         }
     }
     #endregion
 
     #region constructor
 
-    public ProbeInsertion(float ap, float ml, float dv, float phi, float theta, float spin, 
+    public ProbeInsertion(float ap, float ml, float dv, float yaw, float pitch, float roll, 
         CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
     {
         this.ap = ap;
         this.ml = ml;
         this.dv = dv;
-        this.phi = phi;
-        this.theta = theta;
-        this.spin = spin;
+        this.yaw = yaw;
+        this.pitch = pitch;
+        this.roll = roll;
         CoordinateSpace = coordSpace;
         CoordinateTransform = coordTransform;
         Instances.Add(this);
@@ -156,16 +156,11 @@ public class ProbeInsertion
 
     public override string ToString()
     {
-        return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, phi, theta, spin, CoordinateSpace.ToString(), CoordinateTransform.ToString());
+        return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, yaw, pitch, roll, CoordinateSpace.ToString(), CoordinateTransform.ToString());
     }
 
     public string PositionToString()
     {
         return $"AP: {Math.Round(ap*1000)} ML: {Math.Round(ml*1000)} DV: {Math.Round(dv*1000)}";
     }
-}
-
-public class ProbeInsertionData
-{
-
 }

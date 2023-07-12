@@ -40,10 +40,13 @@ public class UIManager : MonoBehaviour
         FocusableGOs.UnionWith(_editorFocusableGOs);
     }
 
+    /// <summary>
+    /// Return whether any inputs are currently focused or if any of the gameobjects are currently active
+    /// </summary>
     public static bool InputsFocused
     {
         get {
-            return Instance._settingsPanel.activeSelf || FocusableInputs.Any(x => x != null && x.isFocused) || FocusableGOs.Any(x => x != null && x.activeSelf);
+            return FocusableInputs.Any(x => x != null && x.isFocused) || FocusableGOs.Any(x => x != null && x.activeSelf);
         }
     }
 

@@ -75,9 +75,9 @@ namespace TrajectoryPlanner.Probes
                     "ephys_link", Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture), ManipulatorID,
                     pos.x.ToString(CultureInfo.InvariantCulture), pos.y.ToString(CultureInfo.InvariantCulture),
                     pos.z.ToString(CultureInfo.InvariantCulture), pos.w.ToString(CultureInfo.InvariantCulture),
-                    insertion.phi.ToString(CultureInfo.InvariantCulture),
-                    insertion.theta.ToString(CultureInfo.InvariantCulture),
-                    insertion.spin.ToString(CultureInfo.InvariantCulture),
+                    insertion.yaw.ToString(CultureInfo.InvariantCulture),
+                    insertion.pitch.ToString(CultureInfo.InvariantCulture),
+                    insertion.roll.ToString(CultureInfo.InvariantCulture),
                     tipPos.x.ToString(CultureInfo.InvariantCulture), tipPos.y.ToString(CultureInfo.InvariantCulture),
                     tipPos.z.ToString(CultureInfo.InvariantCulture)
                 };
@@ -144,7 +144,7 @@ namespace TrajectoryPlanner.Probes
         }
 
         public CoordinateSpace CoordinateSpace { get; set; }
-        public AffineTransform Transform { get; set; }
+        public CoordinateTransform Transform { get; set; }
 
         public bool IsRightHanded
         {
@@ -153,8 +153,8 @@ namespace TrajectoryPlanner.Probes
             {
                 _isRightHanded = value;
                 Transform = IsRightHanded
-                    ? new SensapexRightTransform(_probeController.Insertion.phi)
-                    : new SensapexLeftTransform(_probeController.Insertion.phi);
+                    ? new SensapexRightTransform(_probeController.Insertion.yaw)
+                    : new SensapexLeftTransform(_probeController.Insertion.yaw);
             }
         }
 
@@ -210,14 +210,14 @@ namespace TrajectoryPlanner.Probes
                 {
                     CoordinateSpace = new SensapexSpace();
                     Transform = IsRightHanded
-                        ? new SensapexRightTransform(_probeController.Insertion.phi)
-                        : new SensapexLeftTransform(_probeController.Insertion.phi);
+                        ? new SensapexRightTransform(_probeController.Insertion.yaw)
+                        : new SensapexLeftTransform(_probeController.Insertion.yaw);
                 }
                 else
                 {
                     CoordinateSpace = new NewScaleSpace();
-                    Transform = new NewScaleLeftTransform(_probeController.Insertion.phi,
-                        _probeController.Insertion.theta);
+                    Transform = new NewScaleLeftTransform(_probeController.Insertion.yaw,
+                        _probeController.Insertion.pitch);
                 }
 
                 _probeController.Locked = true;
@@ -323,6 +323,78 @@ namespace TrajectoryPlanner.Probes
         public void IncrementBrainSurfaceOffset(float increment)
         {
             BrainSurfaceOffset += increment;
+        }
+
+        /// <summary>
+        ///     Move manipulator by a given delta in world space
+        /// </summary>
+        /// <param name="worldSpaceDelta">Delta to move by in world space coordinates</param>
+        /// <param name="onSuccessCallback">Action on success</param>
+        /// <param name="onErrorCallback">Action on error</param>
+        public void MoveXYZByWorldSpaceDelta(Vector3 worldSpaceDelta, Action<Vector4> onSuccessCallback,
+            Action<string> onErrorCallback = null)
+        {
+            // Convert to manipulator axes (world -> space -> transform)
+            var manipulatorSpaceDelta = CoordinateSpace.World2SpaceAxisChange(worldSpaceDelta);
+            var manipulatorTransformDelta = Transform.Space2Transform(manipulatorSpaceDelta);
+
+            // Get manipulator position
+            CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
+            {
+                // Apply delta
+                var targetPosition = pos + new Vector4(manipulatorTransformDelta.x, manipulatorTransformDelta.y,
+                    manipulatorTransformDelta.z);
+
+                // Move manipulator
+                CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED,
+                    onSuccessCallback, onErrorCallback);
+            }, Debug.LogError);
+        }
+
+        /// <summary>
+        ///     Drive manipulator depth by a given delta in world space
+        /// </summary>
+        /// <param name="worldSpaceDelta">Distance to drive depth in world space coordinates</param>
+        /// <param name="onSuccessCallback">Action on success</param>
+        /// <param name="onErrorCallback">Action on error</param>
+        public void MoveDepthByWorldSpaceDelta(float worldSpaceDelta, Action<bool> onSuccessCallback, Action<string>
+            onErrorCallback = null)
+        {
+            // Convert to manipulator axes (world -> space)
+            var manipulatorSpaceDepth = CoordinateSpace
+                .World2SpaceAxisChange(Vector3.down).z * worldSpaceDelta;
+
+            // Get current position to compute the target position
+            CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
+            {
+                // Apply delta and move manipulator
+                var targetDepth = pos.w + manipulatorSpaceDepth;
+
+                CommunicationManager.Instance.SetInsideBrain(
+                    ManipulatorID, true, _ =>
+                    {
+                        // Move the manipulator
+                        CommunicationManager.Instance.DriveToDepth(
+                            ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
+                            _ =>
+                            {
+                                CommunicationManager.Instance.SetInsideBrain(
+                                    ManipulatorID, false, onSuccessCallback, onErrorCallback);
+                            }, Debug.LogError);
+                    }, Debug.LogError);
+            }, Debug.LogError);
+        }
+
+        /// <summary>
+        ///     Drive the manipulator back to the zero coordinate position
+        /// </summary>
+        /// <param name="onSuccessCallback">Action on success</param>
+        /// <param name="onErrorCallBack">Action on failure</param>
+        public void MoveBackToZeroCoordinate(Action<Vector4> onSuccessCallback, Action<string> onErrorCallBack)
+        {
+            // Send move command
+            CommunicationManager.Instance.GotoPos(ManipulatorID, ZeroCoordinateOffset, AUTOMATIC_MOVEMENT_SPEED,
+                onSuccessCallback, onErrorCallBack);
         }
 
         #endregion

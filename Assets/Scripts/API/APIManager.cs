@@ -43,7 +43,7 @@ public class APIManager : MonoBehaviour
 
     private void Update()
     {
-        if (_dirty && Settings.ProbeDataPOST && (Time.realtimeSinceStartup > (_lastDataSend + DATA_SEND_RATE)))
+        if (_dirty && Settings.OpenEphysToggle && (Time.realtimeSinceStartup > (_lastDataSend + DATA_SEND_RATE)))
         {
             _dirty = false;
             _lastDataSend = Time.realtimeSinceStartup;

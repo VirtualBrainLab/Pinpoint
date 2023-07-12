@@ -4,6 +4,7 @@ using TMPro;
 using TrajectoryPlanner.Probes;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace TrajectoryPlanner
 {
@@ -16,6 +17,7 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("positionFields")] [SerializeField] private CanvasGroup _positionFields;
         [FormerlySerializedAs("angleFields")] [SerializeField] private CanvasGroup _angleFields;
         [SerializeField] private QuickSettingsLockBehavior _lockBehavior;
+        [SerializeField] private RawImage _colorChooser;
         
         private CommunicationManager _communicationManager;
         private TMP_InputField[] _inputFields;
@@ -53,9 +55,9 @@ namespace TrajectoryPlanner
             {
                 gameObject.SetActive(true);
 
-                ProbeManager.ActiveProbeManager.UIUpdateEvent.AddListener(UpdateProbeIdText);
+                ProbeManager.ActiveProbeManager.UIUpdateEvent.AddListener(UpdateQuickUI);
 
-                UpdateProbeIdText();
+                UpdateQuickUI();
 
                 _coordinatePanel.UpdateAxisLabels();
 
@@ -92,10 +94,11 @@ namespace TrajectoryPlanner
             _coordinatePanel.UpdateText();
         }
 
-        public void UpdateProbeIdText()
+        public void UpdateQuickUI()
         {
             _probeIdText.text = ProbeManager.ActiveProbeManager.name;
             _probeIdText.color = ProbeManager.ActiveProbeManager.Color;
+            SetColorChooserColor(ProbeManager.ActiveProbeManager.Color);
         }
 
         /// <summary>
@@ -134,6 +137,16 @@ namespace TrajectoryPlanner
         public bool IsFocused()
         {
             return isActiveAndEnabled && _inputFields.Any(inputField => inputField != null && inputField.isFocused);
+        }
+
+        public void SetColorChooserColor(Color color)
+        {
+            _colorChooser.color = color;
+        }
+
+        public void ColorChooserCycle()
+        {
+            ProbeManager.ActiveProbeManager.Color = ProbeProperties.NextColor;
         }
 
         #endregion

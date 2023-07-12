@@ -1,5 +1,3 @@
-using EphysLink;
-using TrajectoryPlanner.Probes;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
@@ -8,6 +6,7 @@ public class DefaultProbeController : ProbeController
 {
     #region Movement Constants
     private const float MOVE_INCREMENT_TAP = 0.010f; // move 1 um per tap
+    private const float MOVE_INCREMENT_TAP_ULTRA = 1.000f;
     private const float MOVE_INCREMENT_TAP_FAST = 0.100f;
     private const float MOVE_INCREMENT_TAP_SLOW = 0.001f;
     private const float MOVE_INCREMENT_HOLD = 0.100f; // move 50 um per second when holding
@@ -22,6 +21,7 @@ public class DefaultProbeController : ProbeController
     #endregion
 
     #region Key hold flags
+    private bool keyUltra = false;
     private bool keyFast = false;
     private bool keySlow = false;
     private bool keyHeld = false; // If a key is held, we will skip re-checking the key hold delay for any other keys that are added
@@ -30,15 +30,15 @@ public class DefaultProbeController : ProbeController
     #endregion
 
     #region Angle limits
-    private const float minTheta = -90f;
-    private const float maxTheta = 0f;
+    private const float minPitch = -90f;
+    private const float maxPitch = 0f;
     #endregion
 
     #region Defaults
     // in ap/ml/dv
     private Vector3 defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
     private float defaultDepth = 0f;
-    private Vector2 defaultAngles = new Vector2(-90f, 0f); // 0 phi is forward, default theta is 90 degrees down from horizontal, but internally this is a value of 0f
+    private Vector2 defaultAngles = new Vector2(-90f, 0f); // 0 yaw is forward, default pitch is 90 degrees down from horizontal, but internally this is a value of 0f
     #endregion
 
     private Vector3 _initialPosition;
@@ -103,6 +103,7 @@ public class DefaultProbeController : ProbeController
 
     private void CheckForSpeedKeys()
     {
+        keyUltra = Input.GetKey(KeyCode.Space);
         keyFast = Input.GetKey(KeyCode.LeftShift);
         keySlow = Input.GetKey(KeyCode.LeftControl);
     }
@@ -270,13 +271,13 @@ public class DefaultProbeController : ProbeController
             {
                 moved = true;
                 keyPressTime = Time.realtimeSinceStartup;
-                RotateProbe(-1f, 0f, true);
+                YawPitchProbe(-1f, 0f, true);
             }
             else if (Input.GetKey(KeyCode.Alpha1) && (keyHeld || keyHoldDelayPassed))
             {
                 keyHeld = true;
                 moved = true;
-                RotateProbe(-1f, 0f, false);
+                YawPitchProbe(-1f, 0f, false);
             }
 
             if (Input.GetKeyUp(KeyCode.Alpha1))
@@ -286,13 +287,13 @@ public class DefaultProbeController : ProbeController
             {
                 moved = true;
                 keyPressTime = Time.realtimeSinceStartup;
-                RotateProbe(1f, 0f, true);
+                YawPitchProbe(1f, 0f, true);
             }
             else if (Input.GetKey(KeyCode.Alpha3) && (keyHeld || keyHoldDelayPassed))
             {
                 keyHeld = true;
                 moved = true;
-                RotateProbe(1f, 0f, false);
+                YawPitchProbe(1f, 0f, false);
             }
 
             if (Input.GetKeyUp(KeyCode.Alpha3))
@@ -302,13 +303,13 @@ public class DefaultProbeController : ProbeController
             {
                 moved = true;
                 keyPressTime = Time.realtimeSinceStartup;
-                RotateProbe(0f, 1f, true);
+                YawPitchProbe(0f, 1f, true);
             }
             else if (Input.GetKey(KeyCode.R) && (keyHeld || keyHoldDelayPassed))
             {
                 keyHeld = true;
                 moved = true;
-                RotateProbe(0f, 1f, false);
+                YawPitchProbe(0f, 1f, false);
             }
 
             if (Input.GetKeyUp(KeyCode.R))
@@ -318,13 +319,13 @@ public class DefaultProbeController : ProbeController
             {
                 moved = true;
                 keyPressTime = Time.realtimeSinceStartup;
-                RotateProbe(0f, -1f, true);
+                YawPitchProbe(0f, -1f, true);
             }
             else if (Input.GetKey(KeyCode.F) && (keyHeld || keyHoldDelayPassed))
             {
                 keyHeld = true;
                 moved = true;
-                RotateProbe(0f, -1f, false);
+                YawPitchProbe(0f, -1f, false);
             }
 
             if (Input.GetKeyUp(KeyCode.F))
@@ -335,13 +336,13 @@ public class DefaultProbeController : ProbeController
             {
                 moved = true;
                 keyPressTime = Time.realtimeSinceStartup;
-                SpinProbe(-1f, true);
+                RollProbe(-1f, true);
             }
             else if (Input.GetKey(KeyCode.Comma) && (keyHeld || keyHoldDelayPassed))
             {
                 keyHeld = true;
                 moved = true;
-                SpinProbe(-1f, false);
+                RollProbe(-1f, false);
             }
 
             if (Input.GetKeyUp(KeyCode.Comma))
@@ -351,13 +352,13 @@ public class DefaultProbeController : ProbeController
             {
                 moved = true;
                 keyPressTime = Time.realtimeSinceStartup;
-                SpinProbe(1f, true);
+                RollProbe(1f, true);
             }
             else if (Input.GetKey(KeyCode.Period) && (keyHeld || keyHoldDelayPassed))
             {
                 keyHeld = true;
                 moved = true;
-                SpinProbe(1f, false);
+                RollProbe(1f, false);
             }
 
             if (Input.GetKeyUp(KeyCode.Period))
@@ -380,124 +381,77 @@ public class DefaultProbeController : ProbeController
 
     public void MoveProbeXYZ(float x, float y, float z, bool pressed)
     {
-        var speed = pressed ?
-            keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
-            keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
+        var speed = pressed || ManipulatorKeyboardControl
+            ? keyUltra ? MOVE_INCREMENT_TAP_ULTRA : keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP
+            : keyFast
+                ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime
+                : keySlow
+                    ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime
+                    : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
-        // Get the xyz transformation
-        var xyz = new Vector3(x, y, z) * speed;
-        // Rotate to match the probe axis directions
+        // Get the positional delta
+        var posDelta = new Vector3(x, y, z) * speed;
 
-        var targetAPMLDV = Insertion.apmldv + Insertion.World2TransformedAxisChange(xyz);
+        // Compute target APMLDV
+        var targetAPMLDV = Insertion.apmldv + Insertion.World2TransformedAxisChange(posDelta);
 
         if (ManipulatorKeyboardControl)
         {
-            print("Moving manipulator");
-            // Compute the target position
-            var targetPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(targetAPMLDV);
+            // Disable/ignore more input until movement is done
+            ManipulatorKeyboardControl = false;
 
-            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
-                canWrite =>
-                {
-                    if (!canWrite) return;
-
-                    // Disable/ignore more input until movement is done
-                    ManipulatorKeyboardControl = false;
-
-                    // Move the manipulator
-                    CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                        targetPosition, ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
-                        _ =>
-                        {
-                            CommunicationManager.Instance.SetCanWrite(
-                                ProbeManager.ManipulatorBehaviorController.ManipulatorID, false, 1,
-                                _ =>
-                                {
-                                    // Re-enable input once movement is done
-                                    ManipulatorKeyboardControl = true;
-                                }, Debug.LogError);
-                        }, Debug.LogError);
-                }, Debug.LogError);
+            // Call movement and reset keyboard control when done
+            ProbeManager.ManipulatorBehaviorController.MoveXYZByWorldSpaceDelta(posDelta,
+                _ => { ManipulatorKeyboardControl = true; }, Debug.LogError);
         }
         else
+        {
             Insertion.apmldv = targetAPMLDV;
-        
+        }
     }
 
-    public void MoveProbeDepth(float depth, bool pressed)
+    public void MoveProbeDepth(float unitDepth, bool pressed)
     {
-        var speed = pressed
-            ?
-            keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP :
-            keyFast ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime : MOVE_INCREMENT_HOLD * Time.deltaTime;
+        var speed = pressed || ManipulatorKeyboardControl
+            ? keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP
+            : keyFast
+                ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime
+                : keySlow
+                    ? MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime
+                    : MOVE_INCREMENT_HOLD * Time.deltaTime;
 
-        var targetDriveDistance = depth * speed;
+        // Compute the depth delta
+        var depthDelta = unitDepth * speed;
 
         if (ManipulatorKeyboardControl)
-            // Get current position to compute the target position
-            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, pos =>
-            {
-                var targetDepth = pos.w +
-                                  ProbeManager.ManipulatorBehaviorController.CoordinateSpace
-                                      .World2SpaceAxisChange(Vector3.down).z * targetDriveDistance;
+        {
+            // Disable/ignore more input until movement is done
+            ManipulatorKeyboardControl = false;
 
-                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                    true, 1,
-                    canWrite =>
-                    {
-                        if (!canWrite) return;
-
-                        CommunicationManager.Instance.SetInsideBrain(
-                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, true,
-                            _ =>
-                            {
-                                // Disable/ignore more input until movement is done
-                                ManipulatorKeyboardControl = false;
-
-                                // Move the manipulator
-                                CommunicationManager.Instance.DriveToDepth(
-                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                    targetDepth, ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
-                                    _ =>
-                                    {
-                                        CommunicationManager.Instance.SetInsideBrain(
-                                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
-                                            _ =>
-                                            {
-                                                CommunicationManager.Instance.SetCanWrite(
-                                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID, false, 1,
-                                                    _ =>
-                                                    {
-                                                        // Re-enable input once movement is done
-                                                        ManipulatorKeyboardControl = true;
-                                                    }, Debug.LogError);
-                                            });
-                                    }, Debug.LogError);
-                            });
-                    }, Debug.LogError);
-            });
+            ProbeManager.ManipulatorBehaviorController.MoveDepthByWorldSpaceDelta(depthDelta,
+                _ => { ManipulatorKeyboardControl = true; }, Debug.LogError);
+        }
         else
-            this.depth += targetDriveDistance;
+            depth += depthDelta;
     }
 
-    public void RotateProbe(float phi, float theta, bool pressed)
+    public void YawPitchProbe(float yaw, float pitch, bool pressed)
     {
         float speed = pressed ?
             keyFast ? ROT_INCREMENT_TAP_FAST : keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
             keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
 
-        Insertion.phi += phi * speed;
-        Insertion.theta = Mathf.Clamp(Insertion.theta + theta * speed, minTheta, maxTheta);
+        Insertion.yaw += yaw * speed;
+        Insertion.pitch = Mathf.Clamp(Insertion.pitch + pitch * speed, minPitch, maxPitch);
     }
 
-    public void SpinProbe(float spin, bool pressed)
+    public void RollProbe(float roll, bool pressed)
     {
         float speed = pressed ?
             keyFast ? ROT_INCREMENT_TAP_FAST : keySlow ? ROT_INCREMENT_TAP_SLOW : ROT_INCREMENT_TAP :
             keyFast ? ROT_INCREMENT_HOLD_FAST * Time.deltaTime : keySlow ? ROT_INCREMENT_HOLD_SLOW * Time.deltaTime : ROT_INCREMENT_HOLD * Time.deltaTime;
 
-        Insertion.spin += spin * speed;
+        Insertion.roll += roll * speed;
     }
 
     // Drag movement variables
@@ -505,13 +459,13 @@ public class DefaultProbeController : ProbeController
     private bool axisLockX;
     private bool axisLockY;
     private bool axisLockDepth;
-    private bool axisLockTheta;
-    private bool axisLockPhi;
+    private bool axisLockPitch;
+    private bool axisLockYaw;
     private bool dragging;
 
     private Vector3 origAPMLDV;
-    private float origPhi;
-    private float origTheta;
+    private float origYaw;
+    private float origPitch;
 
     // Camera variables
     private Vector3 originalClickPositionWorld;
@@ -534,12 +488,12 @@ public class DefaultProbeController : ProbeController
         axisLockY = false;
         axisLockX = false;
         axisLockDepth = false;
-        axisLockTheta = false;
-        axisLockPhi = false;
+        axisLockPitch = false;
+        axisLockYaw = false;
 
         origAPMLDV = Insertion.apmldv;
-        origPhi = Insertion.phi;
-        origTheta = Insertion.theta;
+        origYaw = Insertion.yaw;
+        origPitch = Insertion.pitch;
         // Note: depth is special since it gets absorbed into the probe position on each frame
 
         // Track the screenPoint that was initially clicked
@@ -557,7 +511,7 @@ public class DefaultProbeController : ProbeController
     /// </summary>
     private void CheckForPreviousDragClick()
     {
-        if (axisLockZ || axisLockY || axisLockX || axisLockDepth || axisLockPhi || axisLockTheta)
+        if (axisLockZ || axisLockY || axisLockX || axisLockDepth || axisLockYaw || axisLockPitch)
             DragMovementClick();
     }
 
@@ -582,8 +536,8 @@ public class DefaultProbeController : ProbeController
             axisLockX = false;
             axisLockY = false;
             axisLockDepth = false;
-            axisLockPhi = false;
-            axisLockTheta = false;
+            axisLockYaw = false;
+            axisLockPitch = false;
             ProbeManager.SetAxisVisibility(false, false, true, false);
         }
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
@@ -593,8 +547,8 @@ public class DefaultProbeController : ProbeController
             axisLockX = true;
             axisLockY = false;
             axisLockDepth = false;
-            axisLockPhi = false;
-            axisLockTheta = false;
+            axisLockYaw = false;
+            axisLockPitch = false;
             ProbeManager.SetAxisVisibility(true, false, false, false);
         }
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.X))
@@ -604,8 +558,8 @@ public class DefaultProbeController : ProbeController
             axisLockX = false;
             axisLockY = false;
             axisLockDepth = true;
-            axisLockPhi = false;
-            axisLockTheta = false;
+            axisLockYaw = false;
+            axisLockPitch = false;
             ProbeManager.SetAxisVisibility(false, false, false, true);
         }
         if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.F))
@@ -615,8 +569,8 @@ public class DefaultProbeController : ProbeController
             axisLockX = false;
             axisLockY = false;
             axisLockDepth = false;
-            axisLockPhi = false;
-            axisLockTheta = true;
+            axisLockYaw = false;
+            axisLockPitch = true;
         }
         if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
         {
@@ -625,8 +579,8 @@ public class DefaultProbeController : ProbeController
             axisLockX = false;
             axisLockY = true;
             axisLockDepth = false;
-            axisLockPhi = false;
-            axisLockTheta = false;
+            axisLockYaw = false;
+            axisLockPitch = false;
             ProbeManager.SetAxisVisibility(false, true, false, false);
         }
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Alpha3))
@@ -636,8 +590,8 @@ public class DefaultProbeController : ProbeController
             axisLockX = false;
             axisLockY = false;
             axisLockDepth = false;
-            axisLockPhi = true;
-            axisLockTheta = false;
+            axisLockYaw = true;
+            axisLockPitch = false;
         }
 
 
@@ -674,14 +628,14 @@ public class DefaultProbeController : ProbeController
             moved = true;
         }
 
-        if (axisLockTheta)
+        if (axisLockPitch)
         {
-            Insertion.theta = Mathf.Clamp(origTheta + 3f * worldOffset.y, minTheta, maxTheta);
+            Insertion.pitch = Mathf.Clamp(origPitch + 3f * worldOffset.y, minPitch, maxPitch);
             moved = true;
         }
-        if (axisLockPhi)
+        if (axisLockYaw)
         {
-            Insertion.phi = origPhi - 3f * worldOffset.x;
+            Insertion.yaw = origYaw - 3f * worldOffset.x;
             moved = true;
         }
 
@@ -716,7 +670,7 @@ public class DefaultProbeController : ProbeController
     #region Set Probe pos/angles
     
     /// <summary>
-    /// Set the probe position to the current apml/depth/phi/theta/spin values
+    /// Set the probe position to the current apml/depth/angles values
     /// </summary>
     public override void SetProbePosition()
     {
@@ -759,9 +713,9 @@ public class DefaultProbeController : ProbeController
 
         // Manually adjust the coordinates and rotation
         transform.position += Insertion.PositionWorldT();
-        transform.RotateAround(_rotateAround.position, transform.up, Insertion.phi);
-        transform.RotateAround(_rotateAround.position, transform.forward, Insertion.theta);
-        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.spin);
+        transform.RotateAround(_rotateAround.position, transform.up, Insertion.yaw);
+        transform.RotateAround(_rotateAround.position, transform.forward, Insertion.pitch);
+        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.roll);
 
         // Compute depth transform, if needed
         if (depth != 0f)

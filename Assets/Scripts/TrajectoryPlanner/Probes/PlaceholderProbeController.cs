@@ -85,9 +85,9 @@ public class PlaceholderProbeController : ProbeController
 
         // Manually adjust the coordinates and rotation
         transform.position += Insertion.PositionWorldT();
-        transform.RotateAround(_probeTipT.position, transform.up, Insertion.phi);
-        transform.RotateAround(_probeTipT.position, transform.forward, Insertion.theta);
-        transform.RotateAround(_probeTipT.position, _probeTipT.up, Insertion.spin);
+        transform.RotateAround(_probeTipT.position, transform.up, Insertion.yaw);
+        transform.RotateAround(_probeTipT.position, transform.forward, Insertion.pitch);
+        transform.RotateAround(_probeTipT.position, _probeTipT.up, Insertion.roll);
     }
 
     #endregion

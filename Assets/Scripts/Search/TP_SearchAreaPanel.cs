@@ -1,18 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class TP_SearchAreaPanel : MonoBehaviour
 {
-    private CCFTreeNode node;
+    [SerializeField] private TMP_Text _text;
 
-    public void SetNode(CCFTreeNode node)
+    public CCFTreeNode Node
     {
-        this.node = node;
+        get; set;
     }
 
-    public CCFTreeNode GetNode()
+    public void SetFontSize(int fontSize)
     {
-        return node;
+        _text.fontSize = fontSize;
     }
 }
