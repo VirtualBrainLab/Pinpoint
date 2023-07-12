@@ -1,16 +1,15 @@
 // this entire class does not exist on WebGL
-
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
+#if !UNITY_WEBGL
+using System.Security.Policy;
+#endif
 
 public class APISpikeGLX : MonoBehaviour
 {
@@ -25,7 +24,7 @@ public class APISpikeGLX : MonoBehaviour
         Debug.Log(Application.dataPath);
     }
 
-    #region Unity
+#region Unity
     private void OnEnable()
     {
         GetProbeData();
@@ -37,9 +36,9 @@ public class APISpikeGLX : MonoBehaviour
     {
 
     }
-    #endregion
+#endregion
 
-    #region Public
+#region Public
 
 
     public async void GetProbeData()
@@ -99,9 +98,9 @@ public class APISpikeGLX : MonoBehaviour
             SendProbeData(probeManager);
         }
     }
-    #endregion
+#endregion
 
-    #region Private
+#region Private
 
     private void SendProbeData(ProbeManager probeManager)
     {
@@ -153,5 +152,5 @@ public class APISpikeGLX : MonoBehaviour
 
         return response;
     }
-    #endregion
+#endregion
 }

@@ -878,10 +878,10 @@ namespace TrajectoryPlanner
                     }
                     if (query.Equals("Settings"))
                     {
-                        string settingsStr = qscoll[query];
-                        Debug.Log(settingsStr);
+                        string settingsQuery = qscoll[query];
+                        Debug.Log(settingsQuery);
                         
-                        var bytes = System.Convert.FromBase64String(encodedStr);
+                        var bytes = System.Convert.FromBase64String(settingsQuery);
                         string settingsStr = System.Text.Encoding.UTF8.GetString(bytes);
 
                         Settings.RecoverFromSaveString(settingsStr);
