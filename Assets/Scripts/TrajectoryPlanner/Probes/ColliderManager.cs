@@ -27,11 +27,14 @@ public class ColliderManager : MonoBehaviour
     {
         CollisionPanelGO = _collisionPanelGO;
         CollisionMaterial = _collisionMaterial;
+
+        CollisionPanelGO.SetActive(false);
     }
 
     public static void SetCollisionPanelVisibility(bool visible)
     {
-        CollisionPanelGO.SetActive(visible);
+        if (CollisionPanelGO != null)
+            CollisionPanelGO.SetActive(visible);
     }
 
     public static void AddProbeColliderInstances(IEnumerable<Collider> colliders, bool active = true)
