@@ -444,12 +444,11 @@ public class Settings : MonoBehaviour
         if (Instance != null)
             Debug.LogError("Make sure there is only one Settings object in the scene!");
         Instance = this;
-
-        LoadSettings();
     }
     
     private void Start()
     {
+        LoadSettings();
         ApplySettings();
     }
 
