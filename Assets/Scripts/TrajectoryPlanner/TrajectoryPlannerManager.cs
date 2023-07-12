@@ -914,19 +914,19 @@ namespace TrajectoryPlanner
                     CoordinateTransform probeOrigTransform = coordinateTransformOpts[probeData.CoordTransformName];
 
                     ProbeInsertion probeInsertion;
-                    //if (probeOrigTransform.Name != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
-                    //{
-                    //    Debug.LogError($"[TODO] Need to warn user when transforming a probe into the active coordinate space!!");
-                    //    Vector3 newAPMLDV = CoordinateSpaceManager.ActiveCoordinateTransform.Space2Transform(probeOrigTransform.Transform2Space(probeData.APMLDV));
+                    if (probeOrigTransform.Name != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
+                    {
+                        Debug.LogError($"[TODO] Need to warn user when transforming a probe into the active coordinate space!!");
+                        Vector3 newAPMLDV = CoordinateSpaceManager.ActiveCoordinateTransform.Space2Transform(probeOrigTransform.Transform2Space(probeData.APMLDV));
 
-                    //    probeInsertion = new ProbeInsertion(newAPMLDV, probeData.Angles,
-                    //        CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
-                    //}
-                    //else
-                    //{
+                        probeInsertion = new ProbeInsertion(newAPMLDV, probeData.Angles,
+                            CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
+                    }
+                    else
+                    {
                         probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
                             CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
-                    //}
+                    }
 
 
                     ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,

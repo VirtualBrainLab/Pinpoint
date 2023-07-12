@@ -932,7 +932,11 @@ public class ProbeData
         data.Angles = probeManager.ProbeController.Insertion.angles;
 
         data.CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
-        data.CoordTransformName = probeManager.ProbeController.Insertion.CoordinateTransform.Name;
+
+        if (probeManager.ProbeController.Insertion.CoordinateTransform.Name.Equals("Custom"))
+            data.CoordTransformName = CoordinateSpaceManager.OriginalTransform.Name;
+        else
+            data.CoordTransformName = probeManager.ProbeController.Insertion.CoordinateTransform.Name;
 
         data.SelectionLayerName = probeManager.SelectionLayerName;
 

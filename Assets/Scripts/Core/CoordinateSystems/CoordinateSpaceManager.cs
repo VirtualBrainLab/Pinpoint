@@ -5,6 +5,11 @@ using UnityEngine.Events;
 
 public class CoordinateSpaceManager : MonoBehaviour
 {
+    /// <summary>
+    /// Stores the original transform, when the active transform is a custom transform
+    /// </summary>
+    public static CoordinateTransform OriginalTransform;
+
     public static CoordinateSpace ActiveCoordinateSpace;
     public static CoordinateTransform ActiveCoordinateTransform;
     public static CoordinateSpaceManager Instance;
