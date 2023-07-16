@@ -22,9 +22,4 @@ Mouse brain artwork from https://scidraw.io/drawing/286
 
 # Citing
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7637442.svg)](https://doi.org/10.5281/zenodo.7109268)
-
-Your citations are critical for making it possible to get grant funding for Pinpoint in the future.
-
-Please cite as "Birman, D., Yang, K. J., Steinmetz, N. A. (2023). Pinpoint: multi-probe trajectory planning for electrophysiology using an interactive web-based 3D environment. Zenodo, https://doi.org/10.5281/zenodo.7109268"
-
+A preprint describing Pinpoint has been [published on bioRxiv](https://www.biorxiv.org/content/10.1101/2023.07.14.548952). The paper provides an introduction to the key features and it can be used as a citation if Pinpoint proves integral to a scientific publication.
