@@ -1,14 +1,15 @@
 // this entire class does not exist on WebGL
+using KS.UnityToolbag;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using Process = KS.Diagnostics.Process;
 
 #if !UNITY_WEBGL
-using System.Security.Policy;
 #endif
 
 public class APISpikeGLX : MonoBehaviour
@@ -24,10 +25,10 @@ public class APISpikeGLX : MonoBehaviour
         Debug.Log(Application.dataPath);
     }
 
-#region Unity
+    #region Unity
     private void OnEnable()
     {
-        GetProbeData();
+        GetSpikeGLXProbeInfo();
 
         APIManager.TriggerAPIPush();
     }
@@ -36,19 +37,20 @@ public class APISpikeGLX : MonoBehaviour
     {
 
     }
-#endregion
+    #endregion
 
-#region Public
+    #region Public
 
 
-    public async void GetProbeData()
+    public void GetSpikeGLXProbeInfo()
     {
         string msg = $"{GetServerInfo()} -cmd=getProbeList";
 
-        var responseTask = SendAPIMessage(msg);
-        await responseTask;
+        SendAPIMessage(msg, SetSpikeGLXProbeData);
+    }
 
-        string allProbeDataStr = responseTask.Result;
+    private void SetSpikeGLXProbeData(string allProbeDataStr)
+    {
 
         // parse the probe data
         // Returns string: (probeID, nShanks, partNumber)()...
@@ -66,8 +68,8 @@ public class APISpikeGLX : MonoBehaviour
         // Change the format to be probeID,nShanks,partNumber;... because the original format is bad
 
         string charSepString = allProbeDataStr.Replace(")(", ";");
-        charSepString = charSepString.Remove(0,1);
-        charSepString = charSepString.Remove(charSepString.Length - 2,1);
+        charSepString = charSepString.Remove(0, 1);
+        charSepString = charSepString.Remove(charSepString.Length - 2, 1);
 
 
         // Now parse the improved formatting
@@ -98,9 +100,9 @@ public class APISpikeGLX : MonoBehaviour
             SendProbeData(probeManager);
         }
     }
-#endregion
+    #endregion
 
-#region Private
+    #region Private
 
     private void SendProbeData(ProbeManager probeManager)
     {
@@ -108,7 +110,12 @@ public class APISpikeGLX : MonoBehaviour
 
         string msg = $"{GetServerInfo()} -cmd=setAnatomy_Pinpoint -args={probeDepthData}";
 
-        var responseTask = SendAPIMessage(msg);
+        SendAPIMessage(msg, LogData);
+    }
+
+    private void LogData(string str)
+    {
+        Debug.Log(str);
     }
 
     private string GetServerInfo()
@@ -119,38 +126,49 @@ public class APISpikeGLX : MonoBehaviour
         return $"-host={serverPort[0]} -port={serverPort[1]}";
     }
 
-    private async Task<string> SendAPIMessage(string msg)
+    private void SendAPIMessage(string msg, Action<string> callback = null)
     {
-        Process sgl = new Process();
+        Debug.Log(Application.streamingAssetsPath);
 
-        sgl.StartInfo.FileName = Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe");
+        Process proc = new Process()
+        {
+            StartInfo = new KS.Diagnostics.ProcessStartInfo()
+            {
+                FileName = Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe"),
+                Arguments = msg,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+            },
 
-        Debug.Log($"(SpikeGLX) Sending: {msg}");
+            EnableRaisingEvents = true
+        };
 
-        sgl.StartInfo.Arguments = msg;
+        proc.OutputDataReceived += (s, d) =>
+        {
+            Dispatcher.Invoke(() => callback(d.Data));
+        };
 
-        sgl.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+        proc.Exited += (s, d) =>
+        {
+            proc.CancelOutputRead();
+            proc.Dispose();
+        };
 
-        sgl.StartInfo.UseShellExecute = false;
+        proc.Start();
+        proc.BeginOutputReadLine();
+    }
 
-        sgl.StartInfo.RedirectStandardOutput = true;
 
-        sgl.StartInfo.RedirectStandardError = true;
-
-        sgl.Start();
-
-        var responseTask = sgl.StandardOutput.ReadToEndAsync();
-
-        await responseTask;
-
-        string response = responseTask.Result;
-
-        Debug.Log($"(SpikeGLX) Response: {response}");
-
-        sgl.WaitForExit();
-        sgl.Close();
-
-        return response;
+    private static void SortOutputHandler(object sendingProcess,
+        DataReceivedEventArgs outLine)
+    {
+        // Collect the sort command output.
+        if (!String.IsNullOrEmpty(outLine.Data))
+        {
+            // Add the text to the collected output.
+            Debug.Log(outLine.Data);
+        }
     }
 #endregion
 }
