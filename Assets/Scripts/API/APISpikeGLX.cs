@@ -85,7 +85,20 @@ public class APISpikeGLX : MonoBehaviour
             probeOpts.Add(singleProbeData[0]);
         }
 
-        APIManager.ProbeMatchingPanelUpdate(probeOpts);
+        if (probeOpts.Count > 0)
+        {
+            APIManager.UpdateStatusText("connected SpikeGLX");
+            APIManager.ProbeMatchingPanelUpdate(probeOpts);
+
+            // Send the current probe data immediately after setting everything up
+            APIManager.ResetTimer();
+            APIManager.TriggerAPIPush();
+        }
+        else
+        {
+            APIManager.UpdateStatusText("error, no probes");
+            Settings.SpikeGLXToggle = false;
+        }
     }
 
     public void SendData()
@@ -129,6 +142,14 @@ public class APISpikeGLX : MonoBehaviour
     private void SendAPIMessage(string msg, Action<string> callback = null)
     {
         Debug.Log(Application.streamingAssetsPath);
+
+        string filePath = Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe");
+
+        if (!File.Exists(filePath))
+        {
+            APIManager.UpdateStatusText("error, HelloSGLX path incorrect");
+            return;
+        }
 
         Process proc = new Process()
         {

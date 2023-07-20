@@ -122,6 +122,7 @@ public class APIOpenEphys : MonoBehaviour
 
         if (_pxiID == 0)
         {
+            APIManager.UpdateStatusText("error, no processor found");
             Debug.LogError("(APIManager-OpenEphys) Warning: no Neuropix-PXI processor was found");
             _openEphysToggle.SetIsOnWithoutNotify(false);
             yield break;
@@ -141,7 +142,8 @@ public class APIOpenEphys : MonoBehaviour
             if (www.result != UnityWebRequest.Result.Success)
             {
                 Debug.Log(www.error);
-                _openEphysToggle.SetIsOnWithoutNotify(false);
+                Settings.OpenEphysToggle = false;
+                APIManager.UpdateStatusText("error, info request failed");
                 yield break;
             }
             else
@@ -161,13 +163,23 @@ public class APIOpenEphys : MonoBehaviour
                     probeOpts.Add(probeParsed["name"]);
                 }
 
-                APIManager.ProbeMatchingPanelUpdate(probeOpts);
+
+                if (probeOpts.Count > 0)
+                {
+                    APIManager.UpdateStatusText("connected OpenEphys");
+                    APIManager.ProbeMatchingPanelUpdate(probeOpts);
+                    // Send the current probe data immediately after setting everything up
+                    APIManager.ResetTimer();
+                    APIManager.TriggerAPIPush();
+                }
+                else
+                {
+                    APIManager.UpdateStatusText("error, no probes");
+                    Settings.SpikeGLXToggle = false;
+                }
             }
         }
 
-        // Send the current probe data immediately after setting everything up
-        APIManager.ResetTimer();
-        APIManager.TriggerAPIPush();
     }
 
     private void SendAllProbeData()

@@ -20,13 +20,8 @@ public class ProbeMatchingPanel : MonoBehaviour
     [SerializeField] private GameObject _matchingPanelPrefab;
     [SerializeField] private Transform _matchingPanelParentT;
 
-    private Dictionary<ProbeManager, ProbeMatchDropdown> _dropdownMenus;
+    private Dictionary<ProbeManager, ProbeMatchDropdown> _dropdownMenus = new();
     private List<string> _probeOpts;
-
-    private void Awake()
-    {
-        _dropdownMenus = new();
-    }
 
     private void OnEnable()
     {
@@ -87,8 +82,10 @@ public class ProbeMatchingPanel : MonoBehaviour
 
     private void UpdateMatchingPanelOptions()
     {
+        if (_dropdownMenus == null) return;
+
         if (_probeOpts == null)
-            return;
+            _probeOpts = new();
 
         foreach (ProbeMatchDropdown ui in _dropdownMenus.Values)
         {

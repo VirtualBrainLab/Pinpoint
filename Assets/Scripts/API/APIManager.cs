@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -20,6 +21,7 @@ public class APIManager : MonoBehaviour
 #region exposed fields
     [SerializeField] APISpikeGLX _spikeGLXAPI;
     [SerializeField] APIOpenEphys _openEphysAPI;
+    [SerializeField] TMP_Text _statusText;
 #endregion
 
 #region Probe data variables
@@ -76,6 +78,16 @@ public class APIManager : MonoBehaviour
         Instance._lastDataSend = float.MinValue;
     }
 
+    public static void UpdateStatusText(string status)
+    {
+        Instance._statusText.text = $"API Status: {status}";
+    }
+
+    public static void SetStatusDisconnected()
+    {
+        UpdateStatusText("disconnected");
+    }
+
     /// <summary>
     /// Tell the probe matching panel to update all of the dropdown lists to the current set of options
     /// </summary>
@@ -93,14 +105,30 @@ public class APIManager : MonoBehaviour
     {
         _openEphysAPI.enabled = state;
         if (state)
+        {
+            UpdateStatusText("attempting connection...");
             _spikeGLXAPI.enabled = false;
+        }
+        else if (!_spikeGLXAPI.isActiveAndEnabled)
+        {
+            ProbeOptionsChangedEvent.Invoke(new());
+            UpdateStatusText("not connected");
+        }
     }
 
     public void SetSpikeGLXState(bool state)
     {
         _spikeGLXAPI.enabled = state;
         if (state)
+        {
+            UpdateStatusText("attempting connection...");
             _openEphysAPI.enabled = false;
+        }
+        else if (!_spikeGLXAPI.isActiveAndEnabled)
+        {
+            ProbeOptionsChangedEvent.Invoke(new());
+            UpdateStatusText("not connected");
+        }
     }
 
     public void CopyChannelData2Clipboard()
