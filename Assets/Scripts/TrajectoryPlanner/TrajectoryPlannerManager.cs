@@ -22,6 +22,8 @@ using System.Runtime.InteropServices;
 
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEngine.InputSystem;
+using static UnityEngine.InputSystem.InputAction;
 // This code fixes a bug that is also fixed by upgrading to 2021.3.14f1 or newer
 // see https://forum.unity.com/threads/workaround-for-building-with-il2cpp-with-visual-studio-2022-17-4.1355570/
 // please remove this code when Unity version exceeds this!
@@ -139,6 +141,11 @@ namespace TrajectoryPlanner
         // Track who got clicked on, probe, camera, or brain
         private bool probeControl;
 
+        #region InputSystem
+        private ProbeControlInputActions inputActions;
+
+        #endregion
+
         public void SetProbeControl(bool state)
         {
             probeControl = state;
@@ -183,6 +190,12 @@ namespace TrajectoryPlanner
             // Load 3D meshes
             LoadMeshData();
             //Physics.autoSyncTransforms = true;
+
+            // Input system
+            inputActions = new();
+            inputActions.ProbeMetaControl.Enable();
+            inputActions.ProbeMetaControl.NextProbe.performed += NextProbe;
+            inputActions.ProbeMetaControl.PrevProbe.performed += PrevProbe;
 
             _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
         }
@@ -494,6 +507,8 @@ namespace TrajectoryPlanner
             return _collisionMaterial;
         }
 
+
+        #region Active probe controls
         public void SetActiveProbe(string UUID)
         {
             // Search for the probemanager corresponding to this UUID
@@ -547,6 +562,29 @@ namespace TrajectoryPlanner
             
             _activeProbeChangedEvent.Invoke();
         }
+
+        public void NextProbe(CallbackContext context)
+        {
+            int idx = ProbeManager.Instances.FindIndex(x => x.Equals(ProbeManager.ActiveProbeManager));
+
+            // if this is the last probe, wrap around
+            idx = (idx + 1) % ProbeManager.Instances.Count;
+
+            SetActiveProbe(ProbeManager.Instances[idx]);
+        }
+
+        public void PrevProbe(CallbackContext context)
+        {
+            int idx = ProbeManager.Instances.FindIndex(x => x.Equals(ProbeManager.ActiveProbeManager));
+
+            // if this is the last probe, wrap around
+            idx = (idx - 1) % ProbeManager.Instances.Count;
+            if (idx < 0) idx += ProbeManager.Instances.Count;
+
+            SetActiveProbe(ProbeManager.Instances[idx]);
+        }
+
+        #endregion
 
         public void OverrideInsertionName(string UUID, string newName)
         {

@@ -1,0 +1,146 @@
+{
+    "name": "ProbeControlInputActions",
+    "maps": [
+        {
+            "name": "ProbeControl",
+            "id": "752aa170-59b1-43ca-822a-137aa15399c7",
+            "actions": [
+                {
+                    "name": "ForwardAxisPos",
+                    "type": "Button",
+                    "id": "dd3d5762-f567-475d-a121-9ad4fdf9bf06",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Tap",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ForwardAxisNeg",
+                    "type": "Button",
+                    "id": "24d580fe-599f-447d-9b16-3e8572096d54",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "bfa6650f-a3ab-4956-90f9-34eb96f25583",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ForwardAxisPos",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a07ec60e-6555-4f1c-b1ff-c46548f216ca",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ForwardAxisPos",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c6542dc8-84ab-41f2-a164-c3300c2cdbf9",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "Invert",
+                    "groups": "",
+                    "action": "ForwardAxisNeg",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f496d71c-e7cb-415f-8ac0-a06af86eca8b",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "Invert",
+                    "groups": "",
+                    "action": "ForwardAxisNeg",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "ProbeMetaControl",
+            "id": "0fdffdbf-8bb5-4fef-a353-5cf5c5f0645f",
+            "actions": [
+                {
+                    "name": "NextProbe",
+                    "type": "Button",
+                    "id": "d08c47bb-04ca-4c76-ba71-4093f6ffa64e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PrevProbe",
+                    "type": "Button",
+                    "id": "20a32f39-1029-44be-bb7a-37c6bcea1212",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "50473aba-aa56-4cd0-986f-2498d8dd861c",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextProbe",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ebd974b4-dfea-457e-97d3-12b4b064d403",
+                    "path": "<Keyboard>/m",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextProbe",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b0dce264-d88e-4044-90b8-b1387fc4349f",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrevProbe",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c9c03d5c-b096-421f-9459-0d3cb2d07730",
+                    "path": "<Keyboard>/n",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrevProbe",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
