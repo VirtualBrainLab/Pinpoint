@@ -142,7 +142,7 @@ namespace TrajectoryPlanner
         private bool probeControl;
 
         #region InputSystem
-        private ProbeControlInputActions inputActions;
+        private ProbeMetaControls inputActions;
 
         #endregion
 

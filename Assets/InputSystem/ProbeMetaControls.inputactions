@@ -1,0 +1,76 @@
+{
+    "name": "ProbeMetaControls",
+    "maps": [
+        {
+            "name": "ProbeMetaControl",
+            "id": "49e6acce-5ef4-408e-a8fa-bc4787423202",
+            "actions": [
+                {
+                    "name": "NextProbe",
+                    "type": "Button",
+                    "id": "108721c3-f35f-49f2-9241-7e0216cc018f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PrevProbe",
+                    "type": "Button",
+                    "id": "e5f1fc89-463d-4706-8808-b52f36a687a8",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "98c5463b-d1a0-4efa-a3f6-5e8429d25d84",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextProbe",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1fe4a68a-d755-474e-ab44-5e374bb15777",
+                    "path": "<Keyboard>/m",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextProbe",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d00557a5-21a2-4dd4-b7bb-5947865ff4f8",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrevProbe",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "25de11d4-83e3-4b5e-90cf-5ae605c2ecc2",
+                    "path": "<Keyboard>/n",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrevProbe",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
