@@ -16,8 +16,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     {
         #region Components
 
-        #region Serialized Fields
-
         // Server connection
         [SerializeField] private InputField _ipAddressInputField;
         [SerializeField] private InputField _portInputField;
@@ -27,9 +25,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         // Manipulators
         [SerializeField] private GameObject _manipulatorList;
         [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
+        [SerializeField] private Button _copilotButton;
         [SerializeField] private Text _copilotButtonText;
-
-        #endregion
 
         private UIManager _uiManager;
 
@@ -83,11 +80,17 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         private void UpdateManipulatorPanels()
         {
+            // Default Copilot to be disabled unless the right manipulator type is found
+            _copilotButton.interactable = false;
+            
             if (CommunicationManager.Instance.IsConnected)
             {
                 // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
                 CommunicationManager.Instance.GetManipulators((availableIDs, type) =>
                 {
+                    // Enable Copilot button if using Sensapex or New Scale
+                    _copilotButton.interactable = !type.Contains("pathway");
+                    
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
 

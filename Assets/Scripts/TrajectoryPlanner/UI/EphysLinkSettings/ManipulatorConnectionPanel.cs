@@ -32,10 +32,13 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
             // Show or hide handedness dropdown depending on manipulator type
-            if (type == "new_scale")
+            if (type.Contains("new_scale"))
             {
                 _handednessDropdown.value = 0;
                 _handednessGroup.SetActive(false);
+                
+                // Disable manual control for "pathway" type
+                _manualControlGroup.SetActive(!type.Contains("pathway"));
             }
             else
             {
@@ -355,6 +358,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private InputField _brainSurfaceOffsetInputField;
         [SerializeField] private Button _returnToZeroCoordinateButton;
         [SerializeField] private Text _returnToZeroCoordinateButtonText;
+        [SerializeField] private GameObject _manualControlGroup;
         [SerializeField] private Toggle _enableManualControlToggle;
 
         private ProbeManager _attachedProbe;

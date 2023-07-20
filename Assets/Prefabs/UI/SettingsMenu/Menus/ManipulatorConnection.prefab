@@ -1875,6 +1875,7 @@ MonoBehaviour:
   _brainSurfaceOffsetInputField: {fileID: 3529476872428658600}
   _returnToZeroCoordinateButton: {fileID: 899946326353513394}
   _returnToZeroCoordinateButtonText: {fileID: 3945481360224806470}
+  _manualControlGroup: {fileID: 7002469100796940902}
   _enableManualControlToggle: {fileID: 3897188312319433914}
 --- !u!114 &7145065099748536085
 MonoBehaviour:
