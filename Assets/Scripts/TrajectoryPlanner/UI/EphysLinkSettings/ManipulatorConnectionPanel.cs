@@ -26,7 +26,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                                                                     manager.IsEphysLinkControlled &&
                                                                     manager.ManipulatorBehaviorController
                                                                         .ManipulatorID == manipulatorID);
-            
+
             // Initialize components
             _manipulatorIdText.text = manipulatorID;
             UpdateLinkableProbeOptions();
@@ -303,8 +303,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             // Repopulate dropdown options
             _linkedProbeDropdown.ClearOptions();
-            var availableProbes = ProbeManager.Instances.Where(manager =>
-                    manager.UUID == previouslyLinkedProbeUUID || !_ephysLinkSettings.LinkedProbes.Contains(manager))
+            var availableProbes = ProbeManager.Instances.Where(manager => manager.ManipulatorBehaviorController && (
+                    manager.UUID == previouslyLinkedProbeUUID || !_ephysLinkSettings.LinkedProbes.Contains(manager)))
                 .Select(manager => manager.UUID).ToList();
             availableProbes.Insert(0, "None");
             _linkedProbeDropdown.AddOptions(availableProbes);
