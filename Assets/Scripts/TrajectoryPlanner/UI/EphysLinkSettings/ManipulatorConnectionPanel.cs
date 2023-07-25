@@ -22,10 +22,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _type = type;
 
             // Get attached probe (could be null)
-            _attachedProbe = ProbeManager.Instances.Find(manager => manager.IsEphysLinkControlled &&
+            _attachedProbe = ProbeManager.Instances.Find(manager => manager.ManipulatorBehaviorController &&
+                                                                    manager.IsEphysLinkControlled &&
                                                                     manager.ManipulatorBehaviorController
                                                                         .ManipulatorID == manipulatorID);
-
+            
             // Initialize components
             _manipulatorIdText.text = manipulatorID;
             UpdateLinkableProbeOptions();
@@ -36,7 +37,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             {
                 _handednessDropdown.value = 0;
                 _handednessGroup.SetActive(false);
-                
+
                 // Disable manual control for "pathway" type
                 _manualControlGroup.SetActive(!type.Contains("pathway"));
             }

@@ -58,7 +58,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             // Update UI elements every time the settings panel is opened
             UpdateConnectionPanel();
-            UpdateManipulatorPanels();
         }
 
         #endregion
@@ -93,7 +92,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
-
+                    
                     // Add any new manipulators in scene to list
                     foreach (var manipulatorID in availableIDs)
                     {
