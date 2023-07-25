@@ -22,8 +22,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _type = type;
 
             // Get attached probe (could be null)
-            _attachedProbe = ProbeManager.Instances.Find(manager => manager.ManipulatorBehaviorController &&
-                                                                    manager.IsEphysLinkControlled &&
+            _attachedProbe = ProbeManager.Instances.Find(manager => manager.IsEphysLinkControlled &&
                                                                     manager.ManipulatorBehaviorController
                                                                         .ManipulatorID == manipulatorID);
 

@@ -117,8 +117,8 @@ public class ProbeManager : MonoBehaviour
 
     public bool IsEphysLinkControlled
     {
-        get => ManipulatorBehaviorController.enabled;
-        set
+        get => ManipulatorBehaviorController && ManipulatorBehaviorController.enabled;
+        private set
         {
             ManipulatorBehaviorController.enabled = value;
             EphysLinkControlChangeEvent.Invoke();
