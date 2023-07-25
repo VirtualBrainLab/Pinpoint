@@ -36,7 +36,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             {
                 _handednessDropdown.value = 0;
                 _handednessGroup.SetActive(false);
-                
+
                 // Disable manual control for "pathway" type
                 _manualControlGroup.SetActive(!type.Contains("pathway"));
             }
@@ -302,8 +302,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             // Repopulate dropdown options
             _linkedProbeDropdown.ClearOptions();
-            var availableProbes = ProbeManager.Instances.Where(manager =>
-                    manager.UUID == previouslyLinkedProbeUUID || !_ephysLinkSettings.LinkedProbes.Contains(manager))
+            var availableProbes = ProbeManager.Instances.Where(manager => manager.ManipulatorBehaviorController && (
+                    manager.UUID == previouslyLinkedProbeUUID || !_ephysLinkSettings.LinkedProbes.Contains(manager)))
                 .Select(manager => manager.UUID).ToList();
             availableProbes.Insert(0, "None");
             _linkedProbeDropdown.AddOptions(availableProbes);

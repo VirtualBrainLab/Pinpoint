@@ -150,7 +150,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private void OnEnable()
         {
             // Populate properties
-            ProbeManagers = ProbeManager.Instances.Where(manager => manager.IsEphysLinkControlled).OrderBy(manager => manager.ManipulatorBehaviorController.ManipulatorID).ToList();
+            ProbeManagers = ProbeManager.Instances.Where(manager => manager.IsEphysLinkControlled)
+                .OrderBy(manager => manager.ManipulatorBehaviorController.ManipulatorID).ToList();
             AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
 
             // Setup shared resources for panels

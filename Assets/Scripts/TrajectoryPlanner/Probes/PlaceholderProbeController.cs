@@ -1,8 +1,7 @@
 using System;
-using UnityEngine;
-using UnityEngine.EventSystems;
 using CoordinateSpaces;
 using CoordinateTransforms;
+using UnityEngine;
 
 public class PlaceholderProbeController : ProbeController
 {
@@ -24,7 +23,7 @@ public class PlaceholderProbeController : ProbeController
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
 
-        Insertion = new ProbeInsertion(defaultStart, defaultAngles, new CCFSpace(), new CoordinateTransforms.CCFTransform());
+        Insertion = new ProbeInsertion(defaultStart, defaultAngles, new CCFSpace(), new CCFTransform());
     }
 
     /// <summary>
@@ -60,17 +59,19 @@ public class PlaceholderProbeController : ProbeController
 
     public override void SetProbePosition(Vector3 position)
     {
-        // Not implemented
+        Insertion.apmldv = position;
+        SetProbePosition();
     }
 
     public override void SetProbePosition(Vector4 positionDepth)
     {
-        // Not implemented
+        throw new NotImplementedException("No depth in placeholder probe");
     }
 
     public override void SetProbeAngles(Vector3 angles)
     {
-        // Not implemented
+        Insertion.angles = angles;
+        SetProbePosition();
     }
 
     /// <summary>

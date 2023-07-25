@@ -112,11 +112,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Setup and compute movement
             _isMoving = true;
             var apPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ap.apmldv);
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                    .ap.apmldv);
             var mlPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions.ml.apmldv);
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                    .ml.apmldv);
             var dvPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions.dv.apmldv);
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                    .dv.apmldv);
 
             // Move
             CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
