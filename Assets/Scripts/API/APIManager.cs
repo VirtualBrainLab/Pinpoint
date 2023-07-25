@@ -22,11 +22,10 @@ public class APIManager : MonoBehaviour
     [SerializeField] APISpikeGLX _spikeGLXAPI;
     [SerializeField] APIOpenEphys _openEphysAPI;
     [SerializeField] TMP_Text _statusText;
-#endregion
+    #endregion
 
-#region Probe data variables
+    #region Probe data variables
     private float _lastDataSend;
-    private const float DATA_SEND_RATE = 10f; // cap data sending at once per 10 s maximum, it's fairly expensive to do
     private bool _dirty = false;
 
     public UnityEvent<List<string>> ProbeOptionsChangedEvent;
@@ -45,7 +44,7 @@ public class APIManager : MonoBehaviour
 
     private void Update()
     {
-        if (_dirty && (Time.realtimeSinceStartup > (_lastDataSend + DATA_SEND_RATE)))
+        if (_dirty && (Time.realtimeSinceStartup > (_lastDataSend + (1 / Settings.APIUpdateRate))))
         {
             _dirty = false;
             _lastDataSend = Time.realtimeSinceStartup;

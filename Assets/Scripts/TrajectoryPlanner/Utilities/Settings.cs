@@ -434,6 +434,22 @@ public class Settings : MonoBehaviour
             Instance.SpikeGLXDataToggleEvent.Invoke(data.SpikeGLXAPIToggle);
         }
     }
+
+    private const string API_UPDATE_RATE_STR = "api_update";
+    private const float API_UPDATE_RATE_DEFAULT = 10f;
+    [SerializeField] private Slider _apiUpdateRateSlider;
+    public UnityEvent<float> APIUpdateRateEvent;
+
+    public static float APIUpdateRate
+    {
+        get { return data.APIUpdateRate; }
+        set
+        {
+            data.APIUpdateRate = value;
+            PlayerPrefs.SetFloat(API_UPDATE_RATE_STR, API_UPDATE_RATE_DEFAULT);
+            Instance.APIUpdateRateEvent.Invoke(data.APIUpdateRate);
+        }
+    }
     #endregion
 
     #region Unity
@@ -480,6 +496,7 @@ public class Settings : MonoBehaviour
         // API
         OpenEphysToggle = LoadBoolPref(OPENEPHYS_DATA_STR, OPENEPHYS_DATA_DEFAULT);
         SpikeGLXToggle = LoadBoolPref(SGLX_DATA_STR, SGLX_DATA_DEFAULT);
+        APIUpdateRate = LoadFloatPref(API_UPDATE_RATE_STR, API_UPDATE_RATE_DEFAULT);
 
         // accounts
         StayLoggedIn = LoadBoolPref(LOGGEDIN_STR, LOGGEDIN_DEFAULT);
@@ -536,6 +553,8 @@ public class Settings : MonoBehaviour
 
         // API
         _openEphysDataToggle.SetIsOnWithoutNotify(OpenEphysToggle);
+        _spikeGLXDataToggle.SetIsOnWithoutNotify(SpikeGLXToggle);
+        _apiUpdateRateSlider.SetValueWithoutNotify(APIUpdateRate);
 
         // Ephys link
         _ephysLinkServerIpInput.text = data.EphysLinkServerIP;
@@ -712,6 +731,7 @@ public class Settings : MonoBehaviour
         // API
         public bool OpenEphysAPIToggle;
         public bool SpikeGLXAPIToggle;
+        public float APIUpdateRate;
 
         public bool s_useIBLAngles;
         public bool s_axisControl;
