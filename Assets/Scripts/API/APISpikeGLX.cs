@@ -110,7 +110,7 @@ public class APISpikeGLX : MonoBehaviour
 
         foreach (string shankData in probeDepthData)
         {
-            string msg = $"{GetServerInfo()} -cmd=setAnatomy_Pinpoint -args={shankData}";
+            string msg = $"{GetServerInfo()} -cmd=setAnatomy_Pinpoint -args=\"{shankData}\"";
 
             SendAPIMessage(msg, Debug.Log);
         }
@@ -148,7 +148,7 @@ public class APISpikeGLX : MonoBehaviour
             StartInfo = new KS.Diagnostics.ProcessStartInfo()
             {
                 FileName = $"\"{filePath}\"",
-                Arguments = $"\"{msg}\"",
+                Arguments = msg,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 CreateNoWindow = true,

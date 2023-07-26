@@ -586,6 +586,7 @@ public class Settings : MonoBehaviour
 
         // Atlas
         _invivoDropdown.SetValueWithoutNotify(InvivoTransform);
+        // the relative coordinate actually needs to be set, since it gets propagated downstream
         RelativeCoordinate = data.RelativeCoord;
         _blSlider.SetValueWithoutNotify(BregmaLambdaDistance);
 
