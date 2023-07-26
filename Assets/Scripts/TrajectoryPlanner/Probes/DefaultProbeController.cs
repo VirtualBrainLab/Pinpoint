@@ -413,7 +413,10 @@ public class DefaultProbeController : ProbeController
     public void MoveProbeDepth(float unitDepth, bool pressed)
     {
         var speed = pressed || ManipulatorKeyboardControl
-            ? keyFast ? MOVE_INCREMENT_TAP_FAST : keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP
+            ?
+            keyUltra ? MOVE_INCREMENT_TAP_ULTRA :
+            keyFast ? MOVE_INCREMENT_TAP_FAST :
+            keySlow ? MOVE_INCREMENT_TAP_SLOW : MOVE_INCREMENT_TAP
             : keyFast
                 ? MOVE_INCREMENT_HOLD_FAST * Time.deltaTime
                 : keySlow
