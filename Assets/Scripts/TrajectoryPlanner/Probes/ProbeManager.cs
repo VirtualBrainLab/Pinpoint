@@ -953,7 +953,9 @@ public class ProbeData
 
         data.APITarget = probeManager.APITarget;
 
-        // Manipulator Behavior data
+        // Manipulator Behavior data (if it exists)
+        if (!probeManager.ManipulatorBehaviorController) return data;
+        
         data.ManipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
