@@ -10,8 +10,6 @@ public class RelativeCoordinatePanel : MonoBehaviour
     [SerializeField] private TMP_InputField _mlField;
     [SerializeField] private TMP_InputField _dvField;
 
-    [SerializeField] private TrajectoryPlannerManager _tpmanager;
-
     private void Awake()
     {
         _apField.onEndEdit.AddListener(delegate { UpdateRelativeCoordinate(); });
