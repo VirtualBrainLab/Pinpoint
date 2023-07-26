@@ -21,7 +21,6 @@ namespace TrajectoryPlanner.Probes
 
         private void EchoPosition(Vector4 pos)
         {
-            print(pos);
             if (_probeController == null && !enabled) return;
             // Calculate last used direction for dropping to brain surface (between depth and DV)
             var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
