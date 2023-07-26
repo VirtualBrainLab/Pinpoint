@@ -10,7 +10,6 @@ public class APIOpenEphys : MonoBehaviour
 {
     [SerializeField] ProbeMatchingPanel _probeMatchingPanel;
     [SerializeField] Toggle _openEphysToggle;
-    [SerializeField] TMP_InputField _probeDataHTTPTarget;
     [SerializeField] TMP_InputField _pxiInput;
     private int _pxiID;
 
@@ -46,7 +45,7 @@ public class APIOpenEphys : MonoBehaviour
     private IEnumerator GetProbeInfo_OpenEphys()
     {
         // First, get data about the processors
-        string url = _probeDataHTTPTarget.text.ToLower().Trim();
+        string url = Settings.OpenEphysTarget.ToLower().Trim();
         string uri = $"{url}{ENDPOINT_PROCESSORS}";
 
         // Clear variables
@@ -123,7 +122,6 @@ public class APIOpenEphys : MonoBehaviour
         if (_pxiID == 0)
         {
             APIManager.UpdateStatusText("error, no processor found");
-            Debug.LogError("(APIManager-OpenEphys) Warning: no Neuropix-PXI processor was found");
             _openEphysToggle.SetIsOnWithoutNotify(false);
             yield break;
         }
@@ -184,7 +182,7 @@ public class APIOpenEphys : MonoBehaviour
 
     private void SendAllProbeData()
     {
-        string url = _probeDataHTTPTarget.text.ToLower().Trim();
+        string url = Settings.OpenEphysTarget.ToLower().Trim();
 
         Debug.Log($"(APIManager-OpenEphys) Sending probe data for {ProbeManager.Instances.Count} probes");
         foreach (ProbeManager probeManager in ProbeManager.Instances)

@@ -9,33 +9,14 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Process = KS.Diagnostics.Process;
 
-#if !UNITY_WEBGL
-#endif
-
 public class APISpikeGLX : MonoBehaviour
 {
-    [SerializeField] private TMP_InputField _serverPort;
     [SerializeField] private TMP_InputField _helloSpikeGLXPathInput;
-
-    private bool connected;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        Debug.Log(Application.dataPath);
-    }
 
     #region Unity
     private void OnEnable()
     {
         GetSpikeGLXProbeInfo();
-
-        APIManager.TriggerAPIPush();
-    }
-
-    private void OnDisable()
-    {
-
     }
     #endregion
 
@@ -51,6 +32,12 @@ public class APISpikeGLX : MonoBehaviour
 
     private void SetSpikeGLXProbeData(string allProbeDataStr)
     {
+        if (allProbeDataStr.ToLower().Contains("error"))
+        {
+            APIManager.UpdateStatusText(allProbeDataStr);
+            enabled = false;
+            return;
+        }
 
         // parse the probe data
         // Returns string: (probeID, nShanks, partNumber)()...
@@ -123,18 +110,14 @@ public class APISpikeGLX : MonoBehaviour
 
         string msg = $"{GetServerInfo()} -cmd=setAnatomy_Pinpoint -args={probeDepthData}";
 
-        SendAPIMessage(msg, LogData);
-    }
-
-    private void LogData(string str)
-    {
-        Debug.Log(str);
+        SendAPIMessage(msg, Debug.Log);
     }
 
     private string GetServerInfo()
     {
         // Get SpikeGLX target
-        string[] serverPort = _serverPort.text.Split(':');
+        Debug.Log(Settings.SpikeGLXTarget);
+        string[] serverPort = Settings.SpikeGLXTarget.Split(':');
 
         return $"-host={serverPort[0]} -port={serverPort[1]}";
     }

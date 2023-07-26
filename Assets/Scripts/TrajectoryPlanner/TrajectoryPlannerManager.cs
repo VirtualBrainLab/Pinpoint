@@ -533,7 +533,10 @@ namespace TrajectoryPlanner
 
             // Tell the old probe that it is now in-active
             if (ProbeManager.ActiveProbeManager != null)
+            {
+                ProbeManager.ActiveProbeManager.GetComponent<ProbeController>().enabled = false;
                 ProbeManager.ActiveProbeManager.SetActive(false);
+            }
 
             // Replace the probe object and set to active
             ProbeManager.ActiveProbeManager = newActiveProbeManager;
@@ -795,7 +798,7 @@ namespace TrajectoryPlanner
             string encodedStr = Convert.ToBase64String(plainTextBytes);
 
             // Settings data
-            var settingsData = Settings.ToSaveString();
+            var settingsData = Settings.Data2String();
             string settingsStr = Convert.ToBase64String(Encoding.UTF8.GetBytes(settingsData));
 
             string url = $"https://data.virtualbrainlab.org/Pinpoint/?Probes={encodedStr}&Settings={settingsStr}";
