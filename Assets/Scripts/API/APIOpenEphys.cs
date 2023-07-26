@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 public class APIOpenEphys : MonoBehaviour
 {
-    [SerializeField] ProbeMatchingPanel _probeMatchingPanel;
     [SerializeField] Toggle _openEphysToggle;
     [SerializeField] TMP_InputField _pxiInput;
     private int _pxiID;
@@ -25,13 +24,11 @@ public class APIOpenEphys : MonoBehaviour
     private void OnEnable()
     {
         // If the setting just got turned on we should query the server for "NP INFO" to get the list of active probes
-        _probeMatchingPanel.UpdateUI();
         StartCoroutine(GetProbeInfo_OpenEphys());
     }
 
     private void OnDisable()
     {
-        _probeMatchingPanel.ClearUI();
         _viewerDropdown.ClearOptions();
         _viewerDropdown.interactable = false;
     }
