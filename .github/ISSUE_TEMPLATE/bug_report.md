@@ -17,16 +17,17 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version or URL [e.g. 0.8.4 or https://data.virtualbrainlab.org/Pinpoint/]
+**Log**
+After re-creating the bug in your build of Pinpoint, please find and attach the Player.log file. This has important debugging information that we need to fix issues.
 
-**Additional context**
-Add any other context about the problem here.
+On **Windows** the Player.log file is located at: %USERPROFILE%\AppData\LocalLow\VirtualBrainLab\Pinpoint\Player.log
+On **Linux**: ~/.config/unity3d/VirtualBrainLab/Pinpoint/Player.log
+In a **browser** the Player.log file is written to the console. Please copy and paste the entire contents of the console into your issue, or into a file attached to your issue. To access the console: 
+
+    In Firefox, press Ctrl-Shift-K on Windows or Command-Option-K on a Mac.
+    In Chrome, press Ctrl-Shift-J on Windows or Command-Option-J on a Mac.
+    In Safari, go to Preferences > Advanced > Develop, and press Command-Option-C.
+    In Microsoft Edge or Internet Explorer, press F12.
