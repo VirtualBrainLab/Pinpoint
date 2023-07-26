@@ -21,6 +21,7 @@ namespace TrajectoryPlanner.Probes
 
         private void EchoPosition(Vector4 pos)
         {
+            print(pos);
             if (_probeController == null && !enabled) return;
             // Calculate last used direction for dropping to brain surface (between depth and DV)
             var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
@@ -31,7 +32,7 @@ namespace TrajectoryPlanner.Probes
             // Apply zero coordinate offset
             var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
 
-            // Convert to sensapex space
+            // Convert to coordinate space
             var manipulatorSpacePosition =
                 Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
 
@@ -55,7 +56,7 @@ namespace TrajectoryPlanner.Probes
                 insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
 
             // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-            if (ManipulatorType == "new_scale")
+            if (ManipulatorType is "new_scale" or "new_scale_pathway")
                 _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
                     transformedApmldv.z, 0));
             else
