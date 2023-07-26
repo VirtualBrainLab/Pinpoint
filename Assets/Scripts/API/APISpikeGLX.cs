@@ -32,6 +32,8 @@ public class APISpikeGLX : MonoBehaviour
 
     private void SetSpikeGLXProbeData(string allProbeDataStr)
     {
+        Debug.Log($"Received probe data from SpikeGLX: {allProbeDataStr}");
+
         if (allProbeDataStr.ToLower().Contains("error"))
         {
             APIManager.UpdateStatusText(allProbeDataStr);
@@ -90,8 +92,6 @@ public class APISpikeGLX : MonoBehaviour
 
     public void SendData()
     {
-        Debug.Log("(SpikeGLX) Starting process");
-
         // Get the probe data
         foreach (ProbeManager probeManager in ProbeManager.Instances)
         {
@@ -119,7 +119,6 @@ public class APISpikeGLX : MonoBehaviour
     private string GetServerInfo()
     {
         // Get SpikeGLX target
-        Debug.Log(Settings.SpikeGLXTarget);
         string[] serverPort = Settings.SpikeGLXTarget.Split(':');
 
         return $"-host={serverPort[0]} -port={serverPort[1]}";
@@ -129,11 +128,14 @@ public class APISpikeGLX : MonoBehaviour
     {
         Debug.Log(Application.streamingAssetsPath);
 
-#if UNITY_EDITOR
-        Debug.Log($"(SGLX) Sending: {msg}");
-#endif
+        string filePath = _helloSpikeGLXPathInput.text.Contains("HelloSGLX.exe") ?
+            _helloSpikeGLXPathInput.text :
+            Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe");
 
-        string filePath = Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe");
+
+#if UNITY_EDITOR
+        Debug.Log($"(SGLX) Sending: {msg} to target {filePath}");
+#endif
 
         if (!File.Exists(filePath))
         {
@@ -145,8 +147,8 @@ public class APISpikeGLX : MonoBehaviour
         {
             StartInfo = new KS.Diagnostics.ProcessStartInfo()
             {
-                FileName = Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe"),
-                Arguments = msg,
+                FileName = $"\"{filePath}\"",
+                Arguments = $"\"{msg}\"",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 CreateNoWindow = true,
