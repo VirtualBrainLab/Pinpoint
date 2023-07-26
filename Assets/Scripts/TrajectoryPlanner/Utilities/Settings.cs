@@ -269,6 +269,7 @@ public class Settings : MonoBehaviour
         {
             data.RelativeCoord = value;
             Save();
+            Debug.Log("Invoking relative coordinate set");
             Instance.RelativeCoordinateChangedEvent.Invoke(data.RelativeCoord);
         }
     }
@@ -486,6 +487,9 @@ public class Settings : MonoBehaviour
     {
         if (!fromDefaults && PlayerPrefs.HasKey(DATA_STR))
         {
+#if UNITY_EDITOR
+            Debug.Log("(Settings) Loading settings from PlayerPrefs");
+#endif
             data = JsonUtility.FromJson<InternalData>(PlayerPrefs.GetString(DATA_STR));
         }
         else
@@ -582,7 +586,7 @@ public class Settings : MonoBehaviour
 
         // Atlas
         _invivoDropdown.SetValueWithoutNotify(InvivoTransform);
-
+        RelativeCoordinate = data.RelativeCoord;
         _blSlider.SetValueWithoutNotify(BregmaLambdaDistance);
 
         // Accounts
