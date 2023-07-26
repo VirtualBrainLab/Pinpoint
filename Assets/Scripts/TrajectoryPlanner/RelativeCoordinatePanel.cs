@@ -21,6 +21,7 @@ public class RelativeCoordinatePanel : MonoBehaviour
 
     public void SetRelativeCoordinateText(Vector3 coord)
     {
+        Debug.Log("Coordinate set");
         _apField.text = coord.x.ToString();
         _mlField.text = coord.y.ToString();
         _dvField.text = coord.z.ToString();

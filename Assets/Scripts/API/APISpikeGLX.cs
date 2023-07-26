@@ -106,11 +106,14 @@ public class APISpikeGLX : MonoBehaviour
 
     private void SendProbeData(ProbeManager probeManager)
     {
-        string probeDepthData = probeManager.GetProbeDepthIDs();
+        List<string> probeDepthData = probeManager.GetProbeDepthIDs();
 
-        string msg = $"{GetServerInfo()} -cmd=setAnatomy_Pinpoint -args={probeDepthData}";
+        foreach (string shankData in probeDepthData)
+        {
+            string msg = $"{GetServerInfo()} -cmd=setAnatomy_Pinpoint -args={shankData}";
 
-        SendAPIMessage(msg, Debug.Log);
+            SendAPIMessage(msg, Debug.Log);
+        }
     }
 
     private string GetServerInfo()
@@ -125,6 +128,10 @@ public class APISpikeGLX : MonoBehaviour
     private void SendAPIMessage(string msg, Action<string> callback = null)
     {
         Debug.Log(Application.streamingAssetsPath);
+
+#if UNITY_EDITOR
+        Debug.Log($"(SGLX) Sending: {msg}");
+#endif
 
         string filePath = Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe");
 
