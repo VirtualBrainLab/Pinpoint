@@ -257,6 +257,8 @@ public class ProbeManager : MonoBehaviour
         else
             ColliderManager.AddProbeColliderInstances(_probeColliders, false);
 
+        GetComponent<DefaultProbeController>().enabled = active;
+
         UIUpdateEvent.Invoke();
         _probeController.MovedThisFrameEvent.Invoke();
     }
@@ -406,22 +408,23 @@ public class ProbeManager : MonoBehaviour
     /// Get a serialized representation of the depth information on each shank of this probe
     /// 
     /// SpikeGLX format
-    /// (
+    /// [probe,shank]()
     /// </summary>
-    /// <returns></returns>
-    public string GetProbeDepthIDs()
+    /// <returns>List of strings, each of which has data for one shank in the scene</returns>
+    public List<string> GetProbeDepthIDs()
     {
-        if (ProbeProperties.FourShank(ProbeType))
-        {
-            // do something else
-            string probeStr = "";
-            for (int si = 0; si < 4; si++)
-                probeStr += perShankDepthIDs(si);
-            return probeStr;
-        }
-        {
-            return perShankDepthIDs(0);
-        }
+        List<string> depthIDs = new List<string>();
+        //if (ProbeProperties.FourShank(ProbeType))
+        //{
+        //    // do something else
+            
+        //    for (int si = 0; si < 4; si++)
+        //        depthIDs.Add(perShankDepthIDs(si));
+        //}
+        //{
+            depthIDs.Add(perShankDepthIDs(0));
+        //}
+        return depthIDs;
     }
 
     private string perShankDepthIDs(int shank)
@@ -433,8 +436,11 @@ public class ProbeManager : MonoBehaviour
         float curBottom = 0f;
 
         ProbeUIManager uiManager = _probeUIManagers[shank];
-        Vector3 baseCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMinY;
-        Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMaxY;
+        //Vector3 baseCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMinY;
+        //Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMaxY;
+
+        Vector3 baseCoordWorldT = uiManager.ShankTipT().position;
+        Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * ChannelMap.FullHeight;
 
         // convert to worldU
         ProbeInsertion insertion = _probeController.Insertion;
@@ -445,7 +451,7 @@ public class ProbeManager : MonoBehaviour
         if (lastID < 0) lastID = -1;
         // Lerp between the base and top coordinate in small steps'
 
-        float _channelMinUM = _channelMinY * 1000f;
+        float _channelMinUM = 0f; // _channelMinY * 1000f;
 
         for (float perc = 0f; perc < 1f; perc += 0.01f)
         {
@@ -948,7 +954,9 @@ public class ProbeData
 
         data.APITarget = probeManager.APITarget;
 
-        // Manipulator Behavior data
+        // Manipulator Behavior data (if it exists)
+        if (!probeManager.ManipulatorBehaviorController) return data;
+        
         data.ManipulatorType = probeManager.ManipulatorBehaviorController.ManipulatorType;
         data.ManipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;

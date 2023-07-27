@@ -9,33 +9,14 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Process = KS.Diagnostics.Process;
 
-#if !UNITY_WEBGL
-#endif
-
 public class APISpikeGLX : MonoBehaviour
 {
-    [SerializeField] private TMP_InputField _serverPort;
     [SerializeField] private TMP_InputField _helloSpikeGLXPathInput;
-
-    private bool connected;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        Debug.Log(Application.dataPath);
-    }
 
     #region Unity
     private void OnEnable()
     {
         GetSpikeGLXProbeInfo();
-
-        APIManager.TriggerAPIPush();
-    }
-
-    private void OnDisable()
-    {
-
     }
     #endregion
 
@@ -51,6 +32,14 @@ public class APISpikeGLX : MonoBehaviour
 
     private void SetSpikeGLXProbeData(string allProbeDataStr)
     {
+        Debug.Log($"Received probe data from SpikeGLX: {allProbeDataStr}");
+
+        if (allProbeDataStr.ToLower().Contains("error"))
+        {
+            APIManager.UpdateStatusText(allProbeDataStr);
+            enabled = false;
+            return;
+        }
 
         // parse the probe data
         // Returns string: (probeID, nShanks, partNumber)()...
@@ -103,8 +92,6 @@ public class APISpikeGLX : MonoBehaviour
 
     public void SendData()
     {
-        Debug.Log("(SpikeGLX) Starting process");
-
         // Get the probe data
         foreach (ProbeManager probeManager in ProbeManager.Instances)
         {
@@ -119,22 +106,20 @@ public class APISpikeGLX : MonoBehaviour
 
     private void SendProbeData(ProbeManager probeManager)
     {
-        string probeDepthData = probeManager.GetProbeDepthIDs();
+        List<string> probeDepthData = probeManager.GetProbeDepthIDs();
 
-        string msg = $"{GetServerInfo()} -cmd=setAnatomy_Pinpoint -args={probeDepthData}";
+        foreach (string shankData in probeDepthData)
+        {
+            string msg = $"{GetServerInfo()} -cmd=setAnatomy_Pinpoint -args=\"{shankData}\"";
 
-        SendAPIMessage(msg, LogData);
-    }
-
-    private void LogData(string str)
-    {
-        Debug.Log(str);
+            SendAPIMessage(msg, Debug.Log);
+        }
     }
 
     private string GetServerInfo()
     {
         // Get SpikeGLX target
-        string[] serverPort = _serverPort.text.Split(':');
+        string[] serverPort = Settings.SpikeGLXTarget.Split(':');
 
         return $"-host={serverPort[0]} -port={serverPort[1]}";
     }
@@ -143,7 +128,14 @@ public class APISpikeGLX : MonoBehaviour
     {
         Debug.Log(Application.streamingAssetsPath);
 
-        string filePath = Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe");
+        string filePath = _helloSpikeGLXPathInput.text.Contains("HelloSGLX.exe") ?
+            _helloSpikeGLXPathInput.text :
+            Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe");
+
+
+#if UNITY_EDITOR
+        Debug.Log($"(SGLX) Sending: {msg} to target {filePath}");
+#endif
 
         if (!File.Exists(filePath))
         {
@@ -155,7 +147,7 @@ public class APISpikeGLX : MonoBehaviour
         {
             StartInfo = new KS.Diagnostics.ProcessStartInfo()
             {
-                FileName = Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe"),
+                FileName = $"\"{filePath}\"",
                 Arguments = msg,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,

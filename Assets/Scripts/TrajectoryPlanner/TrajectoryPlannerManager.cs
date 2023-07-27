@@ -22,7 +22,6 @@ using System.Runtime.InteropServices;
 
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputAction;
 // This code fixes a bug that is also fixed by upgrading to 2021.3.14f1 or newer
 // see https://forum.unity.com/threads/workaround-for-building-with-il2cpp-with-visual-studio-2022-17-4.1355570/
@@ -177,10 +176,13 @@ namespace TrajectoryPlanner
             coordinateTransformOpts.Add(temp.Name, temp);
             temp = new MRILinearTransform();
             coordinateTransformOpts.Add(temp.Name, temp);
+            coordinateTransformOpts.Add("MRI-Transform", temp);
             temp = new NeedlesTransform();
             coordinateTransformOpts.Add(temp.Name, temp);
+            coordinateTransformOpts.Add("Needles", temp);
             temp = new IBLNeedlesTransform();
             coordinateTransformOpts.Add(temp.Name, temp);
+            coordinateTransformOpts.Add("IBL-Needles", temp);
 
             // Initialize variables
             visibleProbePanels = 0;
@@ -534,7 +536,10 @@ namespace TrajectoryPlanner
 
             // Tell the old probe that it is now in-active
             if (ProbeManager.ActiveProbeManager != null)
+            {
+                ProbeManager.ActiveProbeManager.GetComponent<ProbeController>().enabled = false;
                 ProbeManager.ActiveProbeManager.SetActive(false);
+            }
 
             // Replace the probe object and set to active
             ProbeManager.ActiveProbeManager = newActiveProbeManager;
@@ -796,7 +801,7 @@ namespace TrajectoryPlanner
             string encodedStr = Convert.ToBase64String(plainTextBytes);
 
             // Settings data
-            var settingsData = Settings.ToSaveString();
+            var settingsData = Settings.Data2String();
             string settingsStr = Convert.ToBase64String(Encoding.UTF8.GetBytes(settingsData));
 
             string url = $"https://data.virtualbrainlab.org/Pinpoint/?Probes={encodedStr}&Settings={settingsStr}";

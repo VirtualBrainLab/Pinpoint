@@ -207,6 +207,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8116517813904742318}
   - component: {fileID: 8116517813904742316}
+  - component: {fileID: 8163747129033860176}
   - component: {fileID: 8116517813904742319}
   m_Layer: 5
   m_Name: HelpText
@@ -244,6 +245,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8116517813904742305}
   m_CullTransparentMesh: 1
+--- !u!114 &8163747129033860176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8116517813904742305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d943718145e5ead48a69ad1353034670, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &8116517813904742319
 MonoBehaviour:
   m_ObjectHideFlags: 0
