@@ -257,7 +257,7 @@ public class ProbeManager : MonoBehaviour
         else
             ColliderManager.AddProbeColliderInstances(_probeColliders, false);
 
-        GetComponent<DefaultProbeController>().enabled = active;
+        GetComponent<CartesianProbeController>().enabled = active;
 
         UIUpdateEvent.Invoke();
         _probeController.MovedThisFrameEvent.Invoke();
@@ -316,16 +316,6 @@ public class ProbeManager : MonoBehaviour
         _overrideName = newName;
         UpdateName();
         UIUpdateEvent.Invoke();
-    }
-
-
-    /// <summary>
-    /// Move the probe
-    /// </summary>
-    /// <returns>Whether or not the probe moved on this frame</returns>
-    public void MoveProbe()
-    {
-        ((DefaultProbeController)_probeController).MoveProbe_Keyboard();
     }
 
     public void ProbeMoved()

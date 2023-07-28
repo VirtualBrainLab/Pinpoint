@@ -25,21 +25,156 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
     ""maps"": [
         {
             ""name"": ""ProbeControl"",
-            ""id"": ""752aa170-59b1-43ca-822a-137aa15399c7"",
+            ""id"": ""27e46042-936f-4091-bbe2-98179893bcff"",
             ""actions"": [
                 {
-                    ""name"": ""ForwardAxisPos"",
+                    ""name"": ""Slow"",
                     ""type"": ""Button"",
-                    ""id"": ""dd3d5762-f567-475d-a121-9ad4fdf9bf06"",
+                    ""id"": ""d5c217a6-4870-42e2-997e-2f56b9c35372"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": ""Tap"",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ForwardAxisNeg"",
+                    ""name"": ""Fast"",
                     ""type"": ""Button"",
-                    ""id"": ""24d580fe-599f-447d-9b16-3e8572096d54"",
+                    ""id"": ""f4abaf7c-46ca-43df-a523-db00a45429c6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Ultra"",
+                    ""type"": ""Button"",
+                    ""id"": ""d117b6ca-ebb9-46e6-ae2e-e2f8dd21e42d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Forward"",
+                    ""type"": ""Button"",
+                    ""id"": ""ae269d58-8b83-4760-8dc5-08f524f3be8c"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Back"",
+                    ""type"": ""Button"",
+                    ""id"": ""e3522d4c-7695-499e-9240-26cacfff7f5a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Left"",
+                    ""type"": ""Button"",
+                    ""id"": ""7cfdfd9c-74bc-4ed0-a749-30d25b9c5034"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Right"",
+                    ""type"": ""Button"",
+                    ""id"": ""156270ae-89cf-4751-86a3-5549955701fc"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Up"",
+                    ""type"": ""Button"",
+                    ""id"": ""7f6aa8b5-8443-4acf-be5e-29d0a44daa2b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Down"",
+                    ""type"": ""Button"",
+                    ""id"": ""d289768c-a87b-47cd-9460-86c7b0a22aee"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DepthDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""0a23ca8c-888e-48d3-aa1a-36db50ae7beb"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DepthUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""72f00851-cb0d-4140-a59a-55bda8a0ab91"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PitchDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""dbceae2b-b810-41a7-8b4a-4236cedb771e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PitchUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""9daa6b9f-f6d0-40ec-998b-ef70c887cfe7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""YawClockwise"",
+                    ""type"": ""Button"",
+                    ""id"": ""d691fb8c-2c1a-4523-9571-027b4796fbfb"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""YawCounter"",
+                    ""type"": ""Button"",
+                    ""id"": ""9a30d31d-e0de-4d23-aeb8-e22aea3bfa9c"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RollClock"",
+                    ""type"": ""Button"",
+                    ""id"": ""d173bbb3-ace5-4a51-a21c-883c919956f4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RollCounter"",
+                    ""type"": ""Button"",
+                    ""id"": ""3e985262-0fc3-4454-a349-031a78a532b6"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -49,115 +184,276 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
             ""bindings"": [
                 {
                     ""name"": """",
-                    ""id"": ""bfa6650f-a3ab-4956-90f9-34eb96f25583"",
+                    ""id"": ""46cb6612-43bd-4774-9301-5d4977e471f1"",
+                    ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Slow"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9ba599e6-115f-4b1c-b82e-6c3599413d3b"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Fast"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a68a2329-8a76-43e7-98e2-adfdb0f103ba"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Ultra"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""78b2521b-6173-478b-8b4e-a89f1cb99745"",
                     ""path"": ""<Keyboard>/w"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ForwardAxisPos"",
+                    ""action"": ""Forward"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""a07ec60e-6555-4f1c-b1ff-c46548f216ca"",
+                    ""id"": ""36cb3959-3b39-4a42-a92c-20857a4db672"",
                     ""path"": ""<Gamepad>/dpad/up"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ForwardAxisPos"",
+                    ""action"": ""Forward"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""c6542dc8-84ab-41f2-a164-c3300c2cdbf9"",
+                    ""id"": ""bc81a62e-7843-4437-8a06-e684b9f85e5f"",
                     ""path"": ""<Keyboard>/s"",
                     ""interactions"": """",
-                    ""processors"": ""Invert"",
+                    ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ForwardAxisNeg"",
+                    ""action"": ""Back"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""f496d71c-e7cb-415f-8ac0-a06af86eca8b"",
+                    ""id"": ""b0d5f964-09bd-4d41-9082-8e6836947e2e"",
                     ""path"": ""<Gamepad>/dpad/down"",
                     ""interactions"": """",
-                    ""processors"": ""Invert"",
+                    ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ForwardAxisNeg"",
+                    ""action"": ""Back"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                }
-            ]
-        },
-        {
-            ""name"": ""ProbeMetaControl"",
-            ""id"": ""0fdffdbf-8bb5-4fef-a353-5cf5c5f0645f"",
-            ""actions"": [
+                },
                 {
-                    ""name"": ""NextProbe"",
-                    ""type"": ""Button"",
-                    ""id"": ""d08c47bb-04ca-4c76-ba71-4093f6ffa64e"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
+                    ""name"": """",
+                    ""id"": ""38b8cae0-d917-4c2f-af96-324dab19c904"",
+                    ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Left"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""PrevProbe"",
-                    ""type"": ""Button"",
-                    ""id"": ""20a32f39-1029-44be-bb7a-37c6bcea1212"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
+                    ""name"": """",
+                    ""id"": ""c30ec17e-287e-4fa7-b0db-83bdebe38013"",
+                    ""path"": ""<Gamepad>/dpad/left"",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
-                }
-            ],
-            ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""50473aba-aa56-4cd0-986f-2498d8dd861c"",
-                    ""path"": ""<Gamepad>/rightShoulder"",
-                    ""interactions"": ""Tap"",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""NextProbe"",
+                    ""action"": ""Left"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""ebd974b4-dfea-457e-97d3-12b4b064d403"",
-                    ""path"": ""<Keyboard>/m"",
-                    ""interactions"": ""Tap"",
+                    ""id"": ""b82db7ea-ae9b-4ef6-afd2-e06564a7ed1c"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""NextProbe"",
+                    ""action"": ""Right"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""b0dce264-d88e-4044-90b8-b1387fc4349f"",
-                    ""path"": ""<Gamepad>/leftShoulder"",
-                    ""interactions"": ""Tap"",
+                    ""id"": ""ecd3b859-d6ac-4d45-a5b5-848dceed959c"",
+                    ""path"": ""<Gamepad>/dpad/right"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""PrevProbe"",
+                    ""action"": ""Right"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""c9c03d5c-b096-421f-9459-0d3cb2d07730"",
-                    ""path"": ""<Keyboard>/n"",
-                    ""interactions"": ""Tap"",
+                    ""id"": ""91522472-3279-4026-8fc7-5604cbe2df27"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""PrevProbe"",
+                    ""action"": ""Up"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5cf77977-d1fc-4f7a-a1a7-a05110343953"",
+                    ""path"": ""<Gamepad>/leftStick/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Up"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cbbadd5a-0e93-4e47-9bf3-475d4eec4581"",
+                    ""path"": ""<Gamepad>/leftStick/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f427774f-6cd6-4ded-859b-779451116d2b"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4f8e0716-3477-435b-ab46-0a85c62b527c"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DepthDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""11cdf689-63c0-4935-bc8d-7c28c0e9facf"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DepthDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""01a0f176-2ec8-4790-bc65-4a76c74e29ff"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DepthUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d9ffcf2a-be5f-45e6-bfae-1028db5ddede"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DepthUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f4f622e5-9feb-4cbf-b83a-e40581b49951"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PitchDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d39ffab4-6b84-42b8-8805-e90fff9a25a0"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PitchUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9c87e363-6bc5-4274-bfee-578dfc272331"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""YawClockwise"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d6642bc5-59a5-457c-b75d-7b2dc8b53be5"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""YawCounter"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b2fdffe7-9ca1-421a-918d-c87e68ad99ce"",
+                    ""path"": ""<Keyboard>/period"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RollClock"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""48031b44-c61c-48ab-b6d8-16cfbd62ca25"",
+                    ""path"": ""<Keyboard>/comma"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RollCounter"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -168,12 +464,23 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
 }");
         // ProbeControl
         m_ProbeControl = asset.FindActionMap("ProbeControl", throwIfNotFound: true);
-        m_ProbeControl_ForwardAxisPos = m_ProbeControl.FindAction("ForwardAxisPos", throwIfNotFound: true);
-        m_ProbeControl_ForwardAxisNeg = m_ProbeControl.FindAction("ForwardAxisNeg", throwIfNotFound: true);
-        // ProbeMetaControl
-        m_ProbeMetaControl = asset.FindActionMap("ProbeMetaControl", throwIfNotFound: true);
-        m_ProbeMetaControl_NextProbe = m_ProbeMetaControl.FindAction("NextProbe", throwIfNotFound: true);
-        m_ProbeMetaControl_PrevProbe = m_ProbeMetaControl.FindAction("PrevProbe", throwIfNotFound: true);
+        m_ProbeControl_Slow = m_ProbeControl.FindAction("Slow", throwIfNotFound: true);
+        m_ProbeControl_Fast = m_ProbeControl.FindAction("Fast", throwIfNotFound: true);
+        m_ProbeControl_Ultra = m_ProbeControl.FindAction("Ultra", throwIfNotFound: true);
+        m_ProbeControl_Forward = m_ProbeControl.FindAction("Forward", throwIfNotFound: true);
+        m_ProbeControl_Back = m_ProbeControl.FindAction("Back", throwIfNotFound: true);
+        m_ProbeControl_Left = m_ProbeControl.FindAction("Left", throwIfNotFound: true);
+        m_ProbeControl_Right = m_ProbeControl.FindAction("Right", throwIfNotFound: true);
+        m_ProbeControl_Up = m_ProbeControl.FindAction("Up", throwIfNotFound: true);
+        m_ProbeControl_Down = m_ProbeControl.FindAction("Down", throwIfNotFound: true);
+        m_ProbeControl_DepthDown = m_ProbeControl.FindAction("DepthDown", throwIfNotFound: true);
+        m_ProbeControl_DepthUp = m_ProbeControl.FindAction("DepthUp", throwIfNotFound: true);
+        m_ProbeControl_PitchDown = m_ProbeControl.FindAction("PitchDown", throwIfNotFound: true);
+        m_ProbeControl_PitchUp = m_ProbeControl.FindAction("PitchUp", throwIfNotFound: true);
+        m_ProbeControl_YawClockwise = m_ProbeControl.FindAction("YawClockwise", throwIfNotFound: true);
+        m_ProbeControl_YawCounter = m_ProbeControl.FindAction("YawCounter", throwIfNotFound: true);
+        m_ProbeControl_RollClock = m_ProbeControl.FindAction("RollClock", throwIfNotFound: true);
+        m_ProbeControl_RollCounter = m_ProbeControl.FindAction("RollCounter", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -233,14 +540,44 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
     // ProbeControl
     private readonly InputActionMap m_ProbeControl;
     private IProbeControlActions m_ProbeControlActionsCallbackInterface;
-    private readonly InputAction m_ProbeControl_ForwardAxisPos;
-    private readonly InputAction m_ProbeControl_ForwardAxisNeg;
+    private readonly InputAction m_ProbeControl_Slow;
+    private readonly InputAction m_ProbeControl_Fast;
+    private readonly InputAction m_ProbeControl_Ultra;
+    private readonly InputAction m_ProbeControl_Forward;
+    private readonly InputAction m_ProbeControl_Back;
+    private readonly InputAction m_ProbeControl_Left;
+    private readonly InputAction m_ProbeControl_Right;
+    private readonly InputAction m_ProbeControl_Up;
+    private readonly InputAction m_ProbeControl_Down;
+    private readonly InputAction m_ProbeControl_DepthDown;
+    private readonly InputAction m_ProbeControl_DepthUp;
+    private readonly InputAction m_ProbeControl_PitchDown;
+    private readonly InputAction m_ProbeControl_PitchUp;
+    private readonly InputAction m_ProbeControl_YawClockwise;
+    private readonly InputAction m_ProbeControl_YawCounter;
+    private readonly InputAction m_ProbeControl_RollClock;
+    private readonly InputAction m_ProbeControl_RollCounter;
     public struct ProbeControlActions
     {
         private @ProbeControlInputActions m_Wrapper;
         public ProbeControlActions(@ProbeControlInputActions wrapper) { m_Wrapper = wrapper; }
-        public InputAction @ForwardAxisPos => m_Wrapper.m_ProbeControl_ForwardAxisPos;
-        public InputAction @ForwardAxisNeg => m_Wrapper.m_ProbeControl_ForwardAxisNeg;
+        public InputAction @Slow => m_Wrapper.m_ProbeControl_Slow;
+        public InputAction @Fast => m_Wrapper.m_ProbeControl_Fast;
+        public InputAction @Ultra => m_Wrapper.m_ProbeControl_Ultra;
+        public InputAction @Forward => m_Wrapper.m_ProbeControl_Forward;
+        public InputAction @Back => m_Wrapper.m_ProbeControl_Back;
+        public InputAction @Left => m_Wrapper.m_ProbeControl_Left;
+        public InputAction @Right => m_Wrapper.m_ProbeControl_Right;
+        public InputAction @Up => m_Wrapper.m_ProbeControl_Up;
+        public InputAction @Down => m_Wrapper.m_ProbeControl_Down;
+        public InputAction @DepthDown => m_Wrapper.m_ProbeControl_DepthDown;
+        public InputAction @DepthUp => m_Wrapper.m_ProbeControl_DepthUp;
+        public InputAction @PitchDown => m_Wrapper.m_ProbeControl_PitchDown;
+        public InputAction @PitchUp => m_Wrapper.m_ProbeControl_PitchUp;
+        public InputAction @YawClockwise => m_Wrapper.m_ProbeControl_YawClockwise;
+        public InputAction @YawCounter => m_Wrapper.m_ProbeControl_YawCounter;
+        public InputAction @RollClock => m_Wrapper.m_ProbeControl_RollClock;
+        public InputAction @RollCounter => m_Wrapper.m_ProbeControl_RollCounter;
         public InputActionMap Get() { return m_Wrapper.m_ProbeControl; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -250,75 +587,134 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
         {
             if (m_Wrapper.m_ProbeControlActionsCallbackInterface != null)
             {
-                @ForwardAxisPos.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForwardAxisPos;
-                @ForwardAxisPos.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForwardAxisPos;
-                @ForwardAxisPos.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForwardAxisPos;
-                @ForwardAxisNeg.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForwardAxisNeg;
-                @ForwardAxisNeg.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForwardAxisNeg;
-                @ForwardAxisNeg.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForwardAxisNeg;
+                @Slow.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnSlow;
+                @Slow.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnSlow;
+                @Slow.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnSlow;
+                @Fast.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnFast;
+                @Fast.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnFast;
+                @Fast.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnFast;
+                @Ultra.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnUltra;
+                @Ultra.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnUltra;
+                @Ultra.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnUltra;
+                @Forward.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForward;
+                @Forward.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForward;
+                @Forward.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForward;
+                @Back.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnBack;
+                @Back.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnBack;
+                @Back.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnBack;
+                @Left.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnLeft;
+                @Left.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnLeft;
+                @Left.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnLeft;
+                @Right.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRight;
+                @Right.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRight;
+                @Right.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRight;
+                @Up.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnUp;
+                @Up.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnUp;
+                @Up.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnUp;
+                @Down.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnDown;
+                @Down.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnDown;
+                @Down.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnDown;
+                @DepthDown.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnDepthDown;
+                @DepthDown.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnDepthDown;
+                @DepthDown.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnDepthDown;
+                @DepthUp.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnDepthUp;
+                @DepthUp.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnDepthUp;
+                @DepthUp.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnDepthUp;
+                @PitchDown.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnPitchDown;
+                @PitchDown.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnPitchDown;
+                @PitchDown.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnPitchDown;
+                @PitchUp.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnPitchUp;
+                @PitchUp.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnPitchUp;
+                @PitchUp.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnPitchUp;
+                @YawClockwise.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnYawClockwise;
+                @YawClockwise.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnYawClockwise;
+                @YawClockwise.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnYawClockwise;
+                @YawCounter.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnYawCounter;
+                @YawCounter.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnYawCounter;
+                @YawCounter.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnYawCounter;
+                @RollClock.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRollClock;
+                @RollClock.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRollClock;
+                @RollClock.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRollClock;
+                @RollCounter.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRollCounter;
+                @RollCounter.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRollCounter;
+                @RollCounter.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRollCounter;
             }
             m_Wrapper.m_ProbeControlActionsCallbackInterface = instance;
             if (instance != null)
             {
-                @ForwardAxisPos.started += instance.OnForwardAxisPos;
-                @ForwardAxisPos.performed += instance.OnForwardAxisPos;
-                @ForwardAxisPos.canceled += instance.OnForwardAxisPos;
-                @ForwardAxisNeg.started += instance.OnForwardAxisNeg;
-                @ForwardAxisNeg.performed += instance.OnForwardAxisNeg;
-                @ForwardAxisNeg.canceled += instance.OnForwardAxisNeg;
+                @Slow.started += instance.OnSlow;
+                @Slow.performed += instance.OnSlow;
+                @Slow.canceled += instance.OnSlow;
+                @Fast.started += instance.OnFast;
+                @Fast.performed += instance.OnFast;
+                @Fast.canceled += instance.OnFast;
+                @Ultra.started += instance.OnUltra;
+                @Ultra.performed += instance.OnUltra;
+                @Ultra.canceled += instance.OnUltra;
+                @Forward.started += instance.OnForward;
+                @Forward.performed += instance.OnForward;
+                @Forward.canceled += instance.OnForward;
+                @Back.started += instance.OnBack;
+                @Back.performed += instance.OnBack;
+                @Back.canceled += instance.OnBack;
+                @Left.started += instance.OnLeft;
+                @Left.performed += instance.OnLeft;
+                @Left.canceled += instance.OnLeft;
+                @Right.started += instance.OnRight;
+                @Right.performed += instance.OnRight;
+                @Right.canceled += instance.OnRight;
+                @Up.started += instance.OnUp;
+                @Up.performed += instance.OnUp;
+                @Up.canceled += instance.OnUp;
+                @Down.started += instance.OnDown;
+                @Down.performed += instance.OnDown;
+                @Down.canceled += instance.OnDown;
+                @DepthDown.started += instance.OnDepthDown;
+                @DepthDown.performed += instance.OnDepthDown;
+                @DepthDown.canceled += instance.OnDepthDown;
+                @DepthUp.started += instance.OnDepthUp;
+                @DepthUp.performed += instance.OnDepthUp;
+                @DepthUp.canceled += instance.OnDepthUp;
+                @PitchDown.started += instance.OnPitchDown;
+                @PitchDown.performed += instance.OnPitchDown;
+                @PitchDown.canceled += instance.OnPitchDown;
+                @PitchUp.started += instance.OnPitchUp;
+                @PitchUp.performed += instance.OnPitchUp;
+                @PitchUp.canceled += instance.OnPitchUp;
+                @YawClockwise.started += instance.OnYawClockwise;
+                @YawClockwise.performed += instance.OnYawClockwise;
+                @YawClockwise.canceled += instance.OnYawClockwise;
+                @YawCounter.started += instance.OnYawCounter;
+                @YawCounter.performed += instance.OnYawCounter;
+                @YawCounter.canceled += instance.OnYawCounter;
+                @RollClock.started += instance.OnRollClock;
+                @RollClock.performed += instance.OnRollClock;
+                @RollClock.canceled += instance.OnRollClock;
+                @RollCounter.started += instance.OnRollCounter;
+                @RollCounter.performed += instance.OnRollCounter;
+                @RollCounter.canceled += instance.OnRollCounter;
             }
         }
     }
     public ProbeControlActions @ProbeControl => new ProbeControlActions(this);
-
-    // ProbeMetaControl
-    private readonly InputActionMap m_ProbeMetaControl;
-    private IProbeMetaControlActions m_ProbeMetaControlActionsCallbackInterface;
-    private readonly InputAction m_ProbeMetaControl_NextProbe;
-    private readonly InputAction m_ProbeMetaControl_PrevProbe;
-    public struct ProbeMetaControlActions
-    {
-        private @ProbeControlInputActions m_Wrapper;
-        public ProbeMetaControlActions(@ProbeControlInputActions wrapper) { m_Wrapper = wrapper; }
-        public InputAction @NextProbe => m_Wrapper.m_ProbeMetaControl_NextProbe;
-        public InputAction @PrevProbe => m_Wrapper.m_ProbeMetaControl_PrevProbe;
-        public InputActionMap Get() { return m_Wrapper.m_ProbeMetaControl; }
-        public void Enable() { Get().Enable(); }
-        public void Disable() { Get().Disable(); }
-        public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(ProbeMetaControlActions set) { return set.Get(); }
-        public void SetCallbacks(IProbeMetaControlActions instance)
-        {
-            if (m_Wrapper.m_ProbeMetaControlActionsCallbackInterface != null)
-            {
-                @NextProbe.started -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnNextProbe;
-                @NextProbe.performed -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnNextProbe;
-                @NextProbe.canceled -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnNextProbe;
-                @PrevProbe.started -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnPrevProbe;
-                @PrevProbe.performed -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnPrevProbe;
-                @PrevProbe.canceled -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnPrevProbe;
-            }
-            m_Wrapper.m_ProbeMetaControlActionsCallbackInterface = instance;
-            if (instance != null)
-            {
-                @NextProbe.started += instance.OnNextProbe;
-                @NextProbe.performed += instance.OnNextProbe;
-                @NextProbe.canceled += instance.OnNextProbe;
-                @PrevProbe.started += instance.OnPrevProbe;
-                @PrevProbe.performed += instance.OnPrevProbe;
-                @PrevProbe.canceled += instance.OnPrevProbe;
-            }
-        }
-    }
-    public ProbeMetaControlActions @ProbeMetaControl => new ProbeMetaControlActions(this);
     public interface IProbeControlActions
     {
-        void OnForwardAxisPos(InputAction.CallbackContext context);
-        void OnForwardAxisNeg(InputAction.CallbackContext context);
-    }
-    public interface IProbeMetaControlActions
-    {
-        void OnNextProbe(InputAction.CallbackContext context);
-        void OnPrevProbe(InputAction.CallbackContext context);
+        void OnSlow(InputAction.CallbackContext context);
+        void OnFast(InputAction.CallbackContext context);
+        void OnUltra(InputAction.CallbackContext context);
+        void OnForward(InputAction.CallbackContext context);
+        void OnBack(InputAction.CallbackContext context);
+        void OnLeft(InputAction.CallbackContext context);
+        void OnRight(InputAction.CallbackContext context);
+        void OnUp(InputAction.CallbackContext context);
+        void OnDown(InputAction.CallbackContext context);
+        void OnDepthDown(InputAction.CallbackContext context);
+        void OnDepthUp(InputAction.CallbackContext context);
+        void OnPitchDown(InputAction.CallbackContext context);
+        void OnPitchUp(InputAction.CallbackContext context);
+        void OnYawClockwise(InputAction.CallbackContext context);
+        void OnYawCounter(InputAction.CallbackContext context);
+        void OnRollClock(InputAction.CallbackContext context);
+        void OnRollCounter(InputAction.CallbackContext context);
     }
 }

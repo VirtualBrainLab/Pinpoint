@@ -12,6 +12,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using static UnityEngine.InputSystem.InputAction;
+
 
 #if UNITY_WEBGL
 using System.Collections.Specialized;
@@ -22,7 +24,6 @@ using System.Runtime.InteropServices;
 
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-using static UnityEngine.InputSystem.InputAction;
 // This code fixes a bug that is also fixed by upgrading to 2021.3.14f1 or newer
 // see https://forum.unity.com/threads/workaround-for-building-with-il2cpp-with-visual-studio-2022-17-4.1355570/
 // please remove this code when Unity version exceeds this!
@@ -251,12 +252,6 @@ namespace TrajectoryPlanner
                 {
                     DestroyActiveProbeManager();
                     return;
-                }
-
-                // Check if mouse buttons are down, or if probe is under manual control
-                if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
-                {
-                    ProbeManager.ActiveProbeManager.MoveProbe();
                 }
             }
 
