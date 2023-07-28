@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class UIManager : MonoBehaviour
 {
@@ -13,9 +12,8 @@ public class UIManager : MonoBehaviour
     #region Components
 
     [SerializeField] private List<TMP_InputField> _editorFocusableInputs;
-
-    [FormerlySerializedAs("EditorFocusableGOs")] [SerializeField]
-    private List<GameObject> _editorFocusableGOs;
+    
+    [SerializeField] private List<GameObject> _editorFocusableGOs;
 
     [SerializeField] private List<TMP_Text> _whiteUIText;
 
@@ -46,7 +44,8 @@ public class UIManager : MonoBehaviour
     public static bool InputsFocused
     {
         get {
-            return FocusableInputs.Any(x => x != null && x.isFocused) || FocusableGOs.Any(x => x != null && x.activeSelf);
+            return FocusableInputs.Any(x => x != null && x.isFocused) ||
+                   FocusableGOs.Any(x => x != null && x.activeSelf);
         }
     }
 
