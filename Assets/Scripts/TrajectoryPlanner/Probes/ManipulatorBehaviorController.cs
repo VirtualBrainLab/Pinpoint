@@ -99,8 +99,10 @@ namespace TrajectoryPlanner.Probes
         #endregion
 
         #region Properties
+        
+        public bool IsEnabled { get; set; }
 
-        public string ManipulatorID { get; set; }
+        public string ManipulatorID { get; private set; }
 
         public string ManipulatorType { get; set; }
 
@@ -143,8 +145,8 @@ namespace TrajectoryPlanner.Probes
             }
         }
 
-        public CoordinateSpace CoordinateSpace { get; set; }
-        public CoordinateTransform Transform { get; set; }
+        public CoordinateSpace CoordinateSpace { get; private set; }
+        private CoordinateTransform Transform { get; set; }
 
         public bool IsRightHanded
         {
@@ -187,11 +189,6 @@ namespace TrajectoryPlanner.Probes
         private void Awake()
         {
             _annotationDataset = VolumeDatasetManager.AnnotationDataset;
-        }
-
-
-        private void OnEnable()
-        {
         }
 
         #endregion
