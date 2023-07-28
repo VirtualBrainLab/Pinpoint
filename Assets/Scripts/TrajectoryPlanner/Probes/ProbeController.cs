@@ -19,6 +19,7 @@ public abstract class ProbeController : MonoBehaviour
 
     public bool Locked;
     public bool ManipulatorKeyboardControl;
+    public bool ManipulatorKeyboardMoveInProgress;
 
     public abstract Transform ProbeTipT { get; }
 

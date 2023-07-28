@@ -117,10 +117,10 @@ public class ProbeManager : MonoBehaviour
 
     public bool IsEphysLinkControlled
     {
-        get => ManipulatorBehaviorController && ManipulatorBehaviorController.enabled;
+        get => ManipulatorBehaviorController && ManipulatorBehaviorController.IsEnabled;
         private set
         {
-            ManipulatorBehaviorController.enabled = value;
+            ManipulatorBehaviorController.IsEnabled = value;
             EphysLinkControlChangeEvent.Invoke();
         }
     }
@@ -148,13 +148,6 @@ public class ProbeManager : MonoBehaviour
 
             UIUpdateEvent.Invoke();
         }
-    }
-
-
-
-    public void SetLock(bool locked)
-    {
-        _probeController.Locked = locked;
     }
 
     public void DisableAllColliders()
@@ -799,7 +792,7 @@ public class ProbeManager : MonoBehaviour
         // Exit early if this was an invalid call
         switch (register)
         {
-            case true when ManipulatorBehaviorController.enabled:
+            case true when ManipulatorBehaviorController.IsEnabled:
             case true when string.IsNullOrEmpty(manipulatorId):
                 return;
         }
