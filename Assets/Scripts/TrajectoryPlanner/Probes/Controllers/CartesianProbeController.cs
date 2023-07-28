@@ -1,9 +1,6 @@
-using UnityEditor.Presets;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.Interactions;
 using UnityEngine.Serialization;
-using static UnityEngine.InputSystem.InputAction;
 
 public class CartesianProbeController : ProbeController
 {
