@@ -17,6 +17,18 @@ namespace TrajectoryPlanner.Probes
 
         #endregion
 
+        #region Unity
+
+        /// <summary>
+        ///     Setup this instance
+        /// </summary>
+        private void Awake()
+        {
+            _annotationDataset = VolumeDatasetManager.AnnotationDataset;
+        }
+
+        #endregion
+
         #region Private Methods
 
         private void EchoPosition(Vector4 pos)
@@ -99,7 +111,7 @@ namespace TrajectoryPlanner.Probes
         #endregion
 
         #region Properties
-        
+
         public bool IsEnabled { get; set; }
 
         public string ManipulatorID { get; private set; }
@@ -178,18 +190,6 @@ namespace TrajectoryPlanner.Probes
         public UnityEvent<Vector4> ZeroCoordinateOffsetChangedEvent;
         public UnityEvent<float> BrainSurfaceOffsetChangedEvent;
         public UnityEvent<bool> IsSetToDropToSurfaceWithDepthChangedEvent;
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Setup this instance
-        /// </summary>
-        private void Awake()
-        {
-            _annotationDataset = VolumeDatasetManager.AnnotationDataset;
-        }
 
         #endregion
 
@@ -342,11 +342,12 @@ namespace TrajectoryPlanner.Probes
             {
                 // Apply delta
                 var targetPosition = pos + new Vector4(manipulatorTransformDelta.x, manipulatorTransformDelta.y,
-                    manipulatorSpaceDepth);
-                var targetDepth = pos.w + manipulatorSpaceDepth;
+                    manipulatorTransformDelta.z);
                 // Move manipulator
-                CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED, _ =>
+                CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED, newPos =>
                 {
+                    // Process depth movement
+                    var targetDepth = newPos.w + manipulatorSpaceDepth;
                     CommunicationManager.Instance.SetInsideBrain(
                         ManipulatorID, true, _ =>
                         {
