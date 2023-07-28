@@ -7,6 +7,38 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 {
     public class EphysCopilotHandler : MonoBehaviour
     {
+        #region Unity
+
+        private void Start()
+        {
+            // Populate properties
+            ProbeManagers = ProbeManager.Instances.Where(manager => manager.IsEphysLinkControlled)
+                .OrderBy(manager => manager.ManipulatorBehaviorController.ManipulatorID).ToList();
+            AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
+
+            // Setup shared resources for panels
+            InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
+
+
+            // Spawn panels
+            foreach (var probeManager in ProbeManagers)
+            {
+                // Step 1
+                AddResetZeroCoordinatePanel(probeManager);
+
+                // Step 2
+                AddInsertionSelectionPanel(probeManager);
+
+                // Step 3
+                AddResetDuraOffsetPanel(probeManager);
+
+                // Step 4
+                AddDrivePanel(probeManager);
+            }
+        }
+
+        #endregion
+
         #region Internal UI Functions
 
         #region Step 1
@@ -142,43 +174,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         public List<ProbeManager> ProbeManagers { private get; set; }
         public CCFAnnotationDataset AnnotationDataset { private get; set; }
-
-        #endregion
-
-        #region Unity
-
-        private void OnEnable()
-        {
-            // Populate properties
-            ProbeManagers = ProbeManager.Instances.Where(manager => manager.IsEphysLinkControlled)
-                .OrderBy(manager => manager.ManipulatorBehaviorController.ManipulatorID).ToList();
-            AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
-
-            // Setup shared resources for panels
-            InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
-
-
-            // Spawn panels
-            foreach (var probeManager in ProbeManagers)
-            {
-                // Step 1
-                AddResetZeroCoordinatePanel(probeManager);
-
-                // Step 2
-                AddInsertionSelectionPanel(probeManager);
-
-                // Step 3
-                AddResetDuraOffsetPanel(probeManager);
-
-                // Step 4
-                AddDrivePanel(probeManager);
-            }
-        }
-
-        private void OnDisable()
-        {
-            foreach (var panel in _panels) Destroy(panel);
-        }
 
         #endregion
     }

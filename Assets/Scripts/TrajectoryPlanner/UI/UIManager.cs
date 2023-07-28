@@ -52,7 +52,7 @@ public class UIManager : MonoBehaviour
 
     public void EnableEphysCopilotPanel(bool enable = true)
     {
-        _ephysCopilotPanelGameObject.SetActive(enable);
+        _ephysCopilotPanelGameObject.transform.localScale = enable ? Vector3.one : Vector3.zero;
     }
 
     public void SetBackgroundWhite(bool state)
