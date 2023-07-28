@@ -1,6 +1,5 @@
 using System;
 using BestHTTP.SocketIO3;
-using UnityEditor;
 using UnityEngine;
 
 namespace EphysLink
@@ -10,8 +9,20 @@ namespace EphysLink
     /// </summary>
     public class CommunicationManager : MonoBehaviour
     {
+        #region Unity
+
+        private void Awake()
+        {
+            if (Instance != null) Debug.LogError("Make sure there is only one CommunicationManager in the scene!");
+            Instance = this;
+        }
+
+        #endregion
+
         #region Variables
-        
+
+        public static readonly int[] EPHYS_LINK_MIN_VERSION = { 0, 9, 7 };
+
         public static CommunicationManager Instance;
 
         #region Components
@@ -29,19 +40,6 @@ namespace EphysLink
         public bool IsConnected { get; private set; }
 
         #endregion
-
-        #endregion
-
-        #region Unity
-
-        private void Awake()
-        {
-            if (Instance != null)
-            {
-                Debug.LogError("Make sure there is only one CommunicationManager in the scene!");
-            }
-            Instance = this;
-        }
 
         #endregion
 
@@ -147,6 +145,22 @@ namespace EphysLink
         #endregion
 
         #region Event Handlers
+
+        /// <summary>
+        ///     Get Ephys Link version.
+        /// </summary>
+        /// <param name="onSuccessCallback">Returns the version number in the format "x.y.z"</param>
+        /// <param name="onErrorCallback">If the version number is empty or failed to return</param>
+        public void GetVersion(Action<string> onSuccessCallback, Action onErrorCallback = null)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
+            {
+                if (data != "")
+                    onSuccessCallback.Invoke(data);
+                else
+                    onErrorCallback?.Invoke();
+            }).Emit("get_version");
+        }
 
         // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
         /// <summary>

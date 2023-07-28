@@ -72,7 +72,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             // Connection UI
             _connectionErrorText.text = "";
             _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
-            
+
             // Update Manipulator Panels
             UpdateManipulatorPanels();
         }
@@ -81,7 +81,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             // Default Copilot to be disabled unless the right manipulator type is found
             _copilotButton.interactable = false;
-            
+
             if (CommunicationManager.Instance.IsConnected)
             {
                 // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
@@ -89,10 +89,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 {
                     // Enable Copilot button if using Sensapex or New Scale
                     _copilotButton.interactable = !type.Contains("pathway");
-                    
+
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
-                    
+
                     // Add any new manipulators in scene to list
                     foreach (var manipulatorID in availableIDs)
                     {
@@ -129,10 +129,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
                     // Reorder panels to match order of availableIds
                     foreach (var manipulatorId in availableIDs)
-                    {
                         _manipulatorIdToManipulatorConnectionSettingsPanel[manipulatorId].gameObject.transform
                             .SetAsLastSibling();
-                    }
                 });
             }
             else
@@ -158,7 +156,40 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _connectButtonText.text = "Connecting...";
                     CommunicationManager.Instance.ConnectToServer(_ipAddressInputField.text,
                         int.Parse(_portInputField.text),
-                        UpdateConnectionPanel, err =>
+                        () =>
+                        {
+                            var minVersionString = "≥ v" + CommunicationManager.EPHYS_LINK_MIN_VERSION[0] + "." +
+                                                   CommunicationManager.EPHYS_LINK_MIN_VERSION[1] + "." +
+                                                   CommunicationManager.EPHYS_LINK_MIN_VERSION[2] + ".";
+                            // Check Ephys Link version
+                            CommunicationManager.Instance.GetVersion(version =>
+                            {
+                                if (!version.Split(".").Where((versionNumber, index) =>
+                                            int.Parse(versionNumber) <
+                                            CommunicationManager.EPHYS_LINK_MIN_VERSION[index])
+                                        .Any())
+                                    // Ephys Link is current enough
+                                    UpdateConnectionPanel();
+                                else
+                                    // Ephys Link needs updating
+                                    CommunicationManager.Instance.DisconnectFromServer(() =>
+                                    {
+                                        _connectionErrorText.text =
+                                            "Ephys Link is outdated. Please update to " + minVersionString;
+                                        _connectButtonText.text = "Connect";
+                                    });
+                            }, () =>
+                            {
+                                // Failed to get version (probably because it's outdated)
+                                CommunicationManager.Instance.DisconnectFromServer(() =>
+                                {
+                                    _connectionErrorText.text =
+                                        "Unable to get server version. Please ensure Ephys Link version is " +
+                                        minVersionString;
+                                    _connectButtonText.text = "Connect";
+                                });
+                            });
+                        }, err =>
                         {
                             _connectionErrorText.text = err;
                             _connectButtonText.text = "Connect";
