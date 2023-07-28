@@ -23,18 +23,9 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
     #region Static fields
-    public static List<ProbeManager> Instances = new List<ProbeManager>();
+    public static readonly List<ProbeManager> Instances = new();
     public static ProbeManager ActiveProbeManager;
-    void OnEnable() => Instances.Add(this);
-    void OnDestroy()
-    {
-        Debug.Log($"Destroying probe: {name}");
-        if (Instances.Contains(this))
-            Instances.Remove(this);
-        // clean up the ProbeInsertion
-        ProbeInsertion.Instances.Remove(ProbeController.Insertion);
-    }
-
+    public static readonly UnityEvent<HashSet<ProbeManager>> EphysLinkControlledProbesChangedEvent = new();
     #endregion
 
     #region Events
@@ -122,6 +113,7 @@ public class ProbeManager : MonoBehaviour
         {
             ManipulatorBehaviorController.IsEnabled = value;
             EphysLinkControlChangeEvent.Invoke();
+            EphysLinkControlledProbesChangedEvent.Invoke(Instances.Where(manager => manager.IsEphysLinkControlled).ToHashSet());
         }
     }
 
@@ -221,7 +213,9 @@ public class ProbeManager : MonoBehaviour
         foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.Destroy();
 
+        Debug.Log($"Destroying probe: {name}");
         Instances.Remove(this);
+        ProbeInsertion.Instances.Remove(ProbeController.Insertion);
 
         ProbeProperties.ReturnColor(Color);
 
@@ -233,6 +227,8 @@ public class ProbeManager : MonoBehaviour
             SetIsEphysLinkControlled(false);
         }
     }
+
+    private void OnEnable() => Instances.Add(this);
 
     #endregion
 

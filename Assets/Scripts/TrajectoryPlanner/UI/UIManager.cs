@@ -52,6 +52,10 @@ public class UIManager : MonoBehaviour
 
     public void EnableEphysCopilotPanel(bool enable = true)
     {
+        // Always set the panel to active once started using, but set the scale to zero if we're disabling it
+        _ephysCopilotPanelGameObject.SetActive(true);
+        
+        // Set the scale to zero if we're disabling it
         _ephysCopilotPanelGameObject.transform.localScale = enable ? Vector3.one : Vector3.zero;
     }
 
