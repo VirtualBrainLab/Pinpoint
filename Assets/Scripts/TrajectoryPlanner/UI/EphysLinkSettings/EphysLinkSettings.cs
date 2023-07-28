@@ -76,6 +76,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 _connectionErrorText.text =
                     "Ephys Link is outdated. Please update to " + CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
                 _connectButtonText.text = "Connect";
+                CommunicationManager.Instance.DisconnectFromServer();
                 return;
             }
 
