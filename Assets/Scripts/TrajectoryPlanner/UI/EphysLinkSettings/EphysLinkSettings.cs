@@ -34,6 +34,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         #region Properties
 
+        private bool _isEphysLinkCompatible;
+
         private bool _ephysCopilotIsEnabled => _copilotButtonText.text.Contains("Hide");
 
 
@@ -69,6 +71,14 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// </summary>
         private void UpdateConnectionPanel()
         {
+            if (CommunicationManager.Instance.IsConnected && !_isEphysLinkCompatible)
+            {
+                _connectionErrorText.text =
+                    "Ephys Link is outdated. Please update to " + CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
+                _connectButtonText.text = "Connect";
+                return;
+            }
+
             // Connection UI
             _connectionErrorText.text = "";
             _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
@@ -158,9 +168,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                         int.Parse(_portInputField.text),
                         () =>
                         {
-                            var minVersionString = "≥ v" + CommunicationManager.EPHYS_LINK_MIN_VERSION[0] + "." +
-                                                   CommunicationManager.EPHYS_LINK_MIN_VERSION[1] + "." +
-                                                   CommunicationManager.EPHYS_LINK_MIN_VERSION[2] + ".";
                             // Check Ephys Link version
                             CommunicationManager.Instance.GetVersion(version =>
                             {
@@ -168,16 +175,22 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                                             int.Parse(versionNumber) <
                                             CommunicationManager.EPHYS_LINK_MIN_VERSION[index])
                                         .Any())
+                                {
                                     // Ephys Link is current enough
+                                    _isEphysLinkCompatible = true;
                                     UpdateConnectionPanel();
+                                }
                                 else
                                     // Ephys Link needs updating
+                                {
                                     CommunicationManager.Instance.DisconnectFromServer(() =>
                                     {
                                         _connectionErrorText.text =
-                                            "Ephys Link is outdated. Please update to " + minVersionString;
+                                            "Ephys Link is outdated. Please update to " +
+                                            CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
                                         _connectButtonText.text = "Connect";
                                     });
+                                }
                             }, () =>
                             {
                                 // Failed to get version (probably because it's outdated)
@@ -185,7 +198,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                                 {
                                     _connectionErrorText.text =
                                         "Unable to get server version. Please ensure Ephys Link version is " +
-                                        minVersionString;
+                                        CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
                                     _connectButtonText.text = "Connect";
                                 });
                             });

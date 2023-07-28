@@ -23,6 +23,8 @@ namespace EphysLink
 
         public static readonly int[] EPHYS_LINK_MIN_VERSION = { 0, 9, 7 };
 
+        public static readonly string EPHYS_LINK_MIN_VERSION_STRING = "≥ v" + string.Join(".", EPHYS_LINK_MIN_VERSION);
+
         public static CommunicationManager Instance;
 
         #region Components
