@@ -328,61 +328,42 @@ namespace TrajectoryPlanner.Probes
         /// <summary>
         ///     Move manipulator by a given delta in world space
         /// </summary>
-        /// <param name="worldSpaceDelta">Delta to move by in world space coordinates</param>
+        /// <param name="worldSpaceDelta">Delta (X, Y, Z, D) to move by in world space coordinates</param>
         /// <param name="onSuccessCallback">Action on success</param>
         /// <param name="onErrorCallback">Action on error</param>
-        public void MoveXYZByWorldSpaceDelta(Vector3 worldSpaceDelta, Action<Vector4> onSuccessCallback,
+        public void MoveByWorldSpaceDelta(Vector4 worldSpaceDelta, Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             // Convert to manipulator axes (world -> space -> transform)
             var manipulatorSpaceDelta = CoordinateSpace.World2SpaceAxisChange(worldSpaceDelta);
             var manipulatorTransformDelta = Transform.Space2Transform(manipulatorSpaceDelta);
+            var manipulatorSpaceDepth = CoordinateSpace
+                .World2SpaceAxisChange(Vector3.down).z * worldSpaceDelta.w;
 
             // Get manipulator position
             CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
             {
                 // Apply delta
                 var targetPosition = pos + new Vector4(manipulatorTransformDelta.x, manipulatorTransformDelta.y,
-                    manipulatorTransformDelta.z);
-
-                // Move manipulator
-                CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED,
-                    onSuccessCallback, onErrorCallback);
-            }, Debug.LogError);
-        }
-
-        /// <summary>
-        ///     Drive manipulator depth by a given delta in world space
-        /// </summary>
-        /// <param name="worldSpaceDelta">Distance to drive depth in world space coordinates</param>
-        /// <param name="onSuccessCallback">Action on success</param>
-        /// <param name="onErrorCallback">Action on error</param>
-        public void MoveDepthByWorldSpaceDelta(float worldSpaceDelta, Action<bool> onSuccessCallback, Action<string>
-            onErrorCallback = null)
-        {
-            // Convert to manipulator axes (world -> space)
-            var manipulatorSpaceDepth = CoordinateSpace
-                .World2SpaceAxisChange(Vector3.down).z * worldSpaceDelta;
-
-            // Get current position to compute the target position
-            CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
-            {
-                // Apply delta and move manipulator
+                    manipulatorSpaceDepth);
                 var targetDepth = pos.w + manipulatorSpaceDepth;
-
-                CommunicationManager.Instance.SetInsideBrain(
-                    ManipulatorID, true, _ =>
-                    {
-                        // Move the manipulator
-                        CommunicationManager.Instance.DriveToDepth(
-                            ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
-                            _ =>
-                            {
-                                CommunicationManager.Instance.SetInsideBrain(
-                                    ManipulatorID, false, onSuccessCallback, onErrorCallback);
-                            }, Debug.LogError);
-                    }, Debug.LogError);
-            }, Debug.LogError);
+                // Move manipulator
+                CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED, _ =>
+                {
+                    CommunicationManager.Instance.SetInsideBrain(
+                        ManipulatorID, true, _ =>
+                        {
+                            // Move the manipulator
+                            CommunicationManager.Instance.DriveToDepth(
+                                ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
+                                _ =>
+                                {
+                                    CommunicationManager.Instance.SetInsideBrain(
+                                        ManipulatorID, false, onSuccessCallback, onErrorCallback);
+                                }, Debug.LogError);
+                        }, Debug.LogError);
+                });
+            });
         }
 
         /// <summary>

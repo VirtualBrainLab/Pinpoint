@@ -301,10 +301,8 @@ public class CartesianProbeController : ProbeController
             ManipulatorKeyboardControl = false;
 
             // Call movement and reset keyboard control when done
-            ProbeManager.ManipulatorBehaviorController.MoveXYZByWorldSpaceDelta(posDelta,
-                _ => { ManipulatorKeyboardControl = true; }, Debug.LogError);
-            ProbeManager.ManipulatorBehaviorController.MoveDepthByWorldSpaceDelta(posDelta.w,
-                _ => { ManipulatorKeyboardControl = true; }, Debug.LogError);
+            ProbeManager.ManipulatorBehaviorController.MoveByWorldSpaceDelta(posDelta,
+                _ => ManipulatorKeyboardControl = true, Debug.LogError);
         }
         else
         {
