@@ -915,6 +915,7 @@ public class ProbeData
     public string APITarget;
 
     // Ephys Link
+    public string ManipulatorType;
     public string ManipulatorID;
     public float BrainSurfaceOffset;
     public bool Drop2SurfaceWithDepth;
@@ -946,6 +947,7 @@ public class ProbeData
         // Manipulator Behavior data (if it exists)
         if (!probeManager.ManipulatorBehaviorController) return data;
         
+        data.ManipulatorType = probeManager.ManipulatorBehaviorController.ManipulatorType;
         data.ManipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;

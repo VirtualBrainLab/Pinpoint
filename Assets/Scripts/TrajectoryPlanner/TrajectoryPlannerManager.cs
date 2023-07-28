@@ -395,7 +395,7 @@ namespace TrajectoryPlanner
                     coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
 
                 ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
-                    probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                    probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
                     probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
                 newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
@@ -465,7 +465,7 @@ namespace TrajectoryPlanner
         }
         
         public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, ProbeInsertion insertion,
-            string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isRightHanded, string UUID = null, bool isGhost = false)
+            string manipulatorType, string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isRightHanded, string UUID = null, bool isGhost = false)
         {
             var probeManager = AddNewProbe(probeType, UUID);
 
@@ -473,21 +473,22 @@ namespace TrajectoryPlanner
             probeManager.ProbeController.SetProbeAngles(insertion.angles);
             probeManager.ProbeController.SetSpaceTransform(insertion.CoordinateSpace, insertion.CoordinateTransform);
 
-            // Repopulate Ephys Link information
-            if (!Settings.IsEphysLinkDataExpired())
-            {
-                probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinateOffset;
-                probeManager.ManipulatorBehaviorController.BrainSurfaceOffset = brainSurfaceOffset;
-                probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
-                probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
-                probeManager.ManipulatorBehaviorController.IsRightHanded = isRightHanded;
-                var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
-                
-                if (communicationManager.IsConnected && !string.IsNullOrEmpty(manipulatorId))
-                    probeManager.SetIsEphysLinkControlled(true, manipulatorId,
-                        onError: _ => probeManager.SetIsEphysLinkControlled(false));
-            }
+            // Return data if there is no current Ephys Link data
+            if (Settings.IsEphysLinkDataExpired()) return probeManager;
             
+            // Repopulate Ephys Link information
+            probeManager.ManipulatorBehaviorController.ManipulatorType = manipulatorType;
+            probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinateOffset;
+            probeManager.ManipulatorBehaviorController.BrainSurfaceOffset = brainSurfaceOffset;
+            probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
+            probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
+            probeManager.ManipulatorBehaviorController.IsRightHanded = isRightHanded;
+            var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
+                
+            if (communicationManager.IsConnected && !string.IsNullOrEmpty(manipulatorId))
+                probeManager.SetIsEphysLinkControlled(true, manipulatorId,
+                    onError: _ => probeManager.SetIsEphysLinkControlled(false));
+
             return probeManager;
         }
 
@@ -956,7 +957,7 @@ namespace TrajectoryPlanner
 
 
                     ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
-                        probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                        probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
                         probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
                     newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
