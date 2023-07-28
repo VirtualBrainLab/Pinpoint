@@ -63,8 +63,8 @@ namespace TrajectoryPlanner.Probes
                     transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
 
 
-            // Log every 10hz
-            if (Time.time - _lastLoggedTime >= 0.1)
+            // Log every 5 hz
+            if (Time.time - _lastLoggedTime >= 0.2)
             {
                 _lastLoggedTime = Time.time;
                 var tipPos = _probeController.ProbeTipT.position;

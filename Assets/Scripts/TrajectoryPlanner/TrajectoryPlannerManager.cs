@@ -612,7 +612,7 @@ namespace TrajectoryPlanner
 
         public void LockActiveProbe(bool locked)
         {
-            ProbeManager.ActiveProbeManager.SetLock(locked);
+            ProbeManager.ActiveProbeManager.ProbeController.Locked = locked;
         }
 
 #region Warping

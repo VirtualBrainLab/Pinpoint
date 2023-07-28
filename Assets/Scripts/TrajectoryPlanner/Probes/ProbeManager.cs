@@ -150,13 +150,6 @@ public class ProbeManager : MonoBehaviour
         }
     }
 
-
-
-    public void SetLock(bool locked)
-    {
-        _probeController.Locked = locked;
-    }
-
     public void DisableAllColliders()
     {
         foreach (var probeCollider in _probeColliders)

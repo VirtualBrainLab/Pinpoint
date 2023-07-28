@@ -154,7 +154,9 @@ public class CartesianProbeController : ProbeController
     {
         // If the user is holding one or more click keys and we are past the hold delay, increment the position
         if (clickKeyHeld > 0 && (Time.realtimeSinceStartup - clickKeyPressTime) > keyHoldDelay)
-            MoveProbe_XYZD(clickHeldVector, ComputeMoveSpeed_Hold());
+            // Set speed to Tap instead of Hold for manipulator keyboard control
+            MoveProbe_XYZD(clickHeldVector,
+                ManipulatorKeyboardControl ? ComputeMoveSpeed_Tap() : ComputeMoveSpeed_Hold());
 
         // If the user is holding one or more rotate keys and we are past the hold delay, increment the angles
         if (rotateKeyHeld > 0 && (Time.realtimeSinceStartup - rotateKeyPressTime) > keyHoldDelay)
@@ -166,7 +168,6 @@ public class CartesianProbeController : ProbeController
         if (_dirty)
         {
             SetProbePosition();
-            MovedThisFrameEvent.Invoke();
         }
     }
 
@@ -297,12 +298,15 @@ public class CartesianProbeController : ProbeController
 
         if (ManipulatorKeyboardControl)
         {
+            // Cancel if a movement is in progress
+            if (ManipulatorKeyboardMoveInProgress) return;
+            
             // Disable/ignore more input until movement is done
-            ManipulatorKeyboardControl = false;
+            ManipulatorKeyboardMoveInProgress = true;
 
-            // Call movement and reset keyboard control when done
+            // Call movement and re-enable input when done
             ProbeManager.ManipulatorBehaviorController.MoveByWorldSpaceDelta(posDelta,
-                _ => ManipulatorKeyboardControl = true, Debug.LogError);
+                _ => ManipulatorKeyboardMoveInProgress = false, Debug.LogError);
         }
         else
         {
@@ -310,10 +314,10 @@ public class CartesianProbeController : ProbeController
             // Note that we don't apply the transform beacuse we want 1um steps to = 1um steps in transformed space
             Insertion.apmldv += Insertion.World2TransformedAxisChange(posDelta);
             depth += posDelta.w;
-        }
 
-        // Set probe position and update UI
-        _dirty = true;
+            // Set probe position and update UI
+            _dirty = true;
+        }
     }
 
     /// <summary>
