@@ -177,7 +177,7 @@ namespace TrajectoryPlanner
             coordinateTransformOpts.Add(temp.Name, temp);
             temp = new MRILinearTransform();
             coordinateTransformOpts.Add(temp.Name, temp);
-            coordinateTransformOpts.Add("MRI-Transform", temp);
+            coordinateTransformOpts.Add("MRI", temp);
             temp = new NeedlesTransform();
             coordinateTransformOpts.Add(temp.Name, temp);
             coordinateTransformOpts.Add("Needles", temp);
