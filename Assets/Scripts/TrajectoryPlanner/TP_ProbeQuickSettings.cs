@@ -106,7 +106,7 @@ namespace TrajectoryPlanner
         /// </summary>
         public void ZeroDepth()
         {
-            if (ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.IsEnabled)
+            if (ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.enabled)
                 ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ComputeBrainSurfaceOffset();
             else
                 ProbeManager.ActiveProbeManager.DropProbeToBrainSurface();

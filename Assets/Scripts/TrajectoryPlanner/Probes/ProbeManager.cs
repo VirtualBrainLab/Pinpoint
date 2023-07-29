@@ -108,10 +108,11 @@ public class ProbeManager : MonoBehaviour
 
     public bool IsEphysLinkControlled
     {
-        get => ManipulatorBehaviorController && ManipulatorBehaviorController.IsEnabled;
+        get => ManipulatorBehaviorController && ManipulatorBehaviorController.enabled;
         private set
         {
-            ManipulatorBehaviorController.IsEnabled = value;
+            print("Setting EphysLinkControlled to " + value + " for " + name);
+            ManipulatorBehaviorController.enabled = value;
             EphysLinkControlChangeEvent.Invoke();
             EphysLinkControlledProbesChangedEvent.Invoke(Instances.Where(manager => manager.IsEphysLinkControlled).ToHashSet());
         }
@@ -209,26 +210,32 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void Destroy()
     {
+        print("Destroy is called");
         // Delete this gameObject
         foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.Destroy();
 
-        Debug.Log($"Destroying probe: {name}");
-        Instances.Remove(this);
-        ProbeInsertion.Instances.Remove(ProbeController.Insertion);
-
         ProbeProperties.ReturnColor(Color);
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
-        
-        // Unregister this probe from the ephys link
-        if (IsEphysLinkControlled)
-        {
-            SetIsEphysLinkControlled(false);
-        }
+    }
+
+    private void OnDestroy()
+    {
+        Debug.Log($"Destroying probe: {name}");
+
+        Instances.Remove(this);
+        ProbeInsertion.Instances.Remove(ProbeController.Insertion);
+
+        // Unregister this probe from the Ephys Link
+        SetIsEphysLinkControlled(false);
+
+        // Force unregister before the probe is destroyed
+        IsEphysLinkControlled = false;
     }
 
     private void OnEnable() => Instances.Add(this);
+    
 
     #endregion
 
@@ -788,8 +795,9 @@ public class ProbeManager : MonoBehaviour
         // Exit early if this was an invalid call
         switch (register)
         {
-            case true when ManipulatorBehaviorController.IsEnabled:
+            case true when ManipulatorBehaviorController.enabled:
             case true when string.IsNullOrEmpty(manipulatorId):
+            case false when !IsEphysLinkControlled:
                 return;
         }
 
@@ -807,7 +815,6 @@ public class ProbeManager : MonoBehaviour
             CommunicationManager.Instance.UnregisterManipulator(manipulatorId, () =>
             {
                 IsEphysLinkControlled = false;
-                ManipulatorBehaviorController.Disable();
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
     }
