@@ -911,7 +911,8 @@ namespace TrajectoryPlanner
                         var bytes = System.Convert.FromBase64String(settingsQuery);
                         string settingsStr = System.Text.Encoding.UTF8.GetString(bytes);
 
-                        Settings.RecoverFromSaveString(settingsStr);
+                        
+                        Settings.Load(settingsStr);
                     }
                 }
             }

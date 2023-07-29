@@ -548,6 +548,15 @@ public class Settings : MonoBehaviour
         Apply();
     }
 
+    public static void Load(string settingsStr)
+    {
+#if UNITY_EDITOR
+        Debug.Log("(Settings) Loading settings from query string on WebGL");
+#endif
+        data = JsonUtility.FromJson<InternalData>(settingsStr);
+        Instance.Apply();
+    }
+
     /// <summary>
     /// Apply all settings from the current data stored in the Instance.data struct
     /// </summary>
