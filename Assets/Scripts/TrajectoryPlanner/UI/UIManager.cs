@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class UIManager : MonoBehaviour
 {
@@ -13,9 +12,8 @@ public class UIManager : MonoBehaviour
     #region Components
 
     [SerializeField] private List<TMP_InputField> _editorFocusableInputs;
-
-    [FormerlySerializedAs("EditorFocusableGOs")] [SerializeField]
-    private List<GameObject> _editorFocusableGOs;
+    
+    [SerializeField] private List<GameObject> _editorFocusableGOs;
 
     [SerializeField] private List<TMP_Text> _whiteUIText;
 
@@ -46,13 +44,18 @@ public class UIManager : MonoBehaviour
     public static bool InputsFocused
     {
         get {
-            return FocusableInputs.Any(x => x != null && x.isFocused) || FocusableGOs.Any(x => x != null && x.activeSelf);
+            return FocusableInputs.Any(x => x != null && x.isFocused) ||
+                   FocusableGOs.Any(x => x != null && x.activeSelf);
         }
     }
 
     public void EnableEphysCopilotPanel(bool enable = true)
     {
-        _ephysCopilotPanelGameObject.SetActive(enable);
+        // Always set the panel to active once started using, but set the scale to zero if we're disabling it
+        _ephysCopilotPanelGameObject.SetActive(true);
+        
+        // Set the scale to zero if we're disabling it
+        _ephysCopilotPanelGameObject.transform.localScale = enable ? Vector3.one : Vector3.zero;
     }
 
     public void SetBackgroundWhite(bool state)

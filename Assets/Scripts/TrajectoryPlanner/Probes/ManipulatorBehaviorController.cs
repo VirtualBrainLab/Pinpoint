@@ -17,18 +17,6 @@ namespace TrajectoryPlanner.Probes
 
         #endregion
 
-        #region Unity
-
-        /// <summary>
-        ///     Setup this instance
-        /// </summary>
-        private void Awake()
-        {
-            _annotationDataset = VolumeDatasetManager.AnnotationDataset;
-        }
-
-        #endregion
-
         #region Private Methods
 
         private void EchoPosition(Vector4 pos)
@@ -102,17 +90,35 @@ namespace TrajectoryPlanner.Probes
 
         #endregion
 
+        #region Unity
+
+        /// <summary>
+        ///     Setup this instance
+        /// </summary>
+        private void Awake()
+        {
+            // Start off as disabled
+            enabled = false;
+        }
+
+        private void OnDisable()
+        {
+            ManipulatorID = null;
+            _zeroCoordinateOffset = Vector4.zero;
+            _brainSurfaceOffset = 0;
+        }
+
+        #endregion
+
         #region Components
 
         [SerializeField] private ProbeManager _probeManager;
         [SerializeField] private ProbeController _probeController;
-        private CCFAnnotationDataset _annotationDataset;
+        private readonly CCFAnnotationDataset _annotationDataset = VolumeDatasetManager.AnnotationDataset;
 
         #endregion
 
         #region Properties
-
-        public bool IsEnabled { get; set; }
 
         public string ManipulatorID { get; private set; }
 
@@ -243,14 +249,6 @@ namespace TrajectoryPlanner.Probes
                     });
                 }
             });
-        }
-
-        public void Disable()
-        {
-            ManipulatorID = null;
-            _zeroCoordinateOffset = Vector4.zero;
-            _brainSurfaceOffset = 0;
-            enabled = false;
         }
 
         public Vector4 ConvertInsertionToManipulatorPosition(Vector3 insertionAPMLDV)

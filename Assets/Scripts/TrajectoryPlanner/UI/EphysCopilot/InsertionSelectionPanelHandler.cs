@@ -217,7 +217,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         #region Shared
 
-        public static CCFAnnotationDataset AnnotationDataset { private get; set; }
         public static readonly Dictionary<string, ProbeInsertion> SelectedTargetInsertion = new();
         private static readonly UnityEvent<string> _shouldUpdateTargetInsertionOptionsEvent = new();
 
@@ -279,13 +278,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 };
 
                 // Recalculate AP and ML based on pre-depth-drive DV
-                var brainSurfaceCoordinate = AnnotationDataset.FindSurfaceCoordinate(
-                    AnnotationDataset.CoordinateSpace.World2Space(
+                var brainSurfaceCoordinate = VolumeDatasetManager.AnnotationDataset.FindSurfaceCoordinate(
+                    VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(
                         SelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
                             .PositionWorldU()),
-                    AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(ProbeManager.ProbeController
+                    VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(ProbeManager.ProbeController
                         .GetTipWorldU().tipUpWorldU));
-                var brainSurfaceWorld = AnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
+                var brainSurfaceWorld = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
                 var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
 
                 // AP Axis
