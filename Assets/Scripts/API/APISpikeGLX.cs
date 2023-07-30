@@ -1,5 +1,4 @@
 // this entire class does not exist on WebGL
-using KS.UnityToolbag;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,20 +6,21 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using KS.UnityToolbag;
 using Process = KS.Diagnostics.Process;
 
 public class APISpikeGLX : MonoBehaviour
 {
     [SerializeField] private TMP_InputField _helloSpikeGLXPathInput;
 
-    #region Unity
+#region Unity
     private void OnEnable()
     {
         GetSpikeGLXProbeInfo();
     }
-    #endregion
+#endregion
 
-    #region Public
+#region Public
 
 
     public void GetSpikeGLXProbeInfo()
@@ -100,9 +100,9 @@ public class APISpikeGLX : MonoBehaviour
             SendProbeData(probeManager);
         }
     }
-    #endregion
+#endregion
 
-    #region Private
+#region Private
 
     private void SendProbeData(ProbeManager probeManager)
     {
