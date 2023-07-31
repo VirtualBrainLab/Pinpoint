@@ -346,7 +346,7 @@ namespace TrajectoryPlanner
             Destroy(probeManager.gameObject);
 
             // Cleanup UI if this was last probe in scene
-            var realProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder);
+            var realProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder && x != probeManager);
 
             if (realProbes.Count() > 0)
             {
@@ -366,6 +366,7 @@ namespace TrajectoryPlanner
                 _probeQuickSettings.UpdateInteractable(true);
                 SetSurfaceDebugActive(false);
                 UpdateQuickSettings();
+                UpdateQuickSettingsProbeIdText();
             }
             
             _probeAddedOrRemovedEvent.Invoke();
