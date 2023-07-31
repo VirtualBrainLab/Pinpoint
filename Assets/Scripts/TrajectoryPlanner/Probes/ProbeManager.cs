@@ -413,9 +413,7 @@ public class ProbeManager : MonoBehaviour
     {
         // Create a list of range, acronym color
         List<(int bot, int top, string acronym, Color color)> probeAnnotationData = new();
-        float height = _channelMaxY - _channelMinY;
 
-        float curBottom = 0f;
 
         ProbeUIManager uiManager = _probeUIManagers[shank];
         //Vector3 baseCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMinY;
@@ -423,22 +421,27 @@ public class ProbeManager : MonoBehaviour
 
         Vector3 baseCoordWorldT = uiManager.ShankTipT().position;
         Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * ChannelMap.FullHeight;
+        //float height = _channelMaxY - _channelMinY;
+        float height = ChannelMap.FullHeight;
 
         // convert to worldU
         ProbeInsertion insertion = _probeController.Insertion;
         Vector3 baseCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(baseCoordWorldT))));
         Vector3 topCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(topCoordWorldT))));
 
-        int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(baseCoordWorldU));
-        if (lastID < 0) lastID = -1;
         // Lerp between the base and top coordinate in small steps'
 
+        int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(baseCoordWorldU));
+        if (lastID < 0) lastID = -1;
+        
+        float curBottom = 0f;
         float _channelMinUM = 0f; // _channelMinY * 1000f;
 
         for (float perc = 0f; perc < 1f; perc += 0.01f)
         {
-
             Vector3 coordU = Vector3.Lerp(baseCoordWorldU, topCoordWorldU, perc);
+            Debug.Log(Vector3.Distance(coordU, baseCoordWorldU));
+
             int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(coordU));
             if (ID < 0) ID = -1;
 
