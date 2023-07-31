@@ -112,6 +112,7 @@ public class ProbeManager : MonoBehaviour
         private set
         {
             ManipulatorBehaviorController.enabled = value;
+            print("MBC enabled: "+ManipulatorBehaviorController.enabled);
             EphysLinkControlChangeEvent.Invoke();
             EphysLinkControlledProbesChangedEvent.Invoke(Instances.Where(manager => manager.IsEphysLinkControlled).ToHashSet());
         }
@@ -209,7 +210,6 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void Destroy()
     {
-
         ProbeProperties.ReturnColor(Color);
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
@@ -217,8 +217,8 @@ public class ProbeManager : MonoBehaviour
         // Force disable Ephys Link
         if (IsEphysLinkControlled)
         {
-            CommunicationManager.Instance.UnregisterManipulator(ManipulatorBehaviorController.ManipulatorID);
             IsEphysLinkControlled = false;
+            CommunicationManager.Instance.UnregisterManipulator(ManipulatorBehaviorController.ManipulatorID);
         }
         
         // Delete this gameObject
@@ -228,10 +228,18 @@ public class ProbeManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        // Destroy instance
         Debug.Log($"Destroying probe: {name}");
 
-        Instances.Remove(this);
-        ProbeInsertion.Instances.Remove(ProbeController.Insertion);
+        if (ProbeInsertion.Instances.Count == 1)
+            ProbeInsertion.Instances.Clear();
+        else
+            ProbeInsertion.Instances.Remove(ProbeController.Insertion);
+
+        if (Instances.Count == 1)
+            Instances.Clear();
+        else
+            Instances.Remove(this);
     }
 
     private void OnEnable() => Instances.Add(this);

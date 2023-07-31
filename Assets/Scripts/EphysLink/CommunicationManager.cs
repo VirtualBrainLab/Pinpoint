@@ -245,8 +245,15 @@ namespace EphysLink
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback(new Vector4(data.position[0], data.position[1], data.position[2],
-                        data.position[3]));
+                    try
+                    {
+                        onSuccessCallback?.Invoke(new Vector4(data.position[0], data.position[1], data.position[2],
+                            data.position[3]));
+                    }
+                    catch (Exception e)
+                    {
+                        onErrorCallback?.Invoke(e.ToString());
+                    }
                 }
                 else
                 {
