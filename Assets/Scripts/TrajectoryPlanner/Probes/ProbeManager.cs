@@ -209,17 +209,21 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void Destroy()
     {
-        // Delete this gameObject
-        foreach (ProbeUIManager puimanager in _probeUIManagers)
-            puimanager.Destroy();
 
         ProbeProperties.ReturnColor(Color);
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
         
         // Force disable Ephys Link
-        CommunicationManager.Instance.UnregisterManipulator(ManipulatorBehaviorController.ManipulatorID);
-        IsEphysLinkControlled = false;
+        if (IsEphysLinkControlled)
+        {
+            CommunicationManager.Instance.UnregisterManipulator(ManipulatorBehaviorController.ManipulatorID);
+            IsEphysLinkControlled = false;
+        }
+        
+        // Delete this gameObject
+        foreach (ProbeUIManager puimanager in _probeUIManagers)
+            puimanager.Destroy();
     }
 
     private void OnDestroy()
