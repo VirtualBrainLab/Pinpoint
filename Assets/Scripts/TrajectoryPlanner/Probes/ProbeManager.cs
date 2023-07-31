@@ -217,21 +217,30 @@ public class ProbeManager : MonoBehaviour
         // Force disable Ephys Link
         if (IsEphysLinkControlled)
         {
-            CommunicationManager.Instance.UnregisterManipulator(ManipulatorBehaviorController.ManipulatorID);
             IsEphysLinkControlled = false;
+            CommunicationManager.Instance.UnregisterManipulator(ManipulatorBehaviorController.ManipulatorID);
         }
         
         // Delete this gameObject
         foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.Destroy();
+
     }
 
     private void OnDestroy()
     {
+        // Destroy instance
         Debug.Log($"Destroying probe: {name}");
 
-        Instances.Remove(this);
-        ProbeInsertion.Instances.Remove(ProbeController.Insertion);
+        if (ProbeInsertion.Instances.Count == 1)
+            ProbeInsertion.Instances.Clear();
+        else
+            ProbeInsertion.Instances.Remove(ProbeController.Insertion);
+
+        if (Instances.Count == 1)
+            Instances.Clear();
+        else
+            Instances.Remove(this);
     }
 
     private void OnEnable() => Instances.Add(this);
