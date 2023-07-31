@@ -112,6 +112,7 @@ public class ProbeManager : MonoBehaviour
         private set
         {
             ManipulatorBehaviorController.enabled = value;
+            print("MBC enabled: "+ManipulatorBehaviorController.enabled);
             EphysLinkControlChangeEvent.Invoke();
             EphysLinkControlledProbesChangedEvent.Invoke(Instances.Where(manager => manager.IsEphysLinkControlled).ToHashSet());
         }
@@ -209,7 +210,6 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void Destroy()
     {
-
         ProbeProperties.ReturnColor(Color);
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
@@ -224,7 +224,6 @@ public class ProbeManager : MonoBehaviour
         // Delete this gameObject
         foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.Destroy();
-
     }
 
     private void OnDestroy()
