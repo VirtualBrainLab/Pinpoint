@@ -10,16 +10,6 @@
 
 Desktop builds are available on the [Releases](https://github.com/VirtualBrainLab/Pinpoint/releases) page.
 
-# References
-
-Inspired by the trajectory explorer by Andy Peters https://github.com/petersaj/neuropixels_trajectory_explorer. 
-
-CCF Atlas downloaded from http://download.alleninstitute.org/informatics-archive/current-release/mouse_ccf/annotation/ 
-
-Rat Atlas downloaded from https://www.nitrc.org/projects/whs-sd-atlas/
-
-Mouse brain artwork from https://scidraw.io/drawing/286
-
 # Citing
 
 A preprint describing Pinpoint has been [published on bioRxiv](https://www.biorxiv.org/content/10.1101/2023.07.14.548952). The paper provides an introduction to the key features and it can be used as a citation if Pinpoint proves integral to a scientific publication.
