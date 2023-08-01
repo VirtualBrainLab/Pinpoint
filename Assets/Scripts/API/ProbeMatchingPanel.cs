@@ -20,13 +20,8 @@ public class ProbeMatchingPanel : MonoBehaviour
     [SerializeField] private GameObject _matchingPanelPrefab;
     [SerializeField] private Transform _matchingPanelParentT;
 
-    private Dictionary<ProbeManager, ProbeMatchDropdown> _dropdownMenus;
+    private Dictionary<ProbeManager, ProbeMatchDropdown> _dropdownMenus = new();
     private List<string> _probeOpts;
-
-    private void Awake()
-    {
-        _dropdownMenus = new();
-    }
 
     private void OnEnable()
     {
@@ -41,22 +36,40 @@ public class ProbeMatchingPanel : MonoBehaviour
         if (!isActiveAndEnabled)
             return;
 
-        foreach (ProbeManager probeManager in ProbeManager.Instances)
+        // Remove any prefabs that have no matching probeManager
+        foreach (var kvp in _dropdownMenus)
         {
-            if (_dropdownMenus.ContainsKey(probeManager))
+            if (!ProbeManager.Instances.Contains(kvp.Key))
             {
-                // re-register to ensure we are linked properly with the dropdown options
-                _dropdownMenus[probeManager].Register(probeManager);
+                Destroy(_dropdownMenus[kvp.Key].gameObject);
+                _dropdownMenus.Remove(kvp.Key);
             }
-            else
+        }
+
+        if (ProbeManager.Instances.Count > 0)
+        {
+            foreach (ProbeManager probeManager in ProbeManager.Instances)
             {
-                // build a new prefab
-                GameObject go = Instantiate(_matchingPanelPrefab, _matchingPanelParentT);
-                ProbeMatchDropdown ui = go.GetComponent<ProbeMatchDropdown>();
-                _dropdownMenus.Add(probeManager, ui);
-                ui.Register(probeManager);
-                ui.DropdownChangedEvent.AddListener(APIManager.TriggerAPIPush);
+                if (_dropdownMenus.ContainsKey(probeManager))
+                {
+                    // re-register to ensure we are linked properly with the dropdown options
+                    _dropdownMenus[probeManager].Register(probeManager);
+                }
+                else
+                {
+                    // build a new prefab
+                    GameObject go = Instantiate(_matchingPanelPrefab, _matchingPanelParentT);
+                    ProbeMatchDropdown ui = go.GetComponent<ProbeMatchDropdown>();
+                    _dropdownMenus.Add(probeManager, ui);
+                    ui.Register(probeManager);
+                    ui.DropdownChangedEvent.AddListener(APIManager.TriggerAPIPush);
+                }
             }
+        }
+        else
+        {
+            // remove all prefabs
+            ClearUI();
         }
 
         UpdateMatchingPanelOptions();
@@ -87,8 +100,10 @@ public class ProbeMatchingPanel : MonoBehaviour
 
     private void UpdateMatchingPanelOptions()
     {
+        if (_dropdownMenus == null) return;
+
         if (_probeOpts == null)
-            return;
+            _probeOpts = new();
 
         foreach (ProbeMatchDropdown ui in _dropdownMenus.Values)
         {

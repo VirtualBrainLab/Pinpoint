@@ -10,8 +10,6 @@ public class RelativeCoordinatePanel : MonoBehaviour
     [SerializeField] private TMP_InputField _mlField;
     [SerializeField] private TMP_InputField _dvField;
 
-    [SerializeField] private TrajectoryPlannerManager _tpmanager;
-
     private void Awake()
     {
         _apField.onEndEdit.AddListener(delegate { UpdateRelativeCoordinate(); });
@@ -21,6 +19,7 @@ public class RelativeCoordinatePanel : MonoBehaviour
 
     public void SetRelativeCoordinateText(Vector3 coord)
     {
+        Debug.Log("Coordinate set");
         _apField.text = coord.x.ToString();
         _mlField.text = coord.y.ToString();
         _dvField.text = coord.z.ToString();

@@ -136,15 +136,11 @@ public class UnisaveAccountsManager : AccountsManager
     {
         Debug.Log("(AccountsManager) Player logged out");
         _player = null;
-        Debug.Log("here0");
 
         ExperimentListChangeEvent.Invoke();
-        Debug.Log("here1");
         InsertionListChangeEvent.Invoke();
-        Debug.Log("here2");
 
         _emailLoginForm.ClearToken();
-        Debug.Log("here3");
     }
 
 #endregion

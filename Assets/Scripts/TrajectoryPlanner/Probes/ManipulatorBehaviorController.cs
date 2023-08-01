@@ -21,7 +21,7 @@ namespace TrajectoryPlanner.Probes
 
         private void EchoPosition(Vector4 pos)
         {
-            if (_probeController == null && !enabled) return;
+            if (!enabled && _probeController == null) return;
             // Calculate last used direction for dropping to brain surface (between depth and DV)
             var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
             var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
@@ -31,7 +31,7 @@ namespace TrajectoryPlanner.Probes
             // Apply zero coordinate offset
             var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
 
-            // Convert to sensapex space
+            // Convert to coordinate space
             var manipulatorSpacePosition =
                 Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
 
@@ -55,7 +55,7 @@ namespace TrajectoryPlanner.Probes
                 insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
 
             // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-            if (ManipulatorType == "new_scale")
+            if (ManipulatorType is "new_scale" or "new_scale_pathway")
                 _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
                     transformedApmldv.z, 0));
             else
@@ -63,8 +63,8 @@ namespace TrajectoryPlanner.Probes
                     transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
 
 
-            // Log every 10hz
-            if (Time.time - _lastLoggedTime >= 0.1)
+            // Log every 5 hz
+            if (Time.time - _lastLoggedTime >= 0.2)
             {
                 _lastLoggedTime = Time.time;
                 var tipPos = _probeController.ProbeTipT.position;
@@ -90,17 +90,37 @@ namespace TrajectoryPlanner.Probes
 
         #endregion
 
+        #region Unity
+
+        /// <summary>
+        ///     Setup this instance
+        /// </summary>
+        private void Awake()
+        {
+            // Start off as disabled
+            enabled = false;
+        }
+
+        private void OnDisable()
+        {
+            ManipulatorID = null;
+            _zeroCoordinateOffset = Vector4.zero;
+            _brainSurfaceOffset = 0;
+        }
+
+        #endregion
+
         #region Components
 
         [SerializeField] private ProbeManager _probeManager;
         [SerializeField] private ProbeController _probeController;
-        private CCFAnnotationDataset _annotationDataset;
+        private readonly CCFAnnotationDataset _annotationDataset = VolumeDatasetManager.AnnotationDataset;
 
         #endregion
 
         #region Properties
 
-        public string ManipulatorID { get; set; }
+        public string ManipulatorID { get; private set; }
 
         public string ManipulatorType { get; set; }
 
@@ -143,8 +163,8 @@ namespace TrajectoryPlanner.Probes
             }
         }
 
-        public CoordinateSpace CoordinateSpace { get; set; }
-        public CoordinateTransform Transform { get; set; }
+        public CoordinateSpace CoordinateSpace { get; private set; }
+        private CoordinateTransform Transform { get; set; }
 
         public bool IsRightHanded
         {
@@ -176,23 +196,6 @@ namespace TrajectoryPlanner.Probes
         public UnityEvent<Vector4> ZeroCoordinateOffsetChangedEvent;
         public UnityEvent<float> BrainSurfaceOffsetChangedEvent;
         public UnityEvent<bool> IsSetToDropToSurfaceWithDepthChangedEvent;
-
-        #endregion
-
-        #region Unity
-
-        /// <summary>
-        ///     Setup this instance
-        /// </summary>
-        private void Awake()
-        {
-            _annotationDataset = VolumeDatasetManager.AnnotationDataset;
-        }
-
-
-        private void OnEnable()
-        {
-        }
 
         #endregion
 
@@ -246,14 +249,6 @@ namespace TrajectoryPlanner.Probes
                     });
                 }
             });
-        }
-
-        public void Disable()
-        {
-            ManipulatorID = null;
-            _zeroCoordinateOffset = Vector4.zero;
-            _brainSurfaceOffset = 0;
-            enabled = false;
         }
 
         public Vector4 ConvertInsertionToManipulatorPosition(Vector3 insertionAPMLDV)
@@ -328,15 +323,17 @@ namespace TrajectoryPlanner.Probes
         /// <summary>
         ///     Move manipulator by a given delta in world space
         /// </summary>
-        /// <param name="worldSpaceDelta">Delta to move by in world space coordinates</param>
+        /// <param name="worldSpaceDelta">Delta (X, Y, Z, D) to move by in world space coordinates</param>
         /// <param name="onSuccessCallback">Action on success</param>
         /// <param name="onErrorCallback">Action on error</param>
-        public void MoveXYZByWorldSpaceDelta(Vector3 worldSpaceDelta, Action<Vector4> onSuccessCallback,
+        public void MoveByWorldSpaceDelta(Vector4 worldSpaceDelta, Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             // Convert to manipulator axes (world -> space -> transform)
             var manipulatorSpaceDelta = CoordinateSpace.World2SpaceAxisChange(worldSpaceDelta);
             var manipulatorTransformDelta = Transform.Space2Transform(manipulatorSpaceDelta);
+            var manipulatorSpaceDepth = CoordinateSpace
+                .World2SpaceAxisChange(Vector3.down).z * worldSpaceDelta.w;
 
             // Get manipulator position
             CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
@@ -344,45 +341,25 @@ namespace TrajectoryPlanner.Probes
                 // Apply delta
                 var targetPosition = pos + new Vector4(manipulatorTransformDelta.x, manipulatorTransformDelta.y,
                     manipulatorTransformDelta.z);
-
                 // Move manipulator
-                CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED,
-                    onSuccessCallback, onErrorCallback);
-            }, Debug.LogError);
-        }
-
-        /// <summary>
-        ///     Drive manipulator depth by a given delta in world space
-        /// </summary>
-        /// <param name="worldSpaceDelta">Distance to drive depth in world space coordinates</param>
-        /// <param name="onSuccessCallback">Action on success</param>
-        /// <param name="onErrorCallback">Action on error</param>
-        public void MoveDepthByWorldSpaceDelta(float worldSpaceDelta, Action<bool> onSuccessCallback, Action<string>
-            onErrorCallback = null)
-        {
-            // Convert to manipulator axes (world -> space)
-            var manipulatorSpaceDepth = CoordinateSpace
-                .World2SpaceAxisChange(Vector3.down).z * worldSpaceDelta;
-
-            // Get current position to compute the target position
-            CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
-            {
-                // Apply delta and move manipulator
-                var targetDepth = pos.w + manipulatorSpaceDepth;
-
-                CommunicationManager.Instance.SetInsideBrain(
-                    ManipulatorID, true, _ =>
-                    {
-                        // Move the manipulator
-                        CommunicationManager.Instance.DriveToDepth(
-                            ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
-                            _ =>
-                            {
-                                CommunicationManager.Instance.SetInsideBrain(
-                                    ManipulatorID, false, onSuccessCallback, onErrorCallback);
-                            }, Debug.LogError);
-                    }, Debug.LogError);
-            }, Debug.LogError);
+                CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED, newPos =>
+                {
+                    // Process depth movement
+                    var targetDepth = newPos.w + manipulatorSpaceDepth;
+                    CommunicationManager.Instance.SetInsideBrain(
+                        ManipulatorID, true, _ =>
+                        {
+                            // Move the manipulator
+                            CommunicationManager.Instance.DriveToDepth(
+                                ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
+                                _ =>
+                                {
+                                    CommunicationManager.Instance.SetInsideBrain(
+                                        ManipulatorID, false, onSuccessCallback, onErrorCallback);
+                                }, Debug.LogError);
+                        }, Debug.LogError);
+                });
+            });
         }
 
         /// <summary>

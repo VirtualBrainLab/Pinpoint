@@ -96,9 +96,17 @@ namespace TrajectoryPlanner
 
         public void UpdateQuickUI()
         {
-            _probeIdText.text = ProbeManager.ActiveProbeManager.name;
-            _probeIdText.color = ProbeManager.ActiveProbeManager.Color;
-            SetColorChooserColor(ProbeManager.ActiveProbeManager.Color);
+            if (ProbeManager.ActiveProbeManager != null)
+            {
+                _probeIdText.text = ProbeManager.ActiveProbeManager.name;
+                _probeIdText.color = ProbeManager.ActiveProbeManager.Color;
+                SetColorChooserColor(ProbeManager.ActiveProbeManager.Color);
+            }
+            else
+            {
+                _probeIdText.text = "";
+                UpdateInteractable(true);
+            }
         }
 
         /// <summary>

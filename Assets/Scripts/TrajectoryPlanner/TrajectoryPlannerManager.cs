@@ -12,6 +12,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using static UnityEngine.InputSystem.InputAction;
+
 
 #if UNITY_WEBGL
 using System.Collections.Specialized;
@@ -139,6 +141,11 @@ namespace TrajectoryPlanner
         // Track who got clicked on, probe, camera, or brain
         private bool probeControl;
 
+        #region InputSystem
+        private ProbeMetaControls inputActions;
+
+        #endregion
+
         public void SetProbeControl(bool state)
         {
             probeControl = state;
@@ -170,10 +177,13 @@ namespace TrajectoryPlanner
             coordinateTransformOpts.Add(temp.Name, temp);
             temp = new MRILinearTransform();
             coordinateTransformOpts.Add(temp.Name, temp);
+            coordinateTransformOpts.Add("MRI", temp);
             temp = new NeedlesTransform();
             coordinateTransformOpts.Add(temp.Name, temp);
+            coordinateTransformOpts.Add("Needles", temp);
             temp = new IBLNeedlesTransform();
             coordinateTransformOpts.Add(temp.Name, temp);
+            coordinateTransformOpts.Add("IBL-Needles", temp);
 
             // Initialize variables
             visibleProbePanels = 0;
@@ -183,6 +193,12 @@ namespace TrajectoryPlanner
             // Load 3D meshes
             LoadMeshData();
             //Physics.autoSyncTransforms = true;
+
+            // Input system
+            inputActions = new();
+            inputActions.ProbeMetaControl.Enable();
+            inputActions.ProbeMetaControl.NextProbe.performed += NextProbe;
+            inputActions.ProbeMetaControl.PrevProbe.performed += PrevProbe;
 
             _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
         }
@@ -207,18 +223,6 @@ namespace TrajectoryPlanner
             // Finally, load accounts if we didn't load a query string
             if (!savedProbeTask.Result)
                 _accountsManager.DelayedStart();
-
-            //if (!PlayerPrefs.HasKey("survey-done"))
-            //{
-            //    QuestionDialogue.SetYesCallback(SendToSurvey);
-            //    QuestionDialogue.NewQuestion("Hello! We don't track users of Pinpoint, but we need to get grant funding. Would you be willing to spend 5 minutes answering a few questions about your use of Pinpoint?");
-            //}
-        }
-
-        public void SendToSurvey()
-        {
-            PlayerPrefs.SetInt("survey-done", 1);
-            Application.OpenURL("https://docs.google.com/forms/d/e/1FAIpQLSdz6TNhAxra9G3Kkynco_yfLjohHqAJa1jjG_tRTjZa3ZceLA/viewform?usp=sf_link");
         }
 
         void Update()
@@ -249,17 +253,7 @@ namespace TrajectoryPlanner
                     DestroyActiveProbeManager();
                     return;
                 }
-
-                // Check if mouse buttons are down, or if probe is under manual control
-                if (!Input.GetMouseButton(0) && !Input.GetMouseButton(2) && !probeControl)
-                {
-                    ProbeManager.ActiveProbeManager.MoveProbe();
-                }
             }
-
-
-            //if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.P))
-            //    _coenProbe = AddNewProbe(8).GetComponent<EightShankProbeControl>();
         }
 
         private void LateUpdate()
@@ -348,7 +342,7 @@ namespace TrajectoryPlanner
             Destroy(probeManager.gameObject);
 
             // Cleanup UI if this was last probe in scene
-            var realProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder);
+            var realProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder && x != probeManager);
 
             if (realProbes.Count() > 0)
             {
@@ -368,6 +362,7 @@ namespace TrajectoryPlanner
                 _probeQuickSettings.UpdateInteractable(true);
                 SetSurfaceDebugActive(false);
                 UpdateQuickSettings();
+                UpdateQuickSettingsProbeIdText();
             }
             
             _probeAddedOrRemovedEvent.Invoke();
@@ -397,7 +392,7 @@ namespace TrajectoryPlanner
                     coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
 
                 ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
-                    probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                    probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
                     probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
                 newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
@@ -467,7 +462,7 @@ namespace TrajectoryPlanner
         }
         
         public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, ProbeInsertion insertion,
-            string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isRightHanded, string UUID = null, bool isGhost = false)
+            string manipulatorType, string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isRightHanded, string UUID = null, bool isGhost = false)
         {
             var probeManager = AddNewProbe(probeType, UUID);
 
@@ -475,21 +470,22 @@ namespace TrajectoryPlanner
             probeManager.ProbeController.SetProbeAngles(insertion.angles);
             probeManager.ProbeController.SetSpaceTransform(insertion.CoordinateSpace, insertion.CoordinateTransform);
 
-            // Repopulate Ephys Link information
-            if (!Settings.IsEphysLinkDataExpired())
-            {
-                probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinateOffset;
-                probeManager.ManipulatorBehaviorController.BrainSurfaceOffset = brainSurfaceOffset;
-                probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
-                probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
-                probeManager.ManipulatorBehaviorController.IsRightHanded = isRightHanded;
-                var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
-                
-                if (communicationManager.IsConnected && !string.IsNullOrEmpty(manipulatorId))
-                    probeManager.SetIsEphysLinkControlled(true, manipulatorId,
-                        onError: _ => probeManager.SetIsEphysLinkControlled(false));
-            }
+            // Return data if there is no current Ephys Link data
+            if (Settings.IsEphysLinkDataExpired()) return probeManager;
             
+            // Repopulate Ephys Link information
+            probeManager.ManipulatorBehaviorController.ManipulatorType = manipulatorType;
+            probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinateOffset;
+            probeManager.ManipulatorBehaviorController.BrainSurfaceOffset = brainSurfaceOffset;
+            probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
+            probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
+            probeManager.ManipulatorBehaviorController.IsRightHanded = isRightHanded;
+            var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
+                
+            if (communicationManager.IsConnected && !string.IsNullOrEmpty(manipulatorId))
+                probeManager.SetIsEphysLinkControlled(true, manipulatorId,
+                    onError: _ => probeManager.SetIsEphysLinkControlled(false));
+
             return probeManager;
         }
 
@@ -506,6 +502,8 @@ namespace TrajectoryPlanner
             return _collisionMaterial;
         }
 
+
+        #region Active probe controls
         public void SetActiveProbe(string UUID)
         {
             // Search for the probemanager corresponding to this UUID
@@ -530,7 +528,10 @@ namespace TrajectoryPlanner
 
             // Tell the old probe that it is now in-active
             if (ProbeManager.ActiveProbeManager != null)
+            {
+                ProbeManager.ActiveProbeManager.GetComponent<ProbeController>().enabled = false;
                 ProbeManager.ActiveProbeManager.SetActive(false);
+            }
 
             // Replace the probe object and set to active
             ProbeManager.ActiveProbeManager = newActiveProbeManager;
@@ -560,6 +561,29 @@ namespace TrajectoryPlanner
             _activeProbeChangedEvent.Invoke();
         }
 
+        public void NextProbe(CallbackContext context)
+        {
+            int idx = ProbeManager.Instances.FindIndex(x => x.Equals(ProbeManager.ActiveProbeManager));
+
+            // if this is the last probe, wrap around
+            idx = (idx + 1) % ProbeManager.Instances.Count;
+
+            SetActiveProbe(ProbeManager.Instances[idx]);
+        }
+
+        public void PrevProbe(CallbackContext context)
+        {
+            int idx = ProbeManager.Instances.FindIndex(x => x.Equals(ProbeManager.ActiveProbeManager));
+
+            // if this is the last probe, wrap around
+            idx = (idx - 1) % ProbeManager.Instances.Count;
+            if (idx < 0) idx += ProbeManager.Instances.Count;
+
+            SetActiveProbe(ProbeManager.Instances[idx]);
+        }
+
+        #endregion
+
         public void OverrideInsertionName(string UUID, string newName)
         {
             foreach (ProbeManager probeManager in ProbeManager.Instances)
@@ -585,7 +609,7 @@ namespace TrajectoryPlanner
 
         public void LockActiveProbe(bool locked)
         {
-            ProbeManager.ActiveProbeManager.SetLock(locked);
+            ProbeManager.ActiveProbeManager.ProbeController.Locked = locked;
         }
 
 #region Warping
@@ -769,7 +793,7 @@ namespace TrajectoryPlanner
             string encodedStr = Convert.ToBase64String(plainTextBytes);
 
             // Settings data
-            var settingsData = Settings.ToSaveString();
+            var settingsData = Settings.Data2String();
             string settingsStr = Convert.ToBase64String(Encoding.UTF8.GetBytes(settingsData));
 
             string url = $"https://data.virtualbrainlab.org/Pinpoint/?Probes={encodedStr}&Settings={settingsStr}";
@@ -884,7 +908,8 @@ namespace TrajectoryPlanner
                         var bytes = System.Convert.FromBase64String(settingsQuery);
                         string settingsStr = System.Text.Encoding.UTF8.GetString(bytes);
 
-                        Settings.RecoverFromSaveString(settingsStr);
+                        
+                        Settings.Load(settingsStr);
                     }
                 }
             }
@@ -930,7 +955,7 @@ namespace TrajectoryPlanner
 
 
                     ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
-                        probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                        probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
                         probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
                     newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
@@ -1041,6 +1066,7 @@ namespace TrajectoryPlanner
             ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
             if (data.overrideName != null)
                 newProbeManager.OverrideName(data.overrideName);
+            Debug.Log($"Overriding color: {data.color}");
             newProbeManager.Color = data.color;
         }
 

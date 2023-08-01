@@ -7,7 +7,68 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 {
     public class EphysCopilotHandler : MonoBehaviour
     {
-        #region Internal UI Functions
+        #region Properties
+
+        private readonly Dictionary<ProbeManager, List<GameObject>> _probeManagerToPanels = new();
+
+        #endregion
+
+        #region Unity
+
+        private void Start()
+        {
+            // Subscribe to changes in Ephys Link connections
+            ProbeManager.EphysLinkControlledProbesChangedEvent.AddListener(UpdateManipulatorPanels);
+        }
+
+        private void OnEnable()
+        {
+            // Populate panels on first enable
+            UpdateManipulatorPanels(ProbeManager.Instances.Where(manager => manager.IsEphysLinkControlled).ToHashSet());
+        }
+
+        #endregion
+
+        #region UI Functions
+
+        private void UpdateManipulatorPanels(HashSet<ProbeManager> ephysLinkControlledProbeManagers)
+        {
+            // Compute ones that don't have panels and one that should be removed (existing ones stay)
+            var newProbeManagers = ephysLinkControlledProbeManagers.Except(_probeManagerToPanels.Keys);
+            var removedProbeManagers = _probeManagerToPanels.Keys.Except(ephysLinkControlledProbeManagers);
+
+            // Remove panels for removed probe managers
+            foreach (var removedProbeManager in removedProbeManagers.ToList())
+            {
+                foreach (var panel in _probeManagerToPanels[removedProbeManager]) Destroy(panel);
+                _probeManagerToPanels.Remove(removedProbeManager);
+            }
+
+            // Spawn panels for new probe managers
+            foreach (var probeManager in newProbeManagers)
+            {
+                // Create list
+                _probeManagerToPanels.Add(probeManager, new List<GameObject>());
+
+                // Step 1
+                AddResetZeroCoordinatePanel(probeManager);
+
+                // Step 2
+                AddInsertionSelectionPanel(probeManager);
+
+                // Step 3
+                AddResetDuraOffsetPanel(probeManager);
+
+                // Step 4
+                AddDrivePanel(probeManager);
+            }
+
+            // Sort panels
+            foreach (var probeManager in _probeManagerToPanels.Keys.OrderBy(manager =>
+                         manager.ManipulatorBehaviorController.ManipulatorID))
+            foreach (var panel in _probeManagerToPanels[probeManager])
+                panel.transform.SetAsFirstSibling();
+        }
 
         #region Step 1
 
@@ -19,7 +80,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _zeroCoordinatePanel.PanelScrollViewContent.transform);
             var resetZeroCoordinatePanelHandler =
                 resetZeroCoordinatePanelGameObject.GetComponent<ResetZeroCoordinatePanelHandler>();
-            _panels.Add(resetZeroCoordinatePanelGameObject);
+            _probeManagerToPanels[probeManager].Add(resetZeroCoordinatePanelGameObject);
 
             // Setup
             resetZeroCoordinatePanelHandler.ProbeManager = probeManager;
@@ -36,7 +97,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _gotoPanel.PanelScrollViewContent.transform);
             var insertionSelectionPanelHandler =
                 insertionSelectionPanelGameObject.GetComponent<InsertionSelectionPanelHandler>();
-            _panels.Add(insertionSelectionPanelGameObject);
+            _probeManagerToPanels[probeManager].Add(insertionSelectionPanelGameObject);
 
             // Setup
             insertionSelectionPanelHandler.ProbeManager = probeManager;
@@ -54,7 +115,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             var resetDuraPanelHandler = resetDuraPanelGameObject.GetComponent<ResetDuraOffsetPanelHandler>();
 
 
-            _panels.Add(resetDuraPanelGameObject);
+            _probeManagerToPanels[probeManager].Add(resetDuraPanelGameObject);
 
 
             // Setup
@@ -70,7 +131,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             var addDrivePanelGameObject =
                 Instantiate(_drivePanel.DrivePanelPrefab, _drivePanel.PanelScrollViewContent.transform);
             var drivePanelHandler = addDrivePanelGameObject.GetComponent<DrivePanelHandler>();
-            _panels.Add(addDrivePanelGameObject);
+            _probeManagerToPanels[probeManager].Add(addDrivePanelGameObject);
 
             // Setup
             drivePanelHandler.ProbeManager = probeManager;
@@ -133,51 +194,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         [SerializeField] private DrivePanelComponents _drivePanel;
 
         #endregion
-
-        private readonly HashSet<GameObject> _panels = new();
-
-        #endregion
-
-        #region Properties
-
-        public List<ProbeManager> ProbeManagers { private get; set; }
-        public CCFAnnotationDataset AnnotationDataset { private get; set; }
-
-        #endregion
-
-        #region Unity
-
-        private void OnEnable()
-        {
-            // Populate properties
-            ProbeManagers = ProbeManager.Instances.Where(manager => manager.IsEphysLinkControlled).OrderBy(manager => manager.ManipulatorBehaviorController.ManipulatorID).ToList();
-            AnnotationDataset = VolumeDatasetManager.AnnotationDataset;
-
-            // Setup shared resources for panels
-            InsertionSelectionPanelHandler.AnnotationDataset = AnnotationDataset;
-
-
-            // Spawn panels
-            foreach (var probeManager in ProbeManagers)
-            {
-                // Step 1
-                AddResetZeroCoordinatePanel(probeManager);
-
-                // Step 2
-                AddInsertionSelectionPanel(probeManager);
-
-                // Step 3
-                AddResetDuraOffsetPanel(probeManager);
-
-                // Step 4
-                AddDrivePanel(probeManager);
-            }
-        }
-
-        private void OnDisable()
-        {
-            foreach (var panel in _panels) Destroy(panel);
-        }
 
         #endregion
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -20,11 +21,11 @@ public class APIManager : MonoBehaviour
 #region exposed fields
     [SerializeField] APISpikeGLX _spikeGLXAPI;
     [SerializeField] APIOpenEphys _openEphysAPI;
-#endregion
+    [SerializeField] TMP_Text _statusText;
+    #endregion
 
-#region Probe data variables
+    #region Probe data variables
     private float _lastDataSend;
-    private const float DATA_SEND_RATE = 10f; // cap data sending at once per 10 s maximum, it's fairly expensive to do
     private bool _dirty = false;
 
     public UnityEvent<List<string>> ProbeOptionsChangedEvent;
@@ -43,7 +44,7 @@ public class APIManager : MonoBehaviour
 
     private void Update()
     {
-        if (_dirty && Settings.OpenEphysToggle && (Time.realtimeSinceStartup > (_lastDataSend + DATA_SEND_RATE)))
+        if (_dirty && (Time.realtimeSinceStartup > (_lastDataSend + (1 / Settings.APIUpdateRate))))
         {
             _dirty = false;
             _lastDataSend = Time.realtimeSinceStartup;
@@ -76,6 +77,16 @@ public class APIManager : MonoBehaviour
         Instance._lastDataSend = float.MinValue;
     }
 
+    public static void UpdateStatusText(string status)
+    {
+        Instance._statusText.text = $"API Status: {status}";
+    }
+
+    public static void SetStatusDisconnected()
+    {
+        UpdateStatusText("disconnected");
+    }
+
     /// <summary>
     /// Tell the probe matching panel to update all of the dropdown lists to the current set of options
     /// </summary>
@@ -93,14 +104,30 @@ public class APIManager : MonoBehaviour
     {
         _openEphysAPI.enabled = state;
         if (state)
+        {
+            UpdateStatusText("attempting connection...");
             _spikeGLXAPI.enabled = false;
+        }
+        else if (!_spikeGLXAPI.isActiveAndEnabled)
+        {
+            ProbeOptionsChangedEvent.Invoke(new());
+            UpdateStatusText("not connected");
+        }
     }
 
     public void SetSpikeGLXState(bool state)
     {
         _spikeGLXAPI.enabled = state;
         if (state)
+        {
+            UpdateStatusText("attempting connection...");
             _openEphysAPI.enabled = false;
+        }
+        else if (!_spikeGLXAPI.isActiveAndEnabled)
+        {
+            ProbeOptionsChangedEvent.Invoke(new());
+            UpdateStatusText("not connected");
+        }
     }
 
     public void CopyChannelData2Clipboard()

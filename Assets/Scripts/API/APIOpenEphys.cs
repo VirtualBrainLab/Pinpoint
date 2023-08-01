@@ -8,9 +8,7 @@ using UnityEngine.UI;
 
 public class APIOpenEphys : MonoBehaviour
 {
-    [SerializeField] ProbeMatchingPanel _probeMatchingPanel;
     [SerializeField] Toggle _openEphysToggle;
-    [SerializeField] TMP_InputField _probeDataHTTPTarget;
     [SerializeField] TMP_InputField _pxiInput;
     private int _pxiID;
 
@@ -26,13 +24,11 @@ public class APIOpenEphys : MonoBehaviour
     private void OnEnable()
     {
         // If the setting just got turned on we should query the server for "NP INFO" to get the list of active probes
-        _probeMatchingPanel.UpdateUI();
         StartCoroutine(GetProbeInfo_OpenEphys());
     }
 
     private void OnDisable()
     {
-        _probeMatchingPanel.ClearUI();
         _viewerDropdown.ClearOptions();
         _viewerDropdown.interactable = false;
     }
@@ -46,7 +42,7 @@ public class APIOpenEphys : MonoBehaviour
     private IEnumerator GetProbeInfo_OpenEphys()
     {
         // First, get data about the processors
-        string url = _probeDataHTTPTarget.text.ToLower().Trim();
+        string url = Settings.OpenEphysTarget.ToLower().Trim();
         string uri = $"{url}{ENDPOINT_PROCESSORS}";
 
         // Clear variables
@@ -122,7 +118,7 @@ public class APIOpenEphys : MonoBehaviour
 
         if (_pxiID == 0)
         {
-            Debug.LogError("(APIManager-OpenEphys) Warning: no Neuropix-PXI processor was found");
+            APIManager.UpdateStatusText("error, no processor found");
             _openEphysToggle.SetIsOnWithoutNotify(false);
             yield break;
         }
@@ -141,7 +137,8 @@ public class APIOpenEphys : MonoBehaviour
             if (www.result != UnityWebRequest.Result.Success)
             {
                 Debug.Log(www.error);
-                _openEphysToggle.SetIsOnWithoutNotify(false);
+                Settings.OpenEphysToggle = false;
+                APIManager.UpdateStatusText("error, info request failed");
                 yield break;
             }
             else
@@ -161,18 +158,28 @@ public class APIOpenEphys : MonoBehaviour
                     probeOpts.Add(probeParsed["name"]);
                 }
 
-                APIManager.ProbeMatchingPanelUpdate(probeOpts);
+
+                if (probeOpts.Count > 0)
+                {
+                    APIManager.UpdateStatusText("connected OpenEphys");
+                    APIManager.ProbeMatchingPanelUpdate(probeOpts);
+                    // Send the current probe data immediately after setting everything up
+                    APIManager.ResetTimer();
+                    APIManager.TriggerAPIPush();
+                }
+                else
+                {
+                    APIManager.UpdateStatusText("error, no probes");
+                    Settings.SpikeGLXToggle = false;
+                }
             }
         }
 
-        // Send the current probe data immediately after setting everything up
-        APIManager.ResetTimer();
-        APIManager.TriggerAPIPush();
     }
 
     private void SendAllProbeData()
     {
-        string url = _probeDataHTTPTarget.text.ToLower().Trim();
+        string url = Settings.OpenEphysTarget.ToLower().Trim();
 
         Debug.Log($"(APIManager-OpenEphys) Sending probe data for {ProbeManager.Instances.Count} probes");
         foreach (ProbeManager probeManager in ProbeManager.Instances)

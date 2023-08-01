@@ -1,0 +1,11 @@
+{
+  "name": "ks.diagnostics.process",
+  "version": "1.4.0",
+  "displayName": "Process for IL2CPP",
+  "unity": "2019.4",
+  "documentationUrl": "https://docs.google.com/document/d/18CRjtXc9NMuQ2uHKTJOPOM87jgbtyknO0FoZAhvjnSQ/edit?usp=sharing",
+  "author": {
+    "name": "Kamyker",
+    "url": "https://discord.gg/qdQQrjZneS"
+  }
+}

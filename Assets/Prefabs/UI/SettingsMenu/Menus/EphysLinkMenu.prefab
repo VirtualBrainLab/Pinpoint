@@ -1698,6 +1698,7 @@ MonoBehaviour:
   _connectionErrorText: {fileID: 642282321731354649}
   _manipulatorList: {fileID: 7994738088484906322}
   _manipulatorConnectionPanelPrefab: {fileID: 8830734852478451222, guid: 19384593a545a404bbe8bd298659df46, type: 3}
+  _copilotButton: {fileID: 3555533839288543234}
   _copilotButtonText: {fileID: 858957444264183286}
 --- !u!114 &7858764217905313557
 MonoBehaviour:
@@ -2220,6 +2221,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3555533839288543234 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2315289584108803517, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
+  m_PrefabInstance: {fileID: 1258268652652412351}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4055593196459064322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &4055593196459064322 stripped

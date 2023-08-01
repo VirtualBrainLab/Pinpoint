@@ -1,4 +1,4 @@
-using System;
+ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
@@ -23,18 +23,9 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
     #region Static fields
-    public static List<ProbeManager> Instances = new List<ProbeManager>();
+    public static readonly List<ProbeManager> Instances = new();
     public static ProbeManager ActiveProbeManager;
-    void OnEnable() => Instances.Add(this);
-    void OnDestroy()
-    {
-        Debug.Log($"Destroying probe: {name}");
-        if (Instances.Contains(this))
-            Instances.Remove(this);
-        // clean up the ProbeInsertion
-        ProbeInsertion.Instances.Remove(ProbeController.Insertion);
-    }
-
+    public static readonly UnityEvent<HashSet<ProbeManager>> EphysLinkControlledProbesChangedEvent = new();
     #endregion
 
     #region Events
@@ -117,11 +108,13 @@ public class ProbeManager : MonoBehaviour
 
     public bool IsEphysLinkControlled
     {
-        get => ManipulatorBehaviorController.enabled;
-        set
+        get => ManipulatorBehaviorController && ManipulatorBehaviorController.enabled;
+        private set
         {
             ManipulatorBehaviorController.enabled = value;
+            print("MBC enabled: "+ManipulatorBehaviorController.enabled);
             EphysLinkControlChangeEvent.Invoke();
+            EphysLinkControlledProbesChangedEvent.Invoke(Instances.Where(manager => manager.IsEphysLinkControlled).ToHashSet());
         }
     }
 
@@ -148,13 +141,6 @@ public class ProbeManager : MonoBehaviour
 
             UIUpdateEvent.Invoke();
         }
-    }
-
-
-
-    public void SetLock(bool locked)
-    {
-        _probeController.Locked = locked;
     }
 
     public void DisableAllColliders()
@@ -202,6 +188,10 @@ public class ProbeManager : MonoBehaviour
 
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
 
+        // Set color
+        if (_probeRenderer != null)
+            _color = ProbeProperties.NextColor;
+
         _probeController.FinishedMovingEvent.AddListener(UpdateName);
         _probeController.MovedThisFrameEvent.AddListener(ProbeMoved);
     }
@@ -213,8 +203,11 @@ public class ProbeManager : MonoBehaviour
 #endif
         UpdateSelectionLayer(SelectionLayerName);
 
-        if (_probeRenderer != null)
-            Color = ProbeProperties.NextColor;
+        // Force update color
+        foreach (ProbeUIManager puiManager in _probeUIManagers)
+            puiManager.UpdateColors();
+
+        UIUpdateEvent.Invoke();
     }
 
     /// <summary>
@@ -224,22 +217,40 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void Destroy()
     {
-        // Delete this gameObject
-        foreach (ProbeUIManager puimanager in _probeUIManagers)
-            puimanager.Destroy();
-
-        Instances.Remove(this);
-
         ProbeProperties.ReturnColor(Color);
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
         
-        // Unregister this probe from the ephys link
+        // Force disable Ephys Link
         if (IsEphysLinkControlled)
         {
-            SetIsEphysLinkControlled(false);
+            IsEphysLinkControlled = false;
+            CommunicationManager.Instance.UnregisterManipulator(ManipulatorBehaviorController.ManipulatorID);
         }
+        
+        // Delete this gameObject
+        foreach (ProbeUIManager puimanager in _probeUIManagers)
+            puimanager.Destroy();
     }
+
+    private void OnDestroy()
+    {
+        // Destroy instance
+        Debug.Log($"Destroying probe: {name}");
+
+        if (ProbeInsertion.Instances.Count == 1)
+            ProbeInsertion.Instances.Clear();
+        else
+            ProbeInsertion.Instances.Remove(ProbeController.Insertion);
+
+        if (Instances.Count == 1)
+            Instances.Clear();
+        else
+            Instances.Remove(this);
+    }
+
+    private void OnEnable() => Instances.Add(this);
+    
 
     #endregion
 
@@ -256,6 +267,8 @@ public class ProbeManager : MonoBehaviour
             ColliderManager.AddProbeColliderInstances(_probeColliders, true);
         else
             ColliderManager.AddProbeColliderInstances(_probeColliders, false);
+
+        GetComponent<CartesianProbeController>().enabled = active;
 
         UIUpdateEvent.Invoke();
         _probeController.MovedThisFrameEvent.Invoke();
@@ -314,16 +327,6 @@ public class ProbeManager : MonoBehaviour
         _overrideName = newName;
         UpdateName();
         UIUpdateEvent.Invoke();
-    }
-
-
-    /// <summary>
-    /// Move the probe
-    /// </summary>
-    /// <returns>Whether or not the probe moved on this frame</returns>
-    public void MoveProbe()
-    {
-        ((DefaultProbeController)_probeController).MoveProbe_Keyboard();
     }
 
     public void ProbeMoved()
@@ -406,51 +409,58 @@ public class ProbeManager : MonoBehaviour
     /// Get a serialized representation of the depth information on each shank of this probe
     /// 
     /// SpikeGLX format
-    /// (
+    /// [probe,shank]()
     /// </summary>
-    /// <returns></returns>
-    public string GetProbeDepthIDs()
+    /// <returns>List of strings, each of which has data for one shank in the scene</returns>
+    public List<string> GetProbeDepthIDs()
     {
-        if (ProbeProperties.FourShank(ProbeType))
-        {
-            // do something else
-            string probeStr = "";
-            for (int si = 0; si < 4; si++)
-                probeStr += perShankDepthIDs(si);
-            return probeStr;
-        }
-        {
-            return perShankDepthIDs(0);
-        }
+        List<string> depthIDs = new List<string>();
+        //if (ProbeProperties.FourShank(ProbeType))
+        //{
+        //    // do something else
+            
+        //    for (int si = 0; si < 4; si++)
+        //        depthIDs.Add(perShankDepthIDs(si));
+        //}
+        //{
+            depthIDs.Add(perShankDepthIDs(0));
+        //}
+        return depthIDs;
     }
 
     private string perShankDepthIDs(int shank)
     {
         // Create a list of range, acronym color
         List<(int bot, int top, string acronym, Color color)> probeAnnotationData = new();
-        float height = _channelMaxY - _channelMinY;
 
-        float curBottom = 0f;
 
         ProbeUIManager uiManager = _probeUIManagers[shank];
-        Vector3 baseCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMinY;
-        Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMaxY;
+        //Vector3 baseCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMinY;
+        //Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMaxY;
+
+        Vector3 baseCoordWorldT = uiManager.ShankTipT().position;
+        Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * ChannelMap.FullHeight;
+        //float height = _channelMaxY - _channelMinY;
+        float height = ChannelMap.FullHeight;
 
         // convert to worldU
         ProbeInsertion insertion = _probeController.Insertion;
         Vector3 baseCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(baseCoordWorldT))));
         Vector3 topCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.Transform2Space(insertion.CoordinateTransform.Space2TransformAxisChange(insertion.CoordinateSpace.World2Space(topCoordWorldT))));
 
-        int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(baseCoordWorldU));
-        if (lastID < 0) lastID = -1;
         // Lerp between the base and top coordinate in small steps'
 
-        float _channelMinUM = _channelMinY * 1000f;
+        int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(baseCoordWorldU));
+        if (lastID < 0) lastID = -1;
+        
+        float curBottom = 0f;
+        float _channelMinUM = 0f; // _channelMinY * 1000f;
 
         for (float perc = 0f; perc < 1f; perc += 0.01f)
         {
-
             Vector3 coordU = Vector3.Lerp(baseCoordWorldU, topCoordWorldU, perc);
+            Debug.Log(Vector3.Distance(coordU, baseCoordWorldU));
+
             int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(coordU));
             if (ID < 0) ID = -1;
 
@@ -805,6 +815,7 @@ public class ProbeManager : MonoBehaviour
         {
             case true when ManipulatorBehaviorController.enabled:
             case true when string.IsNullOrEmpty(manipulatorId):
+            case false when !IsEphysLinkControlled:
                 return;
         }
 
@@ -822,7 +833,6 @@ public class ProbeManager : MonoBehaviour
             CommunicationManager.Instance.UnregisterManipulator(manipulatorId, () =>
             {
                 IsEphysLinkControlled = false;
-                ManipulatorBehaviorController.Disable();
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
     }
@@ -919,6 +929,7 @@ public class ProbeData
     public string APITarget;
 
     // Ephys Link
+    public string ManipulatorType;
     public string ManipulatorID;
     public float BrainSurfaceOffset;
     public bool Drop2SurfaceWithDepth;
@@ -947,7 +958,10 @@ public class ProbeData
 
         data.APITarget = probeManager.APITarget;
 
-        // Manipulator Behavior data
+        // Manipulator Behavior data (if it exists)
+        if (!probeManager.ManipulatorBehaviorController) return data;
+        
+        data.ManipulatorType = probeManager.ManipulatorBehaviorController.ManipulatorType;
         data.ManipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
