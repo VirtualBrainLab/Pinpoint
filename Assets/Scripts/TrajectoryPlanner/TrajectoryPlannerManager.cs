@@ -254,10 +254,6 @@ namespace TrajectoryPlanner
                     return;
                 }
             }
-
-
-            //if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.P))
-            //    _coenProbe = AddNewProbe(8).GetComponent<EightShankProbeControl>();
         }
 
         private void LateUpdate()
