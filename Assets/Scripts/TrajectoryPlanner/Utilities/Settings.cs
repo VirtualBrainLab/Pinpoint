@@ -340,7 +340,7 @@ public class Settings : MonoBehaviour
         }
     }
     
-    [SerializeField] private InputField _ephysLinkServerIpInput;
+    [SerializeField] private TMP_InputField _ephysLinkServerIpInput;
     [SerializeField] private InputField _ephysLinkServerPortInput;
 
     /// <summary>
