@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using CoordinateSpaces;
 using EphysLink;
 using TMPro;
 using TrajectoryPlanner.Probes;
@@ -26,7 +27,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             // Create line renderer
             InitializeLineRenderers();
-            
+
             // Add listener to probe movements and update trajectory
             ProbeManager.ProbeController.MovedThisFrameEvent.AddListener(ComputeMovementInsertions);
         }
@@ -118,14 +119,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             // Recalculate AP and ML based on pre-depth-drive DV
             var brainSurfaceCoordinate = VolumeDatasetManager.AnnotationDataset.FindSurfaceCoordinate(
-                VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(
+                _annotationDatasetCoordinateSpace.World2Space(
                     ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
                         .PositionWorldU()),
-                VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(ProbeManager
+                _annotationDatasetCoordinateSpace.World2SpaceAxisChange(ProbeManager
                     .ProbeController
                     .GetTipWorldU().tipUpWorldU));
             var brainSurfaceWorld =
-                VolumeDatasetManager.AnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
+                _annotationDatasetCoordinateSpace.Space2World(brainSurfaceCoordinate);
             var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
 
             // AP Axis
@@ -262,9 +263,24 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
 
+        private static CoordinateSpace _annotationDatasetCoordinateSpace =>
+            VolumeDatasetManager.AnnotationDataset.CoordinateSpace;
+
+        /// <summary>
+        /// Filter for insertions that are targetable.
+        /// 1. Are not ephys link controlled
+        /// 2. Are inside the brain (not NaN)
+        /// </summary>
         private static IEnumerable<ProbeInsertion> _targetableInsertions => ProbeManager.Instances
-            .Where(manager => !manager.IsEphysLinkControlled)
-            .Select(manager => manager.ProbeController.Insertion).ToHashSet();
+            .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
+                .AnnotationDataset.FindSurfaceCoordinate(
+                    _annotationDatasetCoordinateSpace.World2Space(manager.ProbeController
+                        .Insertion
+                        .PositionWorldU()),
+                    _annotationDatasetCoordinateSpace.World2SpaceAxisChange(manager
+                        .ProbeController
+                        .GetTipWorldU().tipUpWorldU)).x))
+            .Select(manager => manager.ProbeController.Insertion);
 
 
         #region Shared
@@ -320,7 +336,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _mlInputField.text = (insertion.ml * 1000).ToString(CultureInfo.InvariantCulture);
                 _dvInputField.text = (insertion.dv * 1000).ToString(CultureInfo.InvariantCulture);
                 _depthInputField.text = "0";
-                
+
                 // Show lines
                 _lineGameObjects.ap.SetActive(true);
                 _lineGameObjects.ml.SetActive(true);
