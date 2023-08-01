@@ -57,8 +57,15 @@ public class ActiveExperimentUI : MonoBehaviour
     #region Insertions
     public void UpdateExperimentInsertionUIPanels()
     {
+        // If the accounts manager is disconnected, clear the view
+        if (!_accountsManager.Connected)
+        {
+            ResetUIPanels();
+            return;
+        }
+
         // don't bother updating if we are disabled
-        if (!gameObject.activeSelf || !_accountsManager.Connected)
+        if (!gameObject.activeSelf)
             return;
 
         // If the experiment was changed, reset the whole panel

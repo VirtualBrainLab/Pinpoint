@@ -1,4 +1,4 @@
-using System;
+ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
@@ -188,6 +188,10 @@ public class ProbeManager : MonoBehaviour
 
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
 
+        // Set color
+        if (_probeRenderer != null)
+            _color = ProbeProperties.NextColor;
+
         _probeController.FinishedMovingEvent.AddListener(UpdateName);
         _probeController.MovedThisFrameEvent.AddListener(ProbeMoved);
     }
@@ -199,8 +203,11 @@ public class ProbeManager : MonoBehaviour
 #endif
         UpdateSelectionLayer(SelectionLayerName);
 
-        if (_probeRenderer != null)
-            Color = ProbeProperties.NextColor;
+        // Force update color
+        foreach (ProbeUIManager puiManager in _probeUIManagers)
+            puiManager.UpdateColors();
+
+        UIUpdateEvent.Invoke();
     }
 
     /// <summary>
