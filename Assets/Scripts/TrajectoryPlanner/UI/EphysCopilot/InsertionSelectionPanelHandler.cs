@@ -106,9 +106,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private void ComputeMovementInsertions()
         {
-            // Shortcut exit if there is no insertion selected
-            if (!ManipulatorIDToSelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController
-                    .ManipulatorID)) return;
+            // Shortcut exit if lines are not drawn (and therefore no path is being planned)
+            if (!_lineGameObjects.ap.activeSelf) return;
 
             // DV axis
             _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
@@ -142,13 +141,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             };
 
             // Update line renderer
-
-            // Show line
-            _lineGameObjects.ap.SetActive(true);
-            _lineGameObjects.ml.SetActive(true);
-            _lineGameObjects.dv.SetActive(true);
-
-            // Set line positions
             _lineRenderers.dv.SetPosition(0, ProbeManager.ProbeController.ProbeTipT.position);
             _lineRenderers.dv.SetPosition(1, _movementAxesInsertions.dv.PositionWorldT());
 
@@ -328,6 +320,11 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _mlInputField.text = (insertion.ml * 1000).ToString(CultureInfo.InvariantCulture);
                 _dvInputField.text = (insertion.dv * 1000).ToString(CultureInfo.InvariantCulture);
                 _depthInputField.text = "0";
+                
+                // Show lines
+                _lineGameObjects.ap.SetActive(true);
+                _lineGameObjects.ml.SetActive(true);
+                _lineGameObjects.dv.SetActive(true);
 
                 // Compute movement insertions
                 ComputeMovementInsertions();
