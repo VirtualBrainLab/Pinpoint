@@ -151,7 +151,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Calibrate target insertion depth based on surface position
                 var targetInsertion =
-                    InsertionSelectionPanelHandler.SelectedTargetInsertion[
+                    InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetInsertion[
                         ProbeManager.ManipulatorBehaviorController.ManipulatorID];
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
@@ -169,7 +169,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Update target insertion coordinate
                 InsertionSelectionPanelHandler
-                        .SelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID].apmldv =
+                        .ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID].apmldv =
                     offsetAdjustedTargetPosition;
 
                 // Compute return surface position (500 dv above surface)
@@ -193,7 +193,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 var targetDriveDistance =
                     Vector3.Distance(
                         InsertionSelectionPanelHandler
-                            .SelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID].apmldv,
+                            .ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID].apmldv,
                         ProbeManager.ProbeController.Insertion.apmldv);
                 var surfaceDriveDistance = Vector3.Distance(offsetAdjustedSurfacePosition,
                     ProbeManager.ProbeController.Insertion.apmldv);

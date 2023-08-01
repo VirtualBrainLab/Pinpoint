@@ -26,6 +26,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             // Create line renderer
             InitializeLineRenderers();
+            
+            // Add listener to probe movements and update trajectory
+            ProbeManager.ProbeController.MovedThisFrameEvent.AddListener(ComputeMovementInsertions);
         }
 
         /// <summary>
@@ -96,9 +99,64 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Restore selection (if possible)
             _targetInsertionDropdown.SetValueWithoutNotify(
                 _targetInsertionOptions.ToList()
-                    .IndexOf(SelectedTargetInsertion.GetValueOrDefault(
+                    .IndexOf(ManipulatorIDToSelectedTargetInsertion.GetValueOrDefault(
                         ProbeManager.ManipulatorBehaviorController.ManipulatorID, null)) + 1
             );
+        }
+
+        private void ComputeMovementInsertions()
+        {
+            // Shortcut exit if there is no insertion selected
+            if (!ManipulatorIDToSelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController
+                    .ManipulatorID)) return;
+
+            // DV axis
+            _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
+            {
+                dv = ProbeManager.ProbeController.Insertion
+                    .World2TransformedAxisChange(PRE_DEPTH_DRIVE_BREGMA_OFFSET_W).z
+            };
+
+            // Recalculate AP and ML based on pre-depth-drive DV
+            var brainSurfaceCoordinate = VolumeDatasetManager.AnnotationDataset.FindSurfaceCoordinate(
+                VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(
+                    ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
+                        .PositionWorldU()),
+                VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(ProbeManager
+                    .ProbeController
+                    .GetTipWorldU().tipUpWorldU));
+            var brainSurfaceWorld =
+                VolumeDatasetManager.AnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
+            var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
+
+            // AP Axis
+            _movementAxesInsertions.ap = new ProbeInsertion(_movementAxesInsertions.dv)
+            {
+                ap = brainSurfaceTransformed.x
+            };
+
+            // ML Axis
+            _movementAxesInsertions.ml = new ProbeInsertion(_movementAxesInsertions.ap)
+            {
+                ml = brainSurfaceTransformed.y
+            };
+
+            // Update line renderer
+
+            // Show line
+            _lineGameObjects.ap.SetActive(true);
+            _lineGameObjects.ml.SetActive(true);
+            _lineGameObjects.dv.SetActive(true);
+
+            // Set line positions
+            _lineRenderers.dv.SetPosition(0, ProbeManager.ProbeController.ProbeTipT.position);
+            _lineRenderers.dv.SetPosition(1, _movementAxesInsertions.dv.PositionWorldT());
+
+            _lineRenderers.ap.SetPosition(0, _movementAxesInsertions.dv.PositionWorldT());
+            _lineRenderers.ap.SetPosition(1, _movementAxesInsertions.ap.PositionWorldT());
+
+            _lineRenderers.ml.SetPosition(0, _movementAxesInsertions.ap.PositionWorldT());
+            _lineRenderers.ml.SetPosition(1, _movementAxesInsertions.ml.PositionWorldT());
         }
 
         /// <summary>
@@ -107,7 +165,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private void MoveToTargetInsertion()
         {
             // Check if a target insertion is selected
-            if (!SelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController.ManipulatorID)) return;
+            if (!ManipulatorIDToSelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController
+                    .ManipulatorID)) return;
 
             // Setup and compute movement
             _isMoving = true;
@@ -160,7 +219,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private void UpdateMoveButtonInteractable()
         {
             _moveButton.interactable =
-                SelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
+                ManipulatorIDToSelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController
+                    .ManipulatorID);
         }
 
         #endregion
@@ -203,7 +263,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private IEnumerable<ProbeInsertion> _targetInsertionOptions => _targetableInsertions
             .Where(insertion =>
-                !SelectedTargetInsertion
+                !ManipulatorIDToSelectedTargetInsertion
                     .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
                     .Select(pair => pair.Value).Contains(insertion) &&
                 insertion.angles == ProbeManager.ProbeController.Insertion.angles);
@@ -217,7 +277,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         #region Shared
 
-        public static readonly Dictionary<string, ProbeInsertion> SelectedTargetInsertion = new();
+        public static readonly Dictionary<string, ProbeInsertion> ManipulatorIDToSelectedTargetInsertion = new();
         private static readonly UnityEvent<string> _shouldUpdateTargetInsertionOptionsEvent = new();
 
         #endregion
@@ -244,7 +304,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             if (insertion == null)
             {
                 // Remove record if no insertion selected
-                SelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
+                ManipulatorIDToSelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
 
                 // Reset text fields
                 _apInputField.text = "";
@@ -260,7 +320,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             else
             {
                 // Update record if insertion selected
-                SelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID] = insertion;
+                ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
+                    insertion;
 
                 // Update text fields
                 _apInputField.text = (insertion.ap * 1000).ToString(CultureInfo.InvariantCulture);
@@ -268,53 +329,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _dvInputField.text = (insertion.dv * 1000).ToString(CultureInfo.InvariantCulture);
                 _depthInputField.text = "0";
 
-                // Calculate movement insertions
-
-                // DV axis
-                _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
-                {
-                    dv = ProbeManager.ProbeController.Insertion
-                        .World2TransformedAxisChange(PRE_DEPTH_DRIVE_BREGMA_OFFSET_W).z
-                };
-
-                // Recalculate AP and ML based on pre-depth-drive DV
-                var brainSurfaceCoordinate = VolumeDatasetManager.AnnotationDataset.FindSurfaceCoordinate(
-                    VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(
-                        SelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
-                            .PositionWorldU()),
-                    VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2SpaceAxisChange(ProbeManager.ProbeController
-                        .GetTipWorldU().tipUpWorldU));
-                var brainSurfaceWorld = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate);
-                var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
-
-                // AP Axis
-                _movementAxesInsertions.ap = new ProbeInsertion(_movementAxesInsertions.dv)
-                {
-                    ap = brainSurfaceTransformed.x
-                };
-
-                // ML Axis
-                _movementAxesInsertions.ml = new ProbeInsertion(_movementAxesInsertions.ap)
-                {
-                    ml = brainSurfaceTransformed.y
-                };
-
-                // Update line renderer
-
-                // Show line
-                _lineGameObjects.ap.SetActive(true);
-                _lineGameObjects.ml.SetActive(true);
-                _lineGameObjects.dv.SetActive(true);
-
-                // Set line positions
-                _lineRenderers.dv.SetPosition(0, ProbeManager.ProbeController.ProbeTipT.position);
-                _lineRenderers.dv.SetPosition(1, _movementAxesInsertions.dv.PositionWorldT());
-
-                _lineRenderers.ap.SetPosition(0, _movementAxesInsertions.dv.PositionWorldT());
-                _lineRenderers.ap.SetPosition(1, _movementAxesInsertions.ap.PositionWorldT());
-
-                _lineRenderers.ml.SetPosition(0, _movementAxesInsertions.ap.PositionWorldT());
-                _lineRenderers.ml.SetPosition(1, _movementAxesInsertions.ml.PositionWorldT());
+                // Compute movement insertions
+                ComputeMovementInsertions();
             }
 
             // Update dropdown options
