@@ -167,6 +167,7 @@ public class CartesianProbeController : ProbeController
     {
         if (_dirty)
         {
+            _dirty = false;
             SetProbePosition();
         }
     }
