@@ -415,16 +415,17 @@ public class ProbeManager : MonoBehaviour
     public List<string> GetProbeDepthIDs()
     {
         List<string> depthIDs = new List<string>();
-        //if (ProbeProperties.FourShank(ProbeType))
-        //{
-        //    // do something else
-            
-        //    for (int si = 0; si < 4; si++)
-        //        depthIDs.Add(perShankDepthIDs(si));
-        //}
-        //{
+        if (ProbeProperties.FourShank(ProbeType))
+        {
+            // do something else
+
+            for (int si = 0; si < 4; si++)
+                depthIDs.Add(perShankDepthIDs(si));
+        }
+        else
+        {
             depthIDs.Add(perShankDepthIDs(0));
-        //}
+        }
         return depthIDs;
     }
 
@@ -459,7 +460,6 @@ public class ProbeManager : MonoBehaviour
         for (float perc = 0f; perc < 1f; perc += 0.01f)
         {
             Vector3 coordU = Vector3.Lerp(baseCoordWorldU, topCoordWorldU, perc);
-            Debug.Log(Vector3.Distance(coordU, baseCoordWorldU));
 
             int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(coordU));
             if (ID < 0) ID = -1;
