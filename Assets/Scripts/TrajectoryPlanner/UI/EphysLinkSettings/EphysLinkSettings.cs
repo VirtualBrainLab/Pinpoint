@@ -17,7 +17,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         #region Components
 
         // Server connection
-        [SerializeField] private InputField _ipAddressInputField;
+        [SerializeField] private TMP_InputField _ipAddressInputField;
         [SerializeField] private InputField _portInputField;
         [SerializeField] private Text _connectButtonText;
         [SerializeField] private TMP_Text _connectionErrorText;
