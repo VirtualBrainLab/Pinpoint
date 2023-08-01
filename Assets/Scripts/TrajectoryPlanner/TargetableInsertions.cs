@@ -62,7 +62,8 @@ public class TargetableInsertions : MonoBehaviour
             {
                 // This probe is in targetable but it shouldn't be
                 ProbeManager probeManager = _targetableProbes[UUID];
-                Destroy(probeManager.gameObject);
+                if (probeManager != null)
+                    Destroy(probeManager.gameObject);
                 _targetableProbes.Remove(UUID);
             }
         }
