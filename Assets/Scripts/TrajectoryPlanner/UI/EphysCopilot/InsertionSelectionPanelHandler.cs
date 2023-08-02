@@ -125,6 +125,15 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _annotationDatasetCoordinateSpace.World2SpaceAxisChange(ProbeManager
                     .ProbeController
                     .GetTipWorldU().tipUpWorldU));
+            
+            // Disallow movement if insertion is invalid (NaN) and exit early
+            if (float.IsNaN(brainSurfaceCoordinate.x))
+            {
+                _moveButton.interactable = false;
+                return;
+            }
+            _moveButton.interactable = true;
+
             var brainSurfaceWorld =
                 _annotationDatasetCoordinateSpace.Space2World(brainSurfaceCoordinate);
             var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
