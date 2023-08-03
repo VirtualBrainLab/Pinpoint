@@ -438,7 +438,7 @@ namespace TrajectoryPlanner
 
             UpdateQuickSettingsProbeIdText();
 
-            newProbeManager.UIUpdateEvent.AddListener(UpdateQuickSettings);
+            newProbeManager.UIUpdateEvent.AddListener(() => UpdateQuickSettings(newProbeManager));
             newProbeManager.ProbeController.MovedThisFrameEvent.AddListener(SetMovedThisFrame);
 
             // Add listener for SetActiveProbe
@@ -591,8 +591,12 @@ namespace TrajectoryPlanner
                     probeManager.OverrideName(newName);
         }
 
-        public void UpdateQuickSettings()
+        public void UpdateQuickSettings(ProbeManager sourceProbeManager=null)
         {
+            // Ignore this call to update quick settings if the source probe manager is not the active probe manager
+            if (sourceProbeManager && sourceProbeManager != ProbeManager.ActiveProbeManager)
+                return;
+            
             _probeQuickSettings.UpdateCoordinates();
         }
 
