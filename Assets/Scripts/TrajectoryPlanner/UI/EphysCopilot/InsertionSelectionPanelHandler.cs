@@ -82,7 +82,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         ///     Update the target insertion dropdown options.
         ///     Try to maintain/restore previous selection
         /// </summary>
-        private void UpdateTargetInsertionOptions()
+        public void UpdateTargetInsertionOptions()
         {
             // Clear options
             _targetInsertionDropdown.ClearOptions();
@@ -134,18 +134,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Exit
                 return;
             }
-
-            // Update text box values
-            // _apInputField.SetTextWithoutNotify(
-            //     (ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID].ap *
-            //      1000).ToString(CultureInfo.InvariantCulture));
-            // _mlInputField.SetTextWithoutNotify(
-            //     (ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID].ml *
-            //      1000).ToString(CultureInfo.InvariantCulture));
-            // _dvInputField.SetTextWithoutNotify(
-            //     (ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID].dv *
-            //      1000).ToString(CultureInfo.InvariantCulture));
-            // _depthInputField.SetTextWithoutNotify("0");
 
             // DV axis
             _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
