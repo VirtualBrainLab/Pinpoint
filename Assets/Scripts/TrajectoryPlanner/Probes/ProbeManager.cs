@@ -190,7 +190,7 @@ public class ProbeManager : MonoBehaviour
 
         // Set color
         if (_probeRenderer != null)
-            _color = ProbeProperties.NextColor;
+            Color = ProbeProperties.NextColor;
 
         _probeController.FinishedMovingEvent.AddListener(UpdateName);
         _probeController.MovedThisFrameEvent.AddListener(ProbeMoved);
