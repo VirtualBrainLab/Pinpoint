@@ -90,6 +90,24 @@ public class Settings : MonoBehaviour
         }
     }
 
+    private const int PROBE_SPEED_DEFAULT = 1;
+    private const int PROBE_SPEED_MAX = 3;
+    private const int PROBE_SPEED_MIN = 0;
+    public UnityEvent<int> ProbeSpeedChangedEvent;
+
+    public static int ProbeSpeed
+    {
+        get { return data.ProbeSpeed; }
+        set
+        {
+            data.ProbeSpeed = value > PROBE_SPEED_MAX ? PROBE_SPEED_MAX :
+                value < PROBE_SPEED_MIN ? PROBE_SPEED_MIN :
+                value;
+            Save();
+            Instance.ProbeSpeedChangedEvent.Invoke(data.ProbeSpeed);
+        }
+    }
+
     #endregion
 
     #region Area settings
@@ -504,6 +522,7 @@ public class Settings : MonoBehaviour
             data.RotateAPML2ProbeAxis = APML2PROBE_DEFAULT;
             data.UseIBLAngles = USEIBLANGLES_DEFAULT;
             data.AxisControl = AXISCONTROL_DEFAULT;
+            data.ProbeSpeed = PROBE_SPEED_DEFAULT;
 
             // areas
             data.UseAcronyms = USEACRONYMS_DEFAULT;
@@ -585,6 +604,7 @@ public class Settings : MonoBehaviour
 
         // Probes
         _probePanelHeightSlider.SetValueWithoutNotify(ProbePanelHeight);
+        ProbeSpeedChangedEvent.Invoke(data.ProbeSpeed);
 
         // Default to Bregma
         _displayUmToggle.SetIsOnWithoutNotify(DisplayUM);
@@ -691,6 +711,7 @@ public class Settings : MonoBehaviour
         public float ProbePanelHeight;
         public bool DetectCollisions;
         public bool RotateAPML2ProbeAxis;
+        public int ProbeSpeed;
 
         public int ShowAtlas3DSlices;
         public Vector3 RelativeCoord;

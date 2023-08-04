@@ -208,18 +208,36 @@ public class CartesianProbeController : ProbeController
 
     private float ComputeMoveSpeed_Tap()
     {
-        return keyUltra ? MOVE_INCREMENT_TAP_ULTRA :
-            keyFast ? MOVE_INCREMENT_TAP_FAST :
-            keySlow ? MOVE_INCREMENT_TAP_SLOW :
-            MOVE_INCREMENT_TAP;
+        switch (Settings.ProbeSpeed)
+        {
+            case 0:
+                return MOVE_INCREMENT_TAP_SLOW;
+            case 1:
+                return MOVE_INCREMENT_TAP;
+            case 2:
+                return MOVE_INCREMENT_TAP_FAST;
+            case 3:
+                return MOVE_INCREMENT_TAP_ULTRA;
+            default:
+                return 0f;
+        }
     }
 
     private float ComputeMoveSpeed_Hold()
     {
-        return (keyUltra ? MOVE_INCREMENT_HOLD_ULTRA :
-            keyFast ? MOVE_INCREMENT_HOLD_FAST :
-            keySlow ? MOVE_INCREMENT_HOLD_SLOW :
-            MOVE_INCREMENT_HOLD) * Time.deltaTime;
+        switch (Settings.ProbeSpeed)
+        {
+            case 0:
+                return MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime;
+            case 1:
+                return MOVE_INCREMENT_HOLD * Time.deltaTime;
+            case 2:
+                return MOVE_INCREMENT_HOLD_FAST * Time.deltaTime;
+            case 3:
+                return MOVE_INCREMENT_HOLD_ULTRA * Time.deltaTime;
+            default:
+                return 0f;
+        }
     }
 
     private float ComputeRotSpeed_Tap()
