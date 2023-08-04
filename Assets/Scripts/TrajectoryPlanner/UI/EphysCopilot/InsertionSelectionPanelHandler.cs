@@ -23,7 +23,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             // Attach to dropdown events
             _shouldUpdateTargetInsertionOptionsEvent.AddListener(UpdateTargetInsertionOptions);
-            UpdateTargetInsertionOptions("-1");
+            UpdateTargetInsertionOptions();
 
             // Create line renderer
             InitializeLineRenderers();
@@ -82,11 +82,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         ///     Update the target insertion dropdown options.
         ///     Try to maintain/restore previous selection
         /// </summary>
-        private void UpdateTargetInsertionOptions(string fromManipulatorID)
+        public void UpdateTargetInsertionOptions()
         {
-            // Skip if called from self
-            if (fromManipulatorID == ProbeManager.ManipulatorBehaviorController.ManipulatorID) return;
-
             // Clear options
             _targetInsertionDropdown.ClearOptions();
 
@@ -110,6 +107,34 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Shortcut exit if lines are not drawn (and therefore no path is being planned)
             if (!_lineGameObjects.ap.activeSelf) return;
 
+            // Update insertion selection listings
+            UpdateTargetInsertionOptions();
+
+            // Abort insertion if it is invalid
+            if (!_targetableInsertions.Contains(
+                    ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID]))
+            {
+                // Remove record (deselected)
+                ManipulatorIDToSelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
+
+                // Reset text fields
+                _apInputField.SetTextWithoutNotify("");
+                _mlInputField.SetTextWithoutNotify("");
+                _dvInputField.SetTextWithoutNotify("");
+                _depthInputField.SetTextWithoutNotify("");
+
+                // Hide line
+                _lineGameObjects.ap.SetActive(false);
+                _lineGameObjects.ml.SetActive(false);
+                _lineGameObjects.dv.SetActive(false);
+
+                // Disable movement button
+                _moveButton.interactable = false;
+
+                // Exit
+                return;
+            }
+
             // DV axis
             _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
             {
@@ -125,6 +150,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _annotationDatasetCoordinateSpace.World2SpaceAxisChange(ProbeManager
                     .ProbeController
                     .GetTipWorldU().tipUpWorldU));
+
             var brainSurfaceWorld =
                 _annotationDatasetCoordinateSpace.Space2World(brainSurfaceCoordinate);
             var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
@@ -267,9 +293,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             VolumeDatasetManager.AnnotationDataset.CoordinateSpace;
 
         /// <summary>
-        /// Filter for insertions that are targetable.
-        /// 1. Are not ephys link controlled
-        /// 2. Are inside the brain (not NaN)
+        ///     Filter for insertions that are targetable.
+        ///     1. Are not ephys link controlled
+        ///     2. Are inside the brain (not NaN)
         /// </summary>
         private static IEnumerable<ProbeInsertion> _targetableInsertions => ProbeManager.Instances
             .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
@@ -286,7 +312,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         #region Shared
 
         public static readonly Dictionary<string, ProbeInsertion> ManipulatorIDToSelectedTargetInsertion = new();
-        private static readonly UnityEvent<string> _shouldUpdateTargetInsertionOptionsEvent = new();
+        private static readonly UnityEvent _shouldUpdateTargetInsertionOptionsEvent = new();
 
         #endregion
 
@@ -305,7 +331,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             var insertion = value > 0
                 ? _targetableInsertions.First(insertion =>
                     insertion.PositionToString()
-                        .Equals(_targetInsertionDropdown.options[_targetInsertionDropdown.value].text))
+                        .Equals(_targetInsertionDropdown.options[value].text))
                 : null;
 
             // Update selection record and text fields
@@ -315,10 +341,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 ManipulatorIDToSelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
 
                 // Reset text fields
-                _apInputField.text = "";
-                _mlInputField.text = "";
-                _dvInputField.text = "";
-                _depthInputField.text = "";
+                _apInputField.SetTextWithoutNotify("");
+                _mlInputField.SetTextWithoutNotify("");
+                _dvInputField.SetTextWithoutNotify("");
+                _depthInputField.SetTextWithoutNotify("");
 
                 // Hide line
                 _lineGameObjects.ap.SetActive(false);
@@ -332,10 +358,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     insertion;
 
                 // Update text fields
-                _apInputField.text = (insertion.ap * 1000).ToString(CultureInfo.InvariantCulture);
-                _mlInputField.text = (insertion.ml * 1000).ToString(CultureInfo.InvariantCulture);
-                _dvInputField.text = (insertion.dv * 1000).ToString(CultureInfo.InvariantCulture);
-                _depthInputField.text = "0";
+                _apInputField.SetTextWithoutNotify((insertion.ap * 1000).ToString(CultureInfo.InvariantCulture));
+                _mlInputField.SetTextWithoutNotify((insertion.ml * 1000).ToString(CultureInfo.InvariantCulture));
+                _dvInputField.SetTextWithoutNotify((insertion.dv * 1000).ToString(CultureInfo.InvariantCulture));
+                _depthInputField.SetTextWithoutNotify("0");
 
                 // Show lines
                 _lineGameObjects.ap.SetActive(true);
@@ -347,7 +373,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             }
 
             // Update dropdown options
-            _shouldUpdateTargetInsertionOptionsEvent.Invoke(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
+            _shouldUpdateTargetInsertionOptionsEvent.Invoke();
             UpdateMoveButtonInteractable();
         }
 
