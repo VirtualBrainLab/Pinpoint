@@ -290,7 +290,7 @@ MonoBehaviour:
     and use the snap button to move the probe tip to the center of the region. Make
     fine adjustments with the axis keys (on the right) in 10 um increments. You can
     adjust the probe angles in the probe panel or by using the keys (on the right).
-    Hold shift for larger increments and ctrl for smaller increments.
+    Press shift to increase the size of movements or ctrl to decrease.
 
 
     Once
