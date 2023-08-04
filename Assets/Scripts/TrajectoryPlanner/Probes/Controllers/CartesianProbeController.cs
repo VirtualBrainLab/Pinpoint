@@ -244,7 +244,7 @@ public class CartesianProbeController : ProbeController
     /// <param name="dir"></param>
     public void Click(Vector4 dir)
     {
-        if (dragging) return;
+        if (dragging || UIManager.InputsFocused) return;
 
         MoveProbe_XYZD(dir, ComputeMoveSpeed_Tap());
         clickHeldVector += dir;
@@ -266,7 +266,7 @@ public class CartesianProbeController : ProbeController
 
     public void Rotate(Vector3 ang)
     {
-        if (dragging) return;
+        if (dragging || UIManager.InputsFocused) return;
 
         MoveProbe_YPR(ang, ComputeRotSpeed_Tap());
 
