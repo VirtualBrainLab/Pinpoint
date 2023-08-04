@@ -206,6 +206,7 @@ public class ProbeManager : MonoBehaviour
         // Force update color
         foreach (ProbeUIManager puiManager in _probeUIManagers)
             puiManager.UpdateColors();
+        _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
     }
