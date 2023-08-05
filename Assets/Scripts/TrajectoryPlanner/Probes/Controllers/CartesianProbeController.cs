@@ -134,13 +134,6 @@ public class CartesianProbeController : ProbeController
         probeControlClick.RollCounter.performed += x => Rotate(-_rollDir);
         probeControlClick.RollCounter.canceled += x => CancelRotate(-_rollDir);
 
-        // Modifier keys
-        probeControlClick.Slow.performed += x => keySlow = true;
-        probeControlClick.Slow.canceled += x => keySlow = false;
-        probeControlClick.Fast.performed += x => keyFast = true;
-        probeControlClick.Fast.canceled += x => keyFast = false;
-        probeControlClick.Ultra.performed += x => keyUltra = true;
-        probeControlClick.Ultra.canceled += x => keyUltra = false;
 
         Insertion = new ProbeInsertion(defaultStart, defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
