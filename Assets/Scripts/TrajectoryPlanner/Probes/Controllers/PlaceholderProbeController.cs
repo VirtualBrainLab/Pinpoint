@@ -18,6 +18,12 @@ public class PlaceholderProbeController : ProbeController
     [SerializeField] private Transform _probeTipT;
     public override Transform ProbeTipT { get { return _probeTipT; } }
 
+    public override string XAxisStr { get { return "AP"; } }
+
+    public override string YAxisStr { get { return "ML"; } }
+
+    public override string ZAxisStr { get { return "DV"; } }
+
     private void Awake()
     {
         _initialPosition = transform.position;
