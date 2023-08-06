@@ -60,7 +60,7 @@ public class Settings : MonoBehaviour
         }
     }
 
-    private const bool USEIBLANGLES_DEFAULT = true;
+    private const bool USEIBLANGLES_DEFAULT = false;
     [FormerlySerializedAs("iblAngleToggle")][SerializeField] private Toggle _iblAngleToggle;
     public UnityEvent UseIBLAnglesChangedEvent;
 
