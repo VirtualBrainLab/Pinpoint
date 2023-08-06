@@ -42,7 +42,7 @@ public class BrainCameraController : MonoBehaviour
     private bool autoRotate;
     private float autoRotateSpeed = 10.0f;
 
-    public static float doubleClickTime = 0.2f;
+    public static float doubleClickTime = 0.4f;
     // Targeting
     private Vector3 cameraTarget;
 
