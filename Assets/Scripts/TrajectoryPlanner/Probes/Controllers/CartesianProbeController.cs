@@ -28,17 +28,17 @@ public class CartesianProbeController : ProbeController
     private readonly Vector4 _depthDir = new Vector4(0f, 0f, 0f, 1f);
 
     private readonly Vector3 _yawDir = new Vector3(1f, 0f, 0f);
-    private readonly Vector3 _pitchDir = new Vector3(0f, -1f, 0f);
+    private readonly Vector3 _pitchDir = new Vector3(0f, 1f, 0f);
     private readonly Vector3 _rollDir = new Vector3(0f, 0f, 1f);
 
     // angle limits
-    private const float minPitch = -90f;
-    private const float maxPitch = 0f;
+    private const float minPitch = 0f;
+    private const float maxPitch = 90f;
 
     // defaults
     private readonly Vector3 _defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
     private const float _defaultDepth = 0f;
-    private readonly Vector2 _defaultAngles = new Vector2(-90f, 0f); // 0 yaw is forward, default pitch is 90 degrees down from horizontal, but internally this is a value of 0f
+    private readonly Vector2 _defaultAngles = new Vector2(0f, 0f); // 0 yaw is forward, default pitch is 0f (downward)
     #endregion
 
     #region Key hold flags
@@ -604,7 +604,32 @@ public class CartesianProbeController : ProbeController
     /// </summary>
     public override void SetProbePosition()
     {
-        SetProbePositionHelper();
+        // Reset everything
+        transform.position = _initialPosition;
+        transform.rotation = _initialRotation;
+
+        // Manually adjust the coordinates and rotation
+        transform.position += Insertion.PositionWorldT();
+        transform.RotateAround(_rotateAround.position, transform.up, Insertion.yaw);
+        transform.RotateAround(_rotateAround.position, transform.forward, -Insertion.pitch);
+        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.roll);
+
+        // Compute depth transform, if needed
+        if (_depth != 0f)
+        {
+            transform.position += -transform.up * _depth;
+            Vector3 depthAdjustment = Insertion.World2TransformedAxisChange(-transform.up) * _depth;
+
+            Insertion.apmldv += depthAdjustment;
+            _depth = 0f;
+        }
+
+        // update surface position
+        ProbeManager.UpdateSurfacePosition();
+
+        // Tell the tpmanager we moved and update the UI elements
+        MovedThisFrameEvent.Invoke();
+        ProbeManager.UIUpdateEvent.Invoke();
     }
 
     public override void SetProbePosition(Vector3 position)
@@ -624,39 +649,6 @@ public class CartesianProbeController : ProbeController
     {
         Insertion.angles = angles;
         SetProbePosition();
-    }
-
-    /// <summary>
-    /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
-    /// </summary>
-    private void SetProbePositionHelper()
-    {
-        // Reset everything
-        transform.position = _initialPosition;
-        transform.rotation = _initialRotation;
-
-        // Manually adjust the coordinates and rotation
-        transform.position += Insertion.PositionWorldT();
-        transform.RotateAround(_rotateAround.position, transform.up, Insertion.yaw);
-        transform.RotateAround(_rotateAround.position, transform.forward, Insertion.pitch);
-        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.roll);
-
-        // Compute depth transform, if needed
-        if (_depth != 0f)
-        {
-            transform.position += -transform.up * _depth;
-            Vector3 depthAdjustment = Insertion.World2TransformedAxisChange(-transform.up) * _depth;
-
-            Insertion.apmldv += depthAdjustment;
-            _depth = 0f;
-        }
-
-        // update surface position
-        ProbeManager.UpdateSurfacePosition();
-
-        // Tell the tpmanager we moved and update the UI elements
-        MovedThisFrameEvent.Invoke();
-        ProbeManager.UIUpdateEvent.Invoke();
     }
 
     //public override void SetProbePosition(ProbeInsertion localInsertion)
