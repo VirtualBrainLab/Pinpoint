@@ -57,10 +57,7 @@ public class BrainCameraController : MonoBehaviour
         initialCameraRotatorPosition = brainCameraRotator.transform.position;
         cameraPositionOffset = Vector3.zero;
         autoRotate = false;
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
+
         lastLeftClick = Time.realtimeSinceStartup;
         lastRightClick = Time.realtimeSinceStartup;
     }
@@ -194,6 +191,8 @@ public class BrainCameraController : MonoBehaviour
 
     void ApplyBrainCameraPositionAndRotation()
     {
+        Settings.CameraRotation = new Vector3(totalYaw, totalPitch, totalSpin);
+
         Quaternion curRotation = Quaternion.Euler(totalYaw, totalSpin, totalPitch);
         // Move the camera back to zero, perform rotation, then offset back
         brainCameraRotator.transform.position = initialCameraRotatorPosition + cameraPositionOffset;
@@ -227,39 +226,20 @@ public class BrainCameraController : MonoBehaviour
     public void SetZoom(float zoom)
     {
         if (brainCamera.orthographic)
+        {
+            Settings.CameraZoom = zoom;
             brainCamera.orthographicSize = zoom;
+        }
         else
             brainCamera.fieldOfView = zoom;
     }
 
-    public void SetBrainAxisAngles(Vector2 pitchYaw)
+    public void SetBrainAxisAngles(Vector3 yawPitchSpin)
     {
-        totalPitch = pitchYaw.x;
-        totalYaw = pitchYaw.y;
-        totalSpin = 0f;
+        totalYaw = yawPitchSpin.x;
+        totalPitch = yawPitchSpin.y;
+        totalSpin = yawPitchSpin.z;
         ApplyBrainCameraPositionAndRotation();
-    }
-    public void SetBrainAxisAngles(Vector3 pitchYawSpin)
-    {
-        totalPitch = pitchYawSpin.x;
-        totalYaw = pitchYawSpin.y;
-        totalSpin = pitchYawSpin.z;
-        ApplyBrainCameraPositionAndRotation();
-    }
-
-    public void SetYaw(float newYaw)
-    {
-        totalYaw = newYaw;
-    }
-
-    public void SetPitch(float newPitch)
-    {
-        totalPitch = newPitch;
-    }
-
-    public void SetSpin(float newSpin)
-    {
-        totalSpin = newSpin;
     }
 
     public Vector3 GetCameraTarget()

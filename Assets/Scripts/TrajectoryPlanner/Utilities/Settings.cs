@@ -476,6 +476,35 @@ public class Settings : MonoBehaviour
 
     #endregion
 
+    #region Camera
+
+    private const float CZOOM_DEFAULT = 5;
+    public UnityEvent<float> CameraZoomChangedEvent;
+
+    public static float CameraZoom
+    {
+        get { return data.CameraZoom; }
+        set
+        {
+            data.CameraZoom = value;
+            Save();
+        }
+    }
+
+    private readonly Vector3 CROTATION_DEFAULT = Vector3.zero;
+    public UnityEvent<Vector3> CameraRotationChangedEvent;
+
+    public static Vector3 CameraRotation
+    {
+        get { return data.CameraRotation; }
+        set
+        {
+            data.CameraRotation = value;
+            Save();
+        }
+    }
+    #endregion
+
     #region Unity
 
     private void Awake()
@@ -559,6 +588,10 @@ public class Settings : MonoBehaviour
             // Accounts
             data.AccountsLoginToggle = LOGGEDIN_DEFAULT;
 
+            // Camera
+            data.CameraZoom = CZOOM_DEFAULT;
+            data.CameraRotation = CROTATION_DEFAULT;
+
             // Do an initial save so the default values are stored
             Save();
         }
@@ -631,8 +664,12 @@ public class Settings : MonoBehaviour
 
         // Ephys link
         _ephysLinkServerIpInput.text = data.EphysLinkServerIP;
-
         _ephysLinkServerPortInput.text = data.EphysLinkServerPort.ToString();
+
+        // Camera
+        CameraZoomChangedEvent.Invoke(CameraZoom);
+        CameraRotationChangedEvent.Invoke(CameraRotation);
+
     }
 
     #endregion
@@ -737,6 +774,10 @@ public class Settings : MonoBehaviour
         public bool AxisControl;
         public bool UseAcronyms;
         public bool UseBeryl;
+
+        // Camera
+        public float CameraZoom;
+        public Vector3 CameraRotation;
     }
     #endregion
 }
