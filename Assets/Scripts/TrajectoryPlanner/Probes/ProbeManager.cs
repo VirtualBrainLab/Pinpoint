@@ -613,64 +613,69 @@ public class ProbeManager : MonoBehaviour
     {
         string apStr;
         string mlStr;
-        string dvStr;
-        string depthStr;
+        string dvStr = "DV";
 
         ProbeInsertion insertion = _probeController.Insertion;
-        string prefix = insertion.CoordinateTransform.Prefix;
 
         // If we are using the 
         if (Settings.ConvertAPML2Probe)
         {
             Debug.LogWarning("Not working");
-            apStr = prefix + "Forward";
-            mlStr = prefix + "Right";
+            apStr = "Forward";
+            mlStr = "Right";
         }
         else
         {
-            apStr = prefix + "AP";
-            mlStr = prefix + "ML";
+            apStr = "AP";
+            mlStr = "ML";
         }
-        dvStr = prefix + "DV";
-        depthStr = prefix + "Depth";
 
         float mult = Settings.DisplayUM ? 1000f : 1f;
 
-        Vector3 apmldvS = insertion.PositionSpaceU() + insertion.CoordinateSpace.RelativeOffset;
+        Vector3 tipAtlasU = insertion.PositionSpaceU() + insertion.CoordinateSpace.RelativeOffset;
+        Vector3 tipAtlasT = insertion.apmldv;
 
         Vector3 angles = Settings.UseIBLAngles ?
             TP_Utils.World2IBL(insertion.angles) :
             insertion.angles;
 
-        (Vector3 entryCoordTranformed, float depthTransformed) = GetSurfaceCoordinateT();
+        (Vector3 entryAtlasT, float depthTransformed) = GetSurfaceCoordinateT();
+
+        Vector3 entryAtlasU = CoordinateSpaceManager.ActiveCoordinateTransform.Transform2Space(entryAtlasT) + insertion.CoordinateSpace.RelativeOffset;
 
         if (Settings.ConvertAPML2Probe)
         {
             float cos = Mathf.Cos(-angles.x * Mathf.Deg2Rad);
             float sin = Mathf.Sin(-angles.x * Mathf.Deg2Rad);
 
-            float xRot = entryCoordTranformed.x * cos - entryCoordTranformed.y * sin;
-            float yRot = entryCoordTranformed.x * sin + entryCoordTranformed.y * cos;
+            float xRot = entryAtlasT.x * cos - entryAtlasT.y * sin;
+            float yRot = entryAtlasT.x * sin + entryAtlasT.y * cos;
 
-            entryCoordTranformed.x = xRot;
-            entryCoordTranformed.y = yRot;
+            entryAtlasT.x = xRot;
+            entryAtlasT.y = yRot;
+
+            float tipXRot = tipAtlasT.x * cos - tipAtlasT.y * sin;
+            float tipYRot = tipAtlasT.x * sin + tipAtlasT.y * cos;
+
+            tipAtlasT.x = tipXRot;
+            tipAtlasT.y = tipYRot;
         }
 
-        string updateStr = string.Format("{0} Surface coordinate: " + 
-            "({1}:{2}, {3}:{4}, {5}:{6})" +
-            " Angles: (Az:{7}, El:{8}, Sp:{9})" + 
-            " Depth: {10}:{11}" + 
-            " Tip coordinate: (ccfAP:{12}, ccfML: {13}, ccfDV:{14})",
-            name, 
-            apStr, round0(entryCoordTranformed.x * mult), mlStr, round0(entryCoordTranformed.y * mult), dvStr, round0(entryCoordTranformed.z * mult), 
-            round2(TP_Utils.CircDeg(angles.x, minYaw, maxYaw)), round2(angles.y), round2(TP_Utils.CircDeg(angles.z, minRoll, maxRoll)),
-            depthStr, round0(depthTransformed * mult),
-            round0(apmldvS.x * mult), round0(apmldvS.y * mult), round0(apmldvS.z * mult));
+        string dataStr = string.Format($"{name}: ReferenceAtlas {CoordinateSpaceManager.ActiveCoordinateSpace.Name}, " +
+            $"AtlasTransform {CoordinateSpaceManager.ActiveCoordinateTransform.Name}, " +
+            $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), " +
+            $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {entryAtlasT.z * mult}), " +
+            $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {tipAtlasT.z * mult}), " +
+            $"Angles ({round2(TP_Utils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(TP_Utils.CircDeg(angles.z, minRoll, maxRoll))}), " +
+            $"Depth {round0(depthTransformed * mult)}, " +
+            $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {entryAtlasU.z * mult}), " +
+            $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {tipAtlasU.z * mult}), " +
+            $"CCF Depth {Vector3.Distance(entryAtlasU, tipAtlasU)}");
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-        Copy2Clipboard(updateStr);
+        Copy2Clipboard(dataStr);
 #else
-        GUIUtility.systemCopyBuffer = updateStr;
+        GUIUtility.systemCopyBuffer = dataStr;
 #endif
     }
 
