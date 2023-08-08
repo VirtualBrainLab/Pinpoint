@@ -9,7 +9,7 @@ namespace CoordinateTransforms
 
         public NewScaleLeftTransform(float yaw, float pitch)
         {
-            var yawRotation = Quaternion.AngleAxis(yaw, Vector3.back);
+            var yawRotation = Quaternion.AngleAxis(yaw, Vector3.forward);
             var pitchRotation = Quaternion.AngleAxis(pitch, yawRotation * Vector3.left);
 
             _rotation = yawRotation * pitchRotation;
