@@ -1,8 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:ListView focusable="true" />
-    <ui:Button text="Button" display-tooltip-when-elided="true" />
-    <ui:ScrollView style="height: 27px;">
-        <ui:Button text="Button" display-tooltip-when-elided="true" />
-        <ui:Button text="Button" display-tooltip-when-elided="true" />
-    </ui:ScrollView>
+    <Style src="project://database/Assets/UI/SettingsStyle.uss?fileID=7433441132597879392&amp;guid=54b38665f251a5d499690952d7f8208c&amp;type=3#SettingsStyle" />
+    <ui:VisualElement name="screen" style="flex-grow: 1; flex-basis: auto;">
+        <ui:VisualElement name="viewport" style="flex-grow: 1; flex-direction: row; width: 80%; height: 80%; align-items: center; justify-content: flex-start; position: absolute; margin-left: 10%; margin-right: 10%; margin-top: 10%; margin-bottom: 10%; flex-shrink: 1; flex-wrap: nowrap;">
+            <ui:VisualElement name="tab-area" style="width: 15%; height: 100%; flex-grow: 1;">
+                <ui:Button text="Help" display-tooltip-when-elided="true" name="tab-help" class="tab-button" />
+            </ui:VisualElement>
+            <ui:VisualElement name="settings-area" style="width: 85%; height: 100%; background-color: rgb(209, 204, 192); border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0); flex-grow: 1;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

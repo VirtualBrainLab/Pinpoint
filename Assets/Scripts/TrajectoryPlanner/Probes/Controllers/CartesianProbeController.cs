@@ -22,20 +22,26 @@ public class CartesianProbeController : ProbeController
     private const float ROT_INCREMENT_HOLD_FAST = 15;
     private const float ROT_INCREMENT_HOLD_SLOW = 1f;
 
-    private Vector4 _forwardDir = new Vector4(0f, 0f, -1f, 0f);
-    private Vector4 _rightDir = new Vector4(-1f, 0f, 0f, 0f);
-    private Vector4 _upDir = new Vector4(0f, 1f, 0f, 0f);
-    private Vector4 _depthDir = new Vector4(0f, 0f, 0f, 1f);
+    private readonly Vector4 _forwardDir = new Vector4(0f, 0f, -1f, 0f);
+    private readonly Vector4 _rightDir = new Vector4(-1f, 0f, 0f, 0f);
+    private readonly Vector4 _upDir = new Vector4(0f, 1f, 0f, 0f);
+    private readonly Vector4 _depthDir = new Vector4(0f, 0f, 0f, 1f);
 
-    private Vector3 _yawDir = new Vector3(1f, 0f, 0f);
-    private Vector3 _pitchDir = new Vector3(0f, -1f, 0f);
-    private Vector3 _rollDir = new Vector3(0f, 0f, 1f);
+    private readonly Vector3 _yawDir = new Vector3(1f, 0f, 0f);
+    private readonly Vector3 _pitchDir = new Vector3(0f, 1f, 0f);
+    private readonly Vector3 _rollDir = new Vector3(0f, 0f, 1f);
+
+    // angle limits
+    private const float minPitch = 0f;
+    private const float maxPitch = 90f;
+
+    // defaults
+    private readonly Vector3 _defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
+    private const float _defaultDepth = 0f;
+    private readonly Vector2 _defaultAngles = new Vector2(0f, 0f); // 0 yaw is forward, default pitch is 0f (downward)
     #endregion
 
     #region Key hold flags
-    private bool keyUltra = false;
-    private bool keyFast = false;
-    private bool keySlow = false;
     private int clickKeyHeld = 0;
     private int rotateKeyHeld = 0;
     private Vector4 clickHeldVector;
@@ -43,53 +49,61 @@ public class CartesianProbeController : ProbeController
 
     private float clickKeyPressTime;
     private float rotateKeyPressTime;
-    private float keyHoldDelay = 0.3f;
+    private float keyHoldDelay = 0.35f;
     #endregion
 
-    #region Angle limits
-    private const float minPitch = -90f;
-    private const float maxPitch = 0f;
-    #endregion
-
-    #region Defaults
-    // in ap/ml/dv
-    private Vector3 defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
-    private float defaultDepth = 0f;
-    private Vector2 defaultAngles = new Vector2(-90f, 0f); // 0 yaw is forward, default pitch is 90 degrees down from horizontal, but internally this is a value of 0f
-    #endregion
-
+    #region Private vars
     private Vector3 _initialPosition;
     private Quaternion _initialRotation;
-    private float depth;
+    private float _depth;
 
     private bool _dirty;
 
-    // Offset vectors
-    private GameObject probeTipOffset;
-    private GameObject probeTipTop;
+    private ControlMode _controlMode;
+
+    private enum ControlMode
+    {
+        APMLDV = 0,
+        ForwardRightDown = 1
+    }
 
     // Input system
-    ProbeControlInputActions inputActions;
+    private ProbeControlInputActions inputActions;
+    #endregion
 
     // References
     [SerializeField] private Transform _probeTipT;
     [FormerlySerializedAs("rotateAround")] [SerializeField] private Transform _rotateAround;
 
+    #region Public properties
     public override Transform ProbeTipT { get { return _probeTipT; } }
+    public override string XAxisStr
+    {
+        get
+        {
+            return _controlMode == ControlMode.APMLDV ? "AP" : "Forward";
+        }
+    }
+    public override string YAxisStr
+    {
+        get
+        {
+            return _controlMode == ControlMode.APMLDV ? "ML" : "Right";
+        }
+    }
+    public override string ZAxisStr
+    {
+        get
+        {
+            return _controlMode == ControlMode.APMLDV ? "DV" : "Down";
+        }
+    }
+    #endregion
 
     #region Unity
     private void Awake()
     {
-        // Create two points offset from the tip that we'll use to interpolate where we are on the probe
-        probeTipOffset = new GameObject(name + "TipOffset");
-        probeTipOffset.transform.parent = _probeTipT;
-        probeTipOffset.transform.position = _probeTipT.position + _probeTipT.up * 0.2f;
-
-        probeTipTop = new GameObject(name + "TipTop");
-        probeTipTop.transform.parent = _probeTipT;
-        probeTipTop.transform.position = _probeTipT.position + _probeTipT.up * 10.2f;
-
-        depth = defaultDepth;
+        _depth = _defaultDepth;
 
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
@@ -134,15 +148,8 @@ public class CartesianProbeController : ProbeController
         probeControlClick.RollCounter.performed += x => Rotate(-_rollDir);
         probeControlClick.RollCounter.canceled += x => CancelRotate(-_rollDir);
 
-        // Modifier keys
-        probeControlClick.Slow.performed += x => keySlow = true;
-        probeControlClick.Slow.canceled += x => keySlow = false;
-        probeControlClick.Fast.performed += x => keyFast = true;
-        probeControlClick.Fast.canceled += x => keyFast = false;
-        probeControlClick.Ultra.performed += x => keyUltra = true;
-        probeControlClick.Ultra.canceled += x => keyUltra = false;
 
-        Insertion = new ProbeInsertion(defaultStart, defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
+        Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
 
     private void Start()
@@ -196,46 +203,82 @@ public class CartesianProbeController : ProbeController
 
     public override void ResetPosition()
     {
-        Insertion.apmldv = defaultStart;
+        Insertion.apmldv = _defaultStart;
     }
 
     public override void ResetAngles()
     {
-        Insertion.angles = defaultAngles;
+        Insertion.angles = _defaultAngles;
     }
 
     #region Input System
 
     private float ComputeMoveSpeed_Tap()
     {
-        return keyUltra ? MOVE_INCREMENT_TAP_ULTRA :
-            keyFast ? MOVE_INCREMENT_TAP_FAST :
-            keySlow ? MOVE_INCREMENT_TAP_SLOW :
-            MOVE_INCREMENT_TAP;
+        switch (Settings.ProbeSpeed)
+        {
+            case 0:
+                return MOVE_INCREMENT_TAP_SLOW;
+            case 1:
+                return MOVE_INCREMENT_TAP;
+            case 2:
+                return MOVE_INCREMENT_TAP_FAST;
+            case 3:
+                return MOVE_INCREMENT_TAP_ULTRA;
+            default:
+                return 0f;
+        }
     }
 
     private float ComputeMoveSpeed_Hold()
     {
-        return (keyUltra ? MOVE_INCREMENT_HOLD_ULTRA :
-            keyFast ? MOVE_INCREMENT_HOLD_FAST :
-            keySlow ? MOVE_INCREMENT_HOLD_SLOW :
-            MOVE_INCREMENT_HOLD) * Time.deltaTime;
+        switch (Settings.ProbeSpeed)
+        {
+            case 0:
+                return MOVE_INCREMENT_HOLD_SLOW * Time.deltaTime;
+            case 1:
+                return MOVE_INCREMENT_HOLD * Time.deltaTime;
+            case 2:
+                return MOVE_INCREMENT_HOLD_FAST * Time.deltaTime;
+            case 3:
+                return MOVE_INCREMENT_HOLD_ULTRA * Time.deltaTime;
+            default:
+                return 0f;
+        }
     }
 
     private float ComputeRotSpeed_Tap()
     {
-        return keyUltra ? ROT_INCREMENT_TAP_ULTRA :
-            keyFast ? ROT_INCREMENT_TAP_FAST :
-            keySlow ? ROT_INCREMENT_TAP_SLOW :
-            ROT_INCREMENT_TAP;
+        switch (Settings.ProbeSpeed)
+        {
+            case 0:
+                return ROT_INCREMENT_TAP_SLOW;
+            case 1:
+                return ROT_INCREMENT_TAP;
+            case 2:
+                return ROT_INCREMENT_TAP_FAST;
+            case 3:
+                return ROT_INCREMENT_TAP_ULTRA;
+            default:
+                return 0f;
+        }
     }
 
     private float ComputeRotSpeed_Hold()
     {
-        return (keyUltra ? ROT_INCREMENT_HOLD_ULTRA :
-            keyFast ? ROT_INCREMENT_HOLD_FAST :
-            keySlow ? ROT_INCREMENT_HOLD_SLOW :
-            ROT_INCREMENT_HOLD) * Time.deltaTime;
+        switch (Settings.ProbeSpeed)
+        {
+            case 0:
+                return ROT_INCREMENT_HOLD_SLOW * Time.deltaTime;
+            case 1:
+                return ROT_INCREMENT_HOLD * Time.deltaTime;
+            case 2:
+                return ROT_INCREMENT_HOLD_FAST * Time.deltaTime;
+            case 3:
+                return ROT_INCREMENT_HOLD_ULTRA * Time.deltaTime;
+            default:
+                return 0f;
+        }
     }
 
     /// <summary>
@@ -314,7 +357,7 @@ public class CartesianProbeController : ProbeController
             // Rotate the position delta (unity world space) into the insertion's transformed space
             // Note that we don't apply the transform beacuse we want 1um steps to = 1um steps in transformed space
             Insertion.apmldv += Insertion.World2TransformedAxisChange(posDelta);
-            depth += posDelta.w;
+            _depth += posDelta.w;
 
             // Set probe position and update UI
             _dirty = true;
@@ -511,7 +554,7 @@ public class CartesianProbeController : ProbeController
         {
             worldOffset = curScreenPointWorld - lastClickPositionWorld;
             lastClickPositionWorld = curScreenPointWorld;
-            depth = -1.5f * worldOffset.y;
+            _depth = -1.5f * worldOffset.y;
             moved = true;
         }
 
@@ -561,7 +604,32 @@ public class CartesianProbeController : ProbeController
     /// </summary>
     public override void SetProbePosition()
     {
-        SetProbePositionHelper();
+        // Reset everything
+        transform.position = _initialPosition;
+        transform.rotation = _initialRotation;
+
+        // Manually adjust the coordinates and rotation
+        transform.position += Insertion.PositionWorldT();
+        transform.RotateAround(_rotateAround.position, transform.up, Insertion.yaw);
+        transform.RotateAround(_rotateAround.position, transform.forward, -Insertion.pitch);
+        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.roll);
+
+        // Compute depth transform, if needed
+        if (_depth != 0f)
+        {
+            transform.position += -transform.up * _depth;
+            Vector3 depthAdjustment = Insertion.World2TransformedAxisChange(-transform.up) * _depth;
+
+            Insertion.apmldv += depthAdjustment;
+            _depth = 0f;
+        }
+
+        // update surface position
+        ProbeManager.UpdateSurfacePosition();
+
+        // Tell the tpmanager we moved and update the UI elements
+        MovedThisFrameEvent.Invoke();
+        ProbeManager.UIUpdateEvent.Invoke();
     }
 
     public override void SetProbePosition(Vector3 position)
@@ -573,7 +641,7 @@ public class CartesianProbeController : ProbeController
     public override void SetProbePosition(Vector4 positionDepth)
     {
         Insertion.apmldv = positionDepth;
-        depth = positionDepth.w;
+        _depth = positionDepth.w;
         SetProbePosition();
     }
 
@@ -581,39 +649,6 @@ public class CartesianProbeController : ProbeController
     {
         Insertion.angles = angles;
         SetProbePosition();
-    }
-
-    /// <summary>
-    /// Set the position of the probe to match a ProbeInsertion object in CCF coordinates
-    /// </summary>
-    private void SetProbePositionHelper()
-    {
-        // Reset everything
-        transform.position = _initialPosition;
-        transform.rotation = _initialRotation;
-
-        // Manually adjust the coordinates and rotation
-        transform.position += Insertion.PositionWorldT();
-        transform.RotateAround(_rotateAround.position, transform.up, Insertion.yaw);
-        transform.RotateAround(_rotateAround.position, transform.forward, Insertion.pitch);
-        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.roll);
-
-        // Compute depth transform, if needed
-        if (depth != 0f)
-        {
-            transform.position += -transform.up * depth;
-            Vector3 depthAdjustment = Insertion.World2TransformedAxisChange(-transform.up) * depth;
-
-            Insertion.apmldv += depthAdjustment;
-            depth = 0f;
-        }
-
-        // update surface position
-        ProbeManager.UpdateSurfacePosition();
-
-        // Tell the tpmanager we moved and update the UI elements
-        MovedThisFrameEvent.Invoke();
-        ProbeManager.UIUpdateEvent.Invoke();
     }
 
     //public override void SetProbePosition(ProbeInsertion localInsertion)

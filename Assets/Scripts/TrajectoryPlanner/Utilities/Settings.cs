@@ -60,7 +60,7 @@ public class Settings : MonoBehaviour
         }
     }
 
-    private const bool USEIBLANGLES_DEFAULT = true;
+    private const bool USEIBLANGLES_DEFAULT = false;
     [FormerlySerializedAs("iblAngleToggle")][SerializeField] private Toggle _iblAngleToggle;
     public UnityEvent UseIBLAnglesChangedEvent;
 
@@ -87,6 +87,24 @@ public class Settings : MonoBehaviour
             data.AxisControl = value;
             Save();
             Instance.AxisControlChangedEvent.Invoke();
+        }
+    }
+
+    private const int PROBE_SPEED_DEFAULT = 1;
+    private const int PROBE_SPEED_MAX = 3;
+    private const int PROBE_SPEED_MIN = 0;
+    public UnityEvent<int> ProbeSpeedChangedEvent;
+
+    public static int ProbeSpeed
+    {
+        get { return data.ProbeSpeed; }
+        set
+        {
+            data.ProbeSpeed = value > PROBE_SPEED_MAX ? PROBE_SPEED_MAX :
+                value < PROBE_SPEED_MIN ? PROBE_SPEED_MIN :
+                value;
+            Save();
+            Instance.ProbeSpeedChangedEvent.Invoke(data.ProbeSpeed);
         }
     }
 
@@ -458,6 +476,35 @@ public class Settings : MonoBehaviour
 
     #endregion
 
+    #region Camera
+
+    private const float CZOOM_DEFAULT = 5;
+    public UnityEvent<float> CameraZoomChangedEvent;
+
+    public static float CameraZoom
+    {
+        get { return data.CameraZoom; }
+        set
+        {
+            data.CameraZoom = value;
+            Save();
+        }
+    }
+
+    private readonly Vector3 CROTATION_DEFAULT = Vector3.zero;
+    public UnityEvent<Vector3> CameraRotationChangedEvent;
+
+    public static Vector3 CameraRotation
+    {
+        get { return data.CameraRotation; }
+        set
+        {
+            data.CameraRotation = value;
+            Save();
+        }
+    }
+    #endregion
+
     #region Unity
 
     private void Awake()
@@ -504,6 +551,7 @@ public class Settings : MonoBehaviour
             data.RotateAPML2ProbeAxis = APML2PROBE_DEFAULT;
             data.UseIBLAngles = USEIBLANGLES_DEFAULT;
             data.AxisControl = AXISCONTROL_DEFAULT;
+            data.ProbeSpeed = PROBE_SPEED_DEFAULT;
 
             // areas
             data.UseAcronyms = USEACRONYMS_DEFAULT;
@@ -539,6 +587,10 @@ public class Settings : MonoBehaviour
 
             // Accounts
             data.AccountsLoginToggle = LOGGEDIN_DEFAULT;
+
+            // Camera
+            data.CameraZoom = CZOOM_DEFAULT;
+            data.CameraRotation = CROTATION_DEFAULT;
 
             // Do an initial save so the default values are stored
             Save();
@@ -585,6 +637,7 @@ public class Settings : MonoBehaviour
 
         // Probes
         _probePanelHeightSlider.SetValueWithoutNotify(ProbePanelHeight);
+        ProbeSpeedChangedEvent.Invoke(data.ProbeSpeed);
 
         // Default to Bregma
         _displayUmToggle.SetIsOnWithoutNotify(DisplayUM);
@@ -611,8 +664,12 @@ public class Settings : MonoBehaviour
 
         // Ephys link
         _ephysLinkServerIpInput.text = data.EphysLinkServerIP;
-
         _ephysLinkServerPortInput.text = data.EphysLinkServerPort.ToString();
+
+        // Camera
+        CameraZoomChangedEvent.Invoke(CameraZoom);
+        CameraRotationChangedEvent.Invoke(CameraRotation);
+
     }
 
     #endregion
@@ -691,6 +748,7 @@ public class Settings : MonoBehaviour
         public float ProbePanelHeight;
         public bool DetectCollisions;
         public bool RotateAPML2ProbeAxis;
+        public int ProbeSpeed;
 
         public int ShowAtlas3DSlices;
         public Vector3 RelativeCoord;
@@ -716,6 +774,10 @@ public class Settings : MonoBehaviour
         public bool AxisControl;
         public bool UseAcronyms;
         public bool UseBeryl;
+
+        // Camera
+        public float CameraZoom;
+        public Vector3 CameraRotation;
     }
     #endregion
 }

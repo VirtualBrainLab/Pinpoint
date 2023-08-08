@@ -9,6 +9,10 @@ public abstract class ProbeController : MonoBehaviour
 
     public ProbeInsertion Insertion { get; set; }
 
+    public abstract string XAxisStr { get; }
+    public abstract string YAxisStr { get; }
+    public abstract string ZAxisStr { get; }
+
     public void Register(ProbeManager probeManager)
     {
         ProbeManager = probeManager;

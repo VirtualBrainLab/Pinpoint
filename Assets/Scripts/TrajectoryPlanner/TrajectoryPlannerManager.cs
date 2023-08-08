@@ -139,7 +139,6 @@ namespace TrajectoryPlanner
 
 
         // Track who got clicked on, probe, camera, or brain
-        private bool probeControl;
 
         #region InputSystem
         private ProbeMetaControls inputActions;
@@ -148,7 +147,6 @@ namespace TrajectoryPlanner
 
         public void SetProbeControl(bool state)
         {
-            probeControl = state;
             _brainCamController.SetControlBlock(state);
         }
 
@@ -563,6 +561,8 @@ namespace TrajectoryPlanner
 
         public void NextProbe(CallbackContext context)
         {
+            if (ProbeManager.Instances.Count == 0 || UIManager.InputsFocused) return;
+
             int idx = ProbeManager.Instances.FindIndex(x => x.Equals(ProbeManager.ActiveProbeManager));
 
             // if this is the last probe, wrap around
@@ -573,6 +573,8 @@ namespace TrajectoryPlanner
 
         public void PrevProbe(CallbackContext context)
         {
+            if (ProbeManager.Instances.Count == 0 || UIManager.InputsFocused) return;
+
             int idx = ProbeManager.Instances.FindIndex(x => x.Equals(ProbeManager.ActiveProbeManager));
 
             // if this is the last probe, wrap around

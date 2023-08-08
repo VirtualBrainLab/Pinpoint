@@ -1,3 +1,16 @@
 {
-	"name": "vblcore.camera"
+    "name": "vblcore.camera",
+    "rootNamespace": "",
+    "references": [
+        "GUID:160da71e82fca504abe6ab7833979cdb"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
