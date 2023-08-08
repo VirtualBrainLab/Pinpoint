@@ -158,7 +158,7 @@ namespace EphysLink
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
                 if (data != "")
-                    onSuccessCallback.Invoke(data);
+                    onSuccessCallback?.Invoke(data);
                 else
                     onErrorCallback?.Invoke();
             }).Emit("get_version");
@@ -176,7 +176,7 @@ namespace EphysLink
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback(data.manipulators, data.type);
+                    onSuccessCallback?.Invoke(data.manipulators, data.type);
                 }
                 else
                 {
@@ -279,7 +279,7 @@ namespace EphysLink
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback(new Vector4(data.position[0], data.position[1], data.position[2],
+                    onSuccessCallback?.Invoke(new Vector4(data.position[0], data.position[1], data.position[2],
                         data.position[3]));
                 }
                 else
@@ -324,7 +324,7 @@ namespace EphysLink
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback(data.depth);
+                    onSuccessCallback?.Invoke(data.depth);
                 }
                 else
                 {
@@ -348,7 +348,7 @@ namespace EphysLink
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback(data.state);
+                    onSuccessCallback?.Invoke(data.state);
                 }
                 else
                 {
@@ -370,7 +370,7 @@ namespace EphysLink
             {
                 if (errorMessage == "")
                 {
-                    onSuccessCallback();
+                    onSuccessCallback?.Invoke();
                 }
                 else
                 {
@@ -394,7 +394,7 @@ namespace EphysLink
             {
                 if (error == "")
                 {
-                    onSuccessCallback();
+                    onSuccessCallback?.Invoke();
                 }
                 else
                 {
@@ -419,7 +419,7 @@ namespace EphysLink
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback(data.state);
+                    onSuccessCallback?.Invoke(data.state);
                 }
                 else
                 {
