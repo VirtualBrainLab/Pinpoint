@@ -112,7 +112,6 @@ public class ProbeManager : MonoBehaviour
         private set
         {
             ManipulatorBehaviorController.enabled = value;
-            print("MBC enabled: "+ManipulatorBehaviorController.enabled);
             EphysLinkControlChangeEvent.Invoke();
             EphysLinkControlledProbesChangedEvent.Invoke(Instances.Where(manager => manager.IsEphysLinkControlled).ToHashSet());
         }

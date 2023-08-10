@@ -111,8 +111,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             }
             else
             {
-                // Disconnect currently attached probe
-                if (_attachedProbe)
+                // Disconnect currently attached probe (if it's different)
+                if (_attachedProbe && _attachedProbe.UUID != _linkedProbeDropdown.options[value].text)
                     _attachedProbe.SetIsEphysLinkControlled(false,
                         onSuccess: () =>
                         {
@@ -309,7 +309,12 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _linkedProbeDropdown.AddOptions(availableProbes);
 
             // Select previously selected probe if it exists
-            _linkedProbeDropdown.value = Mathf.Max(0, availableProbes.IndexOf(previouslyLinkedProbeUUID));
+            var value = Mathf.Max(0, availableProbes.IndexOf(previouslyLinkedProbeUUID));
+            if (previouslyLinkedProbeUUID == "")
+                _linkedProbeDropdown.SetValueWithoutNotify(value);
+            else
+                _linkedProbeDropdown.value = value;
+
 
             // Update probe properties section
             UpdateProbePropertiesSectionState();
