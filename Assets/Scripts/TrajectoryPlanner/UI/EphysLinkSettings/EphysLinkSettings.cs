@@ -99,7 +99,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 CommunicationManager.Instance.GetManipulators((availableIDs, type) =>
                 {
                     // Enable Copilot button if using Sensapex or New Scale
-                    _copilotButton.interactable = !type.Contains("pathway");
+                    _copilotButton.interactable = !type.Contains("pathfinder");
 
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
