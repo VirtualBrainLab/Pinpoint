@@ -163,7 +163,7 @@ public class CartesianProbeController : ProbeController
         if (clickKeyHeld > 0 && (Time.realtimeSinceStartup - clickKeyPressTime) > keyHoldDelay)
             // Set speed to Tap instead of Hold for manipulator keyboard control
             MoveProbe_XYZD(clickHeldVector,
-                ManipulatorKeyboardControl ? ComputeMoveSpeed_Tap() : ComputeMoveSpeed_Hold());
+                ManipulatorManualControl ? ComputeMoveSpeed_Tap() : ComputeMoveSpeed_Hold());
 
         // If the user is holding one or more rotate keys and we are past the hold delay, increment the angles
         if (rotateKeyHeld > 0 && (Time.realtimeSinceStartup - rotateKeyPressTime) > keyHoldDelay)
@@ -340,7 +340,7 @@ public class CartesianProbeController : ProbeController
         // Get the positional delta
         var posDelta = direction * speed;
 
-        if (ManipulatorKeyboardControl)
+        if (ManipulatorManualControl)
         {
             // Cancel if a movement is in progress
             if (ManipulatorKeyboardMoveInProgress) return;
