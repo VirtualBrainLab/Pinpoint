@@ -37,8 +37,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 _handednessDropdown.value = 0;
                 _handednessGroup.SetActive(false);
 
-                // Disable manual control for "pathway" type
-                _manualControlGroup.SetActive(!type.Contains("pathway"));
+                // Disable manual control for "pathfinder" type
+                _manualControlGroup.SetActive(!type.Contains("pathfinder"));
             }
             else
             {
