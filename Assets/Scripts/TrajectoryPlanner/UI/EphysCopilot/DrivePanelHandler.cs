@@ -73,7 +73,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     _driveState = DriveState.DrivingToSurface;
 
                     // Start timer
-                    StartCoroutine(CountDownTimer(_surfaceDriveDuration));
+                    StartCoroutine(CountDownTimer(_surfaceDriveDuration, _driveState));
 
                     // Start driving back to dura
                     CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
@@ -373,7 +373,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         _driveState = DriveState.DrivingToTarget;
 
                         // Start timer
-                        StartCoroutine(CountDownTimer(_targetDriveDuration));
+                        StartCoroutine(CountDownTimer(_targetDriveDuration, _driveState));
 
                         // Drive
                         CommunicationManager.Instance.SetInsideBrain(
@@ -392,7 +392,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             });
         }
 
-        private IEnumerator CountDownTimer(float seconds)
+        private IEnumerator CountDownTimer(float seconds, DriveState driveState)
         {
             // Set timer text
             _timerText.text = TimeSpan.FromSeconds(seconds).ToString(@"mm\:ss");
@@ -404,8 +404,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             {
                 // Check if timer is done
                 case > 0 when
-                    _driveState is DriveState.DrivingToTarget or DriveState.DrivingToSurface:
-                    StartCoroutine(CountDownTimer(seconds - 1));
+                    _driveState == driveState:
+                    StartCoroutine(CountDownTimer(seconds - 1, driveState));
                     break;
                 case <= 0:
                 {
