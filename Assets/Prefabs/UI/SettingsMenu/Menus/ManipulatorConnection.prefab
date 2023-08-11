@@ -2690,7 +2690,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 361426552227846459, guid: dfac08edcafb9f84c983ded9893eb24a, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: UpdateKeyboardControlState
+      value: UpdateManualControlState
       objectReference: {fileID: 0}
     - target: {fileID: 361426552227846459, guid: dfac08edcafb9f84c983ded9893eb24a, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName

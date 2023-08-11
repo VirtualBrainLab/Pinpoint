@@ -342,23 +342,33 @@ namespace TrajectoryPlanner.Probes
                 var targetPosition = pos + new Vector4(manipulatorTransformDelta.x, manipulatorTransformDelta.y,
                     manipulatorTransformDelta.z);
                 // Move manipulator
-                CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED, newPos =>
+                CommunicationManager.Instance.SetCanWrite(ManipulatorID, true, 1, b =>
                 {
-                    // Process depth movement
-                    var targetDepth = newPos.w + manipulatorSpaceDepth;
-                    CommunicationManager.Instance.SetInsideBrain(
-                        ManipulatorID, true, _ =>
+                    if (!b) return;
+                    CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED,
+                        newPos =>
                         {
-                            // Move the manipulator
-                            CommunicationManager.Instance.DriveToDepth(
-                                ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
-                                _ =>
+                            // Process depth movement
+                            var targetDepth = newPos.w + manipulatorSpaceDepth;
+                            CommunicationManager.Instance.SetInsideBrain(
+                                ManipulatorID, true, _ =>
                                 {
-                                    CommunicationManager.Instance.SetInsideBrain(
-                                        ManipulatorID, false, onSuccessCallback, onErrorCallback);
-                                }, Debug.LogError);
-                        }, Debug.LogError);
-                });
+                                    // Move the manipulator
+                                    CommunicationManager.Instance.DriveToDepth(
+                                        ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
+                                        _ =>
+                                        {
+                                            CommunicationManager.Instance.SetInsideBrain(
+                                                ManipulatorID, false,
+                                                _ =>
+                                                {
+                                                    CommunicationManager.Instance.SetCanWrite(ManipulatorID, false, 0,
+                                                        onSuccessCallback, onErrorCallback);
+                                                }, onErrorCallback);
+                                        }, onErrorCallback);
+                                }, onErrorCallback);
+                        }, onErrorCallback);
+                }, onErrorCallback);
             });
         }
 
@@ -370,8 +380,16 @@ namespace TrajectoryPlanner.Probes
         public void MoveBackToZeroCoordinate(Action<Vector4> onSuccessCallback, Action<string> onErrorCallBack)
         {
             // Send move command
-            CommunicationManager.Instance.GotoPos(ManipulatorID, ZeroCoordinateOffset, AUTOMATIC_MOVEMENT_SPEED,
-                onSuccessCallback, onErrorCallBack);
+            CommunicationManager.Instance.SetCanWrite(ManipulatorID, true, 1, b =>
+            {
+                if (!b) return;
+                CommunicationManager.Instance.GotoPos(ManipulatorID, ZeroCoordinateOffset, AUTOMATIC_MOVEMENT_SPEED,
+                    pos =>
+                    {
+                        CommunicationManager.Instance.SetCanWrite(ManipulatorID, false, 0, _ => onSuccessCallback(pos),
+                            onErrorCallBack);
+                    }, onErrorCallBack);
+            }, onErrorCallBack);
         }
 
         #endregion

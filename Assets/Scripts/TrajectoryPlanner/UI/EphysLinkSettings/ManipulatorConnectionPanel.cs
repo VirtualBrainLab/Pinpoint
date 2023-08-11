@@ -97,7 +97,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 _attachedProbe.SetIsEphysLinkControlled(false, _manipulatorId, onSuccess: () =>
                 {
                     // Disable keyboard control
-                    _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
+                    _attachedProbe.ProbeController.ManipulatorManualControl = false;
                     _enableManualControlToggle.SetIsOnWithoutNotify(false);
 
 
@@ -117,7 +117,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                         onSuccess: () =>
                         {
                             // Disable keyboard control
-                            _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
+                            _attachedProbe.ProbeController.ManipulatorManualControl = false;
                             _enableManualControlToggle.SetIsOnWithoutNotify(false);
 
                             // Remove probe from linked probes list
@@ -202,15 +202,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         ///     Activate or deactivate keyboard control of the manipulator
         /// </summary>
         /// <param name="state">True to enable keyboard control, False otherwise</param>
-        public void UpdateKeyboardControlState(bool state)
+        public void UpdateManualControlState(bool state)
         {
-            CommunicationManager.Instance.SetCanWrite(_attachedProbe.ManipulatorBehaviorController.ManipulatorID, state,
-                1,
-                _ => { _attachedProbe.ProbeController.ManipulatorKeyboardControl = state; }, err =>
-                {
-                    _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
-                    Debug.LogError(err);
-                });
+            // Enable flag in probe controller
+            _attachedProbe.ProbeController.ManipulatorManualControl = state;
 
             // Enable/disable return to zero coordinate button
             _returnToZeroCoordinateButton.interactable = state;
@@ -233,7 +228,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                         stopState ? "Return to Zero Coordinate" : "Failed to Stop, Try Again";
 
                     // Re-enable keyboard control if stop was successful
-                    _attachedProbe.ProbeController.ManipulatorKeyboardControl = stopState;
+                    _attachedProbe.ProbeController.ManipulatorManualControl = stopState;
 
                     // Update flag
                     _returningToZeroCoordinate = !stopState;
@@ -242,7 +237,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             else
             {
                 // Disable keyboard control
-                _attachedProbe.ProbeController.ManipulatorKeyboardControl = false;
+                _attachedProbe.ProbeController.ManipulatorManualControl = false;
 
                 // Set button text and update flag
                 _returnToZeroCoordinateButtonText.text = "Stop";
@@ -255,7 +250,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 void PostMoveAction()
                 {
                     _returnToZeroCoordinateButtonText.text = "Return to Zero Coordinate";
-                    _attachedProbe.ProbeController.ManipulatorKeyboardControl = true;
+                    _attachedProbe.ProbeController.ManipulatorManualControl = true;
                     _returningToZeroCoordinate = false;
                 }
             }
