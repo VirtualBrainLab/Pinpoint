@@ -55,7 +55,7 @@ namespace TrajectoryPlanner.Probes
                 insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
 
             // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-            if (ManipulatorType is "new_scale" or "new_scale_pathway")
+            if (ManipulatorType is "new_scale" or "new_scale_pathfinder")
                 _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
                     transformedApmldv.z, 0));
             else
