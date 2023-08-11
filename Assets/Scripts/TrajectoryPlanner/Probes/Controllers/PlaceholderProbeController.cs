@@ -120,6 +120,16 @@ public class PlaceholderProbeController : ProbeController
         return (0, 0);
     }
 
+    public override void LockController()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SwitchAxisMode()
+    {
+        throw new NotImplementedException();
+    }
+
     #endregion
 
 }

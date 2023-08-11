@@ -152,8 +152,6 @@ namespace TrajectoryPlanner
 
         private bool spawnedThisFrame = false;
 
-        private int visibleProbePanels;
-
         Task annotationDatasetLoadTask;
 
         #region Unity
@@ -184,7 +182,6 @@ namespace TrajectoryPlanner
             coordinateTransformOpts.Add("IBL-Needles", temp);
 
             // Initialize variables
-            visibleProbePanels = 0;
             rigColliders = new List<Collider>();
             meshCenters = new Dictionary<int, Vector3>();
 
@@ -615,7 +612,8 @@ namespace TrajectoryPlanner
 
         public void LockActiveProbe(bool locked)
         {
-            ProbeManager.ActiveProbeManager.ProbeController.Locked = locked;
+            ProbeManager.ActiveProbeManager.ProbeController.UnlockedDir = locked ? Vector4.zero : Vector4.one;
+            ProbeManager.ActiveProbeManager.ProbeController.UnlockedRot = locked ? Vector3.zero : Vector3.one;
         }
 
 #region Warping

@@ -58,6 +58,7 @@ public class CartesianProbeController : ProbeController
     private float _depth;
 
     private bool _dirty;
+    private bool _fullLock;
 
     private ControlMode _controlMode;
 
@@ -108,6 +109,12 @@ public class CartesianProbeController : ProbeController
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
 
+        // Unlock axes
+        UnlockedDir = Vector4.one;
+        UnlockedRot = Vector3.one;
+        _fullLock = false;
+
+        // Input actions
         inputActions = new();
         var probeControlClick = inputActions.ProbeControl;
         probeControlClick.Enable();
@@ -148,6 +155,8 @@ public class CartesianProbeController : ProbeController
         probeControlClick.RollCounter.performed += x => Rotate(-_rollDir);
         probeControlClick.RollCounter.canceled += x => CancelRotate(-_rollDir);
 
+        probeControlClick.InputControl.performed += x => LockController();
+        probeControlClick.SwitchAxisMode.performed += x => SwitchAxisMode();
 
         Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
@@ -191,6 +200,29 @@ public class CartesianProbeController : ProbeController
 
     #endregion
 
+    #region Overrides
+
+    public override void SwitchAxisMode()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void LockController()
+    {
+        _fullLock = !_fullLock;
+
+        if (_fullLock)
+        {
+            UnlockedDir = Vector4.zero;
+            UnlockedRot = Vector3.zero;
+        }
+        else
+        {
+            UnlockedDir = Vector4.one;
+            UnlockedRot = Vector3.one;
+        }
+    }
+
     /// <summary>
     /// Put this probe back at Bregma
     /// </summary>
@@ -210,6 +242,8 @@ public class CartesianProbeController : ProbeController
     {
         Insertion.angles = _defaultAngles;
     }
+
+    #endregion
 
     #region Input System
 
@@ -338,7 +372,7 @@ public class CartesianProbeController : ProbeController
     private void MoveProbe_XYZD(Vector4 direction, float speed)
     {
         // Get the positional delta
-        var posDelta = direction * speed;
+        var posDelta = Vector4.Scale(direction * speed,UnlockedDir);
 
         if (ManipulatorManualControl)
         {
@@ -371,7 +405,7 @@ public class CartesianProbeController : ProbeController
     /// <param name="speed"></param>
     private void MoveProbe_YPR(Vector3 angle, float speed)
     {
-        var angleDelta = angle * speed;
+        var angleDelta = Vector3.Scale(angle * speed, UnlockedRot);
 
         Insertion.yaw += angleDelta.x;
         Insertion.pitch = Mathf.Clamp(Insertion.pitch + angleDelta.y, minPitch, maxPitch);
@@ -410,7 +444,7 @@ public class CartesianProbeController : ProbeController
     {
         // ignore mouse clicks if we're over a UI element
         // Cancel movement if being controlled by EphysLink
-        if (EventSystem.current.IsPointerOverGameObject() || ProbeManager.IsEphysLinkControlled || Locked)
+        if (EventSystem.current.IsPointerOverGameObject() || ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)
             return;
 
         BrainCameraController.BlockBrainControl = true;
@@ -452,7 +486,7 @@ public class CartesianProbeController : ProbeController
     public void DragMovementDrag()
     {
         // Cancel movement if being controlled by EphysLink
-        if (ProbeManager.IsEphysLinkControlled || Locked)
+        if (ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)
             return;
 
         Vector3 curScreenPointWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));

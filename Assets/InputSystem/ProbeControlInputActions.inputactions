@@ -24,15 +24,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Ultra",
-                    "type": "Button",
-                    "id": "d117b6ca-ebb9-46e6-ae2e-e2f8dd21e42d",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Forward",
                     "type": "Button",
                     "id": "ae269d58-8b83-4760-8dc5-08f524f3be8c",
@@ -157,6 +148,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "FreezeAxes",
+                    "type": "Button",
+                    "id": "129ffede-ff7f-422a-a17f-54ff39441d90",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "InputControl",
+                    "type": "Button",
+                    "id": "67baab62-f6e3-4f44-8b8f-728531228528",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SwitchAxisMode",
+                    "type": "Button",
+                    "id": "f295e8bb-9bb3-4d53-b4a2-6f013e909126",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -164,6 +182,17 @@
                     "name": "",
                     "id": "46cb6612-43bd-4774-9301-5d4977e471f1",
                     "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Slow",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "895a3a33-f52f-4484-a318-15392d6f8de4",
+                    "path": "<Gamepad>/buttonWest",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -184,12 +213,12 @@
                 },
                 {
                     "name": "",
-                    "id": "a68a2329-8a76-43e7-98e2-adfdb0f103ba",
-                    "path": "<Keyboard>/space",
+                    "id": "a7d5a94b-0cea-4879-bafa-de74f1e1c04d",
+                    "path": "<Gamepad>/buttonNorth",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Ultra",
+                    "action": "Fast",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -382,8 +411,30 @@
                 },
                 {
                     "name": "",
+                    "id": "f5df13fa-9091-4f2d-aad7-288ae81fb682",
+                    "path": "<Gamepad>/rightStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PitchDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "d39ffab4-6b84-42b8-8805-e90fff9a25a0",
                     "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PitchUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8b1a14bc-69f2-4030-a59b-908a728b5d86",
+                    "path": "<Gamepad>/rightStick/up",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -404,8 +455,30 @@
                 },
                 {
                     "name": "",
+                    "id": "03b3d4b5-2687-417d-9cdd-8386ac5ed855",
+                    "path": "<Gamepad>/rightStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "YawClockwise",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "d6642bc5-59a5-457c-b75d-7b2dc8b53be5",
                     "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "YawCounter",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "993121e9-5acd-4909-9ec1-7a444ebbe00e",
+                    "path": "<Gamepad>/rightStick/left",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -432,6 +505,72 @@
                     "processors": "",
                     "groups": "",
                     "action": "RollCounter",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "253233e6-d540-4141-be66-2de12291620e",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FreezeAxes",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cd3ad003-f3b0-4d1d-bb28-b92b4cdf86f2",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FreezeAxes",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7948e0bf-7954-49a6-9471-f2ae0569a98c",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InputControl",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "054fd9ae-c30e-40a7-ace8-ae8c663d9590",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InputControl",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "27ec8d34-4ce8-428c-8d1b-b8be44260019",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchAxisMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a7915bef-0ec7-48e8-be12-eba4e01655d2",
+                    "path": "<Keyboard>/i",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchAxisMode",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

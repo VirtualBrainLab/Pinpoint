@@ -67,7 +67,7 @@ namespace TrajectoryPlanner
                     UpdateInteractable();
                 });
 
-                _lockBehavior.SetLockState(ProbeManager.ActiveProbeManager.ProbeController.Locked);
+                _lockBehavior.SetLockState(ProbeManager.ActiveProbeManager.ProbeController.UnlockedDir == Vector4.zero);
 
                 UpdateCoordinates();
                 UpdateInteractable();

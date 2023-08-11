@@ -46,15 +46,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Ultra"",
-                    ""type"": ""Button"",
-                    ""id"": ""d117b6ca-ebb9-46e6-ae2e-e2f8dd21e42d"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Forward"",
                     ""type"": ""Button"",
                     ""id"": ""ae269d58-8b83-4760-8dc5-08f524f3be8c"",
@@ -179,6 +170,33 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FreezeAxes"",
+                    ""type"": ""Button"",
+                    ""id"": ""129ffede-ff7f-422a-a17f-54ff39441d90"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""InputControl"",
+                    ""type"": ""Button"",
+                    ""id"": ""67baab62-f6e3-4f44-8b8f-728531228528"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwitchAxisMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""f295e8bb-9bb3-4d53-b4a2-6f013e909126"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -186,6 +204,17 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                     ""name"": """",
                     ""id"": ""46cb6612-43bd-4774-9301-5d4977e471f1"",
                     ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Slow"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""895a3a33-f52f-4484-a318-15392d6f8de4"",
+                    ""path"": ""<Gamepad>/buttonWest"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -206,12 +235,12 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 },
                 {
                     ""name"": """",
-                    ""id"": ""a68a2329-8a76-43e7-98e2-adfdb0f103ba"",
-                    ""path"": ""<Keyboard>/space"",
+                    ""id"": ""a7d5a94b-0cea-4879-bafa-de74f1e1c04d"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Ultra"",
+                    ""action"": ""Fast"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -404,8 +433,30 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 },
                 {
                     ""name"": """",
+                    ""id"": ""f5df13fa-9091-4f2d-aad7-288ae81fb682"",
+                    ""path"": ""<Gamepad>/rightStick/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PitchDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""d39ffab4-6b84-42b8-8805-e90fff9a25a0"",
                     ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PitchUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8b1a14bc-69f2-4030-a59b-908a728b5d86"",
+                    ""path"": ""<Gamepad>/rightStick/up"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -426,8 +477,30 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 },
                 {
                     ""name"": """",
+                    ""id"": ""03b3d4b5-2687-417d-9cdd-8386ac5ed855"",
+                    ""path"": ""<Gamepad>/rightStick/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""YawClockwise"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""d6642bc5-59a5-457c-b75d-7b2dc8b53be5"",
                     ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""YawCounter"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""993121e9-5acd-4909-9ec1-7a444ebbe00e"",
+                    ""path"": ""<Gamepad>/rightStick/left"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -456,6 +529,72 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                     ""action"": ""RollCounter"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""253233e6-d540-4141-be66-2de12291620e"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FreezeAxes"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cd3ad003-f3b0-4d1d-bb28-b92b4cdf86f2"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FreezeAxes"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7948e0bf-7954-49a6-9471-f2ae0569a98c"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""InputControl"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""054fd9ae-c30e-40a7-ace8-ae8c663d9590"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""InputControl"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""27ec8d34-4ce8-428c-8d1b-b8be44260019"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchAxisMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a7915bef-0ec7-48e8-be12-eba4e01655d2"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchAxisMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -466,7 +605,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
         m_ProbeControl = asset.FindActionMap("ProbeControl", throwIfNotFound: true);
         m_ProbeControl_Slow = m_ProbeControl.FindAction("Slow", throwIfNotFound: true);
         m_ProbeControl_Fast = m_ProbeControl.FindAction("Fast", throwIfNotFound: true);
-        m_ProbeControl_Ultra = m_ProbeControl.FindAction("Ultra", throwIfNotFound: true);
         m_ProbeControl_Forward = m_ProbeControl.FindAction("Forward", throwIfNotFound: true);
         m_ProbeControl_Back = m_ProbeControl.FindAction("Back", throwIfNotFound: true);
         m_ProbeControl_Left = m_ProbeControl.FindAction("Left", throwIfNotFound: true);
@@ -481,6 +619,9 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
         m_ProbeControl_YawCounter = m_ProbeControl.FindAction("YawCounter", throwIfNotFound: true);
         m_ProbeControl_RollClock = m_ProbeControl.FindAction("RollClock", throwIfNotFound: true);
         m_ProbeControl_RollCounter = m_ProbeControl.FindAction("RollCounter", throwIfNotFound: true);
+        m_ProbeControl_FreezeAxes = m_ProbeControl.FindAction("FreezeAxes", throwIfNotFound: true);
+        m_ProbeControl_InputControl = m_ProbeControl.FindAction("InputControl", throwIfNotFound: true);
+        m_ProbeControl_SwitchAxisMode = m_ProbeControl.FindAction("SwitchAxisMode", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -542,7 +683,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
     private IProbeControlActions m_ProbeControlActionsCallbackInterface;
     private readonly InputAction m_ProbeControl_Slow;
     private readonly InputAction m_ProbeControl_Fast;
-    private readonly InputAction m_ProbeControl_Ultra;
     private readonly InputAction m_ProbeControl_Forward;
     private readonly InputAction m_ProbeControl_Back;
     private readonly InputAction m_ProbeControl_Left;
@@ -557,13 +697,15 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
     private readonly InputAction m_ProbeControl_YawCounter;
     private readonly InputAction m_ProbeControl_RollClock;
     private readonly InputAction m_ProbeControl_RollCounter;
+    private readonly InputAction m_ProbeControl_FreezeAxes;
+    private readonly InputAction m_ProbeControl_InputControl;
+    private readonly InputAction m_ProbeControl_SwitchAxisMode;
     public struct ProbeControlActions
     {
         private @ProbeControlInputActions m_Wrapper;
         public ProbeControlActions(@ProbeControlInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Slow => m_Wrapper.m_ProbeControl_Slow;
         public InputAction @Fast => m_Wrapper.m_ProbeControl_Fast;
-        public InputAction @Ultra => m_Wrapper.m_ProbeControl_Ultra;
         public InputAction @Forward => m_Wrapper.m_ProbeControl_Forward;
         public InputAction @Back => m_Wrapper.m_ProbeControl_Back;
         public InputAction @Left => m_Wrapper.m_ProbeControl_Left;
@@ -578,6 +720,9 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
         public InputAction @YawCounter => m_Wrapper.m_ProbeControl_YawCounter;
         public InputAction @RollClock => m_Wrapper.m_ProbeControl_RollClock;
         public InputAction @RollCounter => m_Wrapper.m_ProbeControl_RollCounter;
+        public InputAction @FreezeAxes => m_Wrapper.m_ProbeControl_FreezeAxes;
+        public InputAction @InputControl => m_Wrapper.m_ProbeControl_InputControl;
+        public InputAction @SwitchAxisMode => m_Wrapper.m_ProbeControl_SwitchAxisMode;
         public InputActionMap Get() { return m_Wrapper.m_ProbeControl; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -593,9 +738,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 @Fast.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnFast;
                 @Fast.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnFast;
                 @Fast.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnFast;
-                @Ultra.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnUltra;
-                @Ultra.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnUltra;
-                @Ultra.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnUltra;
                 @Forward.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForward;
                 @Forward.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForward;
                 @Forward.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnForward;
@@ -638,6 +780,15 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 @RollCounter.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRollCounter;
                 @RollCounter.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRollCounter;
                 @RollCounter.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnRollCounter;
+                @FreezeAxes.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnFreezeAxes;
+                @FreezeAxes.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnFreezeAxes;
+                @FreezeAxes.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnFreezeAxes;
+                @InputControl.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnInputControl;
+                @InputControl.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnInputControl;
+                @InputControl.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnInputControl;
+                @SwitchAxisMode.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnSwitchAxisMode;
+                @SwitchAxisMode.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnSwitchAxisMode;
+                @SwitchAxisMode.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnSwitchAxisMode;
             }
             m_Wrapper.m_ProbeControlActionsCallbackInterface = instance;
             if (instance != null)
@@ -648,9 +799,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 @Fast.started += instance.OnFast;
                 @Fast.performed += instance.OnFast;
                 @Fast.canceled += instance.OnFast;
-                @Ultra.started += instance.OnUltra;
-                @Ultra.performed += instance.OnUltra;
-                @Ultra.canceled += instance.OnUltra;
                 @Forward.started += instance.OnForward;
                 @Forward.performed += instance.OnForward;
                 @Forward.canceled += instance.OnForward;
@@ -693,6 +841,15 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 @RollCounter.started += instance.OnRollCounter;
                 @RollCounter.performed += instance.OnRollCounter;
                 @RollCounter.canceled += instance.OnRollCounter;
+                @FreezeAxes.started += instance.OnFreezeAxes;
+                @FreezeAxes.performed += instance.OnFreezeAxes;
+                @FreezeAxes.canceled += instance.OnFreezeAxes;
+                @InputControl.started += instance.OnInputControl;
+                @InputControl.performed += instance.OnInputControl;
+                @InputControl.canceled += instance.OnInputControl;
+                @SwitchAxisMode.started += instance.OnSwitchAxisMode;
+                @SwitchAxisMode.performed += instance.OnSwitchAxisMode;
+                @SwitchAxisMode.canceled += instance.OnSwitchAxisMode;
             }
         }
     }
@@ -701,7 +858,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
     {
         void OnSlow(InputAction.CallbackContext context);
         void OnFast(InputAction.CallbackContext context);
-        void OnUltra(InputAction.CallbackContext context);
         void OnForward(InputAction.CallbackContext context);
         void OnBack(InputAction.CallbackContext context);
         void OnLeft(InputAction.CallbackContext context);
@@ -716,5 +872,8 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
         void OnYawCounter(InputAction.CallbackContext context);
         void OnRollClock(InputAction.CallbackContext context);
         void OnRollCounter(InputAction.CallbackContext context);
+        void OnFreezeAxes(InputAction.CallbackContext context);
+        void OnInputControl(InputAction.CallbackContext context);
+        void OnSwitchAxisMode(InputAction.CallbackContext context);
     }
 }

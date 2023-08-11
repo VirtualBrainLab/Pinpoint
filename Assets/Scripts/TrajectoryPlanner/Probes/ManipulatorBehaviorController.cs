@@ -223,7 +223,7 @@ namespace TrajectoryPlanner.Probes
                         _probeController.Insertion.pitch);
                 }
 
-                _probeController.Locked = true;
+                _probeController.UnlockedDir = Vector4.zero;
 
                 if (calibrated)
                     // Bypass calibration and start echoing
