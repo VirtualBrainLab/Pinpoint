@@ -390,7 +390,7 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 {
                     ""name"": """",
                     ""id"": ""11cdf689-63c0-4935-bc8d-7c28c0e9facf"",
-                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -412,7 +412,7 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 {
                     ""name"": """",
                     ""id"": ""d9ffcf2a-be5f-45e6-bfae-1028db5ddede"",
-                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
