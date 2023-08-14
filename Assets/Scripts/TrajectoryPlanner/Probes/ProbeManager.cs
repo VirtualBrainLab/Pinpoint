@@ -1,4 +1,4 @@
- using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
@@ -205,7 +205,7 @@ public class ProbeManager : MonoBehaviour
         // Force update color
         foreach (ProbeUIManager puiManager in _probeUIManagers)
             puiManager.UpdateColors();
-        _probeRenderer.material.color = _color;
+        if (_probeRenderer) _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
     }
