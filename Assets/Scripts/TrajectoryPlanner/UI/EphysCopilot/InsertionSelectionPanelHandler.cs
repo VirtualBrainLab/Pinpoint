@@ -228,6 +228,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                                         // Complete movement
                                                         _isMoving = false;
                                                         _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
+                                                        
+                                                        // Deselect insertion
+                                                        _targetInsertionDropdown.value = 0;
                                                     }, Debug.LogError);
                                             }, Debug.LogError);
                                     }, Debug.LogError);
