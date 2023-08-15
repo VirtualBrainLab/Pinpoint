@@ -674,13 +674,13 @@ public class ProbeManager : MonoBehaviour
         string dataStr = string.Format($"{name}: ReferenceAtlas {CoordinateSpaceManager.ActiveCoordinateSpace.Name}, " +
             $"AtlasTransform {CoordinateSpaceManager.ActiveCoordinateTransform.Name}, " +
             $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), " +
-            $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {entryAtlasT.z * mult}), " +
-            $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {tipAtlasT.z * mult}), " +
+            $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), " +
+            $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), " +
             $"Angles ({round2(TP_Utils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(TP_Utils.CircDeg(angles.z, minRoll, maxRoll))}), " +
             $"Depth {round0(depthTransformed * mult)}, " +
-            $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {entryAtlasU.z * mult}), " +
-            $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {tipAtlasU.z * mult}), " +
-            $"CCF Depth {Vector3.Distance(entryAtlasU, tipAtlasU)}");
+            $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), " +
+            $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), " +
+            $"CCF Depth {round0(Vector3.Distance(entryAtlasU, tipAtlasU))}");
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         Copy2Clipboard(dataStr);
