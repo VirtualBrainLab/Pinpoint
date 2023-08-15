@@ -21,8 +21,8 @@ public abstract class ProbeController : MonoBehaviour
     public UnityEvent MovedThisFrameEvent;
     public UnityEvent FinishedMovingEvent;
 
-    public Vector4 UnlockedDir;
-    public Vector3 UnlockedRot;
+    public abstract Vector4 UnlockedDir { get; set; }
+    public abstract Vector3 UnlockedRot { get; set; }
     public bool ManipulatorManualControl;
     public bool ManipulatorKeyboardMoveInProgress;
 
@@ -30,7 +30,7 @@ public abstract class ProbeController : MonoBehaviour
 
     public abstract (Vector3 tipCoordWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU();
 
-    public abstract void LockController();
+    public abstract void ToggleControllerLock();
 
     public abstract void SwitchAxisMode();
 

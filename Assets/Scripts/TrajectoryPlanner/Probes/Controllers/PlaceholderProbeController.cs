@@ -24,6 +24,9 @@ public class PlaceholderProbeController : ProbeController
 
     public override string ZAxisStr { get { return "DV"; } }
 
+    public override Vector4 UnlockedDir { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public override Vector3 UnlockedRot { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
     private void Awake()
     {
         _initialPosition = transform.position;
@@ -120,7 +123,7 @@ public class PlaceholderProbeController : ProbeController
         return (0, 0);
     }
 
-    public override void LockController()
+    public override void ToggleControllerLock()
     {
         throw new NotImplementedException();
     }

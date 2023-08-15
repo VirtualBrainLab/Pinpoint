@@ -31,6 +31,33 @@ public class CartesianProbeController : ProbeController
     private readonly Vector3 _pitchDir = new Vector3(0f, 1f, 0f);
     private readonly Vector3 _rollDir = new Vector3(0f, 0f, 1f);
 
+    private Vector4 _unlockedDir;
+    public override Vector4 UnlockedDir {
+        get
+        {
+            return _unlockedDir;
+        }
+        set
+        {
+            _unlockedDir = value;
+            FinishedMovingEvent.Invoke();
+        }
+    }
+
+    private Vector3 _unlockedRot;
+    public override Vector3 UnlockedRot
+    {
+        get
+        {
+            return _unlockedRot;
+        }
+        set
+        {
+            _unlockedRot = value;
+            FinishedMovingEvent.Invoke();
+        }
+    }
+
     // angle limits
     private const float minPitch = 0f;
     private const float maxPitch = 90f;
@@ -155,7 +182,7 @@ public class CartesianProbeController : ProbeController
         probeControlClick.RollCounter.performed += x => Rotate(-_rollDir);
         probeControlClick.RollCounter.canceled += x => CancelRotate(-_rollDir);
 
-        probeControlClick.InputControl.performed += x => LockController();
+        probeControlClick.InputControl.performed += x => ToggleControllerLock();
         probeControlClick.SwitchAxisMode.performed += x => SwitchAxisMode();
 
         Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
@@ -207,7 +234,7 @@ public class CartesianProbeController : ProbeController
         throw new System.NotImplementedException();
     }
 
-    public override void LockController()
+    public override void ToggleControllerLock()
     {
         _fullLock = !_fullLock;
 
@@ -221,6 +248,8 @@ public class CartesianProbeController : ProbeController
             UnlockedDir = Vector4.one;
             UnlockedRot = Vector3.one;
         }
+
+        
     }
 
     /// <summary>
