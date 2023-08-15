@@ -25,7 +25,10 @@ public class ProbeManager : MonoBehaviour
     #region Static fields
     public static readonly List<ProbeManager> Instances = new();
     public static ProbeManager ActiveProbeManager;
+
+    // Static events
     public static readonly UnityEvent<HashSet<ProbeManager>> EphysLinkControlledProbesChangedEvent = new();
+    public static readonly UnityEvent ActiveProbeUIUpdateEvent = new();
     #endregion
 
     #region Events
@@ -101,6 +104,14 @@ public class ProbeManager : MonoBehaviour
 
     public ProbeController ProbeController { get => _probeController;
         private set => _probeController = value;
+    }
+
+    public bool Locked
+    {
+        get
+        {
+            return _probeController.Locked;
+        }
     }
 
     public ManipulatorBehaviorController ManipulatorBehaviorController =>

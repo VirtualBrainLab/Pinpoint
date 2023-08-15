@@ -40,7 +40,9 @@ public class CartesianProbeController : ProbeController
         set
         {
             _unlockedDir = value;
-            FinishedMovingEvent.Invoke();
+            // If we are attached to the active probe mnager, request a downstream UI update
+            if (ProbeManager.ActiveProbeManager == ProbeManager)
+                ProbeManager.ActiveProbeUIUpdateEvent.Invoke();
         }
     }
 
@@ -54,7 +56,18 @@ public class CartesianProbeController : ProbeController
         set
         {
             _unlockedRot = value;
-            FinishedMovingEvent.Invoke();
+            // If we are attached to the active probe mnager, request a downstream UI update
+            if (ProbeManager.ActiveProbeManager == ProbeManager)
+                ProbeManager.ActiveProbeUIUpdateEvent.Invoke();
+        }
+    }
+
+    private bool _fullLock;
+    public override bool Locked
+    {
+        get
+        {
+            return _fullLock;
         }
     }
 
@@ -85,7 +98,6 @@ public class CartesianProbeController : ProbeController
     private float _depth;
 
     private bool _dirty;
-    private bool _fullLock;
 
     private ControlMode _controlMode;
 
@@ -248,8 +260,6 @@ public class CartesianProbeController : ProbeController
             UnlockedDir = Vector4.one;
             UnlockedRot = Vector3.one;
         }
-
-        
     }
 
     /// <summary>

@@ -27,6 +27,8 @@ public class PlaceholderProbeController : ProbeController
     public override Vector4 UnlockedDir { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
     public override Vector3 UnlockedRot { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+    public override bool Locked { get { return false; } }
+
     private void Awake()
     {
         _initialPosition = transform.position;

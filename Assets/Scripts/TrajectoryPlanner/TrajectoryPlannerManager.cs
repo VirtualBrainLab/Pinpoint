@@ -218,6 +218,10 @@ namespace TrajectoryPlanner
             // Finally, load accounts if we didn't load a query string
             if (!savedProbeTask.Result)
                 _accountsManager.DelayedStart();
+
+            // Link any events that need to be linked
+            ProbeManager.ActiveProbeUIUpdateEvent.AddListener(
+                () => _probeQuickSettings.GetComponentInChildren<QuickSettingsLockBehavior>().SetLockState(ProbeManager.ActiveProbeManager.ProbeController.Locked));
         }
 
         void Update()

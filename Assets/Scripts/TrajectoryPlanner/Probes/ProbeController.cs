@@ -21,6 +21,7 @@ public abstract class ProbeController : MonoBehaviour
     public UnityEvent MovedThisFrameEvent;
     public UnityEvent FinishedMovingEvent;
 
+    public abstract bool Locked { get; }
     public abstract Vector4 UnlockedDir { get; set; }
     public abstract Vector3 UnlockedRot { get; set; }
     public bool ManipulatorManualControl;
