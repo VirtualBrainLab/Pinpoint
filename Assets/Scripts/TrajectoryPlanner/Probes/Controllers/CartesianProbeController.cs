@@ -403,6 +403,15 @@ public class CartesianProbeController : ProbeController
         rotateHeldVector -= ang;
     }
 
+    private void ClearClickRotate()
+    {
+        clickKeyHeld = 0;
+        clickHeldVector = Vector4.zero;
+
+        rotateKeyHeld = 0;
+        rotateHeldVector = Vector3.zero;
+    }
+
     /// <summary>
     /// Shift the ProbeInsertion position by the Unity World vector in direction, multiplied by the speed
     /// </summary>
@@ -485,6 +494,9 @@ public class CartesianProbeController : ProbeController
         // Cancel movement if being controlled by EphysLink
         if (EventSystem.current.IsPointerOverGameObject() || ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)
             return;
+
+        // Clear all keyboard movements
+        ClearClickRotate();
 
         BrainCameraController.BlockBrainControl = true;
 
