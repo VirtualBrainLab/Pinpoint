@@ -300,12 +300,13 @@ MonoBehaviour:
     position.
 
 
-    Press [H] to close this menu.
+    Press [ESC] to close this menu.
 
 
     Pinpoint is developed by
     the Virtual Brain Lab team, part of the Steinmetz Lab at University of Washington
-    and the International Brain Laboratory.'
+    and the International Brain Laboratory. If Pinpoint proves integral to a publication,
+    please cite our preprint (Birman et al. 2023, bioRxiv)'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
