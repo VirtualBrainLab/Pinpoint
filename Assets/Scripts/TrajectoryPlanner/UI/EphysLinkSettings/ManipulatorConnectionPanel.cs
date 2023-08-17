@@ -36,9 +36,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             {
                 _handednessDropdown.value = 0;
                 _handednessGroup.SetActive(false);
-
-                // Disable manual control for "pathfinder" type
-                _manualControlGroup.SetActive(!type.Contains("pathfinder"));
             }
             else
             {
@@ -265,7 +262,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// </summary>
         private void UpdateProbePropertiesSectionState()
         {
-            if (_attachedProbe)
+            if (_attachedProbe && !_type.Contains("pathfinder"))
             {
                 _probePropertiesSection.SetActive(true);
                 UpdateZeroCoordinateOffsetInputFields(_attachedProbe.ManipulatorBehaviorController
