@@ -50,7 +50,7 @@ public class ProbeInsertion
     /// </summary>
     public Vector3 angles
     {
-        get => new Vector3(yaw, pitch, roll);
+        get => new(yaw, pitch, roll);
         set
         {
             yaw = value.x;

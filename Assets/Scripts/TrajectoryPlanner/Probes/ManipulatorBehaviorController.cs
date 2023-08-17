@@ -26,7 +26,11 @@ namespace TrajectoryPlanner.Probes
             // Check for special pathfinder mode (directly set probe position, no calculations needed)
             if (ManipulatorType.Contains("pathfinder"))
             {
-                _probeController.SetProbePosition(pos);
+                CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
+                {
+                    _probeController.SetProbeAngles(angles);
+                    _probeController.SetProbePosition(pos);
+                });
             }
             else
             {
