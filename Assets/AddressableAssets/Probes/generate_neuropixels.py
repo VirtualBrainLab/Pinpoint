@@ -9,7 +9,7 @@ columns = ['electrode','x','y','z','w','h','d','default','all','bank0','double_l
 electrodes = pd.DataFrame(np.zeros((n_electrodes, len(columns))), columns=columns)
 
 # assume for now that the tip length is 200 um (they say 175, but it looks more like 200)
-tip_length = 200
+tip_length = 175
 
 pitch_row = 20
 pitch_col = 32
@@ -56,7 +56,7 @@ n_cols = 2
 columns = ['electrode','x','y','z','w','h','d','default','all','bank0','double_length','bank1','bank2','bank3','bank4']
 electrodes = pd.DataFrame(np.zeros((n_electrodes, len(columns))), columns=columns)
 
-tip_length = 200
+tip_length = 175
 
 pitch_col = 32
 pitch_row = 15
