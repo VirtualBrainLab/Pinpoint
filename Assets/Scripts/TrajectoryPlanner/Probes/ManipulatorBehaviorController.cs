@@ -110,6 +110,14 @@ namespace TrajectoryPlanner.Probes
         {
             // Start off as disabled
             enabled = false;
+
+            // Update manipulator inside brain state
+            _probeController.MovedThisFrameEvent.AddListener(() =>
+            {
+                if (_isSetToInsideBrain != _probeManager.IsProbeInBrain())
+                    CommunicationManager.Instance.SetInsideBrain(ManipulatorID, _probeManager.IsProbeInBrain(),
+                        insideBrain => { _isSetToInsideBrain = insideBrain; });
+            });
         }
 
         private void OnDisable()
@@ -197,6 +205,7 @@ namespace TrajectoryPlanner.Probes
         private bool _isSetToDropToSurfaceWithDepth = true;
         private bool _isRightHanded;
         private float _lastLoggedTime;
+        private bool _isSetToInsideBrain;
 
         #endregion
 
@@ -364,22 +373,13 @@ namespace TrajectoryPlanner.Probes
                         {
                             // Process depth movement
                             var targetDepth = newPos.w + manipulatorSpaceDepth;
-                            CommunicationManager.Instance.SetInsideBrain(
-                                ManipulatorID, true, _ =>
+                            // Move the manipulator
+                            CommunicationManager.Instance.DriveToDepth(
+                                ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
+                                _ =>
                                 {
-                                    // Move the manipulator
-                                    CommunicationManager.Instance.DriveToDepth(
-                                        ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
-                                        _ =>
-                                        {
-                                            CommunicationManager.Instance.SetInsideBrain(
-                                                ManipulatorID, false,
-                                                _ =>
-                                                {
-                                                    CommunicationManager.Instance.SetCanWrite(ManipulatorID, false, 0,
-                                                        onSuccessCallback, onErrorCallback);
-                                                }, onErrorCallback);
-                                        }, onErrorCallback);
+                                    CommunicationManager.Instance.SetCanWrite(ManipulatorID, false, 0,
+                                        onSuccessCallback, onErrorCallback);
                                 }, onErrorCallback);
                         }, onErrorCallback);
                 }, onErrorCallback);
