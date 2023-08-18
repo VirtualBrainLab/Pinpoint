@@ -116,7 +116,11 @@ namespace TrajectoryPlanner.Probes
             {
                 if (_isSetToInsideBrain != _probeManager.IsProbeInBrain())
                     CommunicationManager.Instance.SetInsideBrain(ManipulatorID, _probeManager.IsProbeInBrain(),
-                        insideBrain => { _isSetToInsideBrain = insideBrain; });
+                        insideBrain =>
+                        {
+                            _isSetToInsideBrain = insideBrain;
+                            _probeController.UnlockedDir = insideBrain ? new Vector4(0, 0, 0, 1) : Vector4.one;
+                        });
             });
         }
 
