@@ -36,6 +36,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 _handednessGroup.SetActive(false);
                 _probeConnectionGroup.SetActive(false);
                 _probePropertiesSection.SetActive(false);
+
+                var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
+                var newProbe = trajectoryPlannerManager.AddNewProbe(ProbeProperties.ProbeType.Neuropixels1);
             }
             else
             {
