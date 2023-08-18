@@ -133,10 +133,7 @@ public class ProbeManager : MonoBehaviour
     private Color _color;
     public Color Color
     {
-        get
-        {
-            return _color;
-        }
+        get => _color;
 
         set
         {

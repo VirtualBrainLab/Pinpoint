@@ -21,7 +21,7 @@ namespace EphysLink
 
         #region Variables
 
-        public static readonly int[] EPHYS_LINK_MIN_VERSION = { 0, 9, 7 };
+        public static readonly int[] EPHYS_LINK_MIN_VERSION = { 0, 9, 9 };
 
         public static readonly string EPHYS_LINK_MIN_VERSION_STRING = "≥ v" + string.Join(".", EPHYS_LINK_MIN_VERSION);
 
@@ -261,6 +261,36 @@ namespace EphysLink
                     Debug.LogWarning(data.error);
                 }
             }).Emit("get_pos", manipulatorId);
+        }
+        
+        /// <summary>
+        ///     Request the current angles of a manipulator.
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
+        /// <param name="onSuccessCallback">Callback function to pass manipulator angles to</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
+        public void GetAngles(string manipulatorId, Action<Vector3> onSuccessCallback,
+            Action<string> onErrorCallback = null)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<AngularCallbackParameters>(data =>
+            {
+                if (data.error == "")
+                {
+                    try
+                    {
+                        onSuccessCallback?.Invoke(new Vector3(data.angles[0], data.angles[1], data.angles[2]));
+                    }
+                    catch (Exception e)
+                    {
+                        onErrorCallback?.Invoke(e.ToString());
+                    }
+                }
+                else
+                {
+                    onErrorCallback?.Invoke(data.error);
+                    Debug.LogWarning(data.error);
+                }
+            }).Emit("get_angles", manipulatorId);
         }
 
         /// <summary>

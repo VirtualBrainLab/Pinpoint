@@ -1866,6 +1866,7 @@ MonoBehaviour:
   _manipulatorIdText: {fileID: 8699707721372442200}
   _handednessGroup: {fileID: 8999800724767590326}
   _handednessDropdown: {fileID: 3448694691357484443}
+  _probeConnectionGroup: {fileID: 534869223622348013}
   _linkedProbeDropdown: {fileID: 5200381531337403621}
   _probePropertiesSection: {fileID: 5769491651499729191}
   _zeroCoordinateXInputField: {fileID: 3125666136600695602}

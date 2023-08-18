@@ -28,38 +28,54 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             // Initialize components
             _manipulatorIdText.text = manipulatorID;
-            UpdateLinkableProbeOptions();
 
-            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-            // Show or hide handedness dropdown depending on manipulator type
-            if (type.Contains("new_scale"))
+            if (type.Contains("pathfinder"))
             {
-                _handednessDropdown.value = 0;
                 _handednessGroup.SetActive(false);
+                _probeConnectionGroup.SetActive(false);
+                _probePropertiesSection.SetActive(false);
 
-                // Disable manual control for "pathfinder" type
-                _manualControlGroup.SetActive(!type.Contains("pathfinder"));
+                // Create new probe
+                var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
+                var newProbe = trajectoryPlannerManager.AddNewProbe(ProbeProperties.ProbeType.Neuropixels1);
+                
+                // Set type to pathfinder and register with Ephys Link
+                newProbe.ManipulatorBehaviorController.ManipulatorType = type;
+                newProbe.Color = Color.magenta;
+                newProbe.SetIsEphysLinkControlled(true, manipulatorID);
             }
             else
             {
-                _handednessGroup.SetActive(true);
-            }
+                UpdateLinkableProbeOptions();
 
-            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-            // Apply handedness from memory or default to right handed, also pass along manipulator type
-            if (_attachedProbe)
-            {
-                _handednessDropdown.value = _attachedProbe.ManipulatorBehaviorController.IsRightHanded ? 1 : 0;
-                _attachedProbe.ManipulatorBehaviorController.ManipulatorType = type;
-            }
-            else
-            {
-                _handednessDropdown.value =
-                    Settings.EphysLinkRightHandedManipulators.Split("\n").Contains(manipulatorID) ? 1 : 0;
-            }
+                // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+                // Show or hide handedness dropdown depending on manipulator type
+                if (type.Contains("new_scale"))
+                {
+                    _handednessDropdown.value = 0;
+                    _handednessGroup.SetActive(false);
+                }
+                else
+                {
+                    _handednessGroup.SetActive(true);
+                }
 
-            // Register event listeners for updating probes list
-            settingsMenu.ShouldUpdateProbesListEvent.AddListener(UpdateLinkableProbeOptions);
+                // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+                // Apply handedness from memory or default to right handed, also pass along manipulator type
+                if (_attachedProbe)
+                {
+                    _handednessDropdown.value = _attachedProbe.ManipulatorBehaviorController.IsRightHanded ? 1 : 0;
+                    _attachedProbe.ManipulatorBehaviorController.ManipulatorType = type;
+                }
+                else
+                {
+                    _handednessDropdown.value =
+                        Settings.EphysLinkRightHandedManipulators.Split("\n").Contains(manipulatorID) ? 1 : 0;
+                }
+
+                // Register event listeners for updating probes list
+                settingsMenu.ShouldUpdateProbesListEvent.AddListener(UpdateLinkableProbeOptions);
+            }
         }
 
         #endregion
@@ -265,7 +281,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// </summary>
         private void UpdateProbePropertiesSectionState()
         {
-            if (_attachedProbe)
+            if (_attachedProbe && !_type.Contains("pathfinder"))
             {
                 _probePropertiesSection.SetActive(true);
                 UpdateZeroCoordinateOffsetInputFields(_attachedProbe.ManipulatorBehaviorController
@@ -348,6 +364,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private TMP_Text _manipulatorIdText;
         [SerializeField] private GameObject _handednessGroup;
         [SerializeField] private Dropdown _handednessDropdown;
+        [SerializeField] private GameObject _probeConnectionGroup;
         [SerializeField] private Dropdown _linkedProbeDropdown;
 
         [SerializeField] private GameObject _probePropertiesSection;

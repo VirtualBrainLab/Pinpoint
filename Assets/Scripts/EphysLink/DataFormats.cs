@@ -124,6 +124,15 @@ namespace EphysLink
     }
 
     /// <summary>
+    ///     Returned callback data format from angular data.
+    /// </summary>
+    public struct AngularCallbackParameters
+    {
+        public float[] angles;
+        public string error;
+    }
+
+    /// <summary>
     ///     Returned callback data format from driving to depth.
     /// </summary>
     public struct DriveToDepthCallbackParameters

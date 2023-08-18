@@ -22,46 +22,57 @@ namespace TrajectoryPlanner.Probes
         private void EchoPosition(Vector4 pos)
         {
             if (!enabled && _probeController == null) return;
-            // Calculate last used direction for dropping to brain surface (between depth and DV)
-            var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
-            var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
-            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
-            _lastManipulatorPosition = pos;
 
-            // Apply zero coordinate offset
-            var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
-
-            // Convert to coordinate space
-            var manipulatorSpacePosition =
-                Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
-
-            // Brain surface adjustment
-            // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
-            var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
-            if (IsSetToDropToSurfaceWithDepth)
-                zeroCoordinateAdjustedManipulatorPosition.w +=
-                    CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
+            // Check for special pathfinder mode (directly set probe position, no calculations needed)
+            if (ManipulatorType.Contains("pathfinder"))
+            {
+                CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
+                {
+                    _probeController.SetProbeAngles(angles);
+                    _probeController.SetProbePosition(new Vector3(pos.y, pos.x, pos.z));
+                });
+            }
             else
-                manipulatorSpacePosition.z +=
-                    CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
+            {
+                // Calculate last used direction for dropping to brain surface (between depth and DV)
+                var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
+                var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
+                if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
+                _lastManipulatorPosition = pos;
 
-            // Convert to world space
-            var zeroCoordinateAdjustedWorldPosition =
-                CoordinateSpace.Space2World(manipulatorSpacePosition);
+                // Apply zero coordinate offset
+                var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
 
-            // Set probe position (change axes to match probe)
-            var insertion = _probeController.Insertion;
-            var transformedApmldv =
-                insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
+                // Convert to coordinate space
+                var manipulatorSpacePosition =
+                    Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
 
-            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-            if (ManipulatorType is "new_scale" or "new_scale_pathfinder")
-                _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-                    transformedApmldv.z, 0));
-            else
-                _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-                    transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
+                // Brain surface adjustment
+                // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
+                var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+                if (IsSetToDropToSurfaceWithDepth)
+                    zeroCoordinateAdjustedManipulatorPosition.w +=
+                        CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
+                else
+                    manipulatorSpacePosition.z +=
+                        CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
 
+                // Convert to world space
+                var zeroCoordinateAdjustedWorldPosition =
+                    CoordinateSpace.Space2World(manipulatorSpacePosition);
+
+                // Set probe position (change axes to match probe)
+                var transformedApmldv =
+                    _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
+
+                // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+                if (ManipulatorType == "new_scale")
+                    _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                        transformedApmldv.z, 0));
+                else
+                    _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                        transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
+            }
 
             // Log every 5 hz
             if (Time.time - _lastLoggedTime >= 0.2)
@@ -75,9 +86,9 @@ namespace TrajectoryPlanner.Probes
                     "ephys_link", Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture), ManipulatorID,
                     pos.x.ToString(CultureInfo.InvariantCulture), pos.y.ToString(CultureInfo.InvariantCulture),
                     pos.z.ToString(CultureInfo.InvariantCulture), pos.w.ToString(CultureInfo.InvariantCulture),
-                    insertion.yaw.ToString(CultureInfo.InvariantCulture),
-                    insertion.pitch.ToString(CultureInfo.InvariantCulture),
-                    insertion.roll.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.yaw.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.pitch.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.roll.ToString(CultureInfo.InvariantCulture),
                     tipPos.x.ToString(CultureInfo.InvariantCulture), tipPos.y.ToString(CultureInfo.InvariantCulture),
                     tipPos.z.ToString(CultureInfo.InvariantCulture)
                 };
@@ -206,6 +217,7 @@ namespace TrajectoryPlanner.Probes
             // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
             CommunicationManager.Instance.GetManipulators((ids, type) =>
             {
+                // Shortcut exit if we have an invalid manipulator ID
                 if (!ids.Contains(manipulatorID)) return;
 
                 ManipulatorID = manipulatorID;
@@ -223,6 +235,7 @@ namespace TrajectoryPlanner.Probes
                         _probeController.Insertion.pitch);
                 }
 
+                // Lock the manipulator from manual control
                 _probeController.UnlockedDir = Vector4.zero;
 
                 if (calibrated)
@@ -239,6 +252,7 @@ namespace TrajectoryPlanner.Probes
                                         _ => StartEchoing());
                                 });
                         });
+                return;
 
                 void StartEchoing()
                 {

@@ -22,25 +22,22 @@ public class CartesianProbeController : ProbeController
     private const float ROT_INCREMENT_HOLD_FAST = 15;
     private const float ROT_INCREMENT_HOLD_SLOW = 1f;
 
-    private readonly Vector4 _forwardDir = new Vector4(0f, 0f, -1f, 0f);
-    private readonly Vector4 _rightDir = new Vector4(-1f, 0f, 0f, 0f);
-    private readonly Vector4 _upDir = new Vector4(0f, 1f, 0f, 0f);
-    private readonly Vector4 _depthDir = new Vector4(0f, 0f, 0f, 1f);
+    private readonly Vector4 _forwardDir = new(0f, 0f, -1f, 0f);
+    private readonly Vector4 _rightDir = new(-1f, 0f, 0f, 0f);
+    private readonly Vector4 _upDir = new(0f, 1f, 0f, 0f);
+    private readonly Vector4 _depthDir = new(0f, 0f, 0f, 1f);
 
-    private readonly Vector3 _yawDir = new Vector3(1f, 0f, 0f);
-    private readonly Vector3 _pitchDir = new Vector3(0f, 1f, 0f);
-    private readonly Vector3 _rollDir = new Vector3(0f, 0f, 1f);
+    private readonly Vector3 _yawDir = new(1f, 0f, 0f);
+    private readonly Vector3 _pitchDir = new(0f, 1f, 0f);
+    private readonly Vector3 _rollDir = new(0f, 0f, 1f);
 
     private Vector4 _unlockedDir;
     public override Vector4 UnlockedDir {
-        get
-        {
-            return _unlockedDir;
-        }
+        get => _unlockedDir;
         set
         {
             _unlockedDir = value;
-            // If we are attached to the active probe mnager, request a downstream UI update
+            // If we are attached to the active probe manager, request a downstream UI update
             if (ProbeManager.ActiveProbeManager == ProbeManager)
                 ProbeManager.ActiveProbeUIUpdateEvent.Invoke();
         }

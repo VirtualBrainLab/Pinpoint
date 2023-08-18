@@ -16,15 +16,7 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: aa120eec9de0cf94e95f6071b46259fe
-  m_SerializeEntries:
-  - m_GUID: 604a5f8d7d36f4c4c972a69cda8175bc
-    m_Address: Assets/AddressableAssets/3D/skull.obj
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 7b59397650a2ef247959f166f102568c
-    m_Address: Assets/AddressableAssets/3D/skull.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
   m_SchemaSet:
