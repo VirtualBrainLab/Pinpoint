@@ -271,12 +271,8 @@ public class ProbeManager : MonoBehaviour
         Debug.Log($"{name} becoming {(active ? "active" : "inactive")}");
 #endif
 
-        if (active)
-            ColliderManager.AddProbeColliderInstances(_probeColliders, true);
-        else
-            ColliderManager.AddProbeColliderInstances(_probeColliders, false);
-
-        GetComponent<CartesianProbeController>().enabled = active;
+        ColliderManager.AddProbeColliderInstances(_probeColliders, active);
+        GetComponent<ProbeController>().enabled = active;
 
         UIUpdateEvent.Invoke();
         _probeController.MovedThisFrameEvent.Invoke();

@@ -528,7 +528,6 @@ namespace TrajectoryPlanner
             // Tell the old probe that it is now in-active
             if (ProbeManager.ActiveProbeManager != null)
             {
-                ProbeManager.ActiveProbeManager.GetComponent<ProbeController>().enabled = false;
                 ProbeManager.ActiveProbeManager.SetActive(false);
             }
 
