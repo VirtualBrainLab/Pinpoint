@@ -217,6 +217,7 @@ namespace TrajectoryPlanner.Probes
             // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
             CommunicationManager.Instance.GetManipulators((ids, type) =>
             {
+                // Shortcut exit if we have an invalid manipulator ID
                 if (!ids.Contains(manipulatorID)) return;
 
                 ManipulatorID = manipulatorID;
@@ -234,6 +235,7 @@ namespace TrajectoryPlanner.Probes
                         _probeController.Insertion.pitch);
                 }
 
+                // Lock the manipulator from manual control
                 _probeController.UnlockedDir = Vector4.zero;
 
                 if (calibrated)

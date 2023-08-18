@@ -41,8 +41,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 
                 // Set type to pathfinder and register with Ephys Link
                 newProbe.ManipulatorBehaviorController.ManipulatorType = type;
-                newProbe.SetIsEphysLinkControlled(true, manipulatorID,
-                    onSuccess: () => { print("Registered " + manipulatorID); });
+                newProbe.Color = Color.magenta;
+                newProbe.SetIsEphysLinkControlled(true, manipulatorID);
             }
             else
             {
