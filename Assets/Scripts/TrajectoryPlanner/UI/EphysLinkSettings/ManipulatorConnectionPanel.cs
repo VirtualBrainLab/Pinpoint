@@ -38,7 +38,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 // Create new probe
                 var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
                 var newProbe = trajectoryPlannerManager.AddNewProbe(ProbeProperties.ProbeType.Neuropixels1);
-                
+
                 // Set type to pathfinder and register with Ephys Link
                 newProbe.ManipulatorBehaviorController.ManipulatorType = type;
                 newProbe.Color = Color.magenta;

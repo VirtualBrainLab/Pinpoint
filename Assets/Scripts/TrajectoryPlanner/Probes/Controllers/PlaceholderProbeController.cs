@@ -130,6 +130,11 @@ public class PlaceholderProbeController : ProbeController
         throw new NotImplementedException();
     }
 
+    public override void SetControllerLock(bool locked)
+    {
+        throw new NotImplementedException();
+    }
+
     public override void SwitchAxisMode()
     {
         throw new NotImplementedException();

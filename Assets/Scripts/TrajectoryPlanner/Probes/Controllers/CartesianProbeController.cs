@@ -259,6 +259,23 @@ public class CartesianProbeController : ProbeController
         }
     }
 
+    public override void SetControllerLock(bool locked)
+    {
+        _fullLock = locked;
+        
+        if (_fullLock)
+        {
+            UnlockedDir = Vector4.zero;
+            UnlockedRot = Vector3.zero;
+        }
+        else
+        {
+            UnlockedDir = Vector4.one;
+            UnlockedRot = Vector3.one;
+        }
+        
+    }
+
     /// <summary>
     /// Put this probe back at Bregma
     /// </summary>

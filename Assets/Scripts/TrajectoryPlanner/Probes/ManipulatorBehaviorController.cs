@@ -236,7 +236,7 @@ namespace TrajectoryPlanner.Probes
                 }
 
                 // Lock the manipulator from manual control
-                _probeController.ToggleControllerLock();
+                _probeController.SetControllerLock(true);
 
                 if (calibrated)
                     // Bypass calibration and start echoing
