@@ -28,8 +28,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             // Initialize components
             _manipulatorIdText.text = manipulatorID;
-            
-            print(type);
 
             if (type.Contains("pathfinder"))
             {
@@ -37,8 +35,14 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 _probeConnectionGroup.SetActive(false);
                 _probePropertiesSection.SetActive(false);
 
+                // Create new probe
                 var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
                 var newProbe = trajectoryPlannerManager.AddNewProbe(ProbeProperties.ProbeType.Neuropixels1);
+                
+                // Set type to pathfinder and register with Ephys Link
+                newProbe.ManipulatorBehaviorController.ManipulatorType = type;
+                newProbe.SetIsEphysLinkControlled(true, manipulatorID,
+                    onSuccess: () => { print("Registered " + manipulatorID); });
             }
             else
             {

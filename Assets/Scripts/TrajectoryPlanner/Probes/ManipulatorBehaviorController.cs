@@ -29,7 +29,7 @@ namespace TrajectoryPlanner.Probes
                 CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
                 {
                     _probeController.SetProbeAngles(angles);
-                    _probeController.SetProbePosition(pos);
+                    _probeController.SetProbePosition(new Vector3(pos.y, pos.x, pos.z));
                 });
             }
             else
