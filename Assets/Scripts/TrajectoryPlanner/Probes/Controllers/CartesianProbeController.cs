@@ -46,10 +46,7 @@ public class CartesianProbeController : ProbeController
     private Vector3 _unlockedRot;
     public override Vector3 UnlockedRot
     {
-        get
-        {
-            return _unlockedRot;
-        }
+        get => _unlockedRot;
         set
         {
             _unlockedRot = value;
