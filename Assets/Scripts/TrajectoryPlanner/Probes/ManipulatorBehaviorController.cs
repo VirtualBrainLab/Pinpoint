@@ -112,16 +112,16 @@ namespace TrajectoryPlanner.Probes
             enabled = false;
 
             // Update manipulator inside brain state
-            _probeController.MovedThisFrameEvent.AddListener(() =>
-            {
-                if (_isSetToInsideBrain != _probeManager.IsProbeInBrain())
-                    CommunicationManager.Instance.SetInsideBrain(ManipulatorID, _probeManager.IsProbeInBrain(),
-                        insideBrain =>
-                        {
-                            _isSetToInsideBrain = insideBrain;
-                            _probeController.UnlockedDir = insideBrain ? new Vector4(0, 0, 0, 1) : Vector4.one;
-                        });
-            });
+            // _probeController.MovedThisFrameEvent.AddListener(() =>
+            // {
+            //     if (_isSetToInsideBrain != _probeManager.IsProbeInBrain())
+            //         CommunicationManager.Instance.SetInsideBrain(ManipulatorID, _probeManager.IsProbeInBrain(),
+            //             insideBrain =>
+            //             {
+            //                 _isSetToInsideBrain = insideBrain;
+            //                 _probeController.UnlockedDir = insideBrain ? new Vector4(0, 0, 0, 1) : Vector4.one;
+            //             });
+            // });
         }
 
         private void OnDisable()

@@ -42,6 +42,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 // Set type to pathfinder and register with Ephys Link
                 newProbe.ManipulatorBehaviorController.ManipulatorType = type;
                 newProbe.Color = Color.magenta;
+                newProbe.name = "nsp_" + manipulatorID;
                 newProbe.SetIsEphysLinkControlled(true, manipulatorID);
             }
             else
@@ -375,7 +376,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private InputField _brainSurfaceOffsetInputField;
         [SerializeField] private Button _returnToZeroCoordinateButton;
         [SerializeField] private Text _returnToZeroCoordinateButtonText;
-        [SerializeField] private GameObject _manualControlGroup;
         [SerializeField] private Toggle _enableManualControlToggle;
 
         private ProbeManager _attachedProbe;
