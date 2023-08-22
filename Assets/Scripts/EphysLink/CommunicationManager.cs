@@ -21,7 +21,7 @@ namespace EphysLink
 
         #region Variables
 
-        public static readonly int[] EPHYS_LINK_MIN_VERSION = { 0, 9, 9 };
+        public static readonly int[] EPHYS_LINK_MIN_VERSION = { 0, 9, 10 };
 
         public static readonly string EPHYS_LINK_MIN_VERSION_STRING = "≥ v" + string.Join(".", EPHYS_LINK_MIN_VERSION);
 
