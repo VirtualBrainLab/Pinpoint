@@ -233,20 +233,12 @@ namespace TrajectoryPlanner.Probes
                 // Shortcut exit if we have an invalid manipulator ID
                 if (!ids.Contains(manipulatorID)) return;
 
+                // Set manipulator ID and type
                 ManipulatorID = manipulatorID;
-                if (type == "sensapex")
-                {
-                    CoordinateSpace = new SensapexSpace();
-                    Transform = IsRightHanded
-                        ? new SensapexRightTransform(_probeController.Insertion.yaw)
-                        : new SensapexLeftTransform(_probeController.Insertion.yaw);
-                }
-                else
-                {
-                    CoordinateSpace = new NewScaleSpace();
-                    Transform = new NewScaleLeftTransform(_probeController.Insertion.yaw,
-                        _probeController.Insertion.pitch);
-                }
+                ManipulatorType = type;
+
+                // Update transform and space
+                UpdateSpaceAndTransform();
 
                 // Lock the manipulator from manual control
                 _probeController.SetControllerLock(true);
@@ -276,6 +268,23 @@ namespace TrajectoryPlanner.Probes
                     });
                 }
             });
+        }
+
+        public void UpdateSpaceAndTransform()
+        {
+            if (ManipulatorType == "sensapex")
+            {
+                CoordinateSpace = new SensapexSpace();
+                Transform = IsRightHanded
+                    ? new SensapexRightTransform(_probeController.Insertion.yaw)
+                    : new SensapexLeftTransform(_probeController.Insertion.yaw);
+            }
+            else
+            {
+                CoordinateSpace = new NewScaleSpace();
+                Transform = new NewScaleLeftTransform(_probeController.Insertion.yaw,
+                    _probeController.Insertion.pitch);
+            }
         }
 
         public Vector4 ConvertInsertionToManipulatorPosition(Vector3 insertionAPMLDV)
