@@ -100,6 +100,12 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 currentRightHandedManipulators.Add(_manipulatorId);
 
             Settings.EphysLinkRightHandedManipulators = string.Join("\n", currentRightHandedManipulators);
+            
+            // Update transform on attached probe if it exists
+            if (_attachedProbe)
+            {
+                _attachedProbe.ManipulatorBehaviorController.UpdateSpaceAndTransform();
+            }
         }
 
         /// <summary>
