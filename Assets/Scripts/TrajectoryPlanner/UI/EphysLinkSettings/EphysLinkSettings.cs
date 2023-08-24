@@ -34,8 +34,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         #region Properties
 
-        private bool _isEphysLinkCompatible;
-
         private bool _ephysCopilotIsEnabled => _copilotButtonText.text.Contains("Hide");
 
 
@@ -71,7 +69,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// </summary>
         private void UpdateConnectionPanel()
         {
-            if (CommunicationManager.Instance.IsConnected && !_isEphysLinkCompatible)
+            if (CommunicationManager.Instance.IsConnected && !CommunicationManager.Instance.IsEphysLinkCompatible)
             {
                 _connectionErrorText.text =
                     "Ephys Link is outdated. Please update to " + CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
@@ -178,7 +176,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                                         .Any())
                                 {
                                     // Ephys Link is current enough
-                                    _isEphysLinkCompatible = true;
+                                    CommunicationManager.Instance.IsEphysLinkCompatible = true;
                                     UpdateConnectionPanel();
                                 }
                                 else
