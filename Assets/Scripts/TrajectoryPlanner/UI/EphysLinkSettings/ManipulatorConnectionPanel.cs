@@ -100,12 +100,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 currentRightHandedManipulators.Add(_manipulatorId);
 
             Settings.EphysLinkRightHandedManipulators = string.Join("\n", currentRightHandedManipulators);
-            
-            // Update transform on attached probe if it exists
-            if (_attachedProbe)
-            {
-                _attachedProbe.ManipulatorBehaviorController.UpdateSpaceAndTransform();
-            }
         }
 
         /// <summary>
@@ -123,6 +117,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _attachedProbe.ProbeController.ManipulatorManualControl = false;
                     _enableManualControlToggle.SetIsOnWithoutNotify(false);
 
+                    // Clear event listeners
+                    _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.RemoveAllListeners();
+                    _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.RemoveAllListeners();
+                    _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepthChangedEvent
+                        .RemoveAllListeners();
 
                     // Remove probe from linked probes list
                     _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
@@ -143,6 +142,14 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                             _attachedProbe.ProbeController.ManipulatorManualControl = false;
                             _enableManualControlToggle.SetIsOnWithoutNotify(false);
 
+                            // Clear event listeners
+                            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent
+                                .RemoveAllListeners();
+                            _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent
+                                .RemoveAllListeners();
+                            _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepthChangedEvent
+                                .RemoveAllListeners();
+
                             // Remove probe from linked probes list
                             _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
                         });
@@ -154,8 +161,14 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 {
                     _attachedProbe = newProbeManager;
                     _ephysLinkSettings.LinkedProbes.Add(_attachedProbe);
-                    // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+
+                    // Copy over manipulator type, handedness, and dropdown direction and enable state
                     _attachedProbe.ManipulatorBehaviorController.ManipulatorType = _type;
+                    OnManipulatorHandednessValueChanged(_handednessDropdown.value);
+                    UpdateDuraDropDirection(_duraDropDirectionDropdown.value);
+                    SetDuraDropInteractable(_attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset == 0);
+                    _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.AddListener(
+                        brainSurfaceOffset => SetDuraDropInteractable(brainSurfaceOffset == 0));
 
                     // Inform others a change was made
                     _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
@@ -201,6 +214,17 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
                 new Vector4(float.NaN, float.NaN, float.NaN, float.Parse(newValue));
+        }
+
+        public void UpdateDuraDropDirection(int value)
+        {
+            // Set drop direction on attached probe if it exists
+            if (_attachedProbe) _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = value == 1;
+        }
+
+        public void SetDuraDropInteractable(bool interactable)
+        {
+            _duraDropDirectionDropdown.interactable = interactable;
         }
 
         /// <summary>
@@ -379,6 +403,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private InputField _zeroCoordinateYInputField;
         [SerializeField] private InputField _zeroCoordinateZInputField;
         [SerializeField] private InputField _zeroCoordinateDInputField;
+        [SerializeField] private Dropdown _duraDropDirectionDropdown;
         [SerializeField] private InputField _brainSurfaceOffsetInputField;
         [SerializeField] private Button _returnToZeroCoordinateButton;
         [SerializeField] private Text _returnToZeroCoordinateButtonText;
