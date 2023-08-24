@@ -15,6 +15,11 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Set manipulator ID text
             _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorBehaviorController.ManipulatorID;
             _manipulatorIDText.color = ProbeManager.Color;
+
+            // Set drive speeds button text
+            _safeDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_SAFE + " µm/s Drive";
+            _fastDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_FAST + " µm/s Drive";
+            _testDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_TEST + " µm/s Drive";
         }
 
         #endregion
@@ -185,9 +190,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         [SerializeField] private TMP_Text _manipulatorIDText;
         [SerializeField] private GameObject _driveButtonGroup;
+        [SerializeField] private TMP_Text _safeDriveButtonText;
+        [SerializeField] private TMP_Text _fastDriveButtonText;
+        [SerializeField] private TMP_Text _testDriveButtonText;
         [SerializeField] private GameObject _stopButton;
         [SerializeField] private GameObject _skipSettlingButton;
         [SerializeField] private GameObject _returnButton;
+        [SerializeField] private TMP_Text _returnButtonText;
         [SerializeField] private TMP_Text _statusText;
         [SerializeField] private TMP_Text _timerText;
 
@@ -265,6 +274,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             };
             _driveBackToTargetDuration = _drivePastTargetDistance * 1000 / _depthDriveBaseSpeed;
             _exitDuraMarginDuration = 100f / _exitDuraMarginSpeed;
+
+            // Update return to surface button text
+            _returnButtonText.text = "Return to Surface (" + _returnToSurfaceDriveSpeed + " µm/s)";
 
             // Compute drive distance and duration
             CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, position =>

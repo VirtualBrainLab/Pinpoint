@@ -1574,7 +1574,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 250, y: -28.773285}
+  m_AnchoredPosition: {x: 250, y: -116.292206}
   m_SizeDelta: {x: 500, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5092748061186658588
@@ -2408,9 +2408,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _manipulatorIDText: {fileID: 8263761920268002476}
   _driveButtonGroup: {fileID: 635029489259677411}
+  _safeDriveButtonText: {fileID: 7698225164329509631}
+  _fastDriveButtonText: {fileID: 1259534558367481994}
+  _testDriveButtonText: {fileID: 2627744871314873943}
   _stopButton: {fileID: 8950310822258812797}
   _skipSettlingButton: {fileID: 3200770919843244483}
   _returnButton: {fileID: 6315168989377721155}
+  _returnButtonText: {fileID: 3744103793431505929}
   _statusText: {fileID: 3023744443413706275}
   _timerText: {fileID: 6333824926798648489}
 --- !u!114 &2376644107146004916
