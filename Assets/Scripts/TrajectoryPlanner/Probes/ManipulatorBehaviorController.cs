@@ -195,9 +195,7 @@ namespace TrajectoryPlanner.Probes
             set
             {
                 _isRightHanded = value;
-                Transform = IsRightHanded
-                    ? new SensapexRightTransform(_probeController.Insertion.yaw)
-                    : new SensapexLeftTransform(_probeController.Insertion.yaw);
+                UpdateSpaceAndTransform();
             }
         }
 
