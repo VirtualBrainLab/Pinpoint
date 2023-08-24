@@ -84,6 +84,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         /// </summary>
         public void UpdateTargetInsertionOptions()
         {
+            print("Updating target insertion options");
             // Clear options
             _targetInsertionDropdown.ClearOptions();
 
@@ -92,7 +93,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             // Add other options
             _targetInsertionDropdown.AddOptions(_targetInsertionOptions
-                .Select(insertion => insertion.PositionToString()).ToList());
+                .Select(insertion =>
+                    ProbeManager.Instances.Find(manager => manager.ProbeController.Insertion == insertion).name +
+                    ": " + insertion.PositionToString()).ToList());
 
             // Restore selection (if possible)
             _targetInsertionDropdown.SetValueWithoutNotify(
