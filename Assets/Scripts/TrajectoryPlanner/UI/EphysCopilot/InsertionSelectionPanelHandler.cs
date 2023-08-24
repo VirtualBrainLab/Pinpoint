@@ -330,19 +330,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         /// <param name="value">Selected index</param>
         public void OnTargetInsertionDropdownValueChanged(int value)
         {
-            // Extract position string from option text
-            var insertionPositionString = _targetInsertionDropdown.options[value]
-                .text[_targetInsertionDropdown.options[value].text.LastIndexOf('A')..];
-
-            // Get selection as insertion
-            var insertion = value > 0
-                ? _targetableInsertions.First(insertion =>
-                    insertion.PositionToString()
-                        .Equals(insertionPositionString))
-                : null;
-
             // Update selection record and text fields
-            if (insertion == null)
+            if (value == 0)
             {
                 // Remove record if no insertion selected
                 ManipulatorIDToSelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
@@ -360,6 +349,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             }
             else
             {
+                // Extract position string from option text
+                var insertionPositionString = _targetInsertionDropdown.options[value]
+                    .text[_targetInsertionDropdown.options[value].text.LastIndexOf('A')..];
+
+                // Get selection as insertion
+                var insertion = _targetableInsertions.First(insertion =>
+                    insertion.PositionToString().Equals(insertionPositionString));
+                
                 // Update record if insertion selected
                 ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
                     insertion;
