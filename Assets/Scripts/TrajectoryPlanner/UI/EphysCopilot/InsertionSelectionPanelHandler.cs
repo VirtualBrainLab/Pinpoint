@@ -84,7 +84,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         /// </summary>
         public void UpdateTargetInsertionOptions()
         {
-            print("Updating target insertion options");
             // Clear options
             _targetInsertionDropdown.ClearOptions();
 
@@ -331,11 +330,15 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         /// <param name="value">Selected index</param>
         public void OnTargetInsertionDropdownValueChanged(int value)
         {
+            // Extract position string from option text
+            var insertionPositionString = _targetInsertionDropdown.options[value]
+                .text[_targetInsertionDropdown.options[value].text.LastIndexOf('A')..];
+
             // Get selection as insertion
             var insertion = value > 0
                 ? _targetableInsertions.First(insertion =>
                     insertion.PositionToString()
-                        .Equals(_targetInsertionDropdown.options[value].text))
+                        .Equals(insertionPositionString))
                 : null;
 
             // Update selection record and text fields

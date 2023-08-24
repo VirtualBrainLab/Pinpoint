@@ -333,6 +333,8 @@ public class Settings : MonoBehaviour
 
     #region Ephys Link
 
+    public UnityEvent EphysLinkServerInfoLoaded;
+
     public UnityEvent<string> EphysLinkServerIpChangedEvent;
     public static string EphysLinkServerIp
     {
@@ -665,6 +667,7 @@ public class Settings : MonoBehaviour
         // Ephys link
         _ephysLinkServerIpInput.text = data.EphysLinkServerIP;
         _ephysLinkServerPortInput.text = data.EphysLinkServerPort.ToString();
+        EphysLinkServerInfoLoaded.Invoke();
 
         // Camera
         CameraZoomChangedEvent.Invoke(CameraZoom);

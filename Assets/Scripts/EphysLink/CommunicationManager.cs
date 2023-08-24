@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using BestHTTP.SocketIO3;
 using UnityEngine;
 
@@ -40,6 +41,8 @@ namespace EphysLink
         ///     The current state of the connection to Ephys Link.
         /// </summary>
         public bool IsConnected { get; private set; }
+        
+        public bool IsEphysLinkCompatible { get; set; }
 
         #endregion
 
@@ -51,7 +54,24 @@ namespace EphysLink
         {
             // Automatically connect if the server credentials are possible
             if (!IsConnected && Settings.EphysLinkServerIp != "" && Settings.EphysLinkServerPort >= 1025)
-                ConnectToServer(Settings.EphysLinkServerIp, Settings.EphysLinkServerPort);
+                ConnectToServer(Settings.EphysLinkServerIp, Settings.EphysLinkServerPort, () =>
+                {
+                    // Verify Ephys Link version
+                    Instance.GetVersion(version =>
+                    {
+                        if (!version.Split(".").Where((versionNumber, index) =>
+                                    int.Parse(versionNumber) <
+                                    EPHYS_LINK_MIN_VERSION[index])
+                                .Any())
+                        {
+                            IsEphysLinkCompatible = true;
+                        }
+                        else
+                        {
+                            Instance.DisconnectFromServer();
+                        }
+                    });
+                });
         }
 
         /// <summary>
