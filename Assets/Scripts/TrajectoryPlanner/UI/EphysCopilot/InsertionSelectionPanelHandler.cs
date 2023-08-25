@@ -356,7 +356,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Get selection as insertion
                 var insertion = _targetableInsertions.First(insertion =>
                     insertion.PositionToString().Equals(insertionPositionString));
-                
+
                 // Update record if insertion selected
                 ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
                     insertion;
