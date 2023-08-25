@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Globalization;
 using EphysLink;
 using TMPro;
 using UnityEngine;
@@ -54,6 +55,19 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         public void DriveTest()
         {
             Drive(DriveSpeed.Test);
+        }
+
+        public void OnDrivePastDistanceChanged(string value)
+        {
+            if (float.TryParse(value, out var distance))
+                if (distance > 0)
+                {
+                    _drivePastDistanceOverride = distance / 1000f;
+                    return;
+                }
+
+            _drivePastDistanceOverride = null;
+            _drivePastDistanceInputField.SetTextWithoutNotify("");
         }
 
         public void CompleteDrive()
@@ -136,7 +150,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     // Otherwise, just reset
                     _driveState = DriveState.Ready;
                     _stopButton.SetActive(false);
-                    _driveButtonGroup.SetActive(true);
+                    _driveGroup.SetActive(true);
                 }
             });
         }
@@ -189,10 +203,11 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         #region Components
 
         [SerializeField] private TMP_Text _manipulatorIDText;
-        [SerializeField] private GameObject _driveButtonGroup;
+        [SerializeField] private GameObject _driveGroup;
         [SerializeField] private TMP_Text _safeDriveButtonText;
         [SerializeField] private TMP_Text _fastDriveButtonText;
         [SerializeField] private TMP_Text _testDriveButtonText;
+        [SerializeField] private TMP_InputField _drivePastDistanceInputField;
         [SerializeField] private GameObject _stopButton;
         [SerializeField] private GameObject _skipSettlingButton;
         [SerializeField] private GameObject _returnButton;
@@ -215,6 +230,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private int _targetDriveSpeed;
 
         private float _drivePastTargetDistance;
+        private float? _drivePastDistanceOverride;
         private int _depthDriveBaseSpeed;
         private int _returnToSurfaceDriveSpeed;
         private int _exitDuraMarginSpeed;
@@ -230,7 +246,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private void ComputeAndSetDriveTime(DriveSpeed speed, Action callback = null)
         {
             // Compute speed variables based on speed
-            _drivePastTargetDistance = speed switch
+            _drivePastTargetDistance = _drivePastDistanceOverride ?? speed switch
             {
                 DriveSpeed.Safe => DRIVE_PAST_TARGET_DISTANCE_SAFE,
                 DriveSpeed.Fast => DRIVE_PAST_TARGET_DISTANCE_FAST,
@@ -275,7 +291,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             _driveBackToTargetDuration = _drivePastTargetDistance * 1000 / _depthDriveBaseSpeed;
             _exitDuraMarginDuration = 100f / _exitDuraMarginSpeed;
 
-            // Update return to surface button text
+            // Update drive past distance and return to surface button text
+            _drivePastDistanceInputField.SetTextWithoutNotify(
+                (_drivePastTargetDistance * 1000f).ToString(CultureInfo.InvariantCulture));
             _returnButtonText.text = "Return to Surface (" + _returnToSurfaceDriveSpeed + " µm/s)";
 
             // Compute drive distance and duration
@@ -378,7 +396,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         _statusText.text = "Driving to " + _drivePastTargetDistance * 1000f + " µm past target...";
 
                         // Replace drive buttons with stop
-                        _driveButtonGroup.SetActive(false);
+                        _driveGroup.SetActive(false);
                         _stopButton.SetActive(true);
 
                         // Set state
@@ -433,7 +451,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         // Completed returning to surface
                         _statusText.text = "Ready to Drive";
                         _stopButton.SetActive(false);
-                        _driveButtonGroup.SetActive(true);
+                        _driveGroup.SetActive(true);
                         _driveState = DriveState.Ready;
                     }
 
