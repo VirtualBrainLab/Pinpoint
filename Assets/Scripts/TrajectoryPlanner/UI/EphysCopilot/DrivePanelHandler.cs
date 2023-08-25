@@ -21,6 +21,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             _safeDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_SAFE + " µm/s Drive";
             _fastDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_FAST + " µm/s Drive";
             _testDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_TEST + " µm/s Drive";
+            
+            // Add drive past distance input field to focusable inputs
+            UIManager.FocusableInputs.Add(_drivePastDistanceInputField);
         }
 
         #endregion
