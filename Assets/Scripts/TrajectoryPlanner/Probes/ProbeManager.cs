@@ -167,12 +167,19 @@ public class ProbeManager : MonoBehaviour
         return _probeUIManagers;
     }
 
+    /// <summary>
+    /// When true, this Probe will be saved and re-loaded in the scene the next time Pinpoint loads
+    /// </summary>
+    public bool Saved { get; set; }
+
     #endregion
 
     #region Unity
 
     private void Awake()
     {
+        Saved = true;
+
         UUID = Guid.NewGuid().ToString();
         UpdateName();
 

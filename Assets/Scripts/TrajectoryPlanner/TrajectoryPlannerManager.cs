@@ -807,15 +807,17 @@ namespace TrajectoryPlanner
 #endif
         }
 
-        private string[] GetActiveProbeJSON()
+        private List<string> GetActiveProbeJSON()
         {
             var nonGhostProbeManagers = ProbeManager.Instances;
-            string[] data = new string[nonGhostProbeManagers.Count];
+            List<string> data = new();
 
             for (int i = 0; i < nonGhostProbeManagers.Count; i++)
             {
                 ProbeManager probe = nonGhostProbeManagers[i];
-                data[i] = JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probe));
+
+                if (probe.Saved)
+                    data.Add(JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probe)));
             }
 
             return data;

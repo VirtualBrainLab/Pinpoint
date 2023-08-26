@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -699,12 +700,12 @@ public class Settings : MonoBehaviour
     /// Save the data about all of the probes passed in through allProbeData
     /// </summary>
     /// <param name="allProbeData">tip position, angles, and type for probes</param>
-    public static void SaveCurrentProbeData(string[] allProbeData)
+    public static void SaveCurrentProbeData(List<string> allProbeData)
     {
-        for (int i = 0; i < allProbeData.Length; i++)
+        for (int i = 0; i < allProbeData.Count; i++)
             PlayerPrefs.SetString($"probe_{i}", allProbeData[i]);
 
-        PlayerPrefs.SetInt("probecount", allProbeData.Length);
+        PlayerPrefs.SetInt("probecount", allProbeData.Count);
         PlayerPrefs.SetString("timestamp",
             new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds().ToString("D16"));
 
