@@ -22,9 +22,10 @@ public class CartesianProbeController : ProbeController
     private const float ROT_INCREMENT_HOLD_FAST = 15;
     private const float ROT_INCREMENT_HOLD_SLOW = 1f;
 
-    private readonly Vector4 _forwardDir = new(0f, 0f, -1f, 0f);
-    private readonly Vector4 _rightDir = new(-1f, 0f, 0f, 0f);
-    private readonly Vector4 _upDir = new(0f, 1f, 0f, 0f);
+    // [deprecated]
+    //private readonly Vector4 _forwardDir = new(0f, 0f, -1f, 0f);
+    //private readonly Vector4 _rightDir = new(-1f, 0f, 0f, 0f);
+    //private readonly Vector4 _upDir = new(0f, 1f, 0f, 0f);
     private readonly Vector4 _depthDir = new(0f, 0f, 0f, 1f);
 
     private readonly Vector3 _yawDir = new(1f, 0f, 0f);
@@ -34,7 +35,7 @@ public class CartesianProbeController : ProbeController
 
     private Vector4 ForwardVecWorld { get => Settings.ConvertAPML2Probe ? -ProbeTipT.right : Vector3.back; }
     private Vector4 RightVecWorld { get => Settings.ConvertAPML2Probe ? ProbeTipT.forward : Vector3.left; }
-    private Vector4 UpVecWorld { get => Settings.ConvertAPML2Probe ? -_depthDir : Vector3.up; }
+    private Vector4 UpVecWorld { get => Settings.ConvertAPML2Probe ? Vector3.up : Vector3.up; }
     private Vector4 DepthVecWorld { get => Settings.ConvertAPML2Probe ? _depthDir : _depthDir; }
 
     private Vector4 _unlockedDir;
