@@ -58,6 +58,9 @@ public class Settings : MonoBehaviour
             data.RotateAPML2ProbeAxis = value;
             Save();
             Instance.ConvertAPML2ProbeChangedEvent.Invoke();
+
+            // because this can be set through code, the UI has to maintain state relative to it
+            Instance._probeAxisToggle.SetIsOnWithoutNotify(value);
         }
     }
 

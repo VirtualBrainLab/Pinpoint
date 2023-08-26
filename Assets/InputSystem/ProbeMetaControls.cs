@@ -44,6 +44,15 @@ public partial class @ProbeMetaControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwitchAxisMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""1d360e34-a12a-492a-8082-001ccd73c45d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -90,6 +99,28 @@ public partial class @ProbeMetaControls : IInputActionCollection2, IDisposable
                     ""action"": ""PrevProbe"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d3c8b135-b617-4544-a621-f79112d4ad87"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchAxisMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8e0fb31b-16bc-425f-b1de-f8c1fadca630"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchAxisMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -100,6 +131,7 @@ public partial class @ProbeMetaControls : IInputActionCollection2, IDisposable
         m_ProbeMetaControl = asset.FindActionMap("ProbeMetaControl", throwIfNotFound: true);
         m_ProbeMetaControl_NextProbe = m_ProbeMetaControl.FindAction("NextProbe", throwIfNotFound: true);
         m_ProbeMetaControl_PrevProbe = m_ProbeMetaControl.FindAction("PrevProbe", throwIfNotFound: true);
+        m_ProbeMetaControl_SwitchAxisMode = m_ProbeMetaControl.FindAction("SwitchAxisMode", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -161,12 +193,14 @@ public partial class @ProbeMetaControls : IInputActionCollection2, IDisposable
     private IProbeMetaControlActions m_ProbeMetaControlActionsCallbackInterface;
     private readonly InputAction m_ProbeMetaControl_NextProbe;
     private readonly InputAction m_ProbeMetaControl_PrevProbe;
+    private readonly InputAction m_ProbeMetaControl_SwitchAxisMode;
     public struct ProbeMetaControlActions
     {
         private @ProbeMetaControls m_Wrapper;
         public ProbeMetaControlActions(@ProbeMetaControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @NextProbe => m_Wrapper.m_ProbeMetaControl_NextProbe;
         public InputAction @PrevProbe => m_Wrapper.m_ProbeMetaControl_PrevProbe;
+        public InputAction @SwitchAxisMode => m_Wrapper.m_ProbeMetaControl_SwitchAxisMode;
         public InputActionMap Get() { return m_Wrapper.m_ProbeMetaControl; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -182,6 +216,9 @@ public partial class @ProbeMetaControls : IInputActionCollection2, IDisposable
                 @PrevProbe.started -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnPrevProbe;
                 @PrevProbe.performed -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnPrevProbe;
                 @PrevProbe.canceled -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnPrevProbe;
+                @SwitchAxisMode.started -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnSwitchAxisMode;
+                @SwitchAxisMode.performed -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnSwitchAxisMode;
+                @SwitchAxisMode.canceled -= m_Wrapper.m_ProbeMetaControlActionsCallbackInterface.OnSwitchAxisMode;
             }
             m_Wrapper.m_ProbeMetaControlActionsCallbackInterface = instance;
             if (instance != null)
@@ -192,6 +229,9 @@ public partial class @ProbeMetaControls : IInputActionCollection2, IDisposable
                 @PrevProbe.started += instance.OnPrevProbe;
                 @PrevProbe.performed += instance.OnPrevProbe;
                 @PrevProbe.canceled += instance.OnPrevProbe;
+                @SwitchAxisMode.started += instance.OnSwitchAxisMode;
+                @SwitchAxisMode.performed += instance.OnSwitchAxisMode;
+                @SwitchAxisMode.canceled += instance.OnSwitchAxisMode;
             }
         }
     }
@@ -200,5 +240,6 @@ public partial class @ProbeMetaControls : IInputActionCollection2, IDisposable
     {
         void OnNextProbe(InputAction.CallbackContext context);
         void OnPrevProbe(InputAction.CallbackContext context);
+        void OnSwitchAxisMode(InputAction.CallbackContext context);
     }
 }

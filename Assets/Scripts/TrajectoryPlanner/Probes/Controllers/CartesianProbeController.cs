@@ -31,6 +31,12 @@ public class CartesianProbeController : ProbeController
     private readonly Vector3 _pitchDir = new(0f, 1f, 0f);
     private readonly Vector3 _rollDir = new(0f, 0f, 1f);
 
+
+    private Vector4 ForwardVecWorld { get => Settings.ConvertAPML2Probe ? -ProbeTipT.right : Vector3.back; }
+    private Vector4 RightVecWorld { get => Settings.ConvertAPML2Probe ? ProbeTipT.forward : Vector3.left; }
+    private Vector4 UpVecWorld { get => Settings.ConvertAPML2Probe ? -_depthDir : Vector3.up; }
+    private Vector4 DepthVecWorld { get => Settings.ConvertAPML2Probe ? _depthDir : _depthDir; }
+
     private Vector4 _unlockedDir;
     public override Vector4 UnlockedDir {
         get => _unlockedDir;
@@ -153,24 +159,24 @@ public class CartesianProbeController : ProbeController
         probeControlClick.Enable();
 
         // Click actions
-        probeControlClick.Forward.performed += x => Click(_forwardDir);
-        probeControlClick.Forward.canceled += x => CancelClick(_forwardDir);
-        probeControlClick.Right.performed += x => Click(_rightDir);
-        probeControlClick.Right.canceled += x => CancelClick(_rightDir);
-        probeControlClick.Back.performed += x => Click(-_forwardDir);
-        probeControlClick.Back.canceled += x => CancelClick(-_forwardDir);
-        probeControlClick.Left.performed += x => Click(-_rightDir);
-        probeControlClick.Left.canceled += x => CancelClick(-_rightDir);
+        probeControlClick.Forward.performed += x => Click(ForwardVecWorld);
+        probeControlClick.Forward.canceled += x => CancelClick(ForwardVecWorld);
+        probeControlClick.Right.performed += x => Click(RightVecWorld);
+        probeControlClick.Right.canceled += x => CancelClick(RightVecWorld);
+        probeControlClick.Back.performed += x => Click(-ForwardVecWorld);
+        probeControlClick.Back.canceled += x => CancelClick(-ForwardVecWorld);
+        probeControlClick.Left.performed += x => Click(-RightVecWorld);
+        probeControlClick.Left.canceled += x => CancelClick(-RightVecWorld);
 
-        probeControlClick.Up.performed += x => Click(_upDir);
-        probeControlClick.Up.canceled += x => CancelClick(_upDir);
-        probeControlClick.Down.performed += x => Click(-_upDir);
-        probeControlClick.Down.canceled += x => CancelClick(-_upDir);
+        probeControlClick.Up.performed += x => Click(UpVecWorld);
+        probeControlClick.Up.canceled += x => CancelClick(UpVecWorld);
+        probeControlClick.Down.performed += x => Click(-UpVecWorld);
+        probeControlClick.Down.canceled += x => CancelClick(-UpVecWorld);
 
-        probeControlClick.DepthDown.performed += x => Click(_depthDir);
-        probeControlClick.DepthDown.canceled += x => CancelClick(_depthDir);
-        probeControlClick.DepthUp.performed += x => Click(-_depthDir);
-        probeControlClick.DepthUp.canceled += x => CancelClick(-_depthDir);
+        probeControlClick.DepthDown.performed += x => Click(DepthVecWorld);
+        probeControlClick.DepthDown.canceled += x => CancelClick(DepthVecWorld);
+        probeControlClick.DepthUp.performed += x => Click(-DepthVecWorld);
+        probeControlClick.DepthUp.canceled += x => CancelClick(-DepthVecWorld);
 
         // Rotate actions
         probeControlClick.YawClockwise.performed += x => Rotate(_yawDir);
@@ -189,7 +195,6 @@ public class CartesianProbeController : ProbeController
         probeControlClick.RollCounter.canceled += x => CancelRotate(-_rollDir);
 
         probeControlClick.InputControl.performed += x => ToggleControllerLock();
-        probeControlClick.SwitchAxisMode.performed += x => SwitchAxisMode();
 
         Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
@@ -234,11 +239,6 @@ public class CartesianProbeController : ProbeController
     #endregion
 
     #region Overrides
-
-    public override void SwitchAxisMode()
-    {
-        throw new System.NotImplementedException();
-    }
 
     public override void ToggleControllerLock()
     {

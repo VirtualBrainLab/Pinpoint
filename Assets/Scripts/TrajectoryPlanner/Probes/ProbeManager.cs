@@ -921,7 +921,7 @@ public class ProbeManager : MonoBehaviour
 }
 
 [Serializable]
-public class ProbeData
+public struct ProbeData
 {
     // ProbeInsertion
     public Vector3 APMLDV;

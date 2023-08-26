@@ -166,15 +166,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "SwitchAxisMode",
-                    "type": "Button",
-                    "id": "f295e8bb-9bb3-4d53-b4a2-6f013e909126",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -549,28 +540,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "InputControl",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "27ec8d34-4ce8-428c-8d1b-b8be44260019",
-                    "path": "<Gamepad>/buttonSouth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SwitchAxisMode",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "a7915bef-0ec7-48e8-be12-eba4e01655d2",
-                    "path": "<Keyboard>/i",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SwitchAxisMode",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

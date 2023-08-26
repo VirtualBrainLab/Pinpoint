@@ -201,6 +201,7 @@ namespace TrajectoryPlanner
             inputActions.ProbeMetaControl.Enable();
             inputActions.ProbeMetaControl.NextProbe.performed += NextProbe;
             inputActions.ProbeMetaControl.PrevProbe.performed += PrevProbe;
+            inputActions.ProbeMetaControl.SwitchAxisMode.performed += x => Settings.ConvertAPML2Probe = !Settings.ConvertAPML2Probe;
 
             _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
         }

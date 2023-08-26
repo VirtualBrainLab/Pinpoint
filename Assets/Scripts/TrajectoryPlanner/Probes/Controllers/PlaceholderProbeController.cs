@@ -135,11 +135,6 @@ public class PlaceholderProbeController : ProbeController
         throw new NotImplementedException();
     }
 
-    public override void SwitchAxisMode()
-    {
-        throw new NotImplementedException();
-    }
-
     #endregion
 
 }

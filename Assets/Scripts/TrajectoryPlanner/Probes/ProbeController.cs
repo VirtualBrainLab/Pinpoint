@@ -34,9 +34,6 @@ public abstract class ProbeController : MonoBehaviour
     public abstract void ToggleControllerLock();
 
     public abstract void SetControllerLock(bool locked);
-
-    public abstract void SwitchAxisMode();
-
     public abstract void ResetInsertion();
 
     public abstract void ResetPosition();

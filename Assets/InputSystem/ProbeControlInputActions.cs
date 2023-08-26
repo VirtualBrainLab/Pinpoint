@@ -188,15 +188,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""SwitchAxisMode"",
-                    ""type"": ""Button"",
-                    ""id"": ""f295e8bb-9bb3-4d53-b4a2-6f013e909126"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -573,28 +564,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                     ""action"": ""InputControl"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""27ec8d34-4ce8-428c-8d1b-b8be44260019"",
-                    ""path"": ""<Gamepad>/buttonSouth"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SwitchAxisMode"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""a7915bef-0ec7-48e8-be12-eba4e01655d2"",
-                    ""path"": ""<Keyboard>/i"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SwitchAxisMode"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -621,7 +590,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
         m_ProbeControl_RollCounter = m_ProbeControl.FindAction("RollCounter", throwIfNotFound: true);
         m_ProbeControl_FreezeAxes = m_ProbeControl.FindAction("FreezeAxes", throwIfNotFound: true);
         m_ProbeControl_InputControl = m_ProbeControl.FindAction("InputControl", throwIfNotFound: true);
-        m_ProbeControl_SwitchAxisMode = m_ProbeControl.FindAction("SwitchAxisMode", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -699,7 +667,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
     private readonly InputAction m_ProbeControl_RollCounter;
     private readonly InputAction m_ProbeControl_FreezeAxes;
     private readonly InputAction m_ProbeControl_InputControl;
-    private readonly InputAction m_ProbeControl_SwitchAxisMode;
     public struct ProbeControlActions
     {
         private @ProbeControlInputActions m_Wrapper;
@@ -722,7 +689,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
         public InputAction @RollCounter => m_Wrapper.m_ProbeControl_RollCounter;
         public InputAction @FreezeAxes => m_Wrapper.m_ProbeControl_FreezeAxes;
         public InputAction @InputControl => m_Wrapper.m_ProbeControl_InputControl;
-        public InputAction @SwitchAxisMode => m_Wrapper.m_ProbeControl_SwitchAxisMode;
         public InputActionMap Get() { return m_Wrapper.m_ProbeControl; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -786,9 +752,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 @InputControl.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnInputControl;
                 @InputControl.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnInputControl;
                 @InputControl.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnInputControl;
-                @SwitchAxisMode.started -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnSwitchAxisMode;
-                @SwitchAxisMode.performed -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnSwitchAxisMode;
-                @SwitchAxisMode.canceled -= m_Wrapper.m_ProbeControlActionsCallbackInterface.OnSwitchAxisMode;
             }
             m_Wrapper.m_ProbeControlActionsCallbackInterface = instance;
             if (instance != null)
@@ -847,9 +810,6 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
                 @InputControl.started += instance.OnInputControl;
                 @InputControl.performed += instance.OnInputControl;
                 @InputControl.canceled += instance.OnInputControl;
-                @SwitchAxisMode.started += instance.OnSwitchAxisMode;
-                @SwitchAxisMode.performed += instance.OnSwitchAxisMode;
-                @SwitchAxisMode.canceled += instance.OnSwitchAxisMode;
             }
         }
     }
@@ -874,6 +834,5 @@ public partial class @ProbeControlInputActions : IInputActionCollection2, IDispo
         void OnRollCounter(InputAction.CallbackContext context);
         void OnFreezeAxes(InputAction.CallbackContext context);
         void OnInputControl(InputAction.CallbackContext context);
-        void OnSwitchAxisMode(InputAction.CallbackContext context);
     }
 }
