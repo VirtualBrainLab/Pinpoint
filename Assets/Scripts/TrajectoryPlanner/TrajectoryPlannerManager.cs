@@ -64,6 +64,13 @@ namespace TrajectoryPlanner
         private static extern void Copy2Clipboard(string str);
 #endif
 
+        #region Editor only
+#if UNITY_EDITOR
+        public string ProbeString = "";
+        public string SettingsString = "";
+#endif
+#endregion
+
         #region Events
         // TODO: Expose events for probes moving, UI updating, etc
 
@@ -852,6 +859,17 @@ namespace TrajectoryPlanner
                 return true;
 #endif
 
+#if UNITY_EDITOR
+            // In editor, check for probe string field
+            if (!(ProbeString==""))
+            {
+                LoadSavedProbesFromEncodedString(ProbeString);
+                if (!(SettingsString==""))
+                    LoadSettingsFromEncodedString(SettingsString);
+                return true;
+            }
+#endif
+
             if (_qDialogue)
             {
                 if (PlayerPrefs.GetInt("probecount", 0) > 0)
@@ -881,7 +899,6 @@ namespace TrajectoryPlanner
             if (queryIdx > 0)
             {
                 Debug.Log("Found query string");
-                queryStr = true;
 
                 string queryString = appURL.Substring(queryIdx);
 
@@ -892,24 +909,14 @@ namespace TrajectoryPlanner
                     {
                         string encodedStr = qscoll[query];
 
-                        var bytes = System.Convert.FromBase64String(encodedStr);
-                        string probeArrayStr = System.Text.Encoding.UTF8.GetString(bytes);
-
-                        string[] savedProbes = probeArrayStr.Split(';');
-
-                        LoadSavedProbesFromStringArray(savedProbes);
-                        Debug.Log("Found Probes in URL querystring, setting to: " + savedProbes);
+                        LoadSavedProbesFromEncodedString(encodedStr);
+                        queryStr = true;
                     }
                     if (query.Equals("Settings"))
                     {
                         string settingsQuery = qscoll[query];
-                        Debug.Log(settingsQuery);
                         
-                        var bytes = System.Convert.FromBase64String(settingsQuery);
-                        string settingsStr = System.Text.Encoding.UTF8.GetString(bytes);
-
-                        
-                        Settings.Load(settingsStr);
+                        LoadSettingsFromEncodedString(settingsQuery);
                     }
                 }
             }
@@ -917,6 +924,24 @@ namespace TrajectoryPlanner
             return queryStr;
         }
 #endif
+
+        private void LoadSettingsFromEncodedString(string encodedSettingsStr)
+        {
+            var bytes = System.Convert.FromBase64String(encodedSettingsStr);
+            string settingsStr = System.Text.Encoding.UTF8.GetString(bytes);
+
+            Settings.Load(settingsStr);
+        }
+
+        private void LoadSavedProbesFromEncodedString(string encodedProbesStr)
+        {
+            var bytes = System.Convert.FromBase64String(encodedProbesStr);
+            string probeArrayStr = System.Text.Encoding.UTF8.GetString(bytes);
+
+            string[] savedProbesArray = probeArrayStr.Split(';');
+
+            LoadSavedProbesFromStringArray(savedProbesArray);
+        }
 
         private void LoadSavedProbesStandalone()
         {

@@ -2387,7 +2387,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9180495600602179243}
-  - component: {fileID: 3694463045787991986}
   m_Layer: 10
   m_Name: SecondProbe
   m_TagString: Probe
@@ -2418,19 +2417,6 @@ Transform:
   m_Father: {fileID: 8599610478370708555}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!114 &3694463045787991986
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6751624525454436572}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1727bdb8d31892d43854bee278d50be7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _probeManager: {fileID: 8943063119080654583}
 --- !u!1 &6754943102235330276
 GameObject:
   m_ObjectHideFlags: 0
@@ -3685,15 +3671,6 @@ MonoBehaviour:
   EphysLinkControlChangeEvent:
     m_PersistentCalls:
       m_Calls: []
-  ZeroCoordinateOffsetChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  BrainSurfaceOffsetChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  IsSetToDropToSurfaceWithDepthChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
   _probeColliders:
   - {fileID: 6896843786921319317}
   - {fileID: 6896843787741631715}
@@ -3733,7 +3710,8 @@ MonoBehaviour:
   FinishedMovingEvent:
     m_PersistentCalls:
       m_Calls: []
-  Locked: 0
+  ManipulatorManualControl: 0
+  ManipulatorKeyboardMoveInProgress: 0
   _probeTipT: {fileID: 4373075753628498810}
   _rotateAround: {fileID: 2737065057749105214}
 --- !u!114 &8943063119080654576
@@ -3813,6 +3791,57 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _secondProbeGo: {fileID: 6751624525454436572}
+  MovedThisFrameEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 9137975336791141355}
+        m_TargetAssemblyTypeName: ProbeUIManager, trajectoryplanner.probe
+        m_MethodName: UpdateUI
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4197637765416538696}
+        m_TargetAssemblyTypeName: ProbeUIManager, trajectoryplanner.probe
+        m_MethodName: UpdateUI
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4981350787610940250}
+        m_TargetAssemblyTypeName: ProbeUIManager, trajectoryplanner.probe
+        m_MethodName: UpdateUI
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1680033705420244464}
+        m_TargetAssemblyTypeName: ProbeUIManager, trajectoryplanner.probe
+        m_MethodName: UpdateUI
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &9137975336791141355
 MonoBehaviour:
   m_ObjectHideFlags: 0
