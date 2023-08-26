@@ -10,27 +10,8 @@ public class QuickSettingsLockBehavior : MonoBehaviour
     [SerializeField] private Sprite _lockSprite;
     [SerializeField] private Sprite _unlockSprite;
 
-    public UnityEvent<bool> LockEvent;
-    private bool _locked = false;
-
-    public void InvokeLockEvent()
+    public void UpdateSprite(bool locked)
     {
-        _locked = !_locked;
-        UpdateSprite();
-        LockEvent.Invoke(_locked);
-    }
-
-    public void SetLockState(bool state)
-    {
-        _locked = state;
-        UpdateSprite();
-    }
-
-    private void UpdateSprite()
-    {
-        if (_locked)
-            _sprite.sprite = _lockSprite;
-        else
-            _sprite.sprite = _unlockSprite;
+        _sprite.sprite = locked ? _lockSprite : _unlockSprite;
     }
 }

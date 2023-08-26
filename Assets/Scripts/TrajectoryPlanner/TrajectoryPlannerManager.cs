@@ -221,7 +221,7 @@ namespace TrajectoryPlanner
 
             // Link any events that need to be linked
             ProbeManager.ActiveProbeUIUpdateEvent.AddListener(
-                () => _probeQuickSettings.GetComponentInChildren<QuickSettingsLockBehavior>().SetLockState(ProbeManager.ActiveProbeManager.ProbeController.Locked));
+                () => _probeQuickSettings.GetComponentInChildren<QuickSettingsLockBehavior>().UpdateSprite(ProbeManager.ActiveProbeManager.ProbeController.Locked));
         }
 
         void Update()
@@ -358,7 +358,6 @@ namespace TrajectoryPlanner
                     ProbeManager.ActiveProbeManager = null;
                     _activeProbeChangedEvent.Invoke();
                 }
-                _probeQuickSettings.UpdateInteractable(true);
                 SetSurfaceDebugActive(false);
                 UpdateQuickSettings();
                 UpdateQuickSettingsProbeIdText();
@@ -495,13 +494,6 @@ namespace TrajectoryPlanner
 
 #endregion
 
-
-        public Material GetCollisionMaterial()
-        {
-            return _collisionMaterial;
-        }
-
-
         #region Active probe controls
         public void SetActiveProbe(string UUID)
         {
@@ -584,6 +576,11 @@ namespace TrajectoryPlanner
             SetActiveProbe(ProbeManager.Instances[idx]);
         }
 
+        public void ActiveProbe_ToggleLock()
+        {
+            ProbeManager.ActiveProbeManager.ProbeController.ToggleControllerLock();
+        }
+
         #endregion
 
         public void OverrideInsertionName(string UUID, string newName)
@@ -598,7 +595,7 @@ namespace TrajectoryPlanner
             // Ignore this call to update quick settings if the source probe manager is not the active probe manager
             if (sourceProbeManager && sourceProbeManager != ProbeManager.ActiveProbeManager)
                 return;
-            
+
             _probeQuickSettings.UpdateCoordinates();
         }
 
@@ -611,12 +608,6 @@ namespace TrajectoryPlanner
         {
             if (ProbeManager.ActiveProbeManager != null)
                 ProbeManager.ActiveProbeManager.ProbeController.ResetInsertion();
-        }
-
-        public void LockActiveProbe(bool locked)
-        {
-            ProbeManager.ActiveProbeManager.ProbeController.UnlockedDir = locked ? Vector4.zero : Vector4.one;
-            ProbeManager.ActiveProbeManager.ProbeController.UnlockedRot = locked ? Vector3.zero : Vector3.one;
         }
 
 #region Warping

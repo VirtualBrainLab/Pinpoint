@@ -13,9 +13,9 @@ public class CoordinateEntryPanel : MonoBehaviour
     [SerializeField] private TMP_InputField _mlField;
     [SerializeField] private TMP_InputField _dvField;
     [SerializeField] private TMP_InputField _depthField;
-    [SerializeField] private TMP_InputField _phiField;
-    [SerializeField] private TMP_InputField _thetaField;
-    [SerializeField] private TMP_InputField _spinField;
+    [SerializeField] private TMP_InputField _yawField;
+    [SerializeField] private TMP_InputField _pitchField;
+    [SerializeField] private TMP_InputField _rollField;
     
     [SerializeField] private TP_ProbeQuickSettings _probeQuickSettings;
 
@@ -26,9 +26,9 @@ public class CoordinateEntryPanel : MonoBehaviour
         _dvField.onSubmit.AddListener(delegate { ApplyPosition(); });
         _depthField.onSubmit.AddListener(delegate { ApplyPosition(); });
 
-        _phiField.onEndEdit.AddListener(delegate { ApplyAngles(); });
-        _thetaField.onEndEdit.AddListener(delegate { ApplyAngles(); });
-        _spinField.onEndEdit.AddListener(delegate { ApplyAngles(); });
+        _yawField.onEndEdit.AddListener(delegate { ApplyAngles(); });
+        _pitchField.onEndEdit.AddListener(delegate { ApplyAngles(); });
+        _rollField.onEndEdit.AddListener(delegate { ApplyAngles(); });
     }
 
     public void UpdateAxisLabels()
@@ -54,6 +54,18 @@ public class CoordinateEntryPanel : MonoBehaviour
         }
     }
 
+    public void UpdateInteractable(Vector4 pos, Vector3 ang)
+    {
+        _apField.interactable = pos.x != 0f;
+        _mlField.interactable = pos.y != 0f;
+        _dvField.interactable = pos.z != 0f;
+        _depthField.interactable = pos.w != 0f;
+
+        _yawField.interactable = ang.x != 0f;
+        _pitchField.interactable = ang.y != 0f;
+        _rollField.interactable = ang.z != 0f;
+    }
+
     public void UpdateText()
     {
         if (ProbeManager.ActiveProbeManager == null)
@@ -62,9 +74,9 @@ public class CoordinateEntryPanel : MonoBehaviour
             _mlField.text = "";
             _dvField.text = "";
             _depthField.text = "";
-            _phiField.text = "";
-            _thetaField.text = "";
-            _spinField.text = "";
+            _yawField.text = "";
+            _pitchField.text = "";
+            _rollField.text = "";
             return;
         }
 
@@ -106,9 +118,9 @@ public class CoordinateEntryPanel : MonoBehaviour
 
         if (!_probeQuickSettings.IsFocused())
         {
-            _phiField.text = Round2Str(angles.x);
-            _thetaField.text = Round2Str(angles.y);
-            _spinField.text = Round2Str(angles.z);
+            _yawField.text = Round2Str(angles.x);
+            _pitchField.text = Round2Str(angles.y);
+            _rollField.text = Round2Str(angles.z);
         }
     }
 
@@ -145,9 +157,9 @@ public class CoordinateEntryPanel : MonoBehaviour
     {
         try
         {
-            Vector3 angles = new Vector3((_phiField.text.Length > 0) ? float.Parse(_phiField.text) : 0,
-                (_thetaField.text.Length > 0) ? float.Parse(_thetaField.text) : 0,
-                (_spinField.text.Length > 0) ? float.Parse(_spinField.text) : 0);
+            Vector3 angles = new Vector3((_yawField.text.Length > 0) ? float.Parse(_yawField.text) : 0,
+                (_pitchField.text.Length > 0) ? float.Parse(_pitchField.text) : 0,
+                (_rollField.text.Length > 0) ? float.Parse(_rollField.text) : 0);
 
             if (Settings.UseIBLAngles)
                 angles = TP_Utils.IBL2World(angles);

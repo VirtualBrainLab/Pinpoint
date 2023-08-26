@@ -2370,9 +2370,9 @@ MonoBehaviour:
   _mlField: {fileID: 0}
   _dvField: {fileID: 0}
   _depthField: {fileID: 0}
-  _phiField: {fileID: 0}
-  _thetaField: {fileID: 0}
-  _spinField: {fileID: 0}
+  _yawField: {fileID: 6216450312129986884}
+  _pitchField: {fileID: 179280910081543160}
+  _rollField: {fileID: 3264174117162513665}
   _probeQuickSettings: {fileID: 0}
 --- !u!114 &8065434416982395538
 MonoBehaviour:
@@ -4722,8 +4722,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _probeIdText: {fileID: 7780014939978196860}
   _coordinatePanel: {fileID: 8716337968773204433}
-  _positionFields: {fileID: 8158554547281336636}
-  _angleFields: {fileID: 5353964328855063755}
   _lockBehavior: {fileID: 0}
   _colorChooser: {fileID: 6511953869910575511}
 --- !u!225 &998422518680573451

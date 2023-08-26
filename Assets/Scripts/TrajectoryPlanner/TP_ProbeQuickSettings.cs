@@ -8,20 +8,26 @@ using UnityEngine.UI;
 
 namespace TrajectoryPlanner
 {
+    /// <summary>
+    /// Handles the Probe Data panel UI
+    /// 
+    /// Interfaces with the probeID, coordinate data, position/angle fields
+    /// </summary>
     public class TP_ProbeQuickSettings : MonoBehaviour
     {
         #region Components
 
         [FormerlySerializedAs("probeIdText")] [SerializeField] private TMP_Text _probeIdText;
         [FormerlySerializedAs("coordinatePanel")] [SerializeField] private CoordinateEntryPanel _coordinatePanel;
-        [FormerlySerializedAs("positionFields")] [SerializeField] private CanvasGroup _positionFields;
-        [FormerlySerializedAs("angleFields")] [SerializeField] private CanvasGroup _angleFields;
         [SerializeField] private QuickSettingsLockBehavior _lockBehavior;
         [SerializeField] private RawImage _colorChooser;
-        
+
+        #endregion
+
+        #region Private vars
         private CommunicationManager _communicationManager;
         private TMP_InputField[] _inputFields;
-
+        private bool _dirty;
         #endregion
 
         #region Unity
@@ -34,7 +40,18 @@ namespace TrajectoryPlanner
             _communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
             _inputFields = gameObject.GetComponentsInChildren<TMP_InputField>(true);
 
+            ProbeManager.ActiveProbeUIUpdateEvent.AddListener(SetUIDirty);
+
             UpdateInteractable(true);
+        }
+
+        private void LateUpdate()
+        {
+            if (_dirty)
+            {
+                _dirty = false;
+                UpdateQuickUI();
+            }
         }
 
         #endregion
@@ -55,10 +72,6 @@ namespace TrajectoryPlanner
             {
                 gameObject.SetActive(true);
 
-                ProbeManager.ActiveProbeManager.UIUpdateEvent.AddListener(UpdateQuickUI);
-
-                UpdateQuickUI();
-
                 _coordinatePanel.UpdateAxisLabels();
 
                 // Handle picking up events
@@ -66,27 +79,18 @@ namespace TrajectoryPlanner
                 {
                     UpdateInteractable();
                 });
-
-                _lockBehavior.SetLockState(ProbeManager.ActiveProbeManager.ProbeController.UnlockedDir == Vector4.zero);
-
-                UpdateCoordinates();
-                UpdateInteractable();
             }
         }
 
         public void UpdateInteractable(bool disableAll=false)
         {
-            if (disableAll)
+            if (disableAll || ProbeManager.ActiveProbeManager == null)
             {
-                _positionFields.interactable = false;
-                _angleFields.interactable = false;
+                _coordinatePanel.UpdateInteractable(Vector4.zero, Vector3.zero);
             }
             else
-            {
-                var interactable = ProbeManager.ActiveProbeManager != null && !ProbeManager.ActiveProbeManager.IsEphysLinkControlled;
-                _positionFields.interactable = interactable;
-                _angleFields.interactable = interactable;
-            }
+                _coordinatePanel.UpdateInteractable(ProbeManager.ActiveProbeManager.ProbeController.UnlockedDir,
+                    ProbeManager.ActiveProbeManager.ProbeController.UnlockedRot);
         }
 
         public void UpdateCoordinates()
@@ -94,6 +98,17 @@ namespace TrajectoryPlanner
             _coordinatePanel.UpdateText();
         }
 
+        /// <summary>
+        /// Calls UpdateQuickUI a maximum of once per frame (in LateUpdate)
+        /// </summary>
+        public void SetUIDirty()
+        {
+            _dirty = true;
+        }
+
+        /// <summary>
+        /// Update the probe panel UI
+        /// </summary>
         public void UpdateQuickUI()
         {
             if (ProbeManager.ActiveProbeManager != null)
@@ -105,8 +120,11 @@ namespace TrajectoryPlanner
             else
             {
                 _probeIdText.text = "";
-                UpdateInteractable(true);
             }
+
+            _lockBehavior.UpdateSprite(ProbeManager.ActiveProbeManager.ProbeController.Locked);
+            UpdateCoordinates();
+            UpdateInteractable();
         }
 
         /// <summary>
