@@ -2010,6 +2010,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 824d7faf4042a0340a10d5de0e755608, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1826524689 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1302158967920944592, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+  m_PrefabInstance: {fileID: 1302158968208938923}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9e6156b343e276468f718e49124fa4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1829209005 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6303905374185656496, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -3237,7 +3248,7 @@ PrefabInstance:
     - target: {fileID: 341190945559892368, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: _craniotomySkull
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1826524689}
     - target: {fileID: 341190945640548129, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
