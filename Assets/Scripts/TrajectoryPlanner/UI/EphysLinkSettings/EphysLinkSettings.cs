@@ -25,17 +25,13 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         // Manipulators
         [SerializeField] private GameObject _manipulatorList;
         [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
-        [SerializeField] private Button _copilotButton;
-        [SerializeField] private Text _copilotButtonText;
+        [SerializeField] private Toggle _copilotToggle;
 
         private UIManager _uiManager;
 
         #endregion
 
         #region Properties
-
-        private bool _ephysCopilotIsEnabled => _copilotButtonText.text.Contains("Hide");
-
 
         private readonly Dictionary<string, (ManipulatorConnectionPanel manipulatorConnectionSettingsPanel,
                 GameObject gameObject)>
@@ -89,7 +85,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         private void UpdateManipulatorPanels()
         {
             // Default Copilot to be disabled unless the right manipulator type is found
-            _copilotButton.interactable = false;
+            _copilotToggle.interactable = false;
 
             if (CommunicationManager.Instance.IsConnected)
             {
@@ -97,7 +93,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 CommunicationManager.Instance.GetManipulators((availableIDs, type) =>
                 {
                     // Enable Copilot button if using Sensapex or New Scale
-                    _copilotButton.interactable = !type.Contains("pathfinder");
+                    _copilotToggle.interactable = !type.Contains("pathfinder");
 
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
@@ -233,12 +229,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// <summary>
         ///     Toggle Ephys Copilot panel
         /// </summary>
-        public void ToggleCopilotPanel()
+        public void ToggleCopilotPanel(bool isEnabled)
         {
-            _copilotButtonText.text = !_ephysCopilotIsEnabled
-                ? "Hide Ephys Copilot"
-                : "Show Ephys Copilot";
-            _uiManager.EnableEphysCopilotPanel(_ephysCopilotIsEnabled);
+            _uiManager.EnableEphysCopilotPanel(isEnabled);
         }
 
         public void InvokeShouldUpdateProbesListEvent()
