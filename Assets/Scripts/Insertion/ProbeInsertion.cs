@@ -161,6 +161,6 @@ public class ProbeInsertion
 
     public string PositionToString()
     {
-        return $"AP: {Math.Round(ap*1000)}, ML: {Math.Round(ml*1000)}, DV: {Math.Round(dv*1000)})";
+        return $"AP: {Math.Round(ap*1000)}, ML: {Math.Round(ml*1000)}, DV: {Math.Round(dv*1000)}";
     }
 }
