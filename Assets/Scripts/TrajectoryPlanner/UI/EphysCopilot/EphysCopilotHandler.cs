@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TrajectoryPlanner.UI.EphysCopilot
 {
@@ -64,10 +65,16 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             }
 
             // Sort panels
-            foreach (var probeManager in _probeManagerToPanels.Keys.OrderBy(manager =>
+            foreach (var probeManager in _probeManagerToPanels.Keys.OrderByDescending(manager =>
                          manager.ManipulatorBehaviorController.ManipulatorID))
             foreach (var panel in _probeManagerToPanels[probeManager])
                 panel.transform.SetAsFirstSibling();
+
+            // Ensure scroll view is at top
+            _zeroCoordinatePanel.PanelScrollRect.verticalNormalizedPosition = 1;
+            _gotoPanel.PanelScrollRect.verticalNormalizedPosition = 1;
+            _duraOffsetPanel.PanelScrollRect.verticalNormalizedPosition = 1;
+            _drivePanel.PanelScrollRect.verticalNormalizedPosition = 1;
         }
 
         #region Step 1
@@ -76,7 +83,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         {
             // Instantiate
             var resetZeroCoordinatePanelGameObject = Instantiate(
-                _zeroCoordinatePanel.ResetZeroCoordinatePanelPrefab,
+                _zeroCoordinatePanel.PanelPrefab,
                 _zeroCoordinatePanel.PanelScrollViewContent.transform);
             var resetZeroCoordinatePanelHandler =
                 resetZeroCoordinatePanelGameObject.GetComponent<ResetZeroCoordinatePanelHandler>();
@@ -93,7 +100,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private void AddInsertionSelectionPanel(ProbeManager probeManager)
         {
             // Instantiate
-            var insertionSelectionPanelGameObject = Instantiate(_gotoPanel.InsertionSelectionPanelPrefab,
+            var insertionSelectionPanelGameObject = Instantiate(_gotoPanel.PanelPrefab,
                 _gotoPanel.PanelScrollViewContent.transform);
             var insertionSelectionPanelHandler =
                 insertionSelectionPanelGameObject.GetComponent<InsertionSelectionPanelHandler>();
@@ -110,7 +117,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private void AddResetDuraOffsetPanel(ProbeManager probeManager)
         {
             // Instantiate
-            var resetDuraPanelGameObject = Instantiate(_duraOffsetPanel.ResetDuraOffsetPanelPrefab,
+            var resetDuraPanelGameObject = Instantiate(_duraOffsetPanel.PanelPrefab,
                 _duraOffsetPanel.PanelScrollViewContent.transform);
             var resetDuraPanelHandler = resetDuraPanelGameObject.GetComponent<ResetDuraOffsetPanelHandler>();
 
@@ -129,7 +136,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private void AddDrivePanel(ProbeManager probeManager)
         {
             var addDrivePanelGameObject =
-                Instantiate(_drivePanel.DrivePanelPrefab, _drivePanel.PanelScrollViewContent.transform);
+                Instantiate(_drivePanel.PanelPrefab, _drivePanel.PanelScrollViewContent.transform);
             var drivePanelHandler = addDrivePanelGameObject.GetComponent<DrivePanelHandler>();
             _probeManagerToPanels[probeManager].Add(addDrivePanelGameObject);
 
@@ -142,58 +149,22 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         #endregion
 
         #region Components
-
-        #region Step 1
-
+        
         [Serializable]
-        private class ZeroCoordinatePanelComponents
+        private class PanelComponents
         {
-            public GameObject ResetZeroCoordinatePanelPrefab;
+            public GameObject PanelPrefab;
             public GameObject PanelScrollViewContent;
+            public ScrollRect PanelScrollRect;
         }
 
-        [SerializeField] private ZeroCoordinatePanelComponents _zeroCoordinatePanel;
+        [SerializeField] private PanelComponents _zeroCoordinatePanel;
 
-        #endregion
+        [SerializeField] private PanelComponents _gotoPanel;
 
-        #region Step 2
+        [SerializeField] private PanelComponents _duraOffsetPanel;
 
-        [Serializable]
-        private class GotoPanelComponents
-        {
-            public GameObject InsertionSelectionPanelPrefab;
-            public GameObject PanelScrollViewContent;
-        }
-
-        [SerializeField] private GotoPanelComponents _gotoPanel;
-
-        #endregion
-
-        #region Step 3
-
-        [Serializable]
-        private class DuraOffsetPanelComponents
-        {
-            public GameObject ResetDuraOffsetPanelPrefab;
-            public GameObject PanelScrollViewContent;
-        }
-
-        [SerializeField] private DuraOffsetPanelComponents _duraOffsetPanel;
-
-        #endregion
-
-        #region Step 4
-
-        [Serializable]
-        private class DrivePanelComponents
-        {
-            public GameObject DrivePanelPrefab;
-            public GameObject PanelScrollViewContent;
-        }
-
-        [SerializeField] private DrivePanelComponents _drivePanel;
-
-        #endregion
+        [SerializeField] private PanelComponents _drivePanel;
 
         #endregion
     }
