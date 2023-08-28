@@ -64,7 +64,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             }
 
             // Sort panels
-            foreach (var probeManager in _probeManagerToPanels.Keys.OrderBy(manager =>
+            foreach (var probeManager in _probeManagerToPanels.Keys.OrderByDescending(manager =>
                          manager.ManipulatorBehaviorController.ManipulatorID))
             foreach (var panel in _probeManagerToPanels[probeManager])
                 panel.transform.SetAsFirstSibling();
