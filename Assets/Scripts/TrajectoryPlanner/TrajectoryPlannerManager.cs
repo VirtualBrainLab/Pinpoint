@@ -879,8 +879,8 @@ namespace TrajectoryPlanner
                         ? "Load previously saved probes?"
                         : "Restore previous session?";
 
-                    QuestionDialogue.SetYesCallback(LoadSavedProbesStandalone);
-                    QuestionDialogue.NewQuestion(questionString);
+                    QuestionDialogue.Instance.YesCallback = LoadSavedProbesStandalone;
+                    QuestionDialogue.Instance.NewQuestion(questionString);
                 }
             }
 

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using CoordinateSpaces;
 using EphysLink;
@@ -119,12 +118,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Remove record (deselected)
                 ManipulatorIDToSelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
 
-                // Reset text fields
-                _apInputField.SetTextWithoutNotify("");
-                _mlInputField.SetTextWithoutNotify("");
-                _dvInputField.SetTextWithoutNotify("");
-                _depthInputField.SetTextWithoutNotify("");
-
                 // Hide line
                 _lineGameObjects.ap.SetActive(false);
                 _lineGameObjects.ml.SetActive(false);
@@ -168,6 +161,21 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             {
                 ml = brainSurfaceTransformed.y
             };
+
+            // Check if within bounds
+            var manipulatorPosition =
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                    .ml.apmldv);
+            if (!_acknowledgedOutOfBounds && Vector3.Dot(
+                    (Vector3)manipulatorPosition -
+                    ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions,
+                    ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions) < 0)
+            {
+                QuestionDialogue.Instance.NewQuestion(
+                    "This insertion is outside the bounds of the manipulator. Are you sure you want to continue?");
+                QuestionDialogue.Instance.YesCallback = () => _acknowledgedOutOfBounds = true;
+                QuestionDialogue.Instance.NoCallback = () => _targetInsertionDropdown.value = 0;
+            }
 
             // Update line renderer
             _lineRenderers.dv.SetPosition(0, ProbeManager.ProbeController.ProbeTipT.position);
@@ -265,10 +273,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         [SerializeField] private TMP_Text _manipulatorIDText;
         [SerializeField] private TMP_Dropdown _targetInsertionDropdown;
-        [SerializeField] private TMP_InputField _apInputField;
-        [SerializeField] private TMP_InputField _mlInputField;
-        [SerializeField] private TMP_InputField _dvInputField;
-        [SerializeField] private TMP_InputField _depthInputField;
         [SerializeField] private Button _moveButton;
         [SerializeField] private TMP_Text _moveButtonText;
 
@@ -282,6 +286,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         #region Properties
 
         private bool _isMoving;
+
+        private bool _acknowledgedOutOfBounds;
 
         private IEnumerable<ProbeInsertion> _targetInsertionOptions => _targetableInsertions
             .Where(insertion =>
@@ -336,12 +342,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Remove record if no insertion selected
                 ManipulatorIDToSelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
 
-                // Reset text fields
-                _apInputField.SetTextWithoutNotify("");
-                _mlInputField.SetTextWithoutNotify("");
-                _dvInputField.SetTextWithoutNotify("");
-                _depthInputField.SetTextWithoutNotify("");
-
                 // Hide line
                 _lineGameObjects.ap.SetActive(false);
                 _lineGameObjects.ml.SetActive(false);
@@ -360,12 +360,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Update record if insertion selected
                 ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
                     insertion;
-
-                // Update text fields
-                _apInputField.SetTextWithoutNotify((insertion.ap * 1000).ToString(CultureInfo.InvariantCulture));
-                _mlInputField.SetTextWithoutNotify((insertion.ml * 1000).ToString(CultureInfo.InvariantCulture));
-                _dvInputField.SetTextWithoutNotify((insertion.dv * 1000).ToString(CultureInfo.InvariantCulture));
-                _depthInputField.SetTextWithoutNotify("0");
 
                 // Show lines
                 _lineGameObjects.ap.SetActive(true);

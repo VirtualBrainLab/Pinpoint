@@ -212,16 +212,16 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             else
             {
                 // Disconnect from server
-                QuestionDialogue.SetYesCallback(() =>
+                QuestionDialogue.Instance.YesCallback = () =>
                 {
                     foreach (var probeManager in ProbeManager.Instances
                                  .Where(probeManager => probeManager.IsEphysLinkControlled))
                         probeManager.SetIsEphysLinkControlled(false);
 
                     CommunicationManager.Instance.DisconnectFromServer(UpdateConnectionPanel);
-                });
+                };
 
-                QuestionDialogue.NewQuestion(
+                QuestionDialogue.Instance.NewQuestion(
                     "Are you sure you want to disconnect?\nAll incomplete movements will be canceled.");
             }
         }
