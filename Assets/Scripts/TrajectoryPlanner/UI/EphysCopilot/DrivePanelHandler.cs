@@ -235,11 +235,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private const int RETURN_TO_SURFACE_DRIVE_SPEED_MULTIPLIER = 5;
 
-        private const int EXIT_DURA_MARGIN_SPEED = 25;
-        private const int EXIT_DURA_MARGIN_SPEED_TEST = 1000;
-
-        private const int OUTSIDE_DRIVE_SPEED = 100;
-        private const int OUTSIDE_DRIVE_SPEED_TEST = 1000;
+        private const int OUTSIDE_DRIVE_SPEED_MULTIPLIER = 20;
 
         private const int PER_1000_SPEED = 1;
         private const int PER_1000_SPEED_TEST = 10;
@@ -296,15 +292,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Compute speed variables based on speed
             _depthDriveBaseSpeed = driveSpeed;
             _returnToSurfaceDriveSpeed = driveSpeed * RETURN_TO_SURFACE_DRIVE_SPEED_MULTIPLIER;
-            _exitDuraMarginSpeed = driveSpeed < DEPTH_DRIVE_BASE_SPEED_TEST
-                ? EXIT_DURA_MARGIN_SPEED
-                : EXIT_DURA_MARGIN_SPEED_TEST;
-            _outsideDriveSpeed = driveSpeed < DEPTH_DRIVE_BASE_SPEED_TEST
-                ? OUTSIDE_DRIVE_SPEED
-                : OUTSIDE_DRIVE_SPEED_TEST;
+            _outsideDriveSpeed = driveSpeed * OUTSIDE_DRIVE_SPEED_MULTIPLIER;
             _per1000Speed = driveSpeed < DEPTH_DRIVE_BASE_SPEED_TEST ? PER_1000_SPEED : PER_1000_SPEED_TEST;
             _driveBackToTargetDuration = _drivePastTargetDistance * 1000 / _depthDriveBaseSpeed;
-            _exitDuraMarginDuration = 100f / _exitDuraMarginSpeed;
+            _exitDuraMarginDuration = 100f / _returnToSurfaceDriveSpeed;
 
             // Update drive past distance and return to surface button text
             _returnButtonText.text = "Return to Surface (" + _returnToSurfaceDriveSpeed + " µm/s)";
