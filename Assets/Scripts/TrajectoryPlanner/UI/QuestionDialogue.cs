@@ -34,15 +34,15 @@ public class QuestionDialogue : MonoBehaviour
     public void CallYesCallback()
     {
         YesCallback?.Invoke();
-        print("yes callback called");
         _uiPanel.SetActive(false);
-        print("Closed panel");
+        YesCallback = null;
     }
 
     public void CallNoCallback()
     {
         NoCallback?.Invoke();
         _uiPanel.SetActive(false);
+        NoCallback = null;
     }
     #endregion
 }

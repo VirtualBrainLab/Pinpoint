@@ -166,10 +166,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             var manipulatorPosition =
                 ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
                     .ml.apmldv);
-            if (!_acknowledgedOutOfBounds && Vector3.Dot(
-                    (Vector3)manipulatorPosition -
-                    ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions,
-                    ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions) < 0)
+            if (!_acknowledgedOutOfBounds && (manipulatorPosition.x < 0 || manipulatorPosition.x >
+                                              ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.x ||
+                                              manipulatorPosition.y < 0 || manipulatorPosition.y >
+                                              ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.y ||
+                                              manipulatorPosition.z < 0 || manipulatorPosition.z >
+                                              ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.z))
             {
                 QuestionDialogue.Instance.NewQuestion(
                     "This insertion is outside the bounds of the manipulator. Are you sure you want to continue?");

@@ -21,7 +21,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             _safeDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_SAFE + " µm/s Drive";
             _fastDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_FAST + " µm/s Drive";
             _testDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_TEST + " µm/s Drive";
-            
+
             // Add drive past distance input field to focusable inputs
             UIManager.FocusableInputs.Add(_drivePastDistanceInputField);
         }
@@ -224,6 +224,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         #region Properties
 
+        private bool _acknowledgeOutOfBounds;
+
         private DriveState _driveState;
         private float _duraDepth;
         private float _targetDepth;
@@ -363,6 +365,17 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _surfaceDepth = position.w +
                                 ProbeManager.ManipulatorBehaviorController.CoordinateSpace
                                     .World2SpaceAxisChange(Vector3.up).z * surfaceDriveDistance;
+
+                // Warn if target depth is out of bounds
+                if (!_acknowledgeOutOfBounds &&
+                    (_targetDepth > ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.z ||
+                     _targetDepth < 0))
+                {
+                    QuestionDialogue.Instance.NewQuestion(
+                        "Target depth is out of bounds. Are you sure you want to continue?");
+                    QuestionDialogue.Instance.YesCallback = () => _acknowledgeOutOfBounds = true;
+                }
+
 
                 // Set drive speeds (base + x sec / 1000 um of depth)
 
