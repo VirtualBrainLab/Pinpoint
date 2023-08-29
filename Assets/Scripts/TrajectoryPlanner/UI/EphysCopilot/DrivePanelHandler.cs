@@ -308,9 +308,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _duraDepth = position.w;
 
                 // Calibrate target insertion depth based on surface position
-                var targetInsertion =
+                var targetInsertion = new ProbeInsertion(
                     InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetInsertion[
-                        ProbeManager.ManipulatorBehaviorController.ManipulatorID];
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID]);
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
@@ -321,15 +321,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
                 // Converting worldT back to APMLDV (position transformed)
-                var offsetAdjustedTargetPosition =
+                targetInsertion.apmldv =
                     targetInsertion.CoordinateTransform.Space2TransformAxisChange(
                         targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
-
-                // Update target insertion coordinate
-                InsertionSelectionPanelHandler
-                        .ManipulatorIDToSelectedTargetInsertion[
-                            ProbeManager.ManipulatorBehaviorController.ManipulatorID].apmldv =
-                    offsetAdjustedTargetPosition;
 
                 // Compute return surface position (500 dv above surface)
 
@@ -350,11 +344,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Compute drive distances
                 var targetDriveDistance =
-                    Vector3.Distance(
-                        InsertionSelectionPanelHandler
-                            .ManipulatorIDToSelectedTargetInsertion[
-                                ProbeManager.ManipulatorBehaviorController.ManipulatorID].apmldv,
-                        ProbeManager.ProbeController.Insertion.apmldv);
+                    Vector3.Distance(targetInsertion.apmldv, ProbeManager.ProbeController.Insertion.apmldv);
                 var surfaceDriveDistance = Vector3.Distance(offsetAdjustedSurfacePosition,
                     ProbeManager.ProbeController.Insertion.apmldv);
 
