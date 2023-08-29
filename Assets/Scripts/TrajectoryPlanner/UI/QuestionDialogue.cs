@@ -13,9 +13,10 @@ public class QuestionDialogue : MonoBehaviour
 
     [SerializeField] private GameObject _uiPanel;
     [SerializeField] private TMP_Text _questionText;
-
-    private static Action yesCallback;
-    private static Action noCallback;
+    
+    public Action YesCallback { private get; set; }
+    
+    public Action NoCallback { private get; set; }
 
     private void Awake()
     {
@@ -24,39 +25,24 @@ public class QuestionDialogue : MonoBehaviour
         Instance = this;
     }
 
-    #region Static functions
-
-    public static void NewQuestion(string newText)
+    #region Functions
+    public void NewQuestion(string newText)
     {
-        Instance._uiPanel.SetActive(true);
-        Instance._questionText.text = newText;
+        _uiPanel.SetActive(true);
+        _questionText.text = newText;
     }
-
-    public static void SetYesCallback(Action newCallback)
+    public void CallYesCallback()
     {
-        yesCallback = newCallback;
-    }
-
-    public static void SetNoCallback(Action newCallback)
-    {
-        noCallback = newCallback;
-    }
-
-    #endregion
-
-    #region Public
-    public void YesCallback()
-    {
-        if (yesCallback != null)
-            yesCallback();
+        YesCallback?.Invoke();
         _uiPanel.SetActive(false);
+        YesCallback = null;
     }
 
-    public void NoCallback()
+    public void CallNoCallback()
     {
-        if (noCallback != null)
-            noCallback();
+        NoCallback?.Invoke();
         _uiPanel.SetActive(false);
+        NoCallback = null;
     }
     #endregion
 }

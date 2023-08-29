@@ -21,7 +21,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             _safeDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_SAFE + " µm/s Drive";
             _fastDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_FAST + " µm/s Drive";
             _testDriveButtonText.text = DEPTH_DRIVE_BASE_SPEED_TEST + " µm/s Drive";
-            
+
             // Add drive past distance input field to focusable inputs
             UIManager.FocusableInputs.Add(_drivePastDistanceInputField);
         }
@@ -224,6 +224,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         #region Properties
 
+        private bool _acknowledgeOutOfBounds;
+
         private DriveState _driveState;
         private float _duraDepth;
         private float _targetDepth;
@@ -306,9 +308,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _duraDepth = position.w;
 
                 // Calibrate target insertion depth based on surface position
-                var targetInsertion =
+                var targetInsertion = new ProbeInsertion(
                     InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetInsertion[
-                        ProbeManager.ManipulatorBehaviorController.ManipulatorID];
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID]);
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
@@ -319,15 +321,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
                 // Converting worldT back to APMLDV (position transformed)
-                var offsetAdjustedTargetPosition =
+                targetInsertion.apmldv =
                     targetInsertion.CoordinateTransform.Space2TransformAxisChange(
                         targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
-
-                // Update target insertion coordinate
-                InsertionSelectionPanelHandler
-                        .ManipulatorIDToSelectedTargetInsertion[
-                            ProbeManager.ManipulatorBehaviorController.ManipulatorID].apmldv =
-                    offsetAdjustedTargetPosition;
 
                 // Compute return surface position (500 dv above surface)
 
@@ -348,11 +344,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Compute drive distances
                 var targetDriveDistance =
-                    Vector3.Distance(
-                        InsertionSelectionPanelHandler
-                            .ManipulatorIDToSelectedTargetInsertion[
-                                ProbeManager.ManipulatorBehaviorController.ManipulatorID].apmldv,
-                        ProbeManager.ProbeController.Insertion.apmldv);
+                    Vector3.Distance(targetInsertion.apmldv, ProbeManager.ProbeController.Insertion.apmldv);
                 var surfaceDriveDistance = Vector3.Distance(offsetAdjustedSurfacePosition,
                     ProbeManager.ProbeController.Insertion.apmldv);
 
@@ -363,6 +355,17 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _surfaceDepth = position.w +
                                 ProbeManager.ManipulatorBehaviorController.CoordinateSpace
                                     .World2SpaceAxisChange(Vector3.up).z * surfaceDriveDistance;
+
+                // Warn if target depth is out of bounds
+                if (!_acknowledgeOutOfBounds &&
+                    (_targetDepth > ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.z ||
+                     _targetDepth < 0))
+                {
+                    QuestionDialogue.Instance.NewQuestion(
+                        "Target depth is out of bounds. Are you sure you want to continue?");
+                    QuestionDialogue.Instance.YesCallback = () => _acknowledgeOutOfBounds = true;
+                }
+
 
                 // Set drive speeds (base + x sec / 1000 um of depth)
 

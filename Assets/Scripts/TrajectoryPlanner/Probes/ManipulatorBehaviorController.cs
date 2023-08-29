@@ -291,22 +291,22 @@ namespace TrajectoryPlanner.Probes
             var convertToWorld = _probeManager.ProbeController.Insertion.Transformed2WorldAxisChange(insertionAPMLDV);
 
             // Convert to Sensapex space
-            var posInSensapexSpace =
+            var posInManipulatorSpace =
                 _probeManager.ManipulatorBehaviorController.CoordinateSpace.World2Space(convertToWorld);
-            Vector4 posInSensapexTransform =
-                _probeManager.ManipulatorBehaviorController.Transform.Space2Transform(posInSensapexSpace);
+            Vector4 posInManipulatorTransform =
+                _probeManager.ManipulatorBehaviorController.Transform.Space2Transform(posInManipulatorSpace);
 
             // Apply brain surface offset
             var brainSurfaceAdjustment = float.IsNaN(_probeManager.ManipulatorBehaviorController.BrainSurfaceOffset)
                 ? 0
                 : _probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
             if (_probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth)
-                posInSensapexTransform.w -= brainSurfaceAdjustment;
+                posInManipulatorTransform.w -= brainSurfaceAdjustment;
             else
-                posInSensapexTransform.z -= brainSurfaceAdjustment;
+                posInManipulatorTransform.z -= brainSurfaceAdjustment;
 
             // Apply coordinate offsets and return result
-            return posInSensapexTransform + _probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
+            return posInManipulatorTransform + _probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
         }
 
         /// <summary>
