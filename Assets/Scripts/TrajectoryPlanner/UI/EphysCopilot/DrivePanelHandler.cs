@@ -282,7 +282,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private int _exitDuraMarginSpeed;
         private int _outsideDriveSpeed;
         private int _per1000Speed;
-        private float _driveBackToTargetDuration => _drivePastTargetDistance * 1000 / _depthDriveBaseSpeed;
 
         #endregion
 
@@ -364,9 +363,29 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     QuestionDialogue.Instance.YesCallback = () => _acknowledgeOutOfBounds = true;
                 }
 
-                // Set drive speeds (base + x sec / 1000 um of depth)
+                // Set drive speeds (base + x um/s / 1000 um of depth)
 
                 _targetDriveSpeed = Mathf.RoundToInt(_depthDriveBaseSpeed + targetDriveDistance * _per1000Speed);
+                
+                /*
+                 * Compute target drive duration
+                 * 1. Drive down towards target until at near target distance at target drive speed
+                 * 2. Drive to target (near target distance) at near target speed
+                 * 3. Drive past target by drive past distance or by near target distance at near target speed
+                 * 4. Drive remaining drive past distance by target drive speed
+                 * 5. Drive back to target until at near target distance at target drive speed
+                 * 6. Drive to target (near target distance) at near target speed
+                 * 7. Settle for 1 minute per 1 mm of target drive distance with a minimum of 2 minutes
+                 */
+                _targetDriveDuration =
+                    Mathf.Max(0, targetDriveDistance - NEAR_TARGET_DISTANCE) * 1000f / _targetDriveSpeed +
+                    Mathf.Min(NEAR_TARGET_DISTANCE, targetDriveDistance) * 1000f /
+                    Mathf.RoundToInt(_targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER) + 2 *
+                    (Mathf.Min(NEAR_TARGET_DISTANCE, _drivePastTargetDistance) * 1000f /
+                     Mathf.RoundToInt(_targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER) +
+                     Mathf.Max(0, _drivePastTargetDistance - NEAR_TARGET_DISTANCE) * 1000f / _targetDriveSpeed) +
+                    Mathf.Max(120, 60 * 1000 *
+                                   (targetDriveDistance + _drivePastTargetDistance));
 
                 /*
                  * Compute exit drive duration
@@ -382,21 +401,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     _duraMarginDriveDuration +
                     (surfaceDriveDistance - targetDriveDistance - DURA_MARGIN_DISTANCE) * 1000f /
                     _outsideDriveSpeed;
-                targetDriveDistance += _drivePastTargetDistance;
-                /*
-                 * Compute target drive duration
-                 * 1. Drive down towards target until at near target distance at target drive speed
-                 * 2. Drive to target (near target distance) at near target speed
-                 * 3. Drive past target by drive past distance or by near target distance at near target speed
-                 * 4. Drive remaining drive past distance by target drive speed
-                 * 5. Drive back to target until at near target distance at target drive speed
-                 * 6. Drive to target (near target distance) at near target speed
-                 * 7. Settle for 2 minutes + 1 minute per 1 mm of target drive distance
-                 */
-                _targetDriveDuration =
-                    Mathf.Max(0, targetDriveDistance - NEAR_TARGET_DISTANCE) * 1000f / _targetDriveSpeed +
-                    _driveBackToTargetDuration +
-                    Math.Max(120, targetDriveDistance * 60000);
+
 
                 // Set timer text
                 _timerText.text = TimeSpan.FromSeconds(_targetDriveDuration).ToString(@"mm\:ss");
