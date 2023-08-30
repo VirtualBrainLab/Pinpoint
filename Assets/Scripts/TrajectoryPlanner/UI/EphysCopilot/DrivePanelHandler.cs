@@ -95,8 +95,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             ComputeAndSetDriveTime(_targetDriveSpeed, () =>
             {
                 CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                    true, 1,
-                    canWrite =>
+                    true, 1, canWrite =>
                     {
                         if (!canWrite) return;
                         // Set drive status
@@ -366,7 +365,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Set drive speeds (base + x um/s / 1000 um of depth)
 
                 _targetDriveSpeed = Mathf.RoundToInt(_depthDriveBaseSpeed + targetDriveDistance * _per1000Speed);
-                
+
                 /*
                  * Compute target drive duration
                  * 1. Drive down towards target until at near target distance at target drive speed
