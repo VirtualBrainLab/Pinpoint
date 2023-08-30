@@ -151,7 +151,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     _driveState = DriveState.DrivingToSurface;
 
                     // Start timer
-                    StartCoroutine(CountDownTimer(_surfaceDriveDuration, _driveState));
+                    StartCoroutine(CountDownTimer(_exitDriveDuration, _driveState));
 
                     // Start driving back to dura
                     CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
@@ -170,7 +170,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                     // Drive the rest of the way to the surface
                                     CommunicationManager.Instance.DriveToDepth(
                                         ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                        _surfaceDepth, _outsideDriveSpeed, j =>
+                                        _exitDepth, _outsideDriveSpeed, j =>
                                         {
                                             // Reset manipulator drive states
                                             CommunicationManager.Instance.SetInsideBrain(
@@ -227,14 +227,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         }
 
         private const float DRIVE_PAST_TARGET_DISTANCE = 0.05f;
+        private const float DURA_MARGIN_DISTANCE = 0.1f;
+        private const float NEAR_TARGET_DISTANCE = 1f;
 
         private const int DEPTH_DRIVE_BASE_SPEED = 5;
         private const int DEPTH_DRIVE_BASE_SPEED_TEST = 500;
 
         private const float NEAR_TARGET_SPEED_MULTIPLIER = 2f / 3f;
-
         private const int RETURN_TO_SURFACE_DRIVE_SPEED_MULTIPLIER = 5;
-
         private const int OUTSIDE_DRIVE_SPEED_MULTIPLIER = 20;
 
         private const int PER_1000_SPEED = 1;
@@ -270,8 +270,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private float _duraDepth;
         private float _targetDepth;
         private float _targetDriveDuration;
-        private float _surfaceDepth;
-        private float _surfaceDriveDuration;
+        private float _duraMarginDepth;
+        private float _duraMarginDriveDuration => DURA_MARGIN_DISTANCE * 1000 / _returnToSurfaceDriveSpeed;
+        private float _exitDepth;
+        private float _exitDriveDuration;
         private int _targetDriveSpeed;
 
         private float _drivePastTargetDistance = DRIVE_PAST_TARGET_DISTANCE;
@@ -280,8 +282,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private int _exitDuraMarginSpeed;
         private int _outsideDriveSpeed;
         private int _per1000Speed;
-        private float _driveBackToTargetDuration;
-        private float _exitDuraMarginDuration;
+        private float _driveBackToTargetDuration => _drivePastTargetDistance * 1000 / _depthDriveBaseSpeed;
 
         #endregion
 
@@ -294,8 +295,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             _returnToSurfaceDriveSpeed = driveSpeed * RETURN_TO_SURFACE_DRIVE_SPEED_MULTIPLIER;
             _outsideDriveSpeed = driveSpeed * OUTSIDE_DRIVE_SPEED_MULTIPLIER;
             _per1000Speed = driveSpeed < DEPTH_DRIVE_BASE_SPEED_TEST ? PER_1000_SPEED : PER_1000_SPEED_TEST;
-            _driveBackToTargetDuration = _drivePastTargetDistance * 1000 / _depthDriveBaseSpeed;
-            _exitDuraMarginDuration = 100f / _returnToSurfaceDriveSpeed;
 
             // Update drive past distance and return to surface button text
             _returnButtonText.text = "Return to Surface (" + _returnToSurfaceDriveSpeed + " µm/s)";
@@ -347,13 +346,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 var surfaceDriveDistance = Vector3.Distance(offsetAdjustedSurfacePosition,
                     ProbeManager.ProbeController.Insertion.apmldv);
 
-                // Set target and surface
+                // Set target and exit depths
                 _targetDepth = position.w +
                                ProbeManager.ManipulatorBehaviorController.CoordinateSpace
                                    .World2SpaceAxisChange(Vector3.down).z * targetDriveDistance;
-                _surfaceDepth = position.w +
-                                ProbeManager.ManipulatorBehaviorController.CoordinateSpace
-                                    .World2SpaceAxisChange(Vector3.up).z * surfaceDriveDistance;
+                _exitDepth = position.w +
+                             ProbeManager.ManipulatorBehaviorController.CoordinateSpace
+                                 .World2SpaceAxisChange(Vector3.up).z * surfaceDriveDistance;
 
                 // Warn if target depth is out of bounds
                 if (!_acknowledgeOutOfBounds &&
@@ -369,15 +368,35 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 _targetDriveSpeed = Mathf.RoundToInt(_depthDriveBaseSpeed + targetDriveDistance * _per1000Speed);
 
-                // Compute drive duration
-                _surfaceDriveDuration = targetDriveDistance * 1000f / _returnToSurfaceDriveSpeed +
-                                        _exitDuraMarginDuration +
-                                        (surfaceDriveDistance - targetDriveDistance - 0.1f) *
-                                        1000f / _outsideDriveSpeed;
+                /*
+                 * Compute exit drive duration
+                 * 1. Drive out by near target distance at near target speed
+                 * 2. Drive out to dura at return to surface speed
+                 * 3. Drive out by dura margin distance at return to surface speed
+                 * 4. Drive out to surface at outside speed
+                 */
+                _exitDriveDuration =
+                    Mathf.Min(targetDriveDistance, NEAR_TARGET_DISTANCE) * 1000 /
+                    Mathf.RoundToInt(_returnToSurfaceDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER) +
+                    Mathf.Max(0, targetDriveDistance - NEAR_TARGET_DISTANCE) * 1000f / _returnToSurfaceDriveSpeed +
+                    _duraMarginDriveDuration +
+                    (surfaceDriveDistance - targetDriveDistance - DURA_MARGIN_DISTANCE) * 1000f /
+                    _outsideDriveSpeed;
                 targetDriveDistance += _drivePastTargetDistance;
-                _targetDriveDuration = targetDriveDistance * 1000f / _targetDriveSpeed +
-                                       _driveBackToTargetDuration +
-                                       Math.Max(120, targetDriveDistance * 60);
+                /*
+                 * Compute target drive duration
+                 * 1. Drive down towards target until at near target distance at target drive speed
+                 * 2. Drive to target (near target distance) at near target speed
+                 * 3. Drive past target by drive past distance or by near target distance at near target speed
+                 * 4. Drive remaining drive past distance by target drive speed
+                 * 5. Drive back to target until at near target distance at target drive speed
+                 * 6. Drive to target (near target distance) at near target speed
+                 * 7. Settle for 2 minutes + 1 minute per 1 mm of target drive distance
+                 */
+                _targetDriveDuration =
+                    Mathf.Max(0, targetDriveDistance - NEAR_TARGET_DISTANCE) * 1000f / _targetDriveSpeed +
+                    _driveBackToTargetDuration +
+                    Math.Max(120, targetDriveDistance * 60000);
 
                 // Set timer text
                 _timerText.text = TimeSpan.FromSeconds(_targetDriveDuration).ToString(@"mm\:ss");
