@@ -244,8 +244,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                                     }, Debug.LogError);
                                             }, Debug.LogError);
                                     }, Debug.LogError);
-                            });
-                });
+                            }, Debug.LogError);
+                }, Debug.LogError);
         }
 
         private void UpdateMoveButtonInteractable()
@@ -253,6 +253,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             _moveButton.interactable =
                 ManipulatorIDToSelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController
                     .ManipulatorID);
+        }
+
+        private bool IsCoterminal(Vector3 first, Vector3 second)
+        {
+            return (first.x - second.x) % 360 < 0.01f && (first.y - second.y) % 360 < 0.01f &&
+                   (first.z - second.z) % 360 < 0.01f;
         }
 
         #endregion
@@ -295,8 +301,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             .Where(insertion =>
                 !ManipulatorIDToSelectedTargetInsertion
                     .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
-                    .Select(pair => pair.Value).Contains(insertion) &&
-                insertion.angles == ProbeManager.ProbeController.Insertion.angles);
+                    .Select(pair => pair.Value).Contains(insertion) && IsCoterminal(insertion.angles,
+                    ProbeManager.ProbeController.Insertion.angles));
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
 
