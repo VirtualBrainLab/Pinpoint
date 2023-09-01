@@ -121,12 +121,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                                               .CoordinateSpace
                                                               .World2SpaceAxisChange(Vector3.down).z *
                                                           NEAR_TARGET_DISTANCE);
+                        
+                        // Drive until within near target distance
                         CommunicationManager.Instance.DriveToDepth(
                             ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                             driveDepth,
                             _targetDriveSpeed, _ =>
                             {
-                                // Drive past target
+                                // Drive through past target distance
                                 CommunicationManager.Instance.DriveToDepth(
                                     ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                                     _targetDepth +
@@ -144,7 +146,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                     }, Debug.LogError);
                             },
                             Debug.LogError);
-                    });
+                    }, Debug.LogError);
             });
         }
 
@@ -208,7 +210,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                         }, Debug.LogError);
                                 }, Debug.LogError);
                         }, Debug.LogError);
-                });
+                }, Debug.LogError);
         }
 
         public void Stop()
@@ -399,8 +401,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     Mathf.Max(0, targetDriveDistance - NEAR_TARGET_DISTANCE) * 1000f / _targetDriveSpeed +
                     (Mathf.Min(NEAR_TARGET_DISTANCE, targetDriveDistance) + 2 * _drivePastTargetDistance) * 1000f /
                     Mathf.RoundToInt(_targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER) +
-                    Mathf.Max(120, 60 * 1000 *
-                                   (targetDriveDistance + _drivePastTargetDistance));
+                    Mathf.Max(120, 60 * (targetDriveDistance + _drivePastTargetDistance));
 
                 /*
                  * Compute exit drive duration
