@@ -40,7 +40,7 @@ namespace EphysLink
     {
         public string manipulator_id;
         public float[] pos;
-        public int speed;
+        public float speed;
 
         /// <summary>
         ///     Construct a new goto_pos event argument.
@@ -48,7 +48,7 @@ namespace EphysLink
         /// <param name="manipulatorID">ID of the manipulator to move</param>
         /// <param name="pos">Position in μm of the manipulator (in needle coordinates)</param>
         /// <param name="speed">How fast to move the manipulator (in μm/s)</param>
-        public GotoPositionInputDataFormat(string manipulatorID, Vector4 pos, int speed)
+        public GotoPositionInputDataFormat(string manipulatorID, Vector4 pos, float speed)
         {
             manipulator_id = manipulatorID;
             this.pos = new[] { pos.x, pos.y, pos.z, pos.w };
@@ -63,7 +63,7 @@ namespace EphysLink
     {
         public string manipulator_id;
         public float depth;
-        public int speed;
+        public float speed;
 
         /// <summary>
         ///     Construct a new drive_to_depth event argument.
@@ -71,7 +71,7 @@ namespace EphysLink
         /// <param name="manipulatorId">ID of the manipulator to move</param>
         /// <param name="depth">Depth in μm of the manipulator (in needle coordinates)</param>
         /// <param name="speed">How fast to drive the manipulator (in μm/s)</param>
-        public DriveToDepthInputDataFormat(string manipulatorId, float depth, int speed)
+        public DriveToDepthInputDataFormat(string manipulatorId, float depth, float speed)
         {
             manipulator_id = manipulatorId;
             this.depth = depth;

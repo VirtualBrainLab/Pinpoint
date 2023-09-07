@@ -314,7 +314,7 @@ namespace EphysLink
         /// <param name="speed">How fast to move the manipulator (in mm/s)</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GotoPos(string manipulatorId, Vector4 pos, int speed, Action<Vector4> onSuccessCallback,
+        public void GotoPos(string manipulatorId, Vector4 pos, float speed, Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(data =>
@@ -342,7 +342,7 @@ namespace EphysLink
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
         /// <exception cref="ArgumentException">If the given position is not in an array of 4 floats</exception>
-        public void GotoPos(string manipulatorId, float[] pos, int speed, Action<Vector4> onSuccessCallback,
+        public void GotoPos(string manipulatorId, float[] pos, float speed, Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             if (pos.Length != 4) throw new ArgumentException("Position array must be of length 4");
@@ -359,7 +359,7 @@ namespace EphysLink
         /// <param name="speed">How fast to drive the manipulator (in mm/s)</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void DriveToDepth(string manipulatorId, float depth, int speed, Action<float> onSuccessCallback,
+        public void DriveToDepth(string manipulatorId, float depth, float speed, Action<float> onSuccessCallback,
             Action<string> onErrorCallback)
         {
             _connectionManager.Socket.ExpectAcknowledgement<DriveToDepthCallbackParameters>(data =>

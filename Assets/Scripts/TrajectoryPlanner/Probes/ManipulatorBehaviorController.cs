@@ -13,7 +13,8 @@ namespace TrajectoryPlanner.Probes
     {
         #region Constants
 
-        public const int AUTOMATIC_MOVEMENT_SPEED = 500;
+        // Default movement speed: 0.5 mm/s
+        public const float AUTOMATIC_MOVEMENT_SPEED = 0.5f;
 
         #endregion
 
