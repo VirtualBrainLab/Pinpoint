@@ -10,26 +10,9 @@ namespace EphysLink
     /// </summary>
     public class CommunicationManager : MonoBehaviour
     {
-        #region Unity
-
-        private void Awake()
-        {
-            if (Instance != null) Debug.LogError("Make sure there is only one CommunicationManager in the scene!");
-            Instance = this;
-        }
-
-        #endregion
-
-        #region Variables
-
-        public static readonly int[] EPHYS_LINK_MIN_VERSION = { 0, 9, 12 };
-
-        public static readonly string EPHYS_LINK_MIN_VERSION_STRING = "≥ v" + string.Join(".", EPHYS_LINK_MIN_VERSION);
-
-        public static CommunicationManager Instance;
-
         #region Components
 
+        public static CommunicationManager Instance;
         private SocketManager _connectionManager;
         private Socket _socket;
 
@@ -37,14 +20,27 @@ namespace EphysLink
 
         #region Properties
 
+        public static readonly int[] EPHYS_LINK_MIN_VERSION = { 0, 9, 12 };
+
+        public static readonly string EPHYS_LINK_MIN_VERSION_STRING = "≥ v" + string.Join(".", EPHYS_LINK_MIN_VERSION);
+
         /// <summary>
         ///     The current state of the connection to Ephys Link.
         /// </summary>
         public bool IsConnected { get; private set; }
-        
+
         public bool IsEphysLinkCompatible { get; set; }
 
         #endregion
+
+
+        #region Unity
+
+        private void Awake()
+        {
+            if (Instance != null) Debug.LogError("Make sure there is only one CommunicationManager in the scene!");
+            Instance = this;
+        }
 
         #endregion
 
@@ -63,13 +59,9 @@ namespace EphysLink
                                     int.Parse(versionNumber) <
                                     EPHYS_LINK_MIN_VERSION[index])
                                 .Any())
-                        {
                             IsEphysLinkCompatible = true;
-                        }
                         else
-                        {
                             Instance.DisconnectFromServer();
-                        }
                     });
                 });
         }
@@ -282,7 +274,7 @@ namespace EphysLink
                 }
             }).Emit("get_pos", manipulatorId);
         }
-        
+
         /// <summary>
         ///     Request the current angles of a manipulator.
         /// </summary>
@@ -318,8 +310,8 @@ namespace EphysLink
         /// </summary>
         /// <remarks>Position is defined by a Vector4</remarks>
         /// <param name="manipulatorId">ID of the manipulator to be moved</param>
-        /// <param name="pos">Position in μm of the manipulator (in needle coordinates)</param>
-        /// <param name="speed">How fast to move the manipulator (in μm/s)</param>
+        /// <param name="pos">Position in mm of the manipulator</param>
+        /// <param name="speed">How fast to move the manipulator (in mm/s)</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void GotoPos(string manipulatorId, Vector4 pos, int speed, Action<Vector4> onSuccessCallback,
@@ -345,8 +337,8 @@ namespace EphysLink
         /// </summary>
         /// <remarks>Position is defined by an array of 4 floats</remarks>
         /// <param name="manipulatorId">ID of the manipulator to be moved</param>
-        /// <param name="pos">Position in μm of the manipulator (in needle coordinates)</param>
-        /// <param name="speed">How fast to move the manipulator (in μm/s)</param>
+        /// <param name="pos">Position in mm of the manipulator (in needle coordinates)</param>
+        /// <param name="speed">How fast to move the manipulator (in mm/s)</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
         /// <exception cref="ArgumentException">If the given position is not in an array of 4 floats</exception>
@@ -363,8 +355,8 @@ namespace EphysLink
         ///     Request a manipulator drive down to a specific depth.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to move</param>
-        /// <param name="depth">Depth in μm of the manipulator (in needle coordinates)</param>
-        /// <param name="speed">How fast to drive the manipulator (in μm/s)</param>
+        /// <param name="depth">Depth in mm of the manipulator (in needle coordinates)</param>
+        /// <param name="speed">How fast to drive the manipulator (in mm/s)</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void DriveToDepth(string manipulatorId, float depth, int speed, Action<float> onSuccessCallback,
