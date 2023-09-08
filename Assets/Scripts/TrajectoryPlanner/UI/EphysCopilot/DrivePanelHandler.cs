@@ -149,6 +149,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             }
         }
 
+        /// <summary>
+        /// Handle drive past distance (in µm) input field change
+        /// </summary>
+        /// <param name="value"></param>
         public void OnDrivePastDistanceChanged(string value)
         {
             if (float.TryParse(value, out var distance))
