@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CoordinateSpaces;
@@ -239,13 +240,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             // Add other options
             _targetInsertionDropdown.AddOptions(_targetProbeManagerOptions
-                .Select(probeManager =>
-                {
-                    var surfaceCoordinate = probeManager.GetSurfaceCoordinateT();
-                    return (probeManager.OverrideName ?? probeManager.name) + ": AP: " +
-                           surfaceCoordinate.surfaceCoordinateT.x + " ML: " + surfaceCoordinate.surfaceCoordinateT.y +
-                           " DV: " + surfaceCoordinate.surfaceCoordinateT.z + " Depth: " + surfaceCoordinate.depthT;
-                }).ToList());
+                .Select(probeManager => (probeManager.OverrideName ?? probeManager.name) + ": " +
+                                        SurfaceCoordinateToString(probeManager.GetSurfaceCoordinateT())).ToList());
 
             // Restore selection (if possible)
             _targetInsertionDropdown.SetValueWithoutNotify(
@@ -253,6 +249,18 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     .IndexOf(ManipulatorIDToSelectedTargetProbeManager.GetValueOrDefault(
                         ProbeManager.ManipulatorBehaviorController.ManipulatorID, null)) + 1
             );
+        }
+
+        private static string SurfaceCoordinateToString((Vector3 surfaceCoordinateT, float depthT) surfaceCoordinate)
+        {
+            var apMicrometers = Math.Truncate(surfaceCoordinate.surfaceCoordinateT.x * 1000);
+            var mlMicrometers = Math.Truncate(surfaceCoordinate.surfaceCoordinateT.y * 1000);
+            var dvMicrometers = Math.Truncate(surfaceCoordinate.surfaceCoordinateT.z * 1000);
+            var depthMicrometers = Math.Truncate(surfaceCoordinate.depthT * 1000);
+            return "AP: " + (Settings.DisplayUM ? apMicrometers : apMicrometers / 1000f) + " ML: " +
+                   (Settings.DisplayUM ? mlMicrometers : mlMicrometers / 1000f) +
+                   " DV: " + (Settings.DisplayUM ? dvMicrometers : dvMicrometers / 1000f) + " Depth: " +
+                   (Settings.DisplayUM ? depthMicrometers : depthMicrometers / 1000f);
         }
 
         private void ComputeMovementInsertions()
