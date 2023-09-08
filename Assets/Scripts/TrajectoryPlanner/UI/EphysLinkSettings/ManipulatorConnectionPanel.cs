@@ -368,6 +368,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             // Update color of dropdown to match probe
             var colorBlockCopy = _linkedProbeDropdown.colors;
             colorBlockCopy.normalColor = _attachedProbe ? _attachedProbe.Color : Color.white;
+            colorBlockCopy.selectedColor = new Color(colorBlockCopy.normalColor.r * 0.9f,
+                colorBlockCopy.normalColor.g * 0.9f, colorBlockCopy.normalColor.b * 0.9f);
+            colorBlockCopy.highlightedColor = colorBlockCopy.selectedColor;
             _linkedProbeDropdown.colors = colorBlockCopy;
         }
 

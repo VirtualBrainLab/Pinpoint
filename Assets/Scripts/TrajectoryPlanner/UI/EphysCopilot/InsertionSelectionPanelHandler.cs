@@ -255,6 +255,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             if (!selectedProbeManager) return;
             var colorBlockCopy = _targetInsertionDropdown.colors;
             colorBlockCopy.normalColor = selectedProbeManager.Color;
+            colorBlockCopy.selectedColor = new Color(colorBlockCopy.normalColor.r * 0.9f,
+                colorBlockCopy.normalColor.g * 0.9f, colorBlockCopy.normalColor.b * 0.9f);
+            colorBlockCopy.highlightedColor = colorBlockCopy.selectedColor;
             _targetInsertionDropdown.colors = colorBlockCopy;
         }
 

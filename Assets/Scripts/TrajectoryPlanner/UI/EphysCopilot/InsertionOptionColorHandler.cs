@@ -30,6 +30,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Set the toggle color to match the probe color
             var colorBlockCopy = _toggle.colors;
             colorBlockCopy.normalColor = matchingManager.Color;
+            colorBlockCopy.selectedColor = new Color(colorBlockCopy.normalColor.r * 0.9f,
+                colorBlockCopy.normalColor.g * 0.9f, colorBlockCopy.normalColor.b * 0.9f);
             _toggle.colors = colorBlockCopy;
         }
     }
