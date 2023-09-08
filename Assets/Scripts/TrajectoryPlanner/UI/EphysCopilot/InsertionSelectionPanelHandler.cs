@@ -234,8 +234,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Add other options
             _targetInsertionDropdown.AddOptions(_targetInsertionOptions
                 .Select(insertion =>
-                    ProbeManager.Instances.Find(manager => manager.ProbeController.Insertion == insertion).OverrideName +
-                    ": " + insertion.PositionToString()).ToList());
+                    {
+                        var probeManager =
+                            ProbeManager.Instances.Find(manager => manager.ProbeController.Insertion == insertion);
+                        return (probeManager.OverrideName ?? probeManager.name) + ": " + insertion.PositionToString();
+                    }
+                ).ToList());
 
             // Restore selection (if possible)
             _targetInsertionDropdown.SetValueWithoutNotify(
