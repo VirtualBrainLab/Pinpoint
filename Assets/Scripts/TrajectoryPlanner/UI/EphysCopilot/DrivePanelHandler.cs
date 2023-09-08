@@ -98,13 +98,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         #region UI Functions
 
         /// <summary>
-        ///     Change drive speed (input is in um/s, but is converted to mm/s for computation)
+        ///     Change drive speed (input is in um/s to keep whole numbers, but is converted to mm/s for computation)
         /// </summary>
         /// <param name="value">Speed in um/s</param>
         public void OnSpeedChanged(float value)
         {
             // Updates speed text and snap slider
-            _driveSpeedText.text = "Speed: " + value + " µm/s";
+            _driveSpeedText.text = "Speed: " + SpeedToString(value / 1000f);
             _driveSpeedSlider.SetValueWithoutNotify((int)value);
 
             // Warn if speed is too high
@@ -113,8 +113,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 QuestionDialogue.Instance.YesCallback = () => _acknowledgeHighSpeeds = true;
                 QuestionDialogue.Instance.NoCallback = () => OnSpeedChanged(DEPTH_DRIVE_BASE_SPEED * 1000f);
                 QuestionDialogue.Instance.NewQuestion("We don't recommend using an insertion speed above " +
-                                                      DEPTH_DRIVE_BASE_SPEED +
-                                                      " mm/s. Are you sure you want to continue?");
+                                                      SpeedToString(DEPTH_DRIVE_BASE_SPEED) +
+                                                      ". Are you sure you want to continue?");
             }
 
             // Compute with speed converted to mm/s
@@ -189,11 +189,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         // Compute initial drive depth (before getting to near target distance)
                         var driveDepth = _duraDepth;
                         if (Mathf.Abs(_duraDepth - _targetDepth) > NEAR_TARGET_DISTANCE)
-                            driveDepth = Mathf.RoundToInt(_targetDepth -
-                                                          ProbeManager.ManipulatorBehaviorController
-                                                              .CoordinateSpace
-                                                              .World2SpaceAxisChange(Vector3.down).z *
-                                                          NEAR_TARGET_DISTANCE);
+                            driveDepth = _targetDepth - ProbeManager.ManipulatorBehaviorController
+                                    .CoordinateSpace
+                                    .World2SpaceAxisChange(Vector3.down).z *
+                                NEAR_TARGET_DISTANCE;
 
                         // Drive until within near target distance
                         CommunicationManager.Instance.DriveToDepth(
@@ -207,14 +206,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                     _targetDepth +
                                     ProbeManager.ManipulatorBehaviorController.CoordinateSpace
                                         .World2SpaceAxisChange(Vector3.down).z * _drivePastTargetDistance,
-                                    Mathf.RoundToInt(_targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER),
+                                    _targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER,
                                     _ =>
                                     {
                                         // Drive back to target
                                         CommunicationManager.Instance.DriveToDepth(
                                             ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                                             _targetDepth,
-                                            Mathf.RoundToInt(_targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER),
+                                            _targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER,
                                             _ => StartSettling(), Debug.LogError);
                                     }, Debug.LogError);
                             },
@@ -243,15 +242,15 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     // Compute initial drive depth (before getting to near target distance)
                     var driveDepth = _duraDepth;
                     if (Mathf.Abs(_duraDepth - _targetDepth) > NEAR_TARGET_DISTANCE)
-                        driveDepth = Mathf.RoundToInt(_targetDepth -
-                                                      ProbeManager.ManipulatorBehaviorController
-                                                          .CoordinateSpace
-                                                          .World2SpaceAxisChange(Vector3.down).z *
-                                                      NEAR_TARGET_DISTANCE);
+                        driveDepth = _targetDepth -
+                                     ProbeManager.ManipulatorBehaviorController
+                                         .CoordinateSpace
+                                         .World2SpaceAxisChange(Vector3.down).z *
+                                     NEAR_TARGET_DISTANCE;
 
                     // Drive back to dura by near target distance (as much as possible)
                     CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                        driveDepth, Mathf.RoundToInt(_exitDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER), _ =>
+                        driveDepth, _exitDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER, _ =>
                         {
                             // Drive back to dura
                             CommunicationManager.Instance.DriveToDepth(
@@ -324,7 +323,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             _per1000Speed = driveSpeed < DEPTH_DRIVE_BASE_SPEED_TEST ? PER_1000_SPEED : PER_1000_SPEED_TEST;
 
             // Update drive past distance and return to surface button text
-            _returnButtonText.text = "Return to Surface (" + _exitDriveSpeed + " µm/s)";
+            _returnButtonText.text = "Return to Surface (" + SpeedToString(_exitDriveSpeed) + ")";
 
             // Compute drive distance and duration
             CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, position =>
@@ -393,7 +392,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Set drive speeds (base + x mm/s / 1 mm of depth)
 
-                _targetDriveSpeed = Mathf.RoundToInt(_depthDriveBaseSpeed + targetDriveDistance * _per1000Speed);
+                _targetDriveSpeed = _depthDriveBaseSpeed + targetDriveDistance * _per1000Speed;
 
                 /*
                  * Compute target drive duration
@@ -405,7 +404,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _targetDriveDuration =
                     Mathf.Max(0, targetDriveDistance - NEAR_TARGET_DISTANCE) / _targetDriveSpeed +
                     (Mathf.Min(NEAR_TARGET_DISTANCE, targetDriveDistance) + 2 * _drivePastTargetDistance) /
-                    Mathf.RoundToInt(_targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER) +
+                    (_targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER) +
                     Mathf.Max(120, 60 * (targetDriveDistance + _drivePastTargetDistance));
 
                 /*
@@ -417,12 +416,11 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                  */
                 _exitDriveDuration =
                     Mathf.Min(targetDriveDistance, NEAR_TARGET_DISTANCE) /
-                    Mathf.RoundToInt(_exitDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER) +
+                    (_exitDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER) +
                     Mathf.Max(0, targetDriveDistance - NEAR_TARGET_DISTANCE) / _exitDriveSpeed +
                     _duraMarginDriveDuration +
                     (surfaceDriveDistance - targetDriveDistance - DURA_MARGIN_DISTANCE) /
                     _outsideDriveSpeed;
-
 
                 // Set timer text
                 _timerText.text = TimeSpan.FromSeconds(_targetDriveDuration).ToString(@"mm\:ss");
@@ -494,6 +492,11 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     _stopButton.SetActive(false);
                     _skipSettlingButton.SetActive(true);
                 });
+        }
+
+        private string SpeedToString(float speedMillimeters)
+        {
+            return Settings.DisplayUM ? speedMillimeters * 1000f + " µm/s" : speedMillimeters + " mm/s";
         }
 
         #endregion

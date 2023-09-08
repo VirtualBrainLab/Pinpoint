@@ -221,7 +221,7 @@ public class Settings : MonoBehaviour
 
     public static bool DisplayUM
     {
-        get { return data.UnitsInUM; }
+        get => data.UnitsInUM;
         set
         {
             data.UnitsInUM = value;
