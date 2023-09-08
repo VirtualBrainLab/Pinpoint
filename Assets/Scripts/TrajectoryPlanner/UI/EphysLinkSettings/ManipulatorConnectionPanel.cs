@@ -29,8 +29,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             // Initialize components
             _manipulatorIdText.text = manipulatorID;
 
+            // Spawn and setup Pathfinder manipulators
             if (type.Contains("pathfinder"))
             {
+                // Hide all parts
                 _handednessGroup.SetActive(false);
                 _probeConnectionGroup.SetActive(false);
                 _probePropertiesSection.SetActive(false);
@@ -39,44 +41,46 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
                 var newProbe = trajectoryPlannerManager.AddNewProbe(ProbeProperties.ProbeType.Neuropixels1);
 
-                // Set type to pathfinder and register with Ephys Link
+                // Configure probe and link to Ephys Link
                 newProbe.ManipulatorBehaviorController.ManipulatorType = type;
                 newProbe.Color = Color.magenta;
                 newProbe.name = "nsp_" + manipulatorID;
+                newProbe.Saved = false;
                 newProbe.SetIsEphysLinkControlled(true, manipulatorID);
+                return;
+            }
+            
+            // Restore or setup normal manipulator
+
+            UpdateLinkableProbeOptions();
+
+            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+            // Show or hide handedness dropdown depending on manipulator type
+            if (type.Contains("new_scale"))
+            {
+                _handednessDropdown.value = 0;
+                _handednessGroup.SetActive(false);
             }
             else
             {
-                UpdateLinkableProbeOptions();
-
-                // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-                // Show or hide handedness dropdown depending on manipulator type
-                if (type.Contains("new_scale"))
-                {
-                    _handednessDropdown.value = 0;
-                    _handednessGroup.SetActive(false);
-                }
-                else
-                {
-                    _handednessGroup.SetActive(true);
-                }
-
-                // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-                // Apply handedness from memory or default to right handed, also pass along manipulator type
-                if (_attachedProbe)
-                {
-                    _handednessDropdown.value = _attachedProbe.ManipulatorBehaviorController.IsRightHanded ? 1 : 0;
-                    _attachedProbe.ManipulatorBehaviorController.ManipulatorType = type;
-                }
-                else
-                {
-                    _handednessDropdown.value =
-                        Settings.EphysLinkRightHandedManipulators.Split("\n").Contains(manipulatorID) ? 1 : 0;
-                }
-
-                // Register event listeners for updating probes list
-                settingsMenu.ShouldUpdateProbesListEvent.AddListener(UpdateLinkableProbeOptions);
+                _handednessGroup.SetActive(true);
             }
+
+            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
+            // Apply handedness from memory or default to right handed, also pass along manipulator type
+            if (_attachedProbe)
+            {
+                _handednessDropdown.value = _attachedProbe.ManipulatorBehaviorController.IsRightHanded ? 1 : 0;
+                _attachedProbe.ManipulatorBehaviorController.ManipulatorType = type;
+            }
+            else
+            {
+                _handednessDropdown.value =
+                    Settings.EphysLinkRightHandedManipulators.Split("\n").Contains(manipulatorID) ? 1 : 0;
+            }
+
+            // Register event listeners for updating probes list
+            settingsMenu.ShouldUpdateProbesListEvent.AddListener(UpdateLinkableProbeOptions);
         }
 
         #endregion
