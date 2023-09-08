@@ -402,7 +402,7 @@ namespace TrajectoryPlanner
                     probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
                 newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
-                newProbeManager.OverrideName(probeData.Name);
+                newProbeManager.OverrideName = probeData.Name;
                 newProbeManager.Color = probeData.Color;
                 newProbeManager.APITarget = probeData.APITarget;
             }
@@ -595,7 +595,7 @@ namespace TrajectoryPlanner
         {
             foreach (ProbeManager probeManager in ProbeManager.Instances)
                 if (probeManager.UUID.Equals(UUID))
-                    probeManager.OverrideName(newName);
+                    probeManager.OverrideName =newName;
         }
 
         public void UpdateQuickSettings(ProbeManager sourceProbeManager=null)
@@ -985,7 +985,7 @@ namespace TrajectoryPlanner
                         probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
                     newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
-                    newProbeManager.OverrideName(probeData.Name);
+                    newProbeManager.OverrideName = probeData.Name;
                     newProbeManager.Color = probeData.Color;
                     newProbeManager.APITarget = probeData.APITarget;
                 }
@@ -1091,7 +1091,7 @@ namespace TrajectoryPlanner
         {
             ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
             if (data.overrideName != null)
-                newProbeManager.OverrideName(data.overrideName);
+                newProbeManager.OverrideName = data.overrideName;
             Debug.Log($"Overriding color: {data.color}");
             newProbeManager.Color = data.color;
         }
