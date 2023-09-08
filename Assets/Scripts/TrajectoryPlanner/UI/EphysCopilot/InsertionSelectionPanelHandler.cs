@@ -12,6 +12,78 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 {
     public class InsertionSelectionPanelHandler : MonoBehaviour
     {
+        #region Constants
+
+        private const float LINE_WIDTH = 0.1f;
+        private const int NUM_SEGMENTS = 2;
+        private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0, 0.5f, 0);
+        private const string MOVE_TO_TARGET_INSERTION_STR = "Move to Target Insertion";
+        private const string STOP_MOVEMENT_STR = "Stop Movement";
+
+        #endregion
+
+        #region Components
+
+        [SerializeField] private Color _apColor;
+        [SerializeField] private Color _mlColor;
+        [SerializeField] private Color _dvColor;
+
+        [SerializeField] private TMP_Text _manipulatorIDText;
+        [SerializeField] private TMP_Dropdown _targetInsertionDropdown;
+        [SerializeField] private Button _moveButton;
+        [SerializeField] private TMP_Text _moveButtonText;
+
+        public ProbeManager ProbeManager { private get; set; }
+
+        private (GameObject ap, GameObject ml, GameObject dv) _lineGameObjects;
+        private (LineRenderer ap, LineRenderer ml, LineRenderer dv) _lineRenderers;
+
+        #endregion
+
+        #region Properties
+
+        private bool _isMoving;
+
+        private bool _acknowledgedOutOfBounds;
+
+        private IEnumerable<ProbeInsertion> _targetInsertionOptions => _targetableInsertions
+            .Where(insertion =>
+                !ManipulatorIDToSelectedTargetInsertion
+                    .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
+                    .Select(pair => pair.Value).Contains(insertion) && IsCoterminal(insertion.angles,
+                    ProbeManager.ProbeController.Insertion.angles));
+
+        private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
+
+        private static CoordinateSpace _annotationDatasetCoordinateSpace =>
+            VolumeDatasetManager.AnnotationDataset.CoordinateSpace;
+
+        /// <summary>
+        ///     Filter for insertions that are targetable.
+        ///     1. Are not ephys link controlled
+        ///     2. Are inside the brain (not NaN)
+        /// </summary>
+        private static IEnumerable<ProbeInsertion> _targetableInsertions => ProbeManager.Instances
+            .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
+                .AnnotationDataset.FindSurfaceCoordinate(
+                    _annotationDatasetCoordinateSpace.World2Space(manager.ProbeController
+                        .Insertion
+                        .PositionWorldU()),
+                    _annotationDatasetCoordinateSpace.World2SpaceAxisChange(manager
+                        .ProbeController
+                        .GetTipWorldU().tipUpWorldU)).x))
+            .Select(manager => manager.ProbeController.Insertion);
+
+
+        #region Shared
+
+        public static readonly Dictionary<string, ProbeInsertion> ManipulatorIDToSelectedTargetInsertion = new();
+        private static readonly UnityEvent _shouldUpdateTargetInsertionOptionsEvent = new();
+
+        #endregion
+
+        #endregion
+
         #region Unity
 
         private void Start()
@@ -39,6 +111,76 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             Destroy(_lineGameObjects.ap);
             Destroy(_lineGameObjects.ml);
             Destroy(_lineGameObjects.dv);
+        }
+
+        #endregion
+
+        #region UI Functions
+
+        /// <summary>
+        ///     Update record of selected target insertion for this panel.
+        ///     Triggers all other panels to update their target insertion options.
+        /// </summary>
+        /// <param name="value">Selected index</param>
+        public void OnTargetInsertionDropdownValueChanged(int value)
+        {
+            // Update selection record and text fields
+            if (value == 0)
+            {
+                // Remove record if no insertion selected
+                ManipulatorIDToSelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
+
+                // Hide line
+                _lineGameObjects.ap.SetActive(false);
+                _lineGameObjects.ml.SetActive(false);
+                _lineGameObjects.dv.SetActive(false);
+            }
+            else
+            {
+                // Extract position string from option text
+                var insertionPositionString = _targetInsertionDropdown.options[value]
+                    .text[_targetInsertionDropdown.options[value].text.LastIndexOf('A')..];
+
+                // Get selection as insertion
+                var insertion = _targetableInsertions.First(insertion =>
+                    insertion.PositionToString().Equals(insertionPositionString));
+
+                // Update record if insertion selected
+                ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
+                    insertion;
+
+                // Show lines
+                _lineGameObjects.ap.SetActive(true);
+                _lineGameObjects.ml.SetActive(true);
+                _lineGameObjects.dv.SetActive(true);
+
+                // Compute movement insertions
+                ComputeMovementInsertions();
+            }
+
+            // Update dropdown options
+            _shouldUpdateTargetInsertionOptionsEvent.Invoke();
+            UpdateMoveButtonInteractable();
+        }
+
+        public void MoveOrStopProbeToInsertionTarget()
+        {
+            if (_isMoving)
+                // Movement in progress -> should stop movement
+            {
+                CommunicationManager.Instance.Stop(state =>
+                {
+                    if (!state) return;
+
+                    _isMoving = false;
+                    _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
+                });
+            }
+            else
+            {
+                MoveToTargetInsertion();
+                _moveButtonText.text = STOP_MOVEMENT_STR;
+            }
         }
 
         #endregion
@@ -259,148 +401,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         {
             return (first.x - second.x) % 360 < 0.01f && (first.y - second.y) % 360 < 0.01f &&
                    (first.z - second.z) % 360 < 0.01f;
-        }
-
-        #endregion
-
-        #region Constants
-
-        private const float LINE_WIDTH = 0.1f;
-        private const int NUM_SEGMENTS = 2;
-        private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0, 0.5f, 0);
-        private const string MOVE_TO_TARGET_INSERTION_STR = "Move to Target Insertion";
-        private const string STOP_MOVEMENT_STR = "Stop Movement";
-
-        #endregion
-
-        #region Components
-
-        [SerializeField] private Color _apColor;
-        [SerializeField] private Color _mlColor;
-        [SerializeField] private Color _dvColor;
-
-        [SerializeField] private TMP_Text _manipulatorIDText;
-        [SerializeField] private TMP_Dropdown _targetInsertionDropdown;
-        [SerializeField] private Button _moveButton;
-        [SerializeField] private TMP_Text _moveButtonText;
-
-        public ProbeManager ProbeManager { private get; set; }
-
-        private (GameObject ap, GameObject ml, GameObject dv) _lineGameObjects;
-        private (LineRenderer ap, LineRenderer ml, LineRenderer dv) _lineRenderers;
-
-        #endregion
-
-        #region Properties
-
-        private bool _isMoving;
-
-        private bool _acknowledgedOutOfBounds;
-
-        private IEnumerable<ProbeInsertion> _targetInsertionOptions => _targetableInsertions
-            .Where(insertion =>
-                !ManipulatorIDToSelectedTargetInsertion
-                    .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
-                    .Select(pair => pair.Value).Contains(insertion) && IsCoterminal(insertion.angles,
-                    ProbeManager.ProbeController.Insertion.angles));
-
-        private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
-
-        private static CoordinateSpace _annotationDatasetCoordinateSpace =>
-            VolumeDatasetManager.AnnotationDataset.CoordinateSpace;
-
-        /// <summary>
-        ///     Filter for insertions that are targetable.
-        ///     1. Are not ephys link controlled
-        ///     2. Are inside the brain (not NaN)
-        /// </summary>
-        private static IEnumerable<ProbeInsertion> _targetableInsertions => ProbeManager.Instances
-            .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
-                .AnnotationDataset.FindSurfaceCoordinate(
-                    _annotationDatasetCoordinateSpace.World2Space(manager.ProbeController
-                        .Insertion
-                        .PositionWorldU()),
-                    _annotationDatasetCoordinateSpace.World2SpaceAxisChange(manager
-                        .ProbeController
-                        .GetTipWorldU().tipUpWorldU)).x))
-            .Select(manager => manager.ProbeController.Insertion);
-
-
-        #region Shared
-
-        public static readonly Dictionary<string, ProbeInsertion> ManipulatorIDToSelectedTargetInsertion = new();
-        private static readonly UnityEvent _shouldUpdateTargetInsertionOptionsEvent = new();
-
-        #endregion
-
-        #endregion
-
-        #region UI Functions
-
-        /// <summary>
-        ///     Update record of selected target insertion for this panel.
-        ///     Triggers all other panels to update their target insertion options.
-        /// </summary>
-        /// <param name="value">Selected index</param>
-        public void OnTargetInsertionDropdownValueChanged(int value)
-        {
-            // Update selection record and text fields
-            if (value == 0)
-            {
-                // Remove record if no insertion selected
-                ManipulatorIDToSelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
-
-                // Hide line
-                _lineGameObjects.ap.SetActive(false);
-                _lineGameObjects.ml.SetActive(false);
-                _lineGameObjects.dv.SetActive(false);
-            }
-            else
-            {
-                // Extract position string from option text
-                var insertionPositionString = _targetInsertionDropdown.options[value]
-                    .text[_targetInsertionDropdown.options[value].text.LastIndexOf('A')..];
-
-                // Get selection as insertion
-                var insertion = _targetableInsertions.First(insertion =>
-                    insertion.PositionToString().Equals(insertionPositionString));
-
-                // Update record if insertion selected
-                ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
-                    insertion;
-
-                // Show lines
-                _lineGameObjects.ap.SetActive(true);
-                _lineGameObjects.ml.SetActive(true);
-                _lineGameObjects.dv.SetActive(true);
-
-                // Compute movement insertions
-                ComputeMovementInsertions();
-            }
-
-            // Update dropdown options
-            _shouldUpdateTargetInsertionOptionsEvent.Invoke();
-            UpdateMoveButtonInteractable();
-        }
-
-        public void MoveOrStopProbeToInsertionTarget()
-        {
-            if (_isMoving)
-                // Movement in progress -> should stop movement
-            {
-                CommunicationManager.Instance.Stop(state =>
-                {
-                    if (!state) return;
-
-                    _isMoving = false;
-                    _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
-                });
-            }
-            else
-            {
-                MoveToTargetInsertion();
-                _moveButtonText.text = STOP_MOVEMENT_STR;
-            }
         }
 
         #endregion
