@@ -5,6 +5,13 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 {
     public class ProbeOptionColorHandler : MonoBehaviour
     {
+        #region Components
+
+        [SerializeField] private Toggle _toggle;
+        [SerializeField] private Text _text;
+
+        #endregion
+
         private void Start()
         {
             // Get the probe manager with this UUID (if it exists)
@@ -16,12 +23,5 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             colorBlockCopy.normalColor = matchingManager.Color;
             _toggle.colors = colorBlockCopy;
         }
-
-        #region Components
-
-        [SerializeField] private Toggle _toggle;
-        [SerializeField] private Text _text;
-
-        #endregion
     }
 }
