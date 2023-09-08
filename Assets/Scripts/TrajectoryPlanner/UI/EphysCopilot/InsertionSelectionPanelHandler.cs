@@ -46,11 +46,17 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private bool _acknowledgedOutOfBounds;
 
-        private IEnumerable<ProbeInsertion> _targetInsertionOptions => _targetableInsertions
-            .Where(insertion =>
-                !ManipulatorIDToSelectedTargetInsertion
+        /// <summary>
+        ///     Filter for probe managers this manipulator can target.
+        ///     1. Not already selected
+        ///     2. Angles are coterminal
+        /// </summary>
+        private IEnumerable<ProbeManager> _targetProbeManagerOptions => _targetableProbeManagers
+            .Where(manager =>
+                !ManipulatorIDToSelectedTargetProbeManager
                     .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
-                    .Select(pair => pair.Value).Contains(insertion) && IsCoterminal(insertion.angles,
+                    .Select(pair => pair.Value).Contains(manager) && IsCoterminal(
+                    manager.ProbeController.Insertion.angles,
                     ProbeManager.ProbeController.Insertion.angles));
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
@@ -59,11 +65,11 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             VolumeDatasetManager.AnnotationDataset.CoordinateSpace;
 
         /// <summary>
-        ///     Filter for insertions that are targetable.
+        ///     Filter for probe managers that are targetable.
         ///     1. Are not ephys link controlled
         ///     2. Are inside the brain (not NaN)
         /// </summary>
-        private static IEnumerable<ProbeInsertion> _targetableInsertions => ProbeManager.Instances
+        private static IEnumerable<ProbeManager> _targetableProbeManagers => ProbeManager.Instances
             .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
                 .AnnotationDataset.FindSurfaceCoordinate(
                     _annotationDatasetCoordinateSpace.World2Space(manager.ProbeController
@@ -71,13 +77,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         .PositionWorldU()),
                     _annotationDatasetCoordinateSpace.World2SpaceAxisChange(manager
                         .ProbeController
-                        .GetTipWorldU().tipUpWorldU)).x))
-            .Select(manager => manager.ProbeController.Insertion);
+                        .GetTipWorldU().tipUpWorldU)).x));
 
 
         #region Shared
 
-        public static readonly Dictionary<string, ProbeInsertion> ManipulatorIDToSelectedTargetInsertion = new();
+        public static readonly Dictionary<string, ProbeManager> ManipulatorIDToSelectedTargetProbeManager = new();
         private static readonly UnityEvent _shouldUpdateTargetInsertionOptionsEvent = new();
 
         #endregion
@@ -128,7 +133,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             if (value == 0)
             {
                 // Remove record if no insertion selected
-                ManipulatorIDToSelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
+                ManipulatorIDToSelectedTargetProbeManager.Remove(ProbeManager.ManipulatorBehaviorController
+                    .ManipulatorID);
 
                 // Hide line
                 _lineGameObjects.ap.SetActive(false);
@@ -137,17 +143,17 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             }
             else
             {
-                // Extract position string from option text
-                var insertionPositionString = _targetInsertionDropdown.options[value]
-                    .text[_targetInsertionDropdown.options[value].text.LastIndexOf('A')..];
+                // Extract insertion name from dropdown text (looks for 'A' in ": AP" and bumps index back to ':')
+                var insertionNameString = _targetInsertionDropdown.options[value]
+                    .text[..(_targetInsertionDropdown.options[value].text.LastIndexOf('A') - 2)];
 
-                // Get selection as insertion
-                var insertion = _targetableInsertions.First(insertion =>
-                    insertion.PositionToString().Equals(insertionPositionString));
+                // Get selection as probe manager
+                var probeManager = _targetableProbeManagers.First(manager =>
+                    manager.OverrideName.Equals(insertionNameString) || manager.name.Equals(insertionNameString));
 
                 // Update record if insertion selected
-                ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
-                    insertion;
+                ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
+                    probeManager;
 
                 // Show lines
                 _lineGameObjects.ap.SetActive(true);
@@ -232,19 +238,19 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             _targetInsertionDropdown.options.Add(new TMP_Dropdown.OptionData("Select a target insertion..."));
 
             // Add other options
-            _targetInsertionDropdown.AddOptions(_targetInsertionOptions
-                .Select(insertion =>
-                    {
-                        var probeManager =
-                            ProbeManager.Instances.Find(manager => manager.ProbeController.Insertion == insertion);
-                        return (probeManager.OverrideName ?? probeManager.name) + ": " + insertion.PositionToString();
-                    }
-                ).ToList());
+            _targetInsertionDropdown.AddOptions(_targetProbeManagerOptions
+                .Select(probeManager =>
+                {
+                    var surfaceCoordinate = probeManager.GetSurfaceCoordinateT();
+                    return (probeManager.OverrideName ?? probeManager.name) + ": AP: " +
+                           surfaceCoordinate.surfaceCoordinateT.x + " ML: " + surfaceCoordinate.surfaceCoordinateT.y +
+                           " DV: " + surfaceCoordinate.surfaceCoordinateT.z + " Depth: " + surfaceCoordinate.depthT;
+                }).ToList());
 
             // Restore selection (if possible)
             _targetInsertionDropdown.SetValueWithoutNotify(
-                _targetInsertionOptions.ToList()
-                    .IndexOf(ManipulatorIDToSelectedTargetInsertion.GetValueOrDefault(
+                _targetProbeManagerOptions.ToList()
+                    .IndexOf(ManipulatorIDToSelectedTargetProbeManager.GetValueOrDefault(
                         ProbeManager.ManipulatorBehaviorController.ManipulatorID, null)) + 1
             );
         }
@@ -258,11 +264,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             UpdateTargetInsertionOptions();
 
             // Abort insertion if it is invalid
-            if (!_targetableInsertions.Contains(
-                    ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID]))
+            if (!_targetableProbeManagers.Contains(
+                    ManipulatorIDToSelectedTargetProbeManager[
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID]))
             {
                 // Remove record (deselected)
-                ManipulatorIDToSelectedTargetInsertion.Remove(ProbeManager.ManipulatorBehaviorController.ManipulatorID);
+                ManipulatorIDToSelectedTargetProbeManager.Remove(ProbeManager.ManipulatorBehaviorController
+                    .ManipulatorID);
 
                 // Hide line
                 _lineGameObjects.ap.SetActive(false);
@@ -286,8 +294,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Recalculate AP and ML based on pre-depth-drive DV
             var brainSurfaceCoordinate = VolumeDatasetManager.AnnotationDataset.FindSurfaceCoordinate(
                 _annotationDatasetCoordinateSpace.World2Space(
-                    ManipulatorIDToSelectedTargetInsertion[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
-                        .PositionWorldU()),
+                    ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
+                        .ProbeController.Insertion.PositionWorldU()),
                 _annotationDatasetCoordinateSpace.World2SpaceAxisChange(ProbeManager
                     .ProbeController
                     .GetTipWorldU().tipUpWorldU));
@@ -342,7 +350,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private void MoveToTargetInsertion()
         {
             // Check if a target insertion is selected
-            if (!ManipulatorIDToSelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController
+            if (!ManipulatorIDToSelectedTargetProbeManager.ContainsKey(ProbeManager.ManipulatorBehaviorController
                     .ManipulatorID)) return;
 
             // Setup and compute movement
@@ -397,7 +405,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private void UpdateMoveButtonInteractable()
         {
             _moveButton.interactable =
-                ManipulatorIDToSelectedTargetInsertion.ContainsKey(ProbeManager.ManipulatorBehaviorController
+                ManipulatorIDToSelectedTargetProbeManager.ContainsKey(ProbeManager.ManipulatorBehaviorController
                     .ManipulatorID);
         }
 

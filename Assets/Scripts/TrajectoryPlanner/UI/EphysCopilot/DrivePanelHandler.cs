@@ -337,8 +337,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Calibrate target insertion depth based on surface position
                 var targetInsertion = new ProbeInsertion(
-                    InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetInsertion[
-                        ProbeManager.ManipulatorBehaviorController.ManipulatorID]);
+                    InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetProbeManager[
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID].ProbeController.Insertion);
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
