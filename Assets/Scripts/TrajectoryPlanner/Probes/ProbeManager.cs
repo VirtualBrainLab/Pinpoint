@@ -43,6 +43,17 @@ public class ProbeManager : MonoBehaviour
     #region Identifiers
     public string UUID { get; private set; }
     private string _overrideName;
+    public string OverrideName
+    {
+        get => _overrideName ?? name;
+        set
+        {
+            _overrideName = value;
+            UpdateName();
+            UIUpdateEvent.Invoke();
+        }
+    }
+
     #endregion
 
     // Exposed fields to collect links to other components inside of the Probe prefab
@@ -317,27 +328,15 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateName()
     {
-        if (_overrideName != null)
+        if (OverrideName != null)
         {
-            name = _overrideName;
+            name = OverrideName;
         }
         else
         {
             // Check if this probe is in the brain
-            if (probeInBrain)
-            {
-                name = $"{_probeUIManagers[0].MaxArea}-{UUID.Substring(0, 8)}";
-            }
-            else
-                name = UUID.Substring(0, 8);
+            name = probeInBrain ? $"{_probeUIManagers[0].MaxArea}-{UUID[..8]}" : UUID[..8];
         }
-    }
-
-    public void OverrideName(string newName)
-    {
-        _overrideName = newName;
-        UpdateName();
-        UIUpdateEvent.Invoke();
     }
 
     public void ProbeMoved()
