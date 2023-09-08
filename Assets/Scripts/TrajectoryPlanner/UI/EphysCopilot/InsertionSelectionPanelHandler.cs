@@ -145,12 +145,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             else
             {
                 // Extract insertion name from dropdown text (looks for 'A' in ": AP" and bumps index back to ':')
-                var insertionNameString = _targetInsertionDropdown.options[value]
-                    .text[..(_targetInsertionDropdown.options[value].text.LastIndexOf('A') - 2)];
+                var probeNameString = _targetInsertionDropdown.options[value]
+                    .text[.._targetInsertionDropdown.options[value].text.LastIndexOf(": A", StringComparison.Ordinal)];
 
                 // Get selection as probe manager
                 var probeManager = _targetableProbeManagers.First(manager =>
-                    manager.OverrideName.Equals(insertionNameString) || manager.name.Equals(insertionNameString));
+                    manager.OverrideName.Equals(probeNameString) || manager.name.Equals(probeNameString));
 
                 // Update record if insertion selected
                 ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
@@ -244,11 +244,21 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                         SurfaceCoordinateToString(probeManager.GetSurfaceCoordinateT())).ToList());
 
             // Restore selection (if possible)
+            var selectedProbeManager = ManipulatorIDToSelectedTargetProbeManager.GetValueOrDefault(
+                ProbeManager.ManipulatorBehaviorController.ManipulatorID, null);
             _targetInsertionDropdown.SetValueWithoutNotify(
                 _targetProbeManagerOptions.ToList()
-                    .IndexOf(ManipulatorIDToSelectedTargetProbeManager.GetValueOrDefault(
-                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, null)) + 1
+                    .IndexOf(selectedProbeManager) + 1
             );
+
+            // Color dropdown to match probe color
+            if (!selectedProbeManager) return;
+            var colorBlockCopy = _targetInsertionDropdown.colors;
+            colorBlockCopy.normalColor = selectedProbeManager.Color;
+            colorBlockCopy.selectedColor = new Color(colorBlockCopy.normalColor.r * 0.9f,
+                colorBlockCopy.normalColor.g * 0.9f, colorBlockCopy.normalColor.b * 0.9f);
+            colorBlockCopy.highlightedColor = colorBlockCopy.selectedColor;
+            _targetInsertionDropdown.colors = colorBlockCopy;
         }
 
         private static string SurfaceCoordinateToString((Vector3 surfaceCoordinateT, float depthT) surfaceCoordinate)
