@@ -45,7 +45,7 @@ public class ProbeManager : MonoBehaviour
     private string _overrideName;
     public string OverrideName
     {
-        get => _overrideName ?? name;
+        get => _overrideName;
         set
         {
             _overrideName = value;

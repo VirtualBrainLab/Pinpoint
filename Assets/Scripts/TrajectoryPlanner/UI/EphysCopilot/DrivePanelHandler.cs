@@ -150,7 +150,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         }
 
         /// <summary>
-        /// Handle drive past distance (in µm) input field change
+        ///     Handle drive past distance (in µm) input field change
         /// </summary>
         /// <param name="value"></param>
         public void OnDrivePastDistanceChanged(string value)
@@ -337,8 +337,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Calibrate target insertion depth based on surface position
                 var targetInsertion = new ProbeInsertion(
-                    InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetInsertion[
-                        ProbeManager.ManipulatorBehaviorController.ManipulatorID]);
+                    InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetProbeManager[
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID].ProbeController.Insertion);
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
@@ -498,9 +498,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 });
         }
 
-        private string SpeedToString(float speedMillimeters)
+        private static string SpeedToString(float speedMillimeters)
         {
-            return Settings.DisplayUM ? speedMillimeters * 1000f + " µm/s" : speedMillimeters + " mm/s";
+            var speedMicrometers = Math.Truncate(speedMillimeters * 1000f);
+            return Settings.DisplayUM ? speedMicrometers + " µm/s" : speedMillimeters / 1000f + " mm/s";
         }
 
         #endregion
