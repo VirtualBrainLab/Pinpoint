@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,8 +24,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             // Get the probe manager with this UUID (if it exists)
             var probeNameString = _text.text[..textEndIndex];
-            var matchingManager = ProbeManager.Instances.Find(manager =>
-                manager.OverrideName.Equals(probeNameString) || manager.name.Equals(probeNameString));
+            var matchingManager = InsertionSelectionPanelHandler.TargetableProbeManagers.First(manager =>
+                manager.name.Equals(probeNameString) || (manager.OverrideName?.Equals(probeNameString) ?? false));
             if (!matchingManager) return;
 
             // Set the toggle color to match the probe color
