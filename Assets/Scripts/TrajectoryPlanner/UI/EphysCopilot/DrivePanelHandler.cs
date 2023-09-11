@@ -500,8 +500,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private static string SpeedToString(float speedMillimeters)
         {
-            var speedMicrometers = Math.Truncate(speedMillimeters * 1000f);
-            return Settings.DisplayUM ? speedMicrometers + " µm/s" : speedMillimeters / 1000f + " mm/s";
+            return Settings.DisplayUM ? speedMillimeters * 1000 + " µm/s" : speedMillimeters + " mm/s";
         }
 
         #endregion

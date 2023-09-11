@@ -52,7 +52,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         ///     1. Not already selected
         ///     2. Angles are coterminal
         /// </summary>
-        private IEnumerable<ProbeManager> _targetProbeManagerOptions => _targetableProbeManagers
+        private IEnumerable<ProbeManager> _targetProbeManagerOptions => TargetableProbeManagers
             .Where(manager =>
                 !ManipulatorIDToSelectedTargetProbeManager
                     .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
@@ -62,6 +62,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
 
+        #region Shared
+
         private static CoordinateSpace _annotationDatasetCoordinateSpace =>
             VolumeDatasetManager.AnnotationDataset.CoordinateSpace;
 
@@ -70,7 +72,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         ///     1. Are not ephys link controlled
         ///     2. Are inside the brain (not NaN)
         /// </summary>
-        private static IEnumerable<ProbeManager> _targetableProbeManagers => ProbeManager.Instances
+        public static IEnumerable<ProbeManager> TargetableProbeManagers => ProbeManager.Instances
             .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
                 .AnnotationDataset.FindSurfaceCoordinate(
                     _annotationDatasetCoordinateSpace.World2Space(manager.ProbeController
@@ -79,9 +81,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     _annotationDatasetCoordinateSpace.World2SpaceAxisChange(manager
                         .ProbeController
                         .GetTipWorldU().tipUpWorldU)).x));
-
-
-        #region Shared
 
         public static readonly Dictionary<string, ProbeManager> ManipulatorIDToSelectedTargetProbeManager = new();
         private static readonly UnityEvent _shouldUpdateTargetInsertionOptionsEvent = new();
@@ -149,8 +148,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     .text[.._targetInsertionDropdown.options[value].text.LastIndexOf(": A", StringComparison.Ordinal)];
 
                 // Get selection as probe manager
-                var probeManager = _targetableProbeManagers.First(manager =>
-                    manager.OverrideName.Equals(probeNameString) || manager.name.Equals(probeNameString));
+                var probeManager = TargetableProbeManagers.First(manager =>
+                    manager.name.Equals(probeNameString) || (manager.OverrideName?.Equals(probeNameString) ?? false));
 
                 // Update record if insertion selected
                 ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
@@ -282,7 +281,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             UpdateTargetInsertionOptions();
 
             // Abort insertion if it is invalid
-            if (!_targetableProbeManagers.Contains(
+            if (!TargetableProbeManagers.Contains(
                     ManipulatorIDToSelectedTargetProbeManager[
                         ProbeManager.ManipulatorBehaviorController.ManipulatorID]))
             {
