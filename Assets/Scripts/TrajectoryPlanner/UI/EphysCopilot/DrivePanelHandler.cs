@@ -213,6 +213,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                     _targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER,
                                     _ =>
                                     {
+                                        _statusText.text = "Driving back to target...";
+                                        
                                         // Drive back to target
                                         CommunicationManager.Instance.DriveToDepth(
                                             ProbeManager.ManipulatorBehaviorController.ManipulatorID,
