@@ -214,7 +214,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                     _ =>
                                     {
                                         _statusText.text = "Driving back to target...";
-                                        
+
                                         // Drive back to target
                                         CommunicationManager.Instance.DriveToDepth(
                                             ProbeManager.ManipulatorBehaviorController.ManipulatorID,
@@ -420,7 +420,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                  * 4. Drive out to surface at outside speed
                  */
                 _exitDriveDuration =
-                    Mathf.Min(targetDriveDistance, NEAR_TARGET_DISTANCE) /
+                    Mathf.Max(0, NEAR_TARGET_DISTANCE - targetDriveDistance) /
                     (_exitDriveBaseSpeed * NEAR_TARGET_SPEED_MULTIPLIER) +
                     Mathf.Max(0, targetDriveDistance - NEAR_TARGET_DISTANCE) / _exitDriveBaseSpeed +
                     _duraMarginDriveDuration +
@@ -437,10 +437,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private void ComputeAndSetExitDriveTime(Action callback = null)
         {
-            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, position =>
-            {
-                
-            });
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                position => { });
         }
 
         private IEnumerator CountDownTimer(float seconds, DriveState driveState)
