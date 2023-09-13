@@ -169,7 +169,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         public void Drive()
         {
-            ComputeAndSetDriveTime(_targetDriveSpeed, () =>
+            ComputeAndSetDriveTime(_depthDriveBaseSpeed, () =>
             {
                 CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                     true, 1, canWrite =>
@@ -318,13 +318,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         #region Helper Functions
 
-        private void ComputeAndSetDriveTime(float driveSpeed, Action callback = null)
+        private void ComputeAndSetDriveTime(float depthDriveBaseSpeed, Action callback = null)
         {
             // Compute speed variables based on speed
-            _depthDriveBaseSpeed = driveSpeed;
-            _exitDriveSpeed = driveSpeed * RETURN_TO_SURFACE_DRIVE_SPEED_MULTIPLIER;
-            _outsideDriveSpeed = driveSpeed * OUTSIDE_DRIVE_SPEED_MULTIPLIER;
-            _per1000Speed = driveSpeed < DEPTH_DRIVE_BASE_SPEED_TEST ? PER_1000_SPEED : PER_1000_SPEED_TEST;
+            _depthDriveBaseSpeed = depthDriveBaseSpeed;
+            _exitDriveSpeed = depthDriveBaseSpeed * RETURN_TO_SURFACE_DRIVE_SPEED_MULTIPLIER;
+            _outsideDriveSpeed = depthDriveBaseSpeed * OUTSIDE_DRIVE_SPEED_MULTIPLIER;
+            _per1000Speed = depthDriveBaseSpeed < DEPTH_DRIVE_BASE_SPEED_TEST ? PER_1000_SPEED : PER_1000_SPEED_TEST;
 
             // Update drive past distance and return to surface button text
             _returnButtonText.text = "Return to Surface (" + SpeedToString(_exitDriveSpeed) + ")";
