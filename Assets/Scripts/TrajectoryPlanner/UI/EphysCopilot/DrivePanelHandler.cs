@@ -27,7 +27,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private const float DEPTH_DRIVE_BASE_SPEED_TEST = 0.5f;
 
         private const float NEAR_TARGET_SPEED_MULTIPLIER = 2f / 3f;
-        private const int RETURN_TO_SURFACE_DRIVE_SPEED_MULTIPLIER = 5;
+        private const int EXIT_DRIVE_SPEED_MULTIPLIER = 5;
         private const int OUTSIDE_DRIVE_SPEED_MULTIPLIER = 20;
 
         private const float PER_1000_SPEED = 0.001f;
@@ -64,14 +64,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private float _targetDepth;
         private float _targetDriveDuration;
         private float _duraMarginDepth;
-        private float _duraMarginDriveDuration => DURA_MARGIN_DISTANCE / _exitDriveSpeed;
+        private float _duraMarginDriveDuration => DURA_MARGIN_DISTANCE / _exitDriveBaseSpeed;
         private float _exitDepth;
         private float _exitDriveDuration;
         private float _targetDriveSpeed;
 
         private float _drivePastTargetDistance = DRIVE_PAST_TARGET_DISTANCE;
         private float _depthDriveBaseSpeed = DEPTH_DRIVE_BASE_SPEED;
-        private float _exitDriveSpeed;
+        private float _exitDriveBaseSpeed => _depthDriveBaseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER;
         private float _exitDuraMarginSpeed;
         private float _outsideDriveSpeed;
         private float _per1000Speed;
@@ -254,12 +254,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                     // Drive back to dura by near target distance (as much as possible)
                     CommunicationManager.Instance.DriveToDepth(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                        driveDepth, _exitDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER, _ =>
+                        driveDepth, _exitDriveBaseSpeed * NEAR_TARGET_SPEED_MULTIPLIER, _ =>
                         {
                             // Drive back to dura
                             CommunicationManager.Instance.DriveToDepth(
                                 ProbeManager.ManipulatorBehaviorController.ManipulatorID, _duraDepth,
-                                _exitDriveSpeed, _ =>
+                                _exitDriveBaseSpeed, _ =>
                                 {
                                     // Drive out by dura exit margin
                                     // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
@@ -267,7 +267,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                         ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                                         _duraDepth - ProbeManager.ManipulatorBehaviorController.CoordinateSpace
                                             .World2SpaceAxisChange(Vector3.up).z * DURA_MARGIN_DISTANCE,
-                                        _exitDriveSpeed, _ =>
+                                        _exitDriveBaseSpeed, _ =>
                                         {
                                             // Drive the rest of the way to the surface
                                             CommunicationManager.Instance.DriveToDepth(
@@ -322,12 +322,11 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         {
             // Compute speed variables based on speed
             _depthDriveBaseSpeed = depthDriveBaseSpeed;
-            _exitDriveSpeed = depthDriveBaseSpeed * RETURN_TO_SURFACE_DRIVE_SPEED_MULTIPLIER;
             _outsideDriveSpeed = depthDriveBaseSpeed * OUTSIDE_DRIVE_SPEED_MULTIPLIER;
             _per1000Speed = depthDriveBaseSpeed < DEPTH_DRIVE_BASE_SPEED_TEST ? PER_1000_SPEED : PER_1000_SPEED_TEST;
 
             // Update drive past distance and return to surface button text
-            _returnButtonText.text = "Return to Surface (" + SpeedToString(_exitDriveSpeed) + ")";
+            _returnButtonText.text = "Return to Surface (" + SpeedToString(_exitDriveBaseSpeed) + ")";
 
             // Compute drive distance and duration
             CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, position =>
@@ -420,8 +419,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                  */
                 _exitDriveDuration =
                     Mathf.Min(targetDriveDistance, NEAR_TARGET_DISTANCE) /
-                    (_exitDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER) +
-                    Mathf.Max(0, targetDriveDistance - NEAR_TARGET_DISTANCE) / _exitDriveSpeed +
+                    (_exitDriveBaseSpeed * NEAR_TARGET_SPEED_MULTIPLIER) +
+                    Mathf.Max(0, targetDriveDistance - NEAR_TARGET_DISTANCE) / _exitDriveBaseSpeed +
                     _duraMarginDriveDuration +
                     (surfaceDriveDistance - targetDriveDistance - DURA_MARGIN_DISTANCE) /
                     _outsideDriveSpeed;
@@ -431,6 +430,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Run callback (if any)
                 callback?.Invoke();
+            });
+        }
+
+        private void ComputeAndSetExitDriveTime(Action callback = null)
+        {
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, position =>
+            {
+                
             });
         }
 
