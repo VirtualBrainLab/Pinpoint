@@ -1,6 +1,7 @@
+using CoordinateTransforms;
 using UnityEngine;
 
-namespace CoordinateTransforms
+namespace Core.CoordinateSystems
 {
     public sealed class SensapexLeftTransform : AffineTransform
     {

@@ -1,6 +1,7 @@
+using CoordinateSpaces;
 using UnityEngine;
 
-namespace CoordinateSpaces
+namespace Core.CoordinateSystems
 {
     public sealed class SensapexSpace : CoordinateSpace
     {
