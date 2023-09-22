@@ -465,6 +465,20 @@ public class Settings : MonoBehaviour
         }
     }
 
+    private const string SGLX_HELLO_DEFAULT = "C:\\HelloSGLX-win\\HelloSGLX.exe";
+    public UnityEvent<string> SpikeGLXHelloPathEvent;
+
+    public static string SpikeGLXHelloPath
+    {
+        get { return data.SpikeGLXHelloPath; }
+        set
+        {
+            data.SpikeGLXHelloPath = value;
+            Save();
+            Instance.SpikeGLXHelloPathEvent.Invoke(data.SpikeGLXHelloPath);
+        }
+    }
+
     private const float API_UPDATE_RATE_DEFAULT = 10f;
     [SerializeField] private Slider _apiUpdateRateSlider;
     public UnityEvent<float> APIUpdateRateEvent;
@@ -589,6 +603,7 @@ public class Settings : MonoBehaviour
             data.OpenEphysAPITarget = OPENEPHYS_TARGET_DEFAULT;
             data.SpikeGLXAPIToggle = SGLX_DATA_DEFAULT;
             data.SpikeGLXAPITarget = SGLX_TARGET_DEFAULT;
+            data.SpikeGLXHelloPath = SGLX_HELLO_DEFAULT;
             data.APIUpdateRate = API_UPDATE_RATE_DEFAULT;
 
             // Accounts
@@ -666,6 +681,7 @@ public class Settings : MonoBehaviour
         _openEphysTargetInput.SetTextWithoutNotify(OpenEphysTarget);
         _spikeGLXDataToggle.SetIsOnWithoutNotify(SpikeGLXToggle);
         _spikeGLXTargetInput.SetTextWithoutNotify(SpikeGLXTarget);
+        SpikeGLXHelloPathEvent.Invoke(Settings.SpikeGLXHelloPath);
         _apiUpdateRateSlider.SetValueWithoutNotify(APIUpdateRate);
 
         // Ephys link
@@ -740,6 +756,7 @@ public class Settings : MonoBehaviour
     [Serializable]
     private struct InternalData
     {
+
         // Graphics and UI
         public bool ShowSurfaceCoord;
         public bool ShowInPlaneSlice;
@@ -775,6 +792,7 @@ public class Settings : MonoBehaviour
         public string OpenEphysAPITarget;
         public bool SpikeGLXAPIToggle;
         public string SpikeGLXAPITarget;
+        public string SpikeGLXHelloPath;
         public float APIUpdateRate;
 
         public bool UseIBLAngles;

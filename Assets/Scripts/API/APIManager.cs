@@ -22,6 +22,7 @@ public class APIManager : MonoBehaviour
     [SerializeField] APISpikeGLX _spikeGLXAPI;
     [SerializeField] APIOpenEphys _openEphysAPI;
     [SerializeField] TMP_Text _statusText;
+    [SerializeField] TMP_InputField _spikeGLXHelloPathInputField;
     #endregion
 
     #region Probe data variables
@@ -97,6 +98,13 @@ public class APIManager : MonoBehaviour
     }
     #endregion
 
+    #region UI
+    public void SetHelloPathText(string filePath)
+    {
+        _spikeGLXHelloPathInputField.text = filePath;
+    }
+    #endregion
+
     #region POST probe data target
 
 
@@ -126,7 +134,6 @@ public class APIManager : MonoBehaviour
         else if (!_spikeGLXAPI.isActiveAndEnabled)
         {
             ProbeOptionsChangedEvent.Invoke(new());
-            UpdateStatusText("not connected");
         }
     }
 

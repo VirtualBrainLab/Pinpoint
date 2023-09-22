@@ -8,12 +8,14 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using KS.UnityToolbag;
 using Process = KS.Diagnostics.Process;
+using SimpleFileBrowser;
 
 public class APISpikeGLX : MonoBehaviour
 {
     [SerializeField] private TMP_InputField _helloSpikeGLXPathInput;
 
-#region Unity
+    #region Unity
+
     private void OnEnable()
     {
         GetSpikeGLXProbeInfo();
@@ -56,6 +58,13 @@ public class APISpikeGLX : MonoBehaviour
 
         // Change the format to be probeID,nShanks,partNumber;... because the original format is bad
 
+        if (allProbeDataStr.Length <= 4)
+        {
+            APIManager.UpdateStatusText("error, SpikeGLX returned 0 probes");
+            Settings.SpikeGLXToggle = false;
+            return;
+        }
+
         string charSepString = allProbeDataStr.Replace(")(", ";");
         charSepString = charSepString.Remove(0, 1);
         charSepString = charSepString.Remove(charSepString.Length - 2, 1);
@@ -87,6 +96,7 @@ public class APISpikeGLX : MonoBehaviour
         {
             APIManager.UpdateStatusText("error, no probes");
             Settings.SpikeGLXToggle = false;
+            return;
         }
     }
 
@@ -98,6 +108,21 @@ public class APISpikeGLX : MonoBehaviour
             if (probeManager.APITarget == null || probeManager.APITarget.Equals("None"))
                 continue;
             SendProbeData(probeManager);
+        }
+    }
+
+    public void PickHelloSGLXPath()
+    {
+        Debug.Log("Opening file browser");
+        FileBrowser.ShowLoadDialog(PickPathHelper, () => { }, FileBrowser.PickMode.Files);
+    }
+
+    private void PickPathHelper(string[] paths)
+    {
+        if (paths.Length > 0)
+        {
+            string filePath = paths[0];
+            Settings.SpikeGLXHelloPath = filePath;
         }
     }
 #endregion
@@ -128,9 +153,11 @@ public class APISpikeGLX : MonoBehaviour
     {
         Debug.Log(Application.streamingAssetsPath);
 
-        string filePath = _helloSpikeGLXPathInput.text.Contains("HelloSGLX.exe") ?
-            _helloSpikeGLXPathInput.text :
-            Path.Join(_helloSpikeGLXPathInput.text, "HelloSGLX.exe");
+        string originalPath = _helloSpikeGLXPathInput.text;
+
+        string filePath = originalPath.Contains("HelloSGLX.exe") ?
+            originalPath :
+            Path.Join(originalPath, "HelloSGLX.exe");
 
 
 #if UNITY_EDITOR
