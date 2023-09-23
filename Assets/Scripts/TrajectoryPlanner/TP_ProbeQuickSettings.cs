@@ -74,6 +74,8 @@ namespace TrajectoryPlanner
 
                 _coordinatePanel.UpdateAxisLabels();
 
+                UpdateQuickUI();
+
                 // Handle picking up events
                 ProbeManager.ActiveProbeManager.EphysLinkControlChangeEvent.AddListener(() =>
                 {
@@ -116,13 +118,13 @@ namespace TrajectoryPlanner
                 _probeIdText.text = ProbeManager.ActiveProbeManager.name;
                 _probeIdText.color = ProbeManager.ActiveProbeManager.Color;
                 SetColorChooserColor(ProbeManager.ActiveProbeManager.Color);
+                _lockBehavior.UpdateSprite(ProbeManager.ActiveProbeManager.ProbeController.Locked);
             }
             else
             {
                 _probeIdText.text = "";
             }
 
-            _lockBehavior.UpdateSprite(ProbeManager.ActiveProbeManager.ProbeController.Locked);
             UpdateCoordinates();
             UpdateInteractable();
         }
