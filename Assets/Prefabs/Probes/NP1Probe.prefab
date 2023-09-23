@@ -1070,15 +1070,6 @@ MonoBehaviour:
   EphysLinkControlChangeEvent:
     m_PersistentCalls:
       m_Calls: []
-  ZeroCoordinateOffsetChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  BrainSurfaceOffsetChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  IsSetToDropToSurfaceWithDepthChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
   _probeColliders:
   - {fileID: 2248518516517011465}
   - {fileID: 2248518515153670015}
@@ -1125,7 +1116,8 @@ MonoBehaviour:
   FinishedMovingEvent:
     m_PersistentCalls:
       m_Calls: []
-  Locked: 0
+  ManipulatorManualControl: 0
+  ManipulatorKeyboardMoveInProgress: 0
   _probeTipT: {fileID: 3485671869318689184}
   _rotateAround: {fileID: 7313519670166122196}
 --- !u!114 &2498329367781421407
@@ -2043,7 +2035,7 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9192518847530225580}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 4
   m_Convex: 1
