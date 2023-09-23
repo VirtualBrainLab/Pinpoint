@@ -548,9 +548,9 @@ namespace TrajectoryPlanner
 
                 // Update transparency for probe (if not ghost)
                 if (!isActiveProbe && Settings.GhostInactiveProbes)
-                    probeManager.SetMaterialsTransparent();
+                    probeManager.ProbeDisplay = ProbeDisplayType.Transparent;
                 else
-                    probeManager.SetMaterialsDefault();
+                    probeManager.ProbeDisplay = ProbeDisplayType.Opaque;
             }
 
             // Change the height of the probe panels, if needed
@@ -701,14 +701,14 @@ namespace TrajectoryPlanner
             {
                 if (probeManager == ProbeManager.ActiveProbeManager)
                 {
-                    probeManager.SetMaterialsDefault();
+                    probeManager.ProbeDisplay = ProbeDisplayType.Opaque;
                     continue;
                 }
 
                 if (Settings.GhostInactiveProbes)
-                    probeManager.SetMaterialsTransparent();
+                    probeManager.ProbeDisplay = ProbeDisplayType.Transparent;
                 else
-                    probeManager.SetMaterialsDefault();
+                    probeManager.ProbeDisplay = ProbeDisplayType.Opaque;
             }
         }
         

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
@@ -67,9 +68,11 @@ public class ProbeManager : MonoBehaviour
 
     [FormerlySerializedAs("probeController")][SerializeField] private ProbeController _probeController;
 
+    [SerializeField] private Material _lineMaterial;
     [FormerlySerializedAs("ghostMaterial")][SerializeField] private Material _ghostMaterial;
 
     private Dictionary<GameObject, Material> _defaultMaterials;
+    private HashSet<Renderer> _activeRenderers;
 
     #region Channel map
     public string SelectionLayerName { get; private set; }
@@ -112,6 +115,20 @@ public class ProbeManager : MonoBehaviour
     private Vector3 brainSurfaceWorldT;
 
     #region Accessors
+
+    private ProbeDisplayType _probeDisplayType;
+    public ProbeDisplayType ProbeDisplay
+    {
+        get
+        {
+            return _probeDisplayType;
+        }
+        set
+        {
+            _probeDisplayType = value;
+            SetMaterials();
+        }
+    }
 
     public ProbeController ProbeController { get => _probeController;
         private set => _probeController = value;
@@ -196,9 +213,15 @@ public class ProbeManager : MonoBehaviour
 
         // Record default materials
         _defaultMaterials = new Dictionary<GameObject, Material>();
+        _activeRenderers = new();
+
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
             _defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
+
+            // If this renderer is NOT attached to a collider gameobject, hold it as active
+            if (!_probeColliders.Any(x => x.gameObject.Equals(childRenderer.gameObject)))
+                _activeRenderers.Add(childRenderer);
         }
 
         // Pull the tpmanager object and register this probe
@@ -884,18 +907,37 @@ public class ProbeManager : MonoBehaviour
 
     #region Materials
 
+    private void SetMaterials()
+    {
+        switch (_probeDisplayType)
+        {
+            case ProbeDisplayType.Opaque:
+                SetMaterialsDefault();
+                break;
+            case ProbeDisplayType.Transparent:
+                SetMaterialsTransparent();
+                break;
+            case ProbeDisplayType.Line:
+                SetMaterialsLine();
+                break;
+        }
+    }
 
     /// <summary>
     /// Set all Renderer components to use the ghost material
     /// </summary>
-    public void SetMaterialsTransparent()
+    private void SetMaterialsTransparent()
     {
 #if UNITY_EDITOR
         Debug.Log($"Setting materials for {name} to transparent");
 #endif
+        if (_lineRenderer != null)
+            _lineRenderer.enabled = false;
+
         var currentColorTint = new Color(Color.r, Color.g, Color.b, .2f);
-        foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
+        foreach (var childRenderer in _activeRenderers)
         {
+            childRenderer.enabled = true;
             childRenderer.material = _ghostMaterial;
 
             // Apply tint to the material
@@ -906,17 +948,56 @@ public class ProbeManager : MonoBehaviour
     /// <summary>
     /// Reverse a previous call to SetMaterialsTransparent()
     /// </summary>
-    public void SetMaterialsDefault()
+    private void SetMaterialsDefault()
     {
 #if UNITY_EDITOR
         Debug.Log($"Setting materials for {name} to default");
 #endif
-        foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
-            if (_defaultMaterials.ContainsKey(childRenderer.gameObject))
-                childRenderer.material = _defaultMaterials[childRenderer.gameObject];
+        if (_lineRenderer != null)
+            _lineRenderer.enabled = false;
+
+        foreach (var childRenderer in _activeRenderers)
+        {
+            childRenderer.enabled = true;
+            childRenderer.material = _defaultMaterials[childRenderer.gameObject];
+        }
     }
 
-#endregion
+    private LineRenderer _lineRenderer;
+    private void SetMaterialsLine()
+    {
+#if UNITY_EDITOR
+        Debug.Log($"Setting materials for {name} to line");
+#endif
+        foreach (var childRenderer in _activeRenderers)
+            childRenderer.enabled = false;
+
+        if (_lineRenderer != null)
+            _lineRenderer.enabled = true;
+        else
+        {
+            GameObject probeTipGO = _probeController.ProbeTipT.gameObject;
+            _lineRenderer = probeTipGO.AddComponent<LineRenderer>();
+            _lineRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+            _lineRenderer.startWidth = 0.1f;
+            _lineRenderer.endWidth = 0.1f;
+
+            _lineRenderer.material = _lineMaterial;
+            _lineRenderer.material.color = Color;
+
+            _lineRenderer.useWorldSpace = false;
+
+            _lineRenderer.positionCount = 2;
+
+            var channelData = GetChannelRangemm();
+            _lineRenderer.SetPositions(new Vector3[] {
+            Vector3.zero,
+            Vector3.up * channelData.fullHeight});
+        }
+    }
+
+    #endregion
 }
 
 [Serializable]
@@ -985,4 +1066,11 @@ public struct ProbeData
 
         return data;
     }
+}
+
+public enum ProbeDisplayType
+{
+    Opaque,
+    Transparent,
+    Line
 }

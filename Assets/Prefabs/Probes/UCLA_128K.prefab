@@ -436,7 +436,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3485671869318689184}
   - component: {fileID: 3485671869318689213}
-  - component: {fileID: 3485671869318689187}
   m_Layer: 10
   m_Name: Tip
   m_TagString: Untagged
@@ -453,7 +452,7 @@ Transform:
   m_GameObject: {fileID: 3485671869318689185}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4023158563732113569}
@@ -467,19 +466,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3485671869318689185}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!135 &3485671869318689187
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3485671869318689185}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3853680075508608021
 GameObject:
   m_ObjectHideFlags: 0
@@ -685,15 +671,6 @@ MonoBehaviour:
   EphysLinkControlChangeEvent:
     m_PersistentCalls:
       m_Calls: []
-  ZeroCoordinateOffsetChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  BrainSurfaceOffsetChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  IsSetToDropToSurfaceWithDepthChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
   _probeColliders:
   - {fileID: 898353115442723080}
   - {fileID: 8086132184900514164}
@@ -709,6 +686,7 @@ MonoBehaviour:
   _recRegion: {fileID: 3447297805847446822}
   ProbeType: 128
   _probeController: {fileID: 2207803182506741358}
+  _lineMaterial: {fileID: 2100000, guid: 49a5f9091d6f63e4eaaaa36a860edbc8, type: 2}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
 --- !u!114 &2207803182506741358
 MonoBehaviour:
@@ -728,7 +706,8 @@ MonoBehaviour:
   FinishedMovingEvent:
     m_PersistentCalls:
       m_Calls: []
-  Locked: 0
+  ManipulatorManualControl: 0
+  ManipulatorKeyboardMoveInProgress: 0
   _probeTipT: {fileID: 3485671869318689184}
   _rotateAround: {fileID: 7313519670166122196}
 --- !u!114 &4368194536080577050

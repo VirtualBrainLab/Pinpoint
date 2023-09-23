@@ -86,21 +86,13 @@ MonoBehaviour:
   EphysLinkControlChangeEvent:
     m_PersistentCalls:
       m_Calls: []
-  ZeroCoordinateOffsetChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  BrainSurfaceOffsetChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  IsSetToDropToSurfaceWithDepthChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
   _probeColliders: []
   _probeUIManagers: []
   _probeRenderer: {fileID: 0}
   _recRegion: {fileID: 0}
   ProbeType: -1
   _probeController: {fileID: 1087818186434613221}
+  _lineMaterial: {fileID: 2100000, guid: 49a5f9091d6f63e4eaaaa36a860edbc8, type: 2}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
 --- !u!114 &1087818186434613221
 MonoBehaviour:
@@ -120,5 +112,6 @@ MonoBehaviour:
   FinishedMovingEvent:
     m_PersistentCalls:
       m_Calls: []
-  Locked: 0
+  ManipulatorManualControl: 0
+  ManipulatorKeyboardMoveInProgress: 0
   _probeTipT: {fileID: 5680591440290342857}
