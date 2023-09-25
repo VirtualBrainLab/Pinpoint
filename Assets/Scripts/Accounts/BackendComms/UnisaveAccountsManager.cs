@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 using UnityEngine.Events;
 using System.Linq;
 using UnityEditor;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Handles connection with the Unisave system, and passing data back-and-forth with the TPManager
@@ -109,7 +110,7 @@ public class UnisaveAccountsManager : AccountsManager
             .Done();
     }
 
-    private void LoadPlayerCallback(PlayerEntity player)
+    private async void LoadPlayerCallback(PlayerEntity player)
     {
         _player = player;
 
@@ -127,6 +128,8 @@ public class UnisaveAccountsManager : AccountsManager
             Debug.Log($"Creating probe {UUID} if active: {data.active}");
             if (data.active && !ProbeManager.Instances.Any(x => x.UUID.Equals(UUID)))
                 UpdateCallbackEvent(GetProbeInsertionData(data.UUID), true);
+
+            await Task.Delay(1);
         }
 
         // Update UI
