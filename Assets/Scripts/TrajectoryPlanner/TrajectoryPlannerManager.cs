@@ -1107,8 +1107,8 @@ namespace TrajectoryPlanner
             ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
             if (data.overrideName != null)
                 newProbeManager.OverrideName = data.overrideName;
-            Debug.Log($"Overriding color: {data.color}");
-            newProbeManager.Color = data.color;
+            if (data.color != null)
+                newProbeManager.Color = data.color;
         }
 
         #endregion
