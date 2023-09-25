@@ -160,6 +160,8 @@ namespace TrajectoryPlanner
 
         Task annotationDatasetLoadTask;
 
+        TaskCompletionSource<bool> _checkForSavedProbesTaskSource;
+
         #region Unity
         private void Awake()
         {
@@ -218,12 +220,13 @@ namespace TrajectoryPlanner
             annotationDatasetLoadTask = _vdmanager.LoadAnnotationDataset();
             await annotationDatasetLoadTask;
 
+            _checkForSavedProbesTaskSource = new TaskCompletionSource<bool>();
             // After annotation loads, check if the user wants to load previously used probes
-            var savedProbeTask = CheckForSavedProbes(annotationDatasetLoadTask);
-            await savedProbeTask;
+            CheckForSavedProbes();
+            await _checkForSavedProbesTaskSource.Task;
 
-            // Finally, load accounts if we didn't load a query string
-            if (!savedProbeTask.Result)
+            // Finally, load accounts if we didn't load a query string or a saved set of probes
+            if (!_checkForSavedProbesTaskSource.Task.Result)
                 _accountsManager.DelayedStart();
 
             // Link any events that need to be linked
@@ -858,16 +861,12 @@ namespace TrajectoryPlanner
         /// <summary>
         /// Check for saved probes in the query string on WebGL or by asking the user if they want to re-load the scene
         /// </summary>
-        /// <param name="annotationDatasetLoadTask"></param>
-        /// <returns>true if WebGL query string contained data</returns>
-        public async Task<bool> CheckForSavedProbes(Task annotationDatasetLoadTask)
+        public async void CheckForSavedProbes()
         {
-            await annotationDatasetLoadTask;
-
             // On WebGL, check for a query string
 #if UNITY_WEBGL
             if (LoadSavedProbesWebGL())
-                return true;
+                _checkForSavedProbesTaskSource.SetResult(true);
 #endif
 
 #if UNITY_EDITOR
@@ -877,7 +876,7 @@ namespace TrajectoryPlanner
                 LoadSavedProbesFromEncodedString(ProbeString);
                 if (!(SettingsString==""))
                     LoadSettingsFromEncodedString(SettingsString);
-                return true;
+                _checkForSavedProbesTaskSource.SetResult(true);
             }
 #endif
 
@@ -890,11 +889,15 @@ namespace TrajectoryPlanner
                         : "Restore previous session?";
 
                     QuestionDialogue.Instance.YesCallback = LoadSavedProbesStandalone;
+                    QuestionDialogue.Instance.NoCallback = CheckForSavedProbesNoCallbackHelper;
                     QuestionDialogue.Instance.NewQuestion(questionString);
                 }
             }
+        }
 
-            return false;
+        private async void CheckForSavedProbesNoCallbackHelper()
+        {
+            _checkForSavedProbesTaskSource.SetResult(false);
         }
 
 #if UNITY_WEBGL
@@ -954,8 +957,10 @@ namespace TrajectoryPlanner
             LoadSavedProbesFromStringArray(savedProbesArray);
         }
 
-        private void LoadSavedProbesStandalone()
+        private async void LoadSavedProbesStandalone()
         {
+            _checkForSavedProbesTaskSource.SetResult(true);
+
             var savedProbes = Settings.LoadSavedProbeData();
             LoadSavedProbesFromStringArray(savedProbes);
         }

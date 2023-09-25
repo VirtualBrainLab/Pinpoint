@@ -117,11 +117,11 @@ public class UnisaveAccountsManager : AccountsManager
 
         // Go through all of the insertions -- if any are marked as active and *DONT* exist in the scene
         // we should create them now
-        List<string> keyList = new(_player.UUID2InsertionData.Keys);
+        List<string> uuidList = new(_player.UUID2InsertionData.Keys);
 
-        for (int i = 0; i < keyList.Count; i++)
+        for (int i = 0; i < uuidList.Count; i++)
         {
-            string UUID = keyList[i];
+            string UUID = uuidList[i];
             ServerProbeInsertion data = _player.UUID2InsertionData[UUID];
 
             Debug.Log($"Creating probe {UUID} if active: {data.active}");
