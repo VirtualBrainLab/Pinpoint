@@ -345,15 +345,27 @@ namespace TrajectoryPlanner
             _restoredProbe = false;
 
             // Destroy probe
-            probeManager.Destroy();
+            probeManager.Cleanup();
             Destroy(probeManager.gameObject);
 
+            PostDestroyHandler(isActiveProbe);
+            
+            _probeAddedOrRemovedEvent.Invoke();
+
+            _movedThisFrame = true;
+        }
+
+        /// <summary>
+        /// Handle TPManager cleanup after a probe was destroyed
+        /// </summary>
+        private void PostDestroyHandler(bool wasActiveProbe)
+        {            
             // Cleanup UI if this was last probe in scene
             var realProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder && x != probeManager);
 
             if (realProbes.Count() > 0)
             {
-                if (isActiveProbe)
+                if (wasActiveProbe)
                 {
                     SetActiveProbe(realProbes.Last());
                 }
@@ -361,7 +373,7 @@ namespace TrajectoryPlanner
             else
             {
                 // Invalidate ProbeManager.ActiveProbeManager
-                if (probeManager == ProbeManager.ActiveProbeManager)
+                if (wasActiveProbe)
                 {
                     ProbeManager.ActiveProbeManager = null;
                     _activeProbeChangedEvent.Invoke();
@@ -370,10 +382,6 @@ namespace TrajectoryPlanner
                 UpdateQuickSettings();
                 UpdateQuickSettingsProbeIdText();
             }
-            
-            _probeAddedOrRemovedEvent.Invoke();
-
-            _movedThisFrame = true;
         }
 
         private void DestroyActiveProbeManager()
@@ -514,6 +522,8 @@ namespace TrajectoryPlanner
                 }
             // if we get here we didn't find an active probe
             Debug.LogWarning($"Probe {UUID} doesn't exist in the scene");
+            ProbeManager.ActiveProbeManager = null;
+            _activeProbeChangedEvent.Invoke();
         }
 
         public void SetActiveProbe(ProbeManager newActiveProbeManager)
