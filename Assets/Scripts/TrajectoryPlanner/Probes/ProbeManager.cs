@@ -264,7 +264,7 @@ public class ProbeManager : MonoBehaviour
     /// Unregisters the probe from tpmanager
     /// Removes the probe panels and the position text.
     /// </summary>
-    public void Destroy()
+    public void Cleanup()
     {
         ProbeProperties.ReturnColor(Color);
 
@@ -279,7 +279,7 @@ public class ProbeManager : MonoBehaviour
         
         // Delete this gameObject
         foreach (ProbeUIManager puimanager in _probeUIManagers)
-            puimanager.Destroy();
+            puimanager.Cleanup();
     }
 
     private void OnDestroy()

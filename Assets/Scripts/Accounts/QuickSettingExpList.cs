@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using RainbowArt.CleanFlatUI;
 using UnityEngine.UI;
 
 public class QuickSettingExpList : MonoBehaviour
@@ -36,19 +34,25 @@ public class QuickSettingExpList : MonoBehaviour
             _experimentDropdown.ClearOptions();
 
             // Create the new option list
-            List<Dropdown.OptionData> optList = new();
-            optList.Add(new Dropdown.OptionData("Not saved"));
+            List<string> experimentNames = new();
 
             bool anyOn = false;
             for (int i = 0; i < experiments.Count; i++)
             {
-                optList.Add(new Dropdown.OptionData(experiments[i]));
+                experimentNames.Add(experiments[i]);
                 if (probeExperiments.Contains(experiments[i]))
                 {
                     toggleOn[i+1] = probeExperiments.Contains(experiments[i]);
                     anyOn = true;
                 }
             }
+
+
+            List<Dropdown.OptionData> optList = new();
+
+            optList.Add(new Dropdown.OptionData(anyOn ? "Saved" : "Not saved"));
+            foreach (string experiemnt in experimentNames)
+                optList.Add(new Dropdown.OptionData(experiemnt));
 
             if (!anyOn)
                 toggleOn[0] = true;

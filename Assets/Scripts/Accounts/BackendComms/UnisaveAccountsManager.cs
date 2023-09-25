@@ -28,6 +28,8 @@ public class UnisaveAccountsManager : AccountsManager
 
     /// <summary>
     /// Fired when a user clicks on an insertion to set it to the active probe
+    /// 
+    /// Sends the UUID as parameter
     /// </summary>
     public UnityEvent<string> SetActiveProbeEvent;
 

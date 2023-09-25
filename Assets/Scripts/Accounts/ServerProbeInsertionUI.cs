@@ -14,7 +14,6 @@ public class ServerProbeInsertionUI : MonoBehaviour
 
     private UnisaveAccountsManager _accountsManager;
     public string UUID;
-    private string _displayString;
 
     private void OnEnable()
     {
@@ -55,7 +54,10 @@ public class ServerProbeInsertionUI : MonoBehaviour
 
     public void ToggleVisibility(bool visible)
     {
-        _accountsManager.ChangeInsertionVisibility(UUID, visible);
+        if (UUID != null)
+            _accountsManager.ChangeInsertionVisibility(UUID, visible);
+        else
+            Debug.LogError("(SPI_UI) ERROR: UUID missing in UI element callback");
     }
 
     public void SetToggle(bool active)
