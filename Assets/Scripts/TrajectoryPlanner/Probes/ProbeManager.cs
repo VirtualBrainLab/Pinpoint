@@ -52,6 +52,8 @@ public class ProbeManager : MonoBehaviour
             _overrideName = value;
             UpdateName();
             UIUpdateEvent.Invoke();
+            if (ActiveProbeManager == this)
+                ActiveProbeUIUpdateEvent.Invoke();
         }
     }
 
@@ -175,6 +177,8 @@ public class ProbeManager : MonoBehaviour
                 puiManager.UpdateColors();
 
             UIUpdateEvent.Invoke();
+            if (ActiveProbeManager == this)
+                ActiveProbeUIUpdateEvent.Invoke();
         }
     }
 
