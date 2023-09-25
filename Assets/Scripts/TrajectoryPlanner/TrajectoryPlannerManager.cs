@@ -11,7 +11,6 @@ using UITabs;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
 using static UnityEngine.InputSystem.InputAction;
 
 
@@ -344,11 +343,13 @@ namespace TrajectoryPlanner
             // Cannot restore a ghost probe, so we set restored to true
             _restoredProbe = false;
 
+            var remainingProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder && x != probeManager);
+
             // Destroy probe
             probeManager.Cleanup();
             Destroy(probeManager.gameObject);
 
-            PostDestroyHandler(isActiveProbe);
+            PostDestroyHandler(isActiveProbe, remainingProbes);
             
             _probeAddedOrRemovedEvent.Invoke();
 
@@ -358,16 +359,15 @@ namespace TrajectoryPlanner
         /// <summary>
         /// Handle TPManager cleanup after a probe was destroyed
         /// </summary>
-        private void PostDestroyHandler(bool wasActiveProbe)
+        private void PostDestroyHandler(bool wasActiveProbe, IEnumerable<ProbeManager> remainingProbes)
         {            
             // Cleanup UI if this was last probe in scene
-            var realProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder && x != probeManager);
 
-            if (realProbes.Count() > 0)
+            if (remainingProbes.Count() > 0)
             {
                 if (wasActiveProbe)
                 {
-                    SetActiveProbe(realProbes.Last());
+                    SetActiveProbe(remainingProbes.Last());
                 }
             }
             else
