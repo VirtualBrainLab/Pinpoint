@@ -15,7 +15,7 @@ namespace CoordinateSpaces
         /// <returns>World space coordinates</returns>
         public override Vector3 Space2World(Vector3 coord)
         {
-            return new Vector3(coord.y, -coord.z, -coord.x);
+            return new Vector3(coord.x, coord.y, coord.z);
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace CoordinateSpaces
         /// <returns>Sensapex Space coordinates</returns>
         public override Vector3 World2Space(Vector3 world)
         {
-            return new Vector3(-world.z, world.x, -world.y);
+            return new Vector3(world.x, world.y, world.z);
         }
 
         public override Vector3 Space2WorldAxisChange(Vector3 coord)
