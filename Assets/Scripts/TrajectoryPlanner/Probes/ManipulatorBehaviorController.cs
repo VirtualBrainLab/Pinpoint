@@ -280,8 +280,8 @@ namespace TrajectoryPlanner.Probes
             }
             else
             {
-                CoordinateSpace = new NewScaleSpace();
-                Transform = new NewScaleLeftTransform(_probeController.Insertion.yaw,
+                CoordinateSpace = new ManipulatorSpace();
+                Transform = new ThreeAxisLeftTransform(_probeController.Insertion.yaw,
                     _probeController.Insertion.pitch);
             }
         }
