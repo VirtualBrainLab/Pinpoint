@@ -367,8 +367,7 @@ namespace TrajectoryPlanner.Probes
             // Convert to manipulator axes (world -> space -> transform)
             var manipulatorSpaceDelta = CoordinateSpace.World2SpaceAxisChange(worldSpaceDelta);
             var manipulatorTransformDelta = Transform.Space2Transform(manipulatorSpaceDelta);
-            var manipulatorSpaceDepth = CoordinateSpace
-                .World2SpaceAxisChange(Vector3.down).z * worldSpaceDelta.w;
+            var manipulatorSpaceDepth = worldSpaceDelta.w;
 
             // Get manipulator position
             CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
