@@ -274,7 +274,7 @@ namespace TrajectoryPlanner.Probes
             {
                 CoordinateSpace = new ManipulatorSpace();
                 Transform = IsRightHanded
-                    ? new FourAxisRightTransform(_probeController.Insertion.yaw)
+                    ? new RightHandedManipulatorTransform(_probeController.Insertion.yaw)
                     : new LeftHandedManipulatorTransform(_probeController.Insertion.yaw);
             }
             else
