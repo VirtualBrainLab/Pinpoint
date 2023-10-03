@@ -59,6 +59,9 @@ namespace TrajectoryPlanner.Probes
                 var zeroCoordinateAdjustedWorldPosition =
                     CoordinateSpace.Space2World(manipulatorSpacePosition);
 
+                // print("pos: " + pos + "; manipulator: " + manipulatorSpacePosition + "; world: " +
+                //       zeroCoordinateAdjustedWorldPosition);
+
                 // Set probe position (change axes to match probe)
                 var transformedApmldv =
                     _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
@@ -269,10 +272,10 @@ namespace TrajectoryPlanner.Probes
         {
             if (ManipulatorType == "sensapex")
             {
-                CoordinateSpace = new SensapexSpace();
+                CoordinateSpace = new ManipulatorSpace();
                 Transform = IsRightHanded
-                    ? new SensapexRightTransform(_probeController.Insertion.yaw)
-                    : new SensapexLeftTransform(_probeController.Insertion.yaw);
+                    ? new FourAxisRightTransform(_probeController.Insertion.yaw)
+                    : new LeftHandedManipulatorTransform(_probeController.Insertion.yaw);
             }
             else
             {
