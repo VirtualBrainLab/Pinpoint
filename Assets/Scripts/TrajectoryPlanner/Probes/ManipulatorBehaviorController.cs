@@ -49,14 +49,11 @@ namespace TrajectoryPlanner.Probes
                     Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
 
                 // Brain surface adjustment
-                // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
                 var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
                 if (IsSetToDropToSurfaceWithDepth)
-                    zeroCoordinateAdjustedManipulatorPosition.w +=
-                        CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
+                    zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
                 else
-                    manipulatorSpacePosition.z +=
-                        CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
+                    manipulatorSpacePosition.z -= brainSurfaceAdjustment;
 
                 // Convert to world space
                 var zeroCoordinateAdjustedWorldPosition =
@@ -226,7 +223,6 @@ namespace TrajectoryPlanner.Probes
 
         public void Initialize(string manipulatorID, bool calibrated)
         {
-            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
             CommunicationManager.Instance.GetManipulators((ids, type) =>
             {
                 // Shortcut exit if we have an invalid manipulator ID
