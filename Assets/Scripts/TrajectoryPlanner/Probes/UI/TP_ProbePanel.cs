@@ -31,10 +31,11 @@ public class TP_ProbePanel : MonoBehaviour
 
     private async void AsyncStart()
     {
-        await VolumeDatasetManager.Texture3DLoaded();
+        throw new NotImplementedException();
+        //await VolumeDatasetManager.Texture3DLoaded();
 
-        _channelRenderer.material.SetTexture("_AnnotationTexture", VolumeDatasetManager.AnnotationDatasetTexture3D);
-        _sliceRenderer.material.SetTexture("_AnnotationTexture", VolumeDatasetManager.AnnotationDatasetTexture3D);
+        //_channelRenderer.material.SetTexture("_AnnotationTexture", VolumeDatasetManager.AnnotationDatasetTexture3D);
+        //_sliceRenderer.material.SetTexture("_AnnotationTexture", VolumeDatasetManager.AnnotationDatasetTexture3D);
     }
 
     public void RegisterProbeManager(ProbeManager probeManager)

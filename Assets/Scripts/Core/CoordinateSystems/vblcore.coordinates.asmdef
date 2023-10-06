@@ -1,7 +1,9 @@
 {
     "name": "vblcore.coordinates",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:1487851fb22c2cc4a85babd43c153c20"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

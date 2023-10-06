@@ -12,7 +12,7 @@ namespace CoordinateSpaces
         /// </summary>
         /// <param name="coord">X, Y, Z coordinate in Sensapex space</param>
         /// <returns>World space coordinates</returns>
-        public override Vector3 Space2World(Vector3 coord)
+        public override Vector3 Atlas2World(Vector3 coord)
         {
             return new Vector3(coord.x, coord.z, -coord.y);
         }
@@ -22,19 +22,19 @@ namespace CoordinateSpaces
         /// </summary>
         /// <param name="world">X, Y, Z coordinates in World space</param>
         /// <returns>New Scale Space coordinates</returns>
-        public override Vector3 World2Space(Vector3 world)
+        public override Vector3 World2Atlas(Vector3 world)
         {
             return new Vector3(world.x, -world.z, world.y);
         }
 
-        public override Vector3 Space2WorldAxisChange(Vector3 coord)
+        public override Vector3 Atlas2World_Vector(Vector3 coord)
         {
-            return Space2World(coord);
+            return Atlas2World(coord);
         }
 
-        public override Vector3 World2SpaceAxisChange(Vector3 world)
+        public override Vector3 World2Atlas_Vector(Vector3 world)
         {
-            return World2Space(world);
+            return World2Atlas(world);
         }
     }
 }

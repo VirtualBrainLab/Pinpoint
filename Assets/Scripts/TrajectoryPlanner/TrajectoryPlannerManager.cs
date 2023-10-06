@@ -90,8 +90,6 @@ namespace TrajectoryPlanner
         #endregion
 
         // Managers and accessors
-        [SerializeField] private CCFModelControl _modelControl;
-        [SerializeField] private VolumeDatasetManager _vdmanager;
         [SerializeField] private Transform _probeParentT;
         [FormerlySerializedAs("util")] [SerializeField] private TP_Utils _util;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
@@ -172,22 +170,24 @@ namespace TrajectoryPlanner
             SetProbeControl(false);
 
             // Deal with coordinate spaces and transforms
-            coordinateSpaceOpts = new Dictionary<string, CoordinateSpace>();
-            coordinateSpaceOpts.Add("CCF", new CCFSpace());
-            CoordinateSpaceManager.ActiveCoordinateSpace = coordinateSpaceOpts["CCF"];
+            // [TODO]
+            //coordinateSpaceOpts = new Dictionary<string, CoordinateSpace>();
+            //coordinateSpaceOpts.Add("CCF", new NullTransform());
+            //CoordinateSpaceManager.ActiveCoordinateSpace = coordinateSpaceOpts["CCF"];
+            ////BrainCameraController.
 
-            coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
-            CoordinateTransform temp = new CCFTransform();
-            coordinateTransformOpts.Add(temp.Name, temp);
-            temp = new MRILinearTransform();
-            coordinateTransformOpts.Add(temp.Name, temp);
-            coordinateTransformOpts.Add("MRI", temp);
-            temp = new NeedlesTransform();
-            coordinateTransformOpts.Add(temp.Name, temp);
-            coordinateTransformOpts.Add("Needles", temp);
-            temp = new IBLNeedlesTransform();
-            coordinateTransformOpts.Add(temp.Name, temp);
-            coordinateTransformOpts.Add("IBL-Needles", temp);
+            //coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
+            //CoordinateTransform temp = new CCFTransform();
+            //coordinateTransformOpts.Add(temp.Name, temp);
+            //temp = new MRILinearTransform();
+            //coordinateTransformOpts.Add(temp.Name, temp);
+            //coordinateTransformOpts.Add("MRI", temp);
+            //temp = new NeedlesTransform();
+            //coordinateTransformOpts.Add(temp.Name, temp);
+            //coordinateTransformOpts.Add("Needles", temp);
+            //temp = new IBLNeedlesTransform();
+            //coordinateTransformOpts.Add(temp.Name, temp);
+            //coordinateTransformOpts.Add("IBL-Needles", temp);
 
             // Initialize variables
             rigColliders = new List<Collider>();
@@ -210,15 +210,15 @@ namespace TrajectoryPlanner
         private async void Start()
         {
             // Startup CCF
-            _modelControl.LateStart(true);
-            _modelControl.SetBeryl(Settings.UseBeryl);
+            // [TODO]
+            //_modelControl.LateStart(true);
+            //_modelControl.SetBeryl(Settings.UseBeryl);
 
             // Set callback
             DelayedModelControlStart();
 
             // Startup the volume textures
-            annotationDatasetLoadTask = _vdmanager.LoadAnnotationDataset();
-            await annotationDatasetLoadTask;
+            // [TODO]
 
             _checkForSavedProbesTaskSource = new TaskCompletionSource<bool>();
             // After annotation loads, check if the user wants to load previously used probes
@@ -308,16 +308,17 @@ namespace TrajectoryPlanner
 
         private async void DelayedModelControlStart()
         {
-            await _modelControl.GetDefaultLoadedTask();
+            // [TODO]
+            //await _modelControl.GetDefaultLoadedTask();
 
-            foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-            {
-                await node.GetLoadedTask(true);
-                node.SetNodeModelVisibility(true, false, false);
-            }
+            //foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
+            //{
+            //    await node.GetLoadedTask(true);
+            //    node.SetNodeModelVisibility(true, false, false);
+            //}
 
-            // Set the warp setting
-            InVivoTransformChanged(Settings.InvivoTransform);
+            //// Set the warp setting
+            //InVivoTransformChanged(Settings.InvivoTransform);
         }
 
         public void ClickSearchArea(GameObject target)
@@ -405,8 +406,9 @@ namespace TrajectoryPlanner
             // Don't duplicate probes by accident
             if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
             {
-                var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
-                    coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
+                // TODO
+                //var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
+                //    coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
 
                 ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
                     probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
@@ -473,7 +475,8 @@ namespace TrajectoryPlanner
 
             probeManager.ProbeController.SetProbePosition(insertion.apmldv);
             probeManager.ProbeController.SetProbeAngles(insertion.angles);
-            probeManager.ProbeController.SetSpaceTransform(insertion.CoordinateSpace, insertion.CoordinateTransform);
+            // [TODO]
+            //probeManager.ProbeController.SetSpaceTransform(insertion.ReferenceAtlas, insertion.AtlasTransform);
 
             return probeManager;
         }
@@ -485,7 +488,8 @@ namespace TrajectoryPlanner
 
             probeManager.ProbeController.SetProbePosition(insertion.apmldv);
             probeManager.ProbeController.SetProbeAngles(insertion.angles);
-            probeManager.ProbeController.SetSpaceTransform(insertion.CoordinateSpace, insertion.CoordinateTransform);
+            // [TODO]
+            //probeManager.ProbeController.SetSpaceTransform(insertion.ReferenceAtlas, insertion.AtlasTransform);
 
             // Return data if there is no current Ephys Link data
             if (Settings.IsEphysLinkDataExpired()) return probeManager;
@@ -631,29 +635,30 @@ namespace TrajectoryPlanner
                 ProbeManager.ActiveProbeManager.ProbeController.ResetInsertion();
         }
 
-#region Warping
+        #region Warping
 
+        // [TODO]
         public void WarpBrain()
         {
-            foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-                WarpNode(node);
-            _searchControl.ChangeWarp();
+            //foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
+            //    WarpNode(node);
+            //_searchControl.ChangeWarp();
         }
 
-        public void WarpNode(CCFTreeNode node)
+        public void WarpNode()
         {
-#if UNITY_EDITOR
-            Debug.Log(string.Format("Transforming node {0}", node.Name));
-#endif
-            node.TransformVertices(CoordinateSpaceManager.WorldU2WorldT, true);
+//#if UNITY_EDITOR
+//            Debug.Log(string.Format("Transforming node {0}", node.Name));
+//#endif
+//            node.TransformVertices(CoordinateSpaceManager.WorldU2WorldT, true);
         }
 
         public void UnwarpBrain()
         {
-            foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-            {
-                node.ClearTransform(true);
-            }
+            //foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
+            //{
+            //    node.ClearTransform(true);
+            //}
         }
 
 
@@ -694,18 +699,19 @@ namespace TrajectoryPlanner
 
         public void SetGhostAreaVisibility()
         {
-            if (Settings.GhostInactiveAreas)
-            {
-                List<CCFTreeNode> activeAreas = _searchControl.activeBrainAreas;
-                foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-                    if (!activeAreas.Contains(node))
-                        node.SetNodeModelVisibility();
-            }
-            else
-            {
-                foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-                    node.SetNodeModelVisibility(true);
-            }
+            // [TODO]
+            //if (Settings.GhostInactiveAreas)
+            //{
+            //    List<CCFTreeNode> activeAreas = _searchControl.activeBrainAreas;
+            //    foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
+            //        if (!activeAreas.Contains(node))
+            //            node.SetNodeModelVisibility();
+            //}
+            //else
+            //{
+            //    foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
+            //        node.SetNodeModelVisibility(true);
+            //}
         }
 
         public void SetGhostProbeVisibility()
@@ -759,12 +765,13 @@ namespace TrajectoryPlanner
 
         private void SetNewTransform(CoordinateTransform newTransform)
         {
-            CoordinateSpaceManager.ActiveCoordinateTransform = newTransform;
-            WarpBrain();
+            // [TODO]
+            //CoordinateSpaceManager.ActiveCoordinateTransform = newTransform;
+            //WarpBrain();
 
-            // Update the warp functions in the craniotomy control panel
-            _craniotomyPanel.World2Space = CoordinateSpaceManager.World2TransformedAxisChange;
-            _craniotomyPanel.Space2World = CoordinateSpaceManager.Transformed2WorldAxisChange;
+            //// Update the warp functions in the craniotomy control panel
+            //_craniotomyPanel.World2Atlas = CoordinateSpaceManager.World2TransformedAxisChange;
+            //_craniotomyPanel.Atlas2World = CoordinateSpaceManager.Transformed2WorldAxisChange;
 
             // Check if active probe is a mis-match
 
@@ -979,30 +986,33 @@ namespace TrajectoryPlanner
                     CoordinateSpace probeOrigSpace = coordinateSpaceOpts[probeData.CoordSpaceName];
                     CoordinateTransform probeOrigTransform = coordinateTransformOpts[probeData.CoordTransformName];
 
-                    ProbeInsertion probeInsertion;
-                    if (probeOrigTransform.Name != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
-                    {
-                        Debug.LogError($"[TODO] Need to warn user when transforming a probe into the active coordinate space!!");
-                        Vector3 newAPMLDV = CoordinateSpaceManager.ActiveCoordinateTransform.Space2Transform(probeOrigTransform.Transform2Space(probeData.APMLDV));
+                    // [TODO]
+                    //ProbeInsertion probeInsertion;
+                    //if (probeOrigTransform.Name != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
+                    //{
+                    //    Debug.LogError($"[TODO] Need to warn user when transforming a probe into the active coordinate space!!");
+                    //    Vector3 newAPMLDV = CoordinateSpaceManager.ActiveCoordinateTransform.Atlas2T(probeOrigTransform.T2Atlas(probeData.APMLDV));
 
-                        probeInsertion = new ProbeInsertion(newAPMLDV, probeData.Angles,
-                            CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
-                    }
-                    else
-                    {
-                        probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
-                            CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
-                    }
+                    //    probeInsertion = new ProbeInsertion(newAPMLDV, probeData.Angles,
+                    //        CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
+                    //}
+                    //else
+                    //{
+                    //    probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
+                    //        CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
+                    //}
 
 
-                    ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
-                        probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
-                        probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
+                    // [TODO]
+                    //ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
+                    //    probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                    //    probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
-                    newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
-                    newProbeManager.OverrideName = probeData.Name;
-                    newProbeManager.Color = probeData.Color;
-                    newProbeManager.APITarget = probeData.APITarget;
+                    // [TODO]
+                    //newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
+                    //newProbeManager.OverrideName = probeData.Name;
+                    //newProbeManager.Color = probeData.Color;
+                    //newProbeManager.APITarget = probeData.APITarget;
                 }
             }
 
@@ -1018,48 +1028,50 @@ namespace TrajectoryPlanner
 
         private void LoadMeshData()
         {
-            List<Dictionary<string,object>> data = CSVReader.ParseText(_meshCenterText.text);
+            // [TODO]
+            //List<Dictionary<string,object>> data = CSVReader.ParseText(_meshCenterText.text);
 
-            for (int i = 0; i < data.Count; i++)
-            {
-                Dictionary<string, object> row = data[i];
+            //for (int i = 0; i < data.Count; i++)
+            //{
+            //    Dictionary<string, object> row = data[i];
 
-                int ID = (int)row["id"];
-                float ap = (float)row["ap"];
-                float ml = (float)row["ml"];
-                float dv = (float)row["dv"];
+            //    int ID = (int)row["id"];
+            //    float ap = (float)row["ap"];
+            //    float ml = (float)row["ml"];
+            //    float dv = (float)row["dv"];
 
-                meshCenters.Add(ID, new Vector3(ap, ml, dv));
-            }
+            //    meshCenters.Add(ID, new Vector3(ap, ml, dv));
+            //}
         }
 
-        public void SetProbeTipPositionToCCFNode(CCFTreeNode targetNode)
+        public void SetProbeTipPositionToCCFNode()
         {
-            if (ProbeManager.ActiveProbeManager == null) return;
-            int berylID = CCFModelControl.GetBerylID(targetNode.ID);
-            Vector3 apmldv = meshCenters[berylID];
+            // [TODO]
+            //if (ProbeManager.ActiveProbeManager == null) return;
+            //int berylID = CCFModelControl.GetBerylID(targetNode.ID);
+            //Vector3 apmldv = meshCenters[berylID];
 
-            if (berylID==prevTipID && prevTipSideLeft)
-            {
-                // we already hit this area, switch sides
-                apmldv.y = 11.4f - apmldv.y;
-                prevTipSideLeft = false;
-            }
-            else
-            {
-                // first time, go left
-                prevTipSideLeft = true;
-            }
+            //if (berylID==prevTipID && prevTipSideLeft)
+            //{
+            //    // we already hit this area, switch sides
+            //    apmldv.y = 11.4f - apmldv.y;
+            //    prevTipSideLeft = false;
+            //}
+            //else
+            //{
+            //    // first time, go left
+            //    prevTipSideLeft = true;
+            //}
 
-            apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.CoordinateTransform.Space2Transform(apmldv - CoordinateSpaceManager.ActiveCoordinateSpace.RelativeOffset);
-            ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition(apmldv);
+            //apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.AtlasTransform.Atlas2T(apmldv - CoordinateSpaceManager.ActiveCoordinateSpace.RelativeOffset);
+            //ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition(apmldv);
 
-            prevTipID = berylID;
+            //prevTipID = berylID;
         }
 
-#endregion
+        #endregion
 
-#region Text
+        #region Text
 
         public void CopyText()
         {
@@ -1104,11 +1116,12 @@ namespace TrajectoryPlanner
 
         private void AccountsNewProbeHelper((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, string overrideName, Color color) data)
         {
-            ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
-            if (data.overrideName != null)
-                newProbeManager.OverrideName = data.overrideName;
-            if (data.color != null)
-                newProbeManager.Color = data.color;
+            // [TODO]
+            //ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
+            //if (data.overrideName != null)
+            //    newProbeManager.OverrideName = data.overrideName;
+            //if (data.color != null)
+            //    newProbeManager.Color = data.color;
         }
 
         #endregion
@@ -1121,46 +1134,48 @@ namespace TrajectoryPlanner
         /// <param name="blDistance"></param>
         public void ChangeBLDistance(float blDistance)
         {
-            float blRatio = blDistance / 4.15f;
-#if UNITY_EDITOR
-            Debug.Log($"(BL Distance) Re-scaling to {blRatio}");
-#endif
+            // [TODO]
 
-            if (CoordinateSpaceManager.ActiveCoordinateTransform.Name != "Custom")
-                CoordinateSpaceManager.OriginalTransform = CoordinateSpaceManager.ActiveCoordinateTransform;
+            //            float blRatio = blDistance / 4.15f;
+            //#if UNITY_EDITOR
+            //            Debug.Log($"(BL Distance) Re-scaling to {blRatio}");
+            //#endif
 
-            // There's no easy way to implement this without a refactor of the CoordinateTransform code, because you can't pull out the transform matrix.
+            //            if (CoordinateSpaceManager.ActiveCoordinateTransform.Name != "Custom")
+            //                CoordinateSpaceManager.OriginalTransform = CoordinateSpaceManager.ActiveCoordinateTransform;
 
-            // For now what we'll do is switch through the current transform, and replace it with a new version that's been scaled
+            //            // There's no easy way to implement this without a refactor of the CoordinateTransform code, because you can't pull out the transform matrix.
 
-            CoordinateTransform newTransform;
+            //            // For now what we'll do is switch through the current transform, and replace it with a new version that's been scaled
 
-            switch (CoordinateSpaceManager.OriginalTransform.Prefix)
-            {
-                case "ccf":
-                    // the ccf transform is the unity transform, so just build a new affine transform that scales
-                    newTransform = new CustomAffineTransform(blRatio * Vector3.one, Vector3.zero);
-                    break;
+            //            CoordinateTransform newTransform;
 
-                case "q18":
-                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.031f, 0.952f, -0.885f), new Vector3(0f, -5f, 0f));
-                    break;
+            //            switch (CoordinateSpaceManager.OriginalTransform.Prefix)
+            //            {
+            //                case "ccf":
+            //                    // the ccf transform is the unity transform, so just build a new affine transform that scales
+            //                    newTransform = new CustomAffineTransform(blRatio * Vector3.one, Vector3.zero);
+            //                    break;
 
-                case "d08":
-                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, -5f, 0f));
-                    break;
+            //                case "q18":
+            //                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.031f, 0.952f, -0.885f), new Vector3(0f, -5f, 0f));
+            //                    break;
 
-                case "i-d08":
-                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, 0f, 0f));
-                    break;
+            //                case "d08":
+            //                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, -5f, 0f));
+            //                    break;
 
-                default:
-                    Debug.LogError("Previous transform is not scalable");
-                    return;
-            }
+            //                case "i-d08":
+            //                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, 0f, 0f));
+            //                    break;
 
-            // Apply the new transform
-            SetNewTransform(newTransform);
+            //                default:
+            //                    Debug.LogError("Previous transform is not scalable");
+            //                    return;
+            //            }
+
+            //            // Apply the new transform
+            //            SetNewTransform(newTransform);
         }
 
         #endregion

@@ -75,10 +75,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         public static IEnumerable<ProbeManager> TargetableProbeManagers => ProbeManager.Instances
             .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
                 .AnnotationDataset.FindSurfaceCoordinate(
-                    _annotationDatasetCoordinateSpace.World2Space(manager.ProbeController
+                    _annotationDatasetCoordinateSpace.World2Atlas(manager.ProbeController
                         .Insertion
                         .PositionWorldU()),
-                    _annotationDatasetCoordinateSpace.World2SpaceAxisChange(manager
+                    _annotationDatasetCoordinateSpace.World2Atlas_Vector(manager
                         .ProbeController
                         .GetTipWorldU().tipUpWorldU)).x));
 
@@ -304,33 +304,33 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // DV axis
             _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
             {
-                dv = ProbeManager.ProbeController.Insertion
+                DV = ProbeManager.ProbeController.Insertion
                     .World2TransformedAxisChange(PRE_DEPTH_DRIVE_BREGMA_OFFSET_W).z
             };
 
             // Recalculate AP and ML based on pre-depth-drive DV
             var brainSurfaceCoordinate = VolumeDatasetManager.AnnotationDataset.FindSurfaceCoordinate(
-                _annotationDatasetCoordinateSpace.World2Space(
+                _annotationDatasetCoordinateSpace.World2Atlas(
                     ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
                         .ProbeController.Insertion.PositionWorldU()),
-                _annotationDatasetCoordinateSpace.World2SpaceAxisChange(ProbeManager
+                _annotationDatasetCoordinateSpace.World2Atlas_Vector(ProbeManager
                     .ProbeController
                     .GetTipWorldU().tipUpWorldU));
 
             var brainSurfaceWorld =
-                _annotationDatasetCoordinateSpace.Space2World(brainSurfaceCoordinate);
+                _annotationDatasetCoordinateSpace.Atlas2World(brainSurfaceCoordinate);
             var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
 
             // AP Axis
             _movementAxesInsertions.ap = new ProbeInsertion(_movementAxesInsertions.dv)
             {
-                ap = brainSurfaceTransformed.x
+                AP = brainSurfaceTransformed.x
             };
 
             // ML Axis
             _movementAxesInsertions.ml = new ProbeInsertion(_movementAxesInsertions.ap)
             {
-                ml = brainSurfaceTransformed.y
+                ML = brainSurfaceTransformed.y
             };
 
             // Check if within bounds

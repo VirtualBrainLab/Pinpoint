@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using CoordinateSpaces;
 using CoordinateTransforms;
+using BrainAtlas;
 
 public abstract class ProbeController : MonoBehaviour
 {
@@ -49,20 +50,20 @@ public abstract class ProbeController : MonoBehaviour
     public abstract void SetProbeAngles(Vector3 angles);
 
     /// <summary>
-    /// Override the current CoordinateSpace and CoordinateTransform with new ones.
+    /// Override the current ReferenceAtlas and AtlasTransform with new ones.
     /// Make sure to translate the probe position into the new space appropriately.
     /// </summary>
-    /// <param name="space"></param>
+    /// <param name="atlas"></param>
     /// <param name="transform"></param>
-    public void SetSpaceTransform(CoordinateSpace space, CoordinateTransform transform)
+    public void SetSpaceTransform(ReferenceAtlas atlas, AtlasTransform transform)
     {
         // Covnert the tip coordinate into the new space
         var tipData = GetTipWorldU();
-        Vector3 tipCoordNewSpace = transform.Space2Transform(space.World2Space(tipData.tipCoordWorldU));
+        Vector3 tipCoordNewSpace = transform.Atlas2T(atlas.World2Atlas(tipData.tipCoordWorldU));
         Insertion.apmldv = tipCoordNewSpace;
         // Set the transforms
-        Insertion.CoordinateSpace = space;
-        Insertion.CoordinateTransform = transform;
+        Insertion.ReferenceAtlas = atlas;
+        Insertion.AtlasTransform = transform;
         // Set the probe position
         SetProbePosition();
     }

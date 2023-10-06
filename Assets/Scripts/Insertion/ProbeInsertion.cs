@@ -3,6 +3,7 @@ using UnityEngine;
 using CoordinateSpaces;
 using CoordinateTransforms;
 using System.Collections.Generic;
+using BrainAtlas;
 
 /// <summary>
 /// Representation of a probe insertion in a native CoordinateSpace and CoordinateTransform
@@ -11,37 +12,44 @@ using System.Collections.Generic;
 /// to interpolate these properly you need to use e.g. the tip/top positions that are output by the
 /// CoordinateTransform 
 /// </summary>
+[Serializable]
 public class ProbeInsertion
 {
     #region Static instances
+    [NonSerialized]
     public static HashSet<ProbeInsertion> Instances = new HashSet<ProbeInsertion>();
     #endregion
 
     #region Coordinate vars
-    public CoordinateSpace CoordinateSpace { get; set; }
-    public CoordinateTransform CoordinateTransform { get; set; }
+    public ReferenceAtlas ReferenceAtlas { get; set; }
+    public AtlasTransform AtlasTransform { get; set; }
+    #endregion
+
+    #region Name data
+    public string AtlasName { get { return ReferenceAtlas.Name; } }
+    public string TransformName { get { return AtlasTransform.Name; } }
     #endregion
 
     #region pos/angle vars
 
-    public float ap;
-    public float ml;
-    public float dv;
-    public float yaw;
-    public float pitch;
-    public float roll;
+    public float AP;
+    public float ML;
+    public float DV;
+    public float Yaw;
+    public float Pitch;
+    public float Roll;
 
     /// <summary>
     /// The **transformed** coordinate in the active CoordinateSpace (AP, ML, DV)
     /// </summary>
     public Vector3 apmldv
     {
-        get => new Vector3(ap, ml, dv);
+        get => new Vector3(AP, ML, DV);
         set
         {
-            ap = value.x;
-            ml = value.y;
-            dv = value.z;
+            AP = value.x;
+            ML = value.y;
+            DV = value.z;
         }
     }
 
@@ -50,12 +58,12 @@ public class ProbeInsertion
     /// </summary>
     public Vector3 angles
     {
-        get => new(yaw, pitch, roll);
+        get => new(Yaw, Pitch, Roll);
         set
         {
-            yaw = value.x;
-            pitch = value.y;
-            roll = value.z;
+            Yaw = value.x;
+            Pitch = value.y;
+            Roll = value.z;
         }
     }
     #endregion
@@ -63,26 +71,26 @@ public class ProbeInsertion
     #region constructor
 
     public ProbeInsertion(float ap, float ml, float dv, float yaw, float pitch, float roll, 
-        CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
+        ReferenceAtlas coordSpace, AtlasTransform coordTransform, bool targetable = true)
     {
-        this.ap = ap;
-        this.ml = ml;
-        this.dv = dv;
-        this.yaw = yaw;
-        this.pitch = pitch;
-        this.roll = roll;
-        CoordinateSpace = coordSpace;
-        CoordinateTransform = coordTransform;
+        this.AP = ap;
+        this.ML = ml;
+        this.DV = dv;
+        this.Yaw = yaw;
+        this.Pitch = pitch;
+        this.Roll = roll;
+        ReferenceAtlas = coordSpace;
+        AtlasTransform = coordTransform;
         Instances.Add(this);
     }
 
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
-        CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
+        ReferenceAtlas coordSpace, AtlasTransform coordTransform, bool targetable = true)
     {
         apmldv = tipPosition;
         this.angles = angles;
-        CoordinateSpace = coordSpace;
-        CoordinateTransform = coordTransform;
+        ReferenceAtlas = coordSpace;
+        AtlasTransform = coordTransform;
         Instances.Add(this);
     }
      
@@ -90,8 +98,8 @@ public class ProbeInsertion
     {
         apmldv = otherInsertion.apmldv;
         angles = otherInsertion.angles;
-        CoordinateSpace = otherInsertion.CoordinateSpace;
-        CoordinateTransform = otherInsertion.CoordinateTransform;
+        ReferenceAtlas = otherInsertion.ReferenceAtlas;
+        AtlasTransform = otherInsertion.AtlasTransform;
         Instances.Add(this);
     }
 
@@ -109,7 +117,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionSpaceU()
     {
-        return CoordinateTransform.Transform2Space(apmldv);
+        return AtlasTransform.T2Atlas(apmldv);
     }
 
     /// <summary>
@@ -118,7 +126,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldT()
     {
-        return CoordinateSpace.Space2World(CoordinateTransform.Transform2SpaceAxisChange(apmldv));
+        return ReferenceAtlas.Atlas2World(AtlasTransform.T2Atlas_Vector(apmldv));
     }
 
     /// <summary>
@@ -127,7 +135,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldU()
     {
-        return CoordinateSpace.Space2World(PositionSpaceU());
+        return ReferenceAtlas.Atlas2World(PositionSpaceU());
     }
 
     /// <summary>
@@ -137,30 +145,25 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 World2Transformed(Vector3 coordWorld)
     {
-        return CoordinateTransform.Space2Transform(CoordinateSpace.World2Space(coordWorld));
+        return AtlasTransform.Atlas2T(ReferenceAtlas.World2Atlas(coordWorld));
     }
 
     public Vector3 World2TransformedAxisChange(Vector3 coordWorld)
     {
-        return CoordinateTransform.Space2TransformAxisChange(CoordinateSpace.World2SpaceAxisChange(coordWorld));
+        return AtlasTransform.Atlas2T_Vector(ReferenceAtlas.World2Atlas_Vector(coordWorld));
     }
 
     public Vector3 Transformed2World(Vector3 coordTransformed)
     {
-        return CoordinateSpace.Space2World(CoordinateTransform.Transform2Space(coordTransformed));
+        return ReferenceAtlas.Atlas2World(AtlasTransform.T2Atlas(coordTransformed));
     }
     public Vector3 Transformed2WorldAxisChange(Vector3 coordTransformed)
     {
-        return CoordinateSpace.Space2WorldAxisChange(CoordinateTransform.Transform2SpaceAxisChange(coordTransformed));
+        return ReferenceAtlas.Atlas2World_Vector(AtlasTransform.T2Atlas_Vector(coordTransformed));
     }
 
     public override string ToString()
     {
-        return string.Format("position ({0},{1},{2}) angles ({3},{4},{5}) coordinate space {6} coordinate transform {7}", ap, ml, dv, yaw, pitch, roll, CoordinateSpace.ToString(), CoordinateTransform.ToString());
-    }
-
-    public string PositionToString()
-    {
-        return $"AP: {Math.Round(ap*1000)}, ML: {Math.Round(ml*1000)}, DV: {Math.Round(dv*1000)}";
+        return JsonUtility.ToJson(this);
     }
 }

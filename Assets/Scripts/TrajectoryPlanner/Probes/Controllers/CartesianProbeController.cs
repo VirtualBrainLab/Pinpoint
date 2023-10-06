@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
@@ -197,7 +198,8 @@ public class CartesianProbeController : ProbeController
 
         probeControlClick.InputControl.performed += x => ToggleControllerLock();
 
-        Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
+        throw new NotImplementedException();
+        //Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
     }
 
     private void Start()
@@ -467,9 +469,9 @@ public class CartesianProbeController : ProbeController
     {
         var angleDelta = Vector3.Scale(angle * speed, UnlockedRot);
 
-        Insertion.yaw += angleDelta.x;
-        Insertion.pitch = Mathf.Clamp(Insertion.pitch + angleDelta.y, minPitch, maxPitch);
-        Insertion.roll += angleDelta.z;
+        Insertion.Yaw += angleDelta.x;
+        Insertion.Pitch = Mathf.Clamp(Insertion.Pitch + angleDelta.y, minPitch, maxPitch);
+        Insertion.Roll += angleDelta.z;
 
         // Set probe position and update UI
         _dirty = true;
@@ -520,8 +522,8 @@ public class CartesianProbeController : ProbeController
         axisLockYaw = false;
 
         origAPMLDV = Insertion.apmldv;
-        origYaw = Insertion.yaw;
-        origPitch = Insertion.pitch;
+        origYaw = Insertion.Yaw;
+        origPitch = Insertion.Pitch;
         // Note: depth is special since it gets absorbed into the probe position on each frame
 
         // Track the screenPoint that was initially clicked
@@ -657,12 +659,12 @@ public class CartesianProbeController : ProbeController
 
         if (axisLockPitch)
         {
-            Insertion.pitch = Mathf.Clamp(origPitch + 3f * worldOffset.y, minPitch, maxPitch);
+            Insertion.Pitch = Mathf.Clamp(origPitch + 3f * worldOffset.y, minPitch, maxPitch);
             moved = true;
         }
         if (axisLockYaw)
         {
-            Insertion.yaw = origYaw - 3f * worldOffset.x;
+            Insertion.Yaw = origYaw - 3f * worldOffset.x;
             moved = true;
         }
 
@@ -707,9 +709,9 @@ public class CartesianProbeController : ProbeController
 
         // Manually adjust the coordinates and rotation
         transform.position += Insertion.PositionWorldT();
-        transform.RotateAround(_rotateAround.position, transform.up, Insertion.yaw);
-        transform.RotateAround(_rotateAround.position, transform.forward, -Insertion.pitch);
-        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.roll);
+        transform.RotateAround(_rotateAround.position, transform.up, Insertion.Yaw);
+        transform.RotateAround(_rotateAround.position, transform.forward, -Insertion.Pitch);
+        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.Roll);
 
         // Compute depth transform, if needed
         if (_depth != 0f)
@@ -779,7 +781,7 @@ public class CartesianProbeController : ProbeController
     /// <returns></returns>
     private Vector3 WorldT2WorldU(Vector3 coordWorldT)
     {
-        return Insertion.CoordinateSpace.Space2World(Insertion.CoordinateTransform.Transform2Space(Insertion.CoordinateTransform.Space2TransformAxisChange(Insertion.CoordinateSpace.World2Space(coordWorldT))));
+        return Insertion.ReferenceAtlas.Atlas2World(Insertion.AtlasTransform.T2Atlas(Insertion.AtlasTransform.Atlas2T_Vector(Insertion.ReferenceAtlas.World2Atlas(coordWorldT))));
     }
 
 

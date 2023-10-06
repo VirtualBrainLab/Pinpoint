@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: SkullMaterial
   m_Shader: {fileID: -6465566751694194690, guid: 4cf5a21418071134396a8254008830f4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -17,6 +19,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -85,6 +88,10 @@ Material:
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _CraniotomySize_0: 0
+    - _CraniotomySize_1: 1
+    - _CraniotomySize_2: 1
+    - _CraniotomySize_3: 1
+    - _CraniotomySize_4: 1
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
@@ -113,6 +120,10 @@ Material:
     - _BaseColor: {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CraniotomyPosition_0: {r: 0, g: 0, b: 0, a: 0}
+    - _CraniotomyPosition_1: {r: 0, g: 0, b: 0, a: 0}
+    - _CraniotomyPosition_2: {r: 0, g: 0, b: 0, a: 0}
+    - _CraniotomyPosition_3: {r: 0, g: 0, b: 0, a: 0}
+    - _CraniotomyPosition_4: {r: 0, g: 0, b: 0, a: 0}
     - _CraniotomyUpAxis_0: {r: 0, g: 1, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
@@ -129,4 +140,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 5
+  version: 7

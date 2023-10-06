@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using BrainAtlas;
 using CoordinateSpaces;
 using CoordinateTransforms;
 using EphysLink;
@@ -46,21 +47,21 @@ namespace TrajectoryPlanner.Probes
 
                 // Convert to coordinate space
                 var manipulatorSpacePosition =
-                    Transform.Transform2Space(zeroCoordinateAdjustedManipulatorPosition);
+                    Transform.T2Atlas(zeroCoordinateAdjustedManipulatorPosition);
 
                 // Brain surface adjustment
                 // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
                 var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
                 if (IsSetToDropToSurfaceWithDepth)
                     zeroCoordinateAdjustedManipulatorPosition.w +=
-                        CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
+                        CoordinateSpace.World2Atlas_Vector(Vector3.down).z * brainSurfaceAdjustment;
                 else
                     manipulatorSpacePosition.z +=
-                        CoordinateSpace.World2SpaceAxisChange(Vector3.down).z * brainSurfaceAdjustment;
+                        CoordinateSpace.World2Atlas_Vector(Vector3.down).z * brainSurfaceAdjustment;
 
                 // Convert to world space
                 var zeroCoordinateAdjustedWorldPosition =
-                    CoordinateSpace.Space2World(manipulatorSpacePosition);
+                    CoordinateSpace.Atlas2World(manipulatorSpacePosition);
 
                 // Set probe position (change axes to match probe)
                 var transformedApmldv =
@@ -87,9 +88,9 @@ namespace TrajectoryPlanner.Probes
                     "ephys_link", Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture), ManipulatorID,
                     pos.x.ToString(CultureInfo.InvariantCulture), pos.y.ToString(CultureInfo.InvariantCulture),
                     pos.z.ToString(CultureInfo.InvariantCulture), pos.w.ToString(CultureInfo.InvariantCulture),
-                    _probeController.Insertion.yaw.ToString(CultureInfo.InvariantCulture),
-                    _probeController.Insertion.pitch.ToString(CultureInfo.InvariantCulture),
-                    _probeController.Insertion.roll.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.Yaw.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.Pitch.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.Roll.ToString(CultureInfo.InvariantCulture),
                     tipPos.x.ToString(CultureInfo.InvariantCulture), tipPos.y.ToString(CultureInfo.InvariantCulture),
                     tipPos.z.ToString(CultureInfo.InvariantCulture)
                 };
@@ -138,7 +139,6 @@ namespace TrajectoryPlanner.Probes
 
         [SerializeField] private ProbeManager _probeManager;
         [SerializeField] private ProbeController _probeController;
-        private readonly CCFAnnotationDataset _annotationDataset = VolumeDatasetManager.AnnotationDataset;
 
         #endregion
 
@@ -187,8 +187,8 @@ namespace TrajectoryPlanner.Probes
             }
         }
 
-        public CoordinateSpace CoordinateSpace { get; private set; }
-        private CoordinateTransform Transform { get; set; }
+        public ReferenceAtlas CoordinateSpace { get; private set; }
+        private AtlasTransform Transform { get; set; }
 
         public bool IsRightHanded
         {
@@ -271,19 +271,20 @@ namespace TrajectoryPlanner.Probes
 
         public void UpdateSpaceAndTransform()
         {
-            if (ManipulatorType == "sensapex")
-            {
-                CoordinateSpace = new SensapexSpace();
-                Transform = IsRightHanded
-                    ? new SensapexRightTransform(_probeController.Insertion.yaw)
-                    : new SensapexLeftTransform(_probeController.Insertion.yaw);
-            }
-            else
-            {
-                CoordinateSpace = new NewScaleSpace();
-                Transform = new NewScaleLeftTransform(_probeController.Insertion.yaw,
-                    _probeController.Insertion.pitch);
-            }
+            throw new NotImplementedException();
+            //if (ManipulatorType == "sensapex")
+            //{
+            //    CoordinateSpace = new SensapexSpace();
+            //    Transform = IsRightHanded
+            //        ? new SensapexRightTransform(_probeController.Insertion.Yaw)
+            //        : new SensapexLeftTransform(_probeController.Insertion.Yaw);
+            //}
+            //else
+            //{
+            //    CoordinateSpace = new NewScaleSpace();
+            //    Transform = new NewScaleLeftTransform(_probeController.Insertion.Yaw,
+            //        _probeController.Insertion.Pitch);
+            //}
         }
 
         public Vector4 ConvertInsertionToManipulatorPosition(Vector3 insertionAPMLDV)
@@ -293,9 +294,9 @@ namespace TrajectoryPlanner.Probes
 
             // Convert to Sensapex space
             var posInManipulatorSpace =
-                _probeManager.ManipulatorBehaviorController.CoordinateSpace.World2Space(convertToWorld);
+                _probeManager.ManipulatorBehaviorController.CoordinateSpace.World2Atlas(convertToWorld);
             Vector4 posInManipulatorTransform =
-                _probeManager.ManipulatorBehaviorController.Transform.Space2Transform(posInManipulatorSpace);
+                _probeManager.ManipulatorBehaviorController.Transform.Atlas2T(posInManipulatorSpace);
 
             // Apply brain surface offset
             var brainSurfaceAdjustment = float.IsNaN(_probeManager.ManipulatorBehaviorController.BrainSurfaceOffset)
@@ -315,35 +316,36 @@ namespace TrajectoryPlanner.Probes
         /// </summary>
         public void ComputeBrainSurfaceOffset()
         {
-            if (_probeManager.IsProbeInBrain())
-            {
-                // Just calculate the distance from the probe tip position to the brain surface            
-                BrainSurfaceOffset -= _probeManager.GetSurfaceCoordinateT().depthT;
-            }
-            else
-            {
-                // We need to calculate the surface coordinate ourselves
-                var tipExtensionDirection =
-                    IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
+            throw new NotImplementedException();
+            //if (_probeManager.IsProbeInBrain())
+            //{
+            //    // Just calculate the distance from the probe tip position to the brain surface            
+            //    BrainSurfaceOffset -= _probeManager.GetSurfaceCoordinateT().depthT;
+            //}
+            //else
+            //{
+            //    // We need to calculate the surface coordinate ourselves
+            //    var tipExtensionDirection =
+            //        IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
 
-                var brainSurfaceCoordinate = _annotationDataset.FindSurfaceCoordinate(
-                    _annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorldU -
-                                                                   tipExtensionDirection * 5),
-                    _annotationDataset.CoordinateSpace.World2SpaceAxisChange(tipExtensionDirection));
+            //    var brainSurfaceCoordinate = _annotationDataset.FindSurfaceCoordinate(
+            //        _annotationDataset.CoordinateSpace.World2Atlas(_probeController.GetTipWorldU().tipCoordWorldU -
+            //                                                       tipExtensionDirection * 5),
+            //        _annotationDataset.CoordinateSpace.World2Atlas_Vector(tipExtensionDirection));
 
-                if (float.IsNaN(brainSurfaceCoordinate.x))
-                {
-                    Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
-                    return;
-                }
+            //    if (float.IsNaN(brainSurfaceCoordinate.x))
+            //    {
+            //        Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
+            //        return;
+            //    }
 
-                var brainSurfaceToTransformed =
-                    _probeController.Insertion.World2Transformed(
-                        _annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate));
+            //    var brainSurfaceToTransformed =
+            //        _probeController.Insertion.World2Transformed(
+            //            _annotationDataset.CoordinateSpace.Atlas2World(brainSurfaceCoordinate));
 
-                BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
-                    _probeController.Insertion.apmldv);
-            }
+            //    BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
+            //        _probeController.Insertion.apmldv);
+            //}
         }
 
         /// <summary>
@@ -365,10 +367,10 @@ namespace TrajectoryPlanner.Probes
             Action<string> onErrorCallback = null)
         {
             // Convert to manipulator axes (world -> space -> transform)
-            var manipulatorSpaceDelta = CoordinateSpace.World2SpaceAxisChange(worldSpaceDelta);
-            var manipulatorTransformDelta = Transform.Space2Transform(manipulatorSpaceDelta);
+            var manipulatorSpaceDelta = CoordinateSpace.World2Atlas_Vector(worldSpaceDelta);
+            var manipulatorTransformDelta = Transform.Atlas2T(manipulatorSpaceDelta);
             var manipulatorSpaceDepth = CoordinateSpace
-                .World2SpaceAxisChange(Vector3.down).z * worldSpaceDelta.w;
+                .World2Atlas_Vector(Vector3.down).z * worldSpaceDelta.w;
 
             // Get manipulator position
             CommunicationManager.Instance.GetPos(ManipulatorID, pos =>

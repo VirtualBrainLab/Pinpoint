@@ -13,12 +13,12 @@ namespace CoordinateSpaces
 
         public Vector3 RelativeOffset { get; set; } = Vector3.zero;
 
-        public abstract Vector3 Space2World(Vector3 coord);
-        public abstract Vector3 World2Space(Vector3 world);
+        public abstract Vector3 Atlas2World(Vector3 coordU);
+        public abstract Vector3 World2Atlas(Vector3 coordWorld);
 
-        public abstract Vector3 Space2WorldAxisChange(Vector3 coord);
+        public abstract Vector3 Atlas2World_Vector(Vector3 vecU);
 
-        public abstract Vector3 World2SpaceAxisChange(Vector3 world);
+        public abstract Vector3 World2Atlas_Vector(Vector3 vecWorld);
 
         public override string ToString()
         {

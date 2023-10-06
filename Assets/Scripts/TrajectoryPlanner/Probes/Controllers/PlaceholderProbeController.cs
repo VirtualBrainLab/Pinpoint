@@ -34,7 +34,8 @@ public class PlaceholderProbeController : ProbeController
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
 
-        Insertion = new ProbeInsertion(defaultStart, defaultAngles, new CCFSpace(), new CCFTransform());
+        throw new NotImplementedException();
+        //Insertion = new ProbeInsertion(defaultStart, defaultAngles, new CCFSpace(), new CCFTransform());
     }
 
     /// <summary>
@@ -97,9 +98,9 @@ public class PlaceholderProbeController : ProbeController
 
         // Manually adjust the coordinates and rotation
         transform.position += Insertion.PositionWorldT();
-        transform.RotateAround(_probeTipT.position, transform.up, Insertion.yaw);
-        transform.RotateAround(_probeTipT.position, transform.forward, Insertion.pitch);
-        transform.RotateAround(_probeTipT.position, _probeTipT.up, Insertion.roll);
+        transform.RotateAround(_probeTipT.position, transform.up, Insertion.Yaw);
+        transform.RotateAround(_probeTipT.position, transform.forward, Insertion.Pitch);
+        transform.RotateAround(_probeTipT.position, _probeTipT.up, Insertion.Roll);
     }
 
     #endregion

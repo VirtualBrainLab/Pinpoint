@@ -13,7 +13,7 @@ namespace CoordinateSpaces
         /// </summary>
         /// <param name="coord">X, Y, Z coordinate in Sensapex space</param>
         /// <returns>World space coordinates</returns>
-        public override Vector3 Space2World(Vector3 coord)
+        public override Vector3 Atlas2World(Vector3 coord)
         {
             return new Vector3(coord.y, -coord.z, -coord.x);
         }
@@ -23,19 +23,19 @@ namespace CoordinateSpaces
         /// </summary>
         /// <param name="world">X, Y, Z coordinates in World space</param>
         /// <returns>Sensapex Space coordinates</returns>
-        public override Vector3 World2Space(Vector3 world)
+        public override Vector3 World2Atlas(Vector3 world)
         {
             return new Vector3(-world.z, world.x, -world.y);
         }
 
-        public override Vector3 Space2WorldAxisChange(Vector3 coord)
+        public override Vector3 Atlas2World_Vector(Vector3 coord)
         {
-            return Space2World(coord);
+            return Atlas2World(coord);
         }
 
-        public override Vector3 World2SpaceAxisChange(Vector3 world)
+        public override Vector3 World2Atlas_Vector(Vector3 world)
         {
-            return World2Space(world);
+            return World2Atlas(world);
         }
     }
 }

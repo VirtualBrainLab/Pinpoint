@@ -19,22 +19,22 @@ namespace CoordinateTransforms
         public override string Name => "New Scale Left";
         public override string Prefix => "ns-l";
 
-        public override Vector3 Transform2Space(Vector3 coordTransformed)
+        public override Vector3 T2Atlas(Vector3 coordTransformed)
         {
             return _inverseRotation * coordTransformed;
         }
 
-        public override Vector3 Space2Transform(Vector3 coordSpace)
+        public override Vector3 Atlas2T(Vector3 coordSpace)
         {
             return _rotation * coordSpace;
         }
 
-        public override Vector3 Transform2SpaceAxisChange(Vector3 coordTransformed)
+        public override Vector3 T2Atlas_Vector(Vector3 coordTransformed)
         {
             return coordTransformed;
         }
 
-        public override Vector3 Space2TransformAxisChange(Vector3 coordSpace)
+        public override Vector3 Atlas2T_Vector(Vector3 coordSpace)
         {
             return coordSpace;
         }

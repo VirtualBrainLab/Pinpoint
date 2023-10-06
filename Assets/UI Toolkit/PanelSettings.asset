@@ -15,6 +15,7 @@ MonoBehaviour:
   themeUss: {fileID: -4733365628477956816, guid: d76af02d481c75346bd298133935d358, type: 3}
   m_TargetTexture: {fileID: 0}
   m_ScaleMode: 1
+  m_ReferenceSpritePixelsPerUnit: 100
   m_Scale: 1
   m_ReferenceDpi: 96
   m_FallbackDpi: 96
