@@ -179,13 +179,13 @@ namespace TrajectoryPlanner.Probes
                 var zeroCoordinateAdjustedWorldPosition =
                     CoordinateSpace.Space2World(manipulatorSpacePosition);
 
-                print("pos: " + pos + "; manipulator: " + manipulatorSpacePosition + "; world: " +
-                      zeroCoordinateAdjustedWorldPosition);
-
                 // Set probe position (change axes to match probe)
                 var transformedApmldv =
                     _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
 
+                print("pos: " + pos + "; manipulator: " + manipulatorSpacePosition + "; world: " +
+                      zeroCoordinateAdjustedWorldPosition+"; transformed: "+transformedApmldv);
+                
                 // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
                 if (ManipulatorType == "new_scale")
                     _probeController.SetProbePosition(transformedApmldv);
@@ -364,6 +364,10 @@ namespace TrajectoryPlanner.Probes
             var manipulatorSpaceDelta = CoordinateSpace.World2SpaceAxisChange(worldSpaceDelta);
             var manipulatorTransformDelta = Transform.Space2Transform(manipulatorSpaceDelta);
             var manipulatorSpaceDepth = worldSpaceDelta.w;
+
+            // print("World space delta: " + worldSpaceDelta + "; Manipulator space delta: " + manipulatorSpaceDelta +
+            //       "; Manipulator transform delta: " + manipulatorTransformDelta + "; Manipulator space depth: " +
+            //       manipulatorSpaceDepth);
 
             // Get manipulator position
             CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
