@@ -1,4 +1,4 @@
-# Pinpoint (electrophysiology planning tool)
+# Pinpoint
 
 Pinpoint is a tool for planning trajectories in the space of brain reference atlases, such as the mouse CCF.
 
