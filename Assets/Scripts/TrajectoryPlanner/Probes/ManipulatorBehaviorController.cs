@@ -183,9 +183,17 @@ namespace TrajectoryPlanner.Probes
                 var transformedApmldv =
                     _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
 
-                print("pos: " + pos + "; manipulator: " + manipulatorSpacePosition + "; world: " +
-                      zeroCoordinateAdjustedWorldPosition+"; transformed: "+transformedApmldv);
-                
+                // print("pos: " + pos + "; manipulator: " + manipulatorSpacePosition + "; world: " +
+                //       zeroCoordinateAdjustedWorldPosition + "; transformed: " + transformedApmldv);
+
+                Debug.DrawRay(_probeController.ProbeTipT.position,
+                    Transform.Space2Transform(CoordinateSpace.World2SpaceAxisChange(Vector3.forward)), Color.cyan,
+                    0.5f);
+                Debug.DrawRay(_probeController.ProbeTipT.position,
+                    Transform.Space2Transform(CoordinateSpace.World2SpaceAxisChange(Vector3.up)), Color.green, 0.5f);
+                Debug.DrawRay(_probeController.ProbeTipT.position,
+                    Transform.Space2Transform(CoordinateSpace.World2SpaceAxisChange(Vector3.right)), Color.red, 0.5f);
+
                 // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
                 if (ManipulatorType == "new_scale")
                     _probeController.SetProbePosition(transformedApmldv);
@@ -365,9 +373,9 @@ namespace TrajectoryPlanner.Probes
             var manipulatorTransformDelta = Transform.Space2Transform(manipulatorSpaceDelta);
             var manipulatorSpaceDepth = worldSpaceDelta.w;
 
-            // print("World space delta: " + worldSpaceDelta + "; Manipulator space delta: " + manipulatorSpaceDelta +
-            //       "; Manipulator transform delta: " + manipulatorTransformDelta + "; Manipulator space depth: " +
-            //       manipulatorSpaceDepth);
+            print("World space delta: " + worldSpaceDelta + "; Manipulator space delta: " + manipulatorSpaceDelta +
+                  "; Manipulator transform delta: " + manipulatorTransformDelta + "; Manipulator space depth: " +
+                  manipulatorSpaceDepth);
 
             // Get manipulator position
             CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
