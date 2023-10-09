@@ -194,8 +194,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         var driveDepth = _duraDepth;
                         if (Mathf.Abs(_duraDepth - _targetDepth) > NEAR_TARGET_DISTANCE)
                             driveDepth = _targetDepth - ProbeManager.ManipulatorBehaviorController
-                                    .CoordinateSpace
-                                    .World2Space_Vector(Vector3.down).z *
+                                    .ReferenceAtlas
+                                    .World2Atlas_Vector(Vector3.down).z *
                                 NEAR_TARGET_DISTANCE;
 
                         // Drive until within near target distance
@@ -208,8 +208,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                 CommunicationManager.Instance.DriveToDepth(
                                     ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                                     _targetDepth +
-                                    ProbeManager.ManipulatorBehaviorController.CoordinateSpace
-                                        .World2Space_Vector(Vector3.down).z * _drivePastTargetDistance,
+                                    ProbeManager.ManipulatorBehaviorController.ReferenceAtlas
+                                        .World2Atlas_Vector(Vector3.down).z * _drivePastTargetDistance,
                                     _targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER,
                                     _ =>
                                     {
@@ -248,8 +248,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     if (Mathf.Abs(_duraDepth - _targetDepth) > NEAR_TARGET_DISTANCE)
                         driveDepth = _targetDepth -
                                      ProbeManager.ManipulatorBehaviorController
-                                         .CoordinateSpace
-                                         .World2Space_Vector(Vector3.down).z *
+                                         .ReferenceAtlas
+                                         .World2Atlas_Vector(Vector3.down).z *
                                      NEAR_TARGET_DISTANCE;
 
                     // Drive back to dura by near target distance (as much as possible)
@@ -265,8 +265,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                     // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
                                     CommunicationManager.Instance.DriveToDepth(
                                         ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                        _duraDepth - ProbeManager.ManipulatorBehaviorController.CoordinateSpace
-                                            .World2Space_Vector(Vector3.up).z * DURA_MARGIN_DISTANCE,
+                                        _duraDepth - ProbeManager.ManipulatorBehaviorController.ReferenceAtlas
+                                            .World2Atlas_Vector(Vector3.up).z * DURA_MARGIN_DISTANCE,
                                         _exitDriveSpeed, _ =>
                                         {
                                             // Drive the rest of the way to the surface
@@ -350,8 +350,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Converting worldT back to APMLDV (position transformed)
                 targetInsertion.apmldv =
-                    targetInsertion.AtlasTransform.Atlas2T_Vector(
-                        targetInsertion.ReferenceAtlas.World2Space(offsetAdjustedTargetPositionWorldT));
+                    targetInsertion.AtlasTransform.U2T_Vector(
+                        targetInsertion.ReferenceAtlas.World2Atlas(offsetAdjustedTargetPositionWorldT));
 
                 // Compute return surface position (500 dv above surface)
 
@@ -367,8 +367,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Converting worldT back to APMLDV (position transformed)
                 var offsetAdjustedSurfacePosition =
-                    surfaceInsertion.AtlasTransform.Atlas2T_Vector(
-                        surfaceInsertion.ReferenceAtlas.World2Space(offsetAdjustedSurfacePositionWorldT));
+                    surfaceInsertion.AtlasTransform.U2T_Vector(
+                        surfaceInsertion.ReferenceAtlas.World2Atlas(offsetAdjustedSurfacePositionWorldT));
 
                 // Compute drive distances
                 var targetDriveDistance =
@@ -378,15 +378,15 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Set target and exit depths
                 _targetDepth = position.w +
-                               ProbeManager.ManipulatorBehaviorController.CoordinateSpace
-                                   .World2Space_Vector(Vector3.down).z * targetDriveDistance;
+                               ProbeManager.ManipulatorBehaviorController.ReferenceAtlas
+                                   .World2Atlas_Vector(Vector3.down).z * targetDriveDistance;
                 _exitDepth = position.w +
-                             ProbeManager.ManipulatorBehaviorController.CoordinateSpace
-                                 .World2Space_Vector(Vector3.up).z * surfaceDriveDistance;
+                             ProbeManager.ManipulatorBehaviorController.ReferenceAtlas
+                                 .World2Atlas_Vector(Vector3.up).z * surfaceDriveDistance;
 
                 // Warn if target depth is out of bounds
                 if (!_acknowledgeOutOfBounds &&
-                    (_targetDepth > ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.z ||
+                    (_targetDepth > ProbeManager.ManipulatorBehaviorController.ReferenceAtlas.Dimensions.z ||
                      _targetDepth < 0))
                 {
                     QuestionDialogue.Instance.NewQuestion(

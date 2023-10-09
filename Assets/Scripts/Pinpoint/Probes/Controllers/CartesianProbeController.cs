@@ -452,7 +452,7 @@ public class CartesianProbeController : ProbeController
         {
             // Rotate the position delta (unity world space) into the insertion's transformed space
             // Note that we don't apply the transform beacuse we want 1um steps to = 1um steps in transformed space
-            Insertion.apmldv += Insertion.World2TransformedAxisChange(posDelta);
+            Insertion.apmldv += Insertion.World2T_Vector(posDelta);
             _depth += posDelta.w;
 
             // Set probe position and update UI
@@ -646,7 +646,7 @@ public class CartesianProbeController : ProbeController
 
         if (moved)
         {
-            Insertion.apmldv = origAPMLDV + Insertion.World2TransformedAxisChange(newXYZ);
+            Insertion.apmldv = origAPMLDV + Insertion.World2T_Vector(newXYZ);
         }
 
         if (axisLockDepth)
@@ -717,7 +717,7 @@ public class CartesianProbeController : ProbeController
         if (_depth != 0f)
         {
             transform.position += -transform.up * _depth;
-            Vector3 depthAdjustment = Insertion.World2TransformedAxisChange(-transform.up) * _depth;
+            Vector3 depthAdjustment = Insertion.World2T_Vector(-transform.up) * _depth;
 
             Insertion.apmldv += depthAdjustment;
             _depth = 0f;
@@ -781,7 +781,7 @@ public class CartesianProbeController : ProbeController
     /// <returns></returns>
     private Vector3 WorldT2WorldU(Vector3 coordWorldT)
     {
-        return Insertion.ReferenceAtlas.Space2World(Insertion.AtlasTransform.T2Atlas(Insertion.AtlasTransform.Atlas2T_Vector(Insertion.ReferenceAtlas.World2Space(coordWorldT))));
+        return Insertion.ReferenceAtlas.Atlas2World(Insertion.AtlasTransform.T2U(Insertion.AtlasTransform.U2T_Vector(Insertion.ReferenceAtlas.World2Atlas(coordWorldT))));
     }
 
 

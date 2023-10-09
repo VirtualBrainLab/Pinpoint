@@ -4,6 +4,7 @@ using CoordinateSpaces;
 using CoordinateTransforms;
 using System.Collections.Generic;
 using BrainAtlas;
+using BrainAtlas.CoordinateSystems;
 
 /// <summary>
 /// Representation of a probe insertion in a native CoordinateSpace and CoordinateTransform
@@ -117,7 +118,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionSpaceU()
     {
-        return AtlasTransform.T2Atlas(apmldv);
+        return AtlasTransform.T2U(apmldv);
     }
 
     /// <summary>
@@ -126,7 +127,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldT()
     {
-        return ReferenceAtlas.Space2World(AtlasTransform.T2Atlas_Vector(apmldv));
+        return ReferenceAtlas.Atlas2World(AtlasTransform.T2U_Vector(apmldv));
     }
 
     /// <summary>
@@ -135,7 +136,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldU()
     {
-        return ReferenceAtlas.Space2World(PositionSpaceU());
+        return ReferenceAtlas.Atlas2World(PositionSpaceU());
     }
 
     /// <summary>
@@ -143,23 +144,23 @@ public class ProbeInsertion
     /// </summary>
     /// <param name="coordWorld"></param>
     /// <returns></returns>
-    public Vector3 World2Transformed(Vector3 coordWorld)
+    public Vector3 World2T(Vector3 coordWorld)
     {
-        return AtlasTransform.Atlas2T(ReferenceAtlas.World2Space(coordWorld));
+        return AtlasTransform.U2T(ReferenceAtlas.World2Atlas(coordWorld));
     }
 
-    public Vector3 World2TransformedAxisChange(Vector3 coordWorld)
+    public Vector3 World2T_Vector(Vector3 vectorWorld)
     {
-        return AtlasTransform.Atlas2T_Vector(ReferenceAtlas.World2Space_Vector(coordWorld));
+        return AtlasTransform.U2T_Vector(ReferenceAtlas.World2Atlas_Vector(vectorWorld));
     }
 
-    public Vector3 Transformed2World(Vector3 coordTransformed)
+    public Vector3 T2World(Vector3 coordT)
     {
-        return ReferenceAtlas.Space2World(AtlasTransform.T2Atlas(coordTransformed));
+        return ReferenceAtlas.Atlas2World(AtlasTransform.T2U(coordT));
     }
-    public Vector3 Transformed2WorldAxisChange(Vector3 coordTransformed)
+    public Vector3 T2World_Vector(Vector3 vectorT)
     {
-        return ReferenceAtlas.Space2World_Vector(AtlasTransform.T2Atlas_Vector(coordTransformed));
+        return ReferenceAtlas.Atlas2World_Vector(AtlasTransform.T2U_Vector(vectorT));
     }
 
     public override string ToString()
