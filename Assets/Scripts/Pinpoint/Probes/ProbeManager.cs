@@ -375,8 +375,8 @@ public class ProbeManager : MonoBehaviour
         // Update the world coordinates for the tip position
         Vector3 startCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.startPosmm;
         Vector3 endCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.endPosmm;
-        _recRegionBaseCoordU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2U(insertion.AtlasTransform.U2T_Vector(insertion.ReferenceAtlas.World2Atlas(startCoordWorldT))));
-        _recRegionTopCoordU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2U(insertion.AtlasTransform.U2T_Vector(insertion.ReferenceAtlas.World2Atlas(endCoordWorldT))));
+        _recRegionBaseCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
+        _recRegionTopCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
     }
 
     #region Channel map
@@ -484,8 +484,8 @@ public class ProbeManager : MonoBehaviour
 
         // convert to worldU
         ProbeInsertion insertion = _probeController.Insertion;
-        Vector3 baseCoordWorldU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2U(insertion.AtlasTransform.U2T_Vector(insertion.ReferenceAtlas.World2Atlas(baseCoordWorldT))));
-        Vector3 topCoordWorldU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2U(insertion.AtlasTransform.U2T_Vector(insertion.ReferenceAtlas.World2Atlas(topCoordWorldT))));
+        Vector3 baseCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(baseCoordWorldT))));
+        Vector3 topCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(topCoordWorldT))));
 
         // Lerp between the base and top coordinate in small steps'
 
@@ -562,7 +562,7 @@ public class ProbeManager : MonoBehaviour
 
                     // Now transform this into WorldU
                     ProbeInsertion insertion = _probeController.Insertion;
-                    Vector3 channelCoordWorldU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2U(insertion.AtlasTransform.U2T_Vector(insertion.ReferenceAtlas.World2Atlas(channelCoordWorldT))));
+                    Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
 
                     throw new NotImplementedException();
                     //int elecIdx = si * channelMapData.Count + i;
@@ -572,7 +572,7 @@ public class ProbeManager : MonoBehaviour
                     //string acronym = CCFModelControl.ID2Acronym(ID);
                     //Color color = CCFModelControl.GetCCFAreaColor(ID);
 
-                    //channelAnnotationData.Add((elecIdx, ID, acronym, TP_Utils.Color2Hex(color)));
+                    //channelAnnotationData.Add((elecIdx, ID, acronym, Utils.Color2Hex(color)));
                 }
             }
         }
@@ -590,7 +590,7 @@ public class ProbeManager : MonoBehaviour
 
                 // Now transform this into WorldU
                 ProbeInsertion insertion = _probeController.Insertion;
-                Vector3 channelCoordWorldU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2U(insertion.AtlasTransform.U2T_Vector(insertion.ReferenceAtlas.World2Atlas(channelCoordWorldT))));
+                Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
 
                 throw new NotImplementedException();
                 //int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
@@ -599,7 +599,7 @@ public class ProbeManager : MonoBehaviour
                 //string acronym = CCFModelControl.ID2Acronym(ID);
                 //Color color = CCFModelControl.GetCCFAreaColor(ID);
 
-                //channelAnnotationData.Add((i, ID, acronym, TP_Utils.Color2Hex(color)));
+                //channelAnnotationData.Add((i, ID, acronym, Utils.Color2Hex(color)));
             }
         }
 
@@ -674,7 +674,7 @@ public class ProbeManager : MonoBehaviour
 
         float mult = Settings.DisplayUM ? 1000f : 1f;
 
-        Vector3 tipAtlasU = insertion.PositionSpaceU() + insertion.ReferenceAtlas.AtlasSpace.ReferenceCoord;
+        Vector3 tipAtlasU = insertion.PositionSpaceU() + insertion.CoordinateSpace.ReferenceCoord;
         Vector3 tipAtlasT = insertion.apmldv;
 
         Vector3 angles = Settings.UseIBLAngles ?
@@ -710,7 +710,7 @@ public class ProbeManager : MonoBehaviour
         //    $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), " +
         //    $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), " +
         //    $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), " +
-        //    $"Angles ({round2(TP_Utils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(TP_Utils.CircDeg(angles.z, minRoll, maxRoll))}), " +
+        //    $"Angles ({round2(Utils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(Utils.CircDeg(angles.z, minRoll, maxRoll))}), " +
         //    $"Depth {round0(depthTransformed * mult)}, " +
         //    $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), " +
         //    $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), " +
@@ -1053,7 +1053,7 @@ public struct ProbeData
         data.APMLDV = probeManager.ProbeController.Insertion.apmldv;
         data.Angles = probeManager.ProbeController.Insertion.angles;
 
-        data.CoordSpaceName = probeManager.ProbeController.Insertion.ReferenceAtlas.Name;
+        data.CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
 
         //if (probeManager.ProbeController.Insertion.AtlasTransform.Name.Equals("Custom"))
         //    data.CoordTransformName = CoordinateSpaceManager.OriginalTransform.Name;

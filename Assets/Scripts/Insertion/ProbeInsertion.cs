@@ -22,13 +22,13 @@ public class ProbeInsertion
     #endregion
 
     #region Coordinate vars
-    public ReferenceAtlas ReferenceAtlas { get; set; }
-    public AtlasTransform AtlasTransform { get; set; }
+    public CoordinateSpace CoordinateSpace { get; set; }
+    public CoordinateTransform CoordinateTransform { get; set; }
     #endregion
 
     #region Name data
-    public string AtlasName { get { return ReferenceAtlas.Name; } }
-    public string TransformName { get { return AtlasTransform.Name; } }
+    public string AtlasName { get { return CoordinateSpace.Name; } }
+    public string TransformName { get { return CoordinateTransform.Name; } }
     #endregion
 
     #region pos/angle vars
@@ -72,7 +72,7 @@ public class ProbeInsertion
     #region constructor
 
     public ProbeInsertion(float ap, float ml, float dv, float yaw, float pitch, float roll, 
-        ReferenceAtlas coordSpace, AtlasTransform coordTransform, bool targetable = true)
+        CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
     {
         this.AP = ap;
         this.ML = ml;
@@ -80,18 +80,18 @@ public class ProbeInsertion
         this.Yaw = yaw;
         this.Pitch = pitch;
         this.Roll = roll;
-        ReferenceAtlas = coordSpace;
-        AtlasTransform = coordTransform;
+        CoordinateSpace = coordSpace;
+        CoordinateTransform = coordTransform;
         Instances.Add(this);
     }
 
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
-        ReferenceAtlas coordSpace, AtlasTransform coordTransform, bool targetable = true)
+        CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
     {
         apmldv = tipPosition;
         this.angles = angles;
-        ReferenceAtlas = coordSpace;
-        AtlasTransform = coordTransform;
+        CoordinateSpace = coordSpace;
+        CoordinateTransform = coordTransform;
         Instances.Add(this);
     }
      
@@ -99,8 +99,8 @@ public class ProbeInsertion
     {
         apmldv = otherInsertion.apmldv;
         angles = otherInsertion.angles;
-        ReferenceAtlas = otherInsertion.ReferenceAtlas;
-        AtlasTransform = otherInsertion.AtlasTransform;
+        CoordinateSpace = otherInsertion.CoordinateSpace;
+        CoordinateTransform = otherInsertion.CoordinateTransform;
         Instances.Add(this);
     }
 
@@ -118,7 +118,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionSpaceU()
     {
-        return AtlasTransform.T2U(apmldv);
+        return CoordinateTransform.T2U(apmldv);
     }
 
     /// <summary>
@@ -127,7 +127,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldT()
     {
-        return ReferenceAtlas.Atlas2World(AtlasTransform.T2U_Vector(apmldv));
+        return CoordinateSpace.Space2World(CoordinateTransform.T2U_Vector(apmldv));
     }
 
     /// <summary>
@@ -136,7 +136,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldU()
     {
-        return ReferenceAtlas.Atlas2World(PositionSpaceU());
+        return CoordinateSpace.Space2World(PositionSpaceU());
     }
 
     /// <summary>
@@ -146,21 +146,21 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 World2T(Vector3 coordWorld)
     {
-        return AtlasTransform.U2T(ReferenceAtlas.World2Atlas(coordWorld));
+        return CoordinateTransform.U2T(CoordinateSpace.World2Space(coordWorld));
     }
 
     public Vector3 World2T_Vector(Vector3 vectorWorld)
     {
-        return AtlasTransform.U2T_Vector(ReferenceAtlas.World2Atlas_Vector(vectorWorld));
+        return CoordinateTransform.U2T_Vector(CoordinateSpace.World2Space_Vector(vectorWorld));
     }
 
     public Vector3 T2World(Vector3 coordT)
     {
-        return ReferenceAtlas.Atlas2World(AtlasTransform.T2U(coordT));
+        return CoordinateSpace.Space2World(CoordinateTransform.T2U(coordT));
     }
     public Vector3 T2World_Vector(Vector3 vectorT)
     {
-        return ReferenceAtlas.Atlas2World_Vector(AtlasTransform.T2U_Vector(vectorT));
+        return CoordinateSpace.Space2World_Vector(CoordinateTransform.T2U_Vector(vectorT));
     }
 
     public override string ToString()

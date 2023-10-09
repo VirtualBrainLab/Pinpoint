@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using TMPro;
 using TrajectoryPlanner;
@@ -10,9 +11,8 @@ public class TP_SliceRenderer : MonoBehaviour
     [FormerlySerializedAs("sagittalSliceGO")] [SerializeField] private GameObject _sagittalSliceGo;
     [FormerlySerializedAs("coronalSliceGO")] [SerializeField] private GameObject _coronalSliceGo;
     [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
-    [FormerlySerializedAs("modelControl")] [SerializeField] private CCFModelControl _modelControl;
     [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
-    [FormerlySerializedAs("util")] [SerializeField] private TP_Utils _util;
+    [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
     [FormerlySerializedAs("dropdownMenu")] [SerializeField] private TMP_Dropdown _dropdownMenu;
     [FormerlySerializedAs("iblCoverageTextureAssetRef")] [SerializeField] private AssetReference _iblCoverageTextureAssetRef;
 
@@ -55,16 +55,17 @@ public class TP_SliceRenderer : MonoBehaviour
     // Start is called before the first frame update
     private async void Start()
     {
-        Debug.Log("(SliceRenderer) Waiting for inplane slice to complete");
-        await _inPlaneSlice.GetGPUTextureTask();
-        Debug.Log("(SliceRenderer) Waiting for node models to load");
-        await _modelControl.GetDefaultLoadedTask();
+        throw new NotImplementedException(); 
+        //Debug.Log("(SliceRenderer) Waiting for inplane slice to complete");
+        //await _inPlaneSlice.GetGPUTextureTask();
+        //Debug.Log("(SliceRenderer) Waiting for node models to load");
+        //await _modelControl.GetDefaultLoadedTask();
 
-        if (_dropdownMenu.value == 1)
-            SetActiveTextureAnnotation();
-        //else if (dropdownMenu.value == 2)
-        //    SetActiveTextureIBLCoverage();
-        loaded = true;
+        //if (_dropdownMenu.value == 1)
+        //    SetActiveTextureAnnotation();
+        ////else if (dropdownMenu.value == 2)
+        ////    SetActiveTextureIBLCoverage();
+        //loaded = true;
     }
 
 
@@ -169,8 +170,9 @@ public class TP_SliceRenderer : MonoBehaviour
             Vector3[] newSagittalVerts = new Vector3[4];
             for (int i = 0; i < _coronalOriginalCoords.Length; i++)
             {
-                newCoronalVerts[i] = CoordinateSpaceManager.WorldU2WorldT(new Vector3(_coronalOriginalCoords[i].x, _coronalOriginalCoords[i].y, tipCoordWorld.z));
-                newSagittalVerts[i] = CoordinateSpaceManager.WorldU2WorldT(new Vector3(tipCoordWorld.x, _sagittalOriginalCoords[i].y, _sagittalOriginalCoords[i].z));
+                throw new NotImplementedException();
+                //newCoronalVerts[i] = CoordinateSpaceManager.WorldU2WorldT(new Vector3(_coronalOriginalCoords[i].x, _coronalOriginalCoords[i].y, tipCoordWorld.z));
+                //newSagittalVerts[i] = CoordinateSpaceManager.WorldU2WorldT(new Vector3(tipCoordWorld.x, _sagittalOriginalCoords[i].y, _sagittalOriginalCoords[i].z));
             }
 
             _coronalSliceGo.GetComponent<MeshFilter>().mesh.vertices = newCoronalVerts;
@@ -218,30 +220,32 @@ public class TP_SliceRenderer : MonoBehaviour
     private void UpdateNodeModelSlicing()
     {
         // Update the renderers on the node objects
-        foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-        {
-            if (camYBack)
-                // clip from apPosition forward
-                node.SetShaderProperty("_APClip", new Vector2(0f, apWorldmm));
-            else
-                node.SetShaderProperty("_APClip", new Vector2(apWorldmm, 13.2f));
+        throw new NotImplementedException();
+        //foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
+        //{
+        //    if (camYBack)
+        //        // clip from apPosition forward
+        //        node.SetShaderProperty("_APClip", new Vector2(0f, apWorldmm));
+        //    else
+        //        node.SetShaderProperty("_APClip", new Vector2(apWorldmm, 13.2f));
 
-            if (camXLeft)
-                // clip from mlPosition forward
-                node.SetShaderProperty("_MLClip", new Vector2(mlWorldmm, 11.4f));
-            else
-                node.SetShaderProperty("_MLClip", new Vector2(0f, mlWorldmm));
-        }
+        //    if (camXLeft)
+        //        // clip from mlPosition forward
+        //        node.SetShaderProperty("_MLClip", new Vector2(mlWorldmm, 11.4f));
+        //    else
+        //        node.SetShaderProperty("_MLClip", new Vector2(0f, mlWorldmm));
+        //}
     }
 
     private void ClearNodeModelSlicing()
     {
         // Update the renderers on the node objects
-        foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-        {
-            node.SetShaderProperty("_APClip", new Vector2(0f, 13.2f));
-            node.SetShaderProperty("_MLClip", new Vector2(0f, 11.4f));
-        }
+        throw new NotImplementedException();
+        //foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
+        //{
+        //    node.SetShaderProperty("_APClip", new Vector2(0f, 13.2f));
+        //    node.SetShaderProperty("_MLClip", new Vector2(0f, 11.4f));
+        //}
     }
 
     public void ToggleSliceVisibility(int sliceType)

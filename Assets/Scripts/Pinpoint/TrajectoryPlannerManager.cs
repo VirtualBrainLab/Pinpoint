@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrainAtlas.CoordinateSystems;
 using CoordinateSpaces;
 using CoordinateTransforms;
 using EphysLink;
@@ -19,38 +20,38 @@ using System.Collections.Specialized;
 using System.Runtime.InteropServices;
 #endif
 
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
 
-using UnityEditor.Build;
-using UnityEditor.Build.Reporting;
-// This code fixes a bug that is also fixed by upgrading to 2021.3.14f1 or newer
-// see https://forum.unity.com/threads/workaround-for-building-with-il2cpp-with-visual-studio-2022-17-4.1355570/
-// please remove this code when Unity version exceeds this!
+//using UnityEditor.Build;
+//using UnityEditor.Build.Reporting;
+//// This code fixes a bug that is also fixed by upgrading to 2021.3.14f1 or newer
+//// see https://forum.unity.com/threads/workaround-for-building-with-il2cpp-with-visual-studio-2022-17-4.1355570/
+//// please remove this code when Unity version exceeds this!
+// TODO
 
-
-public class MsvcStdextWorkaround : IPreprocessBuildWithReport
-{
-    const string kWorkaroundFlag = "/D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS";
+//public class MsvcStdextWorkaround : IPreprocessBuildWithReport
+//{
+//    const string kWorkaroundFlag = "/D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS";
      
-    public int callbackOrder => 0;
+//    public int callbackOrder => 0;
      
-    public void OnPreprocessBuild(BuildReport report)
-    {
-        var clEnv = Environment.GetEnvironmentVariable("_CL_");
+//    public void OnPreprocessBuild(BuildReport report)
+//    {
+//        var clEnv = Environment.GetEnvironmentVariable("_CL_");
      
-        if (string.IsNullOrEmpty(clEnv))
-        {
-            Environment.SetEnvironmentVariable("_CL_", kWorkaroundFlag);
-        }
-        else if (!clEnv.Contains(kWorkaroundFlag))
-        {
-            clEnv += " " + kWorkaroundFlag;
-            Environment.SetEnvironmentVariable("_CL_", clEnv);
-        }
-    }
-}
+//        if (string.IsNullOrEmpty(clEnv))
+//        {
+//            Environment.SetEnvironmentVariable("_CL_", kWorkaroundFlag);
+//        }
+//        else if (!clEnv.Contains(kWorkaroundFlag))
+//        {
+//            clEnv += " " + kWorkaroundFlag;
+//            Environment.SetEnvironmentVariable("_CL_", clEnv);
+//        }
+//    }
+//}
      
-#endif // UNITY_EDITOR
+//#endif // UNITY_EDITOR
 
 namespace TrajectoryPlanner
 {
@@ -91,7 +92,7 @@ namespace TrajectoryPlanner
 
         // Managers and accessors
         [SerializeField] private Transform _probeParentT;
-        [FormerlySerializedAs("util")] [SerializeField] private TP_Utils _util;
+        [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
         [SerializeField] private ProbePanelManager _probePanelManager;
 
@@ -323,12 +324,14 @@ namespace TrajectoryPlanner
 
         public void ClickSearchArea(GameObject target)
         {
-            _searchControl.ClickArea(target);
+            throw new NotImplementedException();
+            //_searchControl.ClickArea(target);
         }
 
         public void TargetSearchArea(int id)
         {
-            _searchControl.ClickArea(id);
+            throw new NotImplementedException();
+            //_searchControl.ClickArea(id);
         }
 
         // DESTROY AND REPLACE PROBES
@@ -407,8 +410,8 @@ namespace TrajectoryPlanner
             if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
             {
                 // TODO
-                //var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
-                //    coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
+                var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
+                    coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
 
                 ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
                     probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,

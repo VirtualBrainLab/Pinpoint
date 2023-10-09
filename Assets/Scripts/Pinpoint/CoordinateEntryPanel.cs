@@ -36,7 +36,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         // change the apmldv/depth text fields to match the prefix on this probe's insertion
         if (ProbeManager.ActiveProbeManager != null)
         {
-            string prefix = ProbeManager.ActiveProbeManager.ProbeController.Insertion.AtlasTransform.Prefix;
+            string prefix = ProbeManager.ActiveProbeManager.ProbeController.Insertion.CoordinateTransform.Prefix;
 
             if (Settings.ConvertAPML2Probe)
             {
@@ -114,7 +114,7 @@ public class CoordinateEntryPanel : MonoBehaviour
 
         // if in IBL angles, rotate the angles appropriately
         if (Settings.UseIBLAngles)
-            angles = TP_Utils.World2IBL(angles);
+            angles = Utils.World2IBL(angles);
 
         if (!_probeQuickSettings.IsFocused())
         {
@@ -162,7 +162,7 @@ public class CoordinateEntryPanel : MonoBehaviour
                 (_rollField.text.Length > 0) ? float.Parse(_rollField.text) : 0);
 
             if (Settings.UseIBLAngles)
-                angles = TP_Utils.IBL2World(angles);
+                angles = Utils.IBL2World(angles);
 
             if (Settings.ConvertAPML2Probe)
                 Debug.LogWarning("Converting back from probe angles is not yet implemented");

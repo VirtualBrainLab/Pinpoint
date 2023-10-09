@@ -350,13 +350,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Converting worldT back to APMLDV (position transformed)
                 targetInsertion.apmldv =
-                    targetInsertion.AtlasTransform.U2T_Vector(
-                        targetInsertion.ReferenceAtlas.World2Atlas(offsetAdjustedTargetPositionWorldT));
+                    targetInsertion.CoordinateTransform.U2T_Vector(
+                        targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
 
                 // Compute return surface position (500 dv above surface)
 
-                var surfaceInsertion = new ProbeInsertion(0, 0, 0.5f, 0, 0, 0, targetInsertion.ReferenceAtlas,
-                    targetInsertion.AtlasTransform, false);
+                var surfaceInsertion = new ProbeInsertion(0, 0, 0.5f, 0, 0, 0, targetInsertion.CoordinateSpace,
+                    targetInsertion.CoordinateTransform, false);
                 var surfacePositionWorldT = surfaceInsertion.PositionWorldT();
                 var surfacePlane = new Plane(Vector3.down, surfacePositionWorldT);
                 var direction = new Ray(ProbeManager.ProbeController.Insertion.PositionWorldT(), probeTipTUp);
@@ -367,8 +367,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Converting worldT back to APMLDV (position transformed)
                 var offsetAdjustedSurfacePosition =
-                    surfaceInsertion.AtlasTransform.U2T_Vector(
-                        surfaceInsertion.ReferenceAtlas.World2Atlas(offsetAdjustedSurfacePositionWorldT));
+                    surfaceInsertion.CoordinateTransform.U2T_Vector(
+                        surfaceInsertion.CoordinateSpace.World2Space(offsetAdjustedSurfacePositionWorldT));
 
                 // Compute drive distances
                 var targetDriveDistance =

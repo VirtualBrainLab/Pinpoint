@@ -56,15 +56,15 @@ public abstract class ProbeController : MonoBehaviour
     /// </summary>
     /// <param name="atlas"></param>
     /// <param name="transform"></param>
-    public void SetSpaceTransform(ReferenceAtlas atlas, AtlasTransform transform)
+    public void SetSpaceTransform(CoordinateSpace atlas, CoordinateTransform transform)
     {
         // Covnert the tip coordinate into the new space
         var tipData = GetTipWorldU();
-        Vector3 tipCoordNewSpace = transform.U2T(atlas.World2Atlas(tipData.tipCoordWorldU));
+        Vector3 tipCoordNewSpace = transform.U2T(atlas.World2Space(tipData.tipCoordWorldU));
         Insertion.apmldv = tipCoordNewSpace;
         // Set the transforms
-        Insertion.ReferenceAtlas = atlas;
-        Insertion.AtlasTransform = transform;
+        Insertion.CoordinateSpace = atlas;
+        Insertion.CoordinateTransform = transform;
         // Set the probe position
         SetProbePosition();
     }
