@@ -54,14 +54,14 @@ namespace TrajectoryPlanner.Probes
                 var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
                 if (IsSetToDropToSurfaceWithDepth)
                     zeroCoordinateAdjustedManipulatorPosition.w +=
-                        CoordinateSpace.World2Atlas_Vector(Vector3.down).z * brainSurfaceAdjustment;
+                        CoordinateSpace.World2Space_Vector(Vector3.down).z * brainSurfaceAdjustment;
                 else
                     manipulatorSpacePosition.z +=
-                        CoordinateSpace.World2Atlas_Vector(Vector3.down).z * brainSurfaceAdjustment;
+                        CoordinateSpace.World2Space_Vector(Vector3.down).z * brainSurfaceAdjustment;
 
                 // Convert to world space
                 var zeroCoordinateAdjustedWorldPosition =
-                    CoordinateSpace.Atlas2World(manipulatorSpacePosition);
+                    CoordinateSpace.Space2World(manipulatorSpacePosition);
 
                 // Set probe position (change axes to match probe)
                 var transformedApmldv =
@@ -294,7 +294,7 @@ namespace TrajectoryPlanner.Probes
 
             // Convert to Sensapex space
             var posInManipulatorSpace =
-                _probeManager.ManipulatorBehaviorController.CoordinateSpace.World2Atlas(convertToWorld);
+                _probeManager.ManipulatorBehaviorController.CoordinateSpace.World2Space(convertToWorld);
             Vector4 posInManipulatorTransform =
                 _probeManager.ManipulatorBehaviorController.Transform.Atlas2T(posInManipulatorSpace);
 
@@ -329,9 +329,9 @@ namespace TrajectoryPlanner.Probes
             //        IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
 
             //    var brainSurfaceCoordinate = _annotationDataset.FindSurfaceCoordinate(
-            //        _annotationDataset.CoordinateSpace.World2Atlas(_probeController.GetTipWorldU().tipCoordWorldU -
+            //        _annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorldU -
             //                                                       tipExtensionDirection * 5),
-            //        _annotationDataset.CoordinateSpace.World2Atlas_Vector(tipExtensionDirection));
+            //        _annotationDataset.CoordinateSpace.World2Space_Vector(tipExtensionDirection));
 
             //    if (float.IsNaN(brainSurfaceCoordinate.x))
             //    {
@@ -341,7 +341,7 @@ namespace TrajectoryPlanner.Probes
 
             //    var brainSurfaceToTransformed =
             //        _probeController.Insertion.World2Transformed(
-            //            _annotationDataset.CoordinateSpace.Atlas2World(brainSurfaceCoordinate));
+            //            _annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate));
 
             //    BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
             //        _probeController.Insertion.apmldv);
@@ -367,10 +367,10 @@ namespace TrajectoryPlanner.Probes
             Action<string> onErrorCallback = null)
         {
             // Convert to manipulator axes (world -> space -> transform)
-            var manipulatorSpaceDelta = CoordinateSpace.World2Atlas_Vector(worldSpaceDelta);
+            var manipulatorSpaceDelta = CoordinateSpace.World2Space_Vector(worldSpaceDelta);
             var manipulatorTransformDelta = Transform.Atlas2T(manipulatorSpaceDelta);
             var manipulatorSpaceDepth = CoordinateSpace
-                .World2Atlas_Vector(Vector3.down).z * worldSpaceDelta.w;
+                .World2Space_Vector(Vector3.down).z * worldSpaceDelta.w;
 
             // Get manipulator position
             CommunicationManager.Instance.GetPos(ManipulatorID, pos =>

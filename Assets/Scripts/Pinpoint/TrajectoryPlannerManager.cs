@@ -770,8 +770,8 @@ namespace TrajectoryPlanner
             //WarpBrain();
 
             //// Update the warp functions in the craniotomy control panel
-            //_craniotomyPanel.World2Atlas = CoordinateSpaceManager.World2TransformedAxisChange;
-            //_craniotomyPanel.Atlas2World = CoordinateSpaceManager.Transformed2WorldAxisChange;
+            //_craniotomyPanel.World2Space = CoordinateSpaceManager.World2TransformedAxisChange;
+            //_craniotomyPanel.Space2World = CoordinateSpaceManager.Transformed2WorldAxisChange;
 
             // Check if active probe is a mis-match
 

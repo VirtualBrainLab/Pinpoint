@@ -781,7 +781,7 @@ public class CartesianProbeController : ProbeController
     /// <returns></returns>
     private Vector3 WorldT2WorldU(Vector3 coordWorldT)
     {
-        return Insertion.ReferenceAtlas.Atlas2World(Insertion.AtlasTransform.T2Atlas(Insertion.AtlasTransform.Atlas2T_Vector(Insertion.ReferenceAtlas.World2Atlas(coordWorldT))));
+        return Insertion.ReferenceAtlas.Space2World(Insertion.AtlasTransform.T2Atlas(Insertion.AtlasTransform.Atlas2T_Vector(Insertion.ReferenceAtlas.World2Space(coordWorldT))));
     }
 
 

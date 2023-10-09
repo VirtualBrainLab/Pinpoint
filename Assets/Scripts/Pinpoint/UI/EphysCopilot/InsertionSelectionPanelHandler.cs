@@ -75,10 +75,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         public static IEnumerable<ProbeManager> TargetableProbeManagers => ProbeManager.Instances
             .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
                 .AnnotationDataset.FindSurfaceCoordinate(
-                    _annotationDatasetCoordinateSpace.World2Atlas(manager.ProbeController
+                    _annotationDatasetCoordinateSpace.World2Space(manager.ProbeController
                         .Insertion
                         .PositionWorldU()),
-                    _annotationDatasetCoordinateSpace.World2Atlas_Vector(manager
+                    _annotationDatasetCoordinateSpace.World2Space_Vector(manager
                         .ProbeController
                         .GetTipWorldU().tipUpWorldU)).x));
 
@@ -310,15 +310,15 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             // Recalculate AP and ML based on pre-depth-drive DV
             var brainSurfaceCoordinate = VolumeDatasetManager.AnnotationDataset.FindSurfaceCoordinate(
-                _annotationDatasetCoordinateSpace.World2Atlas(
+                _annotationDatasetCoordinateSpace.World2Space(
                     ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
                         .ProbeController.Insertion.PositionWorldU()),
-                _annotationDatasetCoordinateSpace.World2Atlas_Vector(ProbeManager
+                _annotationDatasetCoordinateSpace.World2Space_Vector(ProbeManager
                     .ProbeController
                     .GetTipWorldU().tipUpWorldU));
 
             var brainSurfaceWorld =
-                _annotationDatasetCoordinateSpace.Atlas2World(brainSurfaceCoordinate);
+                _annotationDatasetCoordinateSpace.Space2World(brainSurfaceCoordinate);
             var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
 
             // AP Axis

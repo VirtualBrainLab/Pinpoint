@@ -1,4 +1,4 @@
-using BrainAtlas;
+using BrainAtlas.CoordinateSystems;
 using UnityEngine;
 
 namespace CoordinateTransforms

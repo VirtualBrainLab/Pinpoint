@@ -1,3 +1,4 @@
+using BrainAtlas.CoordinateSystems;
 using UnityEngine;
 
 namespace CoordinateTransforms
@@ -19,22 +20,22 @@ namespace CoordinateTransforms
         public override string Name => "New Scale Left";
         public override string Prefix => "ns-l";
 
-        public override Vector3 T2Atlas(Vector3 coordTransformed)
+        public override Vector3 T2U(Vector3 coordTransformed)
         {
             return _inverseRotation * coordTransformed;
         }
 
-        public override Vector3 Atlas2T(Vector3 coordSpace)
+        public override Vector3 U2T(Vector3 coordSpace)
         {
             return _rotation * coordSpace;
         }
 
-        public override Vector3 T2Atlas_Vector(Vector3 coordTransformed)
+        public override Vector3 T2U_Vector(Vector3 coordTransformed)
         {
             return coordTransformed;
         }
 
-        public override Vector3 Atlas2T_Vector(Vector3 coordSpace)
+        public override Vector3 U2T_Vector(Vector3 coordSpace)
         {
             return coordSpace;
         }

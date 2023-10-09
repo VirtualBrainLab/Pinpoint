@@ -25,8 +25,8 @@ public class CraniotomyPanel : MonoBehaviour
 
     private int _lastCraniotomyIdx = 0;
 
-    public Func<Vector3, Vector3> Atlas2World;
-    public Func<Vector3, Vector3> World2Atlas;
+    public Func<Vector3, Vector3> Space2World;
+    public Func<Vector3, Vector3> World2Space;
 
     [FormerlySerializedAs("craniotomySkull")] [SerializeField] private CraniotomySkull _craniotomySkull;
 
@@ -46,7 +46,7 @@ public class CraniotomyPanel : MonoBehaviour
         for (int i = 0; i < 5; i++)
         {
             _craniotomySkull.SetActiveCraniotomy(i);
-            _craniotomySkull.SetCraniotomyPosition(Atlas2World(Vector3.zero));
+            _craniotomySkull.SetCraniotomyPosition(Space2World(Vector3.zero));
         } 
     }
 
@@ -79,7 +79,7 @@ public class CraniotomyPanel : MonoBehaviour
         _lastCraniotomyIdx = craniotomyIdx;
         _craniotomySkull.SetActiveCraniotomy(craniotomyIdx);
         _positionWorld = _craniotomySkull.GetCraniotomyPosition();
-        _positionSpace = World2Atlas(_positionWorld);
+        _positionSpace = World2Space(_positionWorld);
         size = _craniotomySkull.GetCraniotomySize();
         UpdateText();
         UpdateSliders();
@@ -102,7 +102,7 @@ public class CraniotomyPanel : MonoBehaviour
     private void UpdateCraniotomy()
     {
         // We need to rotate the x/y coordinates into the current transformed space... 
-        _positionWorld = Atlas2World(_positionSpace);
+        _positionWorld = Space2World(_positionSpace);
 
         if (_craniotomySkull != null)
         {

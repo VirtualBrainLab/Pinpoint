@@ -97,8 +97,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         (Vector3 startCoordWorldU, Vector3 endCoordWorldU) = ProbeManager.ActiveProbeManager.RecRegionCoordWorldU;
 
         // TODO
-        //Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Atlas(startCoordWorldU);
-        //Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Atlas(endCoordWorldU);
+        //Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU);
+        //Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorldU);
 
         //(Vector3 startCoordWorld, Vector3 endCoordWorld) = ProbeManager.ActiveProbeManager.ProbeController.GetRecordingRegionWorld();
         (_, upWorldU, forwardWorldU) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
@@ -150,12 +150,12 @@ public class TP_InPlaneSlice : MonoBehaviour
         _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankSpacing", shankSpacing);
 
         // TODO
-        //recordingRegionCenterPosition = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Atlas(startCoordWorldU + 
+        //recordingRegionCenterPosition = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + 
         //    upWorldU * recordingSizemmU / 2 + 
         //    forwardWorldU * shankSpacing * centerOffset);
 
-        //Debug.Log((VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Atlas(startCoordWorldU),
-        //    VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Atlas(startCoordWorldU + upWorldU * recordingSizemmU)));
+        //Debug.Log((VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU),
+        //    VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorldU * recordingSizemmU)));
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);
@@ -204,7 +204,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         // Take the tip transform and go out according to the in plane percentage 
 
         // TODO
-        //Vector3 inPlanePosition = recordingRegionCenterPosition + (VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Atlas_Vector(forwardWorldU) * -inPlanePosNorm.x + VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Atlas_Vector(upWorldU) * inPlanePosNorm.y);
+        //Vector3 inPlanePosition = recordingRegionCenterPosition + (VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space_Vector(forwardWorldU) * -inPlanePosNorm.x + VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space_Vector(upWorldU) * inPlanePosNorm.y);
         //return inPlanePosition;
         return Vector3.zero;
     }

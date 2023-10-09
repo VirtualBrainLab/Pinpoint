@@ -375,8 +375,8 @@ public class ProbeManager : MonoBehaviour
         // Update the world coordinates for the tip position
         Vector3 startCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.startPosmm;
         Vector3 endCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.endPosmm;
-        _recRegionBaseCoordU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Atlas(startCoordWorldT))));
-        _recRegionTopCoordU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Atlas(endCoordWorldT))));
+        _recRegionBaseCoordU = insertion.ReferenceAtlas.Space2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Space(startCoordWorldT))));
+        _recRegionTopCoordU = insertion.ReferenceAtlas.Space2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Space(endCoordWorldT))));
     }
 
     #region Channel map
@@ -484,14 +484,14 @@ public class ProbeManager : MonoBehaviour
 
         // convert to worldU
         ProbeInsertion insertion = _probeController.Insertion;
-        Vector3 baseCoordWorldU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Atlas(baseCoordWorldT))));
-        Vector3 topCoordWorldU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Atlas(topCoordWorldT))));
+        Vector3 baseCoordWorldU = insertion.ReferenceAtlas.Space2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Space(baseCoordWorldT))));
+        Vector3 topCoordWorldU = insertion.ReferenceAtlas.Space2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Space(topCoordWorldT))));
 
         // Lerp between the base and top coordinate in small steps'
 
 
         throw new NotImplementedException();
-        //int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Atlas(baseCoordWorldU));
+        //int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(baseCoordWorldU));
         //if (lastID < 0) lastID = -1;
 
         //float curBottom = 0f;
@@ -501,7 +501,7 @@ public class ProbeManager : MonoBehaviour
         //{
         //    Vector3 coordU = Vector3.Lerp(baseCoordWorldU, topCoordWorldU, perc);
 
-        //    int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Atlas(coordU));
+        //    int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(coordU));
         //    if (ID < 0) ID = -1;
 
         //    if (ID != lastID)
@@ -562,11 +562,11 @@ public class ProbeManager : MonoBehaviour
 
                     // Now transform this into WorldU
                     ProbeInsertion insertion = _probeController.Insertion;
-                    Vector3 channelCoordWorldU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Atlas(channelCoordWorldT))));
+                    Vector3 channelCoordWorldU = insertion.ReferenceAtlas.Space2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Space(channelCoordWorldT))));
 
                     throw new NotImplementedException();
                     //int elecIdx = si * channelMapData.Count + i;
-                    //int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Atlas(channelCoordWorldU));
+                    //int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
                     //if (ID < 0) ID = -1;
 
                     //string acronym = CCFModelControl.ID2Acronym(ID);
@@ -590,10 +590,10 @@ public class ProbeManager : MonoBehaviour
 
                 // Now transform this into WorldU
                 ProbeInsertion insertion = _probeController.Insertion;
-                Vector3 channelCoordWorldU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Atlas(channelCoordWorldT))));
+                Vector3 channelCoordWorldU = insertion.ReferenceAtlas.Space2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Space(channelCoordWorldT))));
 
                 throw new NotImplementedException();
-                //int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Atlas(channelCoordWorldU));
+                //int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
                 //if (ID < 0) ID = -1;
 
                 //string acronym = CCFModelControl.ID2Acronym(ID);
@@ -759,8 +759,8 @@ public class ProbeManager : MonoBehaviour
         throw new NotImplementedException();
         //(Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = _probeController.GetTipWorldU();
 
-        //Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(annotationDataset.CoordinateSpace.World2Atlas(tipCoordWorld),
-        //    annotationDataset.CoordinateSpace.World2Atlas_Vector(tipUpWorld));
+        //Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(annotationDataset.CoordinateSpace.World2Space(tipCoordWorld),
+        //    annotationDataset.CoordinateSpace.World2Space_Vector(tipUpWorld));
 
         //if (float.IsNaN(surfacePos25.x))
         //{
@@ -774,7 +774,7 @@ public class ProbeManager : MonoBehaviour
         //{
         //    // in the brain
         //    probeInBrain = true;
-        //    brainSurfaceWorld = annotationDataset.CoordinateSpace.Atlas2World(surfacePos25);
+        //    brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(surfacePos25);
         //    brainSurfaceWorldT = CoordinateSpaceManager.WorldU2WorldT(brainSurfaceWorld);
         //    _brainSurface = _probeController.Insertion.World2Transformed(brainSurfaceWorld);
         //}
@@ -831,8 +831,8 @@ public class ProbeManager : MonoBehaviour
         //        ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
 
         //    var brainSurfaceCoordinate = annotationDataset.FindSurfaceCoordinate(
-        //        annotationDataset.CoordinateSpace.World2Atlas(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
-        //        annotationDataset.CoordinateSpace.World2Atlas_Vector(tipExtensionDirection));
+        //        annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
+        //        annotationDataset.CoordinateSpace.World2Space_Vector(tipExtensionDirection));
 
         //    if (float.IsNaN(brainSurfaceCoordinate.x))
         //    {
@@ -842,7 +842,7 @@ public class ProbeManager : MonoBehaviour
 
         //    var brainSurfaceToTransformed =
         //        _probeController.Insertion.World2Transformed(
-        //            annotationDataset.CoordinateSpace.Atlas2World(brainSurfaceCoordinate));
+        //            annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate));
 
         //    _probeController.SetProbePosition(brainSurfaceToTransformed);
         //}

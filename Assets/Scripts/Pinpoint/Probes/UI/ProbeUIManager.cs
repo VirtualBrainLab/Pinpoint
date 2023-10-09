@@ -127,11 +127,11 @@ public class ProbeUIManager : MonoBehaviour
 
         //Vector3 startCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.startPosmm;
         //Vector3 endCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.endPosmm;
-        //Vector3 startCoordWorldU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Atlas(startCoordWorldT))));
-        //Vector3 endCoordWorldU = insertion.ReferenceAtlas.Atlas2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Atlas(endCoordWorldT))));
+        //Vector3 startCoordWorldU = insertion.ReferenceAtlas.Space2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Space(startCoordWorldT))));
+        //Vector3 endCoordWorldU = insertion.ReferenceAtlas.Space2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Space(endCoordWorldT))));
 
-        //Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Atlas(startCoordWorldU);
-        //Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Atlas(endCoordWorldU);
+        //Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU);
+        //Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorldU);
 
         //List<int> mmTickPositions = new List<int>();
         //List<int> tickIdxs = new List<int>();

@@ -126,7 +126,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldT()
     {
-        return ReferenceAtlas.Atlas2World(AtlasTransform.T2Atlas_Vector(apmldv));
+        return ReferenceAtlas.Space2World(AtlasTransform.T2Atlas_Vector(apmldv));
     }
 
     /// <summary>
@@ -135,7 +135,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldU()
     {
-        return ReferenceAtlas.Atlas2World(PositionSpaceU());
+        return ReferenceAtlas.Space2World(PositionSpaceU());
     }
 
     /// <summary>
@@ -145,21 +145,21 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 World2Transformed(Vector3 coordWorld)
     {
-        return AtlasTransform.Atlas2T(ReferenceAtlas.World2Atlas(coordWorld));
+        return AtlasTransform.Atlas2T(ReferenceAtlas.World2Space(coordWorld));
     }
 
     public Vector3 World2TransformedAxisChange(Vector3 coordWorld)
     {
-        return AtlasTransform.Atlas2T_Vector(ReferenceAtlas.World2Atlas_Vector(coordWorld));
+        return AtlasTransform.Atlas2T_Vector(ReferenceAtlas.World2Space_Vector(coordWorld));
     }
 
     public Vector3 Transformed2World(Vector3 coordTransformed)
     {
-        return ReferenceAtlas.Atlas2World(AtlasTransform.T2Atlas(coordTransformed));
+        return ReferenceAtlas.Space2World(AtlasTransform.T2Atlas(coordTransformed));
     }
     public Vector3 Transformed2WorldAxisChange(Vector3 coordTransformed)
     {
-        return ReferenceAtlas.Atlas2World_Vector(AtlasTransform.T2Atlas_Vector(coordTransformed));
+        return ReferenceAtlas.Space2World_Vector(AtlasTransform.T2Atlas_Vector(coordTransformed));
     }
 
     public override string ToString()
