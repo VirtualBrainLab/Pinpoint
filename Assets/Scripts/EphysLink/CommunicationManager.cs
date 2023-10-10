@@ -182,13 +182,13 @@ namespace EphysLink
         /// </summary>
         /// <param name="onSuccessCallback">Callback function to handle incoming manipulator ID's</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GetManipulators(Action<string[], string> onSuccessCallback, Action<string> onErrorCallback = null)
+        public void GetManipulators(Action<string[], int, float[]> onSuccessCallback, Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<GetManipulatorsCallbackParameters>(data =>
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback?.Invoke(data.manipulators, data.type);
+                    onSuccessCallback?.Invoke(data.manipulators, data.num_axes, data.dimensions);
                 }
                 else
                 {

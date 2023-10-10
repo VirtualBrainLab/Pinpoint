@@ -31,6 +31,9 @@ namespace TrajectoryPlanner.Probes
         public string ManipulatorID { get; private set; }
 
         public string ManipulatorType { get; set; }
+        public int NumAxes { get; set; }
+        
+        public Vector3 Dimensions { get; set; }
 
         /**
          * Getter and setter or the zero coordinate offset of the manipulator.
@@ -222,14 +225,15 @@ namespace TrajectoryPlanner.Probes
 
         public void Initialize(string manipulatorID, bool calibrated)
         {
-            CommunicationManager.Instance.GetManipulators((ids, type) =>
+            CommunicationManager.Instance.GetManipulators((ids, numAxes, dimensions) =>
             {
                 // Shortcut exit if we have an invalid manipulator ID
                 if (!ids.Contains(manipulatorID)) return;
 
-                // Set manipulator ID and type
+                // Set manipulator ID, number of axes, and dimensions
                 ManipulatorID = manipulatorID;
-                ManipulatorType = type;
+                NumAxes = numAxes;
+                Dimensions = new Vector3(dimensions[0], dimensions[1], dimensions[2]);
 
                 // Update transform and space
                 UpdateSpaceAndTransform();
