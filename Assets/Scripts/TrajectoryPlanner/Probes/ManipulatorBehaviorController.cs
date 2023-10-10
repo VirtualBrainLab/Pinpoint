@@ -187,12 +187,12 @@ namespace TrajectoryPlanner.Probes
                 //       zeroCoordinateAdjustedWorldPosition + "; transformed: " + transformedApmldv);
 
                 Debug.DrawRay(_probeController.ProbeTipT.position,
-                    Transform.Space2Transform(CoordinateSpace.World2SpaceAxisChange(Vector3.forward)), Color.cyan,
+                    CoordinateSpace.Space2WorldAxisChange(Transform.Transform2Space(Vector3.forward)), Color.cyan,
                     0.5f);
                 Debug.DrawRay(_probeController.ProbeTipT.position,
-                    Transform.Space2Transform(CoordinateSpace.World2SpaceAxisChange(Vector3.up)), Color.green, 0.5f);
+                    CoordinateSpace.Space2WorldAxisChange(Transform.Transform2Space(Vector3.up)), Color.green, 0.5f);
                 Debug.DrawRay(_probeController.ProbeTipT.position,
-                    Transform.Space2Transform(CoordinateSpace.World2SpaceAxisChange(Vector3.right)), Color.red, 0.5f);
+                    CoordinateSpace.Space2WorldAxisChange(Transform.Transform2Space(Vector3.right)), Color.red, 0.5f);
 
                 // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
                 if (ManipulatorType == "new_scale")

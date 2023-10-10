@@ -9,10 +9,10 @@ namespace CoordinateTransforms
 
         public ThreeAxisLeftTransform(float yaw, float pitch)
         {
-            var yawRotation = Quaternion.AngleAxis(yaw, Vector3.up);
+            var yawRotation = Quaternion.AngleAxis(-yaw, Vector3.up);
             var pitchRotation = Quaternion.AngleAxis(pitch, Vector3.right);
 
-            _rotation = yawRotation * pitchRotation;
+            _rotation = pitchRotation * yawRotation;
             _inverseRotation = Quaternion.Inverse(_rotation);
         }
 
