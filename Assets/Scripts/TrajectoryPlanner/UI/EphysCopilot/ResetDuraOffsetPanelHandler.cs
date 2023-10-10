@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using EphysLink;
 using TMPro;
 using TrajectoryPlanner.Probes;
 using UnityEngine;
@@ -6,6 +8,20 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 {
     public class ResetDuraOffsetPanelHandler : MonoBehaviour
     {
+        #region Components
+
+        [SerializeField] private TMP_Text _manipulatorIDText;
+        public ProbeManager ProbeManager { private get; set; }
+        private ManipulatorBehaviorController _manipulatorBehaviorController;
+
+        #endregion
+
+        #region Properties
+
+        public static Dictionary<string, float> ManipulatorIdToDuraDepth = new();
+
+        #endregion
+        
         #region Unity
 
         private void Start()
@@ -27,15 +43,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         {
             // Reset dura offset
             _manipulatorBehaviorController.ComputeBrainSurfaceOffset();
+
+            CommunicationManager.Instance.GetPos(_manipulatorBehaviorController.ManipulatorID,
+                pos => { ManipulatorIdToDuraDepth[_manipulatorBehaviorController.ManipulatorID] = pos.w; });
         }
-
-        #endregion
-
-        #region Components
-
-        [SerializeField] private TMP_Text _manipulatorIDText;
-        public ProbeManager ProbeManager { private get; set; }
-        private ManipulatorBehaviorController _manipulatorBehaviorController;
 
         #endregion
     }
