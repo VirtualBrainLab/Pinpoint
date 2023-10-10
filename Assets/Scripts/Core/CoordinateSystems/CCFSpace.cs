@@ -8,16 +8,9 @@ namespace CoordinateSpaces
     public sealed class CCFSpace : CoordinateSpace
     {
         private string _name = "CCF";
-        private Vector3 _dimensions = new Vector3(13.2f, 11.4f, 8f);
         private Vector3 _zeroOffset = new Vector3(-5.7f, -4.0f, +6.6f); // note: zero offset is in *world* coordinates!
 
-        public override Vector3 Dimensions
-        {
-            get
-            {
-                return _dimensions;
-            }
-        }
+        public override Vector3 Dimensions { get; set; } = new(13.2f, 11.4f, 8f);
 
         public override string Name { get => _name; }
 

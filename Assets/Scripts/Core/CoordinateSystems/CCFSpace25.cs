@@ -10,17 +10,16 @@ namespace CoordinateSpaces
     public sealed class CCFSpace25 : CoordinateSpace
     {
         private static string _name = "CCF_25um";
-        private static Vector3 _dimensions = new Vector3(528, 456, 320);
+        private static Vector3 _dimensions = new(528, 456, 320);
         private static Vector3 _zeroOffset = new Vector3(-5.7f, -4.0f, +6.6f);
 
 
         public override Vector3 Dimensions
         {
-            get
-            {
-                return _dimensions;
-            }
+            get => _dimensions;
+            set => _dimensions = value;
         }
+
         public override string Name { get => _name; }
 
         public override Vector3 Space2World(Vector3 coord)
