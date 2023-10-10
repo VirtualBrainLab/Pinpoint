@@ -183,19 +183,8 @@ namespace TrajectoryPlanner.Probes
                 var transformedApmldv =
                     _probeController.Insertion.World2TransformedAxisChange(zeroCoordinateAdjustedWorldPosition);
 
-                // print("pos: " + pos + "; manipulator: " + manipulatorSpacePosition + "; world: " +
-                //       zeroCoordinateAdjustedWorldPosition + "; transformed: " + transformedApmldv);
-
-                Debug.DrawRay(_probeController.ProbeTipT.position,
-                    CoordinateSpace.Space2WorldAxisChange(Transform.Transform2Space(Vector3.forward)), Color.cyan,
-                    0.5f);
-                Debug.DrawRay(_probeController.ProbeTipT.position,
-                    CoordinateSpace.Space2WorldAxisChange(Transform.Transform2Space(Vector3.up)), Color.green, 0.5f);
-                Debug.DrawRay(_probeController.ProbeTipT.position,
-                    CoordinateSpace.Space2WorldAxisChange(Transform.Transform2Space(Vector3.right)), Color.red, 0.5f);
-
-                // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-                if (ManipulatorType == "new_scale")
+                // Split between 3 and 4 axis assignments
+                if (Transform.Prefix == "3lhm")
                     _probeController.SetProbePosition(transformedApmldv);
                 else
                     _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,

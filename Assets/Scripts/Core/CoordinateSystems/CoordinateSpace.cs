@@ -9,7 +9,7 @@ namespace CoordinateSpaces
     {
         public abstract string Name { get; }
 
-        public abstract Vector3 Dimensions { get; }
+        public abstract Vector3 Dimensions { get; set;  }
 
         public Vector3 RelativeOffset { get; set; } = Vector3.zero;
 

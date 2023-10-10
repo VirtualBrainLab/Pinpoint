@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace CoordinateSpaces
@@ -7,7 +5,10 @@ namespace CoordinateSpaces
     public sealed class ManipulatorSpace : CoordinateSpace
     {
         public override string Name => "Manipulator";
-        public override Vector3 Dimensions => new(20, 20, 20);
+
+        // Default to Sensapex dimensions, but can be edited
+        public override Vector3 Dimensions { get; set; } = Vector3.one * 20;
+
         public override Vector3 Space2World(Vector3 coord)
         {
             return new Vector3(-coord.x, coord.y, -coord.z);
@@ -29,4 +30,3 @@ namespace CoordinateSpaces
         }
     }
 }
-
