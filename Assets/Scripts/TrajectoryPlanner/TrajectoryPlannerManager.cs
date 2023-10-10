@@ -11,7 +11,6 @@ using UITabs;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
 using static UnityEngine.InputSystem.InputAction;
 
 
@@ -161,6 +160,8 @@ namespace TrajectoryPlanner
 
         Task annotationDatasetLoadTask;
 
+        TaskCompletionSource<bool> _checkForSavedProbesTaskSource;
+
         #region Unity
         private void Awake()
         {
@@ -219,12 +220,13 @@ namespace TrajectoryPlanner
             annotationDatasetLoadTask = _vdmanager.LoadAnnotationDataset();
             await annotationDatasetLoadTask;
 
+            _checkForSavedProbesTaskSource = new TaskCompletionSource<bool>();
             // After annotation loads, check if the user wants to load previously used probes
-            var savedProbeTask = CheckForSavedProbes(annotationDatasetLoadTask);
-            await savedProbeTask;
+            CheckForSavedProbes();
+            await _checkForSavedProbesTaskSource.Task;
 
-            // Finally, load accounts if we didn't load a query string
-            if (!savedProbeTask.Result)
+            // Finally, load accounts if we didn't load a query string or a saved set of probes
+            if (!_checkForSavedProbesTaskSource.Task.Result)
                 _accountsManager.DelayedStart();
 
             // Link any events that need to be linked
@@ -344,24 +346,37 @@ namespace TrajectoryPlanner
             // Cannot restore a ghost probe, so we set restored to true
             _restoredProbe = false;
 
+            var remainingProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder && x != probeManager);
+
             // Destroy probe
-            probeManager.Destroy();
+            probeManager.Cleanup();
             Destroy(probeManager.gameObject);
 
-            // Cleanup UI if this was last probe in scene
-            var realProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder && x != probeManager);
+            PostDestroyHandler(isActiveProbe, remainingProbes);
+            
+            _probeAddedOrRemovedEvent.Invoke();
 
-            if (realProbes.Count() > 0)
+            _movedThisFrame = true;
+        }
+
+        /// <summary>
+        /// Handle TPManager cleanup after a probe was destroyed
+        /// </summary>
+        private void PostDestroyHandler(bool wasActiveProbe, IEnumerable<ProbeManager> remainingProbes)
+        {            
+            // Cleanup UI if this was last probe in scene
+
+            if (remainingProbes.Count() > 0)
             {
-                if (isActiveProbe)
+                if (wasActiveProbe)
                 {
-                    SetActiveProbe(realProbes.Last());
+                    SetActiveProbe(remainingProbes.Last());
                 }
             }
             else
             {
                 // Invalidate ProbeManager.ActiveProbeManager
-                if (probeManager == ProbeManager.ActiveProbeManager)
+                if (wasActiveProbe)
                 {
                     ProbeManager.ActiveProbeManager = null;
                     _activeProbeChangedEvent.Invoke();
@@ -370,10 +385,6 @@ namespace TrajectoryPlanner
                 UpdateQuickSettings();
                 UpdateQuickSettingsProbeIdText();
             }
-            
-            _probeAddedOrRemovedEvent.Invoke();
-
-            _movedThisFrame = true;
         }
 
         private void DestroyActiveProbeManager()
@@ -398,7 +409,7 @@ namespace TrajectoryPlanner
                     coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
 
                 ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
-                    probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                    probeData.NumAxes, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
                     probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
                 newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
@@ -468,7 +479,7 @@ namespace TrajectoryPlanner
         }
         
         public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, ProbeInsertion insertion,
-            string manipulatorType, string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isRightHanded, string UUID = null)
+            int numAxes, string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isRightHanded, string UUID = null)
         {
             var probeManager = AddNewProbe(probeType, UUID);
 
@@ -480,7 +491,7 @@ namespace TrajectoryPlanner
             if (Settings.IsEphysLinkDataExpired()) return probeManager;
             
             // Repopulate Ephys Link information
-            probeManager.ManipulatorBehaviorController.ManipulatorType = manipulatorType;
+            probeManager.ManipulatorBehaviorController.NumAxes = numAxes;
             probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinateOffset;
             probeManager.ManipulatorBehaviorController.BrainSurfaceOffset = brainSurfaceOffset;
             probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
@@ -514,6 +525,8 @@ namespace TrajectoryPlanner
                 }
             // if we get here we didn't find an active probe
             Debug.LogWarning($"Probe {UUID} doesn't exist in the scene");
+            ProbeManager.ActiveProbeManager = null;
+            _activeProbeChangedEvent.Invoke();
         }
 
         public void SetActiveProbe(ProbeManager newActiveProbeManager)
@@ -548,9 +561,9 @@ namespace TrajectoryPlanner
 
                 // Update transparency for probe (if not ghost)
                 if (!isActiveProbe && Settings.GhostInactiveProbes)
-                    probeManager.SetMaterialsTransparent();
+                    probeManager.ProbeDisplay = ProbeDisplayType.Transparent;
                 else
-                    probeManager.SetMaterialsDefault();
+                    probeManager.ProbeDisplay = ProbeDisplayType.Opaque;
             }
 
             // Change the height of the probe panels, if needed
@@ -701,14 +714,14 @@ namespace TrajectoryPlanner
             {
                 if (probeManager == ProbeManager.ActiveProbeManager)
                 {
-                    probeManager.SetMaterialsDefault();
+                    probeManager.ProbeDisplay = ProbeDisplayType.Opaque;
                     continue;
                 }
 
                 if (Settings.GhostInactiveProbes)
-                    probeManager.SetMaterialsTransparent();
+                    probeManager.ProbeDisplay = ProbeDisplayType.Transparent;
                 else
-                    probeManager.SetMaterialsDefault();
+                    probeManager.ProbeDisplay = ProbeDisplayType.Opaque;
             }
         }
         
@@ -848,16 +861,12 @@ namespace TrajectoryPlanner
         /// <summary>
         /// Check for saved probes in the query string on WebGL or by asking the user if they want to re-load the scene
         /// </summary>
-        /// <param name="annotationDatasetLoadTask"></param>
-        /// <returns>true if WebGL query string contained data</returns>
-        public async Task<bool> CheckForSavedProbes(Task annotationDatasetLoadTask)
+        public async void CheckForSavedProbes()
         {
-            await annotationDatasetLoadTask;
-
             // On WebGL, check for a query string
 #if UNITY_WEBGL
             if (LoadSavedProbesWebGL())
-                return true;
+                _checkForSavedProbesTaskSource.SetResult(true);
 #endif
 
 #if UNITY_EDITOR
@@ -867,7 +876,7 @@ namespace TrajectoryPlanner
                 LoadSavedProbesFromEncodedString(ProbeString);
                 if (!(SettingsString==""))
                     LoadSettingsFromEncodedString(SettingsString);
-                return true;
+                _checkForSavedProbesTaskSource.SetResult(true);
             }
 #endif
 
@@ -880,11 +889,15 @@ namespace TrajectoryPlanner
                         : "Restore previous session?";
 
                     QuestionDialogue.Instance.YesCallback = LoadSavedProbesStandalone;
+                    QuestionDialogue.Instance.NoCallback = CheckForSavedProbesNoCallbackHelper;
                     QuestionDialogue.Instance.NewQuestion(questionString);
                 }
             }
+        }
 
-            return false;
+        private async void CheckForSavedProbesNoCallbackHelper()
+        {
+            _checkForSavedProbesTaskSource.SetResult(false);
         }
 
 #if UNITY_WEBGL
@@ -944,8 +957,10 @@ namespace TrajectoryPlanner
             LoadSavedProbesFromStringArray(savedProbesArray);
         }
 
-        private void LoadSavedProbesStandalone()
+        private async void LoadSavedProbesStandalone()
         {
+            _checkForSavedProbesTaskSource.SetResult(true);
+
             var savedProbes = Settings.LoadSavedProbeData();
             LoadSavedProbesFromStringArray(savedProbes);
         }
@@ -981,7 +996,7 @@ namespace TrajectoryPlanner
 
 
                     ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
-                        probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                        probeData.NumAxes, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
                         probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
                     newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
@@ -1092,8 +1107,8 @@ namespace TrajectoryPlanner
             ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
             if (data.overrideName != null)
                 newProbeManager.OverrideName = data.overrideName;
-            Debug.Log($"Overriding color: {data.color}");
-            newProbeManager.Color = data.color;
+            if (data.color != null)
+                newProbeManager.Color = data.color;
         }
 
         #endregion

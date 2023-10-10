@@ -119,11 +119,11 @@ public class ActiveExperimentUI : MonoBehaviour
             insertionUI.SetColor(insertionData.color);
 
             if (Settings.DisplayUM)
-                insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Phi {3} Theta {4} Spin {5}",
+                insertionUI.UpdateDescription(string.Format("AP {0} ML {1} DV {2} Yaw {3} Pitch {4} Roll {5}",
                     Mathf.RoundToInt(insertionData.ap * 1000f), Mathf.RoundToInt(insertionData.ml * 1000f), Mathf.RoundToInt(insertionData.dv * 1000f),
                     angles.x, angles.y, angles.z));
             else
-                insertionUI.UpdateDescription(string.Format("AP {0:0.00} ML {1:0.00} DV {2:0.00} Phi {3} Theta {4} Spin {5}",
+                insertionUI.UpdateDescription(string.Format("AP {0:0.00} ML {1:0.00} DV {2:0.00} Yaw {3} Pitch {4} Roll {5}",
                     insertionData.ap, insertionData.ml, insertionData.dv,
                     angles.x, angles.y, angles.z));
         }

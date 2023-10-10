@@ -2,22 +2,22 @@ using UnityEngine;
 
 namespace CoordinateTransforms
 {
-    public class NewScaleLeftTransform : CoordinateTransform
+    public class ThreeAxisLeftHandedTransform : CoordinateTransform
     {
         private readonly Quaternion _inverseRotation;
         private readonly Quaternion _rotation;
 
-        public NewScaleLeftTransform(float yaw, float pitch)
+        public ThreeAxisLeftHandedTransform(float yaw, float pitch)
         {
-            var yawRotation = Quaternion.AngleAxis(yaw, Vector3.forward);
-            var pitchRotation = Quaternion.AngleAxis(pitch, yawRotation * Vector3.left);
+            var yawRotation = Quaternion.AngleAxis(-yaw, Vector3.up);
+            var pitchRotation = Quaternion.AngleAxis(pitch, Vector3.right);
 
-            _rotation = yawRotation * pitchRotation;
+            _rotation = pitchRotation * yawRotation;
             _inverseRotation = Quaternion.Inverse(_rotation);
         }
 
-        public override string Name => "New Scale Left";
-        public override string Prefix => "ns-l";
+        public override string Name => "Three Axis Left Handed Manipulator";
+        public override string Prefix => "3lhm";
 
         public override Vector3 Transform2Space(Vector3 coordTransformed)
         {

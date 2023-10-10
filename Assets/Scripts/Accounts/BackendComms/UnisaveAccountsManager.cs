@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 using UnityEngine.Events;
 using System.Linq;
 using UnityEditor;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Handles connection with the Unisave system, and passing data back-and-forth with the TPManager
@@ -28,6 +29,8 @@ public class UnisaveAccountsManager : AccountsManager
 
     /// <summary>
     /// Fired when a user clicks on an insertion to set it to the active probe
+    /// 
+    /// Sends the UUID as parameter
     /// </summary>
     public UnityEvent<string> SetActiveProbeEvent;
 
@@ -107,7 +110,7 @@ public class UnisaveAccountsManager : AccountsManager
             .Done();
     }
 
-    private void LoadPlayerCallback(PlayerEntity player)
+    private async void LoadPlayerCallback(PlayerEntity player)
     {
         _player = player;
 
@@ -115,16 +118,18 @@ public class UnisaveAccountsManager : AccountsManager
 
         // Go through all of the insertions -- if any are marked as active and *DONT* exist in the scene
         // we should create them now
-        List<string> keyList = new(_player.UUID2InsertionData.Keys);
+        List<string> uuidList = new(_player.UUID2InsertionData.Keys);
 
-        for (int i = 0; i < keyList.Count; i++)
+        for (int i = 0; i < uuidList.Count; i++)
         {
-            string UUID = keyList[i];
+            string UUID = uuidList[i];
             ServerProbeInsertion data = _player.UUID2InsertionData[UUID];
 
             Debug.Log($"Creating probe {UUID} if active: {data.active}");
             if (data.active && !ProbeManager.Instances.Any(x => x.UUID.Equals(UUID)))
                 UpdateCallbackEvent(GetProbeInsertionData(data.UUID), true);
+
+            await Task.Delay(1);
         }
 
         // Update UI

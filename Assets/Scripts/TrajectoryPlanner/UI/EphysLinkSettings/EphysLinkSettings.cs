@@ -89,11 +89,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             if (CommunicationManager.Instance.IsConnected)
             {
-                // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-                CommunicationManager.Instance.GetManipulators((availableIDs, type) =>
+                CommunicationManager.Instance.GetManipulators((availableIDs, numAxes, _) =>
                 {
                     // Enable Copilot button if using Sensapex or New Scale
-                    _copilotToggle.interactable = !type.Contains("pathfinder");
+                    _copilotToggle.interactable = numAxes > 0;
 
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
@@ -112,7 +111,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                                     .GetComponent<ManipulatorConnectionPanel>();
 
                             // Set manipulator id
-                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID, type);
+                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID, numAxes);
 
                             // Add to dictionary
                             _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorID,

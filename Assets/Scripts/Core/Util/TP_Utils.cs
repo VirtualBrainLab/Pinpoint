@@ -8,8 +8,8 @@ using UnityEngine.Networking;
 
 public class TP_Utils : MonoBehaviour
 {
-    public static Vector3 IBL_BREGMA = new Vector3(5.4f, 5.7f, 0.332f);
-    public static Vector3 IBL_LAMBDA = new Vector3(9.9f, 5.7f, 0.332f);
+    public static Vector3 IBL_BREGMA = new Vector3(5.2f, 5.7f, 0.332f);
+    public static Vector3 IBL_LAMBDA = new Vector3(9.7f, 5.7f, 0.332f);
 
     /// <summary>
     /// Rotate phi and theta to match IBL coordinates

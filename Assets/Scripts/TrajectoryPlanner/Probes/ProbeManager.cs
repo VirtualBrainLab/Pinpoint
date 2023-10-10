@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
@@ -51,6 +52,8 @@ public class ProbeManager : MonoBehaviour
             _overrideName = value;
             UpdateName();
             UIUpdateEvent.Invoke();
+            if (ActiveProbeManager == this)
+                ActiveProbeUIUpdateEvent.Invoke();
         }
     }
 
@@ -67,9 +70,11 @@ public class ProbeManager : MonoBehaviour
 
     [FormerlySerializedAs("probeController")][SerializeField] private ProbeController _probeController;
 
+    [SerializeField] private Material _lineMaterial;
     [FormerlySerializedAs("ghostMaterial")][SerializeField] private Material _ghostMaterial;
 
     private Dictionary<GameObject, Material> _defaultMaterials;
+    private HashSet<Renderer> _activeRenderers;
 
     #region Channel map
     public string SelectionLayerName { get; private set; }
@@ -112,6 +117,20 @@ public class ProbeManager : MonoBehaviour
     private Vector3 brainSurfaceWorldT;
 
     #region Accessors
+
+    private ProbeDisplayType _probeDisplayType;
+    public ProbeDisplayType ProbeDisplay
+    {
+        get
+        {
+            return _probeDisplayType;
+        }
+        set
+        {
+            _probeDisplayType = value;
+            SetMaterials();
+        }
+    }
 
     public ProbeController ProbeController { get => _probeController;
         private set => _probeController = value;
@@ -158,6 +177,8 @@ public class ProbeManager : MonoBehaviour
                 puiManager.UpdateColors();
 
             UIUpdateEvent.Invoke();
+            if (ActiveProbeManager == this)
+                ActiveProbeUIUpdateEvent.Invoke();
         }
     }
 
@@ -196,9 +217,15 @@ public class ProbeManager : MonoBehaviour
 
         // Record default materials
         _defaultMaterials = new Dictionary<GameObject, Material>();
+        _activeRenderers = new();
+
         foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
         {
             _defaultMaterials.Add(childRenderer.gameObject, childRenderer.material);
+
+            // If this renderer is NOT attached to a collider gameobject, hold it as active
+            if (!_probeColliders.Any(x => x.gameObject.Equals(childRenderer.gameObject)))
+                _activeRenderers.Add(childRenderer);
         }
 
         // Pull the tpmanager object and register this probe
@@ -241,7 +268,7 @@ public class ProbeManager : MonoBehaviour
     /// Unregisters the probe from tpmanager
     /// Removes the probe panels and the position text.
     /// </summary>
-    public void Destroy()
+    public void Cleanup()
     {
         ProbeProperties.ReturnColor(Color);
 
@@ -256,7 +283,7 @@ public class ProbeManager : MonoBehaviour
         
         // Delete this gameObject
         foreach (ProbeUIManager puimanager in _probeUIManagers)
-            puimanager.Destroy();
+            puimanager.Cleanup();
     }
 
     private void OnDestroy()
@@ -884,18 +911,37 @@ public class ProbeManager : MonoBehaviour
 
     #region Materials
 
+    private void SetMaterials()
+    {
+        switch (_probeDisplayType)
+        {
+            case ProbeDisplayType.Opaque:
+                SetMaterialsDefault();
+                break;
+            case ProbeDisplayType.Transparent:
+                SetMaterialsTransparent();
+                break;
+            case ProbeDisplayType.Line:
+                SetMaterialsLine();
+                break;
+        }
+    }
 
     /// <summary>
     /// Set all Renderer components to use the ghost material
     /// </summary>
-    public void SetMaterialsTransparent()
+    private void SetMaterialsTransparent()
     {
 #if UNITY_EDITOR
         Debug.Log($"Setting materials for {name} to transparent");
 #endif
+        if (_lineRenderer != null)
+            _lineRenderer.enabled = false;
+
         var currentColorTint = new Color(Color.r, Color.g, Color.b, .2f);
-        foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
+        foreach (var childRenderer in _activeRenderers)
         {
+            childRenderer.enabled = true;
             childRenderer.material = _ghostMaterial;
 
             // Apply tint to the material
@@ -906,17 +952,56 @@ public class ProbeManager : MonoBehaviour
     /// <summary>
     /// Reverse a previous call to SetMaterialsTransparent()
     /// </summary>
-    public void SetMaterialsDefault()
+    private void SetMaterialsDefault()
     {
 #if UNITY_EDITOR
         Debug.Log($"Setting materials for {name} to default");
 #endif
-        foreach (var childRenderer in transform.GetComponentsInChildren<Renderer>())
-            if (_defaultMaterials.ContainsKey(childRenderer.gameObject))
-                childRenderer.material = _defaultMaterials[childRenderer.gameObject];
+        if (_lineRenderer != null)
+            _lineRenderer.enabled = false;
+
+        foreach (var childRenderer in _activeRenderers)
+        {
+            childRenderer.enabled = true;
+            childRenderer.material = _defaultMaterials[childRenderer.gameObject];
+        }
     }
 
-#endregion
+    private LineRenderer _lineRenderer;
+    private void SetMaterialsLine()
+    {
+#if UNITY_EDITOR
+        Debug.Log($"Setting materials for {name} to line");
+#endif
+        foreach (var childRenderer in _activeRenderers)
+            childRenderer.enabled = false;
+
+        if (_lineRenderer != null)
+            _lineRenderer.enabled = true;
+        else
+        {
+            GameObject probeTipGO = _probeController.ProbeTipT.gameObject;
+            _lineRenderer = probeTipGO.AddComponent<LineRenderer>();
+            _lineRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+            _lineRenderer.startWidth = 0.1f;
+            _lineRenderer.endWidth = 0.1f;
+
+            _lineRenderer.material = _lineMaterial;
+            _lineRenderer.material.color = Color;
+
+            _lineRenderer.useWorldSpace = false;
+
+            _lineRenderer.positionCount = 2;
+
+            var channelData = GetChannelRangemm();
+            _lineRenderer.SetPositions(new Vector3[] {
+            Vector3.zero,
+            Vector3.up * channelData.fullHeight});
+        }
+    }
+
+    #endregion
 }
 
 [Serializable]
@@ -929,7 +1014,6 @@ public struct ProbeData
     // CoordinateSpace/Transform
     public string CoordSpaceName;
     public string CoordTransformName;
-    public Vector4 ZeroCoordOffset;
 
     // ChannelMap
     public string SelectionLayerName;
@@ -944,45 +1028,50 @@ public struct ProbeData
     public string APITarget;
 
     // Ephys Link
-    public string ManipulatorType;
+    public int NumAxes;
     public string ManipulatorID;
+    public Vector4 ZeroCoordOffset;
+    public Vector3 Dimensions;
     public float BrainSurfaceOffset;
     public bool Drop2SurfaceWithDepth;
     public bool IsRightHanded;
 
     public static ProbeData ProbeManager2ProbeData(ProbeManager probeManager)
     {
-        ProbeData data = new ProbeData();
-
-        data.APMLDV = probeManager.ProbeController.Insertion.apmldv;
-        data.Angles = probeManager.ProbeController.Insertion.angles;
-
-        data.CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
-
-        if (probeManager.ProbeController.Insertion.CoordinateTransform.Name.Equals("Custom"))
-            data.CoordTransformName = CoordinateSpaceManager.OriginalTransform.Name;
-        else
-            data.CoordTransformName = probeManager.ProbeController.Insertion.CoordinateTransform.Name;
-
-        data.SelectionLayerName = probeManager.SelectionLayerName;
-
-        data.Type = (int)probeManager.ProbeType;
-        data.Color = probeManager.Color;
-        data.UUID = probeManager.UUID;
-        data.Name = probeManager.name;
-
-        data.APITarget = probeManager.APITarget;
+        var data = new ProbeData
+        {
+            APMLDV = probeManager.ProbeController.Insertion.apmldv,
+            Angles = probeManager.ProbeController.Insertion.angles,
+            CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name,
+            CoordTransformName = probeManager.ProbeController.Insertion.CoordinateTransform.Name.Equals("Custom")
+                ? CoordinateSpaceManager.OriginalTransform.Name
+                : probeManager.ProbeController.Insertion.CoordinateTransform.Name,
+            SelectionLayerName = probeManager.SelectionLayerName,
+            Type = (int)probeManager.ProbeType,
+            Color = probeManager.Color,
+            UUID = probeManager.UUID,
+            Name = probeManager.name,
+            APITarget = probeManager.APITarget
+        };
 
         // Manipulator Behavior data (if it exists)
         if (!probeManager.ManipulatorBehaviorController) return data;
         
-        data.ManipulatorType = probeManager.ManipulatorBehaviorController.ManipulatorType;
+        data.NumAxes = probeManager.ManipulatorBehaviorController.NumAxes;
         data.ManipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
+        data.Dimensions = probeManager.ManipulatorBehaviorController.Dimensions;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
         data.Drop2SurfaceWithDepth = probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth;
         data.IsRightHanded = probeManager.ManipulatorBehaviorController.IsRightHanded;
 
         return data;
     }
+}
+
+public enum ProbeDisplayType
+{
+    Opaque,
+    Transparent,
+    Line
 }

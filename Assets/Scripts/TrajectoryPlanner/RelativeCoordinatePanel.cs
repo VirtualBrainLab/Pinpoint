@@ -31,7 +31,7 @@ public class RelativeCoordinatePanel : MonoBehaviour
         {
             float ap = float.Parse(_apField.text);
             float ml = float.Parse(_mlField.text);
-            float dv = float.Parse(_mlField.text);
+            float dv = float.Parse(_dvField.text);
 
             Settings.RelativeCoordinate = new Vector3(ap, ml, dv);
         }

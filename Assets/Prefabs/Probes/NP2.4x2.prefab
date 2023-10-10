@@ -935,7 +935,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4373075753628498810}
   - component: {fileID: 7697252859202761959}
-  - component: {fileID: 3270886703121569117}
   m_Layer: 10
   m_Name: TrueTip
   m_TagString: Untagged
@@ -952,7 +951,7 @@ Transform:
   m_GameObject: {fileID: 2402599933276470095}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 14, z: -5.7}
-  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8599610478370708555}
@@ -966,19 +965,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2402599933276470095}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!135 &3270886703121569117
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2402599933276470095}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2684049663628889967
 GameObject:
   m_ObjectHideFlags: 0
@@ -3691,6 +3677,7 @@ MonoBehaviour:
   _recRegion: {fileID: 3465338709305660700}
   ProbeType: 28
   _probeController: {fileID: 897778941437095604}
+  _lineMaterial: {fileID: 2100000, guid: 49a5f9091d6f63e4eaaaa36a860edbc8, type: 2}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
 --- !u!114 &897778941437095604
 MonoBehaviour:

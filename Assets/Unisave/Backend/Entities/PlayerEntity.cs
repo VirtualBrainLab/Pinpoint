@@ -69,6 +69,7 @@ public class PlayerEntity : Entity
     }
 }
 
+[Serializable]
 public class ServerProbeInsertion
 {
     public string name;

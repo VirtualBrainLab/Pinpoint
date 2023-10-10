@@ -92,7 +92,7 @@ public class ProbeUIManager : MonoBehaviour
         return _order;
     }
 
-    public void Destroy()
+    public void Cleanup()
     {
         Destroy(probePanelGO);
     }
