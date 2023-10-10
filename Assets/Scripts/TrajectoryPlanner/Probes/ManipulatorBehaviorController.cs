@@ -277,19 +277,14 @@ namespace TrajectoryPlanner.Probes
 
         public void UpdateSpaceAndTransform()
         {
+            CoordinateSpace = new ManipulatorSpace();
             if (ManipulatorType == "sensapex")
-            {
-                CoordinateSpace = new ManipulatorSpace();
                 Transform = IsRightHanded
-                    ? new RightHandedManipulatorTransform(_probeController.Insertion.yaw)
-                    : new LeftHandedManipulatorTransform(_probeController.Insertion.yaw);
-            }
+                    ? new FourAxisRightHandedManipulatorTransform(_probeController.Insertion.yaw)
+                    : new FourAxisLeftHandedManipulatorTransform(_probeController.Insertion.yaw);
             else
-            {
-                CoordinateSpace = new ManipulatorSpace();
-                Transform = new ThreeAxisLeftTransform(_probeController.Insertion.yaw,
+                Transform = new ThreeAxisLeftHandedTransform(_probeController.Insertion.yaw,
                     _probeController.Insertion.pitch);
-            }
         }
 
         public Vector4 ConvertInsertionToManipulatorPosition(Vector3 insertionAPMLDV)
