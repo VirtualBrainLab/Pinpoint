@@ -14,9 +14,22 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private enum DriveState
         {
             Ready,
+            DrivingToSurface,
             DrivingToTarget,
+
+            Outside,
+            ExitingToOutside,
+            AtExitMargin,
+            ExitingToMargin,
+            AtDura,
+            ExitingToDura,
+            DrivingToNearTarget,
+            AtNearTarget,
+            ExitingToNearTarget,
+            DriveToPastTarget,
+            AtPastTarget,
+            ReturningToTarget,
             AtTarget,
-            DrivingToSurface
         }
 
         private const float DRIVE_PAST_TARGET_DISTANCE = 0.05f;
@@ -50,6 +63,134 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         [SerializeField] private TMP_Text _timerText;
 
         public ProbeManager ProbeManager { private get; set; }
+
+        private class DriveStateManager
+        {
+            // Define state, defaults to at dura
+            public DriveState DriveState { get; private set; } = DriveState.AtDura;
+
+            /// <summary>
+            ///     Increments drive state to be in progress driving down.
+            ///     Unable to drive down when not at a landmark.
+            /// </summary>
+            public void DriveIncrement()
+            {
+                switch (DriveState)
+                {
+                    case DriveState.AtDura:
+                        DriveState = DriveState.DrivingToNearTarget;
+                        break;
+                    case DriveState.AtNearTarget:
+                        DriveState = DriveState.DriveToPastTarget;
+                        break;
+                    case DriveState.AtPastTarget:
+                        DriveState = DriveState.ReturningToTarget;
+                        break;
+
+                    // Error cases: Cannot drive down from these states
+                    case DriveState.Ready:
+                    case DriveState.DrivingToSurface:
+                    case DriveState.DrivingToTarget:
+                    case DriveState.Outside:
+                    case DriveState.ExitingToOutside:
+                    case DriveState.AtExitMargin:
+                    case DriveState.ExitingToMargin:
+                    case DriveState.ExitingToDura:
+                    case DriveState.DrivingToNearTarget:
+                    case DriveState.ExitingToNearTarget:
+                    case DriveState.DriveToPastTarget:
+                    case DriveState.ReturningToTarget:
+                    case DriveState.AtTarget:
+                    default:
+                        Debug.LogError("Cannot drive down from state: " + DriveState);
+                        break;
+                }
+            }
+
+            public void ExitIncrement()
+            {
+                switch (DriveState)
+                {
+                    // Typical case: Increment to next state from landmarks
+                    case DriveState.AtExitMargin:
+                        DriveState = DriveState.ExitingToOutside;
+                        break;
+                    case DriveState.AtDura:
+                        DriveState = DriveState.ExitingToMargin;
+                        break;
+                    case DriveState.AtNearTarget:
+                        DriveState = DriveState.ExitingToDura;
+                        break;
+                    case DriveState.AtTarget:
+                        DriveState = DriveState.ExitingToNearTarget;
+                        break;
+
+                    // Driving transition cases: Switch to exit transition state
+                    case DriveState.DrivingToNearTarget:
+                        DriveState = DriveState.ExitingToDura;
+                        break;
+                    case DriveState.DriveToPastTarget or DriveState.ReturningToTarget:
+                        DriveState = DriveState.ExitingToNearTarget;
+                        break;
+
+                    // Error cases: Cannot exit from these states
+                    case DriveState.Ready:
+                    case DriveState.DrivingToSurface:
+                    case DriveState.DrivingToTarget:
+                    case DriveState.Outside:
+                    case DriveState.ExitingToMargin:
+                    case DriveState.ExitingToDura:
+                    case DriveState.ExitingToNearTarget:
+                    case DriveState.AtPastTarget:
+                    default:
+                        Debug.LogError("Cannot exit from state: " + DriveState);
+                        break;
+                }
+            }
+
+            public void MovementCompleted()
+            {
+                switch (DriveState)
+                {
+                    // Typical cases (was in driving state)
+                    case DriveState.ExitingToOutside:
+                        DriveState = DriveState.Outside;
+                        break;
+                    case DriveState.ExitingToMargin:
+                        DriveState = DriveState.AtExitMargin;
+                        break;
+                    case DriveState.ExitingToDura:
+                        DriveState = DriveState.AtDura;
+                        break;
+                    case DriveState.DrivingToNearTarget:
+                        DriveState = DriveState.AtNearTarget;
+                        break;
+                    case DriveState.ExitingToNearTarget:
+                        DriveState = DriveState.AtNearTarget;
+                        break;
+                    case DriveState.DriveToPastTarget:
+                        DriveState = DriveState.AtPastTarget;
+                        break;
+                    case DriveState.ReturningToTarget:
+                        DriveState = DriveState.AtTarget;
+                        break;
+
+                    // Error cases: cannot complete movement from non-transitional states
+                    case DriveState.Ready:
+                    case DriveState.DrivingToSurface:
+                    case DriveState.DrivingToTarget:
+                    case DriveState.Outside:
+                    case DriveState.AtExitMargin:
+                    case DriveState.AtDura:
+                    case DriveState.AtNearTarget:
+                    case DriveState.AtPastTarget:
+                    case DriveState.AtTarget:
+                    default:
+                        Debug.LogError("Cannot complete movement from non-transitional state: " + DriveState);
+                        break;
+                }
+            }
+        }
 
         #endregion
 
@@ -189,7 +330,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         StartCoroutine(CountDownTimer(_targetDriveDuration, _driveState));
 
                         // Drive
-                        
+
                         // Compute initial drive depth (before getting to near target distance)
                         var driveDepth = _duraDepth;
                         if (_targetDepth - _duraDepth > NEAR_TARGET_DISTANCE)
