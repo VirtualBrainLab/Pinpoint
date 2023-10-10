@@ -1014,7 +1014,6 @@ public struct ProbeData
     // CoordinateSpace/Transform
     public string CoordSpaceName;
     public string CoordTransformName;
-    public Vector4 ZeroCoordOffset;
 
     // ChannelMap
     public string SelectionLayerName;
@@ -1029,41 +1028,39 @@ public struct ProbeData
     public string APITarget;
 
     // Ephys Link
-    public string ManipulatorType;
+    public int NumAxes;
     public string ManipulatorID;
+    public Vector4 ZeroCoordOffset;
+    public Vector3 Dimensions;
     public float BrainSurfaceOffset;
     public bool Drop2SurfaceWithDepth;
     public bool IsRightHanded;
 
     public static ProbeData ProbeManager2ProbeData(ProbeManager probeManager)
     {
-        ProbeData data = new ProbeData();
-
-        data.APMLDV = probeManager.ProbeController.Insertion.apmldv;
-        data.Angles = probeManager.ProbeController.Insertion.angles;
-
-        data.CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
-
-        if (probeManager.ProbeController.Insertion.CoordinateTransform.Name.Equals("Custom"))
-            data.CoordTransformName = CoordinateSpaceManager.OriginalTransform.Name;
-        else
-            data.CoordTransformName = probeManager.ProbeController.Insertion.CoordinateTransform.Name;
-
-        data.SelectionLayerName = probeManager.SelectionLayerName;
-
-        data.Type = (int)probeManager.ProbeType;
-        data.Color = probeManager.Color;
-        data.UUID = probeManager.UUID;
-        data.Name = probeManager.name;
-
-        data.APITarget = probeManager.APITarget;
+        var data = new ProbeData
+        {
+            APMLDV = probeManager.ProbeController.Insertion.apmldv,
+            Angles = probeManager.ProbeController.Insertion.angles,
+            CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name,
+            CoordTransformName = probeManager.ProbeController.Insertion.CoordinateTransform.Name.Equals("Custom")
+                ? CoordinateSpaceManager.OriginalTransform.Name
+                : probeManager.ProbeController.Insertion.CoordinateTransform.Name,
+            SelectionLayerName = probeManager.SelectionLayerName,
+            Type = (int)probeManager.ProbeType,
+            Color = probeManager.Color,
+            UUID = probeManager.UUID,
+            Name = probeManager.name,
+            APITarget = probeManager.APITarget
+        };
 
         // Manipulator Behavior data (if it exists)
         if (!probeManager.ManipulatorBehaviorController) return data;
         
-        data.ManipulatorType = probeManager.ManipulatorBehaviorController.ManipulatorType;
+        data.NumAxes = probeManager.ManipulatorBehaviorController.NumAxes;
         data.ManipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
+        data.Dimensions = probeManager.ManipulatorBehaviorController.Dimensions;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
         data.Drop2SurfaceWithDepth = probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth;
         data.IsRightHanded = probeManager.ManipulatorBehaviorController.IsRightHanded;

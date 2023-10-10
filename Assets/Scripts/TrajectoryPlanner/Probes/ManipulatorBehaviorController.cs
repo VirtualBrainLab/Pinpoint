@@ -30,7 +30,6 @@ namespace TrajectoryPlanner.Probes
 
         public string ManipulatorID { get; private set; }
 
-        public string ManipulatorType { get; set; }
         public int NumAxes { get; set; }
         
         public Vector3 Dimensions { get; set; }
@@ -148,7 +147,7 @@ namespace TrajectoryPlanner.Probes
             if (!enabled && _probeController == null) return;
 
             // Check for special pathfinder mode (directly set probe position, no calculations needed)
-            if (ManipulatorType.Contains("pathfinder"))
+            if (NumAxes == -1)
             {
                 CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
                 {
@@ -271,13 +270,14 @@ namespace TrajectoryPlanner.Probes
         public void UpdateSpaceAndTransform()
         {
             CoordinateSpace = new ManipulatorSpace();
-            if (ManipulatorType == "sensapex")
-                Transform = IsRightHanded
+            Transform = NumAxes switch
+            {
+                4 => IsRightHanded
                     ? new FourAxisRightHandedManipulatorTransform(_probeController.Insertion.yaw)
-                    : new FourAxisLeftHandedManipulatorTransform(_probeController.Insertion.yaw);
-            else
-                Transform = new ThreeAxisLeftHandedTransform(_probeController.Insertion.yaw,
-                    _probeController.Insertion.pitch);
+                    : new FourAxisLeftHandedManipulatorTransform(_probeController.Insertion.yaw),
+                3 => new ThreeAxisLeftHandedTransform(_probeController.Insertion.yaw, _probeController.Insertion.pitch),
+                _ => Transform
+            };
         }
 
         public Vector4 ConvertInsertionToManipulatorPosition(Vector3 insertionAPMLDV)
