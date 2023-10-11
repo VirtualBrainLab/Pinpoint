@@ -115,9 +115,6 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("CraniotomyToolsGO")] [SerializeField] private GameObject _craniotomyToolsGo;
         [FormerlySerializedAs("brainCamController")] [SerializeField] private BrainCameraController _brainCamController;
 
-        [FormerlySerializedAs("meshCenterText")] [SerializeField] private TextAsset _meshCenterText;
-        private Dictionary<int, Vector3> meshCenters;
-
         [FormerlySerializedAs("CanvasParent")] [SerializeField] private GameObject _canvasParent;
 
         // UI 
@@ -191,10 +188,7 @@ namespace TrajectoryPlanner
 
             // Initialize variables
             rigColliders = new List<Collider>();
-            meshCenters = new Dictionary<int, Vector3>();
 
-            // Load 3D meshes
-            LoadMeshData();
             //Physics.autoSyncTransforms = true;
 
             // Input system
@@ -1028,25 +1022,7 @@ namespace TrajectoryPlanner
         private int prevTipID;
         private bool prevTipSideLeft;
 
-        private void LoadMeshData()
-        {
-            // [TODO]
-            //List<Dictionary<string,object>> data = CSVReader.ParseText(_meshCenterText.text);
-
-            //for (int i = 0; i < data.Count; i++)
-            //{
-            //    Dictionary<string, object> row = data[i];
-
-            //    int ID = (int)row["id"];
-            //    float ap = (float)row["ap"];
-            //    float ml = (float)row["ml"];
-            //    float dv = (float)row["dv"];
-
-            //    meshCenters.Add(ID, new Vector3(ap, ml, dv));
-            //}
-        }
-
-        public void SetProbeTipPositionToCCFNode(int atlasID)
+        public void SetProbeTipPosition2AreaID(int atlasID)
         {
             if (ProbeManager.ActiveProbeManager == null) return;
             (Vector3 leftCoordU, Vector3 rightCoordU) = BrainAtlasManager.ActiveReferenceAtlas.MeshCenters[atlasID];

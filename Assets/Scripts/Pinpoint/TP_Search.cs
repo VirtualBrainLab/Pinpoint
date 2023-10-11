@@ -18,14 +18,13 @@ public class TP_Search : MonoBehaviour
     [FormerlySerializedAs("maxAreaPanels")][SerializeField] int _maxAreaPanels = 1;
 
     private List<GameObject> localAreaPanels;
-    public List<OntologyNode> activeBrainAreas { get; private set; }
+    public List<int> activeBrainAreas { get; private set; }
 
     private const int ACRONYM_FONT_SIZE = 24;
     private const int FULL_FONT_SIZE = 14;
 
     void Awake()
     {
-        throw new NotImplementedException();
         localAreaPanels = new();
         activeBrainAreas = new();
 
@@ -34,7 +33,7 @@ public class TP_Search : MonoBehaviour
             GameObject areaPanel = Instantiate(_areaPanelPrefab, _areaPanelsParentGo.transform);
             areaPanel.GetComponentInChildren<Button>().onClick.AddListener(() =>
             {
-                _tpmanager.SetProbeTipPositionToCCFNode(areaPanel.GetComponent<TP_SearchAreaPanel>().Node);
+                _tpmanager.SetProbeTipPosition2AreaID(areaPanel.GetComponent<TP_SearchAreaPanel>().ID);
             });
             localAreaPanels.Add(areaPanel);
             areaPanel.SetActive(false);
@@ -58,16 +57,16 @@ public class TP_Search : MonoBehaviour
                 panel.SetActive(false);
             return;
         }
-        // otherwise do the search
-
+        
         // Find all areas in the CCF that match this search string
-        List<int> matchingAreas = _modelControl.AreasMatchingAcronym(searchString);
+        List<int> matchingAreas = BrainAtlasManager.ActiveReferenceAtlas.Ontology.SearchByAcronym(searchString);
         if (matchingAreas.Contains(997))
             matchingAreas.Remove(997);
 
+        // If acronyms are turned off, add any areas that match by full name as well
         if (!Settings.UseAcronyms)
         {
-            List<int> areasMatchingName = _modelControl.AreasMatchingName(searchString);
+            List<int> areasMatchingName = BrainAtlasManager.ActiveReferenceAtlas.Ontology.SearchByName(searchString);
             matchingAreas = matchingAreas.Union(areasMatchingName).ToList();
         }
 
@@ -78,9 +77,12 @@ public class TP_Search : MonoBehaviour
             for (int i = 0; i < matchingAreas.Count; i++)
             {
                 int id = matchingAreas[i];
-                CCFTreeNode areaNode = _modelControl.tree.findNode(id);
-                if (areaNode.ShortName.ToLower().Equals(searchString) || areaNode.Name.ToLower().Equals(searchString))
+                string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(id);
+                string name = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(id);
+
+                if (acronym.Equals(searchString) || name.Equals(searchString))
                 {
+                    // Move this area to the front
                     matchingAreas.RemoveAt(i);
                     matchingAreas = matchingAreas.Prepend(id).ToList();
                     break;
@@ -93,13 +95,16 @@ public class TP_Search : MonoBehaviour
             GameObject areaPanel = localAreaPanels[i];
             if (i < matchingAreas.Count)
             {
-                CCFTreeNode areaNode = _modelControl.tree.findNode(matchingAreas[i]);
+                int id = matchingAreas[i];
+                string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(id);
+                string name = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(id);
+
                 if (Settings.UseAcronyms)
-                    areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.ShortName;
+                    areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = acronym;
                 else
-                    areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = areaNode.Name;
-                areaPanel.GetComponent<TP_SearchAreaPanel>().Node = areaNode;
-                areaPanel.GetComponent<Image>().color = areaNode.Color;
+                    areaPanel.GetComponentInChildren<TextMeshProUGUI>().text = name;
+                areaPanel.GetComponent<TP_SearchAreaPanel>().ID = id;
+                areaPanel.GetComponent<Image>().color = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(id);
                 areaPanel.SetActive(true);
             }
             else
@@ -109,78 +114,66 @@ public class TP_Search : MonoBehaviour
 
     public void ClickArea(GameObject target)
     {
-        CCFTreeNode targetNode = target.GetComponent<TP_SearchAreaPanel>().Node;
+        int targetAreaID = target.GetComponent<TP_SearchAreaPanel>().ID;
         // Depending on whether the node is in the base set or not we will load it temporarily or just set it to have a different material
-        SelectBrainArea(targetNode);
+        SelectBrainArea(targetAreaID);
     }
 
     public void ClickArea(int annotationID)
     {
-        SelectBrainArea(_modelControl.GetNode(annotationID));
+        SelectBrainArea(annotationID);
     }
 
 
-    public void SelectBrainArea(CCFTreeNode targetNode)
+    public async void SelectBrainArea(int targetAreaID)
     {
-        // if this is an active node, just make it transparent again
-        if (activeBrainAreas.Contains(targetNode))
+        bool inDefaults = BrainAtlasManager.ActiveReferenceAtlas.DefaultAreas.Contains(targetAreaID);
+        if (activeBrainAreas.Contains(targetAreaID))
         {
-            if (_modelControl.InDefaults(targetNode.ID))
-                _modelControl.ChangeMaterial(targetNode, "default");
+            // if this is an active node, either make it transparent again (default node) or hide it (non-default)
+            if (inDefaults)
+                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(targetAreaID).SetMaterial(BrainAtlasManager.BrainRegionMaterials["default"], OntologyNode.OntologyNodeSide.All);
             else
-                targetNode.SetNodeModelVisibility(false);
-            activeBrainAreas.Remove(targetNode);
+                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(targetAreaID).SetVisibility(false, OntologyNode.OntologyNodeSide.All);
+            activeBrainAreas.Remove(targetAreaID);
         }
         else
         {
-
-            if (_modelControl.InDefaults(targetNode.ID))
-                _modelControl.ChangeMaterial(targetNode, "lit");
+            // if this is an inactive node, make it opaque (for both default or non-default)
+            if (inDefaults)
+                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(targetAreaID).SetMaterial(BrainAtlasManager.BrainRegionMaterials["opaque-lit"], OntologyNode.OntologyNodeSide.All);
             else
             {
-                if (!targetNode.IsLoaded(true))
-                    LoadSearchNode(targetNode);
-                else
-                {
-                    targetNode.SetNodeModelVisibility(true);
-                    _modelControl.ChangeMaterial(targetNode, "lit");
-                }
+                // load the node, then make it opaque
+                OntologyNode node = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(targetAreaID);
+                var loadTask = node.LoadMesh(OntologyNode.OntologyNodeSide.Left);
+                await loadTask;
+
+                node.SetVisibility(true, OntologyNode.OntologyNodeSide.Left);
+                node.SetVisibility(true, OntologyNode.OntologyNodeSide.Right);
+                node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["opaque-lit"], OntologyNode.OntologyNodeSide.Left);
+                node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["opaque-lit"], OntologyNode.OntologyNodeSide.Right);
             }
-            activeBrainAreas.Add(targetNode);
+            activeBrainAreas.Add(targetAreaID);
         }
     }
 
     public void ClearAllAreas()
     {
-        foreach (CCFTreeNode targetNode in activeBrainAreas)
+        foreach (int targetAreaID in activeBrainAreas)
         {
-            if (_modelControl.InDefaults(targetNode.ID))
+            if (BrainAtlasManager.ActiveReferenceAtlas.DefaultAreas.Contains(targetAreaID))
             {
-                _modelControl.ChangeMaterial(targetNode, "default");
+                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(targetAreaID).SetMaterial(BrainAtlasManager.BrainRegionMaterials["default"], OntologyNode.OntologyNodeSide.All);
             }
             else
             {
-                targetNode.SetNodeModelVisibility(false);
+                OntologyNode node = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(targetAreaID);
+                node.SetVisibility(false, OntologyNode.OntologyNodeSide.Left);
+                node.SetVisibility(false, OntologyNode.OntologyNodeSide.Right);
             }
         }
-        activeBrainAreas = new List<CCFTreeNode>();
-    }
-
-    private async void LoadSearchNode(CCFTreeNode node)
-    {
-        node.LoadNodeModel(true, false);
-        await node.GetLoadedTask(true);
-        node.GetNodeTransform().localPosition = Vector3.zero;
-        node.GetNodeTransform().localRotation = Quaternion.identity;
-        node.SetNodeModelVisibility(true);
-        _tpmanager.WarpNode(node);
-        _modelControl.ChangeMaterial(node, "lit");
-    }
-
-    public void ChangeWarp()
-    {
-        foreach (CCFTreeNode node in activeBrainAreas)
-            _tpmanager.WarpNode(node);
+        activeBrainAreas.Clear();
     }
 
     /// <summary>
