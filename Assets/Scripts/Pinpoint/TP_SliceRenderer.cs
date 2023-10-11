@@ -14,7 +14,6 @@ public class TP_SliceRenderer : MonoBehaviour
     [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
     [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
     [FormerlySerializedAs("dropdownMenu")] [SerializeField] private TMP_Dropdown _dropdownMenu;
-    [FormerlySerializedAs("iblCoverageTextureAssetRef")] [SerializeField] private AssetReference _iblCoverageTextureAssetRef;
 
     private bool loaded;
 

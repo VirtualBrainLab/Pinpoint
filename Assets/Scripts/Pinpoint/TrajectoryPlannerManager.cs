@@ -137,7 +137,7 @@ namespace TrajectoryPlanner
         // Local tracking variables
         private List<Collider> rigColliders;
         private bool _movedThisFrame;
-
+         
 
         // Track who got clicked on, probe, camera, or brain
 

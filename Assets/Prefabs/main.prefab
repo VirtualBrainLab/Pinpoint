@@ -9,12 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8016510558008620340}
-  - component: {fileID: 8016510558008620341}
   - component: {fileID: 8016510558008620343}
   - component: {fileID: 8016510558008620342}
   - component: {fileID: 8016510558008620337}
-  - component: {fileID: 8016510558008620336}
-  - component: {fileID: 8016510558008620339}
   - component: {fileID: 7425579377242974598}
   m_Layer: 0
   m_Name: main
@@ -30,39 +27,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8016510558008620298}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 39.71585, y: -14.86908, z: 20.29161}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8016510558008620341
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8016510558008620298}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d93ba8ff78b44b64b806ea677c9151d0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  loadBerylDepth: 0
-  overrideNetwork: 1
-  brainRegionMaterials:
-  - {fileID: 2100000, guid: b8a04b95bf5e0fe4dbdfd3978413393d, type: 2}
-  - {fileID: 2100000, guid: 4fdce846a282bef42af0221c4d4da68d, type: 2}
-  - {fileID: 2100000, guid: 77ae49eeea4656242bf40d119e6f7f0f, type: 2}
-  - {fileID: 2100000, guid: 2a8f9060c91986e4083dd67bf487177b, type: 2}
-  brainRegionMaterialNames:
-  - default
-  - lit
-  - toon
-  - toon-outline
-  modelScale: 0.001
 --- !u!114 &8016510558008620343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,6 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e3da6b77c935b441931d7f2baa3b435, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ProbeString: 
+  SettingsString: 
   _probesChangedEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -84,8 +58,6 @@ MonoBehaviour:
   _activeProbeChangedEvent:
     m_PersistentCalls:
       m_Calls: []
-  _modelControl: {fileID: 0}
-  _vdmanager: {fileID: 0}
   _probeParentT: {fileID: 0}
   _util: {fileID: 8016510558008620342}
   _accountsManager: {fileID: 0}
@@ -107,7 +79,6 @@ MonoBehaviour:
   _probePanelParentGo: {fileID: 0}
   _craniotomyToolsGo: {fileID: 0}
   _brainCamController: {fileID: 0}
-  _meshCenterText: {fileID: 0}
   _canvasParent: {fileID: 0}
   _qDialogue: {fileID: 0}
   _logPanelGO: {fileID: 0}
@@ -152,6 +123,9 @@ MonoBehaviour:
       m_Calls: []
   _axisControlToggle: {fileID: 0}
   AxisControlChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  ProbeSpeedChangedEvent:
     m_PersistentCalls:
       m_Calls: []
   _acronymToggle: {fileID: 0}
@@ -205,6 +179,9 @@ MonoBehaviour:
   BregmaLambdaChangedEvent:
     m_PersistentCalls:
       m_Calls: []
+  EphysLinkServerInfoLoaded:
+    m_PersistentCalls:
+      m_Calls: []
   EphysLinkServerIpChangedEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -218,39 +195,25 @@ MonoBehaviour:
   OpenEphysDataToggleEvent:
     m_PersistentCalls:
       m_Calls: []
+  _openEphysTargetInput: {fileID: 0}
   _spikeGLXDataToggle: {fileID: 0}
   SpikeGLXDataToggleEvent:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &8016510558008620336
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8016510558008620298}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e87526a9529a5046892704c80bce5ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  utils: {fileID: 0}
-  coverageURL: {fileID: 0}
---- !u!114 &8016510558008620339
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8016510558008620298}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de7e19699c62fef4d8e2f16cfb5e8b22, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  addressablesStorageRemotePath: https://data.virtualbrainlab.org/AddressablesStorage
-  buildVersion: 0.2.2
-  delayCatalogLoad: 0
+  _spikeGLXTargetInput: {fileID: 0}
+  SpikeGLXHelloPathEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _apiUpdateRateSlider: {fileID: 0}
+  APIUpdateRateEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  CameraZoomChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  CameraRotationChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &7425579377242974598
 MonoBehaviour:
   m_ObjectHideFlags: 0
