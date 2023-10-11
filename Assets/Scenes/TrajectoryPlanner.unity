@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44912726, g: 0.49919963, b: 0.5757154, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1854,17 +1854,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d199490a83bb2b844b9695cbf13b01ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1445581475 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1302158968978081032, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
-  m_PrefabInstance: {fileID: 1302158968208938923}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d43419cf1d43bf4995059dad0606dfc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1445793942 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4589053103431979469, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -2364,7 +2353,7 @@ PrefabInstance:
     - target: {fileID: 341190943585838148, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: cameraController
       value: 
-      objectReference: {fileID: 1445581475}
+      objectReference: {fileID: 0}
     - target: {fileID: 341190943640395761, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -2532,7 +2521,7 @@ PrefabInstance:
     - target: {fileID: 341190944004995884, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: brainCameraController
       value: 
-      objectReference: {fileID: 1445581475}
+      objectReference: {fileID: 0}
     - target: {fileID: 341190944034978748, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -2844,7 +2833,7 @@ PrefabInstance:
     - target: {fileID: 341190944541019319, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: cameraController
       value: 
-      objectReference: {fileID: 1445581475}
+      objectReference: {fileID: 0}
     - target: {fileID: 341190944542040285, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3244,7 +3233,7 @@ PrefabInstance:
     - target: {fileID: 341190945321208655, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: cameraController
       value: 
-      objectReference: {fileID: 1445581475}
+      objectReference: {fileID: 0}
     - target: {fileID: 341190945333939074, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -3284,7 +3273,7 @@ PrefabInstance:
     - target: {fileID: 341190945361671040, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: cameraController
       value: 
-      objectReference: {fileID: 1445581475}
+      objectReference: {fileID: 0}
     - target: {fileID: 341190945384258544, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -6212,7 +6201,7 @@ PrefabInstance:
     - target: {fileID: 7496667386146684069, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: cameraController
       value: 
-      objectReference: {fileID: 1445581475}
+      objectReference: {fileID: 0}
     - target: {fileID: 7526886653883535609, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -7377,7 +7366,8 @@ PrefabInstance:
       value: 8350598c1f432284ebefa28296e18990
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 1302158968978081034, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 1302158968669684561, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       insertIndex: -1
@@ -8186,7 +8176,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CameraZoomChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1445581475}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: OpenEphysDataToggle.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -8334,7 +8324,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CameraRotationChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1445581475}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CameraZoomChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: SetZoom
@@ -9222,7 +9212,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: brainCamController
       value: 
-      objectReference: {fileID: 1445581475}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: probeQuickSettings
       value: 
@@ -9230,7 +9220,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _brainCamController
       value: 
-      objectReference: {fileID: 1445581475}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _probePanelParentGo
       value: 

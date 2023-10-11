@@ -1,12 +1,11 @@
+using BrainAtlas;
+using BrainAtlas.CoordinateSystems;
+using EphysLink;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BrainAtlas.CoordinateSystems;
-using CoordinateSpaces;
-using CoordinateTransforms;
-using EphysLink;
 using TMPro;
 using UITabs;
 using UnityEngine;
@@ -32,13 +31,13 @@ using System.Runtime.InteropServices;
 //public class MsvcStdextWorkaround : IPreprocessBuildWithReport
 //{
 //    const string kWorkaroundFlag = "/D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS";
-     
+
 //    public int callbackOrder => 0;
-     
+
 //    public void OnPreprocessBuild(BuildReport report)
 //    {
 //        var clEnv = Environment.GetEnvironmentVariable("_CL_");
-     
+
 //        if (string.IsNullOrEmpty(clEnv))
 //        {
 //            Environment.SetEnvironmentVariable("_CL_", kWorkaroundFlag);
@@ -50,7 +49,7 @@ using System.Runtime.InteropServices;
 //        }
 //    }
 //}
-     
+
 //#endif // UNITY_EDITOR
 
 namespace TrajectoryPlanner
@@ -1047,29 +1046,20 @@ namespace TrajectoryPlanner
             //}
         }
 
-        public void SetProbeTipPositionToCCFNode()
+        public void SetProbeTipPositionToCCFNode(int atlasID)
         {
-            // [TODO]
-            //if (ProbeManager.ActiveProbeManager == null) return;
-            //int berylID = CCFModelControl.GetBerylID(targetNode.ID);
-            //Vector3 apmldv = meshCenters[berylID];
+            if (ProbeManager.ActiveProbeManager == null) return;
+            (Vector3 leftCoordU, Vector3 rightCoordU) = BrainAtlasManager.ActiveReferenceAtlas.MeshCenters[atlasID];
 
-            //if (berylID==prevTipID && prevTipSideLeft)
-            //{
-            //    // we already hit this area, switch sides
-            //    apmldv.y = 11.4f - apmldv.y;
-            //    prevTipSideLeft = false;
-            //}
-            //else
-            //{
-            //    // first time, go left
-            //    prevTipSideLeft = true;
-            //}
+            // switch to right side if needed
+            prevTipSideLeft = atlasID == prevTipID && prevTipSideLeft;
 
-            //apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.AtlasTransform.Atlas2T(apmldv - CoordinateSpaceManager.ActiveCoordinateSpace.RelativeOffset);
-            //ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition(apmldv);
+            // transform the coordinate
+            Vector3 coordT = ProbeManager.ActiveProbeManager.ProbeController.Insertion.CoordinateTransform.U2T(
+                (prevTipSideLeft ? leftCoordU : rightCoordU) - BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord);
+            ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition(coordT);
 
-            //prevTipID = berylID;
+            prevTipID = atlasID;
         }
 
         #endregion
@@ -1083,7 +1073,7 @@ namespace TrajectoryPlanner
 
 #endregion
 
-#region Accounts
+        #region Accounts
 
         public (Vector3 apmldv, Vector3 angles, CoordinateSpace space, CoordinateTransform transform, bool targetable) ServerProbeInsertion2ProbeInsertion(ServerProbeInsertion serverInsertion)
         {

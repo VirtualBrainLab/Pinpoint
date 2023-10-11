@@ -43,11 +43,12 @@ public class RelativeCoordinatePanel : MonoBehaviour
 
     public void Set2Bregma()
     {
-        Settings.RelativeCoordinate = Utils.BREGMA;
+        Debug.LogWarning("Bregma/Lambda can't differentiate between atlases right now");
+        Settings.RelativeCoordinate = Utils.CCF_BREGMA;
     }
 
     public void Set2Lambda()
     {
-        Settings.RelativeCoordinate = Utils.LAMBDA;
+        Settings.RelativeCoordinate = Utils.CCF_LAMBDA;
     }
 }
