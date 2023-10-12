@@ -496,6 +496,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &527594749 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7683298792840207488, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+  m_PrefabInstance: {fileID: 660400855}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54cf7c9e3abd4c54e876992ba07441ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &602476454 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 341190944405478594, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -540,6 +551,34 @@ PrefabInstance:
     - target: {fileID: 1061156970922571914, guid: ee09154d7a7870a419882ff36080d765, type: 3}
       propertyPath: m_Name
       value: BrainAtlas
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2108153954}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Startup
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: TrajectoryPlanner.TrajectoryPlannerManager, trajectoryplanner.core
+      objectReference: {fileID: 0}
+    - target: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
+      propertyPath: MetaLoadedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 3131845913727300861, guid: ee09154d7a7870a419882ff36080d765, type: 3}
       propertyPath: m_LocalPosition.x
@@ -9284,6 +9323,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 672548778}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _atlasManager
+      value: 
+      objectReference: {fileID: 527594749}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _canvasParent
       value: 
       objectReference: {fileID: 211792534}
@@ -9616,6 +9659,10 @@ PrefabInstance:
       value: UpdateProbePanels
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 716699760}
@@ -9724,6 +9771,30 @@ PrefabInstance:
       value: TrajectoryPlanner.UI.EphysLinkSettings.EphysLinkSettings, trajectoryplanner.ui.ephyslinksettings
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 379075881}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 672548778}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Startup
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: Startup
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: TrajectoryPlanner.TP_ProbeQuickSettings, trajectoryplanner.core
       objectReference: {fileID: 0}
@@ -9758,6 +9829,14 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _probesChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: TP_SliceRenderer, trajectoryplanner.core
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: TP_InPlaneSlice, trajectoryplanner.core
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _probesChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -9797,6 +9876,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _probeAddedOrRemovedEvent.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []

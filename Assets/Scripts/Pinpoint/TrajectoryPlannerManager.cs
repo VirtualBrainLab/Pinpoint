@@ -1,5 +1,6 @@
 using BrainAtlas;
 using BrainAtlas.CoordinateSystems;
+using CoordinateTransforms;
 using EphysLink;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using UITabs;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
+using Urchin.Managers;
 using static UnityEngine.InputSystem.InputAction;
 
 
@@ -68,10 +70,15 @@ namespace TrajectoryPlanner
         public string ProbeString = "";
         public string SettingsString = "";
 #endif
-#endregion
+        #endregion
 
         #region Events
-        // TODO: Expose events for probes moving, UI updating, etc
+        // Startup events
+        public UnityEvent StartupEvent_MetaLoaded;
+        public UnityEvent StartupEvent_RefAtlasLoaded;
+        public UnityEvent<Texture3D> StartupEvent_AnnotationTextureLoaded;
+        public UnityEvent StartupEvent_SceneLoaded;
+        public UnityEvent StartupEvent_Complete;
 
         /// <summary>
         /// Fired whenever any probe moves
@@ -94,6 +101,7 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
         [SerializeField] private ProbePanelManager _probePanelManager;
+        [SerializeField] private AtlasManager _atlasManager;
 
         // Settings
         [FormerlySerializedAs("probePrefabs")] [SerializeField] private List<GameObject> _probePrefabs;
@@ -166,30 +174,18 @@ namespace TrajectoryPlanner
 
             SetProbeControl(false);
 
-            // Deal with coordinate spaces and transforms
-            // [TODO]
-            //coordinateSpaceOpts = new Dictionary<string, CoordinateSpace>();
-            //coordinateSpaceOpts.Add("CCF", new NullTransform());
-            //CoordinateSpaceManager.ActiveCoordinateSpace = coordinateSpaceOpts["CCF"];
-            ////BrainCameraController.
-
-            //coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
-            //CoordinateTransform temp = new CCFTransform();
-            //coordinateTransformOpts.Add(temp.Name, temp);
-            //temp = new MRILinearTransform();
-            //coordinateTransformOpts.Add(temp.Name, temp);
-            //coordinateTransformOpts.Add("MRI", temp);
-            //temp = new NeedlesTransform();
-            //coordinateTransformOpts.Add(temp.Name, temp);
-            //coordinateTransformOpts.Add("Needles", temp);
-            //temp = new IBLNeedlesTransform();
-            //coordinateTransformOpts.Add(temp.Name, temp);
-            //coordinateTransformOpts.Add("IBL-Needles", temp);
+            coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
+            CoordinateTransform temp = new NullTransform();
+            coordinateTransformOpts.Add("null", temp);
+            temp = new MRILinearTransform();
+            coordinateTransformOpts.Add(temp.Name, temp);
+            temp = new NeedlesTransform();
+            coordinateTransformOpts.Add(temp.Name, temp);
+            temp = new IBLNeedlesTransform();
+            coordinateTransformOpts.Add(temp.Name, temp);
 
             // Initialize variables
             rigColliders = new List<Collider>();
-
-            //Physics.autoSyncTransforms = true;
 
             // Input system
             inputActions = new();
@@ -201,23 +197,35 @@ namespace TrajectoryPlanner
             _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
         }
 
-        private async void Start()
+        public async void Startup()
         {
+            // STARTUP SEQUENCE
+            StartupEvent_MetaLoaded.Invoke();
+
             // Startup CCF
-            // [TODO]
-            //_modelControl.LateStart(true);
-            //_modelControl.SetBeryl(Settings.UseBeryl);
+            await BrainAtlasManager.LoadAtlas(Settings.AtlasName);
 
-            // Set callback
-            DelayedModelControlStart();
+            _atlasManager.LoadDefaultAreas("");
 
-            // Startup the volume textures
-            // [TODO]
+            ReferenceAtlas referenceAtlas = BrainAtlasManager.ActiveReferenceAtlas;
+
+            var annotationTask = referenceAtlas.LoadAnnotations();
+            var textureTask = referenceAtlas.LoadAnnotationTexture();
+
+            await Task.WhenAll(new Task[] { annotationTask, textureTask });
+
+            StartupEvent_RefAtlasLoaded.Invoke();
+            StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
+
+            //// Set the warp setting
+            //InVivoTransformChanged(Settings.InvivoTransform);
 
             _checkForSavedProbesTaskSource = new TaskCompletionSource<bool>();
             // After annotation loads, check if the user wants to load previously used probes
             CheckForSavedProbes();
             await _checkForSavedProbesTaskSource.Task;
+
+            StartupEvent_SceneLoaded.Invoke();
 
             // Finally, load accounts if we didn't load a query string or a saved set of probes
             if (!_checkForSavedProbesTaskSource.Task.Result)
@@ -226,6 +234,8 @@ namespace TrajectoryPlanner
             // Link any events that need to be linked
             ProbeManager.ActiveProbeUIUpdateEvent.AddListener(
                 () => _probeQuickSettings.GetComponentInChildren<QuickSettingsLockBehavior>().UpdateSprite(ProbeManager.ActiveProbeManager.ProbeController.Locked));
+
+            StartupEvent_Complete.Invoke();
         }
 
         void Update()
@@ -293,26 +303,11 @@ namespace TrajectoryPlanner
             _movedThisFrame = true;
         }
 
-#endregion
+        #endregion
 
         public Task GetAnnotationDatasetLoadedTask()
         {
             return annotationDatasetLoadTask;
-        }
-
-        private async void DelayedModelControlStart()
-        {
-            // [TODO]
-            //await _modelControl.GetDefaultLoadedTask();
-
-            //foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-            //{
-            //    await node.GetLoadedTask(true);
-            //    node.SetNodeModelVisibility(true, false, false);
-            //}
-
-            //// Set the warp setting
-            //InVivoTransformChanged(Settings.InvivoTransform);
         }
 
         public void ClickSearchArea(GameObject target)

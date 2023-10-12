@@ -264,6 +264,20 @@ public class Settings : MonoBehaviour
     #endregion
 
     #region Atlas
+    private const string ATLAS_DEFAULT = "allen_mouse_25um";
+    public static Action<string> AtlasChanged;
+
+    public static string AtlasName
+    {
+        get { return data.AtlasName; }
+        set
+        {
+            data.AtlasName = value;
+            Save();
+            AtlasChanged.Invoke(data.AtlasName);
+        }
+    }
+
 
     // Display the 3D area slice
     private const int SHOW3DSLICE_DEFAULT = 0;
@@ -588,6 +602,7 @@ public class Settings : MonoBehaviour
             data.ShowAllProbePanels = SHOWALLPROBEPANELS_DEFAULT;
 
             // atlas
+            data.AtlasName = ATLAS_DEFAULT;
             data.ShowAtlas3DSlices = SHOW3DSLICE_DEFAULT;
             data.RelativeCoord = RELCOORD_DEFAULT;
             data.ActiveCoordinateTransformIndex = INVIVO_DEFAULT;
@@ -668,6 +683,7 @@ public class Settings : MonoBehaviour
         _showAllProbePanelsToggle.SetIsOnWithoutNotify(ShowAllProbePanels);
 
         // Atlas
+        AtlasName = data.AtlasName;
         _invivoDropdown.SetValueWithoutNotify(InvivoTransform);
         // the relative coordinate actually needs to be set, since it gets propagated downstream
         RelativeCoordinate = data.RelativeCoord;
@@ -803,6 +819,8 @@ public class Settings : MonoBehaviour
         // Camera
         public float CameraZoom;
         public Vector3 CameraRotation;
+
+        public string AtlasName;
     }
     #endregion
 }
