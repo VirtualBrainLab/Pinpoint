@@ -21,10 +21,6 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     private RectTransform _rect;
 
-    private Texture3D annotationDatasetGPUTexture;
-    private TaskCompletionSource<bool> gpuTextureLoadedSource;
-    private Task gpuTextureLoadedTask;
-
     private float inPlaneScale;
     private Vector3 recordingRegionCenterPosition;
     Vector3 upWorldU;
@@ -34,22 +30,14 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         _rect = GetComponent<RectTransform>();
 
-        gpuTextureLoadedSource = new TaskCompletionSource<bool>();
-        gpuTextureLoadedTask = gpuTextureLoadedSource.Task;
-
         ResetRendererParameters();
     }
-    // Start is called before the first frame update
-    private async void Start()
+
+    public void Startup(Texture3D annotationTexture)
     {
-        // TODO
-        //await VolumeDatasetManager.Texture3DLoaded();
-
-        //annotationDatasetGPUTexture = VolumeDatasetManager.AnnotationDatasetTexture3D;
-
-        _gpuSliceRenderer.sharedMaterial.SetTexture("_Volume", annotationDatasetGPUTexture);
-        _gpuSliceRenderer.sharedMaterial.SetVector("_VolumeSize", new Vector4(528, 320, 456, 0));
-        gpuTextureLoadedSource.SetResult(true);
+        _gpuSliceRenderer.sharedMaterial.SetTexture("_Volume", annotationTexture);
+        Vector4 shape = new Vector4(annotationTexture.width, annotationTexture.height, annotationTexture.depth, 0f);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_VolumeSize", shape);
     }
 
     private void ResetRendererParameters()
@@ -61,18 +49,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", 0f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_Scale", 1f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankWidth", probeWidth);
-    }
-
-    public async Task<Texture3D> GetAnnotationDatasetGPUTexture()
-    {
-        await gpuTextureLoadedTask;
-
-        return annotationDatasetGPUTexture;
-    }
-
-    public Task GetGPUTextureTask()
-    {
-        return gpuTextureLoadedTask;
     }
 
     // *** INPLANE SLICE CODE *** //

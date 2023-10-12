@@ -51,92 +51,12 @@ public class TP_SliceRenderer : MonoBehaviour
         loaded = false;
     }
 
-    // Start is called before the first frame update
-    private async void Start()
+    public void Startup(Texture3D annotationTexture)
     {
-        throw new NotImplementedException(); 
-        //Debug.Log("(SliceRenderer) Waiting for inplane slice to complete");
-        //await _inPlaneSlice.GetGPUTextureTask();
-        //Debug.Log("(SliceRenderer) Waiting for node models to load");
-        //await _modelControl.GetDefaultLoadedTask();
 
-        //if (_dropdownMenu.value == 1)
-        //    SetActiveTextureAnnotation();
-        ////else if (dropdownMenu.value == 2)
-        ////    SetActiveTextureIBLCoverage();
-        //loaded = true;
+        saggitalSliceMaterial.SetTexture("_Volume", annotationTexture);
+        coronalSliceMaterial.SetTexture("_Volume", annotationTexture);
     }
-
-
-    //private Texture3D iblCoverageTexture;
-    //private bool coverageLoaded;
-    //private bool coverageLoading;
-
-    //public async void LoadCoverageTexture()
-    //{
-    //    coverageLoading = true;
-
-    //    if (iblCoverageTextureAssetRef == null)
-    //    {
-    //        VolumetricDataset coverageDataset = tpmanager.GetIBLCoverageDataset();
-    //        if (coverageDataset == null)
-    //        {
-    //            await tpmanager.LoadIBLCoverageDataset();
-    //            coverageDataset = tpmanager.GetIBLCoverageDataset();
-    //        }
-    //        AnnotationDataset annotationDataset = tpmanager.GetAnnotationDataset();
-
-    //        Color[] colors = new Color[] { Color.grey, Color.yellow, Color.green };
-
-    //        iblCoverageTexture = new Texture3D(528, 320, 456, TextureFormat.RGB24, false);
-    //        iblCoverageTexture.filterMode = FilterMode.Point;
-    //        iblCoverageTexture.wrapMode = TextureWrapMode.Clamp;
-
-    //        Debug.Log("Converting annotation dataset to texture format");
-    //        for (int ap = 0; ap < 528; ap++)
-    //        {
-    //            for (int dv = 0; dv < 320; dv++)
-    //                for (int ml = 0; ml < 456; ml++)
-    //                    if (annotationDataset.ValueAtIndex(ap, dv, ml) > 0)
-    //                        iblCoverageTexture.SetPixel(ap, dv, ml, colors[coverageDataset.ValueAtIndex(ap, dv, ml)]);
-    //                    else
-    //                        iblCoverageTexture.SetPixel(ap, dv, ml, Color.black);
-    //        }
-    //        iblCoverageTexture.Apply();
-
-    //        //if (Application.isEditor)
-    //        //    AssetDatabase.CreateAsset(iblCoverageTexture, "Assets/AddressableAssets/Textures/IBLCoverageTexture3D.asset");
-    //    }
-    //    else
-    //    {
-    //        AsyncOperationHandle<Texture3D> dataLoader = iblCoverageTextureAssetRef.LoadAssetAsync<Texture3D>();
-    //        await dataLoader.Task;
-    //        iblCoverageTexture = dataLoader.Result;
-    //    }
-    //    coverageLoaded = true;
-
-    //    SetActiveTextureIBLCoverage();
-    //}
-
-    private async void SetActiveTextureAnnotation()
-    {
-        Task<Texture3D> textureTask = _inPlaneSlice.GetAnnotationDatasetGPUTexture();
-        await textureTask;
-
-        saggitalSliceMaterial.SetTexture("_Volume", textureTask.Result);
-        coronalSliceMaterial.SetTexture("_Volume", textureTask.Result);
-    }
-
-    //private void SetActiveTextureIBLCoverage()
-    //{
-    //    if (!coverageLoaded && !coverageLoading)
-    //    {
-    //        LoadCoverageTexture();
-    //        return;
-    //    }
-    //    saggitalSliceMaterial.SetTexture("_Volume", iblCoverageTexture);
-    //    coronalSliceMaterial.SetTexture("_Volume", iblCoverageTexture);
-    //}
 
     private void Update()
     {
@@ -262,8 +182,8 @@ public class TP_SliceRenderer : MonoBehaviour
             _sagittalSliceGo.SetActive(true);
             _coronalSliceGo.SetActive(true);
 
-            if (sliceType == 1)
-                SetActiveTextureAnnotation();
+            //if (sliceType == 1)
+            //    SetActiveTextureAnnotation();
             //else if (sliceType == 2)
             //    SetActiveTextureIBLCoverage();
 
