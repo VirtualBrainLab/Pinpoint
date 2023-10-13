@@ -1,3 +1,4 @@
+using BrainAtlas;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -120,72 +121,71 @@ public class ProbeUIManager : MonoBehaviour
 
     private void ProbedMovedHelper()
     {
-        throw new NotImplementedException();
-        //// Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
-        //var channelCoords = _probeManager.GetChannelRangemm();
-        //ProbeInsertion insertion = _probeManager.ProbeController.Insertion;
+        // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
+        var channelCoords = _probeManager.GetChannelRangemm();
+        ProbeInsertion insertion = _probeManager.ProbeController.Insertion;
 
-        //Vector3 startCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.startPosmm;
-        //Vector3 endCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.endPosmm;
-        //Vector3 startCoordWorldU = insertion.ReferenceAtlas.Space2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Space(startCoordWorldT))));
-        //Vector3 endCoordWorldU = insertion.ReferenceAtlas.Space2World(insertion.AtlasTransform.T2Atlas(insertion.AtlasTransform.Atlas2T_Vector(insertion.ReferenceAtlas.World2Space(endCoordWorldT))));
+        Vector3 startCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.startPosmm;
+        Vector3 endCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.endPosmm;
+        Vector3 startCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
+        Vector3 endCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
 
-        //Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU);
-        //Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorldU);
+        Vector3 startApdvlr25 = insertion.CoordinateSpace.World2Space(startCoordWorldU);
+        Vector3 endApdvlr25 = insertion.CoordinateSpace.World2Space(endCoordWorldU);
 
-        //List<int> mmTickPositions = new List<int>();
-        //List<int> tickIdxs = new List<int>();
-        //List<int> tickHeights = new List<int>(); // this will be calculated in the second step
+        List<int> mmTickPositions = new List<int>();
+        List<int> tickIdxs = new List<int>();
+        List<int> tickHeights = new List<int>(); // this will be calculated in the second step
 
-        //// If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
-        //// we also want to save the mm tick positions
+        // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
+        // we also want to save the mm tick positions
 
-        //List<int> mmPos = new List<int>();
-        //for (int i = Mathf.Max(1,Mathf.CeilToInt(channelCoords.startPosmm)); i <= Mathf.Min(9,Mathf.FloorToInt(channelCoords.endPosmm)); i++)
-        //    mmPos.Add(i); // this is the list of values we are going to have to assign a position to
+        List<int> mmPos = new List<int>();
+        for (int i = Mathf.Max(1, Mathf.CeilToInt(channelCoords.startPosmm)); i <= Mathf.Min(9, Mathf.FloorToInt(channelCoords.endPosmm)); i++)
+            mmPos.Add(i); // this is the list of values we are going to have to assign a position to
 
-        //int idx = 0;
-        //for (int y = 0; y < probePanelPxHeight; y++)
-        //{
-        //    if (idx >= mmPos.Count)
-        //        break;
+        int idx = 0;
+        for (int y = 0; y < probePanelPxHeight; y++)
+        {
+            if (idx >= mmPos.Count)
+                break;
 
-        //    float um = channelCoords.startPosmm + (y / probePanelPxHeight) * channelCoords.recordingSizemm;
-        //    if (um >= mmPos[idx])
-        //    {
-        //        mmTickPositions.Add(y);
-        //        // We also need to keep track of *what* tick we are at with this position
-        //        // index 0 = 1000, 1 = 2000, ... 8 = 9000
-        //        tickIdxs.Add(9 - mmPos[idx]);
+            float um = channelCoords.startPosmm + (y / probePanelPxHeight) * channelCoords.recordingSizemm;
+            if (um >= mmPos[idx])
+            {
+                mmTickPositions.Add(y);
+                // We also need to keep track of *what* tick we are at with this position
+                // index 0 = 1000, 1 = 2000, ... 8 = 9000
+                tickIdxs.Add(9 - mmPos[idx]);
 
-        //        idx++;
-        //    }
-        //}
+                idx++;
+            }
+        }
 
-        //// Interpolate from the tip to the top, putting this data into the probe panel texture
-        //(List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startApdvlr25, endApdvlr25);
+        // Interpolate from the tip to the top, putting this data into the probe panel texture
+        (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startApdvlr25, endApdvlr25);
 
-        //// Get the percentage height along the probe
+        // Get the percentage height along the probe
 
-        //// Update probePanel data
-        //probePanel.SetTipData(startApdvlr25, endApdvlr25, channelCoords.startPosmm / channelCoords.fullHeight, channelCoords.endPosmm/ channelCoords.fullHeight, channelCoords.recordingSizemm);
+        // Update probePanel data
+        probePanel.SetTipData(startApdvlr25, endApdvlr25, channelCoords.startPosmm / channelCoords.fullHeight, channelCoords.endPosmm / channelCoords.fullHeight, channelCoords.recordingSizemm);
 
-        //for (int y = 0; y < probePanelPxHeight; y++)
-        //{
-        //    // If the mm tick position matches with the position we're at, then add a depth line
-        //    bool depthLine = mmTickPositions.Contains(y);
+        for (int y = 0; y < probePanelPxHeight; y++)
+        {
+            // If the mm tick position matches with the position we're at, then add a depth line
+            bool depthLine = mmTickPositions.Contains(y);
 
-        //    // We also want to check if we're at at height line, in which case we'll add a little tick on the right side
-        //    bool heightLine = boundaryHeights.Contains(y);
+            // We also want to check if we're at at height line, in which case we'll add a little tick on the right side
+            bool heightLine = boundaryHeights.Contains(y);
 
-        //    if (depthLine)
-        //    {
-        //        tickHeights.Add(y);
-        //    }
-        //}
+            if (depthLine)
+            {
+                tickHeights.Add(y);
+            }
+        }
 
-        //probePanel.UpdateTicks(tickHeights, tickIdxs);
-        //probePanel.UpdateText(centerHeights, names, Settings.UseAcronyms ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
+        probePanel.UpdateTicks(tickHeights, tickIdxs);
+        probePanel.UpdateText(centerHeights, names, Settings.UseAcronyms ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
     }
 
     /// <summary>
@@ -198,90 +198,91 @@ public class ProbeUIManager : MonoBehaviour
     /// <returns></returns>
     private (List<int>, List<int>, List<string>)  InterpolateAnnotationIDs(Vector3 tipPosition, Vector3 topPosition)
     {
-        throw new NotImplementedException();
-        //// pixel height at which changes happen
-        //List<int> areaPositionPixels = new();
-        //// pixel count for each area
-        //List<int> areaHeightPixels = new();
-        //// area IDs
-        //List<int> areaIDs = new();
-        //// string name
-        //List<string> areaNames = new();
-        //// center position of each area
-        //List<int> centerHeightsPixels = new();
+        // pixel height at which changes happen
+        List<int> areaPositionPixels = new();
+        // pixel count for each area
+        List<int> areaHeightPixels = new();
+        // area IDs
+        List<int> areaIDs = new();
+        // string name
+        List<string> areaNames = new();
+        // center position of each area
+        List<int> centerHeightsPixels = new();
 
-        //int prevID = int.MinValue;
-        //for (int i = 0; i < probePanelPxHeight; i++)
-        //{
-        //    float perc = i / (probePanelPxHeight-1);
-        //    Vector3 interpolatedPosition = Vector3.Lerp(tipPosition, topPosition, perc);
-        //    // Round to int
-        //    int ID = VolumeDatasetManager.AnnotationDataset.ValueAtIndex(Mathf.RoundToInt(interpolatedPosition.x), Mathf.RoundToInt(interpolatedPosition.y), Mathf.RoundToInt(interpolatedPosition.z));
-        //    // convert to Beryl ID (if modelControl is set to do that)
-        //    ID = CCFModelControl.RemapID(ID);
-        //    //interpolated[i] = modelControl.GetCCFAreaColor(ID);
+        int prevID = int.MinValue;
+        for (int i = 0; i < probePanelPxHeight; i++)
+        {
+            float perc = i / (probePanelPxHeight - 1);
+            Vector3 interpolatedPosition = Vector3.Lerp(tipPosition, topPosition, perc);
+            // Round to int
 
-        //    if (ID != prevID)
-        //    {
-        //        // We have arrived at a new area, get the name and height
-        //        areaPositionPixels.Add(i);
-        //        areaIDs.Add(ID);
-        //        //if (Settings.UseAcronyms)
-        //        //    areaNames.Add(modelControl.ID2Acronym(ID));
-        //        //else
-        //        //    areaNames.Add(modelControl.ID2AreaName(ID));
-        //        // Now compute the center height for the *previous* area, and the pixel height
-        //        int curIdx = areaPositionPixels.Count - 1;
-        //        if (curIdx >= 1)
-        //        {
-        //            centerHeightsPixels.Add(Mathf.RoundToInt((areaPositionPixels[curIdx - 1] + areaPositionPixels[curIdx]) / 2f));
-        //            areaHeightPixels.Add(areaPositionPixels[curIdx] - areaPositionPixels[curIdx - 1]);
-        //        }
+            int ID = BrainAtlasManager.ActiveReferenceAtlas.AnnotationIdx(interpolatedPosition);
+            // convert to Beryl ID (if modelControl is set to do that)
+            Debug.LogWarning("Not converting to Beryl!");
+            //ID = CCFModelControl.RemapID(ID);
+            //interpolated[i] = modelControl.GetCCFAreaColor(ID);
 
-        //        prevID = ID;
-        //    }
-        //}
+            if (ID != prevID)
+            {
+                // We have arrived at a new area, get the name and height
+                areaPositionPixels.Add(i);
+                areaIDs.Add(ID);
+                if (Settings.UseAcronyms)
+                    areaNames.Add(BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID));
+                else
+                    areaNames.Add(BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(ID));
+                // Now compute the center height for the *previous* area, and the pixel height
+                int curIdx = areaPositionPixels.Count - 1;
+                if (curIdx >= 1)
+                {
+                    centerHeightsPixels.Add(Mathf.RoundToInt((areaPositionPixels[curIdx - 1] + areaPositionPixels[curIdx]) / 2f));
+                    areaHeightPixels.Add(areaPositionPixels[curIdx] - areaPositionPixels[curIdx - 1]);
+                }
 
-        //// The top region (last) will be missing it's center height and area height, so compute those now
-        //if (areaPositionPixels.Count > 0)
-        //{
-        //    centerHeightsPixels.Add(Mathf.RoundToInt((areaPositionPixels[areaPositionPixels.Count - 1] + probePanelPxHeight) / 2f));
-        //    areaHeightPixels.Add(Mathf.RoundToInt(probePanelPxHeight - areaPositionPixels[areaPositionPixels.Count - 1]));
-        //}
+                prevID = ID;
+            }
+        }
 
-        //// If there is only one value in the heights array, pixelHeight will be empty
-        //// Also find the area with the maximum pixel height
-        //int maxAreaID = 0;
-        //int maxPixelHeight = 0;
-        //if (areaHeightPixels.Count > 0)
-        //{
-        //    // Remove any areas where heights < MINIMUM_AREA_PIXEL_HEIGHT
-        //    for (int i = areaPositionPixels.Count - 1; i >= 0; i--)
-        //    {
-        //        // Get the max area, ignoring "-"
-        //        // This is safe to do even though we remove areas afterward, because we are going backwards through the list
-        //        if (areaHeightPixels[i] > maxPixelHeight && areaIDs[i] > 0)
-        //        {
-        //            maxPixelHeight = areaHeightPixels[i];
-        //            maxAreaID = areaIDs[i];
-        //        }
-        //        // Remove areas that are too small
-        //        if (areaHeightPixels[i] < MINIMUM_AREA_PIXEL_HEIGHT)
-        //        {
-        //            areaPositionPixels.RemoveAt(i);
-        //            centerHeightsPixels.RemoveAt(i);
-        //            areaIDs.RemoveAt(i);
-        //        }
-        //    }
-        //}
+        // The top region (last) will be missing it's center height and area height, so compute those now
+        if (areaPositionPixels.Count > 0)
+        {
+            centerHeightsPixels.Add(Mathf.RoundToInt((areaPositionPixels[areaPositionPixels.Count - 1] + probePanelPxHeight) / 2f));
+            areaHeightPixels.Add(Mathf.RoundToInt(probePanelPxHeight - areaPositionPixels[areaPositionPixels.Count - 1]));
+        }
 
-        //MaxArea = CCFModelControl.ID2Acronym(maxAreaID);
+        // If there is only one value in the heights array, pixelHeight will be empty
+        // Also find the area with the maximum pixel height
+        int maxAreaID = 0;
+        int maxPixelHeight = 0;
+        if (areaHeightPixels.Count > 0)
+        {
+            // Remove any areas where heights < MINIMUM_AREA_PIXEL_HEIGHT
+            for (int i = areaPositionPixels.Count - 1; i >= 0; i--)
+            {
+                // Get the max area, ignoring "-"
+                // This is safe to do even though we remove areas afterward, because we are going backwards through the list
+                if (areaHeightPixels[i] > maxPixelHeight && areaIDs[i] > 0)
+                {
+                    maxPixelHeight = areaHeightPixels[i];
+                    maxAreaID = areaIDs[i];
+                }
+                // Remove areas that are too small
+                if (areaHeightPixels[i] < MINIMUM_AREA_PIXEL_HEIGHT)
+                {
+                    areaPositionPixels.RemoveAt(i);
+                    centerHeightsPixels.RemoveAt(i);
+                    areaIDs.RemoveAt(i);
+                }
+            }
+        }
 
-        //areaNames = Settings.UseAcronyms ?
-        //    areaIDs.ConvertAll(x => CCFModelControl.ID2Acronym(x)) :
-        //    areaIDs.ConvertAll(x => CCFModelControl.ID2AreaName(x));
+        MaxArea = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(maxAreaID);
 
-        //return (areaPositionPixels, centerHeightsPixels, areaNames);
+        areaNames = Settings.UseAcronyms ?
+            areaIDs.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(x)) :
+            areaIDs.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(x));
+
+        return (areaPositionPixels, centerHeightsPixels, areaNames);
     }
 
     public void ProbeSelected(bool selected)

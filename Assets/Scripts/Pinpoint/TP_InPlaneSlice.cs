@@ -2,6 +2,7 @@
 using TMPro;
 using UnityEngine;
 using TrajectoryPlanner;
+using BrainAtlas;
 
 public class TP_InPlaneSlice : MonoBehaviour
 {
@@ -73,10 +74,9 @@ public class TP_InPlaneSlice : MonoBehaviour
         (Vector3 startCoordWorldU, Vector3 endCoordWorldU) = ProbeManager.ActiveProbeManager.RecRegionCoordWorldU;
 
         // TODO
-        //Vector3 startApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU);
-        //Vector3 endApdvlr25 = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(endCoordWorldU);
+        Vector3 startApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(startCoordWorldU);
+        Vector3 endApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(endCoordWorldU);
 
-        //(Vector3 startCoordWorld, Vector3 endCoordWorld) = ProbeManager.ActiveProbeManager.ProbeController.GetRecordingRegionWorld();
         (_, upWorldU, forwardWorldU) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
 #if UNITY_EDITOR
@@ -125,13 +125,9 @@ public class TP_InPlaneSlice : MonoBehaviour
         }
         _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankSpacing", shankSpacing);
 
-        // TODO
-        //recordingRegionCenterPosition = VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + 
-        //    upWorldU * recordingSizemmU / 2 + 
-        //    forwardWorldU * shankSpacing * centerOffset);
-
-        //Debug.Log((VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU),
-        //    VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space(startCoordWorldU + upWorldU * recordingSizemmU)));
+        recordingRegionCenterPosition = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(startCoordWorldU +
+            upWorldU * recordingSizemmU / 2 +
+            forwardWorldU * shankSpacing * centerOffset);
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);
@@ -158,20 +154,19 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
-        // TODO
-        //int annotation = VolumeDatasetManager.AnnotationDataset.ValueAtIndex(Mathf.RoundToInt(inPlanePosition.x), Mathf.RoundToInt(inPlanePosition.y), Mathf.RoundToInt(inPlanePosition.z));
+        int annotation = BrainAtlasManager.ActiveReferenceAtlas.AnnotationIdx(inPlanePosition);
         //annotation = CCFModelControl.RemapID(annotation);
 
-        //if (Input.GetMouseButtonDown(0))
-        //{
-        //    if (annotation > 0)
-        //        _tpmanager.TargetSearchArea(annotation);
-        //}
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (annotation > 0)
+                _tpmanager.TargetSearchArea(annotation);
+        }
 
-        //if (Settings.UseAcronyms)
-        //    _areaText.text = CCFModelControl.ID2Acronym(annotation);
-        //else
-        //    _areaText.text = CCFModelControl.ID2AreaName(annotation);
+        if (Settings.UseAcronyms)
+            _areaText.text = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(annotation);
+        else
+            _areaText.text = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(annotation);
     }
 
     private Vector3 CalculateInPlanePosition(Vector2 pointerData)
@@ -179,10 +174,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
         // Take the tip transform and go out according to the in plane percentage 
 
-        // TODO
-        //Vector3 inPlanePosition = recordingRegionCenterPosition + (VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space_Vector(forwardWorldU) * -inPlanePosNorm.x + VolumeDatasetManager.AnnotationDataset.CoordinateSpace.World2Space_Vector(upWorldU) * inPlanePosNorm.y);
-        //return inPlanePosition;
-        return Vector3.zero;
+        Vector3 inPlanePosition = recordingRegionCenterPosition + (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(forwardWorldU) * -inPlanePosNorm.x + BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(upWorldU) * inPlanePosNorm.y);
+        return inPlanePosition;
     }
 
     // Return the position within the local UI rectangle scaled to [-1, 1] on each axis

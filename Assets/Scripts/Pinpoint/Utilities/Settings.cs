@@ -274,7 +274,7 @@ public class Settings : MonoBehaviour
         {
             data.AtlasName = value;
             Save();
-            AtlasChanged.Invoke(data.AtlasName);
+            AtlasChanged?.Invoke(data.AtlasName);
         }
     }
 

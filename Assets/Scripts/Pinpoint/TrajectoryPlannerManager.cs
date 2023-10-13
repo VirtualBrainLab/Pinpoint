@@ -205,14 +205,24 @@ namespace TrajectoryPlanner
             // Startup CCF
             await BrainAtlasManager.LoadAtlas(Settings.AtlasName);
 
-            _atlasManager.LoadDefaultAreas("");
+            var nodeTask = _atlasManager.LoadDefaultAreas("");
 
             ReferenceAtlas referenceAtlas = BrainAtlasManager.ActiveReferenceAtlas;
 
             var annotationTask = referenceAtlas.LoadAnnotations();
             var textureTask = referenceAtlas.LoadAnnotationTexture();
 
-            await Task.WhenAll(new Task[] { annotationTask, textureTask });
+            await Task.WhenAll(new Task[] { annotationTask, textureTask, nodeTask});
+
+            foreach (var node in nodeTask.Result)
+            {
+                node.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
+                node.SetVisibility(false, OntologyNode.OntologyNodeSide.Left);
+                node.SetVisibility(false, OntologyNode.OntologyNodeSide.Right);
+                node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["transparent-unlit"]);
+                node.ResetColor();
+                node.SetShaderProperty("_Alpha", 0.25f, OntologyNode.OntologyNodeSide.Full);
+            }
 
             StartupEvent_RefAtlasLoaded.Invoke();
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
