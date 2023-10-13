@@ -154,7 +154,8 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
-        int annotation = BrainAtlasManager.ActiveReferenceAtlas.AnnotationIdx(inPlanePosition);
+        int annotation = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(inPlanePosition);
+        Debug.LogWarning("should be rempaping here");
         //annotation = CCFModelControl.RemapID(annotation);
 
         if (Input.GetMouseButtonDown(0))

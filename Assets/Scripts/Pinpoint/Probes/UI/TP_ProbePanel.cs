@@ -1,3 +1,4 @@
+using BrainAtlas;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -23,19 +24,10 @@ public class TP_ProbePanel : MonoBehaviour
         _textGOs = new List<GameObject>();
     }
 
-    private void Start()
+    public void Start()
     {
-        // Because probe panels are never created early it is safe to wait to get the annotation dataset until this point
-        AsyncStart();
-    }
-
-    private async void AsyncStart()
-    {
-        throw new NotImplementedException();
-        //await VolumeDatasetManager.Texture3DLoaded();
-
-        //_channelRenderer.material.SetTexture("_AnnotationTexture", VolumeDatasetManager.AnnotationDatasetTexture3D);
-        //_sliceRenderer.material.SetTexture("_AnnotationTexture", VolumeDatasetManager.AnnotationDatasetTexture3D);
+        _channelRenderer.material.SetTexture("_AnnotationTexture", BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
+        _sliceRenderer.material.SetTexture("_AnnotationTexture", BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
     }
 
     public void RegisterProbeManager(ProbeManager probeManager)

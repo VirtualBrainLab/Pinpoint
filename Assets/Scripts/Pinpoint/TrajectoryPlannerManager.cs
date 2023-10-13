@@ -145,7 +145,23 @@ namespace TrajectoryPlanner
         // Local tracking variables
         private List<Collider> rigColliders;
         private bool _movedThisFrame;
-         
+
+        #region Public accessors
+        private Task<int[,,]> _annotationTask;
+        public async Task<int[,,]> GetAnnotations()
+        {
+            await _annotationTask;
+            return _annotationTask.Result;
+        }
+
+        private Task<Texture3D> _annotationTexture;
+        public async Task<Texture3D> GetAnnotationTexture()
+        {
+            await _annotationTexture;
+            return _annotationTexture.Result;
+        }
+        #endregion
+
 
         // Track who got clicked on, probe, camera, or brain
 
@@ -209,10 +225,10 @@ namespace TrajectoryPlanner
 
             ReferenceAtlas referenceAtlas = BrainAtlasManager.ActiveReferenceAtlas;
 
-            var annotationTask = referenceAtlas.LoadAnnotations();
-            var textureTask = referenceAtlas.LoadAnnotationTexture();
+            referenceAtlas.LoadAnnotations();
+            referenceAtlas.LoadAnnotationTexture();
 
-            await Task.WhenAll(new Task[] { annotationTask, textureTask, nodeTask});
+            await Task.WhenAll(new Task[] { referenceAtlas.AnnotationsTask, referenceAtlas.AnnotationTextureTask, nodeTask});
 
             foreach (var node in nodeTask.Result)
             {
@@ -231,21 +247,22 @@ namespace TrajectoryPlanner
             //InVivoTransformChanged(Settings.InvivoTransform);
 
             _checkForSavedProbesTaskSource = new TaskCompletionSource<bool>();
-            // After annotation loads, check if the user wants to load previously used probes
-            CheckForSavedProbes();
-            await _checkForSavedProbesTaskSource.Task;
 
             StartupEvent_SceneLoaded.Invoke();
-
-            // Finally, load accounts if we didn't load a query string or a saved set of probes
-            if (!_checkForSavedProbesTaskSource.Task.Result)
-                _accountsManager.DelayedStart();
 
             // Link any events that need to be linked
             ProbeManager.ActiveProbeUIUpdateEvent.AddListener(
                 () => _probeQuickSettings.GetComponentInChildren<QuickSettingsLockBehavior>().UpdateSprite(ProbeManager.ActiveProbeManager.ProbeController.Locked));
 
+            // Complete
             StartupEvent_Complete.Invoke();
+
+            // After annotation loads, check if the user wants to load previously used probes
+            CheckForSavedProbes();
+            await _checkForSavedProbesTaskSource.Task;
+            // Finally, load accounts if we didn't load a query string or a saved set of probes
+            if (!_checkForSavedProbesTaskSource.Task.Result)
+                _accountsManager.DelayedStart();
         }
 
         void Update()
@@ -984,36 +1001,38 @@ namespace TrajectoryPlanner
                 // Don't duplicate probes by accident
                 if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
                 {
-                    CoordinateSpace probeOrigSpace = coordinateSpaceOpts[probeData.CoordSpaceName];
-                    CoordinateTransform probeOrigTransform = coordinateTransformOpts[probeData.CoordTransformName];
+                    CoordinateSpace probeOrigSpace = (coordinateSpaceOpts.ContainsKey(probeData.CoordSpaceName)) ?
+                        coordinateSpaceOpts[probeData.CoordSpaceName] :
+                        BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace;
 
-                    // [TODO]
-                    //ProbeInsertion probeInsertion;
-                    //if (probeOrigTransform.Name != CoordinateSpaceManager.ActiveCoordinateTransform.Name)
-                    //{
-                    //    Debug.LogError($"[TODO] Need to warn user when transforming a probe into the active coordinate space!!");
-                    //    Vector3 newAPMLDV = CoordinateSpaceManager.ActiveCoordinateTransform.Atlas2T(probeOrigTransform.T2Atlas(probeData.APMLDV));
+                    CoordinateTransform probeOrigTransform = coordinateTransformOpts.ContainsKey(probeData.CoordTransformName) ?
+                        coordinateTransformOpts[probeData.CoordTransformName] :
+                        BrainAtlasManager.ActiveAtlasTransform;
 
-                    //    probeInsertion = new ProbeInsertion(newAPMLDV, probeData.Angles,
-                    //        CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
-                    //}
-                    //else
-                    //{
-                    //    probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
-                    //        CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
-                    //}
+                    ProbeInsertion probeInsertion;
+                    if (probeOrigTransform.Name != BrainAtlasManager.ActiveAtlasTransform.Name)
+                    {
+                        Debug.LogError($"[TODO] Need to warn user when transforming a probe into the active coordinate space!!");
+                        Vector3 newAPMLDV = BrainAtlasManager.ActiveAtlasTransform.U2T(probeOrigTransform.T2U(probeData.APMLDV));
+
+                        probeInsertion = new ProbeInsertion(newAPMLDV, probeData.Angles,
+                            BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
+                    }
+                    else
+                    {
+                        probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
+                            BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
+                    }
 
 
-                    // [TODO]
-                    //ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
-                    //    probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
-                    //    probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
+                    ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
+                        probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+                        probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
-                    // [TODO]
-                    //newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
-                    //newProbeManager.OverrideName = probeData.Name;
-                    //newProbeManager.Color = probeData.Color;
-                    //newProbeManager.APITarget = probeData.APITarget;
+                    newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
+                    newProbeManager.OverrideName = probeData.Name;
+                    newProbeManager.Color = probeData.Color;
+                    newProbeManager.APITarget = probeData.APITarget;
                 }
             }
 

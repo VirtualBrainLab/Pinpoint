@@ -1,3 +1,4 @@
+using BrainAtlas;
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -198,8 +199,7 @@ public class CartesianProbeController : ProbeController
 
         probeControlClick.InputControl.performed += x => ToggleControllerLock();
 
-        throw new NotImplementedException();
-        //Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
+        Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
     }
 
     private void Start()

@@ -119,8 +119,11 @@ public class ProbeUIManager : MonoBehaviour
         probePanelGO.SetActive(state);
     }
 
-    private void ProbedMovedHelper()
+    private async void ProbedMovedHelper()
     {
+        // Make sure the annotations have been loaded
+        await BrainAtlasManager.ActiveReferenceAtlas.AnnotationsTask;
+
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
         var channelCoords = _probeManager.GetChannelRangemm();
         ProbeInsertion insertion = _probeManager.ProbeController.Insertion;
@@ -216,7 +219,7 @@ public class ProbeUIManager : MonoBehaviour
             Vector3 interpolatedPosition = Vector3.Lerp(tipPosition, topPosition, perc);
             // Round to int
 
-            int ID = BrainAtlasManager.ActiveReferenceAtlas.AnnotationIdx(interpolatedPosition);
+            int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(interpolatedPosition);
             // convert to Beryl ID (if modelControl is set to do that)
             Debug.LogWarning("Not converting to Beryl!");
             //ID = CCFModelControl.RemapID(ID);

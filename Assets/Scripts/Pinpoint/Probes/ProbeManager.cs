@@ -756,7 +756,6 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateSurfacePosition()
     {
-        throw new NotImplementedException();
         //(Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = _probeController.GetTipWorldU();
 
         //Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(annotationDataset.CoordinateSpace.World2Space(tipCoordWorld),
