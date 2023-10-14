@@ -600,7 +600,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4368194536080577051}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -610,7 +610,7 @@ Transform:
   - {fileID: 7313519670166122196}
   - {fileID: 4250624117159035979}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!114 &4368194536080577053
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -642,6 +642,7 @@ MonoBehaviour:
   _probeController: {fileID: 2207803182506741358}
   _lineMaterial: {fileID: 2100000, guid: ebc1facc3e73f274c8c4d918e266a49d, type: 2}
   _ghostMaterial: {fileID: 2100000, guid: b64d32d990074b34889dd43bce409aa6, type: 2}
+  surfaceCoordinateWorldT: {x: 0, y: 0, z: 0}
 --- !u!114 &4368194536080577050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -679,7 +680,6 @@ MonoBehaviour:
   ManipulatorManualControl: 0
   ManipulatorKeyboardMoveInProgress: 0
   _probeTipT: {fileID: 3485671869318689184}
-  _rotateAround: {fileID: 7313519670166122196}
 --- !u!114 &2498329367781421407
 MonoBehaviour:
   m_ObjectHideFlags: 0

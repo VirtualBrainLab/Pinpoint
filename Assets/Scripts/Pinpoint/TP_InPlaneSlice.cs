@@ -127,16 +127,10 @@ public class TP_InPlaneSlice : MonoBehaviour
         }
         _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankSpacing", shankSpacing);
 
-        Vector3 temp = Vector3.Scale(BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(startCoordWorldU +
-            upWorldU * recordingSizemmU / 2 +
-            forwardWorldU * shankSpacing * centerOffset), BrainAtlasManager.ActiveReferenceAtlas.ResolutionInverse);
-
-        //World2Atlas(Vector3.Scale(ResolutionInverse, worldCoord));
+        // YOU WERE WORKING ON COMPARING THIS CODE AGAINST PROBEUIMANAGER
         recRegionCenterIdx = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(startCoordWorldU +
             upWorldU * recordingSizemmU / 2 +
             forwardWorldU * shankSpacing * centerOffset);
-
-        Debug.Log((temp, recRegionCenterIdx));
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);

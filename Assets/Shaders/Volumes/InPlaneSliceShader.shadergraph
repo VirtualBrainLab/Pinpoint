@@ -2316,8 +2316,8 @@
     "m_ShaderOutputName": "B",
     "m_StageCapability": 3,
     "m_Value": {
-        "e00": -1.0,
-        "e01": 1.0,
+        "e00": 1.0,
+        "e01": -1.0,
         "e02": 1.0,
         "e03": 2.0,
         "e10": 2.0,

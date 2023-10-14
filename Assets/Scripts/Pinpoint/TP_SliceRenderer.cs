@@ -1,3 +1,4 @@
+using BrainAtlas;
 using System;
 using System.Threading.Tasks;
 using TMPro;
@@ -22,39 +23,46 @@ public class TP_SliceRenderer : MonoBehaviour
     private Material saggitalSliceMaterial;
     private Material coronalSliceMaterial;
 
-    private float xCoronal = 5.7f;
-    private float yCorSag = 4f;
-    private float zSaggital = 6.6f;
-    private Vector3[] _coronalOriginalCoords;
-    private Vector3[] _sagittalOriginalCoords;
+    private Vector3[] _coronalOrigWorldU;
+    private Vector3[] _sagittalOrigWorldU;
 
     private void Awake()
     {
         saggitalSliceMaterial = _sagittalSliceGo.GetComponent<Renderer>().material;
         coronalSliceMaterial = _coronalSliceGo.GetComponent<Renderer>().material;
 
-        _coronalOriginalCoords = new Vector3[] {
-                new Vector3(-xCoronal, -yCorSag, 0f),
-                new Vector3(xCoronal, -yCorSag, 0f),
-                new Vector3(-xCoronal, yCorSag, 0f),
-                new Vector3(xCoronal, yCorSag, 0f)
-            };
-
-        _sagittalOriginalCoords = new Vector3[] {
-                new Vector3(0f, -yCorSag, -zSaggital),
-                new Vector3(0f, -yCorSag, zSaggital),
-                new Vector3(0f, yCorSag, -zSaggital),
-                new Vector3(0f, yCorSag, zSaggital)
-            };
 
         loaded = false;
     }
 
     public void Startup(Texture3D annotationTexture)
     {
-
         saggitalSliceMaterial.SetTexture("_Volume", annotationTexture);
         coronalSliceMaterial.SetTexture("_Volume", annotationTexture);
+
+        Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
+
+        // x = ml
+        // y = dv
+        // z = ap
+
+        // (dims.y, dims.z, dims.x)
+
+        // -x+y, +x+y, +x-y, -x-y
+        _coronalOrigWorldU = new Vector3[] {
+                new Vector3(-dims.y, dims.z, 0f),
+                new Vector3(dims.y, dims.z, 0f),
+                new Vector3(dims.y, -dims.z, 0f),
+                new Vector3(-dims.y, -dims.z, 0f)
+            };
+
+        // -z+y, +z+y, +z-y, -z-y
+        _sagittalOrigWorldU = new Vector3[] {
+                new Vector3(0f, dims.z, -dims.x),
+                new Vector3(0f, dims.z, dims.x),
+                new Vector3(0f, -dims.z, dims.x),
+                new Vector3(0f, -dims.z, -dims.x)
+            };
     }
 
     private void Update()
@@ -86,11 +94,10 @@ public class TP_SliceRenderer : MonoBehaviour
             // then get the four corners, and warp these according to the active warp
             Vector3[] newCoronalVerts = new Vector3[4];
             Vector3[] newSagittalVerts = new Vector3[4];
-            for (int i = 0; i < _coronalOriginalCoords.Length; i++)
+            for (int i = 0; i < _coronalOrigWorldU.Length; i++)
             {
-                throw new NotImplementedException();
-                //newCoronalVerts[i] = CoordinateSpaceManager.WorldU2WorldT(new Vector3(_coronalOriginalCoords[i].x, _coronalOriginalCoords[i].y, tipCoordWorld.z));
-                //newSagittalVerts[i] = CoordinateSpaceManager.WorldU2WorldT(new Vector3(tipCoordWorld.x, _sagittalOriginalCoords[i].y, _sagittalOriginalCoords[i].z));
+                newCoronalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(_coronalOrigWorldU[i].x, _coronalOrigWorldU[i].y, tipCoordWorld.z));
+                newSagittalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(tipCoordWorld.x, _sagittalOrigWorldU[i].y, _sagittalOrigWorldU[i].z));
             }
 
             _coronalSliceGo.GetComponent<MeshFilter>().mesh.vertices = newCoronalVerts;

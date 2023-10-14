@@ -748,10 +748,10 @@ public class ProbeManager : MonoBehaviour
     {
         (Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = _probeController.GetTipWorldU();
 
-        Vector3 surfacePos25 = FindSurfaceCoordinate(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorld),
+        Vector3 surfaceIdxCoordU = FindSurfaceIdxCoordinate(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorld),
             BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(tipUpWorld));
 
-        if (float.IsNaN(surfacePos25.x))
+        if (float.IsNaN(surfaceIdxCoordU.x))
         {
             // not in the brain
             probeInBrain = false;
@@ -763,7 +763,7 @@ public class ProbeManager : MonoBehaviour
         {
             // in the brain
             probeInBrain = true;
-            brainSurfaceWorld = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(surfacePos25);
+            brainSurfaceWorld = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(surfaceIdxCoordU);
             brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(brainSurfaceWorld);
             _brainSurface = _probeController.Insertion.World2T(brainSurfaceWorld);
         }
@@ -818,7 +818,7 @@ public class ProbeManager : MonoBehaviour
             var tipExtensionDirection =
                 ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
 
-            var brainSurfaceCoordinate = FindSurfaceCoordinate(
+            var brainSurfaceCoordinate = FindSurfaceIdxCoordinate(
                 BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
                 BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(tipExtensionDirection));
 
@@ -844,22 +844,24 @@ public class ProbeManager : MonoBehaviour
     /// Function guarantees that you enter the brain *once* before exiting, so if you start below the brain you need
     /// to enter first to discover the surface coordinate.
     /// </summary>
-    /// <param name="bottomPos">coordinate to go down to</param>
-    /// <param name="up"></param>
+    /// <param name="bottomIdxCoordU">coordinate to go down to</param>
+    /// <param name="upVector"></param>
     /// <returns></returns>
-    public Vector3 FindSurfaceCoordinate(Vector3 bottomPos, Vector3 up, float searchDistance = 408f)
+    public Vector3 FindSurfaceIdxCoordinate(Vector3 bottomIdxCoordU, Vector3 upVector)
     {
+        // search from 10000 um above the top idx
+        float searchDistance = 10000 / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
         // We'll start at a point that is pretty far above the brain surface
         // note that search distance is in 25um units, so this is actually 10000 um up (i.e. the top of the probe)
-        Vector3 topPos = bottomPos + up * searchDistance;
+        Vector3 topSearchIdxCoordU = bottomIdxCoordU + upVector * searchDistance;
 
         // If by chance we are inside the brain, go farther
-        if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(topPos) > 0)
-            topPos = bottomPos + up * searchDistance * 2f;
+        if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(topSearchIdxCoordU) > 0)
+            topSearchIdxCoordU = bottomIdxCoordU + upVector * searchDistance * 2f;
 
         for (float perc = 0; perc <= 1f; perc += 0.0005f)
         {
-            Vector3 point = Vector3.Lerp(topPos, bottomPos, perc);
+            Vector3 point = Vector3.Lerp(topSearchIdxCoordU, bottomIdxCoordU, perc);
             if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(point) > 0)
                 return point;
         }

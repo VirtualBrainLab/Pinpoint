@@ -197,10 +197,10 @@ public class ProbeUIManager : MonoBehaviour
     /// 
     /// This function ignores areas where the area height is less than X pixels (defined above)
     /// </summary>
-    /// <param name="tipPosition"></param>
-    /// <param name="topPosition"></param>
+    /// <param name="tipIdxWorldT"></param>
+    /// <param name="topIdxWorldT"></param>
     /// <returns></returns>
-    private (List<int>, List<int>, List<string>)  InterpolateAnnotationIDs(Vector3 tipPosition, Vector3 topPosition)
+    private (List<int>, List<int>, List<string>)  InterpolateAnnotationIDs(Vector3 tipIdxWorldT, Vector3 topIdxWorldT)
     {
         // pixel height at which changes happen
         List<int> areaPositionPixels = new();
@@ -217,10 +217,10 @@ public class ProbeUIManager : MonoBehaviour
         for (int i = 0; i < probePanelPxHeight; i++)
         {
             float perc = i / (probePanelPxHeight - 1);
-            Vector3 interpolatedPosition = Vector3.Lerp(tipPosition, topPosition, perc);
+            Vector3 interpolatedIdxWorldT = Vector3.Lerp(tipIdxWorldT, topIdxWorldT, perc);
             // Round to int
 
-            int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(interpolatedPosition);
+            int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(interpolatedIdxWorldT);
             // convert to Beryl ID (if modelControl is set to do that)
             ID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(ID);
 

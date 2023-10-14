@@ -31,7 +31,7 @@ public class CartesianProbeController : ProbeController
     private readonly Vector4 _depthDir = new(0f, 0f, 0f, 1f);
 
     private readonly Vector3 _yawDir = new(1f, 0f, 0f);
-    private readonly Vector3 _pitchDir = new(0f, 1f, 0f);
+    private readonly Vector3 _pitchDir = new(0f, -1f, 0f);
     private readonly Vector3 _rollDir = new(0f, 0f, 1f);
 
 
@@ -81,7 +81,7 @@ public class CartesianProbeController : ProbeController
     // defaults
     private readonly Vector3 _defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
     private const float _defaultDepth = 0f;
-    private readonly Vector2 _defaultAngles = new Vector2(0f, 0f); // 0 yaw is forward, default pitch is 0f (downward)
+    private readonly Vector2 _defaultAngles = new Vector2(0f, 90f); // 0 yaw is forward, default pitch is 0f (downward)
     #endregion
 
     #region Key hold flags
@@ -116,7 +116,6 @@ public class CartesianProbeController : ProbeController
 
     // References
     [SerializeField] private Transform _probeTipT;
-    [FormerlySerializedAs("rotateAround")] [SerializeField] private Transform _rotateAround;
 
     #region Public properties
     public override Transform ProbeTipT { get { return _probeTipT; } }
@@ -709,15 +708,15 @@ public class CartesianProbeController : ProbeController
 
         // Manually adjust the coordinates and rotation
         transform.position += Insertion.PositionWorldT();
-        transform.RotateAround(_rotateAround.position, transform.up, Insertion.Yaw);
-        transform.RotateAround(_rotateAround.position, transform.forward, -Insertion.Pitch);
-        transform.RotateAround(_rotateAround.position, _rotateAround.up, Insertion.Roll);
+        transform.RotateAround(_probeTipT.position, transform.up, Insertion.Yaw);
+        transform.RotateAround(_probeTipT.position, transform.right, Insertion.Pitch);
+        transform.RotateAround(_probeTipT.position, _probeTipT.up, Insertion.Roll);
 
         // Compute depth transform, if needed
         if (_depth != 0f)
         {
-            transform.position += -transform.up * _depth;
-            Vector3 depthAdjustment = Insertion.World2T_Vector(-transform.up) * _depth;
+            transform.position += transform.forward * _depth;
+            Vector3 depthAdjustment = Insertion.World2T_Vector(transform.forward) * _depth;
 
             Insertion.apmldv += depthAdjustment;
             _depth = 0f;
@@ -749,13 +748,6 @@ public class CartesianProbeController : ProbeController
         Insertion.angles = angles;
         SetProbePosition();
     }
-
-    //public override void SetProbePosition(ProbeInsertion localInsertion)
-    //{
-    //    // localInsertion gets copied to Insertion
-    //    Insertion.apmldv = localInsertion.apmldv;
-    //    Insertion.angles = localInsertion.angles;
-    //}
 
     #endregion
 
