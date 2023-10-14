@@ -133,8 +133,6 @@ public class ProbeUIManager : MonoBehaviour
         Vector3 startCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
         Vector3 endCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
 
-        Vector3 startApdvlr25 = insertion.CoordinateSpace.World2Space(startCoordWorldU);
-        Vector3 endApdvlr25 = insertion.CoordinateSpace.World2Space(endCoordWorldU);
 
         List<int> mmTickPositions = new List<int>();
         List<int> tickIdxs = new List<int>();
@@ -164,6 +162,9 @@ public class ProbeUIManager : MonoBehaviour
                 idx++;
             }
         }
+
+        Vector3 startApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(startCoordWorldU);
+        Vector3 endApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(endCoordWorldU);
 
         // Interpolate from the tip to the top, putting this data into the probe panel texture
         (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startApdvlr25, endApdvlr25);

@@ -139,7 +139,6 @@ namespace TrajectoryPlanner
         [SerializeField] private CraniotomyPanel _craniotomyPanel;
 
         // Coordinate system information
-        private Dictionary<string, CoordinateSpace> coordinateSpaceOpts;
         private Dictionary<string, CoordinateTransform> coordinateTransformOpts;
 
         // Local tracking variables
@@ -422,9 +421,8 @@ namespace TrajectoryPlanner
             // Don't duplicate probes by accident
             if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
             {
-                // TODO
                 var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
-                    coordinateSpaceOpts[probeData.CoordSpaceName], coordinateTransformOpts[probeData.CoordTransformName]);
+                    BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, coordinateTransformOpts[probeData.CoordTransformName]);
 
                 ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
                     probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
@@ -998,9 +996,10 @@ namespace TrajectoryPlanner
                 // Don't duplicate probes by accident
                 if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
                 {
-                    CoordinateSpace probeOrigSpace = (coordinateSpaceOpts.ContainsKey(probeData.CoordSpaceName)) ?
-                        coordinateSpaceOpts[probeData.CoordSpaceName] :
-                        BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace;
+                    if (probeData.CoordSpaceName != BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name)
+                        Debug.LogError("[TODO] Need to warn user when transforming a probe into the active coordinate space!!");
+
+                    CoordinateSpace probeOrigSpace = BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace;
 
                     CoordinateTransform probeOrigTransform = coordinateTransformOpts.ContainsKey(probeData.CoordTransformName) ?
                         coordinateTransformOpts[probeData.CoordTransformName] :
@@ -1009,7 +1008,7 @@ namespace TrajectoryPlanner
                     ProbeInsertion probeInsertion;
                     if (probeOrigTransform.Name != BrainAtlasManager.ActiveAtlasTransform.Name)
                     {
-                        Debug.LogError($"[TODO] Need to warn user when transforming a probe into the active coordinate space!!");
+                        Debug.LogError($"[TODO] Need to warn user when transforming a probe into the active coordinate transform!!");
                         Vector3 newAPMLDV = BrainAtlasManager.ActiveAtlasTransform.U2T(probeOrigTransform.T2U(probeData.APMLDV));
 
                         probeInsertion = new ProbeInsertion(newAPMLDV, probeData.Angles,
@@ -1076,7 +1075,7 @@ namespace TrajectoryPlanner
         {
             return (new Vector3(serverInsertion.ap, serverInsertion.ml, serverInsertion.dv),
                 new Vector3(serverInsertion.phi, serverInsertion.theta, serverInsertion.spin),
-                coordinateSpaceOpts[serverInsertion.coordinateSpaceName],
+                BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace,
                 coordinateTransformOpts[serverInsertion.coordinateTransformName],
                 true);
         }

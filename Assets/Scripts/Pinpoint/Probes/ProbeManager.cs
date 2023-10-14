@@ -236,10 +236,6 @@ public class ProbeManager : MonoBehaviour
         ChannelMap = ChannelMapManager.GetChannelMap(ProbeType);
         SelectionLayerName = "default";
 
-        // Get access to the annotation dataset and world-space boundaries
-        // TODO
-        //annotationDataset = VolumeDatasetManager.AnnotationDataset;
-
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
 
         // Set color
@@ -335,8 +331,7 @@ public class ProbeManager : MonoBehaviour
 
     public void Update2ActiveTransform()
     {
-        throw new NotImplementedException();
-        //_probeController.SetSpaceTransform(CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform);
+        _probeController.SetSpaceTransform(BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
     }
 
     public void SetUIVisibility(bool state)
@@ -492,33 +487,31 @@ public class ProbeManager : MonoBehaviour
         // Lerp between the base and top coordinate in small steps'
 
 
-        throw new NotImplementedException();
-        //int lastID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(baseCoordWorldU));
-        //if (lastID < 0) lastID = -1;
+        int lastID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(baseCoordWorldU));
+        if (lastID < 0) lastID = -1;
 
-        //float curBottom = 0f;
-        //float _channelMinUM = 0f; // _channelMinY * 1000f;
+        float curBottom = 0f;
+        float _channelMinUM = 0f; // _channelMinY * 1000f;
 
-        //for (float perc = 0f; perc < 1f; perc += 0.01f)
-        //{
-        //    Vector3 coordU = Vector3.Lerp(baseCoordWorldU, topCoordWorldU, perc);
+        for (float perc = 0f; perc < 1f; perc += 0.01f)
+        {
+            Vector3 coordU = Vector3.Lerp(baseCoordWorldU, topCoordWorldU, perc);
 
-        //    int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(coordU));
-        //    if (ID < 0) ID = -1;
+            int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(coordU));
+            if (ID < 0) ID = -1;
 
-        //    if (ID != lastID)
-        //    {
-        //        // Save the current step
-        //        float newHeight = perc * height * 1000f;
-        //        probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinUM), Mathf.RoundToInt(newHeight + _channelMinUM), CCFModelControl.ID2Acronym(ID), CCFModelControl.GetCCFAreaColor(ID)));
-        //        curBottom = newHeight;
-        //        lastID = ID;
-        //    }
-        //}
+            if (ID != lastID)
+            {
+                // Save the current step
+                float newHeight = perc * height * 1000f;
+                probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinUM), Mathf.RoundToInt(newHeight + _channelMinUM), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID)));
+                curBottom = newHeight;
+                lastID = ID;
+            }
+        }
 
         // Save the final step
-        throw new NotImplementedException();
-        //probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinUM), Mathf.RoundToInt(height * 1000 + _channelMinUM), CCFModelControl.ID2Acronym(lastID), CCFModelControl.GetCCFAreaColor(lastID)));
+        probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinUM), Mathf.RoundToInt(height * 1000 + _channelMinUM), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(lastID), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(lastID)));
 
         // Flatten the list data according to the SpikeGLX format
         // [probe, shank](startpos, endpos, r, g, b, name)
@@ -566,15 +559,14 @@ public class ProbeManager : MonoBehaviour
                     ProbeInsertion insertion = _probeController.Insertion;
                     Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
 
-                    throw new NotImplementedException();
-                    //int elecIdx = si * channelMapData.Count + i;
-                    //int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
-                    //if (ID < 0) ID = -1;
+                    int elecIdx = si * channelMapData.Count + i;
+                    int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU));
+                    if (ID < 0) ID = -1;
 
-                    //string acronym = CCFModelControl.ID2Acronym(ID);
-                    //Color color = CCFModelControl.GetCCFAreaColor(ID);
+                    string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID);
+                    Color color = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID);
 
-                    //channelAnnotationData.Add((elecIdx, ID, acronym, Utils.Color2Hex(color)));
+                    channelAnnotationData.Add((elecIdx, ID, acronym, Utils.Color2Hex(color)));
                 }
             }
         }
@@ -594,14 +586,13 @@ public class ProbeManager : MonoBehaviour
                 ProbeInsertion insertion = _probeController.Insertion;
                 Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
 
-                throw new NotImplementedException();
-                //int ID = annotationDataset.ValueAtIndex(annotationDataset.CoordinateSpace.World2Space(channelCoordWorldU));
-                //if (ID < 0) ID = -1;
+                int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU));
+                if (ID < 0) ID = -1;
 
-                //string acronym = CCFModelControl.ID2Acronym(ID);
-                //Color color = CCFModelControl.GetCCFAreaColor(ID);
+                string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID);
+                Color color = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID);
 
-                //channelAnnotationData.Add((i, ID, acronym, Utils.Color2Hex(color)));
+                channelAnnotationData.Add((i, ID, acronym, Utils.Color2Hex(color)));
             }
         }
 
@@ -685,7 +676,6 @@ public class ProbeManager : MonoBehaviour
 
         (Vector3 entryAtlasT, float depthTransformed) = GetSurfaceCoordinateT();
 
-        throw new NotImplementedException();
         Vector3 entryAtlasU = BrainAtlasManager.ActiveAtlasTransform.T2U(entryAtlasT) + insertion.CoordinateSpace.ReferenceCoord;
 
         if (Settings.ConvertAPML2Probe)
@@ -756,27 +746,27 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateSurfacePosition()
     {
-        //(Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = _probeController.GetTipWorldU();
+        (Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = _probeController.GetTipWorldU();
 
-        //Vector3 surfacePos25 = annotationDataset.FindSurfaceCoordinate(annotationDataset.CoordinateSpace.World2Space(tipCoordWorld),
-        //    annotationDataset.CoordinateSpace.World2Space_Vector(tipUpWorld));
+        Vector3 surfacePos25 = FindSurfaceCoordinate(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorld),
+            BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(tipUpWorld));
 
-        //if (float.IsNaN(surfacePos25.x))
-        //{
-        //    // not in the brain
-        //    probeInBrain = false;
-        //    brainSurfaceWorld = new Vector3(float.NaN, float.NaN, float.NaN);
-        //    brainSurfaceWorldT = new Vector3(float.NaN, float.NaN, float.NaN);
-        //    _brainSurface = new Vector3(float.NaN, float.NaN, float.NaN);
-        //}
-        //else
-        //{
-        //    // in the brain
-        //    probeInBrain = true;
-        //    brainSurfaceWorld = annotationDataset.CoordinateSpace.Space2World(surfacePos25);
-        //    brainSurfaceWorldT = CoordinateSpaceManager.WorldU2WorldT(brainSurfaceWorld);
-        //    _brainSurface = _probeController.Insertion.World2Transformed(brainSurfaceWorld);
-        //}
+        if (float.IsNaN(surfacePos25.x))
+        {
+            // not in the brain
+            probeInBrain = false;
+            brainSurfaceWorld = new Vector3(float.NaN, float.NaN, float.NaN);
+            brainSurfaceWorldT = new Vector3(float.NaN, float.NaN, float.NaN);
+            _brainSurface = new Vector3(float.NaN, float.NaN, float.NaN);
+        }
+        else
+        {
+            // in the brain
+            probeInBrain = true;
+            brainSurfaceWorld = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(surfacePos25);
+            brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(brainSurfaceWorld);
+            _brainSurface = _probeController.Insertion.World2T(brainSurfaceWorld);
+        }
     }
 
 
@@ -790,23 +780,23 @@ public class ProbeManager : MonoBehaviour
         return brainSurfaceWorldT;
     }
 
-    //public Vector3 surfaceCoordinateWorldT 
+    public Vector3 surfaceCoordinateWorldT;
 
-    //public (Vector3 tipCoordTransformed, Vector3 entryCoordTransformed, float depthTransformed) GetSurfaceCoordinateTransformed()
-    //{
-    //    // Get the tip and entry coordinates in world space, transform them -> Space -> Transformed, then calculate depth
-    //    Vector3 tipCoordWorld = probeController.GetTipTransform().position;
-    //    Vector3 entryCoordWorld = probeInBrain ? brainSurfaceWorld : tipCoordWorld;
+    public (Vector3 tipCoordTransformed, Vector3 entryCoordTransformed, float depthTransformed) GetSurfaceCoordinateTransformed()
+    {
+        // Get the tip and entry coordinates in world space, transform them -> Space -> Transformed, then calculate depth
+        Vector3 tipCoordWorld = _probeController.ProbeTipT.position;
+        Vector3 entryCoordWorld = probeInBrain ? brainSurfaceWorld : tipCoordWorld;
 
-    //    // Convert
-    //    ProbeInsertion insertion = probeController.Insertion;
-    //    Vector3 tipCoordTransformed = insertion.World2Transformed(tipCoordWorld);
-    //    Vector3 entryCoordTransformed = insertion.World2Transformed(entryCoordWorld);
+        // Convert
+        ProbeInsertion insertion = _probeController.Insertion;
+        Vector3 tipCoordTransformed = insertion.World2T(tipCoordWorld);
+        Vector3 entryCoordTransformed = insertion.World2T(entryCoordWorld);
 
-    //    float depth = probeInBrain ? Vector3.Distance(tipCoordTransformed, entryCoordTransformed) : 0f;
+        float depth = probeInBrain ? Vector3.Distance(tipCoordTransformed, entryCoordTransformed) : 0f;
 
-    //    return (tipCoordTransformed, entryCoordTransformed, depth);
-    //}
+        return (tipCoordTransformed, entryCoordTransformed, depth);
+    }
 
     public bool IsProbeInBrain()
     {
@@ -818,38 +808,69 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void DropProbeToBrainSurface()
     {
-        throw new NotImplementedException();
-        //if (probeInBrain)
-        //{
-        //    _probeController.SetProbePosition(_brainSurface);
-        //}
-        //else
-        //{
-        //    // We need to calculate the surface coordinate ourselves
-        //    var tipExtensionDirection =
-        //        ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
+        if (probeInBrain)
+        {
+            _probeController.SetProbePosition(_brainSurface);
+        }
+        else
+        {
+            // We need to calculate the surface coordinate ourselves
+            var tipExtensionDirection =
+                ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
 
-        //    var brainSurfaceCoordinate = annotationDataset.FindSurfaceCoordinate(
-        //        annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
-        //        annotationDataset.CoordinateSpace.World2Space_Vector(tipExtensionDirection));
+            var brainSurfaceCoordinate = FindSurfaceCoordinate(
+                BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(tipExtensionDirection));
 
-        //    if (float.IsNaN(brainSurfaceCoordinate.x))
-        //    {
-        //        Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
-        //        return;
-        //    }
+            if (float.IsNaN(brainSurfaceCoordinate.x))
+            {
+                Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
+                return;
+            }
 
-        //    var brainSurfaceToTransformed =
-        //        _probeController.Insertion.World2Transformed(
-        //            annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate));
+            var brainSurfaceToTransformed =
+                _probeController.Insertion.World2T(
+                    BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(brainSurfaceCoordinate));
 
-        //    _probeController.SetProbePosition(brainSurfaceToTransformed);
-        //}
+            _probeController.SetProbePosition(brainSurfaceToTransformed);
+        }
     }
 
-#endregion
+    /// <summary>
+    /// Use the annotation dataset to discover whether there is a surface coordinate by going *down* from a point searchDistance
+    /// *above* the startPos
+    /// returns the coordinate in the annotation dataset that corresponds to the surface.
+    ///  
+    /// Function guarantees that you enter the brain *once* before exiting, so if you start below the brain you need
+    /// to enter first to discover the surface coordinate.
+    /// </summary>
+    /// <param name="bottomPos">coordinate to go down to</param>
+    /// <param name="up"></param>
+    /// <returns></returns>
+    public Vector3 FindSurfaceCoordinate(Vector3 bottomPos, Vector3 up, float searchDistance = 408f)
+    {
+        // We'll start at a point that is pretty far above the brain surface
+        // note that search distance is in 25um units, so this is actually 10000 um up (i.e. the top of the probe)
+        Vector3 topPos = bottomPos + up * searchDistance;
 
-#region Ephys Link Control
+        // If by chance we are inside the brain, go farther
+        if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(topPos) > 0)
+            topPos = bottomPos + up * searchDistance * 2f;
+
+        for (float perc = 0; perc <= 1f; perc += 0.0005f)
+        {
+            Vector3 point = Vector3.Lerp(topPos, bottomPos, perc);
+            if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(point) > 0)
+                return point;
+        }
+
+        // If you got here it means you *never* entered and then exited the brain
+        return new Vector3(float.NaN, float.NaN, float.NaN);
+    }
+
+    #endregion
+
+    #region Ephys Link Control
 
     /// <summary>
     /// (un)Register a probe and begin echoing position.
@@ -1054,6 +1075,7 @@ public struct ProbeData
 
         data.CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
 
+        // TODO
         //if (probeManager.ProbeController.Insertion.AtlasTransform.Name.Equals("Custom"))
         //    data.CoordTransformName = CoordinateSpaceManager.OriginalTransform.Name;
         //else
