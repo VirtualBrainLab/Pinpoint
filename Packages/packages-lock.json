@@ -207,14 +207,14 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "ecad7fc16edb509eee91950e7b3752a6df0051b8"
+      "hash": "cec36403c77398e64ed155f5c47697068f385717"
     },
     "vbl.urchin": {
       "version": "https://github.com/VirtualBrainLab/Urchin.git?path=/UnityClient/Packages/vbl.urchin",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "c0d73d28f000acd583668921b2e8955902a96277"
+      "hash": "8f0446846dcaf3382f1f327f1b3ad6ef1e2f1d4f"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

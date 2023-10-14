@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AddressableAssetSettings
   m_EditorClassIdentifier: 
   m_DefaultGroup: eb9eb3c822ec72b468349d4e785d6617
-  m_CachedHash:
+  m_currentHash:
     serializedVersion: 2
     Hash: 00000000000000000000000000000000
   m_OptimizeCatalogSize: 0
@@ -32,11 +32,14 @@ MonoBehaviour:
   m_ShaderBundleNaming: 0
   m_ShaderBundleCustomNaming: 
   m_MonoScriptBundleNaming: 0
+  m_CheckForContentUpdateRestrictionsOption: 0
   m_MonoScriptBundleCustomNaming: 
   m_RemoteCatalogBuildPath:
     m_Id: 0dbfffed1e7d1434696f5a6193af38d3
   m_RemoteCatalogLoadPath:
     m_Id: 8b0e868bf8565ef4ba5a95e7d57f666c
+  m_ContentStateBuildPathProfileVariableName: <default settings path>
+  m_CustomContentStateBuildPath: 
   m_ContentStateBuildPath: 
   m_BuildAddressablesWithPlayerBuild: 2
   m_overridePlayerVersion: 
@@ -66,7 +69,7 @@ MonoBehaviour:
       - m_Id: 0dbfffed1e7d1434696f5a6193af38d3
         m_Value: ServerData/[BuildTarget]
       - m_Id: 8b0e868bf8565ef4ba5a95e7d57f666c
-        m_Value: http://data.virtualbrainlab.org/NPTrajData/0.9.0/[BuildTarget]
+        m_Value: https://data.virtualbrainlab.org/NPTrajData/0.9.0/[BuildTarget]
     m_ProfileEntryNames:
     - m_Id: b28712faecae3244489993d74caf0ba7
       m_Name: BuildTarget
@@ -117,7 +120,7 @@ MonoBehaviour:
           m_Key: HostingServiceUploadSpeed
         - m_AssemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
           m_ClassName: System.String
-          m_Data: ServerData/WebGL
+          m_Data: ServerData/StandaloneWindows64
           m_Key: ContentRoot
         - m_AssemblyName: mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
           m_ClassName: System.Boolean
@@ -135,3 +138,4 @@ MonoBehaviour:
     m_NextInstanceId: 1
     m_RegisteredServiceTypeRefs:
     - UnityEditor.AddressableAssets.HostingServices.HttpHostingService, Unity.Addressables.Editor
+    m_PingTimeoutInMilliseconds: 5000

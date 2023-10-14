@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using BrainAtlas;
 using EphysLink;
 using TrajectoryPlanner.Probes;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
+using Urchin.Utils;
 #if UNITY_WEBGL && !UNITY_EDITOR
 using System.Runtime.InteropServices;
 #endif
@@ -684,7 +686,7 @@ public class ProbeManager : MonoBehaviour
         (Vector3 entryAtlasT, float depthTransformed) = GetSurfaceCoordinateT();
 
         throw new NotImplementedException();
-        //Vector3 entryAtlasU = CoordinateSpaceManager.ActiveCoordinateTransform.T2Atlas(entryAtlasT) + insertion.ReferenceAtlas.RelativeOffset;
+        Vector3 entryAtlasU = BrainAtlasManager.ActiveAtlasTransform.T2U(entryAtlasT) + insertion.CoordinateSpace.ReferenceCoord;
 
         if (Settings.ConvertAPML2Probe)
         {
@@ -704,23 +706,21 @@ public class ProbeManager : MonoBehaviour
             tipAtlasT.y = tipYRot;
         }
 
-        throw new NotImplementedException();
-        //string dataStr = string.Format($"{name}: ReferenceAtlas {CoordinateSpaceManager.ActiveCoordinateSpace.Name}, " +
-        //    $"AtlasTransform {CoordinateSpaceManager.ActiveCoordinateTransform.Name}, " +
-        //    $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), " +
-        //    $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), " +
-        //    $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), " +
-        //    $"Angles ({round2(Utils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(Utils.CircDeg(angles.z, minRoll, maxRoll))}), " +
-        //    $"Depth {round0(depthTransformed * mult)}, " +
-        //    $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), " +
-        //    $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), " +
-        //    $"CCF Depth {round0(Vector3.Distance(entryAtlasU, tipAtlasU))}");
+        string dataStr = string.Format($"{name}: ReferenceAtlas {BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name}, " +
+            $"AtlasTransform {BrainAtlasManager.ActiveAtlasTransform.Name}, " +
+            $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), " +
+            $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), " +
+            $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), " +
+            $"Angles ({round2(Utils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(Utils.CircDeg(angles.z, minRoll, maxRoll))}), " +
+            $"Depth {round0(depthTransformed * mult)}, " +
+            $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), " +
+            $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), " +
+            $"CCF Depth {round0(Vector3.Distance(entryAtlasU, tipAtlasU))}");
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         Copy2Clipboard(dataStr);
 #else
-        throw new NotImplementedException();
-        //GUIUtility.systemCopyBuffer = dataStr;
+        GUIUtility.systemCopyBuffer = dataStr;
 #endif
     }
 

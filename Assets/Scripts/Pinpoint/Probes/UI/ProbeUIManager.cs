@@ -221,9 +221,7 @@ public class ProbeUIManager : MonoBehaviour
 
             int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(interpolatedPosition);
             // convert to Beryl ID (if modelControl is set to do that)
-            Debug.LogWarning("Not converting to Beryl!");
-            //ID = CCFModelControl.RemapID(ID);
-            //interpolated[i] = modelControl.GetCCFAreaColor(ID);
+            ID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(ID);
 
             if (ID != prevID)
             {

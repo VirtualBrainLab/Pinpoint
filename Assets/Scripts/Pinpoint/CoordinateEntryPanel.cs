@@ -1,6 +1,7 @@
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
+using Urchin.Utils;
 
 public class CoordinateEntryPanel : MonoBehaviour
 {

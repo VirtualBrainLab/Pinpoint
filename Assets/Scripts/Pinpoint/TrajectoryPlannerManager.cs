@@ -14,6 +14,7 @@ using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Urchin.Managers;
 using static UnityEngine.InputSystem.InputAction;
+using Urchin.Utils;
 
 
 #if UNITY_WEBGL
@@ -98,7 +99,6 @@ namespace TrajectoryPlanner
 
         // Managers and accessors
         [SerializeField] private Transform _probeParentT;
-        [FormerlySerializedAs("util")] [SerializeField] private Utils _util;
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
         [SerializeField] private ProbePanelManager _probePanelManager;
         [SerializeField] private AtlasManager _atlasManager;
@@ -339,14 +339,12 @@ namespace TrajectoryPlanner
 
         public void ClickSearchArea(GameObject target)
         {
-            throw new NotImplementedException();
-            //_searchControl.ClickArea(target);
+            _searchControl.ClickArea(target);
         }
 
         public void TargetSearchArea(int id)
         {
-            throw new NotImplementedException();
-            //_searchControl.ClickArea(id);
+            _searchControl.ClickArea(id);
         }
 
         // DESTROY AND REPLACE PROBES
@@ -939,21 +937,20 @@ namespace TrajectoryPlanner
             {
                 Debug.Log("Found query string");
 
-                string queryString = appURL.Substring(queryIdx);
+                var queryDict = Utils.ParseQueryString();
 
-                NameValueCollection qscoll = System.Web.HttpUtility.ParseQueryString(queryString);
-                foreach (string query in qscoll)
+                foreach (var queryKVP in queryDict)
                 {
-                    if (query.Equals("Probes"))
+                    if (queryKVP.Key.Equals("Probes"))
                     {
-                        string encodedStr = qscoll[query];
+                        string encodedStr = queryKVP.Value;
 
                         LoadSavedProbesFromEncodedString(encodedStr);
                         queryStr = true;
                     }
-                    if (query.Equals("Settings"))
+                    if (queryKVP.Key.Equals("Settings"))
                     {
-                        string settingsQuery = qscoll[query];
+                        string settingsQuery = queryKVP.Value;
                         
                         LoadSettingsFromEncodedString(settingsQuery);
                     }

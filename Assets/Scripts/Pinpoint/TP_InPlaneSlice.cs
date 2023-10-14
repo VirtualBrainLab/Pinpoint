@@ -23,9 +23,11 @@ public class TP_InPlaneSlice : MonoBehaviour
     private RectTransform _rect;
 
     private float inPlaneScale;
-    private Vector3 recordingRegionCenterPosition;
+    private Vector3 recRegionCenterIdx;
     Vector3 upWorldU;
     Vector3 forwardWorldU;
+
+    public Texture3D texture;
 
     private void Awake()
     {
@@ -73,9 +75,9 @@ public class TP_InPlaneSlice : MonoBehaviour
         // Get the start/end coordinates of the probe recording region and convert them into *un-transformed* coordinates
         (Vector3 startCoordWorldU, Vector3 endCoordWorldU) = ProbeManager.ActiveProbeManager.RecRegionCoordWorldU;
 
-        // TODO
-        Vector3 startApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(startCoordWorldU);
-        Vector3 endApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(endCoordWorldU);
+        //// TODO
+        //Vector3 startApdvlr25 = Vector3.Scale(BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(startCoordWorldU), BrainAtlasManager.ActiveReferenceAtlas.Resolution);
+        //Vector3 endApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(endCoordWorldU);
 
         (_, upWorldU, forwardWorldU) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
@@ -125,9 +127,9 @@ public class TP_InPlaneSlice : MonoBehaviour
         }
         _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankSpacing", shankSpacing);
 
-        recordingRegionCenterPosition = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(startCoordWorldU +
+        recRegionCenterIdx = Vector3.Scale(BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(startCoordWorldU +
             upWorldU * recordingSizemmU / 2 +
-            forwardWorldU * shankSpacing * centerOffset);
+            forwardWorldU * shankSpacing * centerOffset), BrainAtlasManager.ActiveReferenceAtlas.ResolutionInverse);
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);
@@ -135,7 +137,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         inPlaneScale = recordingSizemmU * 1.5f * 1000f / 25f * zoomFactor;
 
 
-        _gpuSliceRenderer.sharedMaterial.SetVector("_RecordingRegionCenterPosition", recordingRegionCenterPosition);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_RecordingRegionCenterPosition", recRegionCenterIdx);
         _gpuSliceRenderer.sharedMaterial.SetVector("_ForwardDirection", forwardWorldU);
         _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", upWorldU);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", recordingSizemmU * 1000f / 25f);
@@ -155,8 +157,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
         int annotation = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(inPlanePosition);
-        Debug.LogWarning("should be rempaping here");
-        //annotation = CCFModelControl.RemapID(annotation);
+        annotation = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(annotation);
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -175,7 +176,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
         // Take the tip transform and go out according to the in plane percentage 
 
-        Vector3 inPlanePosition = recordingRegionCenterPosition + (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(forwardWorldU) * -inPlanePosNorm.x + BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(upWorldU) * inPlanePosNorm.y);
+        Vector3 inPlanePosition = recRegionCenterIdx + (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(forwardWorldU) * -inPlanePosNorm.x + BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(upWorldU) * inPlanePosNorm.y);
         return inPlanePosition;
     }
 
