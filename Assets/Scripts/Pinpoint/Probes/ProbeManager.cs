@@ -746,10 +746,11 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateSurfacePosition()
     {
-        (Vector3 tipCoordWorld, _, Vector3 tipUpWorldU, _) = _probeController.GetTipWorldU();
+        // note: the backward axis on the probe is the probe's "up" axis
+        (Vector3 tipCoordWorld, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
 
         Vector3 surfaceIdxCoordU = FindSurfaceIdxCoordinate(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorld),
-            BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(tipUpWorldU));
+            BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-tipForwardWorldU));
 
         if (float.IsNaN(surfaceIdxCoordU.x))
         {
