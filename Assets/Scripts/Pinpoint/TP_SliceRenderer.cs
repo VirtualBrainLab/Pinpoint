@@ -86,7 +86,7 @@ public class TP_SliceRenderer : MonoBehaviour
         {
             if (ProbeManager.ActiveProbeManager == null) return;
             // Use the un-transformed CCF coordinates to obtain the position in the CCF volume
-            (Vector3 tipCoordWorld, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
+            (Vector3 tipCoordWorld, _, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
             // vertex order -x-y, +x-y, -x+y, +x+y
 

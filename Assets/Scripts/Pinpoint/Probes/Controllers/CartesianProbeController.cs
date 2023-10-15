@@ -754,29 +754,18 @@ public class CartesianProbeController : ProbeController
     #region Getters
 
     /// <summary>
-    /// Return the tip coordinates in **un-transformed** world coordinates
+    /// Return the tip coordinates and vectors in **un-transformed** world coordinates
     /// </summary>
     /// <returns></returns>
-    public override (Vector3 tipCoordWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU()
+    public override (Vector3 tipCoordWorldU, Vector3 tipRightWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU()
     {
-        Vector3 tipCoordWorldU = WorldT2WorldU(_probeTipT.position);
-        Vector3 tipUpWorldU = (WorldT2WorldU(_probeTipT.position + _probeTipT.up) - tipCoordWorldU).normalized;
-        Vector3 tipForwardWorldU = (WorldT2WorldU(_probeTipT.position + _probeTipT.forward) - tipCoordWorldU).normalized;
+        Vector3 tipCoordWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.position);
+        Vector3 tipRightWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.right).normalized;
+        Vector3 tipUpWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.up).normalized;
+        Vector3 tipForwardWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.forward).normalized;
 
-        return (tipCoordWorldU, tipUpWorldU, tipForwardWorldU);
+        return (tipCoordWorldU, tipRightWorldU, tipUpWorldU, tipForwardWorldU);
     }
-
-    /// <summary>
-    /// Convert a transformed world coordinate into an un-transformed coordinate
-    /// </summary>
-    /// <param name="coordWorldT"></param>
-    /// <returns></returns>
-    private Vector3 WorldT2WorldU(Vector3 coordWorldT)
-    {
-        return Insertion.CoordinateSpace.Space2World(Insertion.CoordinateTransform.T2U(Insertion.CoordinateTransform.U2T_Vector(Insertion.CoordinateSpace.World2Space(coordWorldT))));
-    }
-
-
     #endregion
 
 }

@@ -24,6 +24,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     private float inPlaneScale;
     private Vector3 recRegionCenterIdx;
+    Vector3 rightWorldU;
     Vector3 upWorldU;
     Vector3 forwardWorldU;
 
@@ -79,12 +80,12 @@ public class TP_InPlaneSlice : MonoBehaviour
         //Vector3 startApdvlr25 = Vector3.Scale(BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(startCoordWorldU), BrainAtlasManager.ActiveReferenceAtlas.Resolution);
         //Vector3 endApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(endCoordWorldU);
 
-        (_, upWorldU, forwardWorldU) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
+        (_, rightWorldU, upWorldU, forwardWorldU) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
 #if UNITY_EDITOR
         // debug statements
         Debug.DrawRay(startCoordWorldU, upWorldU, Color.green);
-        Debug.DrawRay(endCoordWorldU, forwardWorldU, Color.red);
+        Debug.DrawRay(endCoordWorldU, rightWorldU, Color.red);
 #endif
 
         // Calculate the size
@@ -127,10 +128,10 @@ public class TP_InPlaneSlice : MonoBehaviour
         }
         _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankSpacing", shankSpacing);
 
-        // YOU WERE WORKING ON COMPARING THIS CODE AGAINST PROBEUIMANAGER
+        // the slice's "up" direction is the probe's "backward"
         recRegionCenterIdx = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(startCoordWorldU +
-            upWorldU * recordingSizemmU / 2 +
-            forwardWorldU * shankSpacing * centerOffset);
+            -forwardWorldU * recordingSizemmU / 2 +
+            -rightWorldU * shankSpacing * centerOffset);
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);
@@ -139,8 +140,9 @@ public class TP_InPlaneSlice : MonoBehaviour
 
 
         _gpuSliceRenderer.sharedMaterial.SetVector("_RecordingRegionCenterPosition", recRegionCenterIdx);
-        _gpuSliceRenderer.sharedMaterial.SetVector("_ForwardDirection", forwardWorldU);
-        _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", upWorldU);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_RightDirection", rightWorldU);
+        // the slice's "up" direction is the probe's "backward"
+        _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", -forwardWorldU);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", recordingSizemmU * 1000f / 25f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_Scale", inPlaneScale);
         float roundedMmRecSize = Mathf.Round(recordingSizemmU * 1.5f * zoomFactor * 100) / 100;

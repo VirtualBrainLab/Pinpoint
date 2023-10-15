@@ -746,10 +746,10 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateSurfacePosition()
     {
-        (Vector3 tipCoordWorld, Vector3 tipUpWorld, _) = _probeController.GetTipWorldU();
+        (Vector3 tipCoordWorld, _, Vector3 tipUpWorldU, _) = _probeController.GetTipWorldU();
 
         Vector3 surfaceIdxCoordU = FindSurfaceIdxCoordinate(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorld),
-            BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(tipUpWorld));
+            BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(tipUpWorldU));
 
         if (float.IsNaN(surfaceIdxCoordU.x))
         {

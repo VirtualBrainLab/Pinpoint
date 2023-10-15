@@ -31,7 +31,7 @@ public abstract class ProbeController : MonoBehaviour
 
     public abstract Transform ProbeTipT { get; }
 
-    public abstract (Vector3 tipCoordWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU();
+    public abstract (Vector3 tipCoordWorldU, Vector3 tipRightWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU();
 
     public abstract void ToggleControllerLock();
 
