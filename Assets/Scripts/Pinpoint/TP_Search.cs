@@ -153,6 +153,7 @@ public class TP_Search : MonoBehaviour
                 node.SetVisibility(true, OntologyNode.OntologyNodeSide.Right);
                 node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["opaque-lit"], OntologyNode.OntologyNodeSide.Left);
                 node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["opaque-lit"], OntologyNode.OntologyNodeSide.Right);
+                node.ResetColor();
             }
             activeBrainAreas.Add(targetAreaID);
         }
