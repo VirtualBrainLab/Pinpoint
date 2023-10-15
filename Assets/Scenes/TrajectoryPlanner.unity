@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44912726, g: 0.49919963, b: 0.5757154, a: 1}
+  m_IndirectSpecularColor: {r: 0.44824904, g: 0.49827605, b: 0.5755831, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -793,7 +793,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3393775226405738686, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
       propertyPath: near clip plane
-      value: -50
+      value: -130
       objectReference: {fileID: 0}
     - target: {fileID: 3393775226405738686, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
       propertyPath: m_BackGroundColor.b
@@ -1367,6 +1367,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2480836680909240781, guid: 6d02a754f544b65479102fc55b4a6105, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 44832adf106072c4980aac75dd5d60cb, type: 2}
+    - target: {fileID: 2480836680909240781, guid: 6d02a754f544b65479102fc55b4a6105, type: 3}
       propertyPath: m_Parameters.widthMultiplier
       value: 0.05
       objectReference: {fileID: 0}
@@ -1442,6 +1446,10 @@ PrefabInstance:
       propertyPath: m_Parameters.widthMultiplier
       value: 0.05
       objectReference: {fileID: 0}
+    - target: {fileID: 7017486998538583892, guid: 6d02a754f544b65479102fc55b4a6105, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3ddd4c24f5b89054eac597f10d86eabd, type: 2}
     - target: {fileID: 7017486998538583892, guid: 6d02a754f544b65479102fc55b4a6105, type: 3}
       propertyPath: m_Parameters.widthMultiplier
       value: 0.05

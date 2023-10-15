@@ -31,7 +31,7 @@ public class AxisControl : MonoBehaviour
 
         if (DepthAxis.enabled)
             DepthAxis.SetPositions(new Vector3[] {
-                transform.position + -transform.up * DepthScale,
-                transform.position + transform.up * DepthScale});
+                transform.position + -transform.forward * DepthScale,
+                transform.position + transform.forward * DepthScale});
     }
 }

@@ -35,7 +35,7 @@ public class CartesianProbeController : ProbeController
     private readonly Vector3 _rollDir = new(0f, 0f, 1f);
 
 
-    private Vector4 ForwardVecWorld { get => Settings.ConvertAPML2Probe ? ProbeTipT.forward : Vector3.forward; }
+    private Vector4 ForwardVecWorld { get => Settings.ConvertAPML2Probe ? ProbeTipT.up : Vector3.forward; }
     private Vector4 RightVecWorld { get => Settings.ConvertAPML2Probe ? ProbeTipT.right : Vector3.right; }
     private Vector4 UpVecWorld { get => Vector3.up; }
     private Vector4 DepthVecWorld { get => _depthDir; }
