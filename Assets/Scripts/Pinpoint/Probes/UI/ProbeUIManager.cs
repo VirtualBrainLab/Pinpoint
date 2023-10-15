@@ -128,10 +128,12 @@ public class ProbeUIManager : MonoBehaviour
         var channelCoords = _probeManager.GetChannelRangemm();
         ProbeInsertion insertion = _probeManager.ProbeController.Insertion;
 
-        Vector3 startCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.startPosmm;
-        Vector3 endCoordWorldT = _electrodeBase.transform.position + _electrodeBase.transform.up * channelCoords.endPosmm;
-        Vector3 startCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
-        Vector3 endCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
+        // note: electrodeBase backward access is the probe's "up" axis
+        Vector3 startCoordWorldT = _electrodeBase.transform.position + -_electrodeBase.transform.forward * channelCoords.startPosmm;
+        Vector3 endCoordWorldT = _electrodeBase.transform.position + -_electrodeBase.transform.forward * channelCoords.endPosmm;
+
+        Vector3 startCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT);
+        Vector3 endCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT);
 
 
         List<int> mmTickPositions = new List<int>();
@@ -218,8 +220,6 @@ public class ProbeUIManager : MonoBehaviour
         {
             float perc = i / (probePanelPxHeight - 1);
             Vector3 interpolatedIdxWorldT = Vector3.Lerp(tipIdxWorldT, topIdxWorldT, perc);
-            // Round to int
-
             int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(interpolatedIdxWorldT);
             // convert to Beryl ID (if modelControl is set to do that)
             ID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(ID);
