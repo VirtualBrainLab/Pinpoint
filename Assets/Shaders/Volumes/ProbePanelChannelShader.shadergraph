@@ -901,7 +901,7 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector3_1a403f56696540a38781461582f3ccc0",
-    "m_OverrideReferenceName": "_TipPosition",
+    "m_OverrideReferenceName": "_TipPositionIdx",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
@@ -1132,9 +1132,9 @@
     "hlslDeclarationOverride": 0,
     "m_Hidden": false,
     "m_Value": {
-        "x": 528.0,
-        "y": 320.0,
-        "z": 456.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
         "w": 0.0
     }
 }

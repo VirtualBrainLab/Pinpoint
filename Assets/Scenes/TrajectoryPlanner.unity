@@ -822,6 +822,34 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162775, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: RotationChangedEvent.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162775, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: RotationChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162775, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: RotationChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 379075881}
+    - target: {fileID: 3393775226113162775, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: RotationChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162775, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: RotationChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: UpdateCameraPosition
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162775, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: RotationChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: TP_SliceRenderer, trajectoryplanner.core
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393775226113162775, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+      propertyPath: RotationChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 3393775226405738683, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
       propertyPath: m_TagString
       value: MainCamera
@@ -2728,6 +2756,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2092851804 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3393775226113162772, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
+  m_PrefabInstance: {fileID: 660400855}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29696c16e4ad4234f81dfdbd428c8ad3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &2108153954 stripped
@@ -8777,7 +8816,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CameraZoomChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2092851804}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: OpenEphysDataToggle.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -8933,10 +8972,10 @@ PrefabInstance:
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CameraRotationChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2092851804}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CameraZoomChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetZoom
+      value: SetCameraZoom
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: DetectCollisionsChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -9156,7 +9195,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CameraRotationChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetBrainAxisAngles
+      value: SetCameraRotation
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: GhostInactiveAreasChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -9328,7 +9367,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CameraZoomChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: BrainCameraController, vblcore.camera
+      value: Urchin.Behaviors.CameraBehavior, urchin.behaviors
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ProbeSpeedChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -9404,7 +9443,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: CameraRotationChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: BrainCameraController, vblcore.camera
+      value: Urchin.Behaviors.CameraBehavior, urchin.behaviors
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: SurfaceCoordChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument

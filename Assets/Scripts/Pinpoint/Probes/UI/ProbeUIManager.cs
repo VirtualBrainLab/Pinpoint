@@ -126,7 +126,7 @@ public class ProbeUIManager : MonoBehaviour
 
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
         var channelCoords = _probeManager.GetChannelRangemm();
-        ProbeInsertion insertion = _probeManager.ProbeController.Insertion;
+        //ProbeInsertion insertion = _probeManager.ProbeController.Insertion;
 
         // note: electrodeBase backward access is the probe's "up" axis
         Vector3 startCoordWorldT = _electrodeBase.transform.position + -_electrodeBase.transform.forward * channelCoords.startPosmm;
@@ -135,34 +135,36 @@ public class ProbeUIManager : MonoBehaviour
         Vector3 startCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT);
         Vector3 endCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT);
 
-        List<int> mmTickPositions = new List<int>();
-        List<int> tickIdxs = new List<int>();
-        List<int> tickHeights = new List<int>(); // this will be calculated in the second step
+        // TODO: add back in in the future
+
+        //List<int> mmTickPositions = new List<int>();
+        //List<int> tickIdxs = new List<int>();
+        //List<int> tickHeights = new List<int>(); // this will be calculated in the second step
 
         // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
         // we also want to save the mm tick positions
 
-        List<int> mmPos = new List<int>();
-        for (int i = Mathf.Max(1, Mathf.CeilToInt(channelCoords.startPosmm)); i <= Mathf.Min(9, Mathf.FloorToInt(channelCoords.endPosmm)); i++)
-            mmPos.Add(i); // this is the list of values we are going to have to assign a position to
+        //List<int> mmPos = new List<int>();
+        //for (int i = Mathf.Max(1, Mathf.CeilToInt(channelCoords.startPosmm)); i <= Mathf.Min(9, Mathf.FloorToInt(channelCoords.endPosmm)); i++)
+        //    mmPos.Add(i); // this is the list of values we are going to have to assign a position to
 
-        int idx = 0;
-        for (int y = 0; y < probePanelPxHeight; y++)
-        {
-            if (idx >= mmPos.Count)
-                break;
+        //int idx = 0;
+        //for (int y = 0; y < probePanelPxHeight; y++)
+        //{
+        //    if (idx >= mmPos.Count)
+        //        break;
 
-            float um = channelCoords.startPosmm + (y / probePanelPxHeight) * channelCoords.recordingSizemm;
-            if (um >= mmPos[idx])
-            {
-                mmTickPositions.Add(y);
-                // We also need to keep track of *what* tick we are at with this position
-                // index 0 = 1000, 1 = 2000, ... 8 = 9000
-                tickIdxs.Add(9 - mmPos[idx]);
+        //    float um = channelCoords.startPosmm + (y / probePanelPxHeight) * channelCoords.recordingSizemm;
+        //    if (um >= mmPos[idx])
+        //    {
+        //        mmTickPositions.Add(y);
+        //        // We also need to keep track of *what* tick we are at with this position
+        //        // index 0 = 1000, 1 = 2000, ... 8 = 9000
+        //        tickIdxs.Add(9 - mmPos[idx]);
 
-                idx++;
-            }
-        }
+        //        idx++;
+        //    }
+        //}
 
         Vector3 startAPMLDV = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(startCoordWorldU);
         Vector3 endAPMLDV = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(endCoordWorldU);
@@ -175,21 +177,21 @@ public class ProbeUIManager : MonoBehaviour
         // Update probePanel data
         probePanel.SetTipData(startAPMLDV, endAPMLDV, channelCoords.startPosmm / channelCoords.fullHeight, channelCoords.endPosmm / channelCoords.fullHeight, channelCoords.recordingSizemm);
 
-        for (int y = 0; y < probePanelPxHeight; y++)
-        {
-            // If the mm tick position matches with the position we're at, then add a depth line
-            bool depthLine = mmTickPositions.Contains(y);
+        //for (int y = 0; y < probePanelPxHeight; y++)
+        //{
+        //    // If the mm tick position matches with the position we're at, then add a depth line
+        //    //bool depthLine = mmTickPositions.Contains(y);
 
-            // We also want to check if we're at at height line, in which case we'll add a little tick on the right side
-            bool heightLine = boundaryHeights.Contains(y);
+        //    // We also want to check if we're at at height line, in which case we'll add a little tick on the right side
+        //    bool heightLine = boundaryHeights.Contains(y);
 
-            if (depthLine)
-            {
-                tickHeights.Add(y);
-            }
-        }
+        //    //if (depthLine)
+        //    //{
+        //    //    tickHeights.Add(y);
+        //    //}
+        //}
 
-        probePanel.UpdateTicks(tickHeights, tickIdxs);
+        //probePanel.UpdateTicks(tickHeights, tickIdxs);
         probePanel.UpdateText(centerHeights, names, Settings.UseAcronyms ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
     }
 

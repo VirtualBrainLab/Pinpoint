@@ -135,7 +135,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
 
         _gpuSliceRenderer.sharedMaterial.SetVector("_RecordingRegionCenterPosition", recRegionCenterIdx);
-        _gpuSliceRenderer.sharedMaterial.SetVector("_RightDirection", rightWorldU);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_RightDirection", -rightWorldU);
         // the slice's "up" direction is the probe's "backward"
         _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", -forwardWorldU);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", recordingSizemmU * 1000f / 25f);
@@ -174,7 +174,11 @@ public class TP_InPlaneSlice : MonoBehaviour
         Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
         // Take the tip transform and go out according to the in plane percentage 
 
-        Vector3 inPlanePosition = recRegionCenterIdx + (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(forwardWorldU) * -inPlanePosNorm.x + BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(upWorldU) * inPlanePosNorm.y);
+        // We get the center index, then add the x position * the left vector, then add the y position * the up vector
+        // remember that for the probe, up = backward, and left = left
+        Vector3 inPlanePosition = recRegionCenterIdx + 
+            (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-rightWorldU) * -inPlanePosNorm.x + 
+            BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-forwardWorldU) * inPlanePosNorm.y);
         return inPlanePosition;
     }
 

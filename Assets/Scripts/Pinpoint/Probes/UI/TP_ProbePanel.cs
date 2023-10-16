@@ -28,9 +28,10 @@ public class TP_ProbePanel : MonoBehaviour
     {
         _channelRenderer.material.SetTexture("_AnnotationTexture", BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
         (int x, int y, int z) = BrainAtlasManager.ActiveReferenceAtlas.DimensionsIdx;
-        _channelRenderer.material.SetVector("AnnotationDimensions", new Vector3(x, y, z));
+        _channelRenderer.material.SetVector("_AnnotationDimensions", new Vector3(x, y, z));
+
         _sliceRenderer.material.SetTexture("_AnnotationTexture", BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
-        _sliceRenderer.material.SetVector("AnnotationDimensions", new Vector3(x, y, z));
+        _sliceRenderer.material.SetVector("_AnnotationDimensions", new Vector3(x, y, z));
     }
 
     public void RegisterProbeManager(ProbeManager probeManager)

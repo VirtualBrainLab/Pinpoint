@@ -7,7 +7,7 @@ public class Editor_BuildAll
     [MenuItem("Tools/Build All")]
     public static void BuildAll()
     {
-        BuildWindows();
+        //BuildWindows();
         BuildLinux();
         BuildWebGL();
     }
@@ -32,8 +32,8 @@ public class Editor_BuildAll
         BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
         {
             scenes = new[] { "Assets/Scenes/TrajectoryPlanner.unity" },
-            locationPathName = "Builds/Linux/Pinpoint.app",
-            target = BuildTarget.StandaloneOSX,
+            locationPathName = "Builds/Linux/Pinpoint",
+            target = BuildTarget.StandaloneLinux64,
             options = BuildOptions.None
         };
 
