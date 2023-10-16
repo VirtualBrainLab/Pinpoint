@@ -8,7 +8,7 @@ public class Editor_BuildAll
     public static void BuildAll()
     {
         //BuildWindows();
-        BuildLinux();
+        //BuildLinux();
         BuildWebGL();
     }
 
@@ -53,9 +53,13 @@ public class Editor_BuildAll
             options = BuildOptions.None
         };
 
-        EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.WebGL);
-        BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
-        SummarizeReport(report);
+        if (EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.WebGL, BuildTarget.WebGL))
+        {
+            BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
+            SummarizeReport(report);
+        }
+        else
+            Debug.LogError("Failed to switch contexts?");
     }
 
     private static void SummarizeReport(BuildReport report)
