@@ -14,8 +14,6 @@ public class TP_SliceRenderer : MonoBehaviour
     [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
     [FormerlySerializedAs("dropdownMenu")] [SerializeField] private TMP_Dropdown _dropdownMenu;
 
-    private bool loaded;
-
     private bool camXLeft;
     private bool camYBack;
 
@@ -29,9 +27,6 @@ public class TP_SliceRenderer : MonoBehaviour
     {
         saggitalSliceMaterial = _sagittalSliceGo.GetComponent<Renderer>().material;
         coronalSliceMaterial = _coronalSliceGo.GetComponent<Renderer>().material;
-
-
-        loaded = false;
     }
 
     public void Startup(Texture3D annotationTexture)
@@ -64,8 +59,6 @@ public class TP_SliceRenderer : MonoBehaviour
                 new Vector3(0f, dims.z, -dims.x),
                 new Vector3(0f, dims.z, dims.x)
             };
-
-        loaded = true;
     }
 
     private float apWorldmm;
