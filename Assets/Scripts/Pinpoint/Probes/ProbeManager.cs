@@ -749,12 +749,9 @@ public class ProbeManager : MonoBehaviour
         // note: the backward axis on the probe is the probe's "up" axis
         (Vector3 tipCoordWorld, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
 
-        Debug.Log(tipCoordWorld);
-
+        // note useReference = false, we need raw indexes when accessing the atlas
         Vector3 surfaceIdxCoordU = FindSurfaceIdxCoordinate(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorld),
             BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-tipForwardWorldU));
-
-        Debug.Log(surfaceIdxCoordU);
 
         if (float.IsNaN(surfaceIdxCoordU.x))
         {
@@ -768,6 +765,7 @@ public class ProbeManager : MonoBehaviour
         {
             // in the brain
             probeInBrain = true;
+            // useReference = false here
             brainSurfaceWorld = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(surfaceIdxCoordU);
             brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(brainSurfaceWorld);
             _brainSurface = _probeController.Insertion.World2T(brainSurfaceWorld);

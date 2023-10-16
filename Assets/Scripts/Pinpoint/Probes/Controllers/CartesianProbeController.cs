@@ -79,7 +79,7 @@ public class CartesianProbeController : ProbeController
     private const float maxPitch = 90f;
 
     // defaults
-    private readonly Vector3 _defaultStart = Vector3.zero; // new Vector3(5.4f, 5.7f, 0.332f);
+    private readonly Vector3 _defaultStart = Vector3.zero;
     private const float _defaultDepth = 0f;
     private readonly Vector2 _defaultAngles = new Vector2(0f, 90f); // 0 yaw is forward, default pitch is 0f (downward)
     #endregion

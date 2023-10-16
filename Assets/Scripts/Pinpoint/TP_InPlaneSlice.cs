@@ -76,10 +76,6 @@ public class TP_InPlaneSlice : MonoBehaviour
         // Get the start/end coordinates of the probe recording region and convert them into *un-transformed* coordinates
         (Vector3 startCoordWorldU, Vector3 endCoordWorldU) = ProbeManager.ActiveProbeManager.RecRegionCoordWorldU;
 
-        //// TODO
-        //Vector3 startApdvlr25 = Vector3.Scale(BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(startCoordWorldU), BrainAtlasManager.ActiveReferenceAtlas.Resolution);
-        //Vector3 endApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(endCoordWorldU);
-
         (_, rightWorldU, upWorldU, forwardWorldU) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
 #if UNITY_EDITOR
