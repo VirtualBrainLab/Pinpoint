@@ -49,16 +49,16 @@ public class TP_ProbePanel : MonoBehaviour
         _channelRenderer.material.SetTexture("_ChannelTexture", channelMapTexture);
     }
 
-    public void SetTipData(Vector3 tipPosition, Vector3 endPosition, float tipPerc, float endPerc, float recordingHeight)
+    public void SetTipData(Vector3 tipPosIdx, Vector3 endPositionIdx, float tipPerc, float endPerc, float recordingHeight)
     {
-        _channelRenderer.material.SetVector("_TipPosition", tipPosition);
-        _channelRenderer.material.SetVector("_EndPosition", endPosition);
+        _channelRenderer.material.SetVector("_TipPositionIdx", tipPosIdx);
+        _channelRenderer.material.SetVector("_EndPositionIdx", endPositionIdx);
         _channelRenderer.material.SetFloat("_TipPerc", tipPerc);
         _channelRenderer.material.SetFloat("_EndPerc", endPerc);
         _channelRenderer.material.SetFloat("_RecordingHeight", recordingHeight);
 
-        _sliceRenderer.material.SetVector("_TipPosition", tipPosition);
-        _sliceRenderer.material.SetVector("_EndPosition", endPosition);
+        _sliceRenderer.material.SetVector("_TipPositionIdx", tipPosIdx);
+        _sliceRenderer.material.SetVector("_EndPositionIdx", endPositionIdx);
         _sliceRenderer.material.SetFloat("_RecordingHeight", recordingHeight);
     }
 

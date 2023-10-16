@@ -135,7 +135,6 @@ public class ProbeUIManager : MonoBehaviour
         Vector3 startCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT);
         Vector3 endCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT);
 
-
         List<int> mmTickPositions = new List<int>();
         List<int> tickIdxs = new List<int>();
         List<int> tickHeights = new List<int>(); // this will be calculated in the second step
@@ -165,16 +164,16 @@ public class ProbeUIManager : MonoBehaviour
             }
         }
 
-        Vector3 startApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(startCoordWorldU);
-        Vector3 endApdvlr25 = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(endCoordWorldU);
+        Vector3 startAPMLDV = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(startCoordWorldU);
+        Vector3 endAPMLDV = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(endCoordWorldU);
 
         // Interpolate from the tip to the top, putting this data into the probe panel texture
-        (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startApdvlr25, endApdvlr25);
+        (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startAPMLDV, endAPMLDV);
 
         // Get the percentage height along the probe
 
         // Update probePanel data
-        probePanel.SetTipData(startApdvlr25, endApdvlr25, channelCoords.startPosmm / channelCoords.fullHeight, channelCoords.endPosmm / channelCoords.fullHeight, channelCoords.recordingSizemm);
+        probePanel.SetTipData(startAPMLDV, endAPMLDV, channelCoords.startPosmm / channelCoords.fullHeight, channelCoords.endPosmm / channelCoords.fullHeight, channelCoords.recordingSizemm);
 
         for (int y = 0; y < probePanelPxHeight; y++)
         {

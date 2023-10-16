@@ -219,10 +219,13 @@ namespace TrajectoryPlanner
 
             // Startup CCF
             await BrainAtlasManager.LoadAtlas(Settings.AtlasName);
+            ReferenceAtlas referenceAtlas = BrainAtlasManager.ActiveReferenceAtlas;
+
+            // Set the reference coordinate before anything else happens
+            referenceAtlas.AtlasSpace.ReferenceCoord = Settings.ReferenceCoord;
 
             var nodeTask = _atlasManager.LoadDefaultAreas("");
 
-            ReferenceAtlas referenceAtlas = BrainAtlasManager.ActiveReferenceAtlas;
 
             referenceAtlas.LoadAnnotations();
             referenceAtlas.LoadAnnotationTexture();
@@ -243,6 +246,7 @@ namespace TrajectoryPlanner
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
 
             //// Set the warp setting
+            // TODO
             //InVivoTransformChanged(Settings.InvivoTransform);
 
             _checkForSavedProbesTaskSource = new TaskCompletionSource<bool>();

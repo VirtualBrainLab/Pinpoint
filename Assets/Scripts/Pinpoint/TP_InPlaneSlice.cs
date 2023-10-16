@@ -89,7 +89,6 @@ public class TP_InPlaneSlice : MonoBehaviour
 #endif
 
         // Calculate the size
-
         float recordingSizemmU = Vector3.Distance(startCoordWorldU, endCoordWorldU);
 
         // This could be improved by moving this check into a property attached to the probe type in some way

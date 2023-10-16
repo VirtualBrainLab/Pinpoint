@@ -267,8 +267,8 @@
     ],
     "m_VertexContext": {
         "m_Position": {
-            "x": 729.0001220703125,
-            "y": 51.00000762939453
+            "x": -239.9999237060547,
+            "y": -4.999955177307129
         },
         "m_Blocks": [
             {
@@ -284,8 +284,8 @@
     },
     "m_FragmentContext": {
         "m_Position": {
-            "x": 729.0001220703125,
-            "y": 251.00003051757813
+            "x": -239.9999237060547,
+            "y": 195.0
         },
         "m_Blocks": [
             {
@@ -505,7 +505,7 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "Vector3_1a403f56696540a38781461582f3ccc0",
-    "m_OverrideReferenceName": "_TipPosition",
+    "m_OverrideReferenceName": "_TipPositionIdx",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
@@ -674,7 +674,7 @@
     "m_DefaultRefNameVersion": 0,
     "m_RefNameGeneratedByDisplayName": "",
     "m_DefaultReferenceName": "",
-    "m_OverrideReferenceName": "_EndPosition",
+    "m_OverrideReferenceName": "_EndPositionIdx",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",

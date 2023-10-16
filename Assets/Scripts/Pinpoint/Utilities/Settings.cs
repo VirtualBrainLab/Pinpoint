@@ -298,14 +298,13 @@ public class Settings : MonoBehaviour
     private readonly Vector3 RELCOORD_DEFAULT = new Vector3(5.2f, 5.7f, 0.332f);
     public UnityEvent<Vector3> RelativeCoordinateChangedEvent;
 
-    public static Vector3 RelativeCoordinate
+    public static Vector3 ReferenceCoord
     {
         get { return data.RelativeCoord; }
         set
         {
             data.RelativeCoord = value;
             Save();
-            Debug.Log("Invoking relative coordinate set");
             Instance.RelativeCoordinateChangedEvent.Invoke(data.RelativeCoord);
         }
     }
@@ -686,7 +685,7 @@ public class Settings : MonoBehaviour
         AtlasName = data.AtlasName;
         _invivoDropdown.SetValueWithoutNotify(InvivoTransform);
         // the relative coordinate actually needs to be set, since it gets propagated downstream
-        RelativeCoordinate = data.RelativeCoord;
+        ReferenceCoord = data.RelativeCoord;
         _blSlider.SetValueWithoutNotify(BregmaLambdaDistance);
 
         // Accounts

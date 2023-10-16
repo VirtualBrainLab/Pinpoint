@@ -34,7 +34,7 @@ public class RelativeCoordinatePanel : MonoBehaviour
             float ml = float.Parse(_mlField.text);
             float dv = float.Parse(_dvField.text);
 
-            Settings.RelativeCoordinate = new Vector3(ap, ml, dv);
+            Settings.ReferenceCoord = new Vector3(ap, ml, dv);
         }
         catch
         {
@@ -45,11 +45,11 @@ public class RelativeCoordinatePanel : MonoBehaviour
     public void Set2Bregma()
     {
         Debug.LogWarning("Bregma/Lambda can't differentiate between atlases right now");
-        Settings.RelativeCoordinate = Utils.CCF_BREGMA;
+        Settings.ReferenceCoord = Utils.CCF_BREGMA;
     }
 
     public void Set2Lambda()
     {
-        Settings.RelativeCoordinate = Utils.CCF_LAMBDA;
+        Settings.ReferenceCoord = Utils.CCF_LAMBDA;
     }
 }

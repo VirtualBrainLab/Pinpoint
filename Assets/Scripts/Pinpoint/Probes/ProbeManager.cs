@@ -370,10 +370,10 @@ public class ProbeManager : MonoBehaviour
         var channelCoords = GetChannelRangemm();
         
         // Update the world coordinates for the tip position
-        Vector3 startCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.startPosmm;
-        Vector3 endCoordWorldT = _probeController.ProbeTipT.position + _probeController.ProbeTipT.up * channelCoords.endPosmm;
-        _recRegionBaseCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(startCoordWorldT))));
-        _recRegionTopCoordU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(endCoordWorldT))));
+        Vector3 startCoordWorldT = _probeController.ProbeTipT.position + -_probeController.ProbeTipT.forward * channelCoords.startPosmm;
+        Vector3 endCoordWorldT = _probeController.ProbeTipT.position + -_probeController.ProbeTipT.forward * channelCoords.endPosmm;
+        _recRegionBaseCoordU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT);
+        _recRegionTopCoordU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT);
     }
 
     #region Channel map
@@ -749,8 +749,12 @@ public class ProbeManager : MonoBehaviour
         // note: the backward axis on the probe is the probe's "up" axis
         (Vector3 tipCoordWorld, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
 
+        Debug.Log(tipCoordWorld);
+
         Vector3 surfaceIdxCoordU = FindSurfaceIdxCoordinate(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorld),
             BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-tipForwardWorldU));
+
+        Debug.Log(surfaceIdxCoordU);
 
         if (float.IsNaN(surfaceIdxCoordU.x))
         {
