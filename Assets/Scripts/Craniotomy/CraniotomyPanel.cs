@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using BrainAtlas;
 
 public class CraniotomyPanel : MonoBehaviour
 {
@@ -25,9 +26,6 @@ public class CraniotomyPanel : MonoBehaviour
 
     private int _lastCraniotomyIdx = 0;
 
-    public Func<Vector3, Vector3> Space2World;
-    public Func<Vector3, Vector3> World2Space;
-
     [FormerlySerializedAs("craniotomySkull")] [SerializeField] private CraniotomySkull _craniotomySkull;
 
     private void Awake()
@@ -46,7 +44,7 @@ public class CraniotomyPanel : MonoBehaviour
         for (int i = 0; i < 5; i++)
         {
             _craniotomySkull.SetActiveCraniotomy(i);
-            _craniotomySkull.SetCraniotomyPosition(Space2World(Vector3.zero));
+            _craniotomySkull.SetCraniotomyPosition(BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(Vector3.zero));
         } 
     }
 
@@ -79,7 +77,7 @@ public class CraniotomyPanel : MonoBehaviour
         _lastCraniotomyIdx = craniotomyIdx;
         _craniotomySkull.SetActiveCraniotomy(craniotomyIdx);
         _positionWorld = _craniotomySkull.GetCraniotomyPosition();
-        _positionSpace = World2Space(_positionWorld);
+        _positionSpace = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(_positionWorld);
         size = _craniotomySkull.GetCraniotomySize();
         UpdateText();
         UpdateSliders();
@@ -102,7 +100,7 @@ public class CraniotomyPanel : MonoBehaviour
     private void UpdateCraniotomy()
     {
         // We need to rotate the x/y coordinates into the current transformed space... 
-        _positionWorld = Space2World(_positionSpace);
+        _positionWorld = BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(_positionSpace);
 
         if (_craniotomySkull != null)
         {
