@@ -887,7 +887,9 @@ namespace TrajectoryPlanner
         /// <summary>
         /// Check for saved probes in the query string on WebGL or by asking the user if they want to re-load the scene
         /// </summary>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async void CheckForSavedProbes()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             // On WebGL, check for a query string
 #if UNITY_WEBGL
@@ -921,7 +923,9 @@ namespace TrajectoryPlanner
             }
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async void CheckForSavedProbesNoCallbackHelper()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             _checkForSavedProbesTaskSource.SetResult(false);
         }
@@ -982,7 +986,9 @@ namespace TrajectoryPlanner
             LoadSavedProbesFromStringArray(savedProbesArray);
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async void LoadSavedProbesStandalone()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             _checkForSavedProbesTaskSource.SetResult(true);
 
