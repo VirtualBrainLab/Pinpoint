@@ -931,13 +931,13 @@ namespace TrajectoryPlanner
                 // Don't duplicate probes by accident
                 if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
                 {
-                    if (probeData.CoordSpaceName != BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name)
+                    if (probeData.AtlasSpaceName != BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name)
                         Debug.LogError("[TODO] Need to warn user when transforming a probe into the active coordinate space!!");
 
                     CoordinateSpace probeOrigSpace = BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace;
 
-                    CoordinateTransform probeOrigTransform = _pinpointAtlasManager.AtlasTransforms.ContainsKey(probeData.CoordTransformName) ?
-                        _pinpointAtlasManager.AtlasTransforms[probeData.CoordTransformName] :
+                    CoordinateTransform probeOrigTransform = _pinpointAtlasManager.AtlasTransforms.ContainsKey(probeData.AtlasTransformName) ?
+                        _pinpointAtlasManager.AtlasTransforms[probeData.AtlasTransformName] :
                         BrainAtlasManager.ActiveAtlasTransform;
 
                     ProbeInsertion probeInsertion;

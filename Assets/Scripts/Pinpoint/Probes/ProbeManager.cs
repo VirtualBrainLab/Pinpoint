@@ -1048,8 +1048,8 @@ public struct ProbeData
     public Vector3 Angles;
 
     // CoordinateSpace/Transform
-    public string CoordSpaceName;
-    public string CoordTransformName;
+    public string AtlasSpaceName;
+    public string AtlasTransformName;
     public Vector4 ZeroCoordOffset;
 
     // ChannelMap
@@ -1078,7 +1078,7 @@ public struct ProbeData
         data.APMLDV = probeManager.ProbeController.Insertion.apmldv;
         data.Angles = probeManager.ProbeController.Insertion.angles;
 
-        data.CoordSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
+        data.AtlasSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
 
         // TODO
         //if (probeManager.ProbeController.Insertion.AtlasTransform.Name.Equals("Custom"))

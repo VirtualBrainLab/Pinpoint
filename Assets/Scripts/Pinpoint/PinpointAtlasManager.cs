@@ -1,11 +1,13 @@
 using BrainAtlas;
 using BrainAtlas.CoordinateSystems;
 using CoordinateTransforms;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Urchin.Managers;
 
 public class PinpointAtlasManager : MonoBehaviour
 {
@@ -31,7 +33,7 @@ public class PinpointAtlasManager : MonoBehaviour
 
         // Always add the null transform
         AtlasTransforms = new();
-        AtlasTransforms.Add("None", new NullTransform());
+        AtlasTransforms.Add("null", new NullTransform());
 
         // Build the transform list
         switch (BrainAtlasManager.ActiveReferenceAtlas.Name)
@@ -55,6 +57,8 @@ public class PinpointAtlasManager : MonoBehaviour
     {
         // We can trust that 
     }
+
+    #region Atlas
 
     public void PopulateAtlasDropdown()
     {
@@ -91,63 +95,76 @@ public class PinpointAtlasManager : MonoBehaviour
         return new TMP_Dropdown.OptionData(atlasName);
     }
 
+    #endregion
+
+    #region Transforms
+
+    public void PopulateTransformDropdown()
+    {
+
+    }
+
+    public void ResetTransformDropdownIndex()
+    {
+
+    }
+
+    public void SetTransform(int option)
+    {
+
+    }
+
     private void SetNewTransform(AtlasTransform newAtlasTransform)
     {
         BrainAtlasManager.ActiveAtlasTransform = newAtlasTransform;
         WarpBrain();
 
-        // Check if active probe is a mis-match
-
         // Check all probes for mis-matches
         foreach (ProbeManager probeManager in ProbeManager.Instances)
             probeManager.Update2ActiveTransform();
-
-        UpdateAllProbeUI();
     }
 
 
 
     public void InVivoTransformChanged(int invivoOption)
     {
-        Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
-        if (Settings.BregmaLambdaDistance == 4.15f)
-        {
-            // if the BL distance is the default, just set the transform
-            SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
-        }
-        else
-        {
-            // if isn't the default, then we have to adjust the transform now
-            SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
-            ChangeBLDistance(Settings.BregmaLambdaDistance);
-        }
+        throw new NotImplementedException();
+        //Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
+        //if (Settings.BregmaLambdaDistance == 4.15f)
+        //{
+        //    // if the BL distance is the default, just set the transform
+        //    SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
+        //}
+        //else
+        //{
+        //    // if isn't the default, then we have to adjust the transform now
+        //    SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
+        //    ChangeBLDistance(Settings.BregmaLambdaDistance);
+        //}
     }
+
+    #endregion
 
 
     #region Warping
 
-    // [TODO]
     public void WarpBrain()
     {
-        //foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-        //    WarpNode(node);
-        //_searchControl.ChangeWarp();
+        foreach (OntologyNode node in AtlasManager.VisibleNodes)
+            WarpNode(node);
     }
 
-    public void WarpNode()
+    public void WarpNode(OntologyNode node)
     {
-        //#if UNITY_EDITOR
-        //            Debug.Log(string.Format("Transforming node {0}", node.Name));
-        //#endif
-        //            node.TransformVertices(CoordinateSpaceManager.WorldU2WorldT, true);
+        node.ApplyAtlasTransform(BrainAtlasManager.WorldU2WorldT);
     }
 
     public void UnwarpBrain()
     {
-        //foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-        //{
-        //    node.ClearTransform(true);
-        //}
+        foreach (OntologyNode node in AtlasManager.VisibleNodes)
+        {
+            node.ApplyAtlasTransform(BrainAtlasManager.WorldU2WorldT);
+        }
     }
 
 
