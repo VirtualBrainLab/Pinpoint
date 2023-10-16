@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace CoordinateTransforms
 {
-    public class MRILinearTransform : AffineTransform
+    public class Qiu2018Transform : AffineTransform
     {
         //ML_SCALE = 0.952
         //DV_SCALE = 0.885  # multiplicative factor on DV dimension, determined from MRI->CCF transform
@@ -17,7 +17,7 @@ namespace CoordinateTransforms
         /// <summary>
         /// Angles are (yaw, pitch, spin)
         /// </summary>
-        public MRILinearTransform() : base(new Vector3(-1.031f, 0.952f, -0.885f), new Vector3(0f, -5f, 0f))
+        public Qiu2018Transform() : base(new Vector3(-1.031f, 0.952f, -0.885f), new Vector3(0f, -5f, 0f))
         {
 
         }

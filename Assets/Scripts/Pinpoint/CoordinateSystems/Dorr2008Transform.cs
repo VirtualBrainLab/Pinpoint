@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace CoordinateTransforms
 {
-    public class NeedlesTransform : AffineTransform
+    public class Dorr2008Transform : AffineTransform
     {
         public override string Name { get { return "Dorr2008"; } }
 
@@ -17,13 +17,13 @@ namespace CoordinateTransforms
         /// <summary>
         /// Angles are (yaw, pitch, spin)
         /// </summary>
-        public NeedlesTransform() : base(new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, -5f, 0f))
+        public Dorr2008Transform() : base(new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, -5f, 0f))
         {
 
         }
     }
 
-    public class IBLNeedlesTransform : AffineTransform
+    public class Dorr2008IBLTransform : AffineTransform
     {
         public override string Name { get { return "IBL-Dorr2008"; } }
 
@@ -37,7 +37,7 @@ namespace CoordinateTransforms
         /// <summary>
         /// Angles are (yaw, pitch, spin)
         /// </summary>
-        public IBLNeedlesTransform() : base(new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, 0f, 0f))
+        public Dorr2008IBLTransform() : base(new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, 0f, 0f))
         {
 
         }

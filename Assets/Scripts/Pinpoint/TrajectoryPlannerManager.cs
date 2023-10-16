@@ -102,6 +102,7 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
         [SerializeField] private ProbePanelManager _probePanelManager;
         [SerializeField] private AtlasManager _atlasManager;
+        [SerializeField] private PinpointAtlasManager _pinpointAtlasManager;
 
         // Settings
         [FormerlySerializedAs("probePrefabs")] [SerializeField] private List<GameObject> _probePrefabs;
@@ -137,9 +138,6 @@ namespace TrajectoryPlanner
 
         // Craniotomy
         [SerializeField] private CraniotomyPanel _craniotomyPanel;
-
-        // Coordinate system information
-        private Dictionary<string, CoordinateTransform> coordinateTransformOpts;
 
         // Local tracking variables
         private List<Collider> rigColliders;
@@ -188,16 +186,6 @@ namespace TrajectoryPlanner
 #endif
 
             SetProbeControl(false);
-
-            coordinateTransformOpts = new Dictionary<string, CoordinateTransform>();
-            CoordinateTransform temp = new NullTransform();
-            coordinateTransformOpts.Add("null", temp);
-            temp = new MRILinearTransform();
-            coordinateTransformOpts.Add(temp.Name, temp);
-            temp = new NeedlesTransform();
-            coordinateTransformOpts.Add(temp.Name, temp);
-            temp = new IBLNeedlesTransform();
-            coordinateTransformOpts.Add(temp.Name, temp);
 
             // Initialize variables
             rigColliders = new List<Collider>();
@@ -426,7 +414,7 @@ namespace TrajectoryPlanner
             if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
             {
                 var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
-                    BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, coordinateTransformOpts[probeData.CoordTransformName]);
+                    BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
 
                 ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
                     probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
@@ -654,36 +642,6 @@ namespace TrajectoryPlanner
                 ProbeManager.ActiveProbeManager.ProbeController.ResetInsertion();
         }
 
-        #region Warping
-
-        // [TODO]
-        public void WarpBrain()
-        {
-            //foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-            //    WarpNode(node);
-            //_searchControl.ChangeWarp();
-        }
-
-        public void WarpNode()
-        {
-//#if UNITY_EDITOR
-//            Debug.Log(string.Format("Transforming node {0}", node.Name));
-//#endif
-//            node.TransformVertices(CoordinateSpaceManager.WorldU2WorldT, true);
-        }
-
-        public void UnwarpBrain()
-        {
-            //foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-            //{
-            //    node.ClearTransform(true);
-            //}
-        }
-
-
-
-#endregion
-
 #region Colliders
 
         public void UpdateRigColliders(IEnumerable<Collider> newRigColliders, bool keep)
@@ -762,44 +720,10 @@ namespace TrajectoryPlanner
             _probePanelManager.RecalculateProbePanels();
         }
 
-        public void InVivoTransformChanged(int invivoOption)
-        {
-            Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
-            if (Settings.BregmaLambdaDistance == 4.15f)
-            {
-                // if the BL distance is the default, just set the transform
-                SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
-            }
-            else
-            {
-                // if isn't the default, then we have to adjust the transform now
-                SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
-                ChangeBLDistance(Settings.BregmaLambdaDistance);
-            }
-        }
-
 #endregion
 
 #region Setting Helper Functions
 
-        private void SetNewTransform(CoordinateTransform newTransform)
-        {
-            // [TODO]
-            //CoordinateSpaceManager.ActiveCoordinateTransform = newTransform;
-            //WarpBrain();
-
-            //// Update the warp functions in the craniotomy control panel
-            //_craniotomyPanel.World2Space = CoordinateSpaceManager.World2TransformedAxisChange;
-            //_craniotomyPanel.Space2World = CoordinateSpaceManager.Transformed2WorldAxisChange;
-
-            // Check if active probe is a mis-match
-
-            // Check all probes for mis-matches
-            foreach (ProbeManager probeManager in ProbeManager.Instances)
-                probeManager.Update2ActiveTransform();
-
-            UpdateAllProbeUI();
-        }
 
         public void SetSurfaceDebugActive(bool active)
         {
@@ -1012,8 +936,8 @@ namespace TrajectoryPlanner
 
                     CoordinateSpace probeOrigSpace = BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace;
 
-                    CoordinateTransform probeOrigTransform = coordinateTransformOpts.ContainsKey(probeData.CoordTransformName) ?
-                        coordinateTransformOpts[probeData.CoordTransformName] :
+                    CoordinateTransform probeOrigTransform = _pinpointAtlasManager.AtlasTransforms.ContainsKey(probeData.CoordTransformName) ?
+                        _pinpointAtlasManager.AtlasTransforms[probeData.CoordTransformName] :
                         BrainAtlasManager.ActiveAtlasTransform;
 
                     ProbeInsertion probeInsertion;
@@ -1087,7 +1011,7 @@ namespace TrajectoryPlanner
             return (new Vector3(serverInsertion.ap, serverInsertion.ml, serverInsertion.dv),
                 new Vector3(serverInsertion.phi, serverInsertion.theta, serverInsertion.spin),
                 BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace,
-                coordinateTransformOpts[serverInsertion.coordinateTransformName],
+                BrainAtlasManager.ActiveAtlasTransform,
                 true);
         }
 
