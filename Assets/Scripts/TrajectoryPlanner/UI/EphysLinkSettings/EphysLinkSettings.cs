@@ -163,35 +163,17 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                         () =>
                         {
                             // Check Ephys Link version
-                            CommunicationManager.Instance.GetVersion(version =>
+                            CommunicationManager.Instance.VerifyVersion(() =>
                             {
-                                if (!version.Split(".").Where((versionNumber, index) =>
-                                            int.Parse(versionNumber) <
-                                            CommunicationManager.EPHYS_LINK_MIN_VERSION[index])
-                                        .Any())
-                                {
-                                    // Ephys Link is current enough
-                                    CommunicationManager.Instance.IsEphysLinkCompatible = true;
-                                    UpdateConnectionPanel();
-                                }
-                                else
-                                    // Ephys Link needs updating
-                                {
-                                    CommunicationManager.Instance.DisconnectFromServer(() =>
-                                    {
-                                        _connectionErrorText.text =
-                                            "Ephys Link is outdated. Please update to " +
-                                            CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
-                                        _connectButtonText.text = "Connect";
-                                    });
-                                }
+                                // Ephys Link is current enough
+                                CommunicationManager.Instance.IsEphysLinkCompatible = true;
+                                UpdateConnectionPanel();
                             }, () =>
                             {
-                                // Failed to get version (probably because it's outdated)
                                 CommunicationManager.Instance.DisconnectFromServer(() =>
                                 {
                                     _connectionErrorText.text =
-                                        "Unable to get server version. Please ensure Ephys Link version is " +
+                                        "Ephys Link is outdated. Please update to " +
                                         CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
                                     _connectButtonText.text = "Connect";
                                 });

@@ -148,7 +148,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 }
             }
 
-            public void MovementCompleted()
+            public void CompleteMovement()
             {
                 switch (DriveState)
                 {
