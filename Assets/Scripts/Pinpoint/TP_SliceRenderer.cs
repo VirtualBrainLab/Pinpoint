@@ -4,7 +4,6 @@ using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Urchin.Managers;
 
 public class TP_SliceRenderer : MonoBehaviour
 {
@@ -13,6 +12,7 @@ public class TP_SliceRenderer : MonoBehaviour
     [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
     [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
     [FormerlySerializedAs("dropdownMenu")] [SerializeField] private TMP_Dropdown _dropdownMenu;
+    [SerializeField] PinpointAtlasManager _pinpointAtlasManager;
 
     private bool camXLeft;
     private bool camYBack;
@@ -137,17 +137,19 @@ public class TP_SliceRenderer : MonoBehaviour
     private void UpdateNodeModelSlicing()
     {
         // Update the renderers on the node objects
-        foreach (OntologyNode node in AtlasManager.VisibleNodes)
+        Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
+
+        foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
         {
             if (camYBack)
                 // clip from apPosition forward
                 node.SetShaderProperty("_APClip", new Vector2(0f, apWorldmm));
             else
-                node.SetShaderProperty("_APClip", new Vector2(apWorldmm, 13.2f));
+                node.SetShaderProperty("_APClip", new Vector2(apWorldmm, dims.x));
 
             if (camXLeft)
                 // clip from mlPosition forward
-                node.SetShaderProperty("_MLClip", new Vector2(mlWorldmm, 11.4f));
+                node.SetShaderProperty("_MLClip", new Vector2(mlWorldmm, dims.y));
             else
                 node.SetShaderProperty("_MLClip", new Vector2(0f, mlWorldmm));
         }
@@ -156,10 +158,12 @@ public class TP_SliceRenderer : MonoBehaviour
     private void ClearNodeModelSlicing()
     {
         // Update the renderers on the node objects
-        foreach (OntologyNode node in AtlasManager.VisibleNodes)
+        Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
+
+        foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
         {
-            node.SetShaderProperty("_APClip", new Vector2(0f, 13.2f));
-            node.SetShaderProperty("_MLClip", new Vector2(0f, 11.4f));
+            node.SetShaderProperty("_APClip", new Vector2(0f, dims.x));
+            node.SetShaderProperty("_MLClip", new Vector2(0f, dims.y));
         }
     }
 

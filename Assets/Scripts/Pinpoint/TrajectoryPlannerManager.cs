@@ -143,6 +143,9 @@ namespace TrajectoryPlanner
         private List<Collider> rigColliders;
         private bool _movedThisFrame;
 
+        private const string SCENE_RESET_KEY = "scene-rest";
+        private bool _sceneWasReset;
+
         #region Public accessors
         private Task<int[,,]> _annotationTask;
         public async Task<int[,,]> GetAnnotations()
@@ -184,6 +187,9 @@ namespace TrajectoryPlanner
 #if UNITY_WEBGL && !UNITY_EDITOR
         WebGLInput.captureAllKeyboardInput = true;
 #endif
+            // Clear the "Reset" PlayerPrefs flag
+            _sceneWasReset = PlayerPrefs.GetInt(SCENE_RESET_KEY, 0) == 1;
+            PlayerPrefs.SetInt(SCENE_RESET_KEY, 0);
 
             SetProbeControl(false);
 
@@ -228,6 +234,7 @@ namespace TrajectoryPlanner
                 node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["transparent-unlit"]);
                 node.ResetColor();
                 node.SetShaderProperty("_Alpha", 0.25f, OntologyNode.OntologyNodeSide.Full);
+                _pinpointAtlasManager.DefaultNodes.Add(node);
             }
 
             StartupEvent_RefAtlasLoaded.Invoke();
@@ -676,19 +683,20 @@ namespace TrajectoryPlanner
 
         public void SetGhostAreaVisibility()
         {
-            // [TODO]
-            //if (Settings.GhostInactiveAreas)
-            //{
-            //    List<CCFTreeNode> activeAreas = _searchControl.activeBrainAreas;
-            //    foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-            //        if (!activeAreas.Contains(node))
-            //            node.SetNodeModelVisibility();
-            //}
-            //else
-            //{
-            //    foreach (CCFTreeNode node in _modelControl.GetDefaultLoadedNodes())
-            //        node.SetNodeModelVisibility(true);
-            //}
+            if (Settings.GhostInactiveAreas)
+            {
+                List<int> activeAreas = _searchControl.VisibleSearchedAreas;
+                List<OntologyNode> activeNodes = activeAreas.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(x));
+
+                foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
+                    if (!activeNodes.Contains(node))
+                        node.SetVisibility(false);
+            }
+            else
+            {
+                foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
+                    node.SetVisibility(true);
+            }
         }
 
         public void SetGhostProbeVisibility()

@@ -21,11 +21,12 @@ public class PinpointAtlasManager : MonoBehaviour
     private Dictionary<string, string> _atlasNameMapping;
 
     public Dictionary<string, AtlasTransform> AtlasTransforms;
+    public HashSet<OntologyNode> DefaultNodes;
 
     private void Awake()
     {
         if (_atlasNames.Count != _atlasMappings.Count)
-            throw new System.Exception("Atlas names and mapped names should be the same length");
+            throw new Exception("Atlas names and mapped names should be the same length");
 
         _atlasNameMapping = new();
         for (int i = 0; i < _atlasNames.Count; i++)
@@ -35,6 +36,10 @@ public class PinpointAtlasManager : MonoBehaviour
         AtlasTransforms = new();
         AtlasTransforms.Add("null", new NullTransform());
 
+    }
+
+    private void Start()
+    {
         // Build the transform list
         switch (BrainAtlasManager.ActiveReferenceAtlas.Name)
         {
@@ -49,13 +54,8 @@ public class PinpointAtlasManager : MonoBehaviour
                 AtlasTransforms.Add(temp.Name, temp);
                 break;
 
-            // we don't have transforms for waxholm rat
+                // we don't have transforms for waxholm rat
         }
-    }
-
-    private void Start()
-    {
-        // We can trust that 
     }
 
     #region Atlas
@@ -83,6 +83,7 @@ public class PinpointAtlasManager : MonoBehaviour
 
     private void ResetScene(int option)
     {
+        PlayerPrefs.SetInt("scene-reset", 1);
         Settings.AtlasName = BrainAtlasManager.AtlasNames[option];
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -150,7 +151,7 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void WarpBrain()
     {
-        foreach (OntologyNode node in AtlasManager.VisibleNodes)
+        foreach (OntologyNode node in DefaultNodes)
             WarpNode(node);
     }
 
@@ -161,7 +162,7 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void UnwarpBrain()
     {
-        foreach (OntologyNode node in AtlasManager.VisibleNodes)
+        foreach (OntologyNode node in DefaultNodes)
         {
             node.ApplyAtlasTransform(BrainAtlasManager.WorldU2WorldT);
         }

@@ -18,7 +18,7 @@ public class TP_Search : MonoBehaviour
     [FormerlySerializedAs("maxAreaPanels")][SerializeField] int _maxAreaPanels = 1;
 
     private List<GameObject> localAreaPanels;
-    public List<int> activeBrainAreas { get; private set; }
+    public List<int> VisibleSearchedAreas { get; private set; }
 
     private const int ACRONYM_FONT_SIZE = 24;
     private const int FULL_FONT_SIZE = 14;
@@ -26,7 +26,7 @@ public class TP_Search : MonoBehaviour
     void Awake()
     {
         localAreaPanels = new();
-        activeBrainAreas = new();
+        VisibleSearchedAreas = new();
 
         for (int i = 0; i < _maxAreaPanels; i++)
         {
@@ -128,14 +128,14 @@ public class TP_Search : MonoBehaviour
     public async void SelectBrainArea(int targetAreaID)
     {
         bool inDefaults = BrainAtlasManager.ActiveReferenceAtlas.DefaultAreas.Contains(targetAreaID);
-        if (activeBrainAreas.Contains(targetAreaID))
+        if (VisibleSearchedAreas.Contains(targetAreaID))
         {
             // if this is an active node, either make it transparent again (default node) or hide it (non-default)
             if (inDefaults)
                 BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(targetAreaID).SetMaterial(BrainAtlasManager.BrainRegionMaterials["default"], OntologyNode.OntologyNodeSide.All);
             else
                 BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(targetAreaID).SetVisibility(false, OntologyNode.OntologyNodeSide.All);
-            activeBrainAreas.Remove(targetAreaID);
+            VisibleSearchedAreas.Remove(targetAreaID);
         }
         else
         {
@@ -155,13 +155,13 @@ public class TP_Search : MonoBehaviour
                 node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["opaque-lit"], OntologyNode.OntologyNodeSide.Right);
                 node.ResetColor();
             }
-            activeBrainAreas.Add(targetAreaID);
+            VisibleSearchedAreas.Add(targetAreaID);
         }
     }
 
     public void ClearAllAreas()
     {
-        foreach (int targetAreaID in activeBrainAreas)
+        foreach (int targetAreaID in VisibleSearchedAreas)
         {
             if (BrainAtlasManager.ActiveReferenceAtlas.DefaultAreas.Contains(targetAreaID))
             {
@@ -174,7 +174,7 @@ public class TP_Search : MonoBehaviour
                 node.SetVisibility(false, OntologyNode.OntologyNodeSide.Right);
             }
         }
-        activeBrainAreas.Clear();
+        VisibleSearchedAreas.Clear();
     }
 
     /// <summary>
