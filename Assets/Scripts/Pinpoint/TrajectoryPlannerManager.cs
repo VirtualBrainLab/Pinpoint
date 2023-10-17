@@ -218,12 +218,17 @@ namespace TrajectoryPlanner
             // Set the reference coordinate before anything else happen
             // if the scene was reset we should use the default coordinates
             if (_sceneWasReset)
+            {
                 if (Utils.BregmaDefaults.ContainsKey(Settings.AtlasName))
                     referenceAtlas.AtlasSpace.ReferenceCoord = Utils.BregmaDefaults[Settings.AtlasName];
                 else
                     referenceAtlas.AtlasSpace.ReferenceCoord = Vector3.zero;
+                Settings.ReferenceCoord = referenceAtlas.AtlasSpace.ReferenceCoord;
+            }
             else
                 referenceAtlas.AtlasSpace.ReferenceCoord = Settings.ReferenceCoord;
+
+            Debug.Log(referenceAtlas.AtlasSpace.ReferenceCoord);
 
             var nodeTask = _atlasManager.LoadDefaultAreas("");
 
