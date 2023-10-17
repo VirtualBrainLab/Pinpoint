@@ -295,7 +295,7 @@ public class Settings : MonoBehaviour
         }
     }
 
-    private readonly Vector3 RELCOORD_DEFAULT = new Vector3(5.2f, 5.7f, 0.332f);
+    private readonly Vector3 RELCOORD_DEFAULT = new Vector3(0f, 0f ,0f);
     public UnityEvent<Vector3> RelativeCoordinateChangedEvent;
 
     public static Vector3 ReferenceCoord

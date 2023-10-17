@@ -126,7 +126,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         // the slice's "up" direction is the probe's "backward"
         recRegionCenterIdx = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(startCoordWorldU +
             -forwardWorldU * recordingSizemmU / 2 +
-            -rightWorldU * shankSpacing * centerOffset);
+            rightWorldU * shankSpacing * centerOffset);
 
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);

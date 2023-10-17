@@ -7,8 +7,8 @@ public class Editor_BuildAll
     [MenuItem("Tools/Build All")]
     public static void BuildAll()
     {
-        //BuildWindows();
-        //BuildLinux();
+        BuildWindows();
+        BuildLinux();
         BuildWebGL();
     }
 

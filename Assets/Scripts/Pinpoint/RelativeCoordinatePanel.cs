@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using TrajectoryPlanner;
 using Urchin.Utils;
+using BrainAtlas;
 
 public class RelativeCoordinatePanel : MonoBehaviour
 {
@@ -20,7 +21,6 @@ public class RelativeCoordinatePanel : MonoBehaviour
 
     public void SetRelativeCoordinateText(Vector3 coord)
     {
-        Debug.Log("Coordinate set");
         _apField.text = coord.x.ToString();
         _mlField.text = coord.y.ToString();
         _dvField.text = coord.z.ToString();
@@ -44,12 +44,17 @@ public class RelativeCoordinatePanel : MonoBehaviour
 
     public void Set2Bregma()
     {
-        Debug.LogWarning("Bregma/Lambda can't differentiate between atlases right now");
-        Settings.ReferenceCoord = Utils.CCF_BREGMA;
+        if (Utils.BregmaDefaults.ContainsKey(BrainAtlasManager.ActiveReferenceAtlas.Name))
+            Settings.ReferenceCoord = Utils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
+        else
+            Settings.ReferenceCoord = Vector3.zero;
     }
 
     public void Set2Lambda()
     {
-        Settings.ReferenceCoord = Utils.CCF_LAMBDA;
+        if (Utils.LambdaDefaults.ContainsKey(BrainAtlasManager.ActiveReferenceAtlas.Name))
+            Settings.ReferenceCoord = Utils.LambdaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
+        else
+            Settings.ReferenceCoord = Vector3.zero;
     }
 }

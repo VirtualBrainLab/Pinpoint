@@ -215,11 +215,17 @@ namespace TrajectoryPlanner
             await BrainAtlasManager.LoadAtlas(Settings.AtlasName);
             ReferenceAtlas referenceAtlas = BrainAtlasManager.ActiveReferenceAtlas;
 
-            // Set the reference coordinate before anything else happens
-            referenceAtlas.AtlasSpace.ReferenceCoord = Settings.ReferenceCoord;
+            // Set the reference coordinate before anything else happen
+            // if the scene was reset we should use the default coordinates
+            if (_sceneWasReset)
+                if (Utils.BregmaDefaults.ContainsKey(Settings.AtlasName))
+                    referenceAtlas.AtlasSpace.ReferenceCoord = Utils.BregmaDefaults[Settings.AtlasName];
+                else
+                    referenceAtlas.AtlasSpace.ReferenceCoord = Vector3.zero;
+            else
+                referenceAtlas.AtlasSpace.ReferenceCoord = Settings.ReferenceCoord;
 
             var nodeTask = _atlasManager.LoadDefaultAreas("");
-
 
             referenceAtlas.LoadAnnotations();
             referenceAtlas.LoadAnnotationTexture();
