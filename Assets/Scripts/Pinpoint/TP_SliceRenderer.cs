@@ -59,6 +59,9 @@ public class TP_SliceRenderer : MonoBehaviour
                 new Vector3(0f, dims.z, -dims.x),
                 new Vector3(0f, dims.z, dims.x)
             };
+
+        if (Settings.Slice3DDropdownOption > 0)
+            ToggleSliceVisibility(Settings.Slice3DDropdownOption);
     }
 
     private float apWorldmm;
@@ -93,8 +96,8 @@ public class TP_SliceRenderer : MonoBehaviour
             // Use that coordinate to render the actual slice position
             Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
 
-            apWorldmm = tipCoordWorld.z + dims.x / 2f;
-            coronalSliceMaterial.SetFloat("_SlicePosition", 1f - apWorldmm / dims.x);
+            apWorldmm = 1f - (tipCoordWorld.z + dims.x / 2f);
+            coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / dims.x);
 
             mlWorldmm = -(tipCoordWorld.x - dims.y / 2f);
             saggitalSliceMaterial.SetFloat("_SlicePosition", mlWorldmm / dims.y);
