@@ -135,7 +135,7 @@ public class TP_InPlaneSlice : MonoBehaviour
 
 
         _gpuSliceRenderer.sharedMaterial.SetVector("_RecordingRegionCenterPosition", recRegionCenterIdx);
-        _gpuSliceRenderer.sharedMaterial.SetVector("_RightDirection", -rightWorldU);
+        _gpuSliceRenderer.sharedMaterial.SetVector("_RightDirection", rightWorldU);
         // the slice's "up" direction is the probe's "backward"
         _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", -forwardWorldU);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", recordingSizemmU * 1000f / 25f);

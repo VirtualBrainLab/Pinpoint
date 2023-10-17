@@ -310,21 +310,20 @@ public class Settings : MonoBehaviour
     }
 
 
-    private const int INVIVO_DEFAULT = 1;
-    [FormerlySerializedAs("invivoDropdown")][SerializeField] private TMP_Dropdown _invivoDropdown;
-    public UnityEvent<int> InvivoTransformChangedEvent;
+    private const string INVIVO_DEFAULT = "null";
+    public static Action<string> InvivoTransformChangedEvent;
 
-    public static int InvivoTransform
+    public static string InvivoTransformName
     {
         get
         {
-            return data.ActiveCoordinateTransformIndex;
+            return data.AtlasTransformName;
         }
         set
         {
-            data.ActiveCoordinateTransformIndex = value;
+            data.AtlasTransformName = value;
             Save();
-            Instance.InvivoTransformChangedEvent.Invoke(data.ActiveCoordinateTransformIndex);
+            InvivoTransformChangedEvent.Invoke(data.AtlasTransformName);
         }
     }
 
@@ -604,7 +603,7 @@ public class Settings : MonoBehaviour
             data.AtlasName = ATLAS_DEFAULT;
             data.ShowAtlas3DSlices = SHOW3DSLICE_DEFAULT;
             data.RelativeCoord = RELCOORD_DEFAULT;
-            data.ActiveCoordinateTransformIndex = INVIVO_DEFAULT;
+            data.AtlasTransformName = INVIVO_DEFAULT;
             data.BregmaLambdaDistance = BREGMALAMBDA_DEFAULT;
 
             // ephys link
@@ -683,7 +682,6 @@ public class Settings : MonoBehaviour
 
         // Atlas
         AtlasName = data.AtlasName;
-        _invivoDropdown.SetValueWithoutNotify(InvivoTransform);
         // the relative coordinate actually needs to be set, since it gets propagated downstream
         ReferenceCoord = data.RelativeCoord;
         _blSlider.SetValueWithoutNotify(BregmaLambdaDistance);
@@ -791,7 +789,7 @@ public class Settings : MonoBehaviour
 
         public int ShowAtlas3DSlices;
         public Vector3 RelativeCoord;
-        public int ActiveCoordinateTransformIndex;
+        public string AtlasTransformName;
         public float BregmaLambdaDistance;
 
         // Ephys link

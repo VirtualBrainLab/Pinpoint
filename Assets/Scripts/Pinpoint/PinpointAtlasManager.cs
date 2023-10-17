@@ -15,16 +15,16 @@ public class PinpointAtlasManager : MonoBehaviour
     [SerializeField] List<string> _atlasNames;
     [SerializeField] List<string> _atlasMappings;
 
-    [SerializeField] List<string> _transformName;
-    [SerializeField] List<string> _transformAllowedAtlas;
+    [SerializeField] private TMP_Dropdown _transformDropdown;
 
     private Dictionary<string, string> _atlasNameMapping;
 
-    public Dictionary<string, AtlasTransform> AtlasTransforms;
     public HashSet<OntologyNode> DefaultNodes;
 
     private void Awake()
     {
+        DefaultNodes = new();
+
         if (_atlasNames.Count != _atlasMappings.Count)
             throw new Exception("Atlas names and mapped names should be the same length");
 
@@ -32,30 +32,26 @@ public class PinpointAtlasManager : MonoBehaviour
         for (int i = 0; i < _atlasNames.Count; i++)
             _atlasNameMapping.Add(_atlasNames[i], _atlasMappings[i]);
 
-        // Always add the null transform
-        AtlasTransforms = new();
-        AtlasTransforms.Add("null", new NullTransform());
-
+        Settings.InvivoTransformChangedEvent += SetNewTransform;
     }
 
-    private void Start()
+    public void Startup()
     {
         // Build the transform list
         switch (BrainAtlasManager.ActiveReferenceAtlas.Name)
         {
             case "allen_mouse_25um":
-                AtlasTransform temp = new Qiu2018Transform();
-                AtlasTransforms.Add(temp.Name, temp);
-
-                temp = new Dorr2008Transform();
-                AtlasTransforms.Add(temp.Name, temp);
-
-                temp = new Dorr2008IBLTransform();
-                AtlasTransforms.Add(temp.Name, temp);
+                BrainAtlasManager.AtlasTransforms.Add(new Qiu2018Transform());
+                BrainAtlasManager.AtlasTransforms.Add(new Dorr2008Transform());
+                BrainAtlasManager.AtlasTransforms.Add(new Dorr2008IBLTransform());
                 break;
 
-                // we don't have transforms for waxholm rat
+            // we don't have transforms (yet) for waxholm rat
+            case "waxholm_rat_39um":
+                break;
         }
+
+        PopulateTransformDropdown();
     }
 
     #region Atlas
@@ -64,7 +60,7 @@ public class PinpointAtlasManager : MonoBehaviour
     {
         var atlasNames = BrainAtlasManager.AtlasNames;
 
-        _atlasDropdown.options = atlasNames.ConvertAll(ConvertToFullName);
+        _atlasDropdown.options = atlasNames.ConvertAll(ConvertAtlas2Userfriendly);
     }
 
     public void ResetAtlasDropdownIndex()
@@ -88,7 +84,7 @@ public class PinpointAtlasManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    private TMP_Dropdown.OptionData ConvertToFullName(string atlasName)
+    private TMP_Dropdown.OptionData ConvertAtlas2Userfriendly(string atlasName)
     {
         if (_atlasNameMapping.ContainsKey(atlasName))
             return new TMP_Dropdown.OptionData(_atlasNameMapping[atlasName]);
@@ -102,35 +98,34 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void PopulateTransformDropdown()
     {
+        var transformNames = BrainAtlasManager.AtlasTransforms;
 
+        _transformDropdown.options = transformNames.ConvertAll(x => new TMP_Dropdown.OptionData(x.Name));
     }
 
     public void ResetTransformDropdownIndex()
     {
-
+        string activeTransformName = BrainAtlasManager.ActiveAtlasTransform.Name;
+        _transformDropdown.SetValueWithoutNotify(_atlasDropdown.options.FindIndex(x => x.text.Equals(activeTransformName)));
     }
 
     public void SetTransform(int option)
     {
+        int idx = BrainAtlasManager.AtlasTransforms.FindIndex(x => x.Name.Equals(_transformDropdown.options[option].text));
+        AtlasTransform newTransform = BrainAtlasManager.AtlasTransforms[idx];
 
+        Settings.InvivoTransformName = newTransform.Name;
     }
 
-    private void SetNewTransform(AtlasTransform newAtlasTransform)
+    public void SetNewTransform(string transformName)
     {
-        BrainAtlasManager.ActiveAtlasTransform = newAtlasTransform;
-        WarpBrain();
+        BrainAtlasManager.ActiveAtlasTransform = BrainAtlasManager.AtlasTransforms.Find(x => x.Name.Equals(transformName));
 
         // Check all probes for mis-matches
         foreach (ProbeManager probeManager in ProbeManager.Instances)
             probeManager.Update2ActiveTransform();
-    }
 
-
-
-    public void InVivoTransformChanged(int invivoOption)
-    {
-        throw new NotImplementedException();
-        //Debug.Log("(tpmanager) Attempting to set transform to: " + coordinateTransformOpts.Values.ElementAt(invivoOption).Name);
+        // custom transforms disabled for now...
         //if (Settings.BregmaLambdaDistance == 4.15f)
         //{
         //    // if the BL distance is the default, just set the transform
@@ -142,6 +137,8 @@ public class PinpointAtlasManager : MonoBehaviour
         //    SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
         //    ChangeBLDistance(Settings.BregmaLambdaDistance);
         //}
+
+        WarpBrain();
     }
 
     #endregion

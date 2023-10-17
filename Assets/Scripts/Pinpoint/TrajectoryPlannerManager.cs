@@ -240,10 +240,6 @@ namespace TrajectoryPlanner
             StartupEvent_RefAtlasLoaded.Invoke();
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
 
-            //// Set the warp setting
-            // TODO
-            //InVivoTransformChanged(Settings.InvivoTransform);
-
             _checkForSavedProbesTaskSource = new TaskCompletionSource<bool>();
 
             StartupEvent_SceneLoaded.Invoke();
@@ -944,15 +940,13 @@ namespace TrajectoryPlanner
 
                     CoordinateSpace probeOrigSpace = BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace;
 
-                    CoordinateTransform probeOrigTransform = _pinpointAtlasManager.AtlasTransforms.ContainsKey(probeData.AtlasTransformName) ?
-                        _pinpointAtlasManager.AtlasTransforms[probeData.AtlasTransformName] :
-                        BrainAtlasManager.ActiveAtlasTransform;
+                    AtlasTransform origTransform = BrainAtlasManager.AtlasTransforms.Find(x => x.Name.Equals(probeData.AtlasTransformName));
 
                     ProbeInsertion probeInsertion;
-                    if (probeOrigTransform.Name != BrainAtlasManager.ActiveAtlasTransform.Name)
+                    if (origTransform != null && origTransform.Name != BrainAtlasManager.ActiveAtlasTransform.Name)
                     {
                         Debug.LogError($"[TODO] Need to warn user when transforming a probe into the active coordinate transform!!");
-                        Vector3 newAPMLDV = BrainAtlasManager.ActiveAtlasTransform.U2T(probeOrigTransform.T2U(probeData.APMLDV));
+                        Vector3 newAPMLDV = BrainAtlasManager.ActiveAtlasTransform.U2T(origTransform.T2U(probeData.APMLDV));
 
                         probeInsertion = new ProbeInsertion(newAPMLDV, probeData.Angles,
                             BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
