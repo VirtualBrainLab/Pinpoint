@@ -17,6 +17,8 @@ public class TP_SliceRenderer : MonoBehaviour
     private bool camXLeft;
     private bool camYBack;
 
+    private bool _started;
+
     private Material saggitalSliceMaterial;
     private Material coronalSliceMaterial;
 
@@ -27,6 +29,7 @@ public class TP_SliceRenderer : MonoBehaviour
     {
         saggitalSliceMaterial = _sagittalSliceGo.GetComponent<Renderer>().material;
         coronalSliceMaterial = _coronalSliceGo.GetComponent<Renderer>().material;
+        _started = false;
     }
 
     public void Startup(Texture3D annotationTexture)
@@ -60,8 +63,7 @@ public class TP_SliceRenderer : MonoBehaviour
                 new Vector3(0f, dims.z, dims.x)
             };
 
-        if (Settings.Slice3DDropdownOption > 0)
-            ToggleSliceVisibility(Settings.Slice3DDropdownOption);
+        _started = true;
     }
 
     private float apWorldmm;
@@ -72,11 +74,12 @@ public class TP_SliceRenderer : MonoBehaviour
     /// </summary>
     public void UpdateSlicePosition()
     {
-        if (Settings.Slice3DDropdownOption > 0)
+        if (Settings.Slice3DDropdownOption > 0 && _started)
         {
-            if (ProbeManager.ActiveProbeManager == null) return;
             // Use the un-transformed CCF coordinates to obtain the position in the CCF volume
-            (Vector3 tipCoordWorld, _, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
+            Vector3 tipCoordWorld = Vector3.zero;
+            if (ProbeManager.ActiveProbeManager != null)
+                (tipCoordWorld, _, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
             // vertex order -x-y, +x-y, -x+y, +x+y
 
@@ -86,8 +89,8 @@ public class TP_SliceRenderer : MonoBehaviour
             Vector3[] newSagittalVerts = new Vector3[4];
             for (int i = 0; i < _coronalOrigWorldU.Length; i++)
             {
-                newCoronalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(_coronalOrigWorldU[i].x, _coronalOrigWorldU[i].y, tipCoordWorld.z));
-                newSagittalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(tipCoordWorld.x, _sagittalOrigWorldU[i].y, _sagittalOrigWorldU[i].z));
+                newCoronalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(_coronalOrigWorldU[i].x, _coronalOrigWorldU[i].y, tipCoordWorld.z), false);
+                newSagittalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(tipCoordWorld.x, _sagittalOrigWorldU[i].y, _sagittalOrigWorldU[i].z), false);
             }
 
             _coronalSliceGo.GetComponent<MeshFilter>().mesh.vertices = newCoronalVerts;
@@ -96,10 +99,10 @@ public class TP_SliceRenderer : MonoBehaviour
             // Use that coordinate to render the actual slice position
             Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
 
-            apWorldmm = 1f - (tipCoordWorld.z + dims.x / 2f);
+            apWorldmm = dims.x / 2f - tipCoordWorld.z;
             coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / dims.x);
 
-            mlWorldmm = -(tipCoordWorld.x - dims.y / 2f);
+            mlWorldmm = dims.y / 2f + tipCoordWorld.x;
             saggitalSliceMaterial.SetFloat("_SlicePosition", mlWorldmm / dims.y);
 
             UpdateNodeModelSlicing();
@@ -108,29 +111,29 @@ public class TP_SliceRenderer : MonoBehaviour
 
     public void UpdateCameraPosition()
     {
-        if (Settings.Slice3DDropdownOption == 0)
+        if (Settings.Slice3DDropdownOption == 0 || !_started)
             return;
 
         Vector3 camPosition = Camera.main.transform.position;
         bool changed = false;
-        if (camXLeft && camPosition.x < 0)
-        {
-            camXLeft = false;
-            changed = true;
-        }
-        else if (!camXLeft && camPosition.x > 0)
+        if (!camXLeft && camPosition.x < 0)
         {
             camXLeft = true;
             changed = true;
         }
-        else if (camYBack && camPosition.z < 0)
+        else if (camXLeft && camPosition.x > 0)
         {
-            camYBack = false;
+            camXLeft = false;
             changed = true;
         }
-        else if (!camYBack && camPosition.z > 0)
+        else if (!camYBack && camPosition.z < 0)
         {
             camYBack = true;
+            changed = true;
+        }
+        else if (camYBack && camPosition.z > 0)
+        {
+            camYBack = false;
             changed = true;
         }
         if (changed)
@@ -138,46 +141,52 @@ public class TP_SliceRenderer : MonoBehaviour
     }
 
     private void UpdateNodeModelSlicing()
-    {
-        // Update the renderers on the node objects
+    {   
         Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
+
+        Vector3 tipCoordWorld = Vector3.zero;
+        if (ProbeManager.ActiveProbeManager != null)
+            (tipCoordWorld, _, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
         foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
         {
+            // camYBack means the camera is looking from the back
             if (camYBack)
-                // clip from apPosition forward
-                node.SetShaderProperty("_APClip", new Vector2(0f, apWorldmm));
+                // if we're looking from the back, we want to show the brain in the front
+                node.SetShaderProperty("_APClip", new Vector2(-dims.x/2f, tipCoordWorld.z));
             else
-                node.SetShaderProperty("_APClip", new Vector2(apWorldmm, dims.x));
+                node.SetShaderProperty("_APClip", new Vector2(tipCoordWorld.z, dims.x/2f));
 
-            if (camXLeft)
+            if (!camXLeft)
                 // clip from mlPosition forward
-                node.SetShaderProperty("_MLClip", new Vector2(mlWorldmm, dims.y));
+                node.SetShaderProperty("_MLClip", new Vector2(tipCoordWorld.x, dims.y/2f));
             else
-                node.SetShaderProperty("_MLClip", new Vector2(0f, mlWorldmm));
+                node.SetShaderProperty("_MLClip", new Vector2(-dims.y/2f, tipCoordWorld.x));
         }
     }
 
     private void ClearNodeModelSlicing()
     {
         // Update the renderers on the node objects
-        Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
-
         foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
         {
-            node.SetShaderProperty("_APClip", new Vector2(0f, dims.x));
-            node.SetShaderProperty("_MLClip", new Vector2(0f, dims.y));
+            node.SetShaderProperty("_APClip", Vector2.zero);
+            node.SetShaderProperty("_MLClip", Vector2.zero);
         }
     }
 
     public void ToggleSliceVisibility(int sliceType)
     {
+        Debug.Log("here");
+        _dropdownMenu.SetValueWithoutNotify(sliceType);
+
         if (sliceType==0)
         {
             // make slices invisible
             _sagittalSliceGo.SetActive(false);
             _coronalSliceGo.SetActive(false);
             ClearNodeModelSlicing();
+            Debug.Log("here2");
         }
         else
         {
@@ -185,8 +194,8 @@ public class TP_SliceRenderer : MonoBehaviour
             _sagittalSliceGo.SetActive(true);
             _coronalSliceGo.SetActive(true);
 
-            UpdateSlicePosition();
             UpdateCameraPosition();
+            Debug.Log("here3");
         }
     }
 }

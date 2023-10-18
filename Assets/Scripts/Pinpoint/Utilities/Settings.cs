@@ -281,7 +281,6 @@ public class Settings : MonoBehaviour
 
     // Display the 3D area slice
     private const int SHOW3DSLICE_DEFAULT = 0;
-    [FormerlySerializedAs("slice3dDropdown")][SerializeField] private TMP_Dropdown _slice3dDropdown;
     public UnityEvent<int> Slice3DChangedEvent;
 
     public static int Slice3DDropdownOption
@@ -546,10 +545,17 @@ public class Settings : MonoBehaviour
             Debug.LogError("Make sure there is only one Settings object in the scene!");
         Instance = this;
     }
-    
+
     private void Start()
     {
         Load();
+    }
+
+    public void Startup()
+    {
+
+        // Apply the settings so they are visible in the UI
+        Apply();
     }
 
 
@@ -629,9 +635,6 @@ public class Settings : MonoBehaviour
             // Do an initial save so the default values are stored
             Save();
         }
-
-        // Apply the settings so they are visible in the UI
-        Apply();
     }
 
     public static void Load(string settingsStr)
@@ -640,7 +643,6 @@ public class Settings : MonoBehaviour
         Debug.Log("(Settings) Loading settings from query string on WebGL");
 #endif
         data = JsonUtility.FromJson<InternalData>(settingsStr);
-        Instance.Apply();
     }
 
     /// <summary>
@@ -657,7 +659,7 @@ public class Settings : MonoBehaviour
 
         _acronymToggle.SetIsOnWithoutNotify(UseAcronyms);
 
-        _slice3dDropdown.SetValueWithoutNotify(Slice3DDropdownOption);
+        Slice3DChangedEvent.Invoke(data.ShowAtlas3DSlices);
 
         _surfaceToggle.SetIsOnWithoutNotify(ShowSurfaceCoordinate);
 

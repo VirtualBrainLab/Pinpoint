@@ -65,6 +65,7 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void ResetAtlasDropdownIndex()
     {
+        Debug.Log(BrainAtlasManager.ActiveReferenceAtlas.Name);
         string activeAtlas = BrainAtlasManager.ActiveReferenceAtlas.Name;
         _atlasDropdown.SetValueWithoutNotify(_atlasDropdown.options.FindIndex(x => x.text.Equals(activeAtlas)));
     }
@@ -154,17 +155,21 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void WarpNode(OntologyNode node)
     {
-        node.ApplyAtlasTransform(BrainAtlasManager.WorldU2WorldT);
+        node.ApplyAtlasTransform(WorldU2WorldT_Wrapper);
     }
 
     public void UnwarpBrain()
     {
         foreach (OntologyNode node in DefaultNodes)
         {
-            node.ApplyAtlasTransform(BrainAtlasManager.WorldU2WorldT);
+            node.ApplyAtlasTransform(WorldU2WorldT_Wrapper);
         }
     }
 
+    private Vector3 WorldU2WorldT_Wrapper(Vector3 input)
+    {
+        return BrainAtlasManager.WorldU2WorldT(input);
+    }
 
 
     #endregion
