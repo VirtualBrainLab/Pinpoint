@@ -146,23 +146,6 @@ namespace TrajectoryPlanner
         private const string SCENE_RESET_KEY = "scene-rest";
         private bool _sceneWasReset;
 
-        #region Public accessors
-        private Task<int[,,]> _annotationTask;
-        public async Task<int[,,]> GetAnnotations()
-        {
-            await _annotationTask;
-            return _annotationTask.Result;
-        }
-
-        private Task<Texture3D> _annotationTexture;
-        public async Task<Texture3D> GetAnnotationTexture()
-        {
-            await _annotationTexture;
-            return _annotationTexture.Result;
-        }
-        #endregion
-
-
         // Track who got clicked on, probe, camera, or brain
 
         #region InputSystem
