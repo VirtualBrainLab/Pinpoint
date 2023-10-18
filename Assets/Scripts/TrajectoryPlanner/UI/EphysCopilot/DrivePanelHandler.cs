@@ -66,8 +66,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private class DriveStateManager
         {
+            // FIXME: use position to detect state
             // Define state, defaults to at dura
-            public DriveState DriveState { get; private set; } = DriveState.AtDura;
+            public DriveState State { get; private set; } = DriveState.AtDura;
 
             /// <summary>
             ///     Increments drive state to be in progress driving down.
@@ -75,16 +76,16 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             /// </summary>
             public void DriveIncrement()
             {
-                switch (DriveState)
+                switch (State)
                 {
                     case DriveState.AtDura:
-                        DriveState = DriveState.DrivingToNearTarget;
+                        State = DriveState.DrivingToNearTarget;
                         break;
                     case DriveState.AtNearTarget:
-                        DriveState = DriveState.DriveToPastTarget;
+                        State = DriveState.DriveToPastTarget;
                         break;
                     case DriveState.AtPastTarget:
-                        DriveState = DriveState.ReturningToTarget;
+                        State = DriveState.ReturningToTarget;
                         break;
 
                     // Error cases: Cannot drive down from these states
@@ -102,35 +103,35 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     case DriveState.ReturningToTarget:
                     case DriveState.AtTarget:
                     default:
-                        Debug.LogError("Cannot drive down from state: " + DriveState);
+                        Debug.LogError("Cannot drive down from state: " + State);
                         break;
                 }
             }
 
             public void ExitIncrement()
             {
-                switch (DriveState)
+                switch (State)
                 {
                     // Typical case: Increment to next state from landmarks
                     case DriveState.AtExitMargin:
-                        DriveState = DriveState.ExitingToOutside;
+                        State = DriveState.ExitingToOutside;
                         break;
                     case DriveState.AtDura:
-                        DriveState = DriveState.ExitingToMargin;
+                        State = DriveState.ExitingToMargin;
                         break;
                     case DriveState.AtNearTarget:
-                        DriveState = DriveState.ExitingToDura;
+                        State = DriveState.ExitingToDura;
                         break;
                     case DriveState.AtTarget:
-                        DriveState = DriveState.ExitingToNearTarget;
+                        State = DriveState.ExitingToNearTarget;
                         break;
 
                     // Driving transition cases: Switch to exit transition state
                     case DriveState.DrivingToNearTarget:
-                        DriveState = DriveState.ExitingToDura;
+                        State = DriveState.ExitingToDura;
                         break;
                     case DriveState.DriveToPastTarget or DriveState.ReturningToTarget:
-                        DriveState = DriveState.ExitingToNearTarget;
+                        State = DriveState.ExitingToNearTarget;
                         break;
 
                     // Error cases: Cannot exit from these states
@@ -143,36 +144,36 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     case DriveState.ExitingToNearTarget:
                     case DriveState.AtPastTarget:
                     default:
-                        Debug.LogError("Cannot exit from state: " + DriveState);
+                        Debug.LogError("Cannot exit from state: " + State);
                         break;
                 }
             }
 
             public void CompleteMovement()
             {
-                switch (DriveState)
+                switch (State)
                 {
                     // Typical cases (was in driving state)
                     case DriveState.ExitingToOutside:
-                        DriveState = DriveState.Outside;
+                        State = DriveState.Outside;
                         break;
                     case DriveState.ExitingToMargin:
-                        DriveState = DriveState.AtExitMargin;
+                        State = DriveState.AtExitMargin;
                         break;
                     case DriveState.ExitingToDura:
-                        DriveState = DriveState.AtDura;
+                        State = DriveState.AtDura;
                         break;
                     case DriveState.DrivingToNearTarget:
-                        DriveState = DriveState.AtNearTarget;
+                        State = DriveState.AtNearTarget;
                         break;
                     case DriveState.ExitingToNearTarget:
-                        DriveState = DriveState.AtNearTarget;
+                        State = DriveState.AtNearTarget;
                         break;
                     case DriveState.DriveToPastTarget:
-                        DriveState = DriveState.AtPastTarget;
+                        State = DriveState.AtPastTarget;
                         break;
                     case DriveState.ReturningToTarget:
-                        DriveState = DriveState.AtTarget;
+                        State = DriveState.AtTarget;
                         break;
 
                     // Error cases: cannot complete movement from non-transitional states
@@ -186,7 +187,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     case DriveState.AtPastTarget:
                     case DriveState.AtTarget:
                     default:
-                        Debug.LogError("Cannot complete movement from non-transitional state: " + DriveState);
+                        Debug.LogError("Cannot complete movement from non-transitional state: " + State);
                         break;
                 }
             }
@@ -196,13 +197,23 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         #region Properties
 
+        // Boundary acknowledgements
         private bool _acknowledgeOutOfBounds;
         private bool _acknowledgeTestSpeeds;
         private bool _acknowledgeHighSpeeds;
 
+        // Drive state
         private DriveState _driveState;
+        private readonly DriveStateManager _driveStateManager = new();
+        
+        // Landmark depths
+        private float _outsideDepth;
+        private float _exitMarginDepth;
         private float _duraDepth;
+        private float _nearTargetDepth;
         private float _targetDepth;
+        private float _pastTargetDepth;
+        
         private float _targetDriveDuration;
         private float _duraMarginDepth;
         private float _duraMarginDriveDuration => DURA_MARGIN_DISTANCE / _exitDriveBaseSpeed;
@@ -211,8 +222,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private float _targetDriveSpeed;
 
         private float _drivePastTargetDistance = DRIVE_PAST_TARGET_DISTANCE;
-        private float _depthDriveBaseSpeed = DEPTH_DRIVE_BASE_SPEED;
-        private float _exitDriveBaseSpeed => _depthDriveBaseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER;
+        private float _driveBaseSpeed = DEPTH_DRIVE_BASE_SPEED;
+        private float _exitDriveBaseSpeed => _driveBaseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER;
         private float _exitDuraMarginSpeed;
         private float _outsideDriveSpeed;
         private float _per1000Speed;
@@ -275,7 +286,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     _acknowledgeTestSpeeds = true;
                     UseTestSpeed();
                 };
-                QuestionDialogue.Instance.NoCallback = () => { OnSpeedChanged(_depthDriveBaseSpeed * 1000f); };
+                QuestionDialogue.Instance.NoCallback = () => { OnSpeedChanged(_driveBaseSpeed * 1000f); };
                 QuestionDialogue.Instance.NewQuestion(
                     "Please ensure this is for testing purposes only. Do you want to continue?");
             }
@@ -310,7 +321,18 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         public void Drive()
         {
-            ComputeAndSetDriveTime(_depthDriveBaseSpeed, () =>
+            _driveStateManager.DriveIncrement();
+            switch (_driveStateManager.State)
+            {
+                case DriveState.DrivingToNearTarget:
+                    // Are we between dura and near target?
+                    break;
+            }
+        }
+
+        public void OldDrive()
+        {
+            ComputeAndSetDriveTime(_driveBaseSpeed, () =>
             {
                 CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                     true, 1, canWrite =>
@@ -458,11 +480,32 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
 
         #region Helper Functions
+        
+        private void SetDriveSpeeds(float driveBaseSpeed)
+        {
+            _driveBaseSpeed = driveBaseSpeed;
+            _outsideDriveSpeed = driveBaseSpeed * OUTSIDE_DRIVE_SPEED_MULTIPLIER;
+            _per1000Speed = driveBaseSpeed < DEPTH_DRIVE_BASE_SPEED_TEST ? PER_1000_SPEED : PER_1000_SPEED_TEST;
+        }
+
+        private void ComputeLandmarkDepths()
+        {
+            if (!ResetDuraOffsetPanelHandler.ManipulatorIdToDuraDepth.ContainsKey(ProbeManager.ManipulatorBehaviorController.ManipulatorID))
+            {
+                Debug.LogError("Manipulator "+ProbeManager.ManipulatorBehaviorController.ManipulatorID+" has not been placed on dura.");
+                return;
+            }
+
+            _duraDepth =
+                ResetDuraOffsetPanelHandler.ManipulatorIdToDuraDepth[
+                    ProbeManager.ManipulatorBehaviorController.ManipulatorID];
+            
+        }
 
         private void ComputeAndSetDriveTime(float depthDriveBaseSpeed, Action callback = null)
         {
             // Compute speed variables based on speed
-            _depthDriveBaseSpeed = depthDriveBaseSpeed;
+            _driveBaseSpeed = depthDriveBaseSpeed;
             _outsideDriveSpeed = depthDriveBaseSpeed * OUTSIDE_DRIVE_SPEED_MULTIPLIER;
             _per1000Speed = depthDriveBaseSpeed < DEPTH_DRIVE_BASE_SPEED_TEST ? PER_1000_SPEED : PER_1000_SPEED_TEST;
 
@@ -529,7 +572,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 }
 
                 // Set drive speeds (base + x mm/s / 1 mm of depth)
-                _targetDriveSpeed = _depthDriveBaseSpeed + targetDriveDistance * _per1000Speed;
+                _targetDriveSpeed = _driveBaseSpeed + targetDriveDistance * _per1000Speed;
 
                 /*
                  * Compute target drive duration
