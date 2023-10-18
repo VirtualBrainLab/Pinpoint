@@ -63,8 +63,8 @@ public abstract class ProbeController : MonoBehaviour
         Vector3 tipCoordNewSpace = transform.U2T(atlas.World2Space(tipData.tipCoordWorldU));
         Insertion.apmldv = tipCoordNewSpace;
         // Set the transforms
-        Insertion.CoordinateSpace = atlas;
-        Insertion.CoordinateTransform = transform;
+        Insertion.AtlasName = atlas;
+        Insertion.TransformName = transform;
         // Set the probe position
         SetProbePosition();
     }

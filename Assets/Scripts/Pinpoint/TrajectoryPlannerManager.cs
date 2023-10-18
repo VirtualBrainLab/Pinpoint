@@ -187,9 +187,6 @@ namespace TrajectoryPlanner
 #if UNITY_WEBGL && !UNITY_EDITOR
         WebGLInput.captureAllKeyboardInput = true;
 #endif
-            // Clear the "Reset" PlayerPrefs flag
-            _sceneWasReset = PlayerPrefs.GetInt(SCENE_RESET_KEY, 0) == 1;
-            PlayerPrefs.SetInt(SCENE_RESET_KEY, 0);
 
             SetProbeControl(false);
 
@@ -208,6 +205,10 @@ namespace TrajectoryPlanner
 
         public async void Startup()
         {
+            // Clear the "Reset" PlayerPrefs flag
+            _sceneWasReset = PlayerPrefs.GetInt(SCENE_RESET_KEY, 0) == 1;
+            PlayerPrefs.SetInt(SCENE_RESET_KEY, 0);
+
             // STARTUP SEQUENCE
             StartupEvent_MetaLoaded.Invoke();
 
@@ -226,8 +227,11 @@ namespace TrajectoryPlanner
                 Settings.ReferenceCoord = referenceAtlas.AtlasSpace.ReferenceCoord;
             }
             else
+            {
                 referenceAtlas.AtlasSpace.ReferenceCoord = Settings.ReferenceCoord;
+            }
 
+            Debug.Log(Settings.AtlasName);
             Debug.Log(referenceAtlas.AtlasSpace.ReferenceCoord);
 
             var nodeTask = _atlasManager.LoadDefaultAreas("");
@@ -999,7 +1003,7 @@ namespace TrajectoryPlanner
             prevTipSideLeft = atlasID == prevTipID && prevTipSideLeft;
 
             // transform the coordinate
-            Vector3 coordT = ProbeManager.ActiveProbeManager.ProbeController.Insertion.CoordinateTransform.U2T(
+            Vector3 coordT = ProbeManager.ActiveProbeManager.ProbeController.Insertion.TransformName.U2T(
                 (prevTipSideLeft ? leftCoordU : rightCoordU) - BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord);
             ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition(coordT);
 

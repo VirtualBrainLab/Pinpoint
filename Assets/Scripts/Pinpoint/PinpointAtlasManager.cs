@@ -67,7 +67,7 @@ public class PinpointAtlasManager : MonoBehaviour
     {
         Debug.Log(BrainAtlasManager.ActiveReferenceAtlas.Name);
         string activeAtlas = BrainAtlasManager.ActiveReferenceAtlas.Name;
-        _atlasDropdown.SetValueWithoutNotify(_atlasDropdown.options.FindIndex(x => x.text.Equals(activeAtlas)));
+        _atlasDropdown.SetValueWithoutNotify(_atlasDropdown.options.FindIndex(x => x.text.Equals(_atlasNameMapping[activeAtlas])));
     }
 
     public void SetAtlas(int option)
@@ -101,7 +101,7 @@ public class PinpointAtlasManager : MonoBehaviour
     {
         var transformNames = BrainAtlasManager.AtlasTransforms;
 
-        _transformDropdown.options = transformNames.ConvertAll(x => new TMP_Dropdown.OptionData(x.Name));
+        _transformDropdown.options = transformNames.ConvertAll(x => new TMP_Dropdown.OptionData(ConverTransform2UserFriendly(x.Name)));
     }
 
     public void ResetTransformDropdownIndex()
@@ -112,10 +112,9 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void SetTransform(int option)
     {
-        int idx = BrainAtlasManager.AtlasTransforms.FindIndex(x => x.Name.Equals(_transformDropdown.options[option].text));
-        AtlasTransform newTransform = BrainAtlasManager.AtlasTransforms[idx];
+        int idx = BrainAtlasManager.AtlasTransforms.FindIndex(x => x.Name.Equals(_transformDropdown.options[option].text.Substring(17)));
 
-        Settings.InvivoTransformName = newTransform.Name;
+        Settings.InvivoTransformName = BrainAtlasManager.AtlasTransforms[idx].Name;
     }
 
     public void SetNewTransform(string transformName)
@@ -140,6 +139,11 @@ public class PinpointAtlasManager : MonoBehaviour
         //}
 
         WarpBrain();
+    }
+
+    private string ConverTransform2UserFriendly(string transformName)
+    {
+        return $"Atlas transform: {transformName}";
     }
 
     #endregion
@@ -168,7 +172,7 @@ public class PinpointAtlasManager : MonoBehaviour
 
     private Vector3 WorldU2WorldT_Wrapper(Vector3 input)
     {
-        return BrainAtlasManager.WorldU2WorldT(input);
+        return BrainAtlasManager.WorldU2WorldT(input, true);
     }
 
 

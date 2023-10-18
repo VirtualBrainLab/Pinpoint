@@ -481,8 +481,8 @@ public class ProbeManager : MonoBehaviour
 
         // convert to worldU
         ProbeInsertion insertion = _probeController.Insertion;
-        Vector3 baseCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(baseCoordWorldT))));
-        Vector3 topCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(topCoordWorldT))));
+        Vector3 baseCoordWorldU = insertion.AtlasName.Space2World(insertion.TransformName.T2U(insertion.TransformName.U2T_Vector(insertion.AtlasName.World2Space(baseCoordWorldT))));
+        Vector3 topCoordWorldU = insertion.AtlasName.Space2World(insertion.TransformName.T2U(insertion.TransformName.U2T_Vector(insertion.AtlasName.World2Space(topCoordWorldT))));
 
         // Lerp between the base and top coordinate in small steps'
 
@@ -557,7 +557,7 @@ public class ProbeManager : MonoBehaviour
 
                     // Now transform this into WorldU
                     ProbeInsertion insertion = _probeController.Insertion;
-                    Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
+                    Vector3 channelCoordWorldU = insertion.AtlasName.Space2World(insertion.TransformName.T2U(insertion.TransformName.U2T_Vector(insertion.AtlasName.World2Space(channelCoordWorldT))));
 
                     int elecIdx = si * channelMapData.Count + i;
                     int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU));
@@ -584,7 +584,7 @@ public class ProbeManager : MonoBehaviour
 
                 // Now transform this into WorldU
                 ProbeInsertion insertion = _probeController.Insertion;
-                Vector3 channelCoordWorldU = insertion.CoordinateSpace.Space2World(insertion.CoordinateTransform.T2U(insertion.CoordinateTransform.U2T_Vector(insertion.CoordinateSpace.World2Space(channelCoordWorldT))));
+                Vector3 channelCoordWorldU = insertion.AtlasName.Space2World(insertion.TransformName.T2U(insertion.TransformName.U2T_Vector(insertion.AtlasName.World2Space(channelCoordWorldT))));
 
                 int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU));
                 if (ID < 0) ID = -1;
@@ -667,7 +667,7 @@ public class ProbeManager : MonoBehaviour
 
         float mult = Settings.DisplayUM ? 1000f : 1f;
 
-        Vector3 tipAtlasU = insertion.PositionSpaceU() + insertion.CoordinateSpace.ReferenceCoord;
+        Vector3 tipAtlasU = insertion.PositionSpaceU() + insertion.AtlasName.ReferenceCoord;
         Vector3 tipAtlasT = insertion.apmldv;
 
         Vector3 angles = Settings.UseIBLAngles ?
@@ -676,7 +676,7 @@ public class ProbeManager : MonoBehaviour
 
         (Vector3 entryAtlasT, float depthTransformed) = GetSurfaceCoordinateT();
 
-        Vector3 entryAtlasU = BrainAtlasManager.ActiveAtlasTransform.T2U(entryAtlasT) + insertion.CoordinateSpace.ReferenceCoord;
+        Vector3 entryAtlasU = BrainAtlasManager.ActiveAtlasTransform.T2U(entryAtlasT) + insertion.AtlasName.ReferenceCoord;
 
         if (Settings.ConvertAPML2Probe)
         {
@@ -768,7 +768,7 @@ public class ProbeManager : MonoBehaviour
             // useReference = false here
             brainSurfaceWorld = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(surfaceIdxCoordU);
             brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(brainSurfaceWorld);
-            _brainSurface = _probeController.Insertion.World2T(brainSurfaceWorld);
+            _brainSurface = brainSurfaceWorldT;
         }
     }
 
@@ -1078,7 +1078,7 @@ public struct ProbeData
         data.APMLDV = probeManager.ProbeController.Insertion.apmldv;
         data.Angles = probeManager.ProbeController.Insertion.angles;
 
-        data.AtlasSpaceName = probeManager.ProbeController.Insertion.CoordinateSpace.Name;
+        data.AtlasSpaceName = probeManager.ProbeController.Insertion.AtlasName.Name;
 
         // TODO
         //if (probeManager.ProbeController.Insertion.AtlasTransform.Name.Equals("Custom"))
