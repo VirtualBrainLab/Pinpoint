@@ -26,6 +26,7 @@ public class Settings : MonoBehaviour
     private static InternalData data;
 
     public const string DATA_STR = "settings-data";
+    private const string VERSION_KEY = "version";
     #endregion
 
     #region Probe settings
@@ -548,7 +549,11 @@ public class Settings : MonoBehaviour
 
     private void Start()
     {
-        Load();
+        bool reset = false;
+        if (!PlayerPrefs.HasKey("version") || !PlayerPrefs.GetString("version", "").Equals(Application.version))
+            reset = true;
+
+        Load(reset);
     }
 
     public void Startup()
@@ -561,6 +566,7 @@ public class Settings : MonoBehaviour
 
     public static void Save()
     {
+        PlayerPrefs.SetString(VERSION_KEY, Application.version);
         PlayerPrefs.SetString(DATA_STR, Data2String());
         PlayerPrefs.Save();
     }
