@@ -32,7 +32,7 @@ public class PinpointAtlasManager : MonoBehaviour
         for (int i = 0; i < _atlasNames.Count; i++)
             _atlasNameMapping.Add(_atlasNames[i], _atlasMappings[i]);
 
-        Settings.InvivoTransformChangedEvent += SetNewTransform;
+        Settings.AtlasTransformChangedEvent += SetNewTransform;
     }
 
     public void Startup()
@@ -65,7 +65,6 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void ResetAtlasDropdownIndex()
     {
-        Debug.Log(BrainAtlasManager.ActiveReferenceAtlas.Name);
         string activeAtlas = BrainAtlasManager.ActiveReferenceAtlas.Name;
         _atlasDropdown.SetValueWithoutNotify(_atlasDropdown.options.FindIndex(x => x.text.Equals(_atlasNameMapping[activeAtlas])));
     }
@@ -99,27 +98,27 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void PopulateTransformDropdown()
     {
-        var transformNames = BrainAtlasManager.AtlasTransforms;
-
-        _transformDropdown.options = transformNames.ConvertAll(x => new TMP_Dropdown.OptionData(ConverTransform2UserFriendly(x.Name)));
+        _transformDropdown.options = BrainAtlasManager.AtlasTransforms.ConvertAll(x => new TMP_Dropdown.OptionData(ConverTransform2UserFriendly(x.Name)));
     }
 
     public void ResetTransformDropdownIndex()
     {
         string activeTransformName = BrainAtlasManager.ActiveAtlasTransform.Name;
-        _transformDropdown.SetValueWithoutNotify(_atlasDropdown.options.FindIndex(x => x.text.Equals(activeTransformName)));
+        _transformDropdown.SetValueWithoutNotify(BrainAtlasManager.AtlasTransforms.FindIndex(x => x.Name.Equals(activeTransformName)));
     }
 
-    public void SetTransform(int option)
+    public void SetTransform(int idx)
     {
-        int idx = BrainAtlasManager.AtlasTransforms.FindIndex(x => x.Name.Equals(_transformDropdown.options[option].text.Substring(17)));
-
-        Settings.InvivoTransformName = BrainAtlasManager.AtlasTransforms[idx].Name;
+        Settings.AtlasTransformName = BrainAtlasManager.AtlasTransforms[idx].Name;
     }
 
     public void SetNewTransform(string transformName)
     {
+#if UNITY_EDITOR
+        Debug.Log($"Atlas transform set to {transformName}");
+#endif
         BrainAtlasManager.ActiveAtlasTransform = BrainAtlasManager.AtlasTransforms.Find(x => x.Name.Equals(transformName));
+        ResetTransformDropdownIndex();
 
         // Check all probes for mis-matches
         foreach (ProbeManager probeManager in ProbeManager.Instances)

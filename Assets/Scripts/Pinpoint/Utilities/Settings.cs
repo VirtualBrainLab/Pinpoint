@@ -310,9 +310,9 @@ public class Settings : MonoBehaviour
 
 
     private const string INVIVO_DEFAULT = "null";
-    public static Action<string> InvivoTransformChangedEvent;
+    public static Action<string> AtlasTransformChangedEvent;
 
-    public static string InvivoTransformName
+    public static string AtlasTransformName
     {
         get
         {
@@ -322,7 +322,7 @@ public class Settings : MonoBehaviour
         {
             data.AtlasTransformName = value;
             Save();
-            InvivoTransformChangedEvent.Invoke(data.AtlasTransformName);
+            AtlasTransformChangedEvent.Invoke(data.AtlasTransformName);
         }
     }
 
@@ -685,6 +685,7 @@ public class Settings : MonoBehaviour
         // Atlas
         AtlasName = data.AtlasName;
         // the relative coordinate actually needs to be set, since it gets propagated downstream
+        AtlasTransformName = data.AtlasTransformName;
         ReferenceCoord = data.RelativeCoord;
         _blSlider.SetValueWithoutNotify(BregmaLambdaDistance);
 

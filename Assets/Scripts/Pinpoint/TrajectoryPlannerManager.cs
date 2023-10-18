@@ -231,9 +231,6 @@ namespace TrajectoryPlanner
                 referenceAtlas.AtlasSpace.ReferenceCoord = Settings.ReferenceCoord;
             }
 
-            Debug.Log(Settings.AtlasName);
-            Debug.Log(referenceAtlas.AtlasSpace.ReferenceCoord);
-
             var nodeTask = _atlasManager.LoadDefaultAreas("");
 
             referenceAtlas.LoadAnnotations();
