@@ -113,9 +113,9 @@ public class ProbeManager : MonoBehaviour
 
     // Brain surface position
     private bool probeInBrain;
-    private Vector3 _brainSurface;
-    private Vector3 brainSurfaceWorld;
-    private Vector3 brainSurfaceWorldT;
+    private Vector3 _brainSurfaceCoordT;
+    private Vector3 _brainSurfaceWorldU;
+    private Vector3 _brainSurfaceWorldT;
 
     #region Accessors
 
@@ -750,7 +750,6 @@ public class ProbeManager : MonoBehaviour
         // note: the backward axis on the probe is the probe's "up" axis
         (Vector3 tipCoordWorld, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
 
-        // note useReference = false, we need raw indexes when accessing the atlas
         Vector3 surfaceIdxCoordU = FindSurfaceIdxCoordinate(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorld),
             BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-tipForwardWorldU));
 
@@ -758,48 +757,31 @@ public class ProbeManager : MonoBehaviour
         {
             // not in the brain
             probeInBrain = false;
-            brainSurfaceWorld = new Vector3(float.NaN, float.NaN, float.NaN);
-            brainSurfaceWorldT = new Vector3(float.NaN, float.NaN, float.NaN);
-            _brainSurface = new Vector3(float.NaN, float.NaN, float.NaN);
+            _brainSurfaceWorldU = new Vector3(float.NaN, float.NaN, float.NaN);
+            _brainSurfaceWorldT = new Vector3(float.NaN, float.NaN, float.NaN);
+            _brainSurfaceCoordT = new Vector3(float.NaN, float.NaN, float.NaN);
         }
         else
         {
             // in the brain
             probeInBrain = true;
-            // useReference = false here
-            brainSurfaceWorld = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(surfaceIdxCoordU);
-            brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(brainSurfaceWorld);
-            _brainSurface = brainSurfaceWorldT;
+            // get the surface coordinate in un-transformed world space
+            _brainSurfaceWorldU = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(surfaceIdxCoordU);
+            // go back into transformed space, only using the reference coordinate for the entry coordinate (not the transform coordinate)
+            _brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(_brainSurfaceWorldU, false);
+            _brainSurfaceCoordT = ProbeController.Insertion.World2T(_brainSurfaceWorldU);
         }
     }
 
 
     public (Vector3 surfaceCoordinateT, float depthT) GetSurfaceCoordinateT()
     {
-        return (_brainSurface, Vector3.Distance(_probeController.Insertion.apmldv, _brainSurface));
+        return (_brainSurfaceCoordT, Vector3.Distance(_probeController.Insertion.apmldv, _brainSurfaceCoordT));
     }
 
     public Vector3 GetSurfaceCoordinateWorldT()
     {
-        return brainSurfaceWorldT;
-    }
-
-    public Vector3 surfaceCoordinateWorldT;
-
-    public (Vector3 tipCoordTransformed, Vector3 entryCoordTransformed, float depthTransformed) GetSurfaceCoordinateTransformed()
-    {
-        // Get the tip and entry coordinates in world space, transform them -> Space -> Transformed, then calculate depth
-        Vector3 tipCoordWorld = _probeController.ProbeTipT.position;
-        Vector3 entryCoordWorld = probeInBrain ? brainSurfaceWorld : tipCoordWorld;
-
-        // Convert
-        ProbeInsertion insertion = _probeController.Insertion;
-        Vector3 tipCoordTransformed = insertion.World2T(tipCoordWorld);
-        Vector3 entryCoordTransformed = insertion.World2T(entryCoordWorld);
-
-        float depth = probeInBrain ? Vector3.Distance(tipCoordTransformed, entryCoordTransformed) : 0f;
-
-        return (tipCoordTransformed, entryCoordTransformed, depth);
+        return _brainSurfaceWorldT;
     }
 
     public bool IsProbeInBrain()
@@ -814,7 +796,7 @@ public class ProbeManager : MonoBehaviour
     {
         if (probeInBrain)
         {
-            _probeController.SetProbePosition(_brainSurface);
+            _probeController.SetProbePosition(_brainSurfaceCoordT);
         }
         else
         {

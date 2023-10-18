@@ -760,9 +760,9 @@ public class CartesianProbeController : ProbeController
     public override (Vector3 tipCoordWorldU, Vector3 tipRightWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU()
     {
         Vector3 tipCoordWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.position);
-        Vector3 tipRightWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.right).normalized;
-        Vector3 tipUpWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.up).normalized;
-        Vector3 tipForwardWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.forward).normalized;
+        Vector3 tipRightWorldU = (BrainAtlasManager.WorldT2WorldU(_probeTipT.position + _probeTipT.right, false) - tipCoordWorldU).normalized;
+        Vector3 tipUpWorldU = (BrainAtlasManager.WorldT2WorldU(_probeTipT.position + _probeTipT.up, false) - tipCoordWorldU).normalized;
+        Vector3 tipForwardWorldU = (BrainAtlasManager.WorldT2WorldU(_probeTipT.position + _probeTipT.forward, false) - tipCoordWorldU).normalized;
 
         return (tipCoordWorldU, tipRightWorldU, tipUpWorldU, tipForwardWorldU);
     }

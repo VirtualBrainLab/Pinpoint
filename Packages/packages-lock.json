@@ -207,7 +207,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "7ea156d420ebff6795d46234410d10b2670523f4"
+      "hash": "8150de292883fa700ab0ad7a2434b8b93d627956"
     },
     "vbl.urchin": {
       "version": "https://github.com/VirtualBrainLab/Urchin.git?path=/UnityClient/Packages/vbl.urchin",
