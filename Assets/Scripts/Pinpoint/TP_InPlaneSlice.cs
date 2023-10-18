@@ -131,14 +131,16 @@ public class TP_InPlaneSlice : MonoBehaviour
         _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);
 
-        inPlaneScale = recordingSizemmU * 1.5f * 1000f / 25f * zoomFactor;
+        Vector3 resolution = BrainAtlasManager.ActiveReferenceAtlas.Resolution;
+
+        inPlaneScale = recordingSizemmU * 1.5f * 1000f / resolution.x * zoomFactor;
 
 
         _gpuSliceRenderer.sharedMaterial.SetVector("_RecordingRegionCenterPosition", recRegionCenterIdx);
         _gpuSliceRenderer.sharedMaterial.SetVector("_RightDirection", rightWorldU);
         // the slice's "up" direction is the probe's "backward"
         _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", -forwardWorldU);
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", recordingSizemmU * 1000f / 25f);
+        _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", recordingSizemmU * 1000f / resolution.x);
         _gpuSliceRenderer.sharedMaterial.SetFloat("_Scale", inPlaneScale);
         float roundedMmRecSize = Mathf.Round(recordingSizemmU * 1.5f * zoomFactor * 100) / 100;
 

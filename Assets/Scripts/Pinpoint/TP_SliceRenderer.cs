@@ -177,7 +177,6 @@ public class TP_SliceRenderer : MonoBehaviour
 
     public void ToggleSliceVisibility(int sliceType)
     {
-        Debug.Log("here");
         _dropdownMenu.SetValueWithoutNotify(sliceType);
 
         if (sliceType==0)
@@ -186,7 +185,6 @@ public class TP_SliceRenderer : MonoBehaviour
             _sagittalSliceGo.SetActive(false);
             _coronalSliceGo.SetActive(false);
             ClearNodeModelSlicing();
-            Debug.Log("here2");
         }
         else
         {
@@ -195,7 +193,6 @@ public class TP_SliceRenderer : MonoBehaviour
             _coronalSliceGo.SetActive(true);
 
             UpdateCameraPosition();
-            Debug.Log("here3");
         }
     }
 }
