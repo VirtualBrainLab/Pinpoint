@@ -22,39 +22,6 @@ using System.Collections.Specialized;
 using System.Runtime.InteropServices;
 #endif
 
-//#if UNITY_EDITOR
-
-//using UnityEditor.Build;
-//using UnityEditor.Build.Reporting;
-//// This code fixes a bug that is also fixed by upgrading to 2021.3.14f1 or newer
-//// see https://forum.unity.com/threads/workaround-for-building-with-il2cpp-with-visual-studio-2022-17-4.1355570/
-//// please remove this code when Unity version exceeds this!
-// TODO
-
-//public class MsvcStdextWorkaround : IPreprocessBuildWithReport
-//{
-//    const string kWorkaroundFlag = "/D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS";
-
-//    public int callbackOrder => 0;
-
-//    public void OnPreprocessBuild(BuildReport report)
-//    {
-//        var clEnv = Environment.GetEnvironmentVariable("_CL_");
-
-//        if (string.IsNullOrEmpty(clEnv))
-//        {
-//            Environment.SetEnvironmentVariable("_CL_", kWorkaroundFlag);
-//        }
-//        else if (!clEnv.Contains(kWorkaroundFlag))
-//        {
-//            clEnv += " " + kWorkaroundFlag;
-//            Environment.SetEnvironmentVariable("_CL_", clEnv);
-//        }
-//    }
-//}
-
-//#endif // UNITY_EDITOR
-
 namespace TrajectoryPlanner
 {
 
