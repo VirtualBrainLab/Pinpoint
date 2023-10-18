@@ -432,7 +432,7 @@ namespace TrajectoryPlanner
             if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
             {
                 var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
-                    BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
+                    BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name);
 
                 ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
                     probeData.ManipulatorType, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
@@ -964,12 +964,12 @@ namespace TrajectoryPlanner
                         Vector3 newAPMLDV = BrainAtlasManager.ActiveAtlasTransform.U2T(origTransform.T2U(probeData.APMLDV));
 
                         probeInsertion = new ProbeInsertion(newAPMLDV, probeData.Angles,
-                            BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
+                            BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name);
                     }
                     else
                     {
                         probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
-                            BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
+                            BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name);
                     }
 
 
@@ -1003,7 +1003,7 @@ namespace TrajectoryPlanner
             prevTipSideLeft = atlasID == prevTipID && prevTipSideLeft;
 
             // transform the coordinate
-            Vector3 coordT = ProbeManager.ActiveProbeManager.ProbeController.Insertion.TransformName.U2T(
+            Vector3 coordT = BrainAtlasManager.ActiveAtlasTransform.U2T(
                 (prevTipSideLeft ? leftCoordU : rightCoordU) - BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord);
             ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition(coordT);
 

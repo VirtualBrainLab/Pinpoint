@@ -443,8 +443,8 @@ public class UnisaveAccountsManager : AccountsManager
             apmldv.x, apmldv.y, apmldv.z,
             angles.x, angles.y, angles.z,
             (int)probeManager.ProbeType,
-            probeManager.ProbeController.Insertion.AtlasName.Name,
-            probeManager.ProbeController.Insertion.TransformName.Name,
+            probeManager.ProbeController.Insertion.AtlasName,
+            probeManager.ProbeController.Insertion.TransformName,
             active, recorded,
             probeManager.UUID,
             new float[] {color.r, color.g, color.b});

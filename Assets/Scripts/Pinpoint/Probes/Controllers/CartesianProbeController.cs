@@ -198,7 +198,7 @@ public class CartesianProbeController : ProbeController
 
         probeControlClick.InputControl.performed += x => ToggleControllerLock();
 
-        Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
+        Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name);
     }
 
     private void Start()

@@ -1,3 +1,4 @@
+using BrainAtlas;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
@@ -37,7 +38,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         // change the apmldv/depth text fields to match the prefix on this probe's insertion
         if (ProbeManager.ActiveProbeManager != null)
         {
-            string prefix = ProbeManager.ActiveProbeManager.ProbeController.Insertion.TransformName.Prefix;
+            string prefix = BrainAtlasManager.ActiveAtlasTransform.Prefix;
 
             if (Settings.ConvertAPML2Probe)
             {

@@ -1,10 +1,7 @@
 using System;
 using UnityEngine;
-using CoordinateSpaces;
-using CoordinateTransforms;
 using System.Collections.Generic;
 using BrainAtlas;
-using BrainAtlas.CoordinateSystems;
 
 /// <summary>
 /// Representation of a probe insertion in a native CoordinateSpace and CoordinateTransform
@@ -22,13 +19,8 @@ public class ProbeInsertion
     #endregion
 
     #region Coordinate vars
-    public CoordinateSpace CoordinateSpace { get; set; }
-    public CoordinateTransform CoordinateTransform { get; set; }
-    #endregion
-
-    #region Name data
-    public string AtlasName { get { return CoordinateSpace.Name; } }
-    public string TransformName { get { return CoordinateTransform.Name; } }
+    public string AtlasName { get; set; }
+    public string TransformName { get; set; }
     #endregion
 
     #region pos/angle vars
@@ -72,7 +64,7 @@ public class ProbeInsertion
     #region constructor
 
     public ProbeInsertion(float ap, float ml, float dv, float yaw, float pitch, float roll, 
-        CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
+        string atlasName, string transformName)
     {
         this.AP = ap;
         this.ML = ml;
@@ -80,27 +72,27 @@ public class ProbeInsertion
         this.Yaw = yaw;
         this.Pitch = pitch;
         this.Roll = roll;
-        CoordinateSpace = coordSpace;
-        CoordinateTransform = coordTransform;
+        AtlasName = atlasName;
+        TransformName = transformName;
         Instances.Add(this);
     }
 
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
-        CoordinateSpace coordSpace, CoordinateTransform coordTransform, bool targetable = true)
+        string atlasName, string transformName)
     {
         apmldv = tipPosition;
         this.angles = angles;
-        CoordinateSpace = coordSpace;
-        CoordinateTransform = coordTransform;
+        AtlasName = atlasName;
+        TransformName = transformName;
         Instances.Add(this);
     }
      
-    public ProbeInsertion(ProbeInsertion otherInsertion, bool targetable = true)
+    public ProbeInsertion(ProbeInsertion otherInsertion)
     {
         apmldv = otherInsertion.apmldv;
         angles = otherInsertion.angles;
-        CoordinateSpace = otherInsertion.CoordinateSpace;
-        CoordinateTransform = otherInsertion.CoordinateTransform;
+        AtlasName = otherInsertion.AtlasName;
+        TransformName = otherInsertion.TransformName;
         Instances.Add(this);
     }
 
@@ -118,7 +110,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionSpaceU()
     {
-        return CoordinateTransform.T2U(apmldv);
+        return BrainAtlasManager.ActiveAtlasTransform.T2U(apmldv);
     }
 
     /// <summary>
@@ -127,7 +119,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldT()
     {
-        return CoordinateSpace.Space2World(CoordinateTransform.T2U_Vector(apmldv));
+        return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(apmldv));
     }
 
     /// <summary>
@@ -136,7 +128,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldU()
     {
-        return CoordinateSpace.Space2World(PositionSpaceU());
+        return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(PositionSpaceU());
     }
 
     /// <summary>
@@ -146,21 +138,21 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 World2T(Vector3 coordWorld)
     {
-        return CoordinateTransform.U2T(CoordinateSpace.World2Space(coordWorld));
+        return BrainAtlasManager.ActiveAtlasTransform.U2T(BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(coordWorld));
     }
 
     public Vector3 World2T_Vector(Vector3 vectorWorld)
     {
-        return CoordinateTransform.U2T_Vector(CoordinateSpace.World2Space_Vector(vectorWorld));
+        return BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(vectorWorld));
     }
 
     public Vector3 T2World(Vector3 coordT)
     {
-        return CoordinateSpace.Space2World(CoordinateTransform.T2U(coordT));
+        return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(BrainAtlasManager.ActiveAtlasTransform.T2U(coordT));
     }
     public Vector3 T2World_Vector(Vector3 vectorT)
     {
-        return CoordinateSpace.Space2World_Vector(CoordinateTransform.T2U_Vector(vectorT));
+        return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World_Vector(BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(vectorT));
     }
 
     public override string ToString()

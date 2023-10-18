@@ -3,7 +3,10 @@
     "rootNamespace": "",
     "references": [
         "BestHTTP",
-        "trajectoryplanner.core.utilities"
+        "trajectoryplanner.core.utilities",
+        "vbl.brainatlas.runtime",
+        "vbl.brainatlas.atlas",
+        "vbl.brainatlas.coordsystems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

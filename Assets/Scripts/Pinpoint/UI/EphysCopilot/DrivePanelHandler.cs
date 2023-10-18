@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using BrainAtlas;
 using EphysLink;
 using TMPro;
 using UnityEngine;
@@ -350,13 +351,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Converting worldT back to APMLDV (position transformed)
                 targetInsertion.apmldv =
-                    targetInsertion.TransformName.U2T_Vector(
-                        targetInsertion.AtlasName.World2Space(offsetAdjustedTargetPositionWorldT));
+                    BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
+                        BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(offsetAdjustedTargetPositionWorldT));
 
                 // Compute return surface position (500 dv above surface)
 
                 var surfaceInsertion = new ProbeInsertion(0, 0, 0.5f, 0, 0, 0, targetInsertion.AtlasName,
-                    targetInsertion.TransformName, false);
+                    targetInsertion.TransformName);
                 var surfacePositionWorldT = surfaceInsertion.PositionWorldT();
                 var surfacePlane = new Plane(Vector3.down, surfacePositionWorldT);
                 var direction = new Ray(ProbeManager.ProbeController.Insertion.PositionWorldT(), probeTipTUp);
@@ -367,8 +368,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Converting worldT back to APMLDV (position transformed)
                 var offsetAdjustedSurfacePosition =
-                    surfaceInsertion.TransformName.U2T_Vector(
-                        surfaceInsertion.AtlasName.World2Space(offsetAdjustedSurfacePositionWorldT));
+                    BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
+                        BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(offsetAdjustedSurfacePositionWorldT));
 
                 // Compute drive distances
                 var targetDriveDistance =
