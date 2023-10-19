@@ -99,6 +99,9 @@ public class CraniotomyPanel : MonoBehaviour
 
     private void UpdateCraniotomy()
     {
+        if (!gameObject.activeSelf)
+            return;
+
         // We need to rotate the x/y coordinates into the current transformed space... 
         _positionWorld = BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(_positionSpace);
 

@@ -231,7 +231,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// </summary>
         public void ToggleCopilotPanel(bool isEnabled)
         {
-            _uiManager.EnableEphysCopilotPanel(isEnabled);
+            if (_uiManager != null)
+                _uiManager.EnableEphysCopilotPanel(isEnabled);
         }
 
         public void InvokeShouldUpdateProbesListEvent()
