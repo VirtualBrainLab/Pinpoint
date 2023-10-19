@@ -169,7 +169,7 @@ public class Settings : MonoBehaviour
     }
 
     private const bool SHOWBREGMAAXIS_DEFAULT = true;
-    public static Action<bool> ShowBregmaAxisChangedEvent;
+    public UnityEvent<bool> ShowBregmaAxisChangedEvent;
 
     public static bool ShowBregmaAxis
     {
@@ -178,7 +178,7 @@ public class Settings : MonoBehaviour
         {
             data.ShowBregmaAxis = value;
             Save();
-            ShowBregmaAxisChangedEvent.Invoke(data.ShowBregmaAxis);
+            Instance.ShowBregmaAxisChangedEvent.Invoke(data.ShowBregmaAxis);
         }
     }
 

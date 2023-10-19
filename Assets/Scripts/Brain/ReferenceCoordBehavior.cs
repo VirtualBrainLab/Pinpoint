@@ -12,11 +12,6 @@ public class ReferenceCoordBehavior : MonoBehaviour
 
     private bool _started;
 
-    private void Awake()
-    {
-        Settings.ShowBregmaAxisChangedEvent += x => gameObject.SetActive(x);
-    }
-
     private void Start()
     {
         _started = true;
@@ -35,11 +30,11 @@ public class ReferenceCoordBehavior : MonoBehaviour
     {
         CoordinateSpace atlasSpace = BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace;
         SetReferenceCoordinate(atlasSpace.Space2World(Vector3.zero));
+        UpdateAxisDirections();
     }
 
     private void SetReferenceCoordinate(Vector3 refWorldU)
     {
-        Debug.Log(refWorldU);
         transform.position = refWorldU;
     }
 
@@ -53,7 +48,6 @@ public class ReferenceCoordBehavior : MonoBehaviour
 
     private void SetAxisDirections(Vector3 apDir, Vector3 mlDir, Vector3 dvDir)
     {
-        Debug.Log(apDir);
         _apLine.SetPosition(0, transform.position);
         _mlLine.SetPosition(0, transform.position);
         _dvLine.SetPosition(0, transform.position);
