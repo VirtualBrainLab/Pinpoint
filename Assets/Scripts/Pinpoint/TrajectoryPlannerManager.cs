@@ -107,7 +107,6 @@ namespace TrajectoryPlanner
         [SerializeField] private CraniotomyPanel _craniotomyPanel;
 
         // Local tracking variables
-        private List<Collider> rigColliders;
         private bool _movedThisFrame;
 
         private const string SCENE_RESET_KEY = "scene-rest";
@@ -139,9 +138,6 @@ namespace TrajectoryPlanner
 #endif
 
             SetProbeControl(false);
-
-            // Initialize variables
-            rigColliders = new List<Collider>();
 
             // Input system
             inputActions = new();
@@ -267,7 +263,10 @@ namespace TrajectoryPlanner
                     bool inBrain = ProbeManager.ActiveProbeManager.IsProbeInBrain();
                     SetSurfaceDebugActive(inBrain);
                     if (inBrain)
+                    {
                         SetSurfaceDebugPosition(ProbeManager.ActiveProbeManager.GetSurfaceCoordinateWorldT());
+                        SetSurfaceDebugColor(ProbeManager.ActiveProbeManager.Color);
+                    }
                 }
 
                 if (!_probeQuickSettings.IsFocused())
@@ -607,19 +606,6 @@ namespace TrajectoryPlanner
                 ProbeManager.ActiveProbeManager.ProbeController.ResetInsertion();
         }
 
-#region Colliders
-
-        public void UpdateRigColliders(IEnumerable<Collider> newRigColliders, bool keep)
-        {
-            if (keep)
-                ColliderManager.AddRigColliderInstances(newRigColliders);
-            else
-                foreach (Collider collider in newRigColliders)
-                    rigColliders.Remove(collider);
-        }
-
-#endregion
-
         public void UpdateAllProbeUI()
         {
             foreach (ProbeManager probeManager in ProbeManager.Instances)
@@ -711,6 +697,11 @@ namespace TrajectoryPlanner
         public void SetSurfaceDebugPosition(Vector3 worldPosition)
         {
             _surfaceDebugGo.transform.position = worldPosition;
+        }
+
+        public void SetSurfaceDebugColor(Color color)
+        {
+            _surfaceDebugGo.GetComponent<Renderer>().material.color = color;
         }
 
 #region Save and load probes on quit
