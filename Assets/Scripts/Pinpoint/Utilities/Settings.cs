@@ -168,6 +168,20 @@ public class Settings : MonoBehaviour
         }
     }
 
+    private const bool SHOWBREGMAAXIS_DEFAULT = true;
+    public static Action<bool> ShowBregmaAxisChangedEvent;
+
+    public static bool ShowBregmaAxis
+    {
+        get { return data.ShowBregmaAxis; }
+        set
+        {
+            data.ShowBregmaAxis = value;
+            Save();
+            ShowBregmaAxisChangedEvent.Invoke(data.ShowBregmaAxis);
+        }
+    }
+
 
     // Display the in-plane slice
     private const bool SHOWINPLANE_DEFAULT = true;
@@ -603,6 +617,7 @@ public class Settings : MonoBehaviour
 
             // graphics
             data.ShowSurfaceCoord = SHOWSURFACECOORD_DEFAULT;
+            data.ShowBregmaAxis = SHOWBREGMAAXIS_DEFAULT;
             data.GhostInactiveAreas = GHOSTINACTIVEAREAS_DEFAULT;
             data.GhostInactiveProbes = GHOSTINACTIVEPROBES_DEFAULT;
             data.ShowAtlas3DSlices = SHOW3DSLICE_DEFAULT;
@@ -668,6 +683,7 @@ public class Settings : MonoBehaviour
         Slice3DChangedEvent.Invoke(data.ShowAtlas3DSlices);
 
         _surfaceToggle.SetIsOnWithoutNotify(ShowSurfaceCoordinate);
+        ShowBregmaAxis = data.ShowBregmaAxis;
 
         _inplaneToggle.SetIsOnWithoutNotify(ShowInPlaneSlice);
 
@@ -781,6 +797,7 @@ public class Settings : MonoBehaviour
 
         // Graphics and UI
         public bool ShowSurfaceCoord;
+        public bool ShowBregmaAxis;
         public bool ShowInPlaneSlice;
 
         // Transparency
@@ -827,6 +844,7 @@ public class Settings : MonoBehaviour
         public Vector3 CameraRotation;
 
         public string AtlasName;
+
     }
     #endregion
 }
