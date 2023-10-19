@@ -205,6 +205,7 @@ namespace TrajectoryPlanner
             // Link any events that need to be linked
             ProbeManager.ActiveProbeUIUpdateEvent.AddListener(
                 () => _probeQuickSettings.GetComponentInChildren<QuickSettingsLockBehavior>().UpdateSprite(ProbeManager.ActiveProbeManager.ProbeController.Locked));
+            ProbeManager.ActiveProbeUIUpdateEvent.AddListener(() => SetSurfaceDebugColor(ProbeManager.ActiveProbeManager.Color));
 
             // Complete
             StartupEvent_Complete.Invoke();
