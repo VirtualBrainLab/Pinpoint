@@ -17,30 +17,36 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: edfc08336e8737945a5382729804fd5f
   m_SerializeEntries:
-  - m_GUID: dc137180e37d5c5468236360256235ad
-    m_Address: Assets/AddressableAssets/Probes/neuropixels_1.csv
+  - m_GUID: 1f4318549ce21f444ac0391a33dae02d
+    m_Address: Assets/AddressableAssets/ChannelMaps/neuropixels_1.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: 5d9fa4254b36d4242b097c3cd188bc25
-    m_Address: Assets/AddressableAssets/Probes/neuropixels_2.csv
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 78d72a9495bb9de4db430c4a7124f679
+    m_Address: Assets/AddressableAssets/ChannelMaps/neuropixels_2.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: 84c32c4b155cbd54686f0eac3b733445
-    m_Address: Assets/AddressableAssets/Probes/ucla_128k.csv
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d46a8f9052cb2f24193d9e7d659f8583
+    m_Address: Assets/AddressableAssets/ChannelMaps/neuropixels_2_1shank.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: 746edc61d33840c428494b7abde3bf97
-    m_Address: Assets/AddressableAssets/Probes/ucla_256f.csv
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6c610f1cb26c1f44a98acd88b4bdd650
+    m_Address: Assets/AddressableAssets/ChannelMaps/pipette.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: f1ddfb9f17fe7ac4bb5bb3feedfd1a20
-    m_Address: Assets/AddressableAssets/Probes/pipette.csv
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 45640d4e5df0b3c419c6605dd1385a43
+    m_Address: Assets/AddressableAssets/ChannelMaps/ucla_128k.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: 64c963c2ae3683240948c96550cd9a30
-    m_Address: Assets/AddressableAssets/Probes/neuropixels_2_1shank.csv
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d9696f89f722d1240be4d4ec88b676a4
+    m_Address: Assets/AddressableAssets/ChannelMaps/ucla_256f.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
   m_SchemaSet:

@@ -46,7 +46,6 @@ public class TP_ProbePanel : MonoBehaviour
 
     public void SetChannelMap(Texture2D channelMapTexture)
     {
-
         _channelRenderer.material.SetTexture("_ChannelTexture", channelMapTexture);
     }
 

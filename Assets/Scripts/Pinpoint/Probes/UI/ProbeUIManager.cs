@@ -43,7 +43,6 @@ public class ProbeUIManager : MonoBehaviour
         probePanelGO = Instantiate(_probePanelPrefab, probePanelParentT);
         probePanel = probePanelGO.GetComponent<TP_ProbePanel>();
         probePanel.name = $"{_probeManager.name}_panel_{GetOrder()}";
-        UpdateChannelMap();
         probePanel.RegisterProbeManager(_probeManager);
 
         probePanelPxHeight = probePanel.GetPanelHeight();
@@ -57,6 +56,13 @@ public class ProbeUIManager : MonoBehaviour
         ProbeSelected(false);
 
         _probeManager.UIUpdateEvent.AddListener(UpdateUI);
+    }
+
+    private async void Start()
+    {
+        var cmapTask = _probeManager.GetChannelMap();
+        await cmapTask;
+        probePanel.SetChannelMap(cmapTask.Result.Texture);
     }
 
     private void Update()
@@ -82,11 +88,6 @@ public class ProbeUIManager : MonoBehaviour
         selectedColor.a = 0.75f;
 
         UpdateUIManagerColor();
-    }
-
-    public void UpdateChannelMap()
-    {
-        probePanel.SetChannelMap(_probeManager.ChannelMap.GetChannelMapTexture(_probeManager.SelectionLayerName));
     }
 
     public int GetOrder()
@@ -123,6 +124,7 @@ public class ProbeUIManager : MonoBehaviour
     {
         // Make sure the annotations have been loaded
         await BrainAtlasManager.ActiveReferenceAtlas.AnnotationsTask;
+        await _probeManager.ChannelMapTask;
 
         // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
         var channelCoords = _probeManager.GetChannelRangemm();

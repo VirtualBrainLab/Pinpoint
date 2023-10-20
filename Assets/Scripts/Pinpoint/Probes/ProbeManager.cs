@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BrainAtlas;
 using EphysLink;
 using TrajectoryPlanner.Probes;
@@ -80,14 +81,13 @@ public class ProbeManager : MonoBehaviour
 
     #region Channel map
     public string SelectionLayerName { get; private set; }
-    private float _channelMinY;
-    private float _channelMaxY;
     /// <summary>
     /// Return the minimum and maximum channel position in the current selection in mm
     /// </summary>
-    public (float, float) GetChannelMinMaxYCoord { get { return (_channelMinY, _channelMaxY); } }
-    public ChannelMap ChannelMap { get; private set; }
-
+    public (float, float) ChannelMinMaxYCoord { get { return (_channelMap.MinChannelHeight, _channelMap.MaxChannelHeight); } }
+    private TaskCompletionSource<bool> _channelMapLoadedSource;
+    public Task ChannelMapTask {  get { return _channelMapLoadedSource.Task; } }
+    private ChannelMap _channelMap;
 
     /// <summary>
     /// Get the channel map information from all active ProbeManager instances
@@ -209,7 +209,7 @@ public class ProbeManager : MonoBehaviour
 
     #region Unity
 
-    private void Awake()
+    private async void Awake()
     {
         Saved = true;
 
@@ -233,8 +233,13 @@ public class ProbeManager : MonoBehaviour
         _probeController.Register(this);
 
         // Get the channel map and selection layer
-        ChannelMap = ChannelMapManager.GetChannelMap(ProbeType);
+        _channelMapLoadedSource = new();
+        var cmapHandle = ChannelMapManager.GetChannelMap(ProbeType);
+        await cmapHandle;
+        _channelMap = cmapHandle.Result;
+        _channelMapLoadedSource.SetResult(true);
         SelectionLayerName = "default";
+        UpdateSelectionLayer(SelectionLayerName);
 
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
 
@@ -251,8 +256,6 @@ public class ProbeManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"(ProbeManager) New probe created with UUID: {UUID}");
 #endif
-        UpdateSelectionLayer(SelectionLayerName);
-
         // Force update color
         foreach (ProbeUIManager puiManager in _probeUIManagers)
             puiManager.UpdateColors();
@@ -329,6 +332,12 @@ public class ProbeManager : MonoBehaviour
         ActivateProbeEvent.Invoke();
     }
 
+    public async Task<ChannelMap> GetChannelMap()
+    {
+        await _channelMapLoadedSource.Task;
+        return _channelMap;
+    }
+
     public void Update2ActiveTransform()
     {
         _probeController.SetSpaceTransform(BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
@@ -379,18 +388,20 @@ public class ProbeManager : MonoBehaviour
     #region Channel map
     public (float startPosmm, float endPosmm, float recordingSizemm, float fullHeight) GetChannelRangemm()
     {
-        (float startPosmm, float endPosmm) = GetChannelMinMaxYCoord;
+        (float startPosmm, float endPosmm) = ChannelMinMaxYCoord;
         float recordingSizemm = endPosmm - startPosmm;
 
-        return (startPosmm, endPosmm, recordingSizemm, ChannelMap.FullHeight);
+        return (startPosmm, endPosmm, recordingSizemm, _channelMap.FullHeight);
     }
 
-    public void UpdateSelectionLayer(string selectionLayerName)
+    public async void UpdateSelectionLayer(string selectionLayerName)
     {
 #if UNITY_EDITOR
         Debug.Log($"Updating selection layer to {selectionLayerName}");
 #endif
         SelectionLayerName = selectionLayerName;
+        await _channelMapLoadedSource.Task;
+        _channelMap.SetSelectionLayer(SelectionLayerName);
 
         UpdateChannelMap();
 
@@ -407,34 +418,17 @@ public class ProbeManager : MonoBehaviour
     public void UpdateChannelMap()
     {
 
-        _channelMinY = float.MaxValue;
-        _channelMaxY = float.MinValue;
-
-        var channelCoords = ChannelMap.GetChannelPositions(SelectionLayerName);
-        Vector3 channelScale = ChannelMap.GetChannelScale();
-
-        for (int i = 0; i < channelCoords.Count; i++)
-        {
-            if (channelCoords[i].y < _channelMinY)
-                _channelMinY = channelCoords[i].y / 1000f; // coordinates are in um, so divide to mm
-            if (channelCoords[i].y > _channelMaxY)
-                _channelMaxY = channelCoords[i].y / 1000f + channelScale.y / 1000f;
-        }
-
-        if (_channelMaxY == _channelMinY)
-        {
-            // if the channel min/max are identical, default to the height of the channel map
-            _channelMaxY = ChannelMap.FullHeight;
-        }
-
 #if UNITY_EDITOR
-        Debug.Log($"(ProbeManager) Minimum channel coordinate {_channelMinY} max {_channelMaxY}");
+        Debug.Log($"(ProbeManager) Minimum channel coordinate {_channelMap.MinChannelHeight} max {_channelMap.MaxChannelHeight}");
 #endif
-        foreach (ProbeUIManager puiManager in _probeUIManagers)
-            puiManager.UpdateChannelMap();
+
+        // see if we can bypass this:
+
+        //foreach (ProbeUIManager puiManager in _probeUIManagers)
+        //    puiManager.UpdateChannelMap();
 
         if (_recRegion != null)
-            _recRegion.SetSize(_channelMinY, _channelMaxY);
+            _recRegion.SetSize(_channelMap.MinChannelHeight, _channelMap.MaxChannelHeight);
 
         // Update the in-plane slice
         ProbeController.MovedThisFrameEvent.Invoke();
@@ -475,9 +469,9 @@ public class ProbeManager : MonoBehaviour
         //Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMaxY;
 
         Vector3 baseCoordWorldT = uiManager.ShankTipT().position;
-        Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * ChannelMap.FullHeight;
+        Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMap.FullHeight;
         //float height = _channelMaxY - _channelMinY;
-        float height = ChannelMap.FullHeight;
+        float height = _channelMap.FullHeight;
 
         // convert to worldU
         ProbeInsertion insertion = _probeController.Insertion;
@@ -537,7 +531,7 @@ public class ProbeManager : MonoBehaviour
     public string GetChannelAnnotationIDs(bool collapsed = true)
     {
         // Get the channel data
-        var channelMapData = ChannelMap.GetChannelPositions("all");
+        var channelMapData = _channelMap.GetLayerCoords("all");
 
         List<(int idx, int ID, string acronym, string color)> channelAnnotationData = new();
 
