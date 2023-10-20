@@ -996,12 +996,11 @@ namespace TrajectoryPlanner
 
         private void AccountsNewProbeHelper((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, string overrideName, Color color) data)
         {
-            // [TODO]
-            //ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, CoordinateSpaceManager.ActiveCoordinateSpace, CoordinateSpaceManager.ActiveCoordinateTransform), data.UUID);
-            //if (data.overrideName != null)
-            //    newProbeManager.OverrideName = data.overrideName;
-            //if (data.color != null)
-            //    newProbeManager.Color = data.color;
+            ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name), data.UUID);
+            if (data.overrideName != null)
+                newProbeManager.OverrideName = data.overrideName;
+            if (data.color != null)
+                newProbeManager.Color = data.color;
         }
 
         #endregion

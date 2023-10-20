@@ -1,4 +1,5 @@
 using System;
+using BrainAtlas;
 using CoordinateSpaces;
 using CoordinateTransforms;
 using UnityEngine;
@@ -34,8 +35,7 @@ public class PlaceholderProbeController : ProbeController
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
 
-        throw new NotImplementedException();
-        //Insertion = new ProbeInsertion(defaultStart, defaultAngles, new CCFSpace(), new CCFTransform());
+        Insertion = new ProbeInsertion(defaultStart, defaultAngles, BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name);
     }
 
     /// <summary>
