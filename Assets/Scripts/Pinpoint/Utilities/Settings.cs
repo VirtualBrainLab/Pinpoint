@@ -706,8 +706,11 @@ public class Settings : MonoBehaviour
 
         // Atlas
         AtlasName = data.AtlasName;
+        if (PlayerPrefs.GetInt("scene-rest", 0) == 0)
+            AtlasTransformName = data.AtlasTransformName;
+        else
+            AtlasTransformName = INVIVO_DEFAULT;
         // the relative coordinate actually needs to be set, since it gets propagated downstream
-        AtlasTransformName = data.AtlasTransformName;
         ReferenceCoord = data.RelativeCoord;
         _blSlider.SetValueWithoutNotify(BregmaLambdaDistance);
 

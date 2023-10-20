@@ -153,7 +153,6 @@ namespace TrajectoryPlanner
         {
             // Clear the "Reset" PlayerPrefs flag
             _sceneWasReset = PlayerPrefs.GetInt(SCENE_RESET_KEY, 0) == 1;
-            PlayerPrefs.SetInt(SCENE_RESET_KEY, 0);
 
             // STARTUP SEQUENCE
             StartupEvent_MetaLoaded.Invoke();
@@ -208,6 +207,7 @@ namespace TrajectoryPlanner
             ProbeManager.ActiveProbeUIUpdateEvent.AddListener(() => SetSurfaceDebugColor(ProbeManager.ActiveProbeManager.Color));
 
             // Complete
+            PlayerPrefs.SetInt(SCENE_RESET_KEY, 0);
             StartupEvent_Complete.Invoke();
 
             // After annotation loads, check if the user wants to load previously used probes
