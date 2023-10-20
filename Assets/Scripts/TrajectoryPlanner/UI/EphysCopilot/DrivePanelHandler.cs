@@ -29,7 +29,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             DriveToPastTarget,
             AtPastTarget,
             ReturningToTarget,
-            AtTarget,
+            AtTarget
         }
 
         private const float DRIVE_PAST_TARGET_DISTANCE = 0.05f;
@@ -205,15 +205,51 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         // Drive state
         private DriveState _driveState;
         private readonly DriveStateManager _driveStateManager = new();
-        
+
         // Landmark depths
-        private float _outsideDepth;
-        private float _exitMarginDepth;
-        private float _duraDepth;
-        private float _nearTargetDepth;
-        private float _targetDepth;
-        private float _pastTargetDepth;
-        
+        private float _outsideDepth; // FIXME: probably not needed as we just pull up on DV
+        private float _exitMarginDepth => _duraDepth - DURA_MARGIN_DISTANCE;
+
+        private float _duraDepth =>
+            ResetDuraOffsetPanelHandler.ManipulatorIdToDuraDepth.TryGetValue(
+                ProbeManager.ManipulatorBehaviorController.ManipulatorID, out var depth)
+                ? depth
+                : float.NaN;
+
+        private float _nearTargetDepth => _targetDepth - NEAR_TARGET_DISTANCE;
+
+        private float _targetDepth
+        {
+            get
+            {
+                // Calibrate target insertion depth based on surface position
+                var targetInsertion = new ProbeInsertion(
+                    InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetProbeManager[
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID].ProbeController.Insertion);
+                var targetPositionWorldT = targetInsertion.PositionWorldT();
+                var relativePositionWorldT =
+                    ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
+                var probeTipTUp = ProbeManager.ProbeController.ProbeTipT.up;
+                var offsetAdjustedRelativeTargetPositionWorldT =
+                    Vector3.ProjectOnPlane(relativePositionWorldT, probeTipTUp);
+                var offsetAdjustedTargetPositionWorldT =
+                    targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
+
+                // Converting worldT back to APMLDV (position transformed)
+                targetInsertion.apmldv =
+                    targetInsertion.CoordinateTransform.Space2TransformAxisChange(
+                        targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
+
+                // Compute drive distances
+                var targetDriveDistance =
+                    Vector3.Distance(targetInsertion.apmldv, ProbeManager.ProbeController.Insertion.apmldv);
+
+                return _duraDepth + targetDriveDistance;
+            }
+        }
+
+        private float _pastTargetDepth => _targetDepth + _drivePastTargetDistance;
+
         private float _targetDriveDuration;
         private float _duraMarginDepth;
         private float _duraMarginDriveDuration => DURA_MARGIN_DISTANCE / _exitDriveBaseSpeed;
@@ -321,13 +357,35 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         public void Drive()
         {
-            _driveStateManager.DriveIncrement();
-            switch (_driveStateManager.State)
+            // Get current position
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, position =>
             {
-                case DriveState.DrivingToNearTarget:
-                    // Are we between dura and near target?
-                    break;
-            }
+                // TODO: Validate position and state
+                
+                // Increment state
+                _driveStateManager.DriveIncrement();
+
+                // Do something based on current state
+                switch (_driveStateManager.State)
+                {
+                    case DriveState.DrivingToNearTarget:
+                        CommunicationManager.Instance.SetCanWrite(
+                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
+                            canWrite =>
+                            {
+                                // Update status text
+                                _statusText.text = "Driving to target...";
+                                
+                                // Replace drive buttons with stop
+                                _driveGroup.SetActive(false);
+                                _stopButton.SetActive(true);
+                                
+                                // Drive to near target depth
+                            });
+
+                        break;
+                }
+            });
         }
 
         public void OldDrive()
@@ -480,26 +538,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
 
         #region Helper Functions
-        
+
         private void SetDriveSpeeds(float driveBaseSpeed)
         {
             _driveBaseSpeed = driveBaseSpeed;
             _outsideDriveSpeed = driveBaseSpeed * OUTSIDE_DRIVE_SPEED_MULTIPLIER;
             _per1000Speed = driveBaseSpeed < DEPTH_DRIVE_BASE_SPEED_TEST ? PER_1000_SPEED : PER_1000_SPEED_TEST;
-        }
-
-        private void ComputeLandmarkDepths()
-        {
-            if (!ResetDuraOffsetPanelHandler.ManipulatorIdToDuraDepth.ContainsKey(ProbeManager.ManipulatorBehaviorController.ManipulatorID))
-            {
-                Debug.LogError("Manipulator "+ProbeManager.ManipulatorBehaviorController.ManipulatorID+" has not been placed on dura.");
-                return;
-            }
-
-            _duraDepth =
-                ResetDuraOffsetPanelHandler.ManipulatorIdToDuraDepth[
-                    ProbeManager.ManipulatorBehaviorController.ManipulatorID];
-            
         }
 
         private void ComputeAndSetDriveTime(float depthDriveBaseSpeed, Action callback = null)
