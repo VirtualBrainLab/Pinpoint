@@ -180,9 +180,6 @@ namespace TrajectoryPlanner
             }
             Settings.ReferenceCoord = referenceAtlas.AtlasSpace.ReferenceCoord;
 
-            // Now that the scene is loaded we can also set the BLDistance values
-            SetBLUI();
-
             // there is only one default set right now, tbd if we want to add others (beryl/cosmos/etc)
             var nodeTask = _atlasManager.LoadDefaultAreas("");
 
@@ -201,6 +198,11 @@ namespace TrajectoryPlanner
                 node.SetShaderProperty("_Alpha", 0.25f, OntologyNode.OntologyNodeSide.Full);
                 _pinpointAtlasManager.DefaultNodes.Add(node);
             }
+
+            // Now that the areas are loaded we can also set the BLDistance values
+            SetBLUI();
+            if (Settings.BregmaLambdaDistance > 0f)
+                ChangeBLDistance(Settings.BregmaLambdaDistance);
 
             StartupEvent_RefAtlasLoaded.Invoke();
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
@@ -1028,7 +1030,7 @@ namespace TrajectoryPlanner
         /// <param name="newBLDistance"></param>
         public void ChangeBLDistance(float newBLDistance)
         {
-            if (BrainAtlasManager.ActiveReferenceAtlas == null)
+            if (BrainAtlasManager.ActiveReferenceAtlas == null || newBLDistance == _blDistance.DefaultBLDistance)
                 return;
 
             float blRatio = newBLDistance / _blDistance.DefaultBLDistance;

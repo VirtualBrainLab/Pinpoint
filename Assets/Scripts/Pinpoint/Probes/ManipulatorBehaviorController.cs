@@ -6,6 +6,7 @@ using BrainAtlas.CoordinateSystems;
 using EphysLink;
 using UnityEngine;
 using UnityEngine.Events;
+using Urchin.Utils;
 
 namespace TrajectoryPlanner.Probes
 {
@@ -272,20 +273,19 @@ namespace TrajectoryPlanner.Probes
 
         public void UpdateSpaceAndTransform()
         {
-            throw new NotImplementedException();
-            //if (ManipulatorType == "sensapex")
-            //{
-            //    CoordinateSpace = new SensapexSpace();
-            //    Transform = IsRightHanded
-            //        ? new SensapexRightTransform(_probeController.Insertion.Yaw)
-            //        : new SensapexLeftTransform(_probeController.Insertion.Yaw);
-            //}
-            //else
-            //{
-            //    CoordinateSpace = new NewScaleSpace();
-            //    Transform = new NewScaleLeftTransform(_probeController.Insertion.Yaw,
-            //        _probeController.Insertion.Pitch);
-            //}
+            if (ManipulatorType == "sensapex")
+            {
+                ReferenceAtlas = new SensapexSpace();
+                AtlasTransform = IsRightHanded
+                    ? new SensapexRightTransform(_probeController.Insertion.Yaw)
+                    : new SensapexLeftTransform(_probeController.Insertion.Yaw);
+            }
+            else
+            {
+                ReferenceAtlas = new NewScaleSpace();
+                AtlasTransform = new NewScaleLeftTransform(_probeController.Insertion.Yaw,
+                    _probeController.Insertion.Pitch);
+            }
         }
 
         public Vector4 ConvertInsertionToManipulatorPosition(Vector3 insertionAPMLDV)
@@ -317,36 +317,35 @@ namespace TrajectoryPlanner.Probes
         /// </summary>
         public void ComputeBrainSurfaceOffset()
         {
-            throw new NotImplementedException();
-            //if (_probeManager.IsProbeInBrain())
-            //{
-            //    // Just calculate the distance from the probe tip position to the brain surface            
-            //    BrainSurfaceOffset -= _probeManager.GetSurfaceCoordinateT().depthT;
-            //}
-            //else
-            //{
-            //    // We need to calculate the surface coordinate ourselves
-            //    var tipExtensionDirection =
-            //        IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
+            if (_probeManager.IsProbeInBrain())
+            {
+                // Just calculate the distance from the probe tip position to the brain surface            
+                BrainSurfaceOffset -= _probeManager.GetSurfaceCoordinateT().depthT;
+            }
+            else
+            {
+                // We need to calculate the surface coordinate ourselves
+                var tipExtensionDirection =
+                    IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
 
-            //    var brainSurfaceCoordinate = _annotationDataset.FindSurfaceCoordinate(
-            //        _annotationDataset.CoordinateSpace.World2Space(_probeController.GetTipWorldU().tipCoordWorldU -
-            //                                                       tipExtensionDirection * 5),
-            //        _annotationDataset.CoordinateSpace.World2Space_Vector(tipExtensionDirection));
+                var brainSurfaceIdxCoordU = _probeManager.FindSurfaceIdxCoordinate(
+                    BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(_probeController.GetTipWorldU().tipCoordWorldU -
+                                                                   tipExtensionDirection * 5),
+                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(tipExtensionDirection));
 
-            //    if (float.IsNaN(brainSurfaceCoordinate.x))
-            //    {
-            //        Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
-            //        return;
-            //    }
+                if (float.IsNaN(brainSurfaceIdxCoordU.x))
+                {
+                    Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
+                    return;
+                }
 
-            //    var brainSurfaceToTransformed =
-            //        _probeController.Insertion.World2Transformed(
-            //            _annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate));
+                var brainSurfaceToTransformed =
+                    _probeController.Insertion.World2T(
+                        BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(brainSurfaceIdxCoordU));
 
-            //    BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
-            //        _probeController.Insertion.apmldv);
-            //}
+                BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
+                    _probeController.Insertion.apmldv);
+            }
         }
 
         /// <summary>

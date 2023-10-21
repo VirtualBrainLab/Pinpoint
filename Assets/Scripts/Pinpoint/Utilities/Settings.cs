@@ -341,7 +341,7 @@ public class Settings : MonoBehaviour
         }
     }
 
-    private const float BREGMALAMBDA_DEFAULT = 4.15f;
+    private const float BREGMALAMBDA_DEFAULT = -1f;
     [SerializeField] private Slider _blSlider;
     public UnityEvent<float> BregmaLambdaChangedEvent;
 
