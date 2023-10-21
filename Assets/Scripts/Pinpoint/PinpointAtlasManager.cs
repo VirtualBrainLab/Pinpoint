@@ -9,8 +9,6 @@ using UnityEngine.SceneManagement;
 
 public class PinpointAtlasManager : MonoBehaviour
 {
-    [SerializeField] BregmaLambdaBehavior _blBehavior;
-
     [SerializeField] private TMP_Dropdown _atlasDropdown;
     [SerializeField] List<string> _atlasNames;
     [SerializeField] List<string> _atlasMappings;

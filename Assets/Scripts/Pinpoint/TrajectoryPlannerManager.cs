@@ -168,7 +168,6 @@ namespace TrajectoryPlanner
 
             // Set the reference coordinate before anything else happen
             // if this is the first time, load bregma
-            Debug.Log((_firstTime, _atlasReset));
             if (_firstTime || _atlasReset)
             {
                 if (Utils.BregmaDefaults.ContainsKey(Settings.AtlasName))
@@ -201,8 +200,6 @@ namespace TrajectoryPlanner
 
             // Now that the areas are loaded we can also set the BLDistance values
             SetBLUI();
-            if (Settings.BregmaLambdaDistance > 0f)
-                ChangeBLDistance(Settings.BregmaLambdaDistance);
 
             StartupEvent_RefAtlasLoaded.Invoke();
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);

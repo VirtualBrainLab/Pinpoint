@@ -262,6 +262,8 @@ public class ProbeManager : MonoBehaviour
         if (_probeRenderer) _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
+        if (ActiveProbeManager == this)
+            ActiveProbeUIUpdateEvent.Invoke();
     }
 
     /// <summary>

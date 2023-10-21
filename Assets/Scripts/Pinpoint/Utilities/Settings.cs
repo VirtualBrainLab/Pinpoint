@@ -262,7 +262,6 @@ public class Settings : MonoBehaviour
 
 
     private const float PROBE_PANEL_HEIGHT_DEFAULT = 1440f;
-    [SerializeField] private Slider _probePanelHeightSlider;
     public UnityEvent<float> ProbePanelHeightChangedEvent;
 
     public static float ProbePanelHeight
@@ -342,7 +341,6 @@ public class Settings : MonoBehaviour
     }
 
     private const float BREGMALAMBDA_DEFAULT = -1f;
-    [SerializeField] private Slider _blSlider;
     public UnityEvent<float> BregmaLambdaChangedEvent;
 
     public static float BregmaLambdaDistance
@@ -694,7 +692,7 @@ public class Settings : MonoBehaviour
         _ghostInactiveAreasToggle.SetIsOnWithoutNotify(GhostInactiveAreas);
 
         // Probes
-        _probePanelHeightSlider.SetValueWithoutNotify(ProbePanelHeight);
+        ProbePanelHeight = data.ProbePanelHeight;
         ProbeSpeedChangedEvent.Invoke(data.ProbeSpeed);
 
         // Default to Bregma
@@ -715,7 +713,7 @@ public class Settings : MonoBehaviour
 
         // the relative coordinate needs to be set, since it gets propagated downstream
         ReferenceCoord = data.RelativeCoord;
-        _blSlider.SetValueWithoutNotify(BregmaLambdaDistance);
+        BregmaLambdaDistance = data.BregmaLambdaDistance;
 
         // Accounts
         _stayLoggedInToggle.SetIsOnWithoutNotify(StayLoggedIn);

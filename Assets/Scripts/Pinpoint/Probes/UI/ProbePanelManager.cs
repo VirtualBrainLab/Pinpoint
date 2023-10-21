@@ -11,7 +11,7 @@ public class ProbePanelManager : MonoBehaviour
 {
     #region Constants
     private const int MAX_VISIBLE_PROBE_PANELS = 16;
-    public float DEFAULT_PROBE_PANEL_HEIGHT {get; private set; }
+    public float _probePanelHeight {get; private set; }
     #endregion
 
     #region Public vars / Properties
@@ -23,7 +23,7 @@ public class ProbePanelManager : MonoBehaviour
     #region Unity
     private void Awake()
     {
-        DEFAULT_PROBE_PANEL_HEIGHT = 1440f;
+        _probePanelHeight = 1440f;
     }
 
     #endregion
@@ -55,7 +55,7 @@ public class ProbePanelManager : MonoBehaviour
 
     public void SetPanelHeight(float newHeight)
     {
-        DEFAULT_PROBE_PANEL_HEIGHT = newHeight;
+        _probePanelHeight = newHeight;
         RecalculateProbePanels();
     }
 
@@ -74,27 +74,27 @@ public class ProbePanelManager : MonoBehaviour
             // Increase the layout to have two rows, by shrinking all the ProbePanel objects to be 500 pixels tall
             GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
             Vector2 cellSize = probePanelParent.cellSize;
-            cellSize.y = DEFAULT_PROBE_PANEL_HEIGHT/2;
+            cellSize.y = _probePanelHeight/2;
             probePanelParent.cellSize = cellSize;
 
             // now resize all existing probeUIs to be 720 tall
             foreach (ProbeManager probeManager in ProbeManager.Instances)
             {
-                probeManager.ResizeProbePanel(Mathf.RoundToInt(DEFAULT_PROBE_PANEL_HEIGHT/2));
+                probeManager.ResizeProbePanel(Mathf.RoundToInt(_probePanelHeight/2));
             }
         }
         else if (VisibleProbePanels <= 4)
         {
-            Debug.Log("Resizing panels to be 1440");
+            Debug.Log($"Resizing panels to be {_probePanelHeight}");
             // now resize all existing probeUIs to be 1400 tall
             GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
             Vector2 cellSize = probePanelParent.cellSize;
-            cellSize.y = DEFAULT_PROBE_PANEL_HEIGHT;
+            cellSize.y = _probePanelHeight;
             probePanelParent.cellSize = cellSize;
 
             foreach (ProbeManager probeManager in ProbeManager.Instances)
             {
-                probeManager.ResizeProbePanel(Mathf.RoundToInt(DEFAULT_PROBE_PANEL_HEIGHT));
+                probeManager.ResizeProbePanel(Mathf.RoundToInt(_probePanelHeight));
             }
         }
 
