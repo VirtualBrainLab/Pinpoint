@@ -180,6 +180,7 @@ public class ProbeManager : MonoBehaviour
             UIUpdateEvent.Invoke();
             if (ActiveProbeManager == this)
                 ActiveProbeUIUpdateEvent.Invoke();
+            Debug.Log(_color);
         }
     }
 
@@ -216,6 +217,10 @@ public class ProbeManager : MonoBehaviour
         UUID = Guid.NewGuid().ToString();
         UpdateName();
 
+        // Set color
+        if (_probeRenderer != null)
+            _color = ProbeProperties.NextColor;
+
         // Record default materials
         _defaultMaterials = new Dictionary<GameObject, Material>();
         _activeRenderers = new();
@@ -243,10 +248,6 @@ public class ProbeManager : MonoBehaviour
 
         _axisControl = GameObject.Find("AxisControl").GetComponent<AxisControl>();
 
-        // Set color
-        if (_probeRenderer != null)
-            _color = ProbeProperties.NextColor;
-
         _probeController.FinishedMovingEvent.AddListener(UpdateName);
         _probeController.MovedThisFrameEvent.AddListener(ProbeMoved);
     }
@@ -262,8 +263,6 @@ public class ProbeManager : MonoBehaviour
         if (_probeRenderer) _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
-        if (ActiveProbeManager == this)
-            ActiveProbeUIUpdateEvent.Invoke();
     }
 
     /// <summary>

@@ -136,6 +136,7 @@ namespace TrajectoryPlanner
 #if UNITY_WEBGL && !UNITY_EDITOR
         WebGLInput.captureAllKeyboardInput = true;
 #endif
+            ProbeProperties.InitializeColors();
 
             SetProbeControl(false);
 

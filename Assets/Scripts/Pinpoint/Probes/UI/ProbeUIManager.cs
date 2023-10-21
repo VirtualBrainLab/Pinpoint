@@ -49,9 +49,6 @@ public class ProbeUIManager : MonoBehaviour
 
         GameObject main = GameObject.Find("main");
 
-        // Set color properly
-        UpdateColors();
-
         // Set probe to be un-selected
         ProbeSelected(false);
 

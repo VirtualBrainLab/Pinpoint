@@ -28,7 +28,6 @@ public class BregmaLambdaBehavior : MonoBehaviour
     /// <param name="blDistance"></param>
     public void SetBLRange(float min, float max, float blDistance)
     {
-        Debug.Log("Range set");
         _blDistance = blDistance;
 
         _blSlider.minValue = min;
@@ -38,7 +37,6 @@ public class BregmaLambdaBehavior : MonoBehaviour
 
     public void SetText(float value)
     {
-        Debug.Log("Text set");
         _sliderText.text = $"{Mathf.RoundToInt(value * 100f) / 100f}";
     }
 

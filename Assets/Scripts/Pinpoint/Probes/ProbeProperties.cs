@@ -27,7 +27,19 @@ public class ProbeProperties
         new Color(0.6196078431372549f, 0.8549019607843137f, 0.8980392156862745f, 1.0f)
     };
 
-    private static Queue<int> _colorIdxQueue = new Queue<int>(Enumerable.Range(0, ProbeColors.Count));
+    private static Queue<int> _colorIdxQueue;
+
+    public static void InitializeColors()
+    {
+        List<int> idxList = Enumerable.Range(0, ProbeColors.Count).ToList();
+        _colorIdxQueue = new Queue<int>();
+        while (idxList.Count() > 0)
+        {
+            int idx = Random.Range(0, idxList.Count() - 1);
+            _colorIdxQueue.Enqueue(idxList[idx]);
+            idxList.RemoveAt(idx);
+        }
+    }
 
     /// <summary>
     /// Get the next Probe Color
