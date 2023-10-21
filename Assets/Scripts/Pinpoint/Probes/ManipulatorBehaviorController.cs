@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Linq;
 using BrainAtlas;
 using BrainAtlas.CoordinateSystems;
+using CoordinateSpaces;
+using CoordinateTransforms;
 using EphysLink;
 using UnityEngine;
 using UnityEngine.Events;
@@ -47,21 +49,21 @@ namespace TrajectoryPlanner.Probes
 
                 // Convert to coordinate space
                 var manipulatorSpacePosition =
-                    AtlasTransform.T2U(zeroCoordinateAdjustedManipulatorPosition);
+                    CoordinateTransform.T2U(zeroCoordinateAdjustedManipulatorPosition);
 
                 // Brain surface adjustment
                 // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
                 var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
                 if (IsSetToDropToSurfaceWithDepth)
                     zeroCoordinateAdjustedManipulatorPosition.w +=
-                        ReferenceAtlas.World2Atlas_Vector(Vector3.down).z * brainSurfaceAdjustment;
+                        CoordinateSpace.World2Space_Vector(Vector3.down).z * brainSurfaceAdjustment;
                 else
                     manipulatorSpacePosition.z +=
-                        ReferenceAtlas.World2Atlas_Vector(Vector3.down).z * brainSurfaceAdjustment;
+                        CoordinateSpace.World2Space_Vector(Vector3.down).z * brainSurfaceAdjustment;
 
                 // Convert to world space
                 var zeroCoordinateAdjustedWorldPosition =
-                    ReferenceAtlas.Atlas2World(manipulatorSpacePosition);
+                    CoordinateSpace.Space2World(manipulatorSpacePosition);
 
                 // Set probe position (change axes to match probe)
                 var transformedApmldv =
@@ -189,8 +191,8 @@ namespace TrajectoryPlanner.Probes
             }
         }
 
-        public ReferenceAtlas ReferenceAtlas { get; private set; }
-        private AtlasTransform AtlasTransform { get; set; }
+        public CoordinateSpace CoordinateSpace { get; private set; }
+        private CoordinateTransform CoordinateTransform { get; set; }
 
         public bool IsRightHanded
         {
@@ -275,15 +277,15 @@ namespace TrajectoryPlanner.Probes
         {
             if (ManipulatorType == "sensapex")
             {
-                ReferenceAtlas = new SensapexSpace();
-                AtlasTransform = IsRightHanded
+                CoordinateSpace = new SensapexSpace();
+                CoordinateTransform = IsRightHanded
                     ? new SensapexRightTransform(_probeController.Insertion.Yaw)
                     : new SensapexLeftTransform(_probeController.Insertion.Yaw);
             }
             else
             {
-                ReferenceAtlas = new NewScaleSpace();
-                AtlasTransform = new NewScaleLeftTransform(_probeController.Insertion.Yaw,
+                CoordinateSpace = new NewScaleSpace();
+                CoordinateTransform = new NewScaleLeftTransform(_probeController.Insertion.Yaw,
                     _probeController.Insertion.Pitch);
             }
         }
@@ -295,9 +297,9 @@ namespace TrajectoryPlanner.Probes
 
             // Convert to Sensapex space
             var posInManipulatorSpace =
-                _probeManager.ManipulatorBehaviorController.ReferenceAtlas.World2Atlas(convertToWorld);
+                _probeManager.ManipulatorBehaviorController.CoordinateSpace.World2Space(convertToWorld);
             Vector4 posInManipulatorTransform =
-                _probeManager.ManipulatorBehaviorController.AtlasTransform.U2T(posInManipulatorSpace);
+                _probeManager.ManipulatorBehaviorController.CoordinateTransform.U2T(posInManipulatorSpace);
 
             // Apply brain surface offset
             var brainSurfaceAdjustment = float.IsNaN(_probeManager.ManipulatorBehaviorController.BrainSurfaceOffset)
@@ -367,10 +369,10 @@ namespace TrajectoryPlanner.Probes
             Action<string> onErrorCallback = null)
         {
             // Convert to manipulator axes (world -> space -> transform)
-            var manipulatorSpaceDelta = ReferenceAtlas.World2Atlas_Vector(worldSpaceDelta);
-            var manipulatorTransformDelta = AtlasTransform.U2T(manipulatorSpaceDelta);
-            var manipulatorSpaceDepth = ReferenceAtlas
-                .World2Atlas_Vector(Vector3.down).z * worldSpaceDelta.w;
+            var manipulatorSpaceDelta = CoordinateSpace.World2Space_Vector(worldSpaceDelta);
+            var manipulatorTransformDelta = CoordinateTransform.U2T(manipulatorSpaceDelta);
+            var manipulatorSpaceDepth = CoordinateSpace
+                .World2Space_Vector(Vector3.down).z * worldSpaceDelta.w;
 
             // Get manipulator position
             CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
