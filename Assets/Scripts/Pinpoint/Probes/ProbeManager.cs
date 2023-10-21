@@ -894,7 +894,7 @@ public class ProbeManager : MonoBehaviour
     
 #endregion
 
-#region AxisControl
+    #region AxisControl
 
     public void SetAxisVisibility(bool X, bool Y, bool Z, bool depth)
     {
