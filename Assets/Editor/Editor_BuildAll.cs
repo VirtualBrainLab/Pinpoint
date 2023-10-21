@@ -10,6 +10,7 @@ public class Editor_BuildAll
         BuildWindows();
         BuildLinux();
         BuildWebGL();
+        EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
     }
 
     private static void BuildWindows()

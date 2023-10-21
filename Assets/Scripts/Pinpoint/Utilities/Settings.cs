@@ -706,11 +706,14 @@ public class Settings : MonoBehaviour
 
         // Atlas
         AtlasName = data.AtlasName;
-        if (PlayerPrefs.GetInt("scene-rest", 0) == 0)
+        // if the scene was not reset, use the active atlas
+        if (PlayerPrefs.HasKey("scene-atlas-reset") && PlayerPrefs.GetInt("scene-atlas-reset") == 0)
             AtlasTransformName = data.AtlasTransformName;
+        // if the scene was reset or this is the first time loading, go back to the default null transform
         else
             AtlasTransformName = INVIVO_DEFAULT;
-        // the relative coordinate actually needs to be set, since it gets propagated downstream
+
+        // the relative coordinate needs to be set, since it gets propagated downstream
         ReferenceCoord = data.RelativeCoord;
         _blSlider.SetValueWithoutNotify(BregmaLambdaDistance);
 

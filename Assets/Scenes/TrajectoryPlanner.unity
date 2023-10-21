@@ -2870,6 +2870,7 @@ MonoBehaviour:
   _atlasMappings:
   - Mouse CCF (25um)
   - Rat Waxholm (39um)
+  _allowedOnWebGL: 0100
   _transformDropdown: {fileID: 611159662}
 --- !u!1001 &341190943874437988
 PrefabInstance:

@@ -109,7 +109,7 @@ namespace TrajectoryPlanner
         // Local tracking variables
         private bool _movedThisFrame;
 
-        private const string SCENE_RESET_KEY = "scene-rest";
+        private const string SCENE_NOT_RESET = "scene-not-reset";
         private bool _sceneWasReset;
 
         // Track who got clicked on, probe, camera, or brain
@@ -151,31 +151,39 @@ namespace TrajectoryPlanner
 
         public async void Startup()
         {
-            // Clear the "Reset" PlayerPrefs flag
-            _sceneWasReset = PlayerPrefs.GetInt(SCENE_RESET_KEY, 0) == 1;
+            // Determine startup flags, we check two things:
+            // (1) Are the PlayerPrefs cleared? If they are, we will load the null transform and bregma reference coordinate
+            // (2) If set, check if this is an atlas reset, if it is, load the null transform and bregma reference coordinate
+            // Otherwise, load all the previous settings
+            bool _firstTime = !PlayerPrefs.HasKey("scene-atlas-reset");
+            bool _atlasReset = PlayerPrefs.GetInt("scene-atlas-reset", 0) == 1;
 
             // STARTUP SEQUENCE
             StartupEvent_MetaLoaded.Invoke();
 
-            // Startup CCF
+            // Load Atlas
+            // Settings.AtlasName returns CCF if PlayerPrefs is cleared, otherwise returns the previous atlas setting
             await BrainAtlasManager.LoadAtlas(Settings.AtlasName);
             ReferenceAtlas referenceAtlas = BrainAtlasManager.ActiveReferenceAtlas;
 
             // Set the reference coordinate before anything else happen
-            // if the scene was reset we should use the default coordinates
-            if (_sceneWasReset)
+            // if this is the first time, load bregma
+            Debug.Log((_firstTime, _atlasReset));
+            if (_firstTime || _atlasReset)
             {
                 if (Utils.BregmaDefaults.ContainsKey(Settings.AtlasName))
                     referenceAtlas.AtlasSpace.ReferenceCoord = Utils.BregmaDefaults[Settings.AtlasName];
-                else
-                    referenceAtlas.AtlasSpace.ReferenceCoord = Vector3.zero;
-                Settings.ReferenceCoord = referenceAtlas.AtlasSpace.ReferenceCoord;
             }
             else
             {
                 referenceAtlas.AtlasSpace.ReferenceCoord = Settings.ReferenceCoord;
             }
+            Settings.ReferenceCoord = referenceAtlas.AtlasSpace.ReferenceCoord;
 
+            // Now that the scene is loaded we can also set the BLDistance values
+            SetBLUI();
+
+            // there is only one default set right now, tbd if we want to add others (beryl/cosmos/etc)
             var nodeTask = _atlasManager.LoadDefaultAreas("");
 
             referenceAtlas.LoadAnnotations();
@@ -207,7 +215,7 @@ namespace TrajectoryPlanner
             ProbeManager.ActiveProbeUIUpdateEvent.AddListener(() => SetSurfaceDebugColor(ProbeManager.ActiveProbeManager.Color));
 
             // Complete
-            PlayerPrefs.SetInt(SCENE_RESET_KEY, 0);
+            PlayerPrefs.SetInt("scene-atlas-reset", 0);
             StartupEvent_Complete.Invoke();
 
             // After annotation loads, check if the user wants to load previously used probes
@@ -446,8 +454,6 @@ namespace TrajectoryPlanner
 
             probeManager.ProbeController.SetProbePosition(insertion.apmldv);
             probeManager.ProbeController.SetProbeAngles(insertion.angles);
-            // [TODO]
-            //probeManager.ProbeController.SetSpaceTransform(insertion.ReferenceAtlas, insertion.AtlasTransform);
 
             return probeManager;
         }
@@ -459,8 +465,6 @@ namespace TrajectoryPlanner
 
             probeManager.ProbeController.SetProbePosition(insertion.apmldv);
             probeManager.ProbeController.SetProbeAngles(insertion.angles);
-            // [TODO]
-            //probeManager.ProbeController.SetSpaceTransform(insertion.ReferenceAtlas, insertion.AtlasTransform);
 
             // Return data if there is no current Ephys Link data
             if (Settings.IsEphysLinkDataExpired()) return probeManager;
@@ -471,8 +475,7 @@ namespace TrajectoryPlanner
             probeManager.ManipulatorBehaviorController.BrainSurfaceOffset = brainSurfaceOffset;
             probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
             probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
-            // [TODO]
-            //probeManager.ManipulatorBehaviorController.IsRightHanded = isRightHanded;
+            probeManager.ManipulatorBehaviorController.IsRightHanded = isRightHanded;
             var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
                 
             if (communicationManager.IsConnected && !string.IsNullOrEmpty(manipulatorId))
@@ -1007,54 +1010,68 @@ namespace TrajectoryPlanner
 
         #region BLDistance
 
+        public void SetBLUI()
+        {
+            string atlasName = BrainAtlasManager.ActiveReferenceAtlas.Name;
+            float defaultBLDistance = Utils.LambdaDefaults[atlasName].x - Utils.BregmaDefaults[atlasName].x;
+            float min = Mathf.Max(0f, Mathf.FloorToInt(defaultBLDistance / 2f));
+            float max = Mathf.CeilToInt(defaultBLDistance * 1.5f);
+
+            _blDistance.SetBLRange(min, max, defaultBLDistance);
+        }
+
+        private CoordinateTransform _originalTransform;
+
         /// <summary>
         /// Change the bregma-lamba distance. By default this is 4.15f, so if it isn't that value, then we need to add an isometric scaling to the current transform
         /// </summary>
-        /// <param name="blDistance"></param>
-        public void ChangeBLDistance(float blDistance)
+        /// <param name="newBLDistance"></param>
+        public void ChangeBLDistance(float newBLDistance)
         {
-            // [TODO]
+            if (BrainAtlasManager.ActiveReferenceAtlas == null)
+                return;
 
-            //            float blRatio = blDistance / 4.15f;
-            //#if UNITY_EDITOR
-            //            Debug.Log($"(BL Distance) Re-scaling to {blRatio}");
-            //#endif
+            float blRatio = newBLDistance / _blDistance.DefaultBLDistance;
 
-            //            if (CoordinateSpaceManager.ActiveCoordinateTransform.Name != "Custom")
-            //                CoordinateSpaceManager.OriginalTransform = CoordinateSpaceManager.ActiveCoordinateTransform;
+#if UNITY_EDITOR
+            Debug.Log($"(BL Distance) Re-scaling to {blRatio}");
+#endif
 
-            //            // There's no easy way to implement this without a refactor of the CoordinateTransform code, because you can't pull out the transform matrix.
+            if (BrainAtlasManager.ActiveAtlasTransform.Name != "Custom")
+                _originalTransform = BrainAtlasManager.ActiveAtlasTransform;
 
-            //            // For now what we'll do is switch through the current transform, and replace it with a new version that's been scaled
+            // There's no easy way to implement this without a refactor of the CoordinateTransform code, because you can't pull out the transform matrix.
 
-            //            CoordinateTransform newTransform;
+            // For now what we'll do is switch through the current transform, and replace it with a new version that's been scaled
 
-            //            switch (CoordinateSpaceManager.OriginalTransform.Prefix)
-            //            {
-            //                case "ccf":
-            //                    // the ccf transform is the unity transform, so just build a new affine transform that scales
-            //                    newTransform = new CustomAffineTransform(blRatio * Vector3.one, Vector3.zero);
-            //                    break;
+            AtlasTransform newTransform;
 
-            //                case "q18":
-            //                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.031f, 0.952f, -0.885f), new Vector3(0f, -5f, 0f));
-            //                    break;
+            switch (_originalTransform.Prefix)
+            {
+                case "":
+                    // the null transform is the unity transform, so just build a new affine transform that scales
+                    newTransform = new CustomAffineTransform(blRatio * Vector3.one, Vector3.zero);
+                    break;
 
-            //                case "d08":
-            //                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, -5f, 0f));
-            //                    break;
+                case "q18":
+                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.031f, 0.952f, -0.885f), new Vector3(0f, -5f, 0f));
+                    break;
 
-            //                case "i-d08":
-            //                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, 0f, 0f));
-            //                    break;
+                case "d08":
+                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, -5f, 0f));
+                    break;
 
-            //                default:
-            //                    Debug.LogError("Previous transform is not scalable");
-            //                    return;
-            //            }
+                case "i-d08":
+                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, 0f, 0f));
+                    break;
 
-            //            // Apply the new transform
-            //            SetNewTransform(newTransform);
+                default:
+                    Debug.LogError("Previous transform is not scalable");
+                    return;
+            }
+
+            // Apply the new transform
+            _pinpointAtlasManager.SetNewTransform(newTransform);
         }
 
         #endregion

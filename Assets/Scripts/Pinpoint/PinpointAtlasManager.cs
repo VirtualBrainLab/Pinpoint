@@ -2,22 +2,24 @@ using BrainAtlas;
 using BrainAtlas.CoordinateSystems;
 using CoordinateTransforms;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Urchin.Managers;
 
 public class PinpointAtlasManager : MonoBehaviour
 {
+    [SerializeField] BregmaLambdaBehavior _blBehavior;
+
     [SerializeField] private TMP_Dropdown _atlasDropdown;
     [SerializeField] List<string> _atlasNames;
     [SerializeField] List<string> _atlasMappings;
+    [SerializeField] List<bool> _allowedOnWebGL;
 
     [SerializeField] private TMP_Dropdown _transformDropdown;
 
     private Dictionary<string, string> _atlasNameMapping;
+    private Dictionary<string, bool> _allowedOnWebGLMapping;
 
     public HashSet<OntologyNode> DefaultNodes;
 
@@ -29,8 +31,13 @@ public class PinpointAtlasManager : MonoBehaviour
             throw new Exception("Atlas names and mapped names should be the same length");
 
         _atlasNameMapping = new();
+        _allowedOnWebGLMapping = new();
         for (int i = 0; i < _atlasNames.Count; i++)
+        {
             _atlasNameMapping.Add(_atlasNames[i], _atlasMappings[i]);
+            _allowedOnWebGLMapping.Add(_atlasNames[i], _allowedOnWebGL[i]);
+        }
+
 
         Settings.AtlasTransformChangedEvent += SetNewTransform;
     }
@@ -60,7 +67,16 @@ public class PinpointAtlasManager : MonoBehaviour
     {
         var atlasNames = BrainAtlasManager.AtlasNames;
 
-        _atlasDropdown.options = atlasNames.ConvertAll(ConvertAtlas2Userfriendly);
+#if UNITY_WEBGL
+        List<string> allowedNames = new();
+        for (int i = 0; i < atlasNames.Count; i++)
+            if (_allowedOnWebGLMapping[atlasNames[i]])
+                allowedNames.Add(atlasNames[i]);
+#else
+        var allowedNames = atlasNames;
+#endif
+
+        _atlasDropdown.options = allowedNames.ConvertAll(ConvertAtlas2Userfriendly);
     }
 
     public void ResetAtlasDropdownIndex()
@@ -79,7 +95,7 @@ public class PinpointAtlasManager : MonoBehaviour
 
     private void ResetScene(int option)
     {
-        PlayerPrefs.SetInt("scene-reset", 1);
+        PlayerPrefs.SetInt("scene-atlas-reset", 1);
         Settings.AtlasName = BrainAtlasManager.AtlasNames[option];
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -92,9 +108,9 @@ public class PinpointAtlasManager : MonoBehaviour
         return new TMP_Dropdown.OptionData(atlasName);
     }
 
-    #endregion
+#endregion
 
-    #region Transforms
+#region Transforms
 
     public void PopulateTransformDropdown()
     {
@@ -104,7 +120,10 @@ public class PinpointAtlasManager : MonoBehaviour
     public void ResetTransformDropdownIndex()
     {
         string activeTransformName = BrainAtlasManager.ActiveAtlasTransform.Name;
-        _transformDropdown.SetValueWithoutNotify(BrainAtlasManager.AtlasTransforms.FindIndex(x => x.Name.Equals(activeTransformName)));
+        if (activeTransformName == "Custom")
+            _transformDropdown.SetValueWithoutNotify(-1);
+        else
+            _transformDropdown.SetValueWithoutNotify(BrainAtlasManager.AtlasTransforms.FindIndex(x => x.Name.Equals(activeTransformName)));
     }
 
     public void SetTransform(int idx)
@@ -117,25 +136,17 @@ public class PinpointAtlasManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"Atlas transform set to {transformName}");
 #endif
-        BrainAtlasManager.ActiveAtlasTransform = BrainAtlasManager.AtlasTransforms.Find(x => x.Name.Equals(transformName));
+        SetNewTransform(BrainAtlasManager.AtlasTransforms.Find(x => x.Name.Equals(transformName)));
+    }
+
+    public void SetNewTransform(AtlasTransform newTransform)
+    {
+        BrainAtlasManager.ActiveAtlasTransform = newTransform;
         ResetTransformDropdownIndex();
 
         // Check all probes for mis-matches
         foreach (ProbeManager probeManager in ProbeManager.Instances)
             probeManager.Update2ActiveTransform();
-
-        // custom transforms disabled for now...
-        //if (Settings.BregmaLambdaDistance == 4.15f)
-        //{
-        //    // if the BL distance is the default, just set the transform
-        //    SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
-        //}
-        //else
-        //{
-        //    // if isn't the default, then we have to adjust the transform now
-        //    SetNewTransform(coordinateTransformOpts.Values.ElementAt(invivoOption));
-        //    ChangeBLDistance(Settings.BregmaLambdaDistance);
-        //}
 
         WarpBrain();
     }
@@ -145,10 +156,10 @@ public class PinpointAtlasManager : MonoBehaviour
         return $"Atlas transform: {transformName}";
     }
 
-    #endregion
+#endregion
 
 
-    #region Warping
+#region Warping
 
     public void WarpBrain()
     {
@@ -175,5 +186,5 @@ public class PinpointAtlasManager : MonoBehaviour
     }
 
 
-    #endregion
+#endregion
 }
