@@ -228,12 +228,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 targetInsertion.apmldv =
                     targetInsertion.CoordinateTransform.Space2TransformAxisChange(
                         targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
+                
                 return Vector3.Distance(targetInsertion.apmldv, ProbeManager.ProbeController.Insertion.apmldv);
             }
         }
 
         // Landmark depths
-        private float _outsideDepth; // FIXME: probably not needed as we just pull up on DV
+        private float _outsideDepth;
         private float _exitMarginDepth => _duraDepth - DURA_MARGIN_DISTANCE;
 
         private float _duraDepth =>
@@ -246,15 +247,16 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private float _targetDepth => _duraDepth + _targetDriveDistance;
 
+        private float _drivePastTargetDistance = DRIVE_PAST_TARGET_DISTANCE;
         private float _pastTargetDepth => _targetDepth + _drivePastTargetDistance;
-
+        
+        // Durations
         private float _targetDriveDuration;
         private float _duraMarginDepth;
         private float _duraMarginDriveDuration => DURA_MARGIN_DISTANCE / _exitDriveBaseSpeed;
         private float _exitDepth;
         private float _exitDriveDuration;
 
-        private float _drivePastTargetDistance = DRIVE_PAST_TARGET_DISTANCE;
 
         // Drive Speeds
         private float _driveBaseSpeed = DEPTH_DRIVE_BASE_SPEED;

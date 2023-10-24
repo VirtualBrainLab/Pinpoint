@@ -176,7 +176,7 @@ namespace TrajectoryPlanner.Probes
                 if (IsSetToDropToSurfaceWithDepth)
                     zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
                 else
-                    manipulatorSpacePosition.z -= brainSurfaceAdjustment;
+                    manipulatorSpacePosition.y -= brainSurfaceAdjustment;
 
                 // Convert to world space
                 var zeroCoordinateAdjustedWorldPosition =
@@ -326,13 +326,19 @@ namespace TrajectoryPlanner.Probes
 
                 if (float.IsNaN(brainSurfaceCoordinate.x))
                 {
-                    Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
+                    Debug.LogError("Could not find brain surface! Canceling set brain offset.");
                     return;
                 }
 
                 var brainSurfaceToTransformed =
                     _probeController.Insertion.World2Transformed(
                         _annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate));
+
+                print("Brain surface offset: " + BrainSurfaceOffset + " + " + Vector3.Distance(
+                    brainSurfaceToTransformed,
+                    _probeController.Insertion.apmldv) + " = " + (BrainSurfaceOffset + Vector3.Distance(
+                    brainSurfaceToTransformed,
+                    _probeController.Insertion.apmldv)));
 
                 BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
                     _probeController.Insertion.apmldv);
