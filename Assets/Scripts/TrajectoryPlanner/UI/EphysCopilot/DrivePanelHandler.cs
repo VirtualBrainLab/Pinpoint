@@ -69,10 +69,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         [SerializeField] private TMP_Text _timerText;
 
         public ProbeManager ProbeManager { private get; set; }
-        
+
         private class DriveStateManager
         {
-            // FIXME: use position to detect state
             // Define state, defaults to at dura
             public DriveState State { get; private set; } = DriveState.AtDura;
 
@@ -203,6 +202,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         #region Properties
 
+        // Manipulator ID
+        private string _manipulatorId => ProbeManager.ManipulatorBehaviorController.ManipulatorID;
+
         // Boundary acknowledgements
         private bool _acknowledgeOutOfBounds;
         private bool _acknowledgeTestSpeeds;
@@ -220,7 +222,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Calibrate target insertion depth based on surface position
                 var targetInsertion = new ProbeInsertion(
                     InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetProbeManager[
-                        ProbeManager.ManipulatorBehaviorController.ManipulatorID].ProbeController.Insertion);
+                        _manipulatorId].ProbeController.Insertion);
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
@@ -237,7 +239,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 return Vector3.Distance(targetInsertion.apmldv,
                     ResetDuraOffsetPanelHandler.ManipulatorIdToDuraApmldv.TryGetValue(
-                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, out var depth)
+                        _manipulatorId, out var depth)
                         ? depth
                         : new Vector3(float.NaN, float.NaN, float.NaN));
             }
@@ -249,9 +251,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private float _duraDepth =>
             ResetDuraOffsetPanelHandler.ManipulatorIdToDuraDepth.TryGetValue(
-                ProbeManager.ManipulatorBehaviorController.ManipulatorID, out var depth)
+                _manipulatorId, out var depth)
                 ? depth
                 : float.NaN;
+
         private float _targetDepth => _duraDepth + _targetDriveDistance;
         private float _nearTargetDepth => _targetDepth - NEAR_TARGET_DISTANCE;
         private float _drivePastTargetDistance = DRIVE_PAST_TARGET_DISTANCE;
@@ -282,7 +285,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private void Start()
         {
             // Set manipulator ID text
-            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorBehaviorController.ManipulatorID;
+            _manipulatorIDText.text = "Manipulator " + _manipulatorId;
             _manipulatorIDText.color = ProbeManager.Color;
 
             // Add drive past distance input field to focusable inputs
@@ -369,13 +372,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         public void Drive()
         {
             // Get current position
-            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, position =>
+            CommunicationManager.Instance.GetPos(_manipulatorId, position =>
             {
                 // Increment state
                 _driveStateManager.DriveIncrement();
 
-                CommunicationManager.Instance.SetCanWrite(
-                    ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
+                CommunicationManager.Instance.SetCanWrite(_manipulatorId, true, 1,
                     canWrite =>
                     {
                         if (!canWrite) return;
@@ -393,8 +395,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                                 // Drive to near target depth
                                 if (position.w < _nearTargetDepth)
-                                    CommunicationManager.Instance.DriveToDepth(
-                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, _nearTargetDepth,
+                                    CommunicationManager.Instance.DriveToDepth(_manipulatorId, _nearTargetDepth,
                                         _targetDriveSpeed, _ => CompleteAndAdvance(), Debug.LogError);
                                 else
                                     // Already closer than near target depth, so continue
@@ -410,8 +411,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                                 // Drive to past target depth
                                 if (position.w < _pastTargetDepth)
-                                    CommunicationManager.Instance.DriveToDepth(
-                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, _pastTargetDepth,
+                                    CommunicationManager.Instance.DriveToDepth(_manipulatorId, _pastTargetDepth,
                                         _nearTargetDriveSpeed, _ => CompleteAndAdvance(), Debug.LogError);
                                 else
                                     // Already further than past target depth, so continue
@@ -427,11 +427,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                                 // Drive to target and complete movement
                                 CommunicationManager.Instance.DriveToDepth(
-                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID, _targetDepth,
+                                    _manipulatorId, _targetDepth,
                                     _nearTargetDriveSpeed, _ =>
                                     {
-                                        CommunicationManager.Instance.SetCanWrite(
-                                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, false, 0,
+                                        CommunicationManager.Instance.SetCanWrite(_manipulatorId, false, 0,
                                             _ =>
                                             {
                                                 _driveStateManager.CompleteMovement();
@@ -468,7 +467,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             void CompleteAndAdvance()
             {
-                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                CommunicationManager.Instance.SetCanWrite(_manipulatorId,
                     false, 0,
                     _ =>
                     {
@@ -482,7 +481,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         {
             ComputeAndSetDriveTime(_driveBaseSpeed, () =>
             {
-                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                CommunicationManager.Instance.SetCanWrite(_manipulatorId,
                     true, 1, canWrite =>
                     {
                         if (!canWrite) return;
@@ -508,13 +507,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                         // Drive until within near target distance
                         CommunicationManager.Instance.DriveToDepth(
-                            ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                            _manipulatorId,
                             driveDepth,
                             _targetDriveSpeed, _ =>
                             {
                                 // Drive through past target distance
                                 CommunicationManager.Instance.DriveToDepth(
-                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                    _manipulatorId,
                                     _targetDepth + _drivePastTargetDistance,
                                     _targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER,
                                     _ =>
@@ -523,7 +522,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                                         // Drive back to target
                                         CommunicationManager.Instance.DriveToDepth(
-                                            ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                            _manipulatorId,
                                             _targetDepth,
                                             _targetDriveSpeed * NEAR_TARGET_SPEED_MULTIPLIER,
                                             _ => StartSettling(), Debug.LogError);
@@ -537,145 +536,133 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         public void Exit()
         {
             // Get current position
-            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, position =>
+            CommunicationManager.Instance.GetPos(_manipulatorId, position =>
             {
                 // Increment state
                 _driveStateManager.ExitIncrement();
 
-                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                    true, 1,
-                    canWrite =>
+                CommunicationManager.Instance.SetCanWrite(_manipulatorId, true, 1, canWrite =>
+                {
+                    if (!canWrite) return;
+
+                    // Do something based on current state
+                    switch (_driveStateManager.State)
                     {
-                        if (!canWrite) return;
+                        case DriveState.ExitingToNearTarget:
+                            // Update status text
+                            _statusText.text = "Returning to surface...";
 
-                        // Do something based on current state
-                        switch (_driveStateManager.State)
-                        {
-                            case DriveState.ExitingToNearTarget:
-                                // Update status text
-                                _statusText.text = "Returning to surface...";
+                            // Replace drive buttons with stop
+                            _exitButton.SetActive(false);
+                            _stopButton.SetActive(true);
 
-                                // Replace drive buttons with stop
-                                _exitButton.SetActive(false);
-                                _stopButton.SetActive(true);
+                            // Drive to near target depth
+                            if (_nearTargetDepth > _duraDepth && position.w > _nearTargetDepth)
+                                CommunicationManager.Instance.DriveToDepth(_manipulatorId, _nearTargetDepth,
+                                    _nearTargetExitSpeed, _ => CompleteAndAdvance(), Debug.LogError);
+                            else
+                                // Dura depth is within near target distance, so continue
+                                CompleteAndAdvance();
+                            break;
+                        case DriveState.ExitingToDura:
+                            // Update status text
+                            _statusText.text = "Returning to surface...";
 
-                                // Drive to near target depth
-                                if (position.w > _nearTargetDepth && _nearTargetDepth > _duraDepth)
-                                    CommunicationManager.Instance.DriveToDepth(
-                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, _nearTargetDepth,
-                                        _nearTargetExitSpeed, _ => CompleteAndAdvance(), Debug.LogError);
-                                else
-                                    // Dura depth is within near target distance, so continue
-                                    CompleteAndAdvance();
+                            // Replace drive buttons with stop
+                            _exitButton.SetActive(false);
+                            _stopButton.SetActive(true);
 
-                                break;
-                            case DriveState.ExitingToDura:
-                                // Update status text
-                                _statusText.text = "Returning to surface...";
+                            // Drive to dura depth (set speed based on dura depth and near target depth)
+                            if (position.w > _duraDepth)
+                                CommunicationManager.Instance.DriveToDepth(_manipulatorId, _duraDepth,
+                                    position.w > _nearTargetDepth ? _nearTargetExitSpeed : _exitDriveSpeed,
+                                    _ => CompleteAndAdvance(), Debug.LogError);
+                            else
+                                // Already at dura depth, so continue
+                                CompleteAndAdvance();
+                            break;
+                        case DriveState.ExitingToMargin:
+                            // Update status text
+                            _statusText.text = "Exiting Dura...";
 
-                                // Replace drive buttons with stop
-                                _exitButton.SetActive(false);
-                                _stopButton.SetActive(true);
+                            // Replace drive buttons with stop
+                            _exitButton.SetActive(false);
+                            _stopButton.SetActive(true);
 
-                                // Drive to dura depth (set speed based on dura depth and near target depth)
-                                if (position.w > _duraDepth)
-                                    CommunicationManager.Instance.DriveToDepth(
-                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, _duraDepth,
-                                        position.w > _nearTargetDepth ? _nearTargetExitSpeed : _exitDriveSpeed,
-                                        _ => CompleteAndAdvance(), Debug.LogError);
-                                else
-                                    // Already at dura depth, so continue
-                                    CompleteAndAdvance();
-                                break;
-                            case DriveState.ExitingToMargin:
-                                // Update status text
-                                _statusText.text = "Exiting Dura...";
+                            // Drive to dura margin depth
+                            if (position.w > _exitMarginDepth)
+                                CommunicationManager.Instance.DriveToDepth(_manipulatorId, _exitMarginDepth,
+                                    position.w > _nearTargetDepth ? _nearTargetExitSpeed : _exitDriveSpeed,
+                                    _ => CompleteAndAdvance(), Debug.LogError);
+                            else
+                                // Already at dura margin depth, so continue
+                                CompleteAndAdvance();
+                            break;
+                        case DriveState.ExitingToOutside:
+                            // Update status text
+                            _statusText.text = "Exiting Dura...";
 
-                                // Replace drive buttons with stop
-                                _exitButton.SetActive(false);
-                                _stopButton.SetActive(true);
+                            // Replace drive buttons with stop
+                            _exitButton.SetActive(false);
+                            _stopButton.SetActive(true);
 
-                                // Drive to dura margin depth
-                                if (position.w > _exitMarginDepth)
-                                    CommunicationManager.Instance.DriveToDepth(
-                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, _exitMarginDepth,
-                                        position.w > _nearTargetDepth ? _nearTargetExitSpeed : _exitDriveSpeed,
-                                        _ => CompleteAndAdvance(), Debug.LogError);
-                                else
-                                    // Already at dura margin depth, so continue
-                                    CompleteAndAdvance();
-                                break;
-                            case DriveState.ExitingToOutside:
-                                // Update status text
-                                _statusText.text = "Exiting Dura...";
-
-                                // Replace drive buttons with stop
-                                _exitButton.SetActive(false);
-                                _stopButton.SetActive(true);
-
-                                // Drive to outside depth
-                                if (position.w > _outsideDepth)
-                                    CommunicationManager.Instance.DriveToDepth(
-                                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, _outsideDepth,
-                                        _outsideDriveSpeed, _ => CompleteOutside(), Debug.LogError);
-                                else
-                                    // Already outside, so complete
-                                    CompleteOutside();
-                                break;
-                            case DriveState.Ready:
-                            case DriveState.DrivingToSurface:
-                            case DriveState.DrivingToTarget:
-                            case DriveState.Outside:
-                            case DriveState.AtExitMargin:
-                            case DriveState.AtDura:
-                            case DriveState.DrivingToNearTarget:
-                            case DriveState.AtNearTarget:
-                            case DriveState.DriveToPastTarget:
-                            case DriveState.AtPastTarget:
-                            case DriveState.ReturningToTarget:
-                            case DriveState.AtTarget:
-                            default:
-                                Debug.LogError("Invalid Drive state for exiting.");
-                                return;
-                        }
-                    }, Debug.LogError);
+                            // Drive to outside depth
+                            if (position.w > _outsideDepth)
+                                CommunicationManager.Instance.DriveToDepth(_manipulatorId, _outsideDepth,
+                                    _outsideDriveSpeed, _ => CompleteOutside(), Debug.LogError);
+                            else
+                                // Already outside, so complete
+                                CompleteOutside();
+                            break;
+                        case DriveState.Ready:
+                        case DriveState.DrivingToSurface:
+                        case DriveState.DrivingToTarget:
+                        case DriveState.Outside:
+                        case DriveState.AtExitMargin:
+                        case DriveState.AtDura:
+                        case DriveState.DrivingToNearTarget:
+                        case DriveState.AtNearTarget:
+                        case DriveState.DriveToPastTarget:
+                        case DriveState.AtPastTarget:
+                        case DriveState.ReturningToTarget:
+                        case DriveState.AtTarget:
+                        default:
+                            Debug.LogError("Invalid Drive state for exiting.");
+                            return;
+                    }
+                }, Debug.LogError);
             }, Debug.LogError);
             return;
 
             void CompleteAndAdvance()
             {
-                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                    false, 0,
-                    _ =>
-                    {
-                        _driveStateManager.CompleteMovement();
-                        Exit();
-                    }, Debug.LogError);
+                CommunicationManager.Instance.SetCanWrite(_manipulatorId, false, 0, _ =>
+                {
+                    _driveStateManager.CompleteMovement();
+                    Exit();
+                }, Debug.LogError);
             }
 
             void CompleteOutside()
             {
-                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                    false, 0,
-                    _ =>
-                    {
-                        _driveStateManager.CompleteMovement();
+                CommunicationManager.Instance.SetCanWrite(_manipulatorId, false, 0, _ =>
+                {
+                    _driveStateManager.CompleteMovement();
 
-                        // Reset UI
-                        _statusText.text = "Ready to Drive";
-                        _stopButton.SetActive(false);
-                        _driveGroup.SetActive(true);
-                    }, Debug.LogError);
+                    // Reset UI
+                    _statusText.text = "Ready to Drive";
+                    _stopButton.SetActive(false);
+                    _driveGroup.SetActive(true);
+                }, Debug.LogError);
             }
         }
 
         public void DriveBackToSurface()
         {
-            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, pos =>
+            CommunicationManager.Instance.GetPos(_manipulatorId, pos =>
             {
                 // Drive
-                CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                    true, 1,
+                CommunicationManager.Instance.SetCanWrite(_manipulatorId, true, 1,
                     canWrite =>
                     {
                         if (!canWrite) return;
@@ -697,25 +684,25 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                         // Drive back to dura by near target distance (as much as possible)
                         CommunicationManager.Instance.DriveToDepth(
-                            ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                            _manipulatorId,
                             driveDepth, _exitDriveBaseSpeed * NEAR_TARGET_SPEED_MULTIPLIER, _ =>
                             {
                                 // Drive back to dura
                                 CommunicationManager.Instance.DriveToDepth(
-                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID, _duraDepth,
+                                    _manipulatorId, _duraDepth,
                                     _exitDriveBaseSpeed, _ =>
                                     {
                                         // Drive out by dura exit margin
                                         // FIXME: Dependent on CoordinateSpace direction. Should be standardized by Ephys Link.
                                         CommunicationManager.Instance.DriveToDepth(
-                                            ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                            _manipulatorId,
                                             _duraDepth - ProbeManager.ManipulatorBehaviorController.CoordinateSpace
                                                 .World2SpaceAxisChange(Vector3.up).z * DURA_MARGIN_DISTANCE,
                                             _exitDriveBaseSpeed, _ =>
                                             {
                                                 // Drive the rest of the way to the surface
                                                 CommunicationManager.Instance.DriveToDepth(
-                                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                                    _manipulatorId,
                                                     _exitDepth, _outsideDriveSpeed, _ =>
                                                     {
                                                         // Reset manipulator drive states
@@ -769,7 +756,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             _exitButtonText.text = "Return to Surface (" + SpeedToString(_exitDriveBaseSpeed) + ")";
 
             // Compute drive distance and duration
-            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID, position =>
+            CommunicationManager.Instance.GetPos(_manipulatorId, position =>
             {
                 // Remember dura depth
                 // _duraDepth = position.w;
@@ -777,7 +764,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Calibrate target insertion depth based on surface position
                 var targetInsertion = new ProbeInsertion(
                     InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetProbeManager[
-                        ProbeManager.ManipulatorBehaviorController.ManipulatorID].ProbeController.Insertion);
+                        _manipulatorId].ProbeController.Insertion);
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
@@ -917,7 +904,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private void StartSettling()
         {
-            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
+            CommunicationManager.Instance.SetCanWrite(_manipulatorId, false,
                 0,
                 _ =>
                 {
