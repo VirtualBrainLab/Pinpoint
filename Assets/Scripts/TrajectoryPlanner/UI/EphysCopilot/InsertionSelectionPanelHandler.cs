@@ -17,7 +17,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private const float LINE_WIDTH = 0.1f;
         private const int NUM_SEGMENTS = 2;
-        private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0, 0.5f, 0);
+        private static readonly Vector3 PRE_DEPTH_DRIVE_DV_OFFSET = new(0, 3.5f, 0);
         private const string MOVE_TO_TARGET_INSERTION_STR = "Move to Target Insertion";
         private const string STOP_MOVEMENT_STR = "Stop Movement";
 
@@ -304,8 +304,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // DV axis
             _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
             {
-                dv = ProbeManager.ProbeController.Insertion
-                    .World2TransformedAxisChange(PRE_DEPTH_DRIVE_BREGMA_OFFSET_W).z
+                dv = ProbeManager.ProbeController.Insertion.World2TransformedAxisChange(PRE_DEPTH_DRIVE_DV_OFFSET).z
             };
 
             // Recalculate AP and ML based on pre-depth-drive DV
