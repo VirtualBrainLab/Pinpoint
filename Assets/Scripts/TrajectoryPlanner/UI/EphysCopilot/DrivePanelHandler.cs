@@ -728,20 +728,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 if (!b) return;
                 _statusText.text = "Stopped";
 
-                if (_driveState == DriveState.DrivingToTarget)
-                {
-                    // Setup for returning to surface
-                    _driveState = DriveState.AtTarget;
-                    _stopButton.SetActive(false);
-                    _exitButton.SetActive(true);
-                }
-                else
-                {
-                    // Otherwise, just reset
-                    _driveState = DriveState.Ready;
-                    _stopButton.SetActive(false);
-                    _driveGroup.SetActive(true);
-                }
+                // Reset UI based on state
+                
             });
         }
 
