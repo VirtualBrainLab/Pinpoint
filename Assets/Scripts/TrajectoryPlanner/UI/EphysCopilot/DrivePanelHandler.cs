@@ -206,7 +206,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private DriveState _driveState;
         private readonly DriveStateManager _driveStateManager = new();
 
-        // Target drive distance
+        // Target drive distance (returns NaN if not on dura)
         private float _targetDriveDistance
         {
             get
@@ -228,8 +228,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 targetInsertion.apmldv =
                     targetInsertion.CoordinateTransform.Space2TransformAxisChange(
                         targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
-                
-                return Vector3.Distance(targetInsertion.apmldv, ProbeManager.ProbeController.Insertion.apmldv);
+
+                return Vector3.Distance(targetInsertion.apmldv,
+                    ResetDuraOffsetPanelHandler.ManipulatorIdToDuraApmldv.TryGetValue(
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID, out var depth)
+                        ? depth
+                        : new Vector3(float.NaN, float.NaN, float.NaN));
             }
         }
 
@@ -242,11 +246,11 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 ProbeManager.ManipulatorBehaviorController.ManipulatorID, out var depth)
                 ? depth
                 : float.NaN;
-
-        private float _nearTargetDepth => _targetDepth - NEAR_TARGET_DISTANCE;
-
+        
         private float _targetDepth => _duraDepth + _targetDriveDistance;
 
+        private float _nearTargetDepth => _targetDepth - NEAR_TARGET_DISTANCE;
+        
         private float _drivePastTargetDistance = DRIVE_PAST_TARGET_DISTANCE;
         private float _pastTargetDepth => _targetDepth + _drivePastTargetDistance;
         
@@ -382,6 +386,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                 _driveGroup.SetActive(false);
                                 _stopButton.SetActive(true);
 
+                                print("Dura depth: " + _duraDepth + " + target drive distance: " +
+                                      _targetDriveDistance + " - near target distance: " + NEAR_TARGET_DISTANCE +
+                                      " = near target depth " + _nearTargetDepth);
+
+                                print("Currently at " + position.w + " and driving to near target depth " +
+                                      _nearTargetDepth +
+                                      " at speed " + _targetDriveSpeed);
+
                                 // Drive to near target depth
                                 if (position.w < _nearTargetDepth)
                                     CommunicationManager.Instance.DriveToDepth(
@@ -399,6 +411,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                 _driveGroup.SetActive(false);
                                 _stopButton.SetActive(true);
 
+
+                                print("Dura depth: " + _duraDepth + " + target drive distance: " +
+                                      _targetDriveDistance + " + past target distance: " + _drivePastTargetDistance +
+                                      " = past target depth " + _pastTargetDepth);
+                                print("Currently at " + position.w + " and driving to past target depth " +
+                                      _pastTargetDepth +
+                                      " at speed " + _targetDriveSpeed);
+
                                 // Drive to past target depth
                                 if (position.w < _pastTargetDepth)
                                     CommunicationManager.Instance.DriveToDepth(
@@ -415,6 +435,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                 // Replace drive buttons with stop
                                 _driveGroup.SetActive(false);
                                 _stopButton.SetActive(true);
+
+                                print("Dura depth: " + _duraDepth + "; target drive distance: " + _targetDriveDistance +
+                                      " = target depth " + _targetDepth);
+
+                                print("Currently at " + position.w + " and driving to target depth " + _targetDepth +
+                                      " at speed " +
+                                      _targetDriveSpeed);
 
                                 // Drive to target and complete movement
                                 CommunicationManager.Instance.DriveToDepth(

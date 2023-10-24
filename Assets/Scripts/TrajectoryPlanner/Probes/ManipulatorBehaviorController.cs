@@ -334,12 +334,6 @@ namespace TrajectoryPlanner.Probes
                     _probeController.Insertion.World2Transformed(
                         _annotationDataset.CoordinateSpace.Space2World(brainSurfaceCoordinate));
 
-                print("Brain surface offset: " + BrainSurfaceOffset + " + " + Vector3.Distance(
-                    brainSurfaceToTransformed,
-                    _probeController.Insertion.apmldv) + " = " + (BrainSurfaceOffset + Vector3.Distance(
-                    brainSurfaceToTransformed,
-                    _probeController.Insertion.apmldv)));
-
                 BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
                     _probeController.Insertion.apmldv);
             }
