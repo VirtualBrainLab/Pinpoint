@@ -35,13 +35,15 @@ public class BregmaLambdaBehavior : MonoBehaviour
         _blSlider.SetValueWithoutNotify(blDistance);
     }
 
-    public void SetText(float value)
+    public void SetSliderAndText(float ratio)
     {
-        _sliderText.text = $"{Mathf.RoundToInt(value * 100f) / 100f}";
+        _blSlider.SetValueWithoutNotify(ratio * _blDistance);
+        _sliderText.text = $"{Mathf.RoundToInt(ratio * _blDistance * 100f) / 100f}";
     }
 
     private void SetSetting(float value)
     {
-        Settings.BregmaLambdaDistance = value;
+        // Convert to ratio then set
+        Settings.BregmaLambdaRatio = value / _blDistance;
     }
 }

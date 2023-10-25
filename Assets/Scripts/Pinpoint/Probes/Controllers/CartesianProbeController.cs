@@ -707,7 +707,7 @@ public class CartesianProbeController : ProbeController
         transform.rotation = _initialRotation;
 
         // Manually adjust the coordinates and rotation
-        transform.position += Insertion.PositionWorldT();
+        transform.position = Insertion.PositionWorldT();
         transform.RotateAround(_probeTipT.position, transform.up, Insertion.Yaw);
         transform.RotateAround(_probeTipT.position, transform.right, Insertion.Pitch);
         transform.RotateAround(_probeTipT.position, _probeTipT.up, Insertion.Roll);

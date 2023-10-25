@@ -214,6 +214,11 @@ namespace TrajectoryPlanner
                 () => _probeQuickSettings.GetComponentInChildren<QuickSettingsLockBehavior>().UpdateSprite(ProbeManager.ActiveProbeManager.ProbeController.Locked));
             ProbeManager.ActiveProbeUIUpdateEvent.AddListener(() => SetSurfaceDebugColor(ProbeManager.ActiveProbeManager.Color));
 
+            if (_firstTime || _atlasReset)
+            {
+                Settings.BregmaLambdaRatio = 1f;
+            }
+
             // Complete
             PlayerPrefs.SetInt("scene-atlas-reset", 0);
             StartupEvent_Complete.Invoke();
@@ -1025,13 +1030,11 @@ namespace TrajectoryPlanner
         /// <summary>
         /// Change the bregma-lamba distance. By default this is 4.15f, so if it isn't that value, then we need to add an isometric scaling to the current transform
         /// </summary>
-        /// <param name="newBLDistance"></param>
-        public void ChangeBLDistance(float newBLDistance)
+        /// <param name="blRatio"></param>
+        public void ChangeBLRatio(float blRatio)
         {
-            if (BrainAtlasManager.ActiveReferenceAtlas == null || newBLDistance == _blDistance.DefaultBLDistance)
+            if (BrainAtlasManager.ActiveReferenceAtlas == null)
                 return;
-
-            float blRatio = newBLDistance / _blDistance.DefaultBLDistance;
 
 #if UNITY_EDITOR
             Debug.Log($"(BL Distance) Re-scaling to {blRatio}");

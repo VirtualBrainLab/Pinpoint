@@ -340,20 +340,20 @@ public class Settings : MonoBehaviour
         }
     }
 
-    private const float BREGMALAMBDA_DEFAULT = -1f;
+    private const float BREGMALAMBDA_DEFAULT = 1f;
     public UnityEvent<float> BregmaLambdaChangedEvent;
 
-    public static float BregmaLambdaDistance
+    public static float BregmaLambdaRatio
     {
         get
         {
-            return data.BregmaLambdaDistance;
+            return data.BregmaLambdaRatio;
         }
         set
         {
-            data.BregmaLambdaDistance = value;
+            data.BregmaLambdaRatio = value;
             Save();
-            Instance.BregmaLambdaChangedEvent.Invoke(data.BregmaLambdaDistance);
+            Instance.BregmaLambdaChangedEvent.Invoke(data.BregmaLambdaRatio);
         }
     }
 
@@ -629,7 +629,7 @@ public class Settings : MonoBehaviour
             data.ShowAtlas3DSlices = SHOW3DSLICE_DEFAULT;
             data.RelativeCoord = RELCOORD_DEFAULT;
             data.AtlasTransformName = INVIVO_DEFAULT;
-            data.BregmaLambdaDistance = BREGMALAMBDA_DEFAULT;
+            data.BregmaLambdaRatio = BREGMALAMBDA_DEFAULT;
 
             // ephys link
             data.EphysLinkServerIP = "";
@@ -713,9 +713,9 @@ public class Settings : MonoBehaviour
 
         // the relative coordinate needs to be set, since it gets propagated downstream
         ReferenceCoord = data.RelativeCoord;
-        BregmaLambdaDistance = data.BregmaLambdaDistance;
+        BregmaLambdaRatio = data.BregmaLambdaRatio;
 
-        // Accounts
+            // Accounts
         _stayLoggedInToggle.SetIsOnWithoutNotify(StayLoggedIn);
 
         // API
@@ -820,7 +820,7 @@ public class Settings : MonoBehaviour
         public int ShowAtlas3DSlices;
         public Vector3 RelativeCoord;
         public string AtlasTransformName;
-        public float BregmaLambdaDistance;
+        public float BregmaLambdaRatio;
 
         // Ephys link
         public string EphysLinkServerIP;
