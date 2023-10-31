@@ -120,6 +120,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     case DriveState.AtNearTarget:
                         State = DriveState.ExitingToDura;
                         break;
+                    case DriveState.AtPastTarget:
                     case DriveState.AtTarget:
                         State = DriveState.ExitingToNearTarget;
                         break;
@@ -128,7 +129,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     case DriveState.DrivingToNearTarget:
                         State = DriveState.ExitingToDura;
                         break;
-                    case DriveState.DriveToPastTarget or DriveState.ReturningToTarget:
+                    case DriveState.ReturningToTarget:
+                    case DriveState.DriveToPastTarget:
                         State = DriveState.ExitingToNearTarget;
                         break;
 
@@ -137,7 +139,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     case DriveState.ExitingToMargin:
                     case DriveState.ExitingToDura:
                     case DriveState.ExitingToNearTarget:
-                    case DriveState.AtPastTarget:
+                    case DriveState.ExitingToOutside:
                     default:
                         Debug.LogError("Cannot exit from state: " + State);
                         break;
@@ -584,10 +586,34 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             CommunicationManager.Instance.Stop(b =>
             {
                 if (!b) return;
-                _statusText.text = "Stopped";
 
                 // Reset UI based on state
-                
+                _stopButton.SetActive(false);
+                switch (_driveStateManager.State)
+                {
+                    case DriveState.AtExitMargin:
+                    case DriveState.AtDura:
+                    case DriveState.AtNearTarget:
+                    case DriveState.AtTarget:
+                    case DriveState.AtPastTarget:
+                    case DriveState.DriveToPastTarget:
+                    case DriveState.ReturningToTarget:
+                    case DriveState.DrivingToNearTarget:
+                        _exitButton.SetActive(true);
+                        _statusText.text = "Stopped";
+                        break;
+                    case DriveState.Outside:
+                    case DriveState.ExitingToOutside:
+                    case DriveState.ExitingToMargin:
+                    case DriveState.ExitingToDura:
+                    case DriveState.ExitingToNearTarget:
+                        _driveGroup.SetActive(true);
+                        _statusText.text = "Drive when outside";
+                        break;
+                    default:
+                        Debug.LogError("Unknown state for stopping: " + _driveStateManager.State);
+                        break;
+                }
             });
         }
 
