@@ -425,10 +425,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     .ManipulatorID);
         }
 
-        private bool IsCoterminal(Vector3 first, Vector3 second)
+        private static bool IsCoterminal(Vector3 first, Vector3 second)
         {
-            return (first.x - second.x) % 360 < 0.01f && (first.y - second.y) % 360 < 0.01f &&
-                   (first.z - second.z) % 360 < 0.01f;
+            return Mathf.Abs(first.x - second.x) % 360 < 0.01f && Mathf.Abs(first.y - second.y) % 360 < 0.01f &&
+                   Mathf.Abs(first.z - second.z) % 360 < 0.01f;
         }
 
         #endregion
