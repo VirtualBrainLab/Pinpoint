@@ -17,7 +17,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private const float LINE_WIDTH = 0.1f;
         private const int NUM_SEGMENTS = 2;
-        private static readonly Vector3 PRE_DEPTH_DRIVE_DV_OFFSET = new(0, 3.5f, 0);
+        public static readonly Vector3 PRE_DEPTH_DRIVE_DV_OFFSET = new(0, 3.5f, 0);
         private const string MOVE_TO_TARGET_INSERTION_STR = "Move to Target Insertion";
         private const string STOP_MOVEMENT_STR = "Stop Movement";
 
@@ -334,7 +334,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
             // Check if within bounds
             var manipulatorPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
                     .ml.apmldv);
             if (!_acknowledgedOutOfBounds && (manipulatorPosition.x < 0 || manipulatorPosition.x >
                                               ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.x ||
@@ -372,13 +372,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Setup and compute movement
             _isMoving = true;
             var apPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
                     .ap.apmldv);
             var mlPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
                     .ml.apmldv);
             var dvPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
                     .dv.apmldv);
 
             // Move

@@ -281,7 +281,7 @@ namespace TrajectoryPlanner.Probes
             };
         }
 
-        public Vector4 ConvertInsertionToManipulatorPosition(Vector3 insertionAPMLDV)
+        public Vector4 ConvertInsertionAPMLDVToManipulatorPosition(Vector3 insertionAPMLDV)
         {
             // Convert apmldv to world coordinate
             var convertToWorld = _probeManager.ProbeController.Insertion.Transformed2WorldAxisChange(insertionAPMLDV);

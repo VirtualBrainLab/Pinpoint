@@ -36,7 +36,7 @@ public class ProbeInsertion
     /// </summary>
     public Vector3 apmldv
     {
-        get => new Vector3(ap, ml, dv);
+        get => new(ap, ml, dv);
         set
         {
             ap = value.x;

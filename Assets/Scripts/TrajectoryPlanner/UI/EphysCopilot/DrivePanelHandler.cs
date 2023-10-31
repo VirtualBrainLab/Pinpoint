@@ -203,6 +203,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private DriveState _driveState;
         private readonly DriveStateManager _driveStateManager = new();
 
+        // Null checked dura APMLDV (NaN if not on dura)
+        private Vector3 _duraAPMLDV => ResetDuraOffsetPanelHandler.ManipulatorIdToDuraApmldv.TryGetValue(
+            _manipulatorId, out var duraApmldv)
+            ? duraApmldv
+            : new Vector3(float.NaN, float.NaN, float.NaN);
+
+
         // Target drive distance (returns NaN if not on dura)
         private float _targetDriveDistance
         {
@@ -211,7 +218,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Calibrate target insertion depth based on surface position
                 var targetInsertion = new ProbeInsertion(
                     InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetProbeManager[
-                        _manipulatorId].ProbeController.Insertion);
+                        _manipulatorId].ProbeController.Insertion, false);
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
@@ -226,15 +233,26 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     targetInsertion.CoordinateTransform.Space2TransformAxisChange(
                         targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
 
-                return Vector3.Distance(targetInsertion.apmldv,
-                    ResetDuraOffsetPanelHandler.ManipulatorIdToDuraApmldv.TryGetValue(
-                        _manipulatorId, out var depth)
-                        ? depth
-                        : new Vector3(float.NaN, float.NaN, float.NaN));
+                return Vector3.Distance(targetInsertion.apmldv, _duraAPMLDV);
             }
         }
 
         // Landmark depths
+        private Vector4 _outsidePosition
+        {
+            get
+            {
+                // Create outside position APMLDV
+                var targetAPMLDV = _duraAPMLDV;
+                targetAPMLDV.z = ProbeManager.ProbeController.Insertion
+                    .World2TransformedAxisChange(InsertionSelectionPanelHandler.PRE_DEPTH_DRIVE_DV_OFFSET).z;
+                
+                // Convert to manipulator position 
+                return ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
+                    targetAPMLDV);
+            }
+        }
+
         private float _outsideDepth => _duraDepth - OUTSIDE_DISTANCE;
         private float _exitMarginDepth => _duraDepth - DURA_MARGIN_DISTANCE;
 
@@ -533,8 +551,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                             _exitButton.SetActive(false);
                             _stopButton.SetActive(true);
 
-                            // Drive to outside depth
-                            if (position.w > _outsideDepth)
+                            // Drive to outside position
+                            if (position.y < _outsidePosition.y)
+                            {
+                                CommunicationManager.Instance.GotoPos(_manipulatorId, _outsidePosition, _outsideDriveSpeed, _=> CompleteOutside(), Debug.LogError);
+                            }
+                            // Drive to outside depth if DV movement is unavailable
+                            else  if (position.w > _outsideDepth)
                                 CommunicationManager.Instance.DriveToDepth(_manipulatorId, _outsideDepth,
                                     _outsideDriveSpeed, _ => CompleteOutside(), Debug.LogError);
                             else
