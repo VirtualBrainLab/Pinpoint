@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using UnityEngine;
 
 namespace TrajectoryPlanner.UI.EphysCopilot
@@ -18,5 +19,14 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         [SerializeField] private GameObject _stopButton;
 
         #endregion
+
+        private void Start()
+        {
+            print(Application.streamingAssetsPath + "/copilot_demo.json");
+            print(File.ReadAllText(Application.streamingAssetsPath + "/copilot_demo.json"));
+            // var data = JsonUtility.FromJson<DemoData[]>(Resources
+            //     .Load<TextAsset>(Application.streamingAssetsPath + "/copilot_demo.json").text);
+            // print(data);
+        }
     }
 }
