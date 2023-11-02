@@ -137,7 +137,7 @@ public class APISpikeGLX : MonoBehaviour
         {
             string msg = $"{GetServerInfo()} -cmd=setAnatomy_Pinpoint -args=\"{shankData}\"";
 
-            SendAPIMessage(msg, Debug.Log);
+            SendAPIMessage(msg);
         }
     }
 
@@ -151,8 +151,6 @@ public class APISpikeGLX : MonoBehaviour
 
     private void SendAPIMessage(string msg, Action<string> callback = null)
     {
-        Debug.Log(Application.streamingAssetsPath);
-
         string originalPath = _helloSpikeGLXPathInput.text;
 
         string filePath = originalPath.Contains("HelloSGLX.exe") ?
