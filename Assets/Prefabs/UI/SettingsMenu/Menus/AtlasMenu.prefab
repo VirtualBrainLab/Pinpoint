@@ -1226,7 +1226,6 @@ MonoBehaviour:
   _apField: {fileID: 7501057391960236679}
   _mlField: {fileID: 8396062300239328662}
   _dvField: {fileID: 6782200178353439303}
-  _tpmanager: {fileID: 0}
 --- !u!1 &2884005272208550139
 GameObject:
   m_ObjectHideFlags: 0
@@ -8203,7 +8202,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3083274347254332316, guid: ccb05abfadf2adb40913f92c0327f4fc, type: 3}
       propertyPath: m_Text
-      value: 4.15
+      value: 6.3
       objectReference: {fileID: 0}
     - target: {fileID: 3083274347384374709, guid: ccb05abfadf2adb40913f92c0327f4fc, type: 3}
       propertyPath: m_AnchorMax.x
@@ -8303,11 +8302,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3083274347408712454, guid: ccb05abfadf2adb40913f92c0327f4fc, type: 3}
       propertyPath: m_Value
-      value: 4.15
+      value: 6.3
       objectReference: {fileID: 0}
     - target: {fileID: 3083274347408712454, guid: ccb05abfadf2adb40913f92c0327f4fc, type: 3}
       propertyPath: m_MaxValue
-      value: 5
+      value: 6.3
       objectReference: {fileID: 0}
     - target: {fileID: 3083274347408712454, guid: ccb05abfadf2adb40913f92c0327f4fc, type: 3}
       propertyPath: m_MinValue
