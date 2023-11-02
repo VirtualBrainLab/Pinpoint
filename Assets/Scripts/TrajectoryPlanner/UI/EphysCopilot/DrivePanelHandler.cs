@@ -197,7 +197,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         // Boundary acknowledgements
         private bool _acknowledgeOutOfBounds;
         private bool _acknowledgeTestSpeeds;
-        private bool _acknowledgeHighSpeeds;
+        private bool _acknowledgeHighSpeeds = true;
 
         // Drive state
         private DriveState _driveState;
@@ -246,7 +246,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 var targetAPMLDV = _duraAPMLDV;
                 targetAPMLDV.z = ProbeManager.ProbeController.Insertion
                     .World2TransformedAxisChange(InsertionSelectionPanelHandler.PRE_DEPTH_DRIVE_DV_OFFSET).z;
-                
+
                 // Convert to manipulator position 
                 return ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
                     targetAPMLDV);
@@ -275,7 +275,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         // Drive Speeds
         private float _driveBaseSpeed = DEPTH_DRIVE_BASE_SPEED;
-        private float _per1000Speed => _driveBaseSpeed < DEPTH_DRIVE_BASE_SPEED ? PER_1000_SPEED : PER_1000_SPEED_TEST;
+        private float _per1000Speed => _driveBaseSpeed <= DEPTH_DRIVE_BASE_SPEED ? PER_1000_SPEED : PER_1000_SPEED_TEST;
         private float _targetDriveSpeed => _driveBaseSpeed + _targetDriveDistance * _per1000Speed;
         private float _nearTargetDriveSpeed => _driveBaseSpeed * NEAR_TARGET_SPEED_MULTIPLIER;
         private float _exitDriveBaseSpeed => _driveBaseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER;
@@ -311,8 +311,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         public void OnSpeedChanged(float value)
         {
             // Updates speed text and snap slider
-            _driveSpeedText.text = "Speed: " + SpeedToString(value / 1000f);
-            _driveSpeedSlider.SetValueWithoutNotify((int)value);
+            // _driveSpeedText.text = "Speed: " + SpeedToString(value / 1000f);
+            // _driveSpeedSlider.SetValueWithoutNotify((int)value);
 
             // Warn if speed is too high
             if (!_acknowledgeHighSpeeds && value > 5)
@@ -391,7 +391,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         {
                             case DriveState.DrivingToNearTarget:
                                 // Update status text
-                                _statusText.text = "Driving to " + _drivePastTargetDistance + " µm past target...";
+                                _statusText.text = "Driving to " + _drivePastTargetDistance * 1000f +
+                                                   " µm past target...";
 
                                 // Replace drive buttons with stop
                                 _driveGroup.SetActive(false);
@@ -407,7 +408,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                 break;
                             case DriveState.DriveToPastTarget:
                                 // Update status text
-                                _statusText.text = "Driving to " + _drivePastTargetDistance + " µm past target...";
+                                _statusText.text = "Driving to " + _drivePastTargetDistance * 1000f +
+                                                   " µm past target...";
 
                                 // Replace drive buttons with stop
                                 _driveGroup.SetActive(false);
@@ -554,15 +556,17 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                             // Drive to outside position
                             if (position.y < _outsidePosition.y)
                             {
-                                CommunicationManager.Instance.GotoPos(_manipulatorId, _outsidePosition, _outsideDriveSpeed, _=> CompleteOutside(), Debug.LogError);
+                                CommunicationManager.Instance.GotoPos(_manipulatorId, _outsidePosition,
+                                    _outsideDriveSpeed, _ => CompleteOutside(), Debug.LogError);
                             }
                             // Drive to outside depth if DV movement is unavailable
-                            else  if (position.w > _outsideDepth)
+                            else if (position.w > _outsideDepth)
                                 CommunicationManager.Instance.DriveToDepth(_manipulatorId, _outsideDepth,
                                     _outsideDriveSpeed, _ => CompleteOutside(), Debug.LogError);
                             else
                                 // Already outside, so complete
                                 CompleteOutside();
+
                             break;
                         case DriveState.Outside:
                         case DriveState.AtExitMargin:
