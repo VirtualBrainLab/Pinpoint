@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.unity.addressables": {
-      "version": "1.21.17",
+      "version": "1.21.18",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.scriptablebuildpipeline": "1.21.9",
+        "com.unity.scriptablebuildpipeline": "1.21.20",
         "com.unity.modules.assetbundle": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0",
@@ -15,7 +15,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ai.navigation": {
-      "version": "1.1.4",
+      "version": "1.1.5",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -34,7 +34,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.8.8",
+      "version": "1.8.9",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -66,7 +66,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.18",
+      "version": "2.0.21",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -107,7 +107,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.core": {
-      "version": "14.0.8",
+      "version": "14.0.9",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
@@ -118,18 +118,18 @@
       }
     },
     "com.unity.render-pipelines.universal": {
-      "version": "14.0.8",
+      "version": "14.0.9",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
         "com.unity.mathematics": "1.2.1",
-        "com.unity.burst": "1.8.4",
-        "com.unity.render-pipelines.core": "14.0.8",
-        "com.unity.shadergraph": "14.0.8"
+        "com.unity.burst": "1.8.9",
+        "com.unity.render-pipelines.core": "14.0.9",
+        "com.unity.shadergraph": "14.0.9"
       }
     },
     "com.unity.scriptablebuildpipeline": {
-      "version": "1.21.9",
+      "version": "1.21.20",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -143,11 +143,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.shadergraph": {
-      "version": "14.0.8",
+      "version": "14.0.9",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
-        "com.unity.render-pipelines.core": "14.0.8",
+        "com.unity.render-pipelines.core": "14.0.9",
         "com.unity.searcher": "4.9.2"
       }
     },
@@ -188,7 +188,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.timeline": {
-      "version": "1.7.5",
+      "version": "1.7.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -223,14 +223,14 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "0bc6ec2b1fb9c71341d63a366a542662986d4141"
+      "hash": "fc064767fda32b093549649d6b38c12e5008d6dd"
     },
     "vbl.urchin": {
       "version": "https://github.com/VirtualBrainLab/Urchin.git?path=/UnityClient/Packages/vbl.urchin",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "212b78ec0f757bd88b76d470b872a36730408f9f"
+      "hash": "519062778b0b9d242835146c04485b87259f2a3f"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
