@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using EphysLink;
 using TrajectoryPlanner.Probes;
@@ -179,6 +180,13 @@ public class ProbeManager : MonoBehaviour
             UIUpdateEvent.Invoke();
             if (ActiveProbeManager == this)
                 ActiveProbeUIUpdateEvent.Invoke();
+            
+            // Switch to line if green
+            if (value == ProbeProperties.ProbeColors[4])
+            {
+                print("Probe is green");
+                ProbeDisplay = ProbeDisplayType.Line;
+            }
         }
     }
 
