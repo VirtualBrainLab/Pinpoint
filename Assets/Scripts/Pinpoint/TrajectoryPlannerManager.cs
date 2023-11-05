@@ -180,24 +180,51 @@ namespace TrajectoryPlanner
             }
             Settings.ReferenceCoord = referenceAtlas.AtlasSpace.ReferenceCoord;
 
-            // there is only one default set right now, tbd if we want to add others (beryl/cosmos/etc)
-            var nodeTask = _atlasManager.LoadDefaultAreas("");
+
+            // [TODO REMOVE THIS CODE WHEN ADDRESSABLES GETS REBUILT
+            if (Settings.AtlasName.Equals("whs_sd_rat_78um"))
+            {
+                var areaIDs = new int[] { 1034, 1096, 1084, 1038, 1081, 1097, 1048, 1057, 1061, 1055, 1059, 1069, 1056, 1065, 1072, 1020, 1047, 58, 1044, 74, 1046, 56, 1045, 75, 1043 };
+                foreach (int areaID in areaIDs)
+                {
+                    OntologyNode node = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID);
+
+                    // Load all models
+                    var nodeTask = node.LoadMesh(OntologyNode.OntologyNodeSide.Full);
+
+                    await nodeTask;
+
+                    node.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
+                    node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["transparent-unlit"], OntologyNode.OntologyNodeSide.Full);
+                    node.ResetColor();
+                    node.SetShaderProperty("_Alpha", 0.25f, OntologyNode.OntologyNodeSide.Full);
+                    _pinpointAtlasManager.DefaultNodes.Add(node);
+                }
+            }
+            else
+            {
+                // there is only one default set right now, tbd if we want to add others (beryl/cosmos/etc)
+                var nodeTask = _atlasManager.LoadDefaultAreas("");
+
+                await nodeTask;
+
+                foreach (var node in nodeTask.Result)
+                {
+                    node.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
+                    node.SetVisibility(false, OntologyNode.OntologyNodeSide.Left);
+                    node.SetVisibility(false, OntologyNode.OntologyNodeSide.Right);
+                    node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["transparent-unlit"]);
+                    node.ResetColor();
+                    node.SetShaderProperty("_Alpha", 0.25f, OntologyNode.OntologyNodeSide.Full);
+                    _pinpointAtlasManager.DefaultNodes.Add(node);
+                }
+            }
 
             referenceAtlas.LoadAnnotations();
             referenceAtlas.LoadAnnotationTexture();
 
-            await Task.WhenAll(new Task[] { referenceAtlas.AnnotationsTask, referenceAtlas.AnnotationTextureTask, nodeTask});
+            await Task.WhenAll(new Task[] { referenceAtlas.AnnotationsTask, referenceAtlas.AnnotationTextureTask});
 
-            foreach (var node in nodeTask.Result)
-            {
-                node.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
-                node.SetVisibility(false, OntologyNode.OntologyNodeSide.Left);
-                node.SetVisibility(false, OntologyNode.OntologyNodeSide.Right);
-                node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["transparent-unlit"]);
-                node.ResetColor();
-                node.SetShaderProperty("_Alpha", 0.25f, OntologyNode.OntologyNodeSide.Full);
-                _pinpointAtlasManager.DefaultNodes.Add(node);
-            }
 
             // Now that the areas are loaded we can also set the BLDistance values
             SetBLUI();

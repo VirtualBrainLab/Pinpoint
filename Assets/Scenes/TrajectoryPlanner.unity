@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44824904, g: 0.49827605, b: 0.5755831, a: 1}
+  m_IndirectSpecularColor: {r: 0.44912726, g: 0.49919963, b: 0.5757154, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2874,10 +2874,12 @@ MonoBehaviour:
   _atlasNames:
   - allen_mouse_25um
   - whs_sd_rat_39um
+  - whs_sd_rat_78um
   _atlasMappings:
   - Mouse CCF (25um)
   - Rat Waxholm (39um)
-  _allowedOnWebGL: 0100
+  - Rat Waxholm (78um)
+  _allowedOnWebGL: 010001
   _transformDropdown: {fileID: 611159662}
 --- !u!1001 &341190943874437988
 PrefabInstance:
