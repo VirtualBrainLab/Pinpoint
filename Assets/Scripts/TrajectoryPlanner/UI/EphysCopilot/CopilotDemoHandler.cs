@@ -137,9 +137,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     DuraPos =
                         matchingManipulator.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
                             new Vector3(manipulatorData.insertion[0], manipulatorData.insertion[1],
-                                manipulatorData.insertion[2]) / 1000f),
-                    Depth = manipulatorData.insertion[3] / 1000f
+                                manipulatorData.insertion[2]) / 1000f)
                 };
+                convertedData.Depth = convertedData.DuraPos.w + manipulatorData.insertion[3] / 1000f;
 
                 _demoManipulatorToData.Add(matchingManipulator, convertedData);
 
