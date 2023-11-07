@@ -63,8 +63,23 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         // Manipulator movement speed when outside in mm/s
         private const float OUTSIDE_MOVEMENT_SPEED = 1f;
 
+        // Manipulator movement speed when inside in mm/s
+        private const float INSIDE_MOVEMENT_SPEED = 0.5f;
+
+        // Manipulator movement speed when close to target in mm/s
+        private const float CLOSE_MOVEMENT_SPEED = 0.2f;
+
         // DV ceiling in um
         private const float DV_CEILING = 3500f;
+
+        // Close to target distance (mm)
+        private const float CLOSE_TO_TARGET_DISTANCE = 0.1f;
+
+        // Exit margin depth (mm)
+        private const float EXIT_MARGIN_DEPTH = 0.1f;
+
+        // Go past distance (mm)
+        private const float GO_PAST_DISTANCE = 0.05f;
 
         // Pause time in milliseconds
         private const long PAUSE_TIME = 1000;
@@ -155,8 +170,36 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Chill for a bit
                 SpinTimer();
 
-                // Drive to entry coordinate
+                // Go to entry coordinate
                 GoToEntryCoordinate();
+            }
+            else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.AtEntryCoordinate))
+            {
+                print("All manipulators are at entry coordinate");
+
+                // Chill for a bit
+                SpinTimer();
+
+                // Go to dura
+                GoToDura();
+            }
+            else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.AtDura))
+            {
+                print("All manipulators are at dura");
+
+                // Chill for a bit
+                SpinTimer();
+
+                // Go to target insertion
+                GoToTargetInsertion();
+            }
+            else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Inserted))
+            {
+                print("All manipulators are inserted");
+                
+                // Chill for a bit
+                
+                // Bring them back out
             }
         }
 
@@ -190,14 +233,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _stopButton.SetActive(true);
 
                 // Move to idle position
+                SetAllToTraveling();
                 foreach (var manipulatorToData in _demoManipulatorToData)
-                {
-                    _manipulatorToStates[manipulatorToData.Key] = ManipulatorState.Traveling;
                     CommunicationManager.Instance.GotoPos(
                         manipulatorToData.Key.ManipulatorBehaviorController.ManipulatorID,
                         manipulatorToData.Value.IdlePos, OUTSIDE_MOVEMENT_SPEED,
                         _ => _manipulatorToStates[manipulatorToData.Key] = ManipulatorState.Idle, Debug.LogError);
-                }
             }
         }
 
@@ -256,13 +297,40 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             SetAllToTraveling();
 
             foreach (var manipulatorData in _demoManipulatorToData)
-            {
-                _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Traveling;
                 CommunicationManager.Instance.GotoPos(manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
                     manipulatorData.Value.EntryCoordinatePos, OUTSIDE_MOVEMENT_SPEED,
                     _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.AtEntryCoordinate,
                     Debug.LogError);
-            }
+        }
+
+        private void GoToDura()
+        {
+            SetAllToTraveling();
+
+            foreach (var manipulatorData in _demoManipulatorToData)
+                CommunicationManager.Instance.GotoPos(manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                    manipulatorData.Value.DuraPos, OUTSIDE_MOVEMENT_SPEED,
+                    _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Inserted, Debug.LogError);
+        }
+
+        private void GoToTargetInsertion()
+        {
+            SetAllToTraveling();
+
+            foreach (var manipulatorData in _demoManipulatorToData)
+                CommunicationManager.Instance.DriveToDepth(
+                    manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                    manipulatorData.Value.Depth - CLOSE_TO_TARGET_DISTANCE,
+                    INSIDE_MOVEMENT_SPEED,
+                    _ => CommunicationManager.Instance.DriveToDepth(
+                        manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                        manipulatorData.Value.Depth + GO_PAST_DISTANCE, CLOSE_MOVEMENT_SPEED,
+                        _ => CommunicationManager.Instance.DriveToDepth(
+                            manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                            manipulatorData.Value.Depth, CLOSE_MOVEMENT_SPEED,
+                            _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Inserted, Debug.LogError),
+                        Debug.LogError),
+                    Debug.LogError);
         }
 
         #endregion
