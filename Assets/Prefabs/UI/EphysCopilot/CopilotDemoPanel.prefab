@@ -121,7 +121,20 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6192789025202254326}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3584326755053723041}
+        m_TargetAssemblyTypeName: TrajectoryPlanner.UI.EphysCopilot.CopilotDemoHandler,
+          trajectoryplanner.ui.ephyscopilot
+        m_MethodName: OnStartPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1445278465348587321
 GameObject:
   m_ObjectHideFlags: 0
