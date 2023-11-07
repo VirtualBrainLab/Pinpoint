@@ -61,13 +61,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         #region Constants
 
         // Manipulator movement speed when outside in mm/s
-        private const float OUTSIDE_MOVEMENT_SPEED = 1f;
+        private const float OUTSIDE_MOVEMENT_SPEED = 1.5f;
 
         // Manipulator movement speed when inside in mm/s
-        private const float INSIDE_MOVEMENT_SPEED = 0.5f;
+        private const float INSIDE_MOVEMENT_SPEED = .75f;
 
         // Manipulator movement speed when close to target in mm/s
-        private const float CLOSE_MOVEMENT_SPEED = 0.2f;
+        private const float CLOSE_MOVEMENT_SPEED = 0.3f;
 
         // DV ceiling in um
         private const float DV_CEILING = 3500f;
@@ -191,15 +191,27 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 SpinTimer();
 
                 // Go to target insertion
-                GoToTargetInsertion();
+                Insert();
             }
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Inserted))
             {
                 print("All manipulators are inserted");
-                
+
                 // Chill for a bit
-                
+                SpinTimer();
+
                 // Bring them back out
+                Retract();
+            }
+            else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Retracted))
+            {
+                print("All manipulators are retracted");
+
+                // Chill for a bit
+                SpinTimer();
+
+                // Go back to idle
+                GoToIdle();
             }
         }
 
@@ -233,12 +245,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _stopButton.SetActive(true);
 
                 // Move to idle position
-                SetAllToTraveling();
-                foreach (var manipulatorToData in _demoManipulatorToData)
-                    CommunicationManager.Instance.GotoPos(
-                        manipulatorToData.Key.ManipulatorBehaviorController.ManipulatorID,
-                        manipulatorToData.Value.IdlePos, OUTSIDE_MOVEMENT_SPEED,
-                        _ => _manipulatorToStates[manipulatorToData.Key] = ManipulatorState.Idle, Debug.LogError);
+                GoToIdle();
             }
         }
 
@@ -254,6 +261,16 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         #endregion
 
         #region Movement Functions
+
+        private void GoToIdle()
+        {
+            SetAllToTraveling();
+            foreach (var manipulatorToData in _demoManipulatorToData)
+                CommunicationManager.Instance.GotoPos(
+                    manipulatorToData.Key.ManipulatorBehaviorController.ManipulatorID,
+                    manipulatorToData.Value.IdlePos, OUTSIDE_MOVEMENT_SPEED,
+                    _ => _manipulatorToStates[manipulatorToData.Key] = ManipulatorState.Idle, Debug.LogError);
+        }
 
         private void Calibrate()
         {
@@ -313,7 +330,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Inserted, Debug.LogError);
         }
 
-        private void GoToTargetInsertion()
+        private void Insert()
         {
             SetAllToTraveling();
 
@@ -329,6 +346,26 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                             manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
                             manipulatorData.Value.Depth, CLOSE_MOVEMENT_SPEED,
                             _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Inserted, Debug.LogError),
+                        Debug.LogError),
+                    Debug.LogError);
+        }
+
+        private void Retract()
+        {
+            SetAllToTraveling();
+
+            foreach (var manipulatorData in _demoManipulatorToData)
+                CommunicationManager.Instance.DriveToDepth(
+                    manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                    manipulatorData.Value.Depth - CLOSE_TO_TARGET_DISTANCE, CLOSE_MOVEMENT_SPEED,
+                    _ => CommunicationManager.Instance.DriveToDepth(
+                        manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                        manipulatorData.Value.DuraPos.w - EXIT_MARGIN_DEPTH, INSIDE_MOVEMENT_SPEED,
+                        _ => CommunicationManager.Instance.GotoPos(
+                            manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                            manipulatorData.Value.EntryCoordinatePos, OUTSIDE_MOVEMENT_SPEED,
+                            _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Retracted,
+                            Debug.LogError),
                         Debug.LogError),
                     Debug.LogError);
         }
