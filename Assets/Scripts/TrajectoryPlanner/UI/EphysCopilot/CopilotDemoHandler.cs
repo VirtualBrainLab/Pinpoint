@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using EphysLink;
-using TrajectoryPlanner.Probes;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -38,6 +37,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
     {
         public Vector3 Angle;
         public Vector4 IdlePos;
+        public Vector4 EntryCoordinatePos;
         public Vector4 DuraPos;
         public float Depth;
     }
@@ -60,7 +60,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
     {
         #region Constants
 
+        // Manipulator movement speed when outside in mm/s
         private const float OUTSIDE_MOVEMENT_SPEED = 1f;
+
+        // DV ceiling in um
+        private const float DV_CEILING = 3500f;
+
+        // Pause time in milliseconds
         private const long PAUSE_TIME = 1000;
 
         #endregion
@@ -109,6 +115,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         matchingManipulator.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
                             new Vector3(manipulatorData.idle[0], manipulatorData.idle[1], manipulatorData.idle[2]) /
                             1000f),
+                    EntryCoordinatePos =
+                        matchingManipulator.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
+                            new Vector3(manipulatorData.insertion[0], manipulatorData.insertion[1], DV_CEILING) /
+                            1000f),
                     DuraPos =
                         matchingManipulator.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
                             new Vector3(manipulatorData.insertion[0], manipulatorData.insertion[1],
@@ -131,11 +141,22 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Idle))
             {
                 print("All manipulators are at idle");
+
                 // Chill for a bit
                 SpinTimer();
 
                 // Run Calibration
                 Calibrate();
+            }
+            else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Calibrated))
+            {
+                print("All manipulators are calibrated");
+
+                // Chill for a bit
+                SpinTimer();
+
+                // Drive to entry coordinate
+                GoToEntryCoordinate();
             }
         }
 
@@ -153,8 +174,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             void SetCanWrite(ProbeManager manipulator)
             {
                 CommunicationManager.Instance.SetCanWrite(manipulator.ManipulatorBehaviorController.ManipulatorID, true,
-                    100,
-                    _ =>
+                    100, _ =>
                     {
                         if (++manipulatorIndex < _demoManipulatorToData.Count)
                             SetCanWrite(_demoManipulatorToData.Keys.ToList()[manipulatorIndex]);
@@ -172,7 +192,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Move to idle position
                 foreach (var manipulatorToData in _demoManipulatorToData)
                 {
-                    print(manipulatorToData.Key.name + " is traveling to Idle");
                     _manipulatorToStates[manipulatorToData.Key] = ManipulatorState.Traveling;
                     CommunicationManager.Instance.GotoPos(
                         manipulatorToData.Key.ManipulatorBehaviorController.ManipulatorID,
@@ -185,7 +204,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         public void OnStopPressed()
         {
             CommunicationManager.Instance.Stop(_ => print("Stopped"));
-            
+
             // Swap start and stop buttons
             _startButton.SetActive(true);
             _stopButton.SetActive(false);
@@ -229,6 +248,20 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                                     CalibrateManipulator(_demoManipulatorToData.Keys.ToList()[manipulatorIndex]);
                             }, Debug.LogError);
                     }, Debug.LogError);
+            }
+        }
+
+        private void GoToEntryCoordinate()
+        {
+            SetAllToTraveling();
+
+            foreach (var manipulatorData in _demoManipulatorToData)
+            {
+                _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Traveling;
+                CommunicationManager.Instance.GotoPos(manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                    manipulatorData.Value.EntryCoordinatePos, OUTSIDE_MOVEMENT_SPEED,
+                    _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.AtEntryCoordinate,
+                    Debug.LogError);
             }
         }
 
