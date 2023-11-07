@@ -60,6 +60,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
     {
         #region Constants
 
+        private const float OUTSIDE_MOVEMENT_SPEED = 1f;
         private const long PAUSE_TIME = 1000;
 
         #endregion
@@ -129,6 +130,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         {
             if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Idle))
             {
+                print("All manipulators are at idle");
                 // Chill for a bit
                 SpinTimer();
 
@@ -174,7 +176,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     _manipulatorToStates[manipulatorToData.Key] = ManipulatorState.Traveling;
                     CommunicationManager.Instance.GotoPos(
                         manipulatorToData.Key.ManipulatorBehaviorController.ManipulatorID,
-                        manipulatorToData.Value.IdlePos, ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
+                        manipulatorToData.Value.IdlePos, OUTSIDE_MOVEMENT_SPEED,
                         _ => _manipulatorToStates[manipulatorToData.Key] = ManipulatorState.Idle, Debug.LogError);
                 }
             }
@@ -183,6 +185,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         public void OnStopPressed()
         {
             CommunicationManager.Instance.Stop(_ => print("Stopped"));
+            
+            // Swap start and stop buttons
+            _startButton.SetActive(true);
+            _stopButton.SetActive(false);
         }
 
         #endregion
@@ -204,7 +210,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Goto bregma
                 CommunicationManager.Instance.GotoPos(manipulatorBehaviorController.ManipulatorID,
                     manipulatorBehaviorController.ZeroCoordinateOffset,
-                    ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
+                    OUTSIDE_MOVEMENT_SPEED,
                     _ =>
                     {
                         SpinTimer();
@@ -212,7 +218,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                         // Come back to idle
                         CommunicationManager.Instance.GotoPos(manipulatorBehaviorController.ManipulatorID,
                             _demoManipulatorToData[manipulator].IdlePos,
-                            ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED,
+                            OUTSIDE_MOVEMENT_SPEED,
                             _ =>
                             {
                                 SpinTimer();
