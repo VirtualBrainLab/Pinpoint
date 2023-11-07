@@ -26,6 +26,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private GameObject _manipulatorList;
         [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
         [SerializeField] private Toggle _copilotToggle;
+        [SerializeField] private Toggle _copilotDemoToggle;
 
         private UIManager _uiManager;
 
@@ -86,6 +87,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             // Default Copilot to be disabled unless the right manipulator type is found
             _copilotToggle.interactable = false;
+            _copilotDemoToggle.interactable = false;
 
             if (CommunicationManager.Instance.IsConnected)
             {
@@ -93,6 +95,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 {
                     // Enable Copilot button if using Sensapex or New Scale
                     _copilotToggle.interactable = numAxes > 0;
+                    _copilotDemoToggle.interactable = numAxes > 0;
 
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
@@ -213,6 +216,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         public void ToggleCopilotPanel(bool isEnabled)
         {
             _uiManager.EnableEphysCopilotPanel(isEnabled);
+        }
+
+        public void ToggleCopilotDemoPanel(bool isEnabled)
+        {
+            _uiManager.EnableCopilotDemoPanel(isEnabled);
         }
 
         public void InvokeShouldUpdateProbesListEvent()

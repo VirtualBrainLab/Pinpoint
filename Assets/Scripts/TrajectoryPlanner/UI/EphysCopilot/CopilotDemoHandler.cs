@@ -24,9 +24,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
     }
 
     /// <summary>
-    /// Angle: Yaw, Pitch, Roll
-    /// Idle: AP, ML, DV
-    /// Insertion: AP, ML, DV, Depth
+    ///     Angle: Yaw, Pitch, Roll
+    ///     Idle: AP, ML, DV
+    ///     Insertion: AP, ML, DV, Depth
     /// </summary>
     internal struct ManipulatorData
     {
@@ -45,12 +45,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         #endregion
 
         #region Properties
-        
-        private Dictionary<ProbeManager, ManipulatorData> _demoManipulatorToData = new();
+
+        private readonly Dictionary<ProbeManager, ManipulatorData> _demoManipulatorToData = new();
 
         #endregion
 
-        private void Start()
+        private void OnEnable()
         {
             // Parse JSON
             var jsonString = File.ReadAllText(Application.streamingAssetsPath + "/copilot_demo.json");
@@ -67,20 +67,18 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     InsertionPos = new Vector4(manipulatorData.insertion[0], manipulatorData.insertion[1],
                         manipulatorData.insertion[2], manipulatorData.insertion[3])
                 };
-                
+
                 // Match to manipulator
                 var matchingManipulator = ProbeManager.Instances.FirstOrDefault(
                     manager => manager.IsEphysLinkControlled &&
                                IsCoterminal(manager.ProbeController.Insertion.angles, convertedData.Angle));
 
                 // If there is a matching manipulator, keep track of it
-                if (matchingManipulator!= null)
-                {
-                    _demoManipulatorToData.Add(matchingManipulator, convertedData);
-                }
+                if (matchingManipulator != null) _demoManipulatorToData.Add(matchingManipulator, convertedData);
             }
             
-            print("Matching manipulators: "+_demoManipulatorToData.Count);
+            // Show start button if there are manipulators to control
+            _startButton.SetActive(_demoManipulatorToData.Count > 0);
         }
 
         #region Helper functions

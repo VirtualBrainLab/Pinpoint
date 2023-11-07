@@ -2546,6 +2546,7 @@ MonoBehaviour:
   _manipulatorList: {fileID: 7994738088484906322}
   _manipulatorConnectionPanelPrefab: {fileID: 8830734852478451222, guid: 19384593a545a404bbe8bd298659df46, type: 3}
   _copilotToggle: {fileID: 6762999849811435235}
+  _copilotDemoToggle: {fileID: 282356076181514970}
 --- !u!114 &7858764217905313557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2966,7 +2967,7 @@ MonoBehaviour:
       - m_Target: {fileID: 4412914667077470364}
         m_TargetAssemblyTypeName: TrajectoryPlanner.UI.EphysLinkSettings.EphysLinkSettings,
           trajectoryplanner.ui.ephyslinksettings
-        m_MethodName: ToggleCopilotPanel
+        m_MethodName: ToggleCopilotDemoPanel
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
