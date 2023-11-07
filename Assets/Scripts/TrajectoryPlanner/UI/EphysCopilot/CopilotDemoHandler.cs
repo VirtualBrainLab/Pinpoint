@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using EphysLink;
+using TMPro;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -87,6 +88,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         #endregion
 
         #region Components
+
+        [SerializeField] private TMP_Text _calibratingToBregmaText;
+        [SerializeField] private TMP_Text _goingToEntryCoordinateText;
+        [SerializeField] private TMP_Text _goingToDuraText;
+        [SerializeField] private TMP_Text _insertingText;
+        [SerializeField] private TMP_Text _retractingText;
 
         [SerializeField] private GameObject _startButton;
         [SerializeField] private GameObject _stopButton;
@@ -206,10 +213,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Retracted))
             {
                 print("All manipulators are retracted");
-
+            
                 // Chill for a bit
                 SpinTimer();
-
+            
                 // Go back to idle
                 GoToIdle();
             }
@@ -327,7 +334,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             foreach (var manipulatorData in _demoManipulatorToData)
                 CommunicationManager.Instance.GotoPos(manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
                     manipulatorData.Value.DuraPos, OUTSIDE_MOVEMENT_SPEED,
-                    _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Inserted, Debug.LogError);
+                    _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.AtDura, Debug.LogError);
         }
 
         private void Insert()

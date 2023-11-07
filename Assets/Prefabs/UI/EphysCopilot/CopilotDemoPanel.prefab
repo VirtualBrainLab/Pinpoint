@@ -253,6 +253,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78f91eb601d18cf4ca076cc899036bd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _calibratingToBregmaText: {fileID: 733609914218382619}
+  _goingToEntryCoordinateText: {fileID: 4426603608457220660}
+  _goingToDuraText: {fileID: 8946753609717924497}
+  _insertingText: {fileID: 3295570320582879773}
+  _retractingText: {fileID: 7893861323076657493}
   _startButton: {fileID: 389895556494180254}
   _stopButton: {fileID: 8185988774562960974}
 --- !u!1 &1701132444679105691
