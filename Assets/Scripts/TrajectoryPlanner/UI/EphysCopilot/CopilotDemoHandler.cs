@@ -1,13 +1,12 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using EphysLink;
 using TMPro;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace TrajectoryPlanner.UI.EphysCopilot
 {
@@ -82,8 +81,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         // Go past distance (mm)
         private const float GO_PAST_DISTANCE = 0.05f;
 
-        // Pause time in milliseconds
-        private const long PAUSE_TIME = 1000;
+        // Pause time in seconds
+        private const long PAUSE_TIME = 1;
 
         #endregion
 
@@ -177,12 +176,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = WaitingColor;
                 _insertingText.color = WaitingColor;
                 _retractingText.color = WaitingColor;
+                
+                // Set state to traveling
+                SetAllToTraveling();
 
-                // Chill for a bit
-                SpinTimer();
-
-                // Run Calibration
-                Calibrate();
+                // Chill for a bit then calibrate
+                StartCoroutine(Pause(Calibrate));
             }
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Calibrated))
             {
@@ -195,11 +194,11 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _insertingText.color = WaitingColor;
                 _retractingText.color = WaitingColor;
 
-                // Chill for a bit
-                SpinTimer();
-
-                // Go to entry coordinate
-                GoToEntryCoordinate();
+                // Set state to traveling
+                SetAllToTraveling();
+                
+                // Chill for a bit then go to entry coordinate
+                StartCoroutine(Pause(GoToEntryCoordinate));
             }
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.AtEntryCoordinate))
             {
@@ -211,12 +210,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = InProgressColor;
                 _insertingText.color = WaitingColor;
                 _retractingText.color = WaitingColor;
+                
+                // Set state to traveling
+                SetAllToTraveling();
 
-                // Chill for a bit
-                SpinTimer();
-
-                // Go to dura
-                GoToDura();
+                // Chill for a bit then go to dura
+                StartCoroutine(Pause(GoToDura));
             }
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.AtDura))
             {
@@ -228,12 +227,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = CompletedColor;
                 _insertingText.color = InProgressColor;
                 _retractingText.color = WaitingColor;
+                
+                // Set state to traveling
+                SetAllToTraveling();
 
-                // Chill for a bit
-                SpinTimer();
-
-                // Go to target insertion
-                Insert();
+                // Chill for a bit then go to target insertion
+                StartCoroutine(Pause(Insert));
             }
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Inserted))
             {
@@ -245,12 +244,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = CompletedColor;
                 _insertingText.color = CompletedColor;
                 _retractingText.color = InProgressColor;
+                
+                // Set state to traveling
+                SetAllToTraveling();
 
-                // Chill for a bit
-                SpinTimer();
-
-                // Bring them back out
-                Retract();
+                // Chill for a bit then bring them back out
+                StartCoroutine(Pause(Retract));
             }
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Retracted))
             {
@@ -262,12 +261,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = CompletedColor;
                 _insertingText.color = CompletedColor;
                 _retractingText.color = CompletedColor;
+                
+                // Set state to traveling
+                SetAllToTraveling();
 
-                // Chill for a bit
-                SpinTimer();
-
-                // Go back to idle
-                GoToIdle();
+                // Chill for a bit then go back to idle
+                StartCoroutine(Pause(GoToIdle));
             }
         }
 
@@ -306,11 +305,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = WaitingColor;
                 _insertingText.color = WaitingColor;
                 _retractingText.color = WaitingColor;
-                
+
                 // Start brain rotation
                 _brainCameraController.SetCameraContinuousRotation(true);
 
                 // Move to idle position
+                SetAllToTraveling();
                 GoToIdle();
             }
         }
@@ -322,7 +322,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Swap start and stop buttons
             _startButton.SetActive(true);
             _stopButton.SetActive(false);
-            
+
             // Stop brain rotation
             _brainCameraController.SetCameraContinuousRotation(false);
         }
@@ -333,7 +333,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private void GoToIdle()
         {
-            SetAllToTraveling();
             foreach (var manipulatorToData in _demoManipulatorToData)
                 CommunicationManager.Instance.GotoPos(
                     manipulatorToData.Key.ManipulatorBehaviorController.ManipulatorID,
@@ -343,8 +342,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private void Calibrate()
         {
-            SetAllToTraveling();
-
             var manipulatorIndex = 0;
             CalibrateManipulator(_demoManipulatorToData.Keys.ToList()[manipulatorIndex]);
             return;
@@ -362,22 +359,22 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                             OUTSIDE_MOVEMENT_SPEED,
                             _ =>
                             {
-                                SpinTimer();
-
                                 // Come back to idle
-                                CommunicationManager.Instance.GotoPos(manipulatorBehaviorController.ManipulatorID,
+                                StartCoroutine(Pause(() => CommunicationManager.Instance.GotoPos(
+                                    manipulatorBehaviorController.ManipulatorID,
                                     _demoManipulatorToData[manipulator].IdlePos,
                                     OUTSIDE_MOVEMENT_SPEED,
                                     _ =>
                                     {
-                                        SpinTimer();
-
                                         // Complete and start next manipulator
-                                        _manipulatorToStates[manipulator] = ManipulatorState.Calibrated;
-                                        if (++manipulatorIndex < _demoManipulatorToData.Count)
-                                            CalibrateManipulator(
-                                                _demoManipulatorToData.Keys.ToList()[manipulatorIndex]);
-                                    }, Debug.LogError);
+                                        StartCoroutine(Pause(() =>
+                                        {
+                                            _manipulatorToStates[manipulator] = ManipulatorState.Calibrated;
+                                            if (++manipulatorIndex < _demoManipulatorToData.Count)
+                                                CalibrateManipulator(
+                                                    _demoManipulatorToData.Keys.ToList()[manipulatorIndex]);
+                                        }));
+                                    }, Debug.LogError)));
                             }, Debug.LogError),
                     Debug.LogError);
             }
@@ -385,8 +382,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private void GoToEntryCoordinate()
         {
-            SetAllToTraveling();
-
             foreach (var manipulatorData in _demoManipulatorToData)
                 CommunicationManager.Instance.GotoPos(manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
                     manipulatorData.Value.EntryCoordinatePos, OUTSIDE_MOVEMENT_SPEED,
@@ -396,8 +391,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private void GoToDura()
         {
-            SetAllToTraveling();
-
             foreach (var manipulatorData in _demoManipulatorToData)
                 CommunicationManager.Instance.GotoPos(manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
                     manipulatorData.Value.DuraPos, OUTSIDE_MOVEMENT_SPEED,
@@ -406,8 +399,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private void Insert()
         {
-            SetAllToTraveling();
-
             foreach (var manipulatorData in _demoManipulatorToData)
                 CommunicationManager.Instance.DriveToDepth(
                     manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
@@ -426,8 +417,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private void Retract()
         {
-            SetAllToTraveling();
-
             foreach (var manipulatorData in _demoManipulatorToData)
                 CommunicationManager.Instance.DriveToDepth(
                     manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
@@ -463,15 +452,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         /// <summary>
         ///     Basic spin timer
         /// </summary>
-        /// <param name="durationMilliseconds">Timer length in milliseconds</param>
-        private static void SpinTimer(long durationMilliseconds = PAUSE_TIME)
+        /// <param name="doAfter">Callback after timer ends</param>
+        /// <param name="duration">Timer length in milliseconds</param>
+        private static IEnumerator Pause(Action doAfter, long duration = PAUSE_TIME)
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            while (stopwatch.ElapsedMilliseconds < durationMilliseconds)
-            {
-                // Spin
-            }
+            yield return new WaitForSeconds(duration / 1000f);
+            doAfter();
         }
 
         /// <summary>
