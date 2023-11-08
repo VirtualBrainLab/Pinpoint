@@ -213,10 +213,10 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Retracted))
             {
                 print("All manipulators are retracted");
-            
+
                 // Chill for a bit
                 SpinTimer();
-            
+
                 // Go back to idle
                 GoToIdle();
             }
@@ -291,28 +291,33 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             {
                 var manipulatorBehaviorController = manipulator.ManipulatorBehaviorController;
 
-                // Goto bregma
+                // Goto above bregma then down to bregma
                 CommunicationManager.Instance.GotoPos(manipulatorBehaviorController.ManipulatorID,
-                    manipulatorBehaviorController.ZeroCoordinateOffset,
-                    OUTSIDE_MOVEMENT_SPEED,
-                    _ =>
-                    {
-                        SpinTimer();
-
-                        // Come back to idle
+                    manipulatorBehaviorController.ZeroCoordinateOffset + new Vector4(0, DV_CEILING / 1000f, 0, 0),
+                    OUTSIDE_MOVEMENT_SPEED, _ =>
                         CommunicationManager.Instance.GotoPos(manipulatorBehaviorController.ManipulatorID,
-                            _demoManipulatorToData[manipulator].IdlePos,
+                            manipulatorBehaviorController.ZeroCoordinateOffset,
                             OUTSIDE_MOVEMENT_SPEED,
                             _ =>
                             {
                                 SpinTimer();
 
-                                // Complete and start next manipulator
-                                _manipulatorToStates[manipulator] = ManipulatorState.Calibrated;
-                                if (++manipulatorIndex < _demoManipulatorToData.Count)
-                                    CalibrateManipulator(_demoManipulatorToData.Keys.ToList()[manipulatorIndex]);
-                            }, Debug.LogError);
-                    }, Debug.LogError);
+                                // Come back to idle
+                                CommunicationManager.Instance.GotoPos(manipulatorBehaviorController.ManipulatorID,
+                                    _demoManipulatorToData[manipulator].IdlePos,
+                                    OUTSIDE_MOVEMENT_SPEED,
+                                    _ =>
+                                    {
+                                        SpinTimer();
+
+                                        // Complete and start next manipulator
+                                        _manipulatorToStates[manipulator] = ManipulatorState.Calibrated;
+                                        if (++manipulatorIndex < _demoManipulatorToData.Count)
+                                            CalibrateManipulator(
+                                                _demoManipulatorToData.Keys.ToList()[manipulatorIndex]);
+                                    }, Debug.LogError);
+                            }, Debug.LogError),
+                    Debug.LogError);
             }
         }
 
