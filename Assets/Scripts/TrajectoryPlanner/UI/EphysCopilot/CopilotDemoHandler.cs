@@ -97,6 +97,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         [SerializeField] private GameObject _startButton;
         [SerializeField] private GameObject _stopButton;
+        [SerializeField] private BrainCameraController _brainCameraController;
 
         #endregion
 
@@ -305,6 +306,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = WaitingColor;
                 _insertingText.color = WaitingColor;
                 _retractingText.color = WaitingColor;
+                
+                // Start brain rotation
+                _brainCameraController.SetCameraContinuousRotation(true);
 
                 // Move to idle position
                 GoToIdle();
@@ -318,6 +322,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Swap start and stop buttons
             _startButton.SetActive(true);
             _stopButton.SetActive(false);
+            
+            // Stop brain rotation
+            _brainCameraController.SetCameraContinuousRotation(false);
         }
 
         #endregion

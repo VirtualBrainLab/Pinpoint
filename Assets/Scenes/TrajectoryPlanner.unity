@@ -7025,6 +7025,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -22.5
       objectReference: {fileID: 0}
+    - target: {fileID: 8187037149434712434, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: _brainCameraController
+      value: 
+      objectReference: {fileID: 1445581475}
     - target: {fileID: 8213848463360117488, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
