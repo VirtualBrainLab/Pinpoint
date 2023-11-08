@@ -105,6 +105,12 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         private readonly Dictionary<ProbeManager, ManipulatorData> _demoManipulatorToData = new();
         private readonly Dictionary<ProbeManager, ManipulatorState> _manipulatorToStates = new();
 
+
+        // Text progress colors
+        private static Color WaitingColor => ProbeProperties.ProbeColors[15];
+        private static Color InProgressColor => ProbeProperties.ProbeColors[3];
+        private static Color CompletedColor => ProbeProperties.ProbeColors[5];
+
         #endregion
 
         #region Unity
@@ -164,6 +170,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             {
                 print("All manipulators are at idle");
 
+                // Set text colors
+                _calibratingToBregmaText.color = InProgressColor;
+                _goingToEntryCoordinateText.color = WaitingColor;
+                _goingToDuraText.color = WaitingColor;
+                _insertingText.color = WaitingColor;
+                _retractingText.color = WaitingColor;
+
                 // Chill for a bit
                 SpinTimer();
 
@@ -173,6 +186,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Calibrated))
             {
                 print("All manipulators are calibrated");
+
+                // Set text colors
+                _calibratingToBregmaText.color = CompletedColor;
+                _goingToEntryCoordinateText.color = InProgressColor;
+                _goingToDuraText.color = WaitingColor;
+                _insertingText.color = WaitingColor;
+                _retractingText.color = WaitingColor;
 
                 // Chill for a bit
                 SpinTimer();
@@ -184,6 +204,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             {
                 print("All manipulators are at entry coordinate");
 
+                // Set text colors
+                _calibratingToBregmaText.color = CompletedColor;
+                _goingToEntryCoordinateText.color = CompletedColor;
+                _goingToDuraText.color = InProgressColor;
+                _insertingText.color = WaitingColor;
+                _retractingText.color = WaitingColor;
+
                 // Chill for a bit
                 SpinTimer();
 
@@ -193,6 +220,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.AtDura))
             {
                 print("All manipulators are at dura");
+
+                // Set text colors
+                _calibratingToBregmaText.color = CompletedColor;
+                _goingToEntryCoordinateText.color = CompletedColor;
+                _goingToDuraText.color = CompletedColor;
+                _insertingText.color = InProgressColor;
+                _retractingText.color = WaitingColor;
 
                 // Chill for a bit
                 SpinTimer();
@@ -204,6 +238,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             {
                 print("All manipulators are inserted");
 
+                // Set text colors
+                _calibratingToBregmaText.color = CompletedColor;
+                _goingToEntryCoordinateText.color = CompletedColor;
+                _goingToDuraText.color = CompletedColor;
+                _insertingText.color = CompletedColor;
+                _retractingText.color = InProgressColor;
+
                 // Chill for a bit
                 SpinTimer();
 
@@ -213,6 +254,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             else if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Retracted))
             {
                 print("All manipulators are retracted");
+
+                // Set text colors
+                _calibratingToBregmaText.color = CompletedColor;
+                _goingToEntryCoordinateText.color = CompletedColor;
+                _goingToDuraText.color = CompletedColor;
+                _insertingText.color = CompletedColor;
+                _retractingText.color = CompletedColor;
 
                 // Chill for a bit
                 SpinTimer();
@@ -250,6 +298,13 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Swap start and stop buttons
                 _startButton.SetActive(false);
                 _stopButton.SetActive(true);
+
+                // Reset state colors
+                _calibratingToBregmaText.color = WaitingColor;
+                _goingToEntryCoordinateText.color = WaitingColor;
+                _goingToDuraText.color = WaitingColor;
+                _insertingText.color = WaitingColor;
+                _retractingText.color = WaitingColor;
 
                 // Move to idle position
                 GoToIdle();
