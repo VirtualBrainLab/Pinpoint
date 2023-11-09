@@ -168,7 +168,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         {
             // Cancel if there are no manipulators to control
             if (_manipulatorToStates.Count == 0) return;
-            
+
             if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Idle))
             {
                 print("All manipulators are at idle");
@@ -424,15 +424,23 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 CommunicationManager.Instance.DriveToDepth(
                     manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
                     manipulatorData.Value.Depth - CLOSE_TO_TARGET_DISTANCE, CLOSE_MOVEMENT_SPEED,
-                    _ => CommunicationManager.Instance.DriveToDepth(
-                        manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
-                        manipulatorData.Value.DuraPos.w - EXIT_MARGIN_DEPTH, INSIDE_MOVEMENT_SPEED,
-                        _ => CommunicationManager.Instance.GotoPos(
+                    _ =>
+                    {
+                        print("At close distance");
+                        CommunicationManager.Instance.DriveToDepth(
                             manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
-                            manipulatorData.Value.EntryCoordinatePos, OUTSIDE_MOVEMENT_SPEED,
-                            _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Retracted,
-                            Debug.LogError),
-                        Debug.LogError),
+                            manipulatorData.Value.DuraPos.w - EXIT_MARGIN_DEPTH, INSIDE_MOVEMENT_SPEED,
+                            _ =>
+                            {
+                                print("At exit margin depth");
+                                StartCoroutine(Pause(() => CommunicationManager.Instance.GotoPos(
+                                    manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                                    manipulatorData.Value.EntryCoordinatePos, OUTSIDE_MOVEMENT_SPEED,
+                                    _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Retracted,
+                                    Debug.LogError), 2));
+                            },
+                            Debug.LogError);
+                    },
                     Debug.LogError);
         }
 
@@ -459,7 +467,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         /// <param name="duration">Timer length in milliseconds</param>
         private static IEnumerator Pause(Action doAfter, long duration = PAUSE_TIME)
         {
-            yield return new WaitForSeconds(duration / 1000f);
+            yield return new WaitForSeconds(duration);
             doAfter();
         }
 
