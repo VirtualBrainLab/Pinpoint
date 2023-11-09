@@ -166,6 +166,9 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
         private void Update()
         {
+            // Cancel if there are no manipulators to control
+            if (_manipulatorToStates.Count == 0) return;
+            
             if (_manipulatorToStates.Values.All(state => state == ManipulatorState.Idle))
             {
                 print("All manipulators are at idle");
@@ -176,7 +179,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = WaitingColor;
                 _insertingText.color = WaitingColor;
                 _retractingText.color = WaitingColor;
-                
+
                 // Set state to traveling
                 SetAllToTraveling();
 
@@ -196,7 +199,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                 // Set state to traveling
                 SetAllToTraveling();
-                
+
                 // Chill for a bit then go to entry coordinate
                 StartCoroutine(Pause(GoToEntryCoordinate));
             }
@@ -210,7 +213,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = InProgressColor;
                 _insertingText.color = WaitingColor;
                 _retractingText.color = WaitingColor;
-                
+
                 // Set state to traveling
                 SetAllToTraveling();
 
@@ -227,7 +230,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = CompletedColor;
                 _insertingText.color = InProgressColor;
                 _retractingText.color = WaitingColor;
-                
+
                 // Set state to traveling
                 SetAllToTraveling();
 
@@ -244,7 +247,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = CompletedColor;
                 _insertingText.color = CompletedColor;
                 _retractingText.color = InProgressColor;
-                
+
                 // Set state to traveling
                 SetAllToTraveling();
 
@@ -261,7 +264,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 _goingToDuraText.color = CompletedColor;
                 _insertingText.color = CompletedColor;
                 _retractingText.color = CompletedColor;
-                
+
                 // Set state to traveling
                 SetAllToTraveling();
 
