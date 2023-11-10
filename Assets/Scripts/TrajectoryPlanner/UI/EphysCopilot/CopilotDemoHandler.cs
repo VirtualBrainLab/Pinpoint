@@ -425,22 +425,19 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
                     manipulatorData.Value.Depth - CLOSE_TO_TARGET_DISTANCE, CLOSE_MOVEMENT_SPEED,
                     _ =>
-                    {
-                        print("At close distance");
-                        CommunicationManager.Instance.DriveToDepth(
+                        CommunicationManager.Instance.GotoPos(
                             manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
-                            manipulatorData.Value.DuraPos.w - EXIT_MARGIN_DEPTH, INSIDE_MOVEMENT_SPEED,
-                            _ =>
-                            {
-                                print("At exit margin depth");
-                                StartCoroutine(Pause(() => CommunicationManager.Instance.GotoPos(
-                                    manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
-                                    manipulatorData.Value.EntryCoordinatePos, OUTSIDE_MOVEMENT_SPEED,
-                                    _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Retracted,
-                                    Debug.LogError), 2));
-                            },
-                            Debug.LogError);
-                    },
+                            manipulatorData.Value.DuraPos, INSIDE_MOVEMENT_SPEED,
+                            duraPos => CommunicationManager.Instance.DriveToDepth(
+                                manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                                duraPos.w - EXIT_MARGIN_DEPTH, INSIDE_MOVEMENT_SPEED, _ =>
+                                    CommunicationManager.Instance.GotoPos(
+                                        manipulatorData.Key.ManipulatorBehaviorController.ManipulatorID,
+                                        manipulatorData.Value.EntryCoordinatePos, OUTSIDE_MOVEMENT_SPEED,
+                                        _ => _manipulatorToStates[manipulatorData.Key] = ManipulatorState.Retracted,
+                                        Debug.LogError),
+                                Debug.LogError),
+                            Debug.LogError),
                     Debug.LogError);
         }
 
