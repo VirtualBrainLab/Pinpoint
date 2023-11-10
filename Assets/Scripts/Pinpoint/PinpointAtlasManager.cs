@@ -154,27 +154,44 @@ public class PinpointAtlasManager : MonoBehaviour
         return $"Atlas transform: {transformName}";
     }
 
-#endregion
+    #endregion
 
 
-#region Warping
+    #region Warping
+    Vector3 _activeWarp;
 
     public void WarpBrain()
     {
+#if UNITY_EDITOR
+        Debug.Log("(PAM) Warp brain called");
+#endif
+        Vector3 newWarp = WorldU2WorldT_Wrapper(Vector3.one);
+
+        // Check if the brain actually needs to be warped
+        if (newWarp == _activeWarp)
+        {
+#if UNITY_EDITOR
+            Debug.Log("(PAM) Active warp matches: saving time by skipping");
+#endif
+            return;
+        }
+
+        _activeWarp = newWarp;
+
         foreach (OntologyNode node in DefaultNodes)
-            WarpNode(node);
+            WarpNode(node, WorldU2WorldT_Wrapper);
     }
 
-    public void WarpNode(OntologyNode node)
+    public void WarpNode(OntologyNode node, Func<Vector3, Vector3> warpFunction)
     {
-        node.ApplyAtlasTransform(WorldU2WorldT_Wrapper);
+        node.ApplyAtlasTransform(warpFunction);
     }
 
     public void UnwarpBrain()
     {
         foreach (OntologyNode node in DefaultNodes)
         {
-            node.ApplyAtlasTransform(WorldU2WorldT_Wrapper);
+            node.ResetAtlasTransform();
         }
     }
 
