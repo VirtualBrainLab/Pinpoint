@@ -18,6 +18,7 @@ public class PinpointAtlasManager : MonoBehaviour
 
     private Dictionary<string, string> _atlasNameMapping;
     private Dictionary<string, bool> _allowedOnWebGLMapping;
+    List<string> _allowedNames;
 
     public HashSet<OntologyNode> DefaultNodes;
 
@@ -54,6 +55,9 @@ public class PinpointAtlasManager : MonoBehaviour
             // we don't have transforms (yet) for waxholm rat
             case "waxholm_rat_39um":
                 break;
+            // we don't have transforms (yet) for waxholm rat
+            case "waxholm_rat_78um":
+                break;
         }
 
         PopulateTransformDropdown();
@@ -66,15 +70,15 @@ public class PinpointAtlasManager : MonoBehaviour
         var atlasNames = BrainAtlasManager.AtlasNames;
 
 #if UNITY_WEBGL
-        List<string> allowedNames = new();
+        _allowedNames = new();
         for (int i = 0; i < atlasNames.Count; i++)
             if (_allowedOnWebGLMapping[atlasNames[i]])
-                allowedNames.Add(atlasNames[i]);
+                _allowedNames.Add(atlasNames[i]);
 #else
         var allowedNames = atlasNames;
 #endif
 
-        _atlasDropdown.options = allowedNames.ConvertAll(ConvertAtlas2Userfriendly);
+        _atlasDropdown.options = _allowedNames.ConvertAll(ConvertAtlas2Userfriendly);
     }
 
     public void ResetAtlasDropdownIndex()
@@ -94,7 +98,10 @@ public class PinpointAtlasManager : MonoBehaviour
     private void ResetScene(int option)
     {
         PlayerPrefs.SetInt("scene-atlas-reset", 1);
-        Settings.AtlasName = BrainAtlasManager.AtlasNames[option];
+        Settings.AtlasName = _allowedNames[option];
+#if UNITY_EDITOR
+        Debug.Log($"(PAM) Resetting atlas to {Settings.AtlasName}");
+#endif
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
