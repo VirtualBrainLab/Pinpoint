@@ -1,7 +1,10 @@
 using BrainAtlas;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
 public class CartesianProbeController : ProbeController
@@ -99,6 +102,7 @@ public class CartesianProbeController : ProbeController
     private Vector3 _initialPosition;
     private Quaternion _initialRotation;
     private float _depth;
+    private Dictionary<int, bool> _clickDict;
 
     private bool _dirty;
 
@@ -145,6 +149,7 @@ public class CartesianProbeController : ProbeController
     #region Unity
     private void Awake()
     {
+        Debug.Log("AWAKE RUNNING");
         _depth = _defaultDepth;
 
         _initialPosition = transform.position;
@@ -160,46 +165,91 @@ public class CartesianProbeController : ProbeController
         var probeControlClick = inputActions.ProbeControl;
         probeControlClick.Enable();
 
+        // There's something really broken about analog stick "pressing", where the performed event can be fired multiple times
+        // by pulling the stick back and forward again without going all the way to zero (and triggering "canceled")
+        // 
+        // Until we can find a fix for this or figure out if this is a bug, we'll fix it here by ensuring that the "Click" call
+        // for each action type can only ever get called once
+        _clickDict = new();
+        for (int i = 0; i <= 13; i++)
+            _clickDict.Add(i, false);
+
         // Click actions
-        probeControlClick.Forward.performed += x => Click(ForwardVecWorld);
-        probeControlClick.Forward.canceled += x => CancelClick(ForwardVecWorld);
-        probeControlClick.Right.performed += x => Click(RightVecWorld);
-        probeControlClick.Right.canceled += x => CancelClick(RightVecWorld);
-        probeControlClick.Back.performed += x => Click(-ForwardVecWorld);
-        probeControlClick.Back.canceled += x => CancelClick(-ForwardVecWorld);
-        probeControlClick.Left.performed += x => Click(-RightVecWorld);
-        probeControlClick.Left.canceled += x => CancelClick(-RightVecWorld);
+        probeControlClick.Forward.performed += x => ActionHandler(0, ForwardVecWorld, Click);
+        probeControlClick.Forward.canceled += x => CancelHandler(0, ForwardVecWorld, CancelClick);
+        probeControlClick.Right.performed += x => ActionHandler(1, RightVecWorld, Click);
+        probeControlClick.Right.canceled += x => CancelHandler(1, RightVecWorld, CancelClick);
+        probeControlClick.Back.performed += x => ActionHandler(2, -ForwardVecWorld, Click);
+        probeControlClick.Back.canceled += x => CancelHandler(2, -ForwardVecWorld, CancelClick);
+        probeControlClick.Left.performed += x => ActionHandler(3, -RightVecWorld, Click);
+        probeControlClick.Left.canceled += x => CancelHandler(3, -RightVecWorld, CancelClick);
 
-        probeControlClick.Up.performed += x => Click(UpVecWorld);
-        probeControlClick.Up.canceled += x => CancelClick(UpVecWorld);
-        probeControlClick.Down.performed += x => Click(-UpVecWorld);
-        probeControlClick.Down.canceled += x => CancelClick(-UpVecWorld);
+        probeControlClick.Up.performed += x => ActionHandler(4, UpVecWorld, Click);
+        probeControlClick.Up.canceled += x => CancelHandler(4, UpVecWorld, CancelClick);
+        probeControlClick.Down.performed += x => ActionHandler(5, -UpVecWorld, Click);
+        probeControlClick.Down.canceled += x => CancelHandler(5, -UpVecWorld, CancelClick);
 
-        probeControlClick.DepthDown.performed += x => Click(DepthVecWorld);
-        probeControlClick.DepthDown.canceled += x => CancelClick(DepthVecWorld);
-        probeControlClick.DepthUp.performed += x => Click(-DepthVecWorld);
-        probeControlClick.DepthUp.canceled += x => CancelClick(-DepthVecWorld);
+        probeControlClick.DepthDown.performed += x => ActionHandler(6, DepthVecWorld, Click);
+        probeControlClick.DepthDown.canceled += x => CancelHandler(6, DepthVecWorld, CancelClick);
+        probeControlClick.DepthUp.performed += x => ActionHandler(7, -DepthVecWorld, Click);
+        probeControlClick.DepthUp.canceled += x => CancelHandler(7, -DepthVecWorld, CancelClick);
 
         // Rotate actions
-        probeControlClick.YawClockwise.performed += x => Rotate(_yawDir);
-        probeControlClick.YawClockwise.canceled += x => CancelRotate(_yawDir);
-        probeControlClick.YawCounter.performed += x => Rotate(-_yawDir);
-        probeControlClick.YawCounter.canceled += x => CancelRotate(-_yawDir);
+        probeControlClick.YawClockwise.performed += x => ActionHandler(8, _yawDir, Rotate);
+        probeControlClick.YawClockwise.canceled += x => CancelHandler(8, _yawDir, CancelRotate);
+        probeControlClick.YawCounter.performed += x => ActionHandler(9, -_yawDir, Rotate);
+        probeControlClick.YawCounter.canceled += x => CancelHandler(9, -_yawDir, CancelRotate);
 
-        probeControlClick.PitchDown.performed += x => Rotate(_pitchDir);
-        probeControlClick.PitchDown.canceled += x => CancelRotate(_pitchDir);
-        probeControlClick.PitchUp.performed += x => Rotate(-_pitchDir);
-        probeControlClick.PitchUp.canceled += x => CancelRotate(-_pitchDir);
+        probeControlClick.PitchDown.performed += x => ActionHandler(10, _pitchDir, Rotate);
+        probeControlClick.PitchDown.canceled += x => CancelHandler(10, _pitchDir, CancelRotate);
+        probeControlClick.PitchUp.performed += x => ActionHandler(11, -_pitchDir, Rotate);
+        probeControlClick.PitchUp.canceled += x => CancelHandler(11, -_pitchDir, CancelRotate);
 
-        probeControlClick.RollClock.performed += x => Rotate(_rollDir);
-        probeControlClick.RollClock.canceled += x => CancelRotate(_rollDir);
-        probeControlClick.RollCounter.performed += x => Rotate(-_rollDir);
-        probeControlClick.RollCounter.canceled += x => CancelRotate(-_rollDir);
+        probeControlClick.RollClock.performed += x => ActionHandler(12, _rollDir, Rotate);
+        probeControlClick.RollClock.canceled += x => CancelHandler(12, _rollDir, CancelRotate);
+        probeControlClick.RollCounter.performed += x => ActionHandler(13, -_rollDir, Rotate);
+        probeControlClick.RollCounter.canceled += x => CancelHandler(13, -_rollDir, CancelRotate);
 
         probeControlClick.InputControl.performed += x => ToggleControllerLock();
 
         Insertion = new ProbeInsertion(_defaultStart, _defaultAngles, BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name);
     }
+
+    #region Awake helpers
+    private void ActionHandler(int idx, Vector4 dir, Action<Vector4> callback)
+    {
+        if (!_clickDict[idx])
+        {
+            _clickDict[idx] = true;
+            callback(dir);
+        }
+    }
+    private void ActionHandler(int idx, Vector3 dir, Action<Vector3> callback)
+    {
+        if (!_clickDict[idx])
+        {
+            _clickDict[idx] = true;
+            callback(dir);
+        }
+    }
+
+    private void CancelHandler(int idx, Vector4 dir, Action<Vector4> callback)
+    {
+        if (_clickDict[idx])
+        {
+            _clickDict[idx] = false;
+            callback(dir);
+        }
+    }
+    private void CancelHandler(int idx, Vector3 dir, Action<Vector3> callback)
+    {
+        if (_clickDict[idx])
+        {
+            _clickDict[idx] = false;
+            callback(dir);
+        }
+    }
+    #endregion
 
     private void Start()
     {
