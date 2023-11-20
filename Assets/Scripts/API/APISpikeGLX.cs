@@ -13,16 +13,31 @@ using SimpleFileBrowser;
 public class APISpikeGLX : MonoBehaviour
 {
     [SerializeField] private TMP_InputField _helloSpikeGLXPathInput;
+    private HashSet<Process> _processList;
 
     #region Unity
+
+    private void Awake()
+    {
+        _processList = new HashSet<Process>();
+    }
 
     private void OnEnable()
     {
         GetSpikeGLXProbeInfo();
     }
-#endregion
 
-#region Public
+    private void OnDestroy()
+    {
+        foreach (var proc in _processList)
+        {
+            proc.Kill();
+            proc.Dispose();
+        }
+    }
+    #endregion
+
+    #region Public
 
 
     public void GetSpikeGLXProbeInfo()
@@ -180,15 +195,20 @@ public class APISpikeGLX : MonoBehaviour
             },
 
             EnableRaisingEvents = true
+
         };
+
+        _processList.Add(proc);
 
         proc.OutputDataReceived += (s, d) =>
         {
-            Dispatcher.Invoke(() => callback(d.Data));
+            if (callback != null)
+                Dispatcher.Invoke(() => callback(d.Data));
         };
 
         proc.Exited += (s, d) =>
         {
+            _processList.Remove(proc);
             proc.CancelOutputRead();
             proc.Dispose();
         };
