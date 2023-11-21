@@ -6,8 +6,6 @@ using UnityEngine;
 
 namespace EphysLink
 {
-#pragma warning disable CS0649
-
     #region Input Data Format
 
     /// <summary>
@@ -103,7 +101,6 @@ namespace EphysLink
 
     #region Callback Parameters Data Format (Output)
 
-    // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
     /// <summary>
     ///     Returned callback data format containing available manipulator IDs and error message.
     /// </summary>
@@ -151,6 +148,4 @@ namespace EphysLink
     }
 
     #endregion
-
-#pragma warning restore CS0649
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TrajectoryPlanner.UI.EphysCopilot
+namespace Pinpoint.UI.EphysCopilot
 {
     public class EphysCopilotHandler : MonoBehaviour
     {
@@ -149,7 +149,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         #endregion
 
         #region Components
-        
+
         [Serializable]
         private class PanelComponents
         {

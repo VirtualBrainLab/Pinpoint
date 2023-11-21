@@ -2,10 +2,18 @@ using TMPro;
 using TrajectoryPlanner.Probes;
 using UnityEngine;
 
-namespace TrajectoryPlanner.UI.EphysCopilot
+namespace Pinpoint.UI.EphysCopilot
 {
     public class ResetDuraOffsetPanelHandler : MonoBehaviour
     {
+        #region Components
+
+        [SerializeField] private TMP_Text _manipulatorIDText;
+        public ProbeManager ProbeManager { private get; set; }
+        private ManipulatorBehaviorController _manipulatorBehaviorController;
+
+        #endregion
+
         #region Unity
 
         private void Start()
@@ -28,14 +36,6 @@ namespace TrajectoryPlanner.UI.EphysCopilot
             // Reset dura offset
             _manipulatorBehaviorController.ComputeBrainSurfaceOffset();
         }
-
-        #endregion
-
-        #region Components
-
-        [SerializeField] private TMP_Text _manipulatorIDText;
-        public ProbeManager ProbeManager { private get; set; }
-        private ManipulatorBehaviorController _manipulatorBehaviorController;
 
         #endregion
     }

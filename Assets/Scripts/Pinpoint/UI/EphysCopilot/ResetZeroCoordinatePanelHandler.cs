@@ -2,7 +2,7 @@ using EphysLink;
 using TMPro;
 using UnityEngine;
 
-namespace TrajectoryPlanner.UI.EphysCopilot
+namespace Pinpoint.UI.EphysCopilot
 {
     public class ResetZeroCoordinatePanelHandler : MonoBehaviour
     {
