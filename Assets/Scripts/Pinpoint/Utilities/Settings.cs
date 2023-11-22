@@ -113,6 +113,9 @@ public class Settings : MonoBehaviour
         }
     }
 
+    private static bool _prevNextEnabled;
+    public static bool ProbePrevNextEnabled { get { return _prevNextEnabled; } set { _prevNextEnabled = value; } }
+
     #endregion
 
     #region Area settings

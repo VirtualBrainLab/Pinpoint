@@ -560,7 +560,7 @@ namespace TrajectoryPlanner
 
         public void NextProbe(CallbackContext context)
         {
-            if (ProbeManager.Instances.Count == 0 || UIManager.InputsFocused) return;
+            if (ProbeManager.Instances.Count == 0 || UIManager.InputsFocused || !Settings.ProbePrevNextEnabled) return;
 
             int idx = ProbeManager.Instances.FindIndex(x => x.Equals(ProbeManager.ActiveProbeManager));
 
@@ -572,7 +572,7 @@ namespace TrajectoryPlanner
 
         public void PrevProbe(CallbackContext context)
         {
-            if (ProbeManager.Instances.Count == 0 || UIManager.InputsFocused) return;
+            if (ProbeManager.Instances.Count == 0 || UIManager.InputsFocused || !Settings.ProbePrevNextEnabled) return;
 
             int idx = ProbeManager.Instances.FindIndex(x => x.Equals(ProbeManager.ActiveProbeManager));
 
