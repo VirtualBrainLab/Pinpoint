@@ -138,6 +138,8 @@ namespace TrajectoryPlanner
 #endif
             ProbeProperties.InitializeColors();
 
+            Settings.ProbePrevNextEnabled = true;
+
             SetProbeControl(false);
 
             // Input system
