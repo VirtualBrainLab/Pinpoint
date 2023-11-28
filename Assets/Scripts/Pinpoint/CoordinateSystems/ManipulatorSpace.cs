@@ -11,22 +11,22 @@ namespace Pinpoint.CoordinateSystems
 
         public override Vector3 Space2World(Vector3 coordSpace, bool useReference = true)
         {
-            return new Vector3(-coordSpace.x, coordSpace.y, -coordSpace.z);
+            return coordSpace;
         }
 
         public override Vector3 World2Space(Vector3 coordWorld, bool useReference = true)
         {
-            return new Vector3(-coordWorld.x, coordWorld.y, -coordWorld.z);
+            return coordWorld;
         }
 
         public override Vector3 Space2World_Vector(Vector3 vecSpace)
         {
-            return Space2World(vecSpace);
+            return vecSpace;
         }
 
         public override Vector3 World2Space_Vector(Vector3 vecWorld)
         {
-            return World2Space(vecWorld);
+            return vecWorld;
         }
     }
 }
