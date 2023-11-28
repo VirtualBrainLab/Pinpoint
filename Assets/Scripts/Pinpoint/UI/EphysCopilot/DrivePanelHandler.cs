@@ -1,11 +1,10 @@
-using System;
-using System.Collections;
 using EphysLink;
 using TMPro;
+using TrajectoryPlanner.UI.EphysCopilot;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TrajectoryPlanner.UI.EphysCopilot
+namespace Pinpoint.UI.EphysCopilot
 {
     public class DrivePanelHandler : MonoBehaviour
     {
@@ -218,7 +217,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Calibrate target insertion depth based on surface position
                 var targetInsertion = new ProbeInsertion(
                     InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetProbeManager[
-                        _manipulatorId].ProbeController.Insertion, false);
+                        _manipulatorId].ProbeController.Insertion);
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
@@ -229,9 +228,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                     targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
                 // Converting worldT back to APMLDV (position transformed)
-                targetInsertion.apmldv =
-                    targetInsertion.CoordinateTransform.Space2TransformAxisChange(
-                        targetInsertion.CoordinateSpace.World2Space(offsetAdjustedTargetPositionWorldT));
+                targetInsertion.apmldv = targetInsertion.World2T(offsetAdjustedTargetPositionWorldT);
 
                 return Vector3.Distance(targetInsertion.apmldv, _duraAPMLDV);
             }
@@ -245,7 +242,7 @@ namespace TrajectoryPlanner.UI.EphysCopilot
                 // Create outside position APMLDV
                 var targetAPMLDV = _duraAPMLDV;
                 targetAPMLDV.z = ProbeManager.ProbeController.Insertion
-                    .World2TransformedAxisChange(InsertionSelectionPanelHandler.PRE_DEPTH_DRIVE_DV_OFFSET).z;
+                    .World2T_Vector(InsertionSelectionPanelHandler.PRE_DEPTH_DRIVE_DV_OFFSET).z;
 
                 // Convert to manipulator position 
                 return ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
@@ -555,10 +552,8 @@ namespace TrajectoryPlanner.UI.EphysCopilot
 
                             // Drive to outside position
                             if (position.y < _outsidePosition.y)
-                            {
                                 CommunicationManager.Instance.GotoPos(_manipulatorId, _outsidePosition,
                                     _outsideDriveSpeed, _ => CompleteOutside(), Debug.LogError);
-                            }
                             // Drive to outside depth if DV movement is unavailable
                             else if (position.w > _outsideDepth)
                                 CommunicationManager.Instance.DriveToDepth(_manipulatorId, _outsideDepth,

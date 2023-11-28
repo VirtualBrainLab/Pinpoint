@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
-using CoordinateSpaces;
 using EphysLink;
+using Pinpoint.Probes;
 using TMPro;
-using TrajectoryPlanner.Probes;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace TrajectoryPlanner.UI.EphysCopilot
+namespace Pinpoint.UI.EphysCopilot
 {
     public class InsertionSelectionPanelHandler : MonoBehaviour
     {
