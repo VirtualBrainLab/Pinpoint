@@ -1,7 +1,7 @@
 using BrainAtlas.CoordinateSystems;
 using UnityEngine;
 
-namespace CoordinateTransforms
+namespace Pinpoint.CoordinateSystems
 {
     public class ThreeAxisLeftHandedTransform : CoordinateTransform
     {
@@ -11,7 +11,7 @@ namespace CoordinateTransforms
         public ThreeAxisLeftHandedTransform(float yaw, float pitch)
         {
             var yawRotation = Quaternion.AngleAxis(-yaw, Vector3.up);
-            var pitchRotation = Quaternion.AngleAxis(pitch, Vector3.right);
+            var pitchRotation = Quaternion.AngleAxis(90 - pitch, Vector3.right);
 
             _rotation = pitchRotation * yawRotation;
             _inverseRotation = Quaternion.Inverse(_rotation);
