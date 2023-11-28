@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 using System.Linq;
+using BrainAtlas;
 using EphysLink;
 using Pinpoint.Probes;
 using TMPro;
@@ -64,21 +64,18 @@ namespace Pinpoint.UI.EphysCopilot
 
         #region Shared
 
-        private static CoordinateSpace _annotationDatasetCoordinateSpace =>
-            VolumeDatasetManager.AnnotationDataset.CoordinateSpace;
-
         /// <summary>
         ///     Filter for probe managers that are targetable.
         ///     1. Are not ephys link controlled
         ///     2. Are inside the brain (not NaN)
         /// </summary>
         public static IEnumerable<ProbeManager> TargetableProbeManagers => ProbeManager.Instances
-            .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
-                .AnnotationDataset.FindSurfaceCoordinate(
-                    _annotationDatasetCoordinateSpace.World2Space(manager.ProbeController
+            .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(manager
+                .FindSurfaceIdxCoordinate(
+                    BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(manager.ProbeController
                         .Insertion
                         .PositionWorldU()),
-                    _annotationDatasetCoordinateSpace.World2SpaceAxisChange(manager
+                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(manager
                         .ProbeController
                         .GetTipWorldU().tipUpWorldU)).x));
 
@@ -304,38 +301,38 @@ namespace Pinpoint.UI.EphysCopilot
             // DV axis
             _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
             {
-                dv = ProbeManager.ProbeController.Insertion.World2TransformedAxisChange(PRE_DEPTH_DRIVE_DV_OFFSET).z
+                DV = ProbeManager.ProbeController.Insertion.World2T_Vector(PRE_DEPTH_DRIVE_DV_OFFSET).z
             };
 
             // Recalculate AP and ML based on pre-depth-drive DV
-            var brainSurfaceCoordinate = VolumeDatasetManager.AnnotationDataset.FindSurfaceCoordinate(
-                _annotationDatasetCoordinateSpace.World2Space(
+            var brainSurfaceCoordinate = ProbeManager.FindSurfaceIdxCoordinate(
+                BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
                     ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
                         .ProbeController.Insertion.PositionWorldU()),
-                _annotationDatasetCoordinateSpace.World2SpaceAxisChange(ProbeManager
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(ProbeManager
                     .ProbeController
                     .GetTipWorldU().tipUpWorldU));
 
-            var brainSurfaceWorld =
-                _annotationDatasetCoordinateSpace.Space2World(brainSurfaceCoordinate);
-            var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
+            var brainSurfaceWorld = BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(brainSurfaceCoordinate);
+            var brainSurfaceTransformed = _movementAxesInsertions.dv.World2T(brainSurfaceWorld);
 
             // AP Axis
             _movementAxesInsertions.ap = new ProbeInsertion(_movementAxesInsertions.dv)
             {
-                ap = brainSurfaceTransformed.x
+                AP = brainSurfaceTransformed.x
             };
 
             // ML Axis
             _movementAxesInsertions.ml = new ProbeInsertion(_movementAxesInsertions.ap)
             {
-                ml = brainSurfaceTransformed.y
+                ML = brainSurfaceTransformed.y
             };
 
             // Check if within bounds
             var manipulatorPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
-                    .ml.apmldv);
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
+                    _movementAxesInsertions
+                        .ml.apmldv);
             if (!_acknowledgedOutOfBounds && (manipulatorPosition.x < 0 || manipulatorPosition.x >
                                               ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.x ||
                                               manipulatorPosition.y < 0 || manipulatorPosition.y >
@@ -372,14 +369,17 @@ namespace Pinpoint.UI.EphysCopilot
             // Setup and compute movement
             _isMoving = true;
             var apPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
-                    .ap.apmldv);
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
+                    _movementAxesInsertions
+                        .ap.apmldv);
             var mlPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
-                    .ml.apmldv);
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
+                    _movementAxesInsertions
+                        .ml.apmldv);
             var dvPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
-                    .dv.apmldv);
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
+                    _movementAxesInsertions
+                        .dv.apmldv);
 
             // Move
             CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
