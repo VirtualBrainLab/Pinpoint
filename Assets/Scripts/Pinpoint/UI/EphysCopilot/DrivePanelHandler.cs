@@ -1,6 +1,5 @@
 using EphysLink;
 using TMPro;
-using TrajectoryPlanner.UI.EphysCopilot;
 using UnityEngine;
 using UnityEngine.UI;
 
