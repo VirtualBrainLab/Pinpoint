@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrainAtlas;
 using EphysLink;
-using TrajectoryPlanner.Probes;
+using Pinpoint.Probes;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -1028,7 +1028,6 @@ public struct ProbeData
     // CoordinateSpace/Transform
     public string AtlasSpaceName;
     public string AtlasTransformName;
-    public Vector4 ZeroCoordOffset;
 
     // ChannelMap
     public string SelectionLayerName;
@@ -1043,8 +1042,10 @@ public struct ProbeData
     public string APITarget;
 
     // Ephys Link
-    public string ManipulatorType;
+    public int NumAxes;
     public string ManipulatorID;
+    public Vector4 ZeroCoordOffset;
+    public Vector3 Dimensions;
     public float BrainSurfaceOffset;
     public bool Drop2SurfaceWithDepth;
     public bool IsRightHanded;
@@ -1076,9 +1077,10 @@ public struct ProbeData
         // Manipulator Behavior data (if it exists)
         if (!probeManager.ManipulatorBehaviorController) return data;
         
-        data.ManipulatorType = probeManager.ManipulatorBehaviorController.ManipulatorType;
+        data.NumAxes = probeManager.ManipulatorBehaviorController.NumAxes;
         data.ManipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
+        data.Dimensions = probeManager.ManipulatorBehaviorController.Dimensions;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
         data.Drop2SurfaceWithDepth = probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth;
         data.IsRightHanded = probeManager.ManipulatorBehaviorController.IsRightHanded;

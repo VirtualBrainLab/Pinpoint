@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Events;
-using CoordinateSpaces;
 using CoordinateTransforms;
 using BrainAtlas;
 using BrainAtlas.CoordinateSystems;

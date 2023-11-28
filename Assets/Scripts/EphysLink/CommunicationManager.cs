@@ -20,7 +20,7 @@ namespace EphysLink
 
         #region Properties
 
-        public static readonly int[] EPHYS_LINK_MIN_VERSION = { 0, 9, 14 };
+        private static readonly int[] EPHYS_LINK_MIN_VERSION = { 1, 0, 0 };
 
         public static readonly string EPHYS_LINK_MIN_VERSION_STRING = "≥ v" + string.Join(".", EPHYS_LINK_MIN_VERSION);
 
@@ -53,16 +53,7 @@ namespace EphysLink
                 ConnectToServer(Settings.EphysLinkServerIp, Settings.EphysLinkServerPort, () =>
                 {
                     // Verify Ephys Link version
-                    Instance.GetVersion(version =>
-                    {
-                        if (!version.Split(".").Where((versionNumber, index) =>
-                                    int.Parse(versionNumber) <
-                                    EPHYS_LINK_MIN_VERSION[index])
-                                .Any())
-                            IsEphysLinkCompatible = true;
-                        else
-                            Instance.DisconnectFromServer();
-                    });
+                    VerifyVersion(() => IsEphysLinkCompatible = true, () => Instance.DisconnectFromServer());
                 });
         }
 
@@ -156,6 +147,20 @@ namespace EphysLink
             onDisconnected?.Invoke();
         }
 
+        public void VerifyVersion(Action onSuccess, Action onFailure)
+        {
+            GetVersion(version =>
+            {
+                if (!version.Split(".").Where((versionNumber, index) =>
+                            int.Parse(new string(versionNumber.TakeWhile(char.IsDigit).ToArray())) <
+                            EPHYS_LINK_MIN_VERSION[index])
+                        .Any())
+                    onSuccess.Invoke();
+                else
+                    onFailure.Invoke();
+            }, onFailure.Invoke);
+        }
+
         #endregion
 
         #region Event Handlers
@@ -176,19 +181,19 @@ namespace EphysLink
             }).Emit("get_version");
         }
 
-        // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
         /// <summary>
         ///     Get manipulators event sender.
         /// </summary>
         /// <param name="onSuccessCallback">Callback function to handle incoming manipulator ID's</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GetManipulators(Action<string[], string> onSuccessCallback, Action<string> onErrorCallback = null)
+        public void GetManipulators(Action<string[], int, float[]> onSuccessCallback,
+            Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<GetManipulatorsCallbackParameters>(data =>
             {
                 if (data.error == "")
                 {
-                    onSuccessCallback?.Invoke(data.manipulators, data.type);
+                    onSuccessCallback?.Invoke(data.manipulators, data.num_axes, data.dimensions);
                 }
                 else
                 {

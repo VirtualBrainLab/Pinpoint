@@ -14,12 +14,12 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     {
         #region Constructor
 
-        public void Initialize(EphysLinkSettings settingsMenu, string manipulatorID, string type)
+        public void Initialize(Pinpoint.UI.EphysLinkSettings.EphysLinkSettings settingsMenu, string manipulatorID, int numAxes)
         {
             // Set properties
             _ephysLinkSettings = settingsMenu;
             _manipulatorId = manipulatorID;
-            _type = type;
+            _numAxes = numAxes;
 
             // Get attached probe (could be null)
             _attachedProbe = ProbeManager.Instances.Find(manager => manager.IsEphysLinkControlled &&
@@ -30,7 +30,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
             _manipulatorIdText.text = manipulatorID;
 
             // Spawn and setup Pathfinder manipulators
-            if (type.Contains("pathfinder"))
+            if (_numAxes == -1)
             {
                 // Hide all parts
                 _handednessGroup.SetActive(false);
@@ -42,7 +42,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 var newProbe = trajectoryPlannerManager.AddNewProbe(ProbeProperties.ProbeType.Neuropixels1);
 
                 // Configure probe and link to Ephys Link
-                newProbe.ManipulatorBehaviorController.ManipulatorType = type;
+                newProbe.ManipulatorBehaviorController.NumAxes = numAxes;
                 newProbe.Color = Color.magenta;
                 newProbe.name = "nsp_" + manipulatorID;
                 newProbe.Saved = false;
@@ -54,9 +54,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             UpdateLinkableProbeOptions();
 
-            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
             // Show or hide handedness dropdown depending on manipulator type
-            if (type.Contains("new_scale"))
+            if (numAxes == 3)
             {
                 _handednessDropdown.value = 0;
                 _handednessGroup.SetActive(false);
@@ -66,12 +65,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 _handednessGroup.SetActive(true);
             }
 
-            // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
             // Apply handedness from memory or default to right handed, also pass along manipulator type
             if (_attachedProbe)
             {
                 _handednessDropdown.value = _attachedProbe.ManipulatorBehaviorController.IsRightHanded ? 1 : 0;
-                _attachedProbe.ManipulatorBehaviorController.ManipulatorType = type;
+                _attachedProbe.ManipulatorBehaviorController.NumAxes = numAxes;
             }
             else
             {
@@ -167,7 +165,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                     _ephysLinkSettings.LinkedProbes.Add(_attachedProbe);
 
                     // Copy over manipulator type, handedness, and dropdown direction and enable state
-                    _attachedProbe.ManipulatorBehaviorController.ManipulatorType = _type;
+                    _attachedProbe.ManipulatorBehaviorController.NumAxes = _numAxes;
                     OnManipulatorHandednessValueChanged(_handednessDropdown.value);
                     UpdateDuraDropDirection(_duraDropDirectionDropdown.value);
                     SetDuraDropInteractable(_attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset == 0);
@@ -316,7 +314,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         /// </summary>
         private void UpdateProbePropertiesSectionState()
         {
-            if (_attachedProbe && !_type.Contains("pathfinder"))
+            // Split between having probes and whether pathfinder is being used (pathfinder has no probe properties)
+            if (_attachedProbe && _numAxes > 0)
             {
                 _probePropertiesSection.SetActive(true);
                 UpdateZeroCoordinateOffsetInputFields(_attachedProbe.ManipulatorBehaviorController
@@ -422,9 +421,9 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         #region Properties
 
-        private EphysLinkSettings _ephysLinkSettings;
+        private Pinpoint.UI.EphysLinkSettings.EphysLinkSettings _ephysLinkSettings;
         private string _manipulatorId;
-        private string _type;
+        private int _numAxes;
 
         private bool _returningToZeroCoordinate;
 

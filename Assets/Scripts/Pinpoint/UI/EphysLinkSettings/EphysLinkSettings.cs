@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
 using TMPro;
+using TrajectoryPlanner.UI.EphysLinkSettings;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace TrajectoryPlanner.UI.EphysLinkSettings
+namespace Pinpoint.UI.EphysLinkSettings
 {
     /// <summary>
     ///     Settings menu to connect to the Ephys Link server and manage probe-manipulator bindings.
@@ -89,11 +90,10 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
             if (CommunicationManager.Instance.IsConnected)
             {
-                // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-                CommunicationManager.Instance.GetManipulators((availableIDs, type) =>
+                CommunicationManager.Instance.GetManipulators((availableIDs, numAxes, _) =>
                 {
                     // Enable Copilot button if using Sensapex or New Scale
-                    _copilotToggle.interactable = !type.Contains("pathfinder");
+                    _copilotToggle.interactable = numAxes > 0;
 
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
@@ -112,7 +112,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                                     .GetComponent<ManipulatorConnectionPanel>();
 
                             // Set manipulator id
-                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID, type);
+                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID, numAxes);
 
                             // Add to dictionary
                             _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorID,
@@ -164,35 +164,17 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                         () =>
                         {
                             // Check Ephys Link version
-                            CommunicationManager.Instance.GetVersion(version =>
+                            CommunicationManager.Instance.VerifyVersion(() =>
                             {
-                                if (!version.Split(".").Where((versionNumber, index) =>
-                                            int.Parse(versionNumber) <
-                                            CommunicationManager.EPHYS_LINK_MIN_VERSION[index])
-                                        .Any())
-                                {
-                                    // Ephys Link is current enough
-                                    CommunicationManager.Instance.IsEphysLinkCompatible = true;
-                                    UpdateConnectionPanel();
-                                }
-                                else
-                                    // Ephys Link needs updating
-                                {
-                                    CommunicationManager.Instance.DisconnectFromServer(() =>
-                                    {
-                                        _connectionErrorText.text =
-                                            "Ephys Link is outdated. Please update to " +
-                                            CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
-                                        _connectButtonText.text = "Connect";
-                                    });
-                                }
+                                // Ephys Link is current enough
+                                CommunicationManager.Instance.IsEphysLinkCompatible = true;
+                                UpdateConnectionPanel();
                             }, () =>
                             {
-                                // Failed to get version (probably because it's outdated)
                                 CommunicationManager.Instance.DisconnectFromServer(() =>
                                 {
                                     _connectionErrorText.text =
-                                        "Unable to get server version. Please ensure Ephys Link version is " +
+                                        "Ephys Link is outdated. Please update to " +
                                         CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
                                     _connectButtonText.text = "Connect";
                                 });

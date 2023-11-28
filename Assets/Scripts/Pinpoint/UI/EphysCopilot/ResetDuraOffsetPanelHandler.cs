@@ -1,18 +1,31 @@
+using System.Collections.Generic;
+using EphysLink;
 using TMPro;
-using TrajectoryPlanner.Probes;
 using UnityEngine;
 
-namespace TrajectoryPlanner.UI.EphysCopilot
+namespace Pinpoint.UI.EphysCopilot
 {
     public class ResetDuraOffsetPanelHandler : MonoBehaviour
     {
+        #region Components
+
+        [SerializeField] private TMP_Text _manipulatorIDText;
+        public ProbeManager ProbeManager { private get; set; }
+
+        #endregion
+
+        #region Properties
+
+        public static readonly Dictionary<string, float> ManipulatorIdToDuraDepth = new();
+        public static readonly Dictionary<string, Vector3> ManipulatorIdToDuraApmldv = new();
+
+        #endregion
+        
         #region Unity
 
         private void Start()
         {
-            _manipulatorBehaviorController = ProbeManager.gameObject.GetComponent<ManipulatorBehaviorController>();
-
-            _manipulatorIDText.text = "Manipulator " + _manipulatorBehaviorController.ManipulatorID;
+            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorBehaviorController.ManipulatorID;
             _manipulatorIDText.color = ProbeManager.Color;
         }
 
@@ -26,16 +39,16 @@ namespace TrajectoryPlanner.UI.EphysCopilot
         public void ResetDuraOffset()
         {
             // Reset dura offset
-            _manipulatorBehaviorController.ComputeBrainSurfaceOffset();
+            ProbeManager.ManipulatorBehaviorController.ComputeBrainSurfaceOffset();
+
+            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                pos =>
+                {
+                    ManipulatorIdToDuraDepth[ProbeManager.ManipulatorBehaviorController.ManipulatorID] = pos.w;
+                    ManipulatorIdToDuraApmldv[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
+                        ProbeManager.ProbeController.Insertion.apmldv;
+                });
         }
-
-        #endregion
-
-        #region Components
-
-        [SerializeField] private TMP_Text _manipulatorIDText;
-        public ProbeManager ProbeManager { private get; set; }
-        private ManipulatorBehaviorController _manipulatorBehaviorController;
 
         #endregion
     }
