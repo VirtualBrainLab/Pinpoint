@@ -6,8 +6,13 @@ namespace Pinpoint.CoordinateSystems
     public sealed class ManipulatorSpace : CoordinateSpace
     {
         // Default to Sensapex dimensions
-        public override Vector3 Dimensions { get; } = Vector3.one * 20;
+        public override Vector3 Dimensions { get; }
         public override string Name => "Manipulator";
+
+        public ManipulatorSpace(Vector3 dimensions)
+        {
+            Dimensions = dimensions;
+        }
 
         public override Vector3 Space2World(Vector3 coordSpace, bool useReference = true)
         {

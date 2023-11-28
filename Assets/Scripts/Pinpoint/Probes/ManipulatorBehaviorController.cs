@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq;
 using BrainAtlas;
 using BrainAtlas.CoordinateSystems;
-using CoordinateTransforms;
 using EphysLink;
 using Pinpoint.CoordinateSystems;
 using UnityEngine;
@@ -32,7 +31,7 @@ namespace Pinpoint.Probes
         public string ManipulatorID { get; private set; }
 
         public int NumAxes { get; set; }
-        
+
         public Vector3 Dimensions { get; set; }
 
         /**
@@ -269,7 +268,7 @@ namespace Pinpoint.Probes
 
         public void UpdateSpaceAndTransform()
         {
-            CoordinateSpace = new ManipulatorSpace();
+            CoordinateSpace = new ManipulatorSpace(Dimensions);
             CoordinateTransform = NumAxes switch
             {
                 4 => IsRightHanded
@@ -316,14 +315,14 @@ namespace Pinpoint.Probes
             {
                 // We need to calculate the surface coordinate ourselves
                 var tipExtensionDirection =
-                    IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
+                    IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipForwardWorldU : Vector3.down;
 
-                var brainSurfaceCoordinate = _probeManager.FindSurfaceIdxCoordinate(
-                    BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(_probeController.GetTipWorldU().tipCoordWorldU -
-                                                                   tipExtensionDirection * 5),
-                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(tipExtensionDirection));
+                var brainSurfaceCoordinateIdx = _probeManager.FindSurfaceIdxCoordinate(
+                    BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
+                        _probeController.GetTipWorldU().tipCoordWorldU + tipExtensionDirection * 5),
+                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-tipExtensionDirection));
 
-                if (float.IsNaN(brainSurfaceCoordinate.x))
+                if (float.IsNaN(brainSurfaceCoordinateIdx.x))
                 {
                     Debug.LogError("Could not find brain surface! Canceling set brain offset.");
                     return;
@@ -331,7 +330,7 @@ namespace Pinpoint.Probes
 
                 var brainSurfaceToTransformed =
                     _probeController.Insertion.World2T(
-                        BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(brainSurfaceCoordinate));
+                        BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(brainSurfaceCoordinateIdx));
 
                 BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
                     _probeController.Insertion.apmldv);
