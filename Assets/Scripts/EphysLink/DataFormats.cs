@@ -107,7 +107,8 @@ namespace EphysLink
     public struct GetManipulatorsCallbackParameters
     {
         public string[] manipulators;
-        public string type;
+        public int num_axes;
+        public float[] dimensions;
         public string error;
     }
 

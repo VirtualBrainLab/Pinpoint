@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using CoordinateSpaces;
 using EphysLink;
 using TMPro;
 using TrajectoryPlanner.Probes;
@@ -7,7 +9,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace Pinpoint.UI.EphysCopilot
+namespace TrajectoryPlanner.UI.EphysCopilot
 {
     public class InsertionSelectionPanelHandler : MonoBehaviour
     {
@@ -15,7 +17,7 @@ namespace Pinpoint.UI.EphysCopilot
 
         private const float LINE_WIDTH = 0.1f;
         private const int NUM_SEGMENTS = 2;
-        private static readonly Vector3 PRE_DEPTH_DRIVE_BREGMA_OFFSET_W = new(0, 0.5f, 0);
+        public static readonly Vector3 PRE_DEPTH_DRIVE_DV_OFFSET = new(0, 3.5f, 0);
         private const string MOVE_TO_TARGET_INSERTION_STR = "Move to Target Insertion";
         private const string STOP_MOVEMENT_STR = "Stop Movement";
 
@@ -50,36 +52,35 @@ namespace Pinpoint.UI.EphysCopilot
         ///     1. Not already selected
         ///     2. Angles are coterminal
         /// </summary>
-        //private IEnumerable<ProbeManager> _targetProbeManagerOptions => TargetableProbeManagers
-        //    .Where(manager =>
-        //        !ManipulatorIDToSelectedTargetProbeManager
-        //            .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
-        //            .Select(pair => pair.Value).Contains(manager) && IsCoterminal(
-        //            manager.ProbeController.Insertion.angles,
-        //            ProbeManager.ProbeController.Insertion.angles));
+        private IEnumerable<ProbeManager> _targetProbeManagerOptions => TargetableProbeManagers
+            .Where(manager =>
+                !ManipulatorIDToSelectedTargetProbeManager
+                    .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
+                    .Select(pair => pair.Value).Contains(manager) && IsCoterminal(
+                    manager.ProbeController.Insertion.angles,
+                    ProbeManager.ProbeController.Insertion.angles));
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
 
         #region Shared
 
-        // TODO
-        //private static CoordinateSpace _annotationDatasetCoordinateSpace =>
-        //    VolumeDatasetManager.AnnotationDataset.CoordinateSpace;
+        private static CoordinateSpace _annotationDatasetCoordinateSpace =>
+            VolumeDatasetManager.AnnotationDataset.CoordinateSpace;
 
         /// <summary>
         ///     Filter for probe managers that are targetable.
         ///     1. Are not ephys link controlled
         ///     2. Are inside the brain (not NaN)
         /// </summary>
-        //public static IEnumerable<ProbeManager> TargetableProbeManagers => ProbeManager.Instances
-        //    .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
-        //        .AnnotationDataset.FindSurfaceCoordinate(
-        //            _annotationDatasetCoordinateSpace.World2Space(manager.ProbeController
-        //                .Insertion
-        //                .PositionWorldU()),
-        //            _annotationDatasetCoordinateSpace.World2Space_Vector(manager
-        //                .ProbeController
-        //                .GetTipWorldU().tipUpWorldU)).x));
+        public static IEnumerable<ProbeManager> TargetableProbeManagers => ProbeManager.Instances
+            .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(VolumeDatasetManager
+                .AnnotationDataset.FindSurfaceCoordinate(
+                    _annotationDatasetCoordinateSpace.World2Space(manager.ProbeController
+                        .Insertion
+                        .PositionWorldU()),
+                    _annotationDatasetCoordinateSpace.World2SpaceAxisChange(manager
+                        .ProbeController
+                        .GetTipWorldU().tipUpWorldU)).x));
 
         public static readonly Dictionary<string, ProbeManager> ManipulatorIDToSelectedTargetProbeManager = new();
         private static readonly UnityEvent _shouldUpdateTargetInsertionOptionsEvent = new();
@@ -147,21 +148,20 @@ namespace Pinpoint.UI.EphysCopilot
                     .text[.._targetInsertionDropdown.options[value].text.LastIndexOf(": A", StringComparison.Ordinal)];
 
                 // Get selection as probe manager
-                throw new NotImplementedException();
-                //var probeManager = TargetableProbeManagers.First(manager =>
-                //    manager.name.Equals(probeNameString) || (manager.OverrideName?.Equals(probeNameString) ?? false));
+                var probeManager = TargetableProbeManagers.First(manager =>
+                    manager.name.Equals(probeNameString) || (manager.OverrideName?.Equals(probeNameString) ?? false));
 
-                //// Update record if insertion selected
-                //ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
-                //    probeManager;
+                // Update record if insertion selected
+                ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
+                    probeManager;
 
-                //// Show lines
-                //_lineGameObjects.ap.SetActive(true);
-                //_lineGameObjects.ml.SetActive(true);
-                //_lineGameObjects.dv.SetActive(true);
+                // Show lines
+                _lineGameObjects.ap.SetActive(true);
+                _lineGameObjects.ml.SetActive(true);
+                _lineGameObjects.dv.SetActive(true);
 
-                //// Compute movement insertions
-                //ComputeMovementInsertions();
+                // Compute movement insertions
+                ComputeMovementInsertions();
             }
 
             // Update dropdown options
@@ -238,27 +238,26 @@ namespace Pinpoint.UI.EphysCopilot
             _targetInsertionDropdown.options.Add(new TMP_Dropdown.OptionData("Select a target insertion..."));
 
             // Add other options
-            throw new NotImplementedException();
-            //_targetInsertionDropdown.AddOptions(_targetProbeManagerOptions
-            //    .Select(probeManager => (probeManager.OverrideName ?? probeManager.name) + ": " +
-            //                            SurfaceCoordinateToString(probeManager.GetSurfaceCoordinateT())).ToList());
+            _targetInsertionDropdown.AddOptions(_targetProbeManagerOptions
+                .Select(probeManager => (probeManager.OverrideName ?? probeManager.name) + ": " +
+                                        SurfaceCoordinateToString(probeManager.GetSurfaceCoordinateT())).ToList());
 
-            //// Restore selection (if possible)
-            //var selectedProbeManager = ManipulatorIDToSelectedTargetProbeManager.GetValueOrDefault(
-            //    ProbeManager.ManipulatorBehaviorController.ManipulatorID, null);
-            //_targetInsertionDropdown.SetValueWithoutNotify(
-            //    _targetProbeManagerOptions.ToList()
-            //        .IndexOf(selectedProbeManager) + 1
-            //);
+            // Restore selection (if possible)
+            var selectedProbeManager = ManipulatorIDToSelectedTargetProbeManager.GetValueOrDefault(
+                ProbeManager.ManipulatorBehaviorController.ManipulatorID, null);
+            _targetInsertionDropdown.SetValueWithoutNotify(
+                _targetProbeManagerOptions.ToList()
+                    .IndexOf(selectedProbeManager) + 1
+            );
 
-            //// Color dropdown to match probe color
-            //if (!selectedProbeManager) return;
-            //var colorBlockCopy = _targetInsertionDropdown.colors;
-            //colorBlockCopy.normalColor = selectedProbeManager.Color;
-            //colorBlockCopy.selectedColor = new Color(colorBlockCopy.normalColor.r * 0.9f,
-            //    colorBlockCopy.normalColor.g * 0.9f, colorBlockCopy.normalColor.b * 0.9f);
-            //colorBlockCopy.highlightedColor = colorBlockCopy.selectedColor;
-            //_targetInsertionDropdown.colors = colorBlockCopy;
+            // Color dropdown to match probe color
+            if (!selectedProbeManager) return;
+            var colorBlockCopy = _targetInsertionDropdown.colors;
+            colorBlockCopy.normalColor = selectedProbeManager.Color;
+            colorBlockCopy.selectedColor = new Color(colorBlockCopy.normalColor.r * 0.9f,
+                colorBlockCopy.normalColor.g * 0.9f, colorBlockCopy.normalColor.b * 0.9f);
+            colorBlockCopy.highlightedColor = colorBlockCopy.selectedColor;
+            _targetInsertionDropdown.colors = colorBlockCopy;
         }
 
         private static string SurfaceCoordinateToString((Vector3 surfaceCoordinateT, float depthT) surfaceCoordinate)
@@ -281,86 +280,84 @@ namespace Pinpoint.UI.EphysCopilot
             // Update insertion selection listings
             UpdateTargetInsertionOptions();
 
-            throw new NotImplementedException();
-            //// Abort insertion if it is invalid
-            //if (!TargetableProbeManagers.Contains(
-            //        ManipulatorIDToSelectedTargetProbeManager[
-            //            ProbeManager.ManipulatorBehaviorController.ManipulatorID]))
-            //{
-            //    // Remove record (deselected)
-            //    ManipulatorIDToSelectedTargetProbeManager.Remove(ProbeManager.ManipulatorBehaviorController
-            //        .ManipulatorID);
+            // Abort insertion if it is invalid
+            if (!TargetableProbeManagers.Contains(
+                    ManipulatorIDToSelectedTargetProbeManager[
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID]))
+            {
+                // Remove record (deselected)
+                ManipulatorIDToSelectedTargetProbeManager.Remove(ProbeManager.ManipulatorBehaviorController
+                    .ManipulatorID);
 
-            //    // Hide line
-            //    _lineGameObjects.ap.SetActive(false);
-            //    _lineGameObjects.ml.SetActive(false);
-            //    _lineGameObjects.dv.SetActive(false);
+                // Hide line
+                _lineGameObjects.ap.SetActive(false);
+                _lineGameObjects.ml.SetActive(false);
+                _lineGameObjects.dv.SetActive(false);
 
-            //    // Disable movement button
-            //    _moveButton.interactable = false;
+                // Disable movement button
+                _moveButton.interactable = false;
 
-            //    // Exit
-            //    return;
-            //}
+                // Exit
+                return;
+            }
 
-            //// DV axis
-            //_movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
-            //{
-            //    DV = ProbeManager.ProbeController.Insertion
-            //        .World2T_Vector(PRE_DEPTH_DRIVE_BREGMA_OFFSET_W).z
-            //};
+            // DV axis
+            _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
+            {
+                dv = ProbeManager.ProbeController.Insertion.World2TransformedAxisChange(PRE_DEPTH_DRIVE_DV_OFFSET).z
+            };
 
-            //// Recalculate AP and ML based on pre-depth-drive DV
-            //var brainSurfaceCoordinate = VolumeDatasetManager.AnnotationDataset.FindSurfaceCoordinate(
-            //    _annotationDatasetCoordinateSpace.World2Space(
-            //        ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
-            //            .ProbeController.Insertion.PositionWorldU()),
-            //    _annotationDatasetCoordinateSpace.World2Space_Vector(ProbeManager
-            //        .ProbeController
-            //        .GetTipWorldU().tipUpWorldU));
+            // Recalculate AP and ML based on pre-depth-drive DV
+            var brainSurfaceCoordinate = VolumeDatasetManager.AnnotationDataset.FindSurfaceCoordinate(
+                _annotationDatasetCoordinateSpace.World2Space(
+                    ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
+                        .ProbeController.Insertion.PositionWorldU()),
+                _annotationDatasetCoordinateSpace.World2SpaceAxisChange(ProbeManager
+                    .ProbeController
+                    .GetTipWorldU().tipUpWorldU));
 
-            //var brainSurfaceWorld =
-            //    _annotationDatasetCoordinateSpace.Space2World(brainSurfaceCoordinate);
-            //var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
+            var brainSurfaceWorld =
+                _annotationDatasetCoordinateSpace.Space2World(brainSurfaceCoordinate);
+            var brainSurfaceTransformed = _movementAxesInsertions.dv.World2Transformed(brainSurfaceWorld);
 
-            //// AP Axis
-            //_movementAxesInsertions.ap = new ProbeInsertion(_movementAxesInsertions.dv)
-            //{
-            //    AP = brainSurfaceTransformed.x
-            //};
+            // AP Axis
+            _movementAxesInsertions.ap = new ProbeInsertion(_movementAxesInsertions.dv)
+            {
+                ap = brainSurfaceTransformed.x
+            };
 
-            //// ML Axis
-            //_movementAxesInsertions.ml = new ProbeInsertion(_movementAxesInsertions.ap)
-            //{
-            //    ML = brainSurfaceTransformed.y
-            //};
+            // ML Axis
+            _movementAxesInsertions.ml = new ProbeInsertion(_movementAxesInsertions.ap)
+            {
+                ml = brainSurfaceTransformed.y
+            };
 
-            //// Check if within bounds
-            //var manipulatorPosition =
-            //    ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
-            //        .ml.apmldv);
-            //if (!_acknowledgedOutOfBounds && (manipulatorPosition.x < 0 || manipulatorPosition.x >
-            //                                  ProbeManager.ManipulatorBehaviorController.ReferenceAtlas.Dimensions.x ||
-            //                                  manipulatorPosition.y < 0 || manipulatorPosition.y >
-            //                                  ProbeManager.ManipulatorBehaviorController.ReferenceAtlas.Dimensions.y ||
-            //                                  manipulatorPosition.z < 0 || manipulatorPosition.z >
-            //                                  ProbeManager.ManipulatorBehaviorController.ReferenceAtlas.Dimensions.z))
-            //{
-            //    QuestionDialogue.Instance.NewQuestion(
-            //        "This insertion is outside the bounds of the manipulator. Are you sure you want to continue?");
-            //    QuestionDialogue.Instance.YesCallback = () => _acknowledgedOutOfBounds = true;
-            //    QuestionDialogue.Instance.NoCallback = () => _targetInsertionDropdown.value = 0;
-            //}
+            // Check if within bounds
+            var manipulatorPosition =
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
+                    .ml.apmldv);
+            if (!_acknowledgedOutOfBounds && (manipulatorPosition.x < 0 || manipulatorPosition.x >
+                                              ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.x ||
+                                              manipulatorPosition.y < 0 || manipulatorPosition.y >
+                                              ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.y ||
+                                              manipulatorPosition.z < 0 || manipulatorPosition.z >
+                                              ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.z))
+            {
+                QuestionDialogue.Instance.NewQuestion(
+                    "This insertion is outside the bounds of the manipulator. Are you sure you want to continue?");
+                QuestionDialogue.Instance.YesCallback = () => _acknowledgedOutOfBounds = true;
+                QuestionDialogue.Instance.NoCallback = () => _targetInsertionDropdown.value = 0;
+            }
 
-            //// Update line renderer
-            //_lineRenderers.dv.SetPosition(0, ProbeManager.ProbeController.ProbeTipT.position);
-            //_lineRenderers.dv.SetPosition(1, _movementAxesInsertions.dv.PositionWorldT());
+            // Update line renderer
+            _lineRenderers.dv.SetPosition(0, ProbeManager.ProbeController.ProbeTipT.position);
+            _lineRenderers.dv.SetPosition(1, _movementAxesInsertions.dv.PositionWorldT());
 
-            //_lineRenderers.ap.SetPosition(0, _movementAxesInsertions.dv.PositionWorldT());
-            //_lineRenderers.ap.SetPosition(1, _movementAxesInsertions.ap.PositionWorldT());
+            _lineRenderers.ap.SetPosition(0, _movementAxesInsertions.dv.PositionWorldT());
+            _lineRenderers.ap.SetPosition(1, _movementAxesInsertions.ap.PositionWorldT());
 
-            //_lineRenderers.ml.SetPosition(0, _movementAxesInsertions.ap.PositionWorldT());
-            //_lineRenderers.ml.SetPosition(1, _movementAxesInsertions.ml.PositionWorldT());
+            _lineRenderers.ml.SetPosition(0, _movementAxesInsertions.ap.PositionWorldT());
+            _lineRenderers.ml.SetPosition(1, _movementAxesInsertions.ml.PositionWorldT());
         }
 
         /// <summary>
@@ -375,13 +372,13 @@ namespace Pinpoint.UI.EphysCopilot
             // Setup and compute movement
             _isMoving = true;
             var apPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
                     .ap.apmldv);
             var mlPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
                     .ml.apmldv);
             var dvPosition =
-                ProbeManager.ManipulatorBehaviorController.ConvertInsertionToManipulatorPosition(_movementAxesInsertions
+                ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(_movementAxesInsertions
                     .dv.apmldv);
 
             // Move
@@ -428,10 +425,10 @@ namespace Pinpoint.UI.EphysCopilot
                     .ManipulatorID);
         }
 
-        private bool IsCoterminal(Vector3 first, Vector3 second)
+        private static bool IsCoterminal(Vector3 first, Vector3 second)
         {
-            return (first.x - second.x) % 360 < 0.01f && (first.y - second.y) % 360 < 0.01f &&
-                   (first.z - second.z) % 360 < 0.01f;
+            return Mathf.Abs(first.x - second.x) % 360 < 0.01f && Mathf.Abs(first.y - second.y) % 360 < 0.01f &&
+                   Mathf.Abs(first.z - second.z) % 360 < 0.01f;
         }
 
         #endregion

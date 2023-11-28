@@ -2750,7 +2750,7 @@ GameObject:
   - component: {fileID: 4132892186996900426}
   - component: {fileID: 2688848427838830438}
   m_Layer: 5
-  m_Name: ReturnButton
+  m_Name: ExitButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2774,7 +2774,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 250, y: -116.292206}
+  m_AnchoredPosition: {x: 250, y: -205.83333}
   m_SizeDelta: {x: 500, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5092748061186658588
@@ -2862,7 +2862,7 @@ MonoBehaviour:
       - m_Target: {fileID: 4325646625566643338}
         m_TargetAssemblyTypeName: TrajectoryPlanner.UI.EphysCopilot.DrivePanelHandler,
           trajectoryplanner.ui.ephyscopilot
-        m_MethodName: DriveBackToSurface
+        m_MethodName: Exit
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3454,8 +3454,8 @@ MonoBehaviour:
   _drivePastDistanceInputField: {fileID: 1362464887898080331}
   _stopButton: {fileID: 8950310822258812797}
   _skipSettlingButton: {fileID: 3200770919843244483}
-  _returnButton: {fileID: 6315168989377721155}
-  _returnButtonText: {fileID: 3744103793431505929}
+  _exitButton: {fileID: 6315168989377721155}
+  _exitButtonText: {fileID: 3744103793431505929}
   _statusText: {fileID: 3023744443413706275}
   _timerText: {fileID: 6333824926798648489}
 --- !u!114 &2376644107146004916

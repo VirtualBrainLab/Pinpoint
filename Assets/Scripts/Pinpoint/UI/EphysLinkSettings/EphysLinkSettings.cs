@@ -26,6 +26,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private GameObject _manipulatorList;
         [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
         [SerializeField] private Toggle _copilotToggle;
+        [SerializeField] private Toggle _copilotDemoToggle;
 
         private UIManager _uiManager;
 
@@ -86,14 +87,15 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             // Default Copilot to be disabled unless the right manipulator type is found
             _copilotToggle.interactable = false;
+            _copilotDemoToggle.interactable = false;
 
             if (CommunicationManager.Instance.IsConnected)
             {
-                // FIXME: Dependent on Manipulator Type. Should be standardized by Ephys Link.
-                CommunicationManager.Instance.GetManipulators((availableIDs, type) =>
+                CommunicationManager.Instance.GetManipulators((availableIDs, numAxes, _) =>
                 {
                     // Enable Copilot button if using Sensapex or New Scale
-                    _copilotToggle.interactable = !type.Contains("pathfinder");
+                    _copilotToggle.interactable = numAxes > 0;
+                    _copilotDemoToggle.interactable = numAxes > 0;
 
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
@@ -112,7 +114,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                                     .GetComponent<ManipulatorConnectionPanel>();
 
                             // Set manipulator id
-                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID, type);
+                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID, numAxes);
 
                             // Add to dictionary
                             _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorID,
@@ -164,35 +166,17 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                         () =>
                         {
                             // Check Ephys Link version
-                            CommunicationManager.Instance.GetVersion(version =>
+                            CommunicationManager.Instance.VerifyVersion(() =>
                             {
-                                if (!version.Split(".").Where((versionNumber, index) =>
-                                            int.Parse(versionNumber) <
-                                            CommunicationManager.EPHYS_LINK_MIN_VERSION[index])
-                                        .Any())
-                                {
-                                    // Ephys Link is current enough
-                                    CommunicationManager.Instance.IsEphysLinkCompatible = true;
-                                    UpdateConnectionPanel();
-                                }
-                                else
-                                    // Ephys Link needs updating
-                                {
-                                    CommunicationManager.Instance.DisconnectFromServer(() =>
-                                    {
-                                        _connectionErrorText.text =
-                                            "Ephys Link is outdated. Please update to " +
-                                            CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
-                                        _connectButtonText.text = "Connect";
-                                    });
-                                }
+                                // Ephys Link is current enough
+                                CommunicationManager.Instance.IsEphysLinkCompatible = true;
+                                UpdateConnectionPanel();
                             }, () =>
                             {
-                                // Failed to get version (probably because it's outdated)
                                 CommunicationManager.Instance.DisconnectFromServer(() =>
                                 {
                                     _connectionErrorText.text =
-                                        "Unable to get server version. Please ensure Ephys Link version is " +
+                                        "Ephys Link is outdated. Please update to " +
                                         CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
                                     _connectButtonText.text = "Connect";
                                 });
@@ -233,6 +217,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             if (_uiManager != null)
                 _uiManager.EnableEphysCopilotPanel(isEnabled);
+        }
+
+        public void ToggleCopilotDemoPanel(bool isEnabled)
+        {
+            _uiManager.EnableCopilotDemoPanel(isEnabled);
         }
 
         public void InvokeShouldUpdateProbesListEvent()

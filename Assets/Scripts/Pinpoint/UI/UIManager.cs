@@ -18,6 +18,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private List<TMP_Text> _whiteUIText;
 
     [SerializeField] private GameObject _ephysCopilotPanelGameObject;
+    [SerializeField] private GameObject _copilotDemoPanelGameObject;
     [SerializeField] private GameObject _settingsPanel;
 
     #endregion
@@ -56,6 +57,11 @@ public class UIManager : MonoBehaviour
         
         // Set the scale to zero if we're disabling it
         _ephysCopilotPanelGameObject.transform.localScale = enable ? Vector3.one : Vector3.zero;
+    }
+
+    public void EnableCopilotDemoPanel(bool enable = true)
+    {
+        _copilotDemoPanelGameObject.SetActive(enable);
     }
 
     public void SetBackgroundWhite(bool state)
