@@ -14,7 +14,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     {
         #region Constructor
 
-        public void Initialize(EphysLinkSettings settingsMenu, string manipulatorID, int numAxes)
+        public void Initialize(Pinpoint.UI.EphysLinkSettings.EphysLinkSettings settingsMenu, string manipulatorID, int numAxes)
         {
             // Set properties
             _ephysLinkSettings = settingsMenu;
@@ -421,7 +421,7 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         #region Properties
 
-        private EphysLinkSettings _ephysLinkSettings;
+        private Pinpoint.UI.EphysLinkSettings.EphysLinkSettings _ephysLinkSettings;
         private string _manipulatorId;
         private int _numAxes;
 

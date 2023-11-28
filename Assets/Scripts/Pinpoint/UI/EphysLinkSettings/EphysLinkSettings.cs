@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using EphysLink;
 using TMPro;
+using TrajectoryPlanner.UI.EphysLinkSettings;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace TrajectoryPlanner.UI.EphysLinkSettings
+namespace Pinpoint.UI.EphysLinkSettings
 {
     /// <summary>
     ///     Settings menu to connect to the Ephys Link server and manage probe-manipulator bindings.
@@ -26,7 +27,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         [SerializeField] private GameObject _manipulatorList;
         [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
         [SerializeField] private Toggle _copilotToggle;
-        [SerializeField] private Toggle _copilotDemoToggle;
 
         private UIManager _uiManager;
 
@@ -87,7 +87,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             // Default Copilot to be disabled unless the right manipulator type is found
             _copilotToggle.interactable = false;
-            _copilotDemoToggle.interactable = false;
 
             if (CommunicationManager.Instance.IsConnected)
             {
@@ -95,7 +94,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 {
                     // Enable Copilot button if using Sensapex or New Scale
                     _copilotToggle.interactable = numAxes > 0;
-                    _copilotDemoToggle.interactable = numAxes > 0;
 
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
@@ -217,11 +215,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             if (_uiManager != null)
                 _uiManager.EnableEphysCopilotPanel(isEnabled);
-        }
-
-        public void ToggleCopilotDemoPanel(bool isEnabled)
-        {
-            _uiManager.EnableCopilotDemoPanel(isEnabled);
         }
 
         public void InvokeShouldUpdateProbesListEvent()
