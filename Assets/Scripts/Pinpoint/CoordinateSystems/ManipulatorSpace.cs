@@ -1,6 +1,7 @@
+using BrainAtlas.CoordinateSystems;
 using UnityEngine;
 
-namespace CoordinateSpaces
+namespace Pinpoint.CoordinateSystems
 {
     public sealed class ManipulatorSpace : CoordinateSpace
     {

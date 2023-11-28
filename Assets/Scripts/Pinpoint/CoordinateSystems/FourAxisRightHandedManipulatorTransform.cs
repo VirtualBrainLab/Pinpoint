@@ -1,6 +1,7 @@
+using BrainAtlas.CoordinateSystems;
 using UnityEngine;
 
-namespace CoordinateTransforms
+namespace Pinpoint.CoordinateSystems
 {
     public class FourAxisRightHandedManipulatorTransform : AffineTransform
     {

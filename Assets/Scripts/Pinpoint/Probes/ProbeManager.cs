@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrainAtlas;
 using EphysLink;
-using TrajectoryPlanner.Probes;
+using Pinpoint.Probes;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;

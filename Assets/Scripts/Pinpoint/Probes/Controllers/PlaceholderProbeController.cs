@@ -1,6 +1,5 @@
 using System;
 using BrainAtlas;
-using CoordinateSpaces;
 using CoordinateTransforms;
 using UnityEngine;
 
