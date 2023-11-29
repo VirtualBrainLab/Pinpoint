@@ -60,6 +60,7 @@ public class PinpointAtlasManager : MonoBehaviour
                 break;
         }
 
+        PopulateAtlasDropdown();
         PopulateTransformDropdown();
     }
 
@@ -75,10 +76,10 @@ public class PinpointAtlasManager : MonoBehaviour
             if (_allowedOnWebGLMapping[atlasNames[i]])
                 _allowedNames.Add(atlasNames[i]);
 #else
-        var allowedNames = atlasNames;
+        var _allowedNames = atlasNames;
 #endif
 
-        _atlasDropdown.options = _allowedNames.ConvertAll(ConvertAtlas2Userfriendly);
+        _atlasDropdown.options = _allowedNames.ConvertAll(x => ConvertAtlas2Userfriendly(x));
     }
 
     public void ResetAtlasDropdownIndex()
