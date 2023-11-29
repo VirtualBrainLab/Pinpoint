@@ -32,7 +32,7 @@ public class Settings : MonoBehaviour
     #region Probe settings
     // Collision detection
     private const bool COLLISIONS_DEFAULT = true;
-    [FormerlySerializedAs("collisionsToggle")][SerializeField] private Toggle _collisionsToggle;
+    [SerializeField] private Toggle _collisionsToggle;
     public UnityEvent DetectCollisionsChangedEvent;
 
     public static bool DetectCollisions
@@ -40,8 +40,10 @@ public class Settings : MonoBehaviour
         get { return data.DetectCollisions; }
         set
         {
+            Debug.Log($"Detect collisions set to: {value}");
             data.DetectCollisions = value;
             Save();
+            Instance._collisionsToggle.SetIsOnWithoutNotify(data.DetectCollisions);
             Instance.DetectCollisionsChangedEvent.Invoke();
         }
     }
@@ -673,7 +675,7 @@ public class Settings : MonoBehaviour
     private void Apply()
     {
         // Load preferences from memory and set UI elements
-        _collisionsToggle.SetIsOnWithoutNotify(DetectCollisions);
+        DetectCollisions = data.DetectCollisions;
 
         _probeAxisToggle.SetIsOnWithoutNotify(ConvertAPML2Probe);
 
@@ -851,7 +853,6 @@ public class Settings : MonoBehaviour
         public Vector3 CameraRotation;
 
         public string AtlasName;
-
     }
     #endregion
 }
