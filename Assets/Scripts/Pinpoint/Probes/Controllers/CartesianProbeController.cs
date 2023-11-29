@@ -149,7 +149,6 @@ public class CartesianProbeController : ProbeController
     #region Unity
     private void Awake()
     {
-        Debug.Log("AWAKE RUNNING");
         _depth = _defaultDepth;
 
         _initialPosition = transform.position;
