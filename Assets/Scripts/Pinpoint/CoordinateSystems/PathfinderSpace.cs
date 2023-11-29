@@ -1,41 +1,37 @@
+using System;
 using BrainAtlas.CoordinateSystems;
 using UnityEngine;
 
 namespace Pinpoint.CoordinateSystems
 {
-    public sealed class ManipulatorSpace : CoordinateSpace
+    public class PathfinderSpace : CoordinateSpace
     {
         #region Properties
 
-        public override string Name => "Manipulator";
-        public override Vector3 Dimensions { get; }
+        public override string Name => "Pathfinder";
+        public override Vector3 Dimensions => Vector3.one * 15f;
 
         #endregion
 
 
-        public ManipulatorSpace(Vector3 dimensions)
-        {
-            Dimensions = dimensions;
-        }
-
         public override Vector3 Space2World(Vector3 coordSpace, bool useReference = true)
         {
-            return coordSpace;
+            return new Vector3(coordSpace.x, -coordSpace.z, -coordSpace.y);
         }
 
         public override Vector3 World2Space(Vector3 coordWorld, bool useReference = true)
         {
-            return coordWorld;
+            return new Vector3(coordWorld.x, -coordWorld.z, -coordWorld.y);
         }
 
         public override Vector3 Space2World_Vector(Vector3 vecSpace)
         {
-            return vecSpace;
+            return Space2World(vecSpace);
         }
 
         public override Vector3 World2Space_Vector(Vector3 vecWorld)
         {
-            return vecWorld;
+            return World2Space(vecWorld);
         }
     }
 }
