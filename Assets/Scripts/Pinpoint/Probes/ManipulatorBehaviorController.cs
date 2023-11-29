@@ -317,7 +317,7 @@ namespace Pinpoint.Probes
                 var tipExtensionDirection =
                     IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipForwardWorldU : Vector3.down;
 
-                var brainSurfaceCoordinateIdx = _probeManager.FindSurfaceIdxCoordinate(
+                var brainSurfaceCoordinateIdx = _probeManager.FindEntryIdxCoordinate(
                     BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
                         _probeController.GetTipWorldU().tipCoordWorldU + tipExtensionDirection * 5),
                     BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-tipExtensionDirection));
