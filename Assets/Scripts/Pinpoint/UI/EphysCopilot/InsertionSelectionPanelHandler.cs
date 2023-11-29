@@ -308,12 +308,10 @@ namespace Pinpoint.UI.EphysCopilot
             var brainSurfaceCoordinate = ProbeManager.FindEntryIdxCoordinate(
                 BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
                     ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
-                        .ProbeController.Insertion.PositionWorldU()),
-                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(ProbeManager
-                    .ProbeController
-                    .GetTipWorldU().tipUpWorldU));
+                        .ProbeController.GetTipWorldU().tipCoordWorldU),
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(Vector3.up));
 
-            var brainSurfaceWorld = BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(brainSurfaceCoordinate);
+            var brainSurfaceWorld = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(brainSurfaceCoordinate);
             var brainSurfaceTransformed = _movementAxesInsertions.dv.World2T(brainSurfaceWorld);
 
             // AP Axis

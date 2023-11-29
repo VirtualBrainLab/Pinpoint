@@ -327,7 +327,7 @@ namespace Pinpoint.Probes
 
                 var brainSurfaceCoordinateIdx = _probeManager.FindEntryIdxCoordinate(
                     BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
-                        _probeController.GetTipWorldU().tipCoordWorldU + tipExtensionDirection * 5),
+                        _probeController.GetTipWorldU().tipCoordWorldU),
                     BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-tipExtensionDirection));
 
                 if (float.IsNaN(brainSurfaceCoordinateIdx.x))
