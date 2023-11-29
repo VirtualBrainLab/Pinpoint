@@ -151,7 +151,7 @@ namespace Pinpoint.Probes
             {
                 CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
                 {
-                    _probeController.SetProbeAngles(angles);
+                    _probeController.SetProbeAngles(new Vector3(angles.x, 90 - angles.y, angles.z));
                     _probeController.SetProbePosition(new Vector3(pos.y, pos.x, pos.z));
                 });
             }
