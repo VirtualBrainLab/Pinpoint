@@ -146,13 +146,17 @@ namespace Pinpoint.Probes
         {
             if (!enabled && _probeController == null) return;
 
-            // Check for special pathfinder mode (directly set probe position, no calculations needed)
+            // Check for special Pathfinder mode (directly set probe position, no calculations needed)
             if (NumAxes == -1)
             {
                 CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
                 {
-                    _probeController.SetProbeAngles(angles);
-                    _probeController.SetProbePosition(new Vector3(pos.y, pos.x, pos.z));
+                    _probeController.SetProbeAngles(new Vector3(angles.x, 90 - angles.y, angles.z));
+
+                    // Convert Pathfinder space coordinates into active atlas space
+                    _probeController.SetProbePosition(
+                        BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
+                            CoordinateSpace.Space2World_Vector(pos)));
                 });
             }
             else
@@ -268,7 +272,11 @@ namespace Pinpoint.Probes
 
         public void UpdateSpaceAndTransform()
         {
-            CoordinateSpace = new ManipulatorSpace(Dimensions);
+            CoordinateSpace = NumAxes switch
+            {
+                -1 => new PathfinderSpace(),
+                _ => new ManipulatorSpace(Dimensions)
+            };
             CoordinateTransform = NumAxes switch
             {
                 4 => IsRightHanded
