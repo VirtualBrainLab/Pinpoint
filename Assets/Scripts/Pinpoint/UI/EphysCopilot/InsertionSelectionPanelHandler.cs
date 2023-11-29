@@ -71,7 +71,7 @@ namespace Pinpoint.UI.EphysCopilot
         /// </summary>
         public static IEnumerable<ProbeManager> TargetableProbeManagers => ProbeManager.Instances
             .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(manager
-                .FindSurfaceIdxCoordinate(
+                .FindEntryIdxCoordinate(
                     BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(manager.ProbeController
                         .Insertion
                         .PositionWorldU()),
@@ -305,7 +305,7 @@ namespace Pinpoint.UI.EphysCopilot
             };
 
             // Recalculate AP and ML based on pre-depth-drive DV
-            var brainSurfaceCoordinate = ProbeManager.FindSurfaceIdxCoordinate(
+            var brainSurfaceCoordinate = ProbeManager.FindEntryIdxCoordinate(
                 BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
                     ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
                         .ProbeController.Insertion.PositionWorldU()),

@@ -112,7 +112,7 @@ public class ProbeManager : MonoBehaviour
     private const float maxRoll = 180f;
 
     // Brain surface position
-    private bool probeInBrain;
+    private bool _probeInBrain;
     private Vector3 _brainSurfaceCoordT;
     private Vector3 _brainSurfaceWorldU;
     private Vector3 _brainSurfaceWorldT;
@@ -370,7 +370,7 @@ public class ProbeManager : MonoBehaviour
         else
         {
             // Check if this probe is in the brain
-            name = probeInBrain ? $"{_probeUIManagers[0].MaxArea}-{UUID[..8]}" : UUID[..8];
+            name = _probeInBrain ? $"{_probeUIManagers[0].MaxArea}-{UUID[..8]}" : UUID[..8];
         }
     }
 
@@ -734,40 +734,7 @@ public class ProbeManager : MonoBehaviour
         UIUpdateEvent.Invoke();
     }
 
-#region Brain surface coordinate
-
-    /// <summary>
-    /// Check whether the probe is in the brain.
-    /// If it is, calculate the brain surface coordinate by iterating up the probe until you leave the brain.
-    /// </summary>
-    public void UpdateSurfacePosition()
-    {
-        // note: the backward axis on the probe is the probe's "up" axis
-        (Vector3 tipCoordWorld, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
-
-        Vector3 surfaceIdxCoordU = FindSurfaceIdxCoordinate(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorld),
-            BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-tipForwardWorldU));
-
-        if (float.IsNaN(surfaceIdxCoordU.x))
-        {
-            // not in the brain
-            probeInBrain = false;
-            _brainSurfaceWorldU = new Vector3(float.NaN, float.NaN, float.NaN);
-            _brainSurfaceWorldT = new Vector3(float.NaN, float.NaN, float.NaN);
-            _brainSurfaceCoordT = new Vector3(float.NaN, float.NaN, float.NaN);
-        }
-        else
-        {
-            // in the brain
-            probeInBrain = true;
-            // get the surface coordinate in un-transformed world space
-            _brainSurfaceWorldU = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(surfaceIdxCoordU);
-            // go back into transformed space, only using the reference coordinate for the entry coordinate (not the transform coordinate)
-            _brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(_brainSurfaceWorldU, false);
-            _brainSurfaceCoordT = ProbeController.Insertion.World2T(_brainSurfaceWorldU);
-        }
-    }
-
+    #region Brain surface coordinate
 
     public (Vector3 surfaceCoordinateT, float depthT) GetSurfaceCoordinateT()
     {
@@ -781,40 +748,83 @@ public class ProbeManager : MonoBehaviour
 
     public bool IsProbeInBrain()
     {
-        return probeInBrain;
+        return _probeInBrain;
     }
-    
+
     /// <summary>
     ///     Move probe to brain surface
     /// </summary>
     public void DropProbeToBrainSurface()
     {
-        if (probeInBrain)
+        if (_probeInBrain)
         {
             _probeController.SetProbePosition(_brainSurfaceCoordT);
         }
         else
         {
-            // We need to calculate the surface coordinate ourselves
-            var tipExtensionDirection =
-                ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipUpWorldU : Vector3.up;
+            (Vector3 entryCoordAtlasIdx, _) = CalculateEntryCoordinate(!ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth);
 
-            var brainSurfaceCoordinate = FindSurfaceIdxCoordinate(
-                BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(_probeController.GetTipWorldU().tipCoordWorldU - tipExtensionDirection * 5),
-                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(tipExtensionDirection));
-
-            if (float.IsNaN(brainSurfaceCoordinate.x))
+            if (float.IsNaN(entryCoordAtlasIdx.x))
             {
                 Debug.LogWarning("Could not find brain surface! Canceling set brain offset.");
                 return;
             }
 
-            var brainSurfaceToTransformed =
-                _probeController.Insertion.World2T(
-                    BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(brainSurfaceCoordinate));
+            var entryCoordAtlasT = BrainAtlasManager.ActiveAtlasTransform.U2T(
+                BrainAtlasManager.ActiveReferenceAtlas.Idx2Atlas(entryCoordAtlasIdx));
 
-            _probeController.SetProbePosition(brainSurfaceToTransformed);
+            _probeController.SetProbePosition(entryCoordAtlasT);
         }
+    }
+
+    /// <summary>
+    /// Check whether the probe is in the brain.
+    /// If it is, calculate the brain surface coordinate by iterating up the probe until you leave the brain.
+    /// </summary>
+    public void UpdateSurfacePosition()
+    {
+        (Vector3 entryCoordAtlasIdx, bool probeInBrain) = CalculateEntryCoordinate();
+        _probeInBrain = probeInBrain;
+
+        if (!_probeInBrain)
+        {
+            _brainSurfaceWorldU = new Vector3(float.NaN, float.NaN, float.NaN);
+            _brainSurfaceWorldT = new Vector3(float.NaN, float.NaN, float.NaN);
+            _brainSurfaceCoordT = new Vector3(float.NaN, float.NaN, float.NaN);
+        }
+        else
+        {
+            // get the surface coordinate in un-transformed world space
+            _brainSurfaceWorldU = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx);
+            // go back into transformed space, only using the reference coordinate for the entry coordinate (not the transform coordinate)
+            _brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(_brainSurfaceWorldU, false);
+
+            _brainSurfaceCoordT = BrainAtlasManager.ActiveAtlasTransform.U2T(
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(_brainSurfaceWorldU, true));
+        }
+    }
+
+    /// <summary>
+    /// Calculate the entry coordinate on the brain surface, returns coordIdx
+    /// </summary>
+    /// <param name="calculateOutside"></param>
+    /// <param name="useDV"></param>
+    /// <returns>(entryCoordAtlasIdx, probeInBrain)</returns>
+    public (Vector3 entryCoordAtlasIdx, bool probeInBrain) CalculateEntryCoordinate(bool useDV = false)
+    {
+        // note: the backward axis on the probe is the probe's "up" axis
+        (Vector3 tipCoordWorldU, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
+
+        Vector3 tipAtlasIdxU = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorldU);
+        Vector3 downDir = useDV ? Vector3.down : tipForwardWorldU;
+
+        // Check if we're in the brain
+        bool probeInBrain = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(tipAtlasIdxU) > 0;
+
+        Vector3 entryCoordAtlasIdx = FindEntryIdxCoordinate(probeInBrain ? tipAtlasIdxU : tipAtlasIdxU + downDir * 5000f / BrainAtlasManager.ActiveReferenceAtlas.Resolution.x,
+            BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(downDir));
+
+        return (entryCoordAtlasIdx, probeInBrain);
     }
 
     /// <summary>
@@ -826,25 +836,44 @@ public class ProbeManager : MonoBehaviour
     /// to enter first to discover the surface coordinate.
     /// </summary>
     /// <param name="bottomIdxCoordU">coordinate to go down to</param>
-    /// <param name="upVector"></param>
+    /// <param name="downVector"></param>
     /// <returns></returns>
-    public Vector3 FindSurfaceIdxCoordinate(Vector3 bottomIdxCoordU, Vector3 upVector)
+    public Vector3 FindEntryIdxCoordinate(Vector3 bottomIdxCoordU, Vector3 downVector)
     {
         // search from 10000 um above the top idx
+        Debug.Log(downVector);
         float searchDistance = 10000 / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
-        // We'll start at a point that is pretty far above the brain surface
-        // note that search distance is in 25um units, so this is actually 10000 um up (i.e. the top of the probe)
-        Vector3 topSearchIdxCoordU = bottomIdxCoordU + upVector * searchDistance;
+        Vector3 topSearchIdxCoordU = bottomIdxCoordU - downVector * searchDistance;
 
         // If by chance we are inside the brain, go farther
         if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(topSearchIdxCoordU) > 0)
-            topSearchIdxCoordU = bottomIdxCoordU + upVector * searchDistance * 2f;
+            topSearchIdxCoordU = bottomIdxCoordU - downVector * searchDistance * 2f;
 
-        for (float perc = 0; perc <= 1f; perc += 0.0005f)
+        // We're going to speed this up by doing two searches: first a fast search to get into the brain, then a slow search to accurately
+        // get the surface coordinate
+        float finalPerc = -1f;
+        for (float perc = 0; perc <= 1f; perc += 0.01f)
         {
             Vector3 point = Vector3.Lerp(topSearchIdxCoordU, bottomIdxCoordU, perc);
             if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(point) > 0)
-                return point;
+            {
+                Debug.Log(point);
+                finalPerc = perc;
+                break;
+            }
+        }
+
+        if (finalPerc > -1f)
+        {
+            for (float perc = finalPerc; perc >= 0f; perc -= 0.0001f)
+            {
+                Vector3 point = Vector3.Lerp(topSearchIdxCoordU, bottomIdxCoordU, perc);
+                if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(point) <= 0)
+                {
+                    Debug.Log(point);
+                    return point;
+                }
+            }
         }
 
         // If you got here it means you *never* entered and then exited the brain
