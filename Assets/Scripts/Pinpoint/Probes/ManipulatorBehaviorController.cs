@@ -322,13 +322,8 @@ namespace Pinpoint.Probes
             else
             {
                 // We need to calculate the surface coordinate ourselves
-                var tipExtensionDirection =
-                    IsSetToDropToSurfaceWithDepth ? _probeController.GetTipWorldU().tipForwardWorldU : Vector3.down;
-
-                var brainSurfaceCoordinateIdx = _probeManager.FindEntryIdxCoordinate(
-                    BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
-                        _probeController.GetTipWorldU().tipCoordWorldU + tipExtensionDirection * 5),
-                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-tipExtensionDirection));
+                var (brainSurfaceCoordinateIdx, _) =
+                    _probeManager.CalculateEntryCoordinate(!IsSetToDropToSurfaceWithDepth);
 
                 if (float.IsNaN(brainSurfaceCoordinateIdx.x))
                 {

@@ -762,7 +762,7 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
-            (Vector3 entryCoordAtlasIdx, _) = CalculateEntryCoordinate(!ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth);
+            var (entryCoordAtlasIdx, _) = CalculateEntryCoordinate();
 
             if (float.IsNaN(entryCoordAtlasIdx.x))
             {
@@ -811,7 +811,6 @@ public class ProbeManager : MonoBehaviour
     /// <summary>
     /// Calculate the entry coordinate on the brain surface, returns coordIdx
     /// </summary>
-    /// <param name="calculateOutside"></param>
     /// <param name="useDV"></param>
     /// <returns>(entryCoordAtlasIdx, probeInBrain)</returns>
     public (Vector3 entryCoordAtlasIdx, bool probeInBrain) CalculateEntryCoordinate(bool useDV = false)
