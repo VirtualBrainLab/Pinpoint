@@ -1,3 +1,4 @@
+using BrainAtlas;
 using EphysLink;
 using TMPro;
 using UnityEngine;
@@ -34,8 +35,8 @@ namespace Pinpoint.UI.EphysCopilot
 
         // Base speeds (in mm/s)
         private const float DEPTH_DRIVE_BASE_SPEED_TEST = 0.5f;
-        private const float DEPTH_DRIVE_BASE_SPEED = DEPTH_DRIVE_BASE_SPEED_TEST;
-        // private const float DEPTH_DRIVE_BASE_SPEED = 0.005f;
+        // private const float DEPTH_DRIVE_BASE_SPEED = DEPTH_DRIVE_BASE_SPEED_TEST;
+        private const float DEPTH_DRIVE_BASE_SPEED = 0.005f;
 
         // Speed multipliers
         private const float NEAR_TARGET_SPEED_MULTIPLIER = 2f / 3f;
@@ -220,14 +221,16 @@ namespace Pinpoint.UI.EphysCopilot
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
-                var probeTipTUp = ProbeManager.ProbeController.ProbeTipT.up;
+                var probeTipTForward = ProbeManager.ProbeController.ProbeTipT.forward;
                 var offsetAdjustedRelativeTargetPositionWorldT =
-                    Vector3.ProjectOnPlane(relativePositionWorldT, probeTipTUp);
+                    Vector3.ProjectOnPlane(relativePositionWorldT, probeTipTForward);
                 var offsetAdjustedTargetPositionWorldT =
                     targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
                 // Converting worldT back to APMLDV (position transformed)
                 targetInsertion.apmldv = targetInsertion.World2T(offsetAdjustedTargetPositionWorldT);
+
+                print("Target distance: " + Vector3.Distance(targetInsertion.apmldv, _duraAPMLDV));
 
                 return Vector3.Distance(targetInsertion.apmldv, _duraAPMLDV);
             }
