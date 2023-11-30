@@ -2,7 +2,7 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
-/[Ll]ibrary/
+/[Ll]ibrary/*
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
@@ -151,15 +151,13 @@ fabric.properties
 # End of https://www.toptal.com/developers/gitignore/api/rider
 Assets/AddressableAssets.zip
 Assets/AddressableAssets.zip.meta
+# Folder needed for Addressables to work properly
+!/Library/com.unity.addressables/
 
 Assets/InitTestScene*
 UserSettings/Layouts/*
 
 UserSettings/
-Assets/AddressableAssetsData/link.xml
-Assets/AddressableAssetsData/link.xml.meta
-Assets/StreamingAssets/catalog.bin.meta
-Assets/StreamingAssets/catalog.bin
 Assets/Resources/PerformanceTestRunInfo.json.meta
 Assets/Resources/PerformanceTestRunInfo.json
 Assets/CleanFlatUI/*

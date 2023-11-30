@@ -1,11 +1,8 @@
 using BrainAtlas;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 public class CartesianProbeController : ProbeController
 {
@@ -18,14 +15,14 @@ public class CartesianProbeController : ProbeController
     private const float MOVE_INCREMENT_HOLD_ULTRA = 10.000f;
     private const float MOVE_INCREMENT_HOLD_FAST = 1.000f;
     private const float MOVE_INCREMENT_HOLD_SLOW = 0.010f;
-    private const float ROT_INCREMENT_TAP = 5f;
-    private const float ROT_INCREMENT_TAP_ULTRA = 90f;
-    private const float ROT_INCREMENT_TAP_FAST = 15f;
-    private const float ROT_INCREMENT_TAP_SLOW = 1f;
-    private const float ROT_INCREMENT_HOLD = 5f;
-    private const float ROT_INCREMENT_HOLD_ULTRA = 90f;
-    private const float ROT_INCREMENT_HOLD_FAST = 15;
-    private const float ROT_INCREMENT_HOLD_SLOW = 1f;
+    private const float ROT_INCREMENT_TAP = 1f;
+    private const float ROT_INCREMENT_TAP_ULTRA = 15f;
+    private const float ROT_INCREMENT_TAP_FAST = 5f;
+    private const float ROT_INCREMENT_TAP_SLOW = 0.1f;
+    private const float ROT_INCREMENT_HOLD = 1f;
+    private const float ROT_INCREMENT_HOLD_ULTRA = 15f;
+    private const float ROT_INCREMENT_HOLD_FAST = 5f;
+    private const float ROT_INCREMENT_HOLD_SLOW = 0.1f;
 
     // [deprecated]
     //private readonly Vector4 _forwardDir = new(0f, 0f, -1f, 0f);
