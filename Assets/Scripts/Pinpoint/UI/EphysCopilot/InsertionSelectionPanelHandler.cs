@@ -305,14 +305,15 @@ namespace Pinpoint.UI.EphysCopilot
             };
 
             // Recalculate AP and ML based on pre-depth-drive DV
-            var brainSurfaceCoordinate = ProbeManager.FindEntryIdxCoordinate(
-                BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
-                    ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
-                        .ProbeController.GetTipWorldU().tipCoordWorldU),
-                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(Vector3.up));
+            var targetProbeManager =
+                ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID];
+            var (brainSurfaceCoordinateIdx, _) = targetProbeManager.CalculateEntryCoordinate(!ProbeManager
+                .ManipulatorBehaviorController
+                .IsSetToDropToSurfaceWithDepth);
 
-            var brainSurfaceWorld = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(brainSurfaceCoordinate);
-            var brainSurfaceTransformed = _movementAxesInsertions.dv.World2T(brainSurfaceWorld);
+            var brainSurfaceTransformed =
+                targetProbeManager.ProbeController.Insertion.World2T(
+                    BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(brainSurfaceCoordinateIdx));
 
             // AP Axis
             _movementAxesInsertions.ap = new ProbeInsertion(_movementAxesInsertions.dv)
