@@ -816,13 +816,45 @@ public class ProbeManager : MonoBehaviour
         (Vector3 tipCoordWorldU, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
 
         Vector3 tipAtlasIdxU = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorldU);
+        
         Vector3 downDir = useDV ? Vector3.down : tipForwardWorldU;
+        Vector3 downDirAtlas = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(downDir);
 
         // Check if we're in the brain
         bool probeInBrain = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(tipAtlasIdxU) > 0;
 
-        Vector3 entryCoordAtlasIdx = FindEntryIdxCoordinate(probeInBrain ? tipAtlasIdxU : tipAtlasIdxU + downDir * 5000f / BrainAtlasManager.ActiveReferenceAtlas.Resolution.x,
-            BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(downDir));
+        Vector3 tipInBrain = tipAtlasIdxU;
+
+        // Adjust the tip coordinate to put it into the brain
+        if (!probeInBrain)
+        {
+            bool done = false;
+            float[] offset = { +1000f, -1000f };
+            for (int mult = 1; mult <= 16; mult *= 2)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    Vector3 temporaryTip = tipAtlasIdxU + downDirAtlas * offset[i] * mult / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
+                    if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(temporaryTip) > 0)
+                    {
+                        tipInBrain = temporaryTip;
+                        done = true;
+                        break;
+                    }
+                }
+
+                if (done)
+                    break;
+            }
+
+            if (!done)
+            {
+                Debug.LogWarning("Impossible to find brain surface from here");
+                return (new Vector3(float.NaN, float.NaN, float.NaN), false);
+            }
+        }
+        
+        Vector3 entryCoordAtlasIdx = FindEntryIdxCoordinate(tipInBrain, downDirAtlas);
 
         return (entryCoordAtlasIdx, probeInBrain);
     }
@@ -840,9 +872,7 @@ public class ProbeManager : MonoBehaviour
     /// <returns></returns>
     public Vector3 FindEntryIdxCoordinate(Vector3 bottomIdxCoordU, Vector3 downVector)
     {
-        // search from 10000 um above the top idx
-        Debug.Log(downVector);
-        float searchDistance = 10000 / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
+        float searchDistance = BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z * 1000f / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
         Vector3 topSearchIdxCoordU = bottomIdxCoordU - downVector * searchDistance;
 
         // If by chance we are inside the brain, go farther
@@ -857,7 +887,6 @@ public class ProbeManager : MonoBehaviour
             Vector3 point = Vector3.Lerp(topSearchIdxCoordU, bottomIdxCoordU, perc);
             if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(point) > 0)
             {
-                Debug.Log(point);
                 finalPerc = perc;
                 break;
             }
@@ -870,7 +899,6 @@ public class ProbeManager : MonoBehaviour
                 Vector3 point = Vector3.Lerp(topSearchIdxCoordU, bottomIdxCoordU, perc);
                 if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(point) <= 0)
                 {
-                    Debug.Log(point);
                     return point;
                 }
             }

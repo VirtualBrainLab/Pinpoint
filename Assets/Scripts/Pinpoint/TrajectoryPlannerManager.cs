@@ -1040,11 +1040,19 @@ namespace TrajectoryPlanner
             if (BrainAtlasManager.ActiveReferenceAtlas == null)
                 return;
 
+            if (blRatio == 1f)
+            {
+                if (BrainAtlasManager.ActiveReferenceAtlas.Name == "Custom" && _originalTransform != null)
+                    _pinpointAtlasManager.SetNewTransform((AtlasTransform)_originalTransform);
+                _originalTransform = null;
+                return;
+            }
+
 #if UNITY_EDITOR
             Debug.Log($"(BL Distance) Re-scaling to {blRatio}");
 #endif
 
-            if (BrainAtlasManager.ActiveAtlasTransform.Name != "Custom")
+            if (BrainAtlasManager.ActiveAtlasTransform.Name != "Custom") { }
                 _originalTransform = BrainAtlasManager.ActiveAtlasTransform;
 
             // There's no easy way to implement this without a refactor of the CoordinateTransform code, because you can't pull out the transform matrix.
