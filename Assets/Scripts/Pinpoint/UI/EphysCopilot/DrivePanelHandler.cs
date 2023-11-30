@@ -35,8 +35,8 @@ namespace Pinpoint.UI.EphysCopilot
 
         // Base speeds (in mm/s)
         private const float DEPTH_DRIVE_BASE_SPEED_TEST = 0.5f;
-        private const float DEPTH_DRIVE_BASE_SPEED = DEPTH_DRIVE_BASE_SPEED_TEST;
-        // private const float DEPTH_DRIVE_BASE_SPEED = 0.005f;
+        // private const float DEPTH_DRIVE_BASE_SPEED = DEPTH_DRIVE_BASE_SPEED_TEST;
+        private const float DEPTH_DRIVE_BASE_SPEED = 0.005f;
 
         // Speed multipliers
         private const float NEAR_TARGET_SPEED_MULTIPLIER = 2f / 3f;
