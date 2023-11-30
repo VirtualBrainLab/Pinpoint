@@ -770,12 +770,12 @@ public class ProbeManager : MonoBehaviour
                 return;
             }
 
-            Debug.Log(entryCoordAtlasIdx);
+            Vector3 worldU = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx);
+            Vector3 entryCoordAtlasT = BrainAtlasManager.WorldU2WorldT(worldU);
 
-            Vector3 w = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx);
-            Vector3 a = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(w);
-
-            var entryCoordAtlasT = BrainAtlasManager.ActiveAtlasTransform.U2T(a);
+            //var entryCoordAtlasT = BrainAtlasManager.ActiveAtlasTransform.U2T(
+            //    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(
+            //        BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx)));
 
             _probeController.SetProbePosition(entryCoordAtlasT);
         }
@@ -823,6 +823,7 @@ public class ProbeManager : MonoBehaviour
         
         Vector3 downDir = useDV ? Vector3.down : tipForwardWorldU;
         Vector3 downDirAtlas = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(downDir);
+        Debug.Log(downDirAtlas);
 
         // Check if we're in the brain
         bool probeInBrain = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(tipAtlasIdxU) > 0;
@@ -839,9 +840,11 @@ public class ProbeManager : MonoBehaviour
                 for (int i = 0; i < 2; i++)
                 {
                     Vector3 temporaryTip = tipAtlasIdxU + downDirAtlas * offset[i] * mult / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
+                    Debug.Log(temporaryTip);
                     if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(temporaryTip) > 0)
                     {
                         tipInBrain = temporaryTip;
+                        Debug.Log(tipInBrain);
                         done = true;
                         break;
                     }
@@ -854,7 +857,6 @@ public class ProbeManager : MonoBehaviour
             if (!done)
             {
                 Debug.LogWarning("Impossible to find brain surface from here");
-                Debug.Log(tipInBrain);
                 return (new Vector3(float.NaN, float.NaN, float.NaN), false);
             }
         }
