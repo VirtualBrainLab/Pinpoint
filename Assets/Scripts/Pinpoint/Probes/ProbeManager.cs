@@ -100,10 +100,10 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
     // Probe position data
-    private Vector3 _recRegionBaseCoordU;
-    private Vector3 _recRegionTopCoordU;
+    private Vector3 _recRegionBaseCoordWorldU;
+    private Vector3 _recRegionTopCoordWorldU;
 
-    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU { get { return (_recRegionBaseCoordU, _recRegionTopCoordU); } }
+    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU { get { return (_recRegionBaseCoordWorldU, _recRegionTopCoordWorldU); } }
 
     // Text
     private const float minYaw = -180;
@@ -382,8 +382,8 @@ public class ProbeManager : MonoBehaviour
         // Update the world coordinates for the tip position
         Vector3 startCoordWorldT = _probeController.ProbeTipT.position + -_probeController.ProbeTipT.forward * channelCoords.startPosmm;
         Vector3 endCoordWorldT = _probeController.ProbeTipT.position + -_probeController.ProbeTipT.forward * channelCoords.endPosmm;
-        _recRegionBaseCoordU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT);
-        _recRegionTopCoordU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT);
+        _recRegionBaseCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT);
+        _recRegionTopCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT);
     }
 
     #region Channel map
@@ -770,8 +770,12 @@ public class ProbeManager : MonoBehaviour
                 return;
             }
 
-            var entryCoordAtlasT = BrainAtlasManager.ActiveAtlasTransform.U2T(
-                BrainAtlasManager.ActiveReferenceAtlas.Idx2Atlas(entryCoordAtlasIdx));
+            Debug.Log(entryCoordAtlasIdx);
+
+            Vector3 w = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx);
+            Vector3 a = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(w);
+
+            var entryCoordAtlasT = BrainAtlasManager.ActiveAtlasTransform.U2T(a);
 
             _probeController.SetProbePosition(entryCoordAtlasT);
         }
@@ -850,6 +854,7 @@ public class ProbeManager : MonoBehaviour
             if (!done)
             {
                 Debug.LogWarning("Impossible to find brain surface from here");
+                Debug.Log(tipInBrain);
                 return (new Vector3(float.NaN, float.NaN, float.NaN), false);
             }
         }
