@@ -12,14 +12,18 @@ using SimpleFileBrowser;
 
 public class APISpikeGLX : MonoBehaviour
 {
+    private const float FUZZY_DISTANCE = 0.01f;
+
     [SerializeField] private TMP_InputField _helloSpikeGLXPathInput;
     private HashSet<Process> _processList;
+    private Dictionary<ProbeManager, Vector3> _lastPositions;
 
     #region Unity
 
     private void Awake()
     {
         _processList = new HashSet<Process>();
+        _lastPositions = new();
     }
 
     private void OnEnable()
@@ -122,8 +126,26 @@ public class APISpikeGLX : MonoBehaviour
         {
             if (probeManager.APITarget == null || probeManager.APITarget.Equals("None"))
                 continue;
+
+            Vector3 pos = probeManager.ProbeController.Insertion.apmldv;
+
+            if (_lastPositions.ContainsKey(probeManager))
+            {
+                if (FuzzyEquals(pos, _lastPositions[probeManager]))
+                    continue;
+                _lastPositions[probeManager] = pos;
+            }
+            else
+                _lastPositions.Add(probeManager, pos);
+
             SendProbeData(probeManager);
         }
+    }
+
+    private bool FuzzyEquals(Vector3 a, Vector3 b)
+    {
+        Debug.Log(Vector3.Distance(a, b));
+        return Vector3.Distance(a, b) < FUZZY_DISTANCE;
     }
 
     public void PickHelloSGLXPath()
