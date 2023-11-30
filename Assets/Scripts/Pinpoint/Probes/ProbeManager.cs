@@ -835,7 +835,6 @@ public class ProbeManager : MonoBehaviour
                 for (int i = 0; i < 2; i++)
                 {
                     Vector3 temporaryTip = tipAtlasIdxU + downDirAtlas * offset[i] * mult / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
-                    Debug.Log(temporaryTip);
                     if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(temporaryTip) > 0)
                     {
                         tipInBrain = temporaryTip;
@@ -873,7 +872,6 @@ public class ProbeManager : MonoBehaviour
     /// <returns></returns>
     public Vector3 FindEntryIdxCoordinate(Vector3 bottomIdxCoordU, Vector3 downVector)
     {
-        Debug.Log(downVector);
         float searchDistance = BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z * 1000f / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
         Vector3 topSearchIdxCoordU = bottomIdxCoordU - downVector * searchDistance;
 
@@ -889,7 +887,6 @@ public class ProbeManager : MonoBehaviour
             Vector3 point = Vector3.Lerp(topSearchIdxCoordU, bottomIdxCoordU, perc);
             if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(point) > 0)
             {
-                Debug.Log(point);
                 finalPerc = perc;
                 break;
             }
@@ -902,7 +899,6 @@ public class ProbeManager : MonoBehaviour
                 Vector3 point = Vector3.Lerp(topSearchIdxCoordU, bottomIdxCoordU, perc);
                 if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(point) <= 0)
                 {
-                    Debug.Log(point);
                     return point;
                 }
             }
