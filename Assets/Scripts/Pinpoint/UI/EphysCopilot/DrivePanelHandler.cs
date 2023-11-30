@@ -1,3 +1,4 @@
+using BrainAtlas;
 using EphysLink;
 using TMPro;
 using UnityEngine;
@@ -220,14 +221,16 @@ namespace Pinpoint.UI.EphysCopilot
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
-                var probeTipTUp = ProbeManager.ProbeController.ProbeTipT.up;
+                var probeTipTForward = ProbeManager.ProbeController.ProbeTipT.forward;
                 var offsetAdjustedRelativeTargetPositionWorldT =
-                    Vector3.ProjectOnPlane(relativePositionWorldT, probeTipTUp);
+                    Vector3.ProjectOnPlane(relativePositionWorldT, probeTipTForward);
                 var offsetAdjustedTargetPositionWorldT =
                     targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
                 // Converting worldT back to APMLDV (position transformed)
                 targetInsertion.apmldv = targetInsertion.World2T(offsetAdjustedTargetPositionWorldT);
+
+                print("Target distance: " + Vector3.Distance(targetInsertion.apmldv, _duraAPMLDV));
 
                 return Vector3.Distance(targetInsertion.apmldv, _duraAPMLDV);
             }
