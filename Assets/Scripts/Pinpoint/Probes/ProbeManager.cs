@@ -770,12 +770,12 @@ public class ProbeManager : MonoBehaviour
                 return;
             }
 
-            Vector3 worldU = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx);
-            Vector3 entryCoordAtlasT = BrainAtlasManager.WorldU2WorldT(worldU);
+            //Vector3 worldU = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx);
+            //Vector3 entryCoordAtlasT = BrainAtlasManager.WorldU2WorldT(worldU);
 
-            //var entryCoordAtlasT = BrainAtlasManager.ActiveAtlasTransform.U2T(
-            //    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(
-            //        BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx)));
+            var entryCoordAtlasT = BrainAtlasManager.ActiveAtlasTransform.U2T(
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(
+                    BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx)));
 
             _probeController.SetProbePosition(entryCoordAtlasT);
         }
@@ -820,10 +820,9 @@ public class ProbeManager : MonoBehaviour
         (Vector3 tipCoordWorldU, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
 
         Vector3 tipAtlasIdxU = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorldU);
-        
+
         Vector3 downDir = useDV ? Vector3.down : tipForwardWorldU;
         Vector3 downDirAtlas = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(downDir);
-        Debug.Log(downDirAtlas);
 
         // Check if we're in the brain
         bool probeInBrain = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(tipAtlasIdxU) > 0;
@@ -831,27 +830,32 @@ public class ProbeManager : MonoBehaviour
         Vector3 tipInBrain = tipAtlasIdxU;
 
         // Adjust the tip coordinate to put it into the brain
+        // This is kind of a dumb algorithm, we 
         if (!probeInBrain)
         {
-            bool done = false;
-            float[] offset = { +1000f, -1000f };
-            for (int mult = 1; mult <= 16; mult *= 2)
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    Vector3 temporaryTip = tipAtlasIdxU + downDirAtlas * offset[i] * mult / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
-                    Debug.Log(temporaryTip);
-                    if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(temporaryTip) > 0)
-                    {
-                        tipInBrain = temporaryTip;
-                        Debug.Log(tipInBrain);
-                        done = true;
-                        break;
-                    }
-                }
+            // Get which direction we need to go
+            (int ap, int ml, int dv) = BrainAtlasManager.ActiveReferenceAtlas.DimensionsIdx;
+            Vector3 center = new Vector3(ap, ml, dv) / 2f;
 
-                if (done)
+            Vector3 towardBox = downDirAtlas;
+
+            // Invert if the vector points the wrong way
+            if (Vector3.Dot(downDirAtlas, tipAtlasIdxU - center) > 0)
+                towardBox = -towardBox;
+
+            // Step in 1mm increments
+            float stepSize = 1000f / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
+
+            bool done = false;
+            for (int steps = 1; steps < Mathf.RoundToInt(BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z*2f); steps++)
+            {
+                Vector3 tempTip = tipAtlasIdxU + towardBox * stepSize * steps;
+                if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(tempTip) > 0)
+                {
+                    tipInBrain = tempTip;
+                    done = true;
                     break;
+                }
             }
 
             if (!done)
@@ -901,7 +905,7 @@ public class ProbeManager : MonoBehaviour
 
         if (finalPerc > -1f)
         {
-            for (float perc = finalPerc; perc >= 0f; perc -= 0.0001f)
+            for (float perc = finalPerc; perc >= 0f; perc -= 0.001f)
             {
                 Vector3 point = Vector3.Lerp(topSearchIdxCoordU, bottomIdxCoordU, perc);
                 if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(point) <= 0)
