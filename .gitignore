@@ -156,8 +156,6 @@ Assets/InitTestScene*
 UserSettings/Layouts/*
 
 UserSettings/
-Assets/AddressableAssetsData/link.xml
-Assets/AddressableAssetsData/link.xml.meta
 Assets/StreamingAssets/catalog.bin.meta
 Assets/StreamingAssets/catalog.bin
 Assets/Resources/PerformanceTestRunInfo.json.meta
