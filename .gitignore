@@ -151,6 +151,8 @@ fabric.properties
 # End of https://www.toptal.com/developers/gitignore/api/rider
 Assets/AddressableAssets.zip
 Assets/AddressableAssets.zip.meta
+# Folder needed for Addressables to work properly
+!/Library/com.unity.addressables/aa/
 
 Assets/InitTestScene*
 UserSettings/Layouts/*
