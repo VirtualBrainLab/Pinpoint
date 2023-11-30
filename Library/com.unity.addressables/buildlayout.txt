@@ -1,0 +1,118 @@
+WARNING! The formatting in this file may change in future package versions.
+Unity Version: 2022.3.12f1
+com.unity.addressables: 1.21.18
+Summary
+	Addressable Groups: 5
+	Explicit Assets Addressed: 9
+	Total Bundle: 8 (0 Scene Bundles, 8 Non-Scene Bundles)
+	Total Build Size: 4.91MB
+	Total MonoScript Size: 672B
+	Total AssetBundle Object Size: 2.38KB
+
+Group Built In Data (Bundles: 0, Total Size: 0B, Explicit Asset Count: 0)
+	Schemas
+		PlayerDataGroupSchema (IncludeResourcesFolders: True, IncludeBuildSettingsScenes: True)
+Group Default Local Group (Bundles: 0, Total Size: 0B, Explicit Asset Count: 0)
+	Schemas
+		ContentUpdateGroupSchema (StaticContent: False)
+		BundledAssetGroupSchema (InternalBundleIdMode: GroupGuidProjectIdHash, Compression: LZ4, IncludeAddressInCatalog: True, IncludeGUIDInCatalog: True, IncludeLabelsInCatalog: True, InternalIdNamingMode: FullPath, AssetBundledCacheClearBehavior: ClearWhenSpaceIsNeededInCache, IncludeInBuild: True, BundledAssetProviderType: UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider, ForceUniqueProvider: False, UseAssetBundleCache: True, UseAssetBundleCrc: True, UseAssetBundleCrcForCachedBundles: True, UseUnityWebRequestForLocalBundles: False, Timeout: 0, ChunkedTransfer: False, RedirectLimit: -1, RetryCount: 0, BuildPath: ServerData/WebGL, LoadPath: https://data.virtualbrainlab.org/PinpointData/1.0.3/WebGL, PackingMode: PackTogether, HostingServicesContentRoot: ServerData/WebGL, AssetBundleProviderType: UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider, BundleNaming: AppendHash, AssetLoadMode: RequestedAssetAndDependencies)
+Group IBLCoverage (Bundles: 1, Total Size: 1.03MB, Explicit Asset Count: 1)
+	Schemas
+		BundledAssetGroupSchema (InternalBundleIdMode: GroupGuidProjectIdHash, Compression: LZ4, IncludeAddressInCatalog: True, IncludeGUIDInCatalog: True, IncludeLabelsInCatalog: True, InternalIdNamingMode: FullPath, AssetBundledCacheClearBehavior: ClearWhenSpaceIsNeededInCache, IncludeInBuild: True, BundledAssetProviderType: UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider, ForceUniqueProvider: False, UseAssetBundleCache: True, UseAssetBundleCrc: True, UseAssetBundleCrcForCachedBundles: True, UseUnityWebRequestForLocalBundles: False, Timeout: 0, ChunkedTransfer: False, RedirectLimit: -1, RetryCount: 0, BuildPath: ServerData/WebGL, LoadPath: https://data.virtualbrainlab.org/PinpointData/1.0.3/WebGL, PackingMode: PackTogether, HostingServicesContentRoot: ServerData/WebGL, AssetBundleProviderType: UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider, BundleNaming: AppendHash, AssetLoadMode: RequestedAssetAndDependencies)
+		ContentUpdateGroupSchema (StaticContent: False)
+	Archive iblcoverage_assets_all_5daba40c72c445ca099b1ab7d02103a1.bundle (Size: 1.03MB, Compression: Lz4HC, Asset Bundle Object Size: 228B)
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/AddressableAssets/IBL/coverage_indexes.bytes (Total Size: 30.89MB, Size from Objects: 30.89MB, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/AddressableAssets/IBL/coverage_indexes.bytes)
+		Files:
+			File 0 (MonoScripts: 0, MonoScript Size: 0B)
+				CAB-60ad8089135abe8f9a73bf9407439ad9 (Size: 30.89MB)
+				Data From Other Assets (0)
+Group Skull (Bundles: 1, Total Size: 3.85MB, Explicit Asset Count: 2)
+	Schemas
+		BundledAssetGroupSchema (InternalBundleIdMode: GroupGuidProjectIdHash, Compression: LZ4, IncludeAddressInCatalog: True, IncludeGUIDInCatalog: True, IncludeLabelsInCatalog: True, InternalIdNamingMode: FullPath, AssetBundledCacheClearBehavior: ClearWhenSpaceIsNeededInCache, IncludeInBuild: True, BundledAssetProviderType: UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider, ForceUniqueProvider: False, UseAssetBundleCache: True, UseAssetBundleCrc: True, UseAssetBundleCrcForCachedBundles: True, UseUnityWebRequestForLocalBundles: False, Timeout: 0, ChunkedTransfer: False, RedirectLimit: -1, RetryCount: 0, BuildPath: ServerData/WebGL, LoadPath: https://data.virtualbrainlab.org/PinpointData/1.0.3/WebGL, PackingMode: PackTogether, HostingServicesContentRoot: ServerData/WebGL, AssetBundleProviderType: UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider, BundleNaming: AppendHash, AssetLoadMode: RequestedAssetAndDependencies)
+		ContentUpdateGroupSchema (StaticContent: False)
+	Archive skull_assets_all_1e79d9107c2b53a1e6b495ffeaa5be2d.bundle (Size: 3.85MB, Compression: Lz4HC, Asset Bundle Object Size: 748B)
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/AddressableAssets/3D/skull.obj (Total Size: 9.53MB, Size from Objects: 9.53MB, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/AddressableAssets/3D/skull.obj)
+				Internal References: Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader, Packages/com.unity.render-pipelines.universal/Shaders/Utils/FallbackError.shader, Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/FallbackShader.shader
+			Assets/AddressableAssets/3D/skull.prefab (Total Size: 478B, Size from Objects: 478B, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/AddressableAssets/3D/skull.prefab)
+				Internal References: Assets/Materials/SkullMaterial.mat, Assets/Shaders/SkullCraniotomyShader.shadergraph, Packages/com.unity.shadergraph/Editor/Resources/Shaders/FallbackError.shader
+		Files:
+			File 0 (MonoScripts: 1, MonoScript Size: 96B)
+				CAB-1babebd3b33301b962ef434519af89a9 (Size: 9.7MB)
+				Data From Other Assets (6)
+					Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader (Size: 31.09KB, Size from Objects: 31.09KB, Size from Streamed Data: 0B, Object Count: 1)
+						Referencing Assets: Assets/AddressableAssets/3D/skull.obj
+					Packages/com.unity.render-pipelines.core/Runtime/RenderPipelineResources/FallbackShader.shader (Size: 3.26KB, Size from Objects: 3.26KB, Size from Streamed Data: 0B, Object Count: 1)
+						Referencing Assets: Assets/AddressableAssets/3D/skull.obj
+					Packages/com.unity.render-pipelines.universal/Shaders/Utils/FallbackError.shader (Size: 3.96KB, Size from Objects: 3.96KB, Size from Streamed Data: 0B, Object Count: 1)
+						Referencing Assets: Assets/AddressableAssets/3D/skull.obj
+					Assets/Materials/SkullMaterial.mat (Size: 1.52KB, Size from Objects: 1.52KB, Size from Streamed Data: 0B, Object Count: 1)
+						Referencing Assets: Assets/AddressableAssets/3D/skull.prefab
+					Assets/Shaders/SkullCraniotomyShader.shadergraph (Size: 30.97KB, Size from Objects: 30.97KB, Size from Streamed Data: 0B, Object Count: 1)
+						Referencing Assets: Assets/AddressableAssets/3D/skull.prefab
+					Packages/com.unity.shadergraph/Editor/Resources/Shaders/FallbackError.shader (Size: 3.42KB, Size from Objects: 3.42KB, Size from Streamed Data: 0B, Object Count: 1)
+						Referencing Assets: Assets/AddressableAssets/3D/skull.prefab
+Group ChannelMaps (Bundles: 6, Total Size: 27.9KB, Explicit Asset Count: 6)
+	Schemas
+		BundledAssetGroupSchema (InternalBundleIdMode: GroupGuidProjectIdHash, Compression: LZ4, IncludeAddressInCatalog: True, IncludeGUIDInCatalog: True, IncludeLabelsInCatalog: True, InternalIdNamingMode: FullPath, AssetBundledCacheClearBehavior: ClearWhenSpaceIsNeededInCache, IncludeInBuild: True, BundledAssetProviderType: UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider, ForceUniqueProvider: False, UseAssetBundleCache: True, UseAssetBundleCrc: True, UseAssetBundleCrcForCachedBundles: True, UseUnityWebRequestForLocalBundles: False, Timeout: 0, ChunkedTransfer: False, RedirectLimit: -1, RetryCount: 0, BuildPath: ServerData/WebGL, LoadPath: https://data.virtualbrainlab.org/PinpointData/1.0.3/WebGL, PackingMode: PackSeparately, HostingServicesContentRoot: ServerData/WebGL, AssetBundleProviderType: UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider, BundleNaming: AppendHash, AssetLoadMode: RequestedAssetAndDependencies)
+		ContentUpdateGroupSchema (StaticContent: False)
+	Archive channelmaps_assets_assets/addressableassets/channelmaps/neuropixels_1.asset_5ff32310bc8bade5503f3486222f1095.bundle (Size: 6KB, Compression: Lz4HC, Asset Bundle Object Size: 244B)
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/AddressableAssets/ChannelMaps/neuropixels_1.asset (Total Size: 15.18KB, Size from Objects: 15.18KB, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/AddressableAssets/ChannelMaps/neuropixels_1.asset)
+		Files:
+			File 0 (MonoScripts: 1, MonoScript Size: 96B)
+				CAB-75613674aa5696a883da4756eb2d4d92 (Size: 20.64KB)
+				Data From Other Assets (0)
+	Archive channelmaps_assets_assets/addressableassets/channelmaps/neuropixels_2.asset_aa1431e24ff496caa3b90a2ea2b63650.bundle (Size: 7.35KB, Compression: Lz4HC, Asset Bundle Object Size: 244B)
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/AddressableAssets/ChannelMaps/neuropixels_2.asset (Total Size: 25.26KB, Size from Objects: 25.26KB, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/AddressableAssets/ChannelMaps/neuropixels_2.asset)
+		Files:
+			File 0 (MonoScripts: 1, MonoScript Size: 96B)
+				CAB-3bab54c20eee9ec7cd3bff03371b1f1b (Size: 30.72KB)
+				Data From Other Assets (0)
+	Archive channelmaps_assets_assets/addressableassets/channelmaps/neuropixels_2_1shank.asset_8b9513807aae85ed6722c7c1bfe7b6ed.bundle (Size: 7.29KB, Compression: Lz4HC, Asset Bundle Object Size: 252B)
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/AddressableAssets/ChannelMaps/neuropixels_2_1shank.asset (Total Size: 20.18KB, Size from Objects: 20.18KB, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/AddressableAssets/ChannelMaps/neuropixels_2_1shank.asset)
+		Files:
+			File 0 (MonoScripts: 1, MonoScript Size: 96B)
+				CAB-2665d2553ac2d360af9b57166aea9d2e (Size: 25.65KB)
+				Data From Other Assets (0)
+	Archive channelmaps_assets_assets/addressableassets/channelmaps/pipette.asset_432edc55ebe781eea2e855da99f035ce.bundle (Size: 2.33KB, Compression: Lz4HC, Asset Bundle Object Size: 240B)
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/AddressableAssets/ChannelMaps/pipette.asset (Total Size: 824B, Size from Objects: 824B, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/AddressableAssets/ChannelMaps/pipette.asset)
+		Files:
+			File 0 (MonoScripts: 1, MonoScript Size: 96B)
+				CAB-f9c663f68e93f52a9968b56bc8cbe53a (Size: 6.26KB)
+				Data From Other Assets (0)
+	Archive channelmaps_assets_assets/addressableassets/channelmaps/ucla_128k.asset_10176da6b51d40cd4f77c99760c4d15b.bundle (Size: 2.26KB, Compression: Lz4HC, Asset Bundle Object Size: 240B)
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/AddressableAssets/ChannelMaps/ucla_128k.asset (Total Size: 580B, Size from Objects: 580B, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/AddressableAssets/ChannelMaps/ucla_128k.asset)
+		Files:
+			File 0 (MonoScripts: 1, MonoScript Size: 96B)
+				CAB-70c510e8b8d95eaa65ffddb64fd060e4 (Size: 6.02KB)
+				Data From Other Assets (0)
+	Archive channelmaps_assets_assets/addressableassets/channelmaps/ucla_256f.asset_048aa1beff554693c7299e93b3c3fade.bundle (Size: 2.67KB, Compression: Lz4HC, Asset Bundle Object Size: 240B)
+		Bundle Dependencies: 
+		Expanded Bundle Dependencies: 
+		Explicit Assets
+			Assets/AddressableAssets/ChannelMaps/ucla_256f.asset (Total Size: 1.88KB, Size from Objects: 1.88KB, Size from Streamed Data: 0B, File Index: 0, Addressable Name: Assets/AddressableAssets/ChannelMaps/ucla_256f.asset)
+		Files:
+			File 0 (MonoScripts: 1, MonoScript Size: 96B)
+				CAB-f340491ef8b1292e55c32e3dc59e5d57 (Size: 7.33KB)
+				Data From Other Assets (0)
+BuiltIn Bundles

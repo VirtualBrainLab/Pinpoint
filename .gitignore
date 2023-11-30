@@ -2,7 +2,7 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
-/[Ll]ibrary/
+/[Ll]ibrary/*
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
@@ -152,7 +152,7 @@ fabric.properties
 Assets/AddressableAssets.zip
 Assets/AddressableAssets.zip.meta
 # Folder needed for Addressables to work properly
-!/Library/com.unity.addressables/aa/
+!/Library/com.unity.addressables/
 
 Assets/InitTestScene*
 UserSettings/Layouts/*
