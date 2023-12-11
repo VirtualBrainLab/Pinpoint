@@ -14,7 +14,8 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
     {
         #region Constructor
 
-        public void Initialize(Pinpoint.UI.EphysLinkSettings.EphysLinkSettings settingsMenu, string manipulatorID, int numAxes)
+        public void Initialize(Pinpoint.UI.EphysLinkSettings.EphysLinkSettings settingsMenu, string manipulatorID,
+            int numAxes)
         {
             // Set properties
             _ephysLinkSettings = settingsMenu;
@@ -37,19 +38,29 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
                 _probeConnectionGroup.SetActive(false);
                 _probePropertiesSection.SetActive(false);
 
-                // Create new probe
-                var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
-                var newProbe = trajectoryPlannerManager.AddNewProbe(ProbeProperties.ProbeType.Neuropixels1);
+                CommunicationManager.Instance.GetShankCount(manipulatorID, shankCount =>
+                {
+                    // Use 2.4 if 4 shank, otherwise default to 1
+                    var probeType = shankCount == 4
+                        ? ProbeProperties.ProbeType.Neuropixels24
+                        : ProbeProperties.ProbeType.Neuropixels1;
 
-                // Configure probe and link to Ephys Link
-                newProbe.ManipulatorBehaviorController.NumAxes = numAxes;
-                newProbe.Color = Color.magenta;
-                newProbe.name = "nsp_" + manipulatorID;
-                newProbe.Saved = false;
-                newProbe.SetIsEphysLinkControlled(true, manipulatorID);
+                    // Create new probe
+                    var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
+                    var newProbe = trajectoryPlannerManager.AddNewProbe(probeType);
+
+                    // Configure probe and link to Ephys Link
+                    newProbe.ManipulatorBehaviorController.NumAxes = numAxes;
+                    newProbe.Color = Color.magenta;
+                    newProbe.name = "nsp_" + manipulatorID;
+                    newProbe.Saved = false;
+                    newProbe.SetIsEphysLinkControlled(true, manipulatorID);
+                }, Debug.LogError);
+
+                // Exit (don't need to do anything else for Pathfinder)
                 return;
             }
-            
+
             // Restore or setup normal manipulator
 
             UpdateLinkableProbeOptions();

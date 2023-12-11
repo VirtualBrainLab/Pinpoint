@@ -310,6 +310,30 @@ namespace EphysLink
             }).Emit("get_angles", manipulatorId);
         }
 
+        public void GetShankCount(string manipulatorId, Action<int> onSuccessCallback,
+            Action<string> onErrorCallback = null)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<ShankCountCallbackParameters>(data =>
+            {
+                if (data.error == "")
+                {
+                    try
+                    {
+                        onSuccessCallback?.Invoke(data.shank_count);
+                    }
+                    catch (Exception e)
+                    {
+                        onErrorCallback?.Invoke(e.ToString());
+                    }
+                }
+                else
+                {
+                    onErrorCallback?.Invoke(data.error);
+                    Debug.LogWarning(data.error);
+                }
+            }).Emit("get_shank_count", manipulatorId);
+        }
+
         /// <summary>
         ///     Request a manipulator be moved to a specific position.
         /// </summary>
