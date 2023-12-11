@@ -32,7 +32,7 @@ namespace Pinpoint.Probes
 
         public int NumAxes { get; set; }
 
-        public Vector3 Dimensions { get; set; }
+        public Vector3 Dimensions { get; private set; }
 
         /**
          * Getter and setter or the zero coordinate offset of the manipulator.
@@ -140,88 +140,6 @@ namespace Pinpoint.Probes
 
         #endregion
 
-        #region Private Methods
-
-        private void EchoPosition(Vector4 pos)
-        {
-            if (!enabled && _probeController == null) return;
-
-            // Check for special Pathfinder mode (directly set probe position, no calculations needed)
-            if (NumAxes == -1)
-            {
-                CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
-                {
-                    _probeController.SetProbeAngles(new Vector3(angles.x, 90 - angles.y, angles.z));
-
-                    // Convert Pathfinder space coordinates into active atlas space
-                    _probeController.SetProbePosition(
-                        BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
-                            CoordinateSpace.Space2World_Vector(pos)));
-                });
-            }
-            else
-            {
-                // Calculate last used direction for dropping to brain surface (between depth and DV)
-                var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
-                var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
-                if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
-                _lastManipulatorPosition = pos;
-
-                // Apply zero coordinate offset
-                var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
-
-                // Convert to coordinate space
-                var manipulatorSpacePosition = CoordinateTransform.T2U(zeroCoordinateAdjustedManipulatorPosition);
-
-                // Brain surface adjustment
-                var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
-                if (IsSetToDropToSurfaceWithDepth)
-                    zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
-                else
-                    manipulatorSpacePosition.y -= brainSurfaceAdjustment;
-
-                // Convert to world space
-                var zeroCoordinateAdjustedWorldPosition =
-                    CoordinateSpace.Space2World(manipulatorSpacePosition);
-
-                // Set probe position (change axes to match probe)
-                var transformedApmldv =
-                    _probeController.Insertion.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
-
-                // Split between 3 and 4 axis assignments
-                if (CoordinateTransform.Prefix == "3lhm")
-                    _probeController.SetProbePosition(transformedApmldv);
-                else
-                    _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-                        transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
-            }
-
-            // Log every 5 hz
-            if (Time.time - _lastLoggedTime >= 0.2)
-            {
-                _lastLoggedTime = Time.time;
-                var tipPos = _probeController.ProbeTipT.position;
-
-                // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
-                string[] data =
-                {
-                    "ephys_link", Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture), ManipulatorID,
-                    pos.x.ToString(CultureInfo.InvariantCulture), pos.y.ToString(CultureInfo.InvariantCulture),
-                    pos.z.ToString(CultureInfo.InvariantCulture), pos.w.ToString(CultureInfo.InvariantCulture),
-                    _probeController.Insertion.Yaw.ToString(CultureInfo.InvariantCulture),
-                    _probeController.Insertion.Pitch.ToString(CultureInfo.InvariantCulture),
-                    _probeController.Insertion.Roll.ToString(CultureInfo.InvariantCulture),
-                    tipPos.x.ToString(CultureInfo.InvariantCulture), tipPos.y.ToString(CultureInfo.InvariantCulture),
-                    tipPos.z.ToString(CultureInfo.InvariantCulture)
-                };
-                OutputLog.Log(data);
-            }
-
-            // Continue echoing position
-            CommunicationManager.Instance.GetPos(ManipulatorID, EchoPosition);
-        }
-
-        #endregion
 
         #region Public Methods
 
@@ -270,7 +188,7 @@ namespace Pinpoint.Probes
             });
         }
 
-        public void UpdateSpaceAndTransform()
+        private void UpdateSpaceAndTransform()
         {
             CoordinateSpace = NumAxes switch
             {
@@ -413,6 +331,89 @@ namespace Pinpoint.Probes
                             onErrorCallBack);
                     }, onErrorCallBack);
             }, onErrorCallBack);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void EchoPosition(Vector4 pos)
+        {
+            if (!enabled && _probeController == null) return;
+
+            // Check for special Pathfinder mode (directly set probe position, no calculations needed)
+            if (NumAxes == -1)
+            {
+                CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
+                {
+                    _probeController.SetProbeAngles(new Vector3(angles.x, 90 - angles.y, angles.z));
+
+                    // Convert Pathfinder space coordinates into active atlas space
+                    _probeController.SetProbePosition(
+                        BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
+                            CoordinateSpace.Space2World_Vector(pos)));
+                });
+            }
+            else
+            {
+                // Calculate last used direction for dropping to brain surface (between depth and DV)
+                var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
+                var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
+                if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
+                _lastManipulatorPosition = pos;
+
+                // Apply zero coordinate offset
+                var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
+
+                // Convert to coordinate space
+                var manipulatorSpacePosition = CoordinateTransform.T2U(zeroCoordinateAdjustedManipulatorPosition);
+
+                // Brain surface adjustment
+                var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+                if (IsSetToDropToSurfaceWithDepth)
+                    zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+                else
+                    manipulatorSpacePosition.y -= brainSurfaceAdjustment;
+
+                // Convert to world space
+                var zeroCoordinateAdjustedWorldPosition =
+                    CoordinateSpace.Space2World(manipulatorSpacePosition);
+
+                // Set probe position (change axes to match probe)
+                var transformedApmldv =
+                    _probeController.Insertion.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
+
+                // Split between 3 and 4 axis assignments
+                if (CoordinateTransform.Prefix == "3lhm")
+                    _probeController.SetProbePosition(transformedApmldv);
+                else
+                    _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                        transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
+            }
+
+            // Log every 5 hz
+            if (Time.time - _lastLoggedTime >= 0.2)
+            {
+                _lastLoggedTime = Time.time;
+                var tipPos = _probeController.ProbeTipT.position;
+
+                // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
+                string[] data =
+                {
+                    "ephys_link", Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture), ManipulatorID,
+                    pos.x.ToString(CultureInfo.InvariantCulture), pos.y.ToString(CultureInfo.InvariantCulture),
+                    pos.z.ToString(CultureInfo.InvariantCulture), pos.w.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.Yaw.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.Pitch.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.Roll.ToString(CultureInfo.InvariantCulture),
+                    tipPos.x.ToString(CultureInfo.InvariantCulture), tipPos.y.ToString(CultureInfo.InvariantCulture),
+                    tipPos.z.ToString(CultureInfo.InvariantCulture)
+                };
+                OutputLog.Log(data);
+            }
+
+            // Continue echoing position
+            CommunicationManager.Instance.GetPos(ManipulatorID, EchoPosition);
         }
 
         #endregion
