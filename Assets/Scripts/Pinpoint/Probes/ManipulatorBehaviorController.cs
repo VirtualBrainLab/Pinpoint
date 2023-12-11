@@ -350,8 +350,7 @@ namespace Pinpoint.Probes
 
                     // Convert Pathfinder space coordinates into active atlas space
                     _probeController.SetProbePosition(
-                        BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
-                            CoordinateSpace.Space2World_Vector(pos)));
+                        _probeController.Insertion.World2T_Vector(CoordinateSpace.Space2World_Vector(pos)));
                 });
             }
             else
