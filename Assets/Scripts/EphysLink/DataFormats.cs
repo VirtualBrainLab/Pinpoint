@@ -131,6 +131,15 @@ namespace EphysLink
     }
 
     /// <summary>
+    /// Returned callback data format from shank count data.
+    /// </summary>
+    public struct ShankCountCallbackParameters
+    {
+        public int shank_count;
+        public string error;
+    }
+
+    /// <summary>
     ///     Returned callback data format from driving to depth.
     /// </summary>
     public struct DriveToDepthCallbackParameters
