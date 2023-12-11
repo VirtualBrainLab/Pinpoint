@@ -16,12 +16,12 @@ namespace Pinpoint.CoordinateSystems
 
         public override Vector3 Space2World(Vector3 coordSpace, bool useReference = true)
         {
-            return new Vector3(coordSpace.x, -coordSpace.z, -coordSpace.y);
+            return new Vector3(coordSpace.x, coordSpace.z, coordSpace.y);
         }
 
         public override Vector3 World2Space(Vector3 coordWorld, bool useReference = true)
         {
-            return new Vector3(coordWorld.x, -coordWorld.z, -coordWorld.y);
+            return new Vector3(coordWorld.x, coordWorld.z, coordWorld.y);
         }
 
         public override Vector3 Space2World_Vector(Vector3 vecSpace)
