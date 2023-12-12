@@ -347,6 +347,9 @@ namespace Pinpoint.Probes
                 CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
                 {
                     _probeController.SetProbeAngles(new Vector3(angles.x, 90 - angles.y, angles.z));
+                    
+                    // Apply brain surface offset on DV axis
+                    pos.z -= float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
 
                     // Convert Pathfinder space coordinates into active atlas space
                     _probeController.SetProbePosition(

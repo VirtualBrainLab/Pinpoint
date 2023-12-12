@@ -170,3 +170,5 @@ Assets/Unisave/Resources/UnisavePreferencesFile.asset.meta
 Assets/Resources.meta
 **/HelloSGLX-win/*
 .gitconfig
+
+Library/com.unity.addressables/AddressablesBuildTEP.json
