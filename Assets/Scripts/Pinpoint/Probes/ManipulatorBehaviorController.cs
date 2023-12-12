@@ -346,14 +346,32 @@ namespace Pinpoint.Probes
             {
                 CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
                 {
+                    // Set probe angles
                     _probeController.SetProbeAngles(new Vector3(angles.x, 90 - angles.y, angles.z));
-                    
-                    // Apply brain surface offset on DV axis
-                    pos.z -= float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
 
-                    // Convert Pathfinder space coordinates into active atlas space
-                    _probeController.SetProbePosition(
-                        _probeController.Insertion.World2T_Vector(CoordinateSpace.Space2World_Vector(pos)));
+                    // Calculate last used direction for dropping to brain surface (between depth and DV)
+                    CommunicationManager.Instance.GetRawPos(ManipulatorID, rawPos =>
+                    {
+                        // FIXME: use correct logic for detecting DV vs Depth
+                        var dvDelta = Math.Abs(rawPos.z - _lastManipulatorPosition.z);
+                        var depthDelta = Math.Abs(rawPos.z - _lastManipulatorPosition.w);
+                        if (dvDelta > 0.0001 || depthDelta > 0.0001)
+                            IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
+                        _lastManipulatorPosition = rawPos;
+
+                        // Compute Brain surface offset
+
+                        // Apply brain surface offset on DV axis
+                        var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+                        if (IsSetToDropToSurfaceWithDepth)
+                            pos.w += brainSurfaceAdjustment;
+                        else
+                            pos.z -= brainSurfaceAdjustment;
+
+                        // Convert Pathfinder space coordinates into active atlas space
+                        _probeController.SetProbePosition(
+                            _probeController.Insertion.World2T_Vector(CoordinateSpace.Space2World_Vector(pos)));
+                    });
                 });
             }
             else

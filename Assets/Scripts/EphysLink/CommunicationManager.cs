@@ -250,7 +250,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Request the current position of a manipulator.
+        ///     Request the current position of a manipulator in unified manipulator space.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
         /// <param name="onSuccessCallback">Callback function to pass manipulator position to</param>
@@ -278,6 +278,37 @@ namespace EphysLink
                     Debug.LogWarning(data.error);
                 }
             }).Emit("get_pos", manipulatorId);
+        }
+        
+        /// <summary>
+        ///     Request the current position of a manipulator in platform space (raw positions).
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
+        /// <param name="onSuccessCallback">Callback function to pass manipulator position to</param>
+        /// <param name="onErrorCallback">Callback function to handle errors</param>
+        public void GetRawPos(string manipulatorId, Action<Vector4> onSuccessCallback,
+            Action<string> onErrorCallback = null)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(data =>
+            {
+                if (data.error == "")
+                {
+                    try
+                    {
+                        onSuccessCallback?.Invoke(new Vector4(data.position[0], data.position[1], data.position[2],
+                            data.position[3]));
+                    }
+                    catch (Exception e)
+                    {
+                        onErrorCallback?.Invoke(e.ToString());
+                    }
+                }
+                else
+                {
+                    onErrorCallback?.Invoke(data.error);
+                    Debug.LogWarning(data.error);
+                }
+            }).Emit("get_raw_pos", manipulatorId);
         }
 
         /// <summary>
