@@ -347,13 +347,30 @@ namespace Pinpoint.Probes
                 CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
                 {
                     _probeController.SetProbeAngles(new Vector3(angles.x, 90 - angles.y, angles.z));
-                    
-                    // Apply brain surface offset on DV axis
-                    pos.z -= float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
 
+                    // If only the DV axis moved, then we drop on DV. Otherwise, we drop on depth.
+                    if (Math.Abs(pos.z - _lastManipulatorPosition.z) > 0.0001)
+                        IsSetToDropToSurfaceWithDepth = Math.Abs(pos.x - _lastManipulatorPosition.x) > 0.0001 ||
+                                                        Math.Abs(pos.y - _lastManipulatorPosition.y) > 0.0001;
+
+                    // Copy in new 3-axis position into saved 4-axis position
+                    _lastManipulatorPosition = new Vector4(pos.x, pos.y, pos.z, _lastManipulatorPosition.w);
+
+                    // Apply brain surface offset on correct axis
+                    var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+                    if (IsSetToDropToSurfaceWithDepth)
+                        _lastManipulatorPosition.w -= brainSurfaceAdjustment;
+                    else
+                        _lastManipulatorPosition.z -= brainSurfaceAdjustment;
+                    
                     // Convert Pathfinder space coordinates into active atlas space
-                    _probeController.SetProbePosition(
-                        _probeController.Insertion.World2T_Vector(CoordinateSpace.Space2World_Vector(pos)));
+                    var convertedPos =
+                        _probeController.Insertion.World2T_Vector(
+                            CoordinateSpace.Space2World_Vector(_lastManipulatorPosition));
+                    
+                    // Copy and add 4th axis back in
+                    _probeController.SetProbePosition(new Vector4(convertedPos.x, convertedPos.y, convertedPos.z,
+                        _lastManipulatorPosition.w));
                 });
             }
             else
