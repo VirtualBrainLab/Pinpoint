@@ -176,7 +176,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (ValidateData(data))
+                if (DataKnownAndNotEmpty(data))
                     onSuccessCallback?.Invoke(data);
                 else
                     onErrorCallback?.Invoke();
@@ -193,7 +193,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (ValidateData(data))
+                if (DataKnownAndNotEmpty(data))
                 {
                     var parsedData = GetManipulatorsCallbackParameters.FromJson(data);
                     if (parsedData.error == "")
@@ -220,7 +220,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
-                if (ValidateData(error))
+                if (error == "")
                     onSuccessCallback?.Invoke();
                 else
                     onErrorCallback?.Invoke("register_manipulators invalid response: " + error);
@@ -238,7 +238,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
-                if (ValidateData(error))
+                if (error == "")
                     onSuccessCallback?.Invoke();
                 else
                     onErrorCallback?.Invoke("unregister_manipulator invalid response: " + error);
@@ -256,7 +256,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (ValidateData(data))
+                if (DataKnownAndNotEmpty(data))
                 {
                     var parsedData = PositionalCallbackParameters.FromJson(data);
                     if (parsedData.error == "")
@@ -290,7 +290,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (ValidateData(data))
+                if (DataKnownAndNotEmpty(data))
                 {
                     var parsedData = AngularCallbackParameters.FromJson(data);
                     if (parsedData.error == "")
@@ -318,7 +318,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (ValidateData(data))
+                if (DataKnownAndNotEmpty(data))
                 {
                     var parsedData = ShankCountCallbackParameters.FromJson(data);
                     if (parsedData.error == "")
@@ -354,7 +354,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (ValidateData(data))
+                if (DataKnownAndNotEmpty(data))
                 {
                     var parsedData = PositionalCallbackParameters.FromJson(data);
                     if (parsedData.error == "")
@@ -390,7 +390,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (ValidateData(data))
+                if (DataKnownAndNotEmpty(data))
                 {
                     var parsedData = DriveToDepthCallbackParameters.FromJson(data);
                     if (parsedData.error == "")
@@ -424,7 +424,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (ValidateData(data))
+                if (DataKnownAndNotEmpty(data))
                 {
                     var parsedData = StateCallbackParameters.FromJson(data);
                     if (parsedData.error == "")
@@ -447,12 +447,12 @@ namespace EphysLink
         /// <param name="onErrorCallback">Callback function to handle an unsuccessful calibration</param>
         public void Calibrate(string manipulatorId, Action onSuccessCallback, Action<string> onErrorCallback = null)
         {
-            _connectionManager.Socket.ExpectAcknowledgement<string>(errorMessage =>
+            _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
-                if (ValidateData(errorMessage))
+                if (error == "")
                     onSuccessCallback?.Invoke();
                 else
-                    onErrorCallback?.Invoke(errorMessage);
+                    onErrorCallback?.Invoke(error);
             }).Emit("calibrate", manipulatorId);
         }
 
@@ -468,7 +468,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
-                if (ValidateData(error))
+                if (error == "")
                     onSuccessCallback?.Invoke();
                 else
                     onErrorCallback?.Invoke(error);
@@ -488,7 +488,7 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (ValidateData(data))
+                if (DataKnownAndNotEmpty(data))
                 {
                     var parsedData = StateCallbackParameters.FromJson(data);
                     if (parsedData.error == "")
@@ -516,7 +516,7 @@ namespace EphysLink
 
         #region Helper functions
 
-        private static bool ValidateData(string data)
+        private static bool DataKnownAndNotEmpty(string data)
         {
             return data is not ("" or UNKOWN_EVENT);
         }
