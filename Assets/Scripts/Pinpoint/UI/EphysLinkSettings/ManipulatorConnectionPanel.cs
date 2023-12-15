@@ -2,19 +2,53 @@ using System.Globalization;
 using System.Linq;
 using EphysLink;
 using TMPro;
+using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TrajectoryPlanner.UI.EphysLinkSettings
+namespace Pinpoint.UI.EphysLinkSettings
 {
     /// <summary>
     ///     Panel representing an available manipulator to connect to and its settings.
     /// </summary>
     public class ManipulatorConnectionPanel : MonoBehaviour
     {
+        #region Components
+
+        [SerializeField] private TMP_Text _manipulatorIdText;
+        [SerializeField] private GameObject _handednessGroup;
+        [SerializeField] private Dropdown _handednessDropdown;
+        [SerializeField] private GameObject _probeConnectionGroup;
+        [SerializeField] private Dropdown _linkedProbeDropdown;
+
+        [SerializeField] private GameObject _probePropertiesSection;
+        [SerializeField] private InputField _zeroCoordinateXInputField;
+        [SerializeField] private InputField _zeroCoordinateYInputField;
+        [SerializeField] private InputField _zeroCoordinateZInputField;
+        [SerializeField] private InputField _zeroCoordinateDInputField;
+        [SerializeField] private Dropdown _duraDropDirectionDropdown;
+        [SerializeField] private InputField _brainSurfaceOffsetInputField;
+        [SerializeField] private Button _returnToZeroCoordinateButton;
+        [SerializeField] private Text _returnToZeroCoordinateButtonText;
+        [SerializeField] private Toggle _enableManualControlToggle;
+
+        private ProbeManager _attachedProbe;
+
+        #endregion
+
+        #region Properties
+
+        private EphysLinkSettings _ephysLinkSettings;
+        private string _manipulatorId;
+        private int _numAxes;
+
+        private bool _returningToZeroCoordinate;
+
+        #endregion
+
         #region Constructor
 
-        public void Initialize(Pinpoint.UI.EphysLinkSettings.EphysLinkSettings settingsMenu, string manipulatorID,
+        public void Initialize(EphysLinkSettings settingsMenu, string manipulatorID,
             int numAxes)
         {
             // Set properties
@@ -404,39 +438,6 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
         {
             _brainSurfaceOffsetInputField.text = brainSurfaceOffset.ToString(CultureInfo.InvariantCulture);
         }
-
-        #endregion
-
-        #region Components
-
-        [SerializeField] private TMP_Text _manipulatorIdText;
-        [SerializeField] private GameObject _handednessGroup;
-        [SerializeField] private Dropdown _handednessDropdown;
-        [SerializeField] private GameObject _probeConnectionGroup;
-        [SerializeField] private Dropdown _linkedProbeDropdown;
-
-        [SerializeField] private GameObject _probePropertiesSection;
-        [SerializeField] private InputField _zeroCoordinateXInputField;
-        [SerializeField] private InputField _zeroCoordinateYInputField;
-        [SerializeField] private InputField _zeroCoordinateZInputField;
-        [SerializeField] private InputField _zeroCoordinateDInputField;
-        [SerializeField] private Dropdown _duraDropDirectionDropdown;
-        [SerializeField] private InputField _brainSurfaceOffsetInputField;
-        [SerializeField] private Button _returnToZeroCoordinateButton;
-        [SerializeField] private Text _returnToZeroCoordinateButtonText;
-        [SerializeField] private Toggle _enableManualControlToggle;
-
-        private ProbeManager _attachedProbe;
-
-        #endregion
-
-        #region Properties
-
-        private Pinpoint.UI.EphysLinkSettings.EphysLinkSettings _ephysLinkSettings;
-        private string _manipulatorId;
-        private int _numAxes;
-
-        private bool _returningToZeroCoordinate;
 
         #endregion
     }
