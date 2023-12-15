@@ -374,7 +374,7 @@ namespace EphysLink
                 {
                     onErrorCallback?.Invoke("goto_pos invalid response: " + data);
                 }
-            }).Emit("goto_pos", new GotoPositionInputDataFormat(manipulatorId, pos, speed));
+            }).Emit("goto_pos", new GotoPositionInputDataFormat(manipulatorId, pos, speed).ToJson());
         }
 
         /// <summary>
@@ -409,7 +409,7 @@ namespace EphysLink
                 {
                     onErrorCallback?.Invoke("drive_to_depth invalid response: " + data);
                 }
-            }).Emit("drive_to_depth", new DriveToDepthInputDataFormat(manipulatorId, depth, speed));
+            }).Emit("drive_to_depth", new DriveToDepthInputDataFormat(manipulatorId, depth, speed).ToJson());
         }
 
         /// <summary>
@@ -436,7 +436,7 @@ namespace EphysLink
                 {
                     onErrorCallback?.Invoke("set_inside_brain invalid response: " + data);
                 }
-            }).Emit("set_inside_brain", new InsideBrainInputDataFormat(manipulatorId, inside));
+            }).Emit("set_inside_brain", new InsideBrainInputDataFormat(manipulatorId, inside).ToJson());
         }
 
         /// <summary>
@@ -500,7 +500,7 @@ namespace EphysLink
                 {
                     onErrorCallback?.Invoke("set_can_write invalid response: " + data);
                 }
-            }).Emit("set_can_write", new CanWriteInputDataFormat(manipulatorId, canWrite, hours));
+            }).Emit("set_can_write", new CanWriteInputDataFormat(manipulatorId, canWrite, hours).ToJson());
         }
 
         /// <summary>

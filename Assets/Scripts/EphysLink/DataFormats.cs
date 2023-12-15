@@ -30,6 +30,11 @@ namespace EphysLink
             can_write = canWrite;
             this.hours = hours;
         }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
+        }
     }
 
     /// <summary>
@@ -52,6 +57,11 @@ namespace EphysLink
             manipulator_id = manipulatorID;
             this.pos = new[] { pos.x, pos.y, pos.z, pos.w };
             this.speed = speed;
+        }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
         }
     }
 
@@ -76,6 +86,11 @@ namespace EphysLink
             this.depth = depth;
             this.speed = speed;
         }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
+        }
     }
 
     /// <summary>
@@ -95,6 +110,11 @@ namespace EphysLink
         {
             manipulator_id = manipulatorId;
             this.inside = inside;
+        }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
         }
     }
 
