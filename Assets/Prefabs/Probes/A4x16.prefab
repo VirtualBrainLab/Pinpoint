@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8399863297226588684}
   - component: {fileID: 3821485483875701079}
   - component: {fileID: 2425509160477965680}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ElectrodeBase1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 5931459222341984601}
   - component: {fileID: 1133416342337043310}
   - component: {fileID: 4882911067396473571}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ElectrodeBase2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 7804067709462713680}
   - component: {fileID: 3822751244845859265}
   - component: {fileID: 1211762754390128220}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ElectrodeBase3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,7 +199,7 @@ GameObject:
   - component: {fileID: 8553234708659592737}
   - component: {fileID: 2691398756230537260}
   - component: {fileID: 4166884956842633207}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -361,7 +361,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4444149643891361571}
   - component: {fileID: 4604396172156370265}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TrueTip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -401,7 +401,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2191369629960033582}
   - component: {fileID: 8879657515683921526}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ProbeModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -456,7 +456,7 @@ GameObject:
   - component: {fileID: 512027540336797944}
   - component: {fileID: 5332093161990317989}
   - component: {fileID: 3625096406296127840}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RecordingSlice1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -561,7 +561,7 @@ GameObject:
   - component: {fileID: 7491344319039353596}
   - component: {fileID: 7086236195792635840}
   - component: {fileID: 6869764598174677829}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RecordingSlice3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -669,9 +669,10 @@ GameObject:
   - component: {fileID: 952910730532705761}
   - component: {fileID: 6626777861345166854}
   - component: {fileID: 3793048457833848837}
-  m_Layer: 0
-  m_Name: A4x16_Poly2-5mm-23s-200-177
-  m_TagString: Untagged
+  - component: {fileID: 3179423920117040299}
+  m_Layer: 10
+  m_Name: A4x16
+  m_TagString: Probe
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -814,6 +815,29 @@ MonoBehaviour:
   _probeManager: {fileID: 6134430445407840915}
   _electrodeBase: {fileID: 28579779283768289}
   _order: 3
+--- !u!114 &3179423920117040299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6547689837949624216}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5df66603ba6f914f9c937a77777deff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _probeManager: {fileID: 6134430445407840915}
+  _probeController: {fileID: 6961528104934202416}
+  ZeroCoordinateOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  BrainSurfaceOffsetChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  IsSetToDropToSurfaceWithDepthChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &6864495884030729474
 GameObject:
   m_ObjectHideFlags: 0
@@ -826,7 +850,7 @@ GameObject:
   - component: {fileID: 2675420943975344327}
   - component: {fileID: 1148092888866954917}
   - component: {fileID: 7427665771190619871}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RecordingSlice2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -930,7 +954,7 @@ GameObject:
   - component: {fileID: 6125170431060134943}
   - component: {fileID: 3468574558036322971}
   - component: {fileID: 7954244235838520088}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ElectrodeBase4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -993,7 +1017,7 @@ GameObject:
   - component: {fileID: 2874643707741386228}
   - component: {fileID: 6697032221325825755}
   - component: {fileID: 2905991388537365550}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RecordingSlice4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1134,9 +1158,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7635826562936255635, guid: a8b7066e304aafe418aa915846335689, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 30f273e7de2b0fc488fb12229f107bbd, type: 2}
     - target: {fileID: 919132149155446097, guid: a8b7066e304aafe418aa915846335689, type: 3}
       propertyPath: m_Name
       value: A4x16_Poly2-5mm-23s-200-177
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a8b7066e304aafe418aa915846335689, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: a8b7066e304aafe418aa915846335689, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
