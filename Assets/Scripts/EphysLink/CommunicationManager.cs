@@ -20,9 +20,11 @@ namespace EphysLink
 
         #region Properties
 
-        private static readonly int[] EPHYS_LINK_MIN_VERSION = { 1, 0, 0 };
+        private static readonly int[] EPHYS_LINK_MIN_VERSION = { 1, 0, 6 };
 
         public static readonly string EPHYS_LINK_MIN_VERSION_STRING = "≥ v" + string.Join(".", EPHYS_LINK_MIN_VERSION);
+
+        private const string UNKOWN_EVENT = "UNKNOWN_EVENT";
 
         /// <summary>
         ///     The current state of the connection to Ephys Link.
@@ -170,11 +172,11 @@ namespace EphysLink
         /// </summary>
         /// <param name="onSuccessCallback">Returns the version number in the format "x.y.z"</param>
         /// <param name="onErrorCallback">If the version number is empty or failed to return</param>
-        public void GetVersion(Action<string> onSuccessCallback, Action onErrorCallback = null)
+        private void GetVersion(Action<string> onSuccessCallback, Action onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (data != "")
+                if (DataKnownAndNotEmpty(data))
                     onSuccessCallback?.Invoke(data);
                 else
                     onErrorCallback?.Invoke();
@@ -189,16 +191,20 @@ namespace EphysLink
         public void GetManipulators(Action<string[], int, float[]> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
-            _connectionManager.Socket.ExpectAcknowledgement<GetManipulatorsCallbackParameters>(data =>
+            _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (data.error == "")
+                if (DataKnownAndNotEmpty(data))
                 {
-                    onSuccessCallback?.Invoke(data.manipulators, data.num_axes, data.dimensions);
+                    var parsedData = GetManipulatorsCallbackParameters.FromJson(data);
+                    if (parsedData.error == "")
+                        onSuccessCallback?.Invoke(parsedData.manipulators, parsedData.num_axes,
+                            parsedData.dimensions);
+                    else
+                        onErrorCallback?.Invoke(parsedData.error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke(data.error);
-                    Debug.LogError(data.error);
+                    onErrorCallback?.Invoke("get_manipulators invalid response: " + data);
                 }
             }).Emit("get_manipulators");
         }
@@ -215,14 +221,9 @@ namespace EphysLink
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
                 if (error == "")
-                {
                     onSuccessCallback?.Invoke();
-                }
                 else
-                {
-                    onErrorCallback?.Invoke(error);
-                    Debug.LogWarning(error);
-                }
+                    onErrorCallback?.Invoke("register_manipulators invalid response: " + error);
             }).Emit("register_manipulator", manipulatorId);
         }
 
@@ -238,14 +239,9 @@ namespace EphysLink
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
                 if (error == "")
-                {
                     onSuccessCallback?.Invoke();
-                }
                 else
-                {
-                    onErrorCallback?.Invoke(error);
-                    Debug.LogWarning(error);
-                }
+                    onErrorCallback?.Invoke("unregister_manipulator invalid response: " + error);
             }).Emit("unregister_manipulator", manipulatorId);
         }
 
@@ -258,24 +254,27 @@ namespace EphysLink
         public void GetPos(string manipulatorId, Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
-            _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(data =>
+            _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (data.error == "")
+                if (DataKnownAndNotEmpty(data))
                 {
-                    try
-                    {
-                        onSuccessCallback?.Invoke(new Vector4(data.position[0], data.position[1], data.position[2],
-                            data.position[3]));
-                    }
-                    catch (Exception e)
-                    {
-                        onErrorCallback?.Invoke(e.ToString());
-                    }
+                    var parsedData = PositionalCallbackParameters.FromJson(data);
+                    if (parsedData.error == "")
+                        try
+                        {
+                            onSuccessCallback?.Invoke(new Vector4(parsedData.position[0], parsedData.position[1],
+                                parsedData.position[2], parsedData.position[3]));
+                        }
+                        catch (Exception e)
+                        {
+                            onErrorCallback?.Invoke(e.ToString());
+                        }
+                    else
+                        onErrorCallback?.Invoke(parsedData.error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke(data.error);
-                    Debug.LogWarning(data.error);
+                    onErrorCallback?.Invoke("get_pos invalid response: " + data);
                 }
             }).Emit("get_pos", manipulatorId);
         }
@@ -289,25 +288,56 @@ namespace EphysLink
         public void GetAngles(string manipulatorId, Action<Vector3> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
-            _connectionManager.Socket.ExpectAcknowledgement<AngularCallbackParameters>(data =>
+            _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (data.error == "")
+                if (DataKnownAndNotEmpty(data))
                 {
-                    try
-                    {
-                        onSuccessCallback?.Invoke(new Vector3(data.angles[0], data.angles[1], data.angles[2]));
-                    }
-                    catch (Exception e)
-                    {
-                        onErrorCallback?.Invoke(e.ToString());
-                    }
+                    var parsedData = AngularCallbackParameters.FromJson(data);
+                    if (parsedData.error == "")
+                        try
+                        {
+                            onSuccessCallback?.Invoke(new Vector3(parsedData.angles[0], parsedData.angles[1],
+                                parsedData.angles[2]));
+                        }
+                        catch (Exception e)
+                        {
+                            onErrorCallback?.Invoke(e.ToString());
+                        }
+                    else
+                        onErrorCallback?.Invoke(parsedData.error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke(data.error);
-                    Debug.LogWarning(data.error);
+                    onErrorCallback?.Invoke("get_angles invalid response: " + data);
                 }
             }).Emit("get_angles", manipulatorId);
+        }
+
+        public void GetShankCount(string manipulatorId, Action<int> onSuccessCallback,
+            Action<string> onErrorCallback = null)
+        {
+            _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
+            {
+                if (DataKnownAndNotEmpty(data))
+                {
+                    var parsedData = ShankCountCallbackParameters.FromJson(data);
+                    if (parsedData.error == "")
+                        try
+                        {
+                            onSuccessCallback?.Invoke(parsedData.shank_count);
+                        }
+                        catch (Exception e)
+                        {
+                            onErrorCallback?.Invoke(e.ToString());
+                        }
+                    else
+                        onErrorCallback?.Invoke(parsedData.error);
+                }
+                else
+                {
+                    onErrorCallback?.Invoke("get_shank_count invalid response: " + data);
+                }
+            }).Emit("get_shank_count", manipulatorId);
         }
 
         /// <summary>
@@ -322,38 +352,29 @@ namespace EphysLink
         public void GotoPos(string manipulatorId, Vector4 pos, float speed, Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
-            _connectionManager.Socket.ExpectAcknowledgement<PositionalCallbackParameters>(data =>
+            _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (data.error == "")
+                if (DataKnownAndNotEmpty(data))
                 {
-                    onSuccessCallback?.Invoke(new Vector4(data.position[0], data.position[1], data.position[2],
-                        data.position[3]));
+                    var parsedData = PositionalCallbackParameters.FromJson(data);
+                    if (parsedData.error == "")
+                        try
+                        {
+                            onSuccessCallback?.Invoke(new Vector4(parsedData.position[0], parsedData.position[1],
+                                parsedData.position[2], parsedData.position[3]));
+                        }
+                        catch (Exception e)
+                        {
+                            onErrorCallback?.Invoke(e.ToString());
+                        }
+                    else
+                        onErrorCallback?.Invoke(parsedData.error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke(data.error);
-                    Debug.LogWarning(data.error);
+                    onErrorCallback?.Invoke("goto_pos invalid response: " + data);
                 }
-            }).Emit("goto_pos", new GotoPositionInputDataFormat(manipulatorId, pos, speed));
-        }
-
-        /// <summary>
-        ///     Request a manipulator be moved to a specific position defined by an array of 4 floats.
-        /// </summary>
-        /// <remarks>Position is defined by an array of 4 floats</remarks>
-        /// <param name="manipulatorId">ID of the manipulator to be moved</param>
-        /// <param name="pos">Position in mm of the manipulator (in needle coordinates)</param>
-        /// <param name="speed">How fast to move the manipulator (in mm/s)</param>
-        /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
-        /// <param name="onErrorCallback">Callback function to handle errors</param>
-        /// <exception cref="ArgumentException">If the given position is not in an array of 4 floats</exception>
-        public void GotoPos(string manipulatorId, float[] pos, float speed, Action<Vector4> onSuccessCallback,
-            Action<string> onErrorCallback = null)
-        {
-            if (pos.Length != 4) throw new ArgumentException("Position array must be of length 4");
-
-            GotoPos(manipulatorId, new Vector4(pos[0], pos[1], pos[2], pos[3]), speed, onSuccessCallback,
-                onErrorCallback);
+            }).Emit("goto_pos", new GotoPositionInputDataFormat(manipulatorId, pos, speed).ToJson());
         }
 
         /// <summary>
@@ -367,18 +388,28 @@ namespace EphysLink
         public void DriveToDepth(string manipulatorId, float depth, float speed, Action<float> onSuccessCallback,
             Action<string> onErrorCallback)
         {
-            _connectionManager.Socket.ExpectAcknowledgement<DriveToDepthCallbackParameters>(data =>
+            _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (data.error == "")
+                if (DataKnownAndNotEmpty(data))
                 {
-                    onSuccessCallback?.Invoke(data.depth);
+                    var parsedData = DriveToDepthCallbackParameters.FromJson(data);
+                    if (parsedData.error == "")
+                        try
+                        {
+                            onSuccessCallback?.Invoke(parsedData.depth);
+                        }
+                        catch (Exception e)
+                        {
+                            onErrorCallback?.Invoke(e.ToString());
+                        }
+                    else
+                        onErrorCallback?.Invoke(parsedData.error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke(data.error);
-                    Debug.LogWarning(data.error);
+                    onErrorCallback?.Invoke("drive_to_depth invalid response: " + data);
                 }
-            }).Emit("drive_to_depth", new DriveToDepthInputDataFormat(manipulatorId, depth, speed));
+            }).Emit("drive_to_depth", new DriveToDepthInputDataFormat(manipulatorId, depth, speed).ToJson());
         }
 
         /// <summary>
@@ -391,18 +422,21 @@ namespace EphysLink
         public void SetInsideBrain(string manipulatorId, bool inside, Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
-            _connectionManager.Socket.ExpectAcknowledgement<StateCallbackParameters>(data =>
+            _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (data.error == "")
+                if (DataKnownAndNotEmpty(data))
                 {
-                    onSuccessCallback?.Invoke(data.state);
+                    var parsedData = StateCallbackParameters.FromJson(data);
+                    if (parsedData.error == "")
+                        onSuccessCallback?.Invoke(parsedData.state);
+                    else
+                        onErrorCallback?.Invoke(parsedData.error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke(data.error);
-                    Debug.LogWarning(data.error);
+                    onErrorCallback?.Invoke("set_inside_brain invalid response: " + data);
                 }
-            }).Emit("set_inside_brain", new InsideBrainInputDataFormat(manipulatorId, inside));
+            }).Emit("set_inside_brain", new InsideBrainInputDataFormat(manipulatorId, inside).ToJson());
         }
 
         /// <summary>
@@ -413,17 +447,12 @@ namespace EphysLink
         /// <param name="onErrorCallback">Callback function to handle an unsuccessful calibration</param>
         public void Calibrate(string manipulatorId, Action onSuccessCallback, Action<string> onErrorCallback = null)
         {
-            _connectionManager.Socket.ExpectAcknowledgement<string>(errorMessage =>
+            _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
-                if (errorMessage == "")
-                {
+                if (error == "")
                     onSuccessCallback?.Invoke();
-                }
                 else
-                {
-                    onErrorCallback?.Invoke(errorMessage);
-                    Debug.LogWarning(errorMessage);
-                }
+                    onErrorCallback?.Invoke(error);
             }).Emit("calibrate", manipulatorId);
         }
 
@@ -440,14 +469,9 @@ namespace EphysLink
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
                 if (error == "")
-                {
                     onSuccessCallback?.Invoke();
-                }
                 else
-                {
                     onErrorCallback?.Invoke(error);
-                    Debug.LogWarning(error);
-                }
             }).Emit("bypass_calibration", manipulatorId);
         }
 
@@ -462,18 +486,21 @@ namespace EphysLink
         public void SetCanWrite(string manipulatorId, bool canWrite, float hours, Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
-            _connectionManager.Socket.ExpectAcknowledgement<StateCallbackParameters>(data =>
+            _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
-                if (data.error == "")
+                if (DataKnownAndNotEmpty(data))
                 {
-                    onSuccessCallback?.Invoke(data.state);
+                    var parsedData = StateCallbackParameters.FromJson(data);
+                    if (parsedData.error == "")
+                        onSuccessCallback?.Invoke(parsedData.state);
+                    else
+                        onErrorCallback?.Invoke(parsedData.error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke(data.error);
-                    Debug.LogWarning(data.error);
+                    onErrorCallback?.Invoke("set_can_write invalid response: " + data);
                 }
-            }).Emit("set_can_write", new CanWriteInputDataFormat(manipulatorId, canWrite, hours));
+            }).Emit("set_can_write", new CanWriteInputDataFormat(manipulatorId, canWrite, hours).ToJson());
         }
 
         /// <summary>
@@ -483,6 +510,15 @@ namespace EphysLink
         public void Stop(Action<bool> callback)
         {
             _connectionManager.Socket.ExpectAcknowledgement(callback).Emit("stop");
+        }
+
+        #endregion
+
+        #region Helper functions
+
+        private static bool DataKnownAndNotEmpty(string data)
+        {
+            return data is not ("" or UNKOWN_EVENT);
         }
 
         #endregion

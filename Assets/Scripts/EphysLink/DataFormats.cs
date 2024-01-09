@@ -2,6 +2,7 @@
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnassignedField.Global
 
+using System;
 using UnityEngine;
 
 namespace EphysLink
@@ -29,6 +30,11 @@ namespace EphysLink
             can_write = canWrite;
             this.hours = hours;
         }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
+        }
     }
 
     /// <summary>
@@ -51,6 +57,11 @@ namespace EphysLink
             manipulator_id = manipulatorID;
             this.pos = new[] { pos.x, pos.y, pos.z, pos.w };
             this.speed = speed;
+        }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
         }
     }
 
@@ -75,6 +86,11 @@ namespace EphysLink
             this.depth = depth;
             this.speed = speed;
         }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
+        }
     }
 
     /// <summary>
@@ -95,6 +111,11 @@ namespace EphysLink
             manipulator_id = manipulatorId;
             this.inside = inside;
         }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
+        }
     }
 
     #endregion
@@ -104,21 +125,33 @@ namespace EphysLink
     /// <summary>
     ///     Returned callback data format containing available manipulator IDs and error message.
     /// </summary>
+    [Serializable]
     public struct GetManipulatorsCallbackParameters
     {
         public string[] manipulators;
         public int num_axes;
         public float[] dimensions;
         public string error;
+
+        public static GetManipulatorsCallbackParameters FromJson(string json)
+        {
+            return JsonUtility.FromJson<GetManipulatorsCallbackParameters>(json);
+        }
     }
 
     /// <summary>
     ///     Returned callback data format from positional data.
     /// </summary>
+    [Serializable]
     public struct PositionalCallbackParameters
     {
         public float[] position;
         public string error;
+
+        public static PositionalCallbackParameters FromJson(string json)
+        {
+            return JsonUtility.FromJson<PositionalCallbackParameters>(json);
+        }
     }
 
     /// <summary>
@@ -128,6 +161,25 @@ namespace EphysLink
     {
         public float[] angles;
         public string error;
+
+        public static AngularCallbackParameters FromJson(string json)
+        {
+            return JsonUtility.FromJson<AngularCallbackParameters>(json);
+        }
+    }
+
+    /// <summary>
+    ///     Returned callback data format from shank count data.
+    /// </summary>
+    public struct ShankCountCallbackParameters
+    {
+        public int shank_count;
+        public string error;
+
+        public static ShankCountCallbackParameters FromJson(string json)
+        {
+            return JsonUtility.FromJson<ShankCountCallbackParameters>(json);
+        }
     }
 
     /// <summary>
@@ -137,6 +189,11 @@ namespace EphysLink
     {
         public float depth;
         public string error;
+
+        public static DriveToDepthCallbackParameters FromJson(string json)
+        {
+            return JsonUtility.FromJson<DriveToDepthCallbackParameters>(json);
+        }
     }
 
     /// <summary>
@@ -146,6 +203,11 @@ namespace EphysLink
     {
         public bool state;
         public string error;
+
+        public static StateCallbackParameters FromJson(string json)
+        {
+            return JsonUtility.FromJson<StateCallbackParameters>(json);
+        }
     }
 
     #endregion

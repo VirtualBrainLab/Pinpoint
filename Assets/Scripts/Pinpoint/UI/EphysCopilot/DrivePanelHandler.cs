@@ -310,8 +310,8 @@ namespace Pinpoint.UI.EphysCopilot
         public void OnSpeedChanged(float value)
         {
             // Updates speed text and snap slider
-            // _driveSpeedText.text = "Speed: " + SpeedToString(value / 1000f);
-            // _driveSpeedSlider.SetValueWithoutNotify((int)value);
+            _driveSpeedText.text = "Speed: " + SpeedToString(value / 1000f);
+            _driveSpeedSlider.SetValueWithoutNotify((int)value);
 
             // Warn if speed is too high
             if (!_acknowledgeHighSpeeds && value > 5)
