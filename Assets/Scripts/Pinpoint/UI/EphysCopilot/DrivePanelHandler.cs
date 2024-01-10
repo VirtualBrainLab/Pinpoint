@@ -551,6 +551,9 @@ namespace Pinpoint.UI.EphysCopilot
                             // Replace drive buttons with stop
                             _exitButton.SetActive(false);
                             _stopButton.SetActive(true);
+                            
+                            // Reset dura offset
+                            ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
 
                             // Drive to outside position
                             if (position.y < _outsidePosition.y)
