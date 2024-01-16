@@ -1086,7 +1086,7 @@ public class ProbeManager : MonoBehaviour
 }
 
 [Serializable]
-public struct ProbeData
+public struct ProbeManagerData
 {
     // ProbeInsertion
     public Vector3 APMLDV;
@@ -1117,9 +1117,9 @@ public struct ProbeData
     public bool Drop2SurfaceWithDepth;
     public bool IsRightHanded;
 
-    public static ProbeData ProbeManager2ProbeData(ProbeManager probeManager)
+    public static ProbeManagerData ProbeManager2ProbeData(ProbeManager probeManager)
     {
-        ProbeData data = new ProbeData();
+        ProbeManagerData data = new ProbeManagerData();
 
         data.APMLDV = probeManager.ProbeController.Insertion.apmldv;
         data.Angles = probeManager.ProbeController.Insertion.angles;

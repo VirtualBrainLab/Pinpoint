@@ -331,7 +331,7 @@ namespace TrajectoryPlanner
         {
             var isActiveProbe = ProbeManager.ActiveProbeManager == probeManager;
             
-            _prevProbeData = JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probeManager));
+            _prevProbeData = JsonUtility.ToJson(ProbeManagerData.ProbeManager2ProbeData(probeManager));
 
             // Cannot restore a ghost probe, so we set restored to true
             _restoredProbe = false;
@@ -390,7 +390,7 @@ namespace TrajectoryPlanner
         {
             if (_restoredProbe) return;
 
-            ProbeData probeData = JsonUtility.FromJson<ProbeData>(_prevProbeData);
+            ProbeManagerData probeData = JsonUtility.FromJson<ProbeManagerData>(_prevProbeData);
 
             // Don't duplicate probes by accident
             if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
@@ -758,7 +758,7 @@ namespace TrajectoryPlanner
                 ProbeManager probe = nonGhostProbeManagers[i];
 
                 if (probe.Saved)
-                    data.Add(JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probe)));
+                    data.Add(JsonUtility.ToJson(ProbeManagerData.ProbeManager2ProbeData(probe)));
             }
 
             return data;
@@ -772,7 +772,7 @@ namespace TrajectoryPlanner
             for (int i = 0; i < nonGhostProbeManagers.Count; i++)
             {
                 ProbeManager probe = nonGhostProbeManagers[i];
-                data.Add(JsonUtility.ToJson(ProbeData.ProbeManager2ProbeData(probe)));
+                data.Add(JsonUtility.ToJson(ProbeManagerData.ProbeManager2ProbeData(probe)));
             }
 
             return string.Join(";", data);
@@ -896,7 +896,7 @@ namespace TrajectoryPlanner
             {
                 Debug.Log(savedProbe);
 
-                ProbeData probeData = JsonUtility.FromJson<ProbeData>(savedProbe);
+                ProbeManagerData probeData = JsonUtility.FromJson<ProbeManagerData>(savedProbe);
 
                 // Don't duplicate probes by accident
                 if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))

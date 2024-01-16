@@ -10,9 +10,14 @@ public class TP_ToggleRigs : MonoBehaviour
     // Exposed list of rig UI objects
     [SerializeField] private GameObject _rigUIParentGO;
 
+    private RigData[] _rigData;
+    public RigData[] Data { get { return _rigData; } }
+
     // Start is called before the first frame update
     void Start()
     {
+        _rigData = new RigData[_rigGOs.Count];
+
         for (int i = 0; i < _rigGOs.Count; i++)
         {
             string rigKey = $"rig{i}";
@@ -20,6 +25,10 @@ public class TP_ToggleRigs : MonoBehaviour
 
             _rigGOs[i].SetActive(active);
             _rigUIParentGO.transform.GetChild(i).gameObject.GetComponent<Toggle>().SetIsOnWithoutNotify(active);
+
+            _rigData[i].Active = active;
+            _rigData[i].Position = _rigGOs[i].transform.position;
+            _rigData[i].Name = _rigGOs[i].name;
         }
     }
 
@@ -28,6 +37,7 @@ public class TP_ToggleRigs : MonoBehaviour
         bool active = _rigUIParentGO.transform.GetChild(rigIdx).GetComponent<Toggle>().isOn;
 
         _rigGOs[rigIdx].SetActive(active);
+        _rigData[rigIdx].Active = active;
 
         Collider[] colliders = _rigGOs[rigIdx].transform.GetComponentsInChildren<Collider>();
         if (active)
