@@ -18,31 +18,65 @@ public class ProbeInsertion
     public static HashSet<ProbeInsertion> Instances = new HashSet<ProbeInsertion>();
     #endregion
 
-    #region Coordinate vars
-    public string AtlasName { get; set; }
-    public string TransformName { get; set; }
+    #region Data
+    private InsertionData _data;
     #endregion
 
-    #region pos/angle vars
+    #region Coordinate Properties
+    public string AtlasName
+    {
+        get => _data.AtlasName;
+        set => _data.AtlasName = value;
+    }
+    public string TransformName
+    {
+        get => _data.TransformName;
+        set => _data.TransformName = value;
+    }
+    #endregion
 
-    public float AP;
-    public float ML;
-    public float DV;
-    public float Yaw;
-    public float Pitch;
-    public float Roll;
+    #region Pos/Angle Properties
+
+    public float AP
+    {
+        get => _data.APMLDV.x;
+        set => _data.APMLDV.x = value;
+    }
+    public float ML
+    {
+        get => _data.APMLDV.y;
+        set => _data.APMLDV.y = value;
+    }
+    public float DV
+    {
+        get => _data.APMLDV.z;
+        set => _data.APMLDV.z = value;
+    }
+    public float Yaw
+    {
+        get => _data.Angles.x;
+        set => _data.Angles.x = value;
+    }
+    public float Pitch
+    {
+        get => _data.Angles.y;
+        set => _data.Angles.y = value;
+    }
+    public float Roll
+    {
+        get => _data.Angles.z;
+        set => _data.Angles.z = value;
+    }
 
     /// <summary>
     /// The **transformed** coordinate in the active CoordinateSpace (AP, ML, DV)
     /// </summary>
     public Vector3 apmldv
     {
-        get => new Vector3(AP, ML, DV);
+        get => _data.APMLDV;
         set
         {
-            AP = value.x;
-            ML = value.y;
-            DV = value.z;
+            _data.APMLDV = value;
         }
     }
 
@@ -51,12 +85,10 @@ public class ProbeInsertion
     /// </summary>
     public Vector3 angles
     {
-        get => new(Yaw, Pitch, Roll);
+        get => _data.Angles;
         set
         {
-            Yaw = value.x;
-            Pitch = value.y;
-            Roll = value.z;
+            _data.Angles = value;
         }
     }
     #endregion
@@ -66,14 +98,10 @@ public class ProbeInsertion
     public ProbeInsertion(float ap, float ml, float dv, float yaw, float pitch, float roll, 
         string atlasName, string transformName)
     {
-        this.AP = ap;
-        this.ML = ml;
-        this.DV = dv;
-        this.Yaw = yaw;
-        this.Pitch = pitch;
-        this.Roll = roll;
-        AtlasName = atlasName;
-        TransformName = transformName;
+        _data.APMLDV = new Vector3(ap, ml, dv);
+        _data.Angles = new Vector3(yaw, pitch, roll);
+        _data.AtlasName = atlasName;
+        _data.TransformName = transformName;
         Instances.Add(this);
     }
 
@@ -110,7 +138,7 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionSpaceU()
     {
-        return BrainAtlasManager.ActiveAtlasTransform.T2U(apmldv);
+        return BrainAtlasManager.ActiveAtlasTransform.T2U(_data.APMLDV);
     }
 
     /// <summary>
@@ -119,23 +147,14 @@ public class ProbeInsertion
     /// <returns></returns>
     public Vector3 PositionWorldT()
     {
-        return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(apmldv));
+        return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_data.APMLDV));
     }
 
-    /// <summary>
-    /// Get the corresponding **un-transformed** coordinate in World
-    /// </summary>
-    /// <returns></returns>
     public Vector3 PositionWorldU()
     {
         return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(PositionSpaceU());
     }
 
-    /// <summary>
-    /// Convert a world coordinate into the ProbeInsertion's transformed space
-    /// </summary>
-    /// <param name="coordWorld"></param>
-    /// <returns></returns>
     public Vector3 World2T(Vector3 coordWorld)
     {
         return BrainAtlasManager.ActiveAtlasTransform.U2T(BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(coordWorld));
@@ -157,6 +176,8 @@ public class ProbeInsertion
 
     public override string ToString()
     {
-        return JsonUtility.ToJson(this);
+        // Store the current reference coordinate
+        _data.ReferenceCoord = BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
+        return JsonUtility.ToJson(_data);
     }
 }
