@@ -801,8 +801,7 @@ public class ProbeManager : MonoBehaviour
             // get the surface coordinate in un-transformed world space
             _brainSurfaceWorldU = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx);
             // go back into transformed space, only using the reference coordinate for the entry coordinate (not the transform coordinate)
-            _brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(_brainSurfaceWorldU, false);
-
+            _brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(_brainSurfaceWorldU, true);
             _brainSurfaceCoordT = BrainAtlasManager.ActiveAtlasTransform.U2T(
                 BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(_brainSurfaceWorldU, true));
         }
@@ -829,7 +828,7 @@ public class ProbeManager : MonoBehaviour
         Vector3 tipInBrain = tipAtlasIdxU;
 
         // Adjust the tip coordinate to put it into the brain
-        // This is kind of a dumb algorithm, we 
+        // This is kind of a dumb algorithm 
         if (!probeInBrain)
         {
             // Get which direction we need to go
