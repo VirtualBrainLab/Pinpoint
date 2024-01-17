@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TrajectoryPlanner.UI.EphysLinkSettings
+namespace Pinpoint.UI.EphysLinkSettings
 {
     public class ProbeOptionColorHandler : MonoBehaviour
     {
@@ -14,11 +14,11 @@ namespace TrajectoryPlanner.UI.EphysLinkSettings
 
         private void Start()
         {
-            // Get the probe manager with this UUID (if it exists)
+            // Get the probe manager with this UUID (if it exists).
             var matchingManager = ProbeManager.Instances.Find(manager => manager.UUID == _text.text);
             if (!matchingManager) return;
 
-            // Set the toggle color to match the probe color
+            // Get a copy of the toggle's color block.
             var colorBlockCopy = _toggle.colors;
             colorBlockCopy.normalColor = matchingManager.Color;
             colorBlockCopy.selectedColor = new Color(colorBlockCopy.normalColor.r * 0.9f,
