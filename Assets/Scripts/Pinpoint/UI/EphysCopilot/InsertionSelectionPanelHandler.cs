@@ -137,6 +137,13 @@ namespace Pinpoint.UI.EphysCopilot
                 _lineGameObjects.ap.SetActive(false);
                 _lineGameObjects.ml.SetActive(false);
                 _lineGameObjects.dv.SetActive(false);
+                
+                // Reset dropdown color.
+                var colorBlockCopy = _targetInsertionDropdown.colors;
+                colorBlockCopy.normalColor = new Color(1, 1, 1);
+                colorBlockCopy.selectedColor = new Color(0.8f, 0.8f, 0.8f);
+                colorBlockCopy.highlightedColor = colorBlockCopy.selectedColor;
+                _targetInsertionDropdown.colors = colorBlockCopy;
             }
             else
             {

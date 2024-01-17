@@ -22,13 +22,13 @@ namespace Pinpoint.UI.EphysCopilot
             var textEndIndex = _text.text.LastIndexOf(": A", StringComparison.Ordinal);
             if (textEndIndex == -1) return;
 
-            // Get the probe manager with this UUID (if it exists)
+            // Get the probe manager with this UUID (if it exists).
             var probeNameString = _text.text[..textEndIndex];
             var matchingManager = InsertionSelectionPanelHandler.TargetableProbeManagers.First(manager =>
                 manager.name.Equals(probeNameString) || (manager.OverrideName?.Equals(probeNameString) ?? false));
             if (!matchingManager) return;
 
-            // Set the toggle color to match the probe color
+            // Get a copy of the toggle's color block.
             var colorBlockCopy = _toggle.colors;
             colorBlockCopy.normalColor = matchingManager.Color;
             colorBlockCopy.selectedColor = new Color(colorBlockCopy.normalColor.r * 0.9f,
