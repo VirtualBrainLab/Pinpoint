@@ -153,13 +153,33 @@ namespace EphysLink
         {
             GetVersion(version =>
             {
-                if (!version.Split(".").Where((versionNumber, index) =>
-                            int.Parse(new string(versionNumber.TakeWhile(char.IsDigit).ToArray())) <
-                            EPHYS_LINK_MIN_VERSION[index])
-                        .Any())
-                    onSuccess.Invoke();
-                else
+                var versionNumbers = version.Split(".").Select(versionNumber =>
+                    int.Parse(new string(versionNumber.TakeWhile(char.IsDigit).ToArray()))).ToArray();
+                
+                // Fail if major version mismatch (breaking changes).
+                if (versionNumbers[0] != EPHYS_LINK_MIN_VERSION[0])
+                {
                     onFailure.Invoke();
+                    return;
+                }
+
+                // Fail if minor version is too small (missing features).
+                if (versionNumbers[1] < EPHYS_LINK_MIN_VERSION[0])
+                {
+                    onFailure.Invoke();
+                    return;
+                }
+
+                // Fail if patch version is too small and minor version is not greater (bug fixes).
+                if (versionNumbers[1] == EPHYS_LINK_MIN_VERSION[1] &&
+                    versionNumbers[2] < EPHYS_LINK_MIN_VERSION[2])
+                {
+                    onFailure.Invoke();
+                    return;
+                }
+                
+                // Passed checks.
+                onSuccess.Invoke();
             }, onFailure.Invoke);
         }
 
