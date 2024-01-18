@@ -86,6 +86,10 @@ namespace Pinpoint.Probes
             }
         }
 
+        // Helper functions to create and destroy a probe
+        public Action<ProbeProperties.ProbeType> CreatePathfinderProbe { private get; set; }
+        public Action DestroyThisProbe { private get; set; }
+
         #region Private internal fields
 
         private Vector4 _lastManipulatorPosition = Vector4.zero;
@@ -352,27 +356,21 @@ namespace Pinpoint.Probes
                         ? ProbeProperties.ProbeType.Neuropixels24
                         : ProbeProperties.ProbeType.Neuropixels1;
 
+                    // print("Read type: " + probeType + "; Current type: " + _probeManager.ProbeType);
                     // Check if change is needed
                     if (probeType != _probeManager.ProbeType)
                     {
                         // Unregister manipulator
                         _probeManager.SetIsEphysLinkControlled(false, ManipulatorID, true, () =>
                         {
-                            // Create new probe
-                            var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
-                            var newProbe = trajectoryPlannerManager.AddNewProbe(probeType);
 
-                            // Configure probe and link to Ephys Link
-                            newProbe.ManipulatorBehaviorController.NumAxes = NumAxes;
-                            newProbe.Color = Color.magenta;
-                            newProbe.name = "nsp_" + ManipulatorID;
-                            newProbe.Saved = false;
-                            newProbe.SetIsEphysLinkControlled(true, ManipulatorID);
+                            // Create new probe
+                            CreatePathfinderProbe.Invoke(probeType);
 
                             // Destroy current probe
-                            trajectoryPlannerManager.DestroyProbe(_probeManager);
+                            DestroyThisProbe.Invoke();
                         }, Debug.LogError);
-                        
+
                         // Exit early as this probe no longer exists
                         return;
                     }
@@ -408,44 +406,44 @@ namespace Pinpoint.Probes
                             _lastManipulatorPosition.w));
                     }, Debug.LogError);
                 }, Debug.LogError);
-                
-                // Exit early
-                return;
+            }
+            else
+            {
+                // Calculate last used direction for dropping to brain surface (between depth and DV)
+                var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
+                var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
+                if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
+                _lastManipulatorPosition = pos;
+
+                // Apply zero coordinate offset
+                var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
+
+                // Convert to coordinate space
+                var manipulatorSpacePosition = CoordinateTransform.T2U(zeroCoordinateAdjustedManipulatorPosition);
+
+                // Brain surface adjustment
+                var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+                if (IsSetToDropToSurfaceWithDepth)
+                    zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+                else
+                    manipulatorSpacePosition.y -= brainSurfaceAdjustment;
+
+                // Convert to world space
+                var zeroCoordinateAdjustedWorldPosition =
+                    CoordinateSpace.Space2World(manipulatorSpacePosition);
+
+                // Set probe position (change axes to match probe)
+                var transformedApmldv =
+                    _probeController.Insertion.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
+
+                // Split between 3 and 4 axis assignments
+                if (CoordinateTransform.Prefix == "3lhm")
+                    _probeController.SetProbePosition(transformedApmldv);
+                else
+                    _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                        transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
             }
 
-            // Calculate last used direction for dropping to brain surface (between depth and DV)
-            var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
-            var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
-            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
-            _lastManipulatorPosition = pos;
-
-            // Apply zero coordinate offset
-            var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
-
-            // Convert to coordinate space
-            var manipulatorSpacePosition = CoordinateTransform.T2U(zeroCoordinateAdjustedManipulatorPosition);
-
-            // Brain surface adjustment
-            var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
-            if (IsSetToDropToSurfaceWithDepth)
-                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
-            else
-                manipulatorSpacePosition.y -= brainSurfaceAdjustment;
-
-            // Convert to world space
-            var zeroCoordinateAdjustedWorldPosition =
-                CoordinateSpace.Space2World(manipulatorSpacePosition);
-
-            // Set probe position (change axes to match probe)
-            var transformedApmldv =
-                _probeController.Insertion.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
-
-            // Split between 3 and 4 axis assignments
-            if (CoordinateTransform.Prefix == "3lhm")
-                _probeController.SetProbePosition(transformedApmldv);
-            else
-                _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-                    transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
 
             // Log every 5 hz
             if (Time.time - _lastLoggedTime >= 0.2)
