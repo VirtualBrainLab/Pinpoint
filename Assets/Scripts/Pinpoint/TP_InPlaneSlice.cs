@@ -179,7 +179,7 @@ public class TP_InPlaneSlice : MonoBehaviour
         // We get the center index, then add the x position * the left vector, then add the y position * the up vector
         // remember that for the probe, up = backward, and left = left
         Vector3 inPlanePosition = recRegionCenterIdx + 
-            (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-rightWorldU) * -inPlanePosNorm.x + 
+            (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-rightWorldU) * inPlanePosNorm.x + 
             BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-forwardWorldU) * inPlanePosNorm.y);
         return inPlanePosition;
     }
