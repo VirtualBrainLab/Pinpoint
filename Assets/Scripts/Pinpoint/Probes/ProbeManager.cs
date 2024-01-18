@@ -466,19 +466,13 @@ public class ProbeManager : MonoBehaviour
 
 
         ProbeUIManager uiManager = _probeUIManagers[shank];
-        //Vector3 baseCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMinY;
-        //Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMaxY;
 
         Vector3 baseCoordWorldT = uiManager.ShankTipT().position;
         Vector3 topCoordWorldT = uiManager.ShankTipT().position - _probeController.ProbeTipT.forward * _channelMap.FullHeight;
-        //float height = _channelMaxY - _channelMinY;
         float height = _channelMap.FullHeight;
 
-        // convert to worldU
-        ProbeInsertion insertion = _probeController.Insertion;
-
-        Vector3 baseCoordWorldU = BrainAtlasManager.WorldT2WorldU(baseCoordWorldT, true);
-        Vector3 topCoordWorldU = BrainAtlasManager.WorldT2WorldU(topCoordWorldT, true);
+        Vector3 baseCoordWorldU = BrainAtlasManager.WorldT2WorldU(baseCoordWorldT, false);
+        Vector3 topCoordWorldU = BrainAtlasManager.WorldT2WorldU(topCoordWorldT, false);
 
         // Lerp between the base and top coordinate in small steps'
 
@@ -495,6 +489,9 @@ public class ProbeManager : MonoBehaviour
 
             int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(coordU));
             if (ID < 0) ID = -1;
+
+            if (Settings.UseBeryl)
+                ID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(ID);
 
             if (ID != lastID)
             {
@@ -552,11 +549,14 @@ public class ProbeManager : MonoBehaviour
                     Vector3 channelCoordWorldT = shankTipCoordWorldT - _probeController.ProbeTipT.forward * channelMapData[i].y / 1000f;
 
                     // Now transform this into WorldU
-                    Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(channelCoordWorldT, true);
+                    Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(channelCoordWorldT, false);
 
                     int elecIdx = si * channelMapData.Count + i;
                     int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU));
                     if (ID < 0) ID = -1;
+
+                    if (Settings.UseBeryl)
+                        ID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(ID);
 
                     string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID);
                     Color color = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID);
@@ -578,10 +578,13 @@ public class ProbeManager : MonoBehaviour
                 Vector3 channelCoordWorldT = tipCoordWorldT - _probeController.ProbeTipT.forward * channelMapData[i].y / 1000f;
 
                 // Now transform this into WorldU
-                Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(channelCoordWorldT, true);
+                Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(channelCoordWorldT, false);
 
                 int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU));
                 if (ID < 0) ID = -1;
+
+                if (Settings.UseBeryl)
+                    ID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(ID);
 
                 string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID);
                 Color color = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID);
