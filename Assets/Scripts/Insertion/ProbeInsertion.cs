@@ -20,6 +20,8 @@ public class ProbeInsertion
 
     #region Data
     private InsertionData _data;
+
+    public InsertionData Data { get { return _data; } }
     #endregion
 
     #region Coordinate Properties
