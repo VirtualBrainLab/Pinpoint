@@ -344,71 +344,108 @@ namespace Pinpoint.Probes
             // Check for special Pathfinder mode (directly set probe position, no calculations needed)
             if (NumAxes == -1)
             {
-                CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
+                // Check if probe type changed
+                CommunicationManager.Instance.GetShankCount(ManipulatorID, shankCount =>
                 {
-                    _probeController.SetProbeAngles(new Vector3(angles.x, 90 - angles.y, angles.z));
+                    // Use 2.4 if 4 shank, otherwise default to 1
+                    var probeType = shankCount == 4
+                        ? ProbeProperties.ProbeType.Neuropixels24
+                        : ProbeProperties.ProbeType.Neuropixels1;
 
-                    // If only the DV axis moved, then we drop on DV. Otherwise, we drop on depth.
-                    if (Math.Abs(pos.z - _lastManipulatorPosition.z) > 0.0001)
-                        IsSetToDropToSurfaceWithDepth = Math.Abs(pos.x - _lastManipulatorPosition.x) > 0.0001 ||
-                                                        Math.Abs(pos.y - _lastManipulatorPosition.y) > 0.0001;
+                    // Check if change is needed
+                    if (probeType != _probeManager.ProbeType)
+                    {
+                        // Unregister manipulator
+                        _probeManager.SetIsEphysLinkControlled(false, ManipulatorID, true, () =>
+                        {
+                            // Create new probe
+                            var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
+                            var newProbe = trajectoryPlannerManager.AddNewProbe(probeType);
 
-                    // Copy in new 3-axis position into saved 4-axis position
-                    _lastManipulatorPosition = new Vector4(pos.x, pos.y, pos.z, _lastManipulatorPosition.w);
+                            // Configure probe and link to Ephys Link
+                            newProbe.ManipulatorBehaviorController.NumAxes = NumAxes;
+                            newProbe.Color = Color.magenta;
+                            newProbe.name = "nsp_" + ManipulatorID;
+                            newProbe.Saved = false;
+                            newProbe.SetIsEphysLinkControlled(true, ManipulatorID);
 
-                    // Apply brain surface offset on correct axis
-                    var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
-                    if (IsSetToDropToSurfaceWithDepth)
-                        _lastManipulatorPosition.w -= brainSurfaceAdjustment;
-                    else
-                        _lastManipulatorPosition.z -= brainSurfaceAdjustment;
-                    
-                    // Convert Pathfinder space coordinates into active atlas space
-                    var convertedPos =
-                        _probeController.Insertion.World2T_Vector(
-                            CoordinateSpace.Space2World_Vector(_lastManipulatorPosition));
-                    
-                    // Copy and add 4th axis back in
-                    _probeController.SetProbePosition(new Vector4(convertedPos.x, convertedPos.y, convertedPos.z,
-                        _lastManipulatorPosition.w));
-                });
+                            // Destroy current probe
+                            trajectoryPlannerManager.DestroyProbe(_probeManager);
+                        }, Debug.LogError);
+                        
+                        // Exit early as this probe no longer exists
+                        return;
+                    }
+
+                    // Otherwise, update probe angles
+                    CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
+                    {
+                        _probeController.SetProbeAngles(new Vector3(angles.x, 90 - angles.y, angles.z));
+
+                        // If only the DV axis moved, then we drop on DV. Otherwise, we drop on depth.
+                        if (Math.Abs(pos.z - _lastManipulatorPosition.z) > 0.0001)
+                            IsSetToDropToSurfaceWithDepth = Math.Abs(pos.x - _lastManipulatorPosition.x) > 0.0001 ||
+                                                            Math.Abs(pos.y - _lastManipulatorPosition.y) > 0.0001;
+
+                        // Copy in new 3-axis position into saved 4-axis position
+                        _lastManipulatorPosition = new Vector4(pos.x, pos.y, pos.z, _lastManipulatorPosition.w);
+
+                        // Apply brain surface offset on correct axis
+                        var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+                        if (IsSetToDropToSurfaceWithDepth)
+                            _lastManipulatorPosition.w -= brainSurfaceAdjustment;
+                        else
+                            _lastManipulatorPosition.z -= brainSurfaceAdjustment;
+
+                        // Convert Pathfinder space coordinates into active atlas space
+                        var convertedPos =
+                            _probeController.Insertion.World2T_Vector(
+                                CoordinateSpace.Space2World_Vector(_lastManipulatorPosition));
+
+                        // Copy and add 4th axis back in
+                        _probeController.SetProbePosition(new Vector4(convertedPos.x, convertedPos.y,
+                            convertedPos.z,
+                            _lastManipulatorPosition.w));
+                    }, Debug.LogError);
+                }, Debug.LogError);
+                
+                // Exit early
+                return;
             }
+
+            // Calculate last used direction for dropping to brain surface (between depth and DV)
+            var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
+            var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
+            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
+            _lastManipulatorPosition = pos;
+
+            // Apply zero coordinate offset
+            var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
+
+            // Convert to coordinate space
+            var manipulatorSpacePosition = CoordinateTransform.T2U(zeroCoordinateAdjustedManipulatorPosition);
+
+            // Brain surface adjustment
+            var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+            if (IsSetToDropToSurfaceWithDepth)
+                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
             else
-            {
-                // Calculate last used direction for dropping to brain surface (between depth and DV)
-                var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
-                var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
-                if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
-                _lastManipulatorPosition = pos;
+                manipulatorSpacePosition.y -= brainSurfaceAdjustment;
 
-                // Apply zero coordinate offset
-                var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
+            // Convert to world space
+            var zeroCoordinateAdjustedWorldPosition =
+                CoordinateSpace.Space2World(manipulatorSpacePosition);
 
-                // Convert to coordinate space
-                var manipulatorSpacePosition = CoordinateTransform.T2U(zeroCoordinateAdjustedManipulatorPosition);
+            // Set probe position (change axes to match probe)
+            var transformedApmldv =
+                _probeController.Insertion.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
 
-                // Brain surface adjustment
-                var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
-                if (IsSetToDropToSurfaceWithDepth)
-                    zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
-                else
-                    manipulatorSpacePosition.y -= brainSurfaceAdjustment;
-
-                // Convert to world space
-                var zeroCoordinateAdjustedWorldPosition =
-                    CoordinateSpace.Space2World(manipulatorSpacePosition);
-
-                // Set probe position (change axes to match probe)
-                var transformedApmldv =
-                    _probeController.Insertion.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
-
-                // Split between 3 and 4 axis assignments
-                if (CoordinateTransform.Prefix == "3lhm")
-                    _probeController.SetProbePosition(transformedApmldv);
-                else
-                    _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-                        transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
-            }
+            // Split between 3 and 4 axis assignments
+            if (CoordinateTransform.Prefix == "3lhm")
+                _probeController.SetProbePosition(transformedApmldv);
+            else
+                _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
+                    transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
 
             // Log every 5 hz
             if (Time.time - _lastLoggedTime >= 0.2)
