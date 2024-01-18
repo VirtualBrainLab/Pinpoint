@@ -78,17 +78,26 @@ namespace Pinpoint.UI.EphysLinkSettings
                     var probeType = shankCount == 4
                         ? ProbeProperties.ProbeType.Neuropixels24
                         : ProbeProperties.ProbeType.Neuropixels1;
+                    
+                    CreatePathfinderProbe(probeType);
+                    return;
 
-                    // Create new probe
-                    var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
-                    var newProbe = trajectoryPlannerManager.AddNewProbe(probeType);
+                    void CreatePathfinderProbe(ProbeProperties.ProbeType newProbeType)
+                    {
+                        // Create new probe
+                        var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
+                        var newProbe = trajectoryPlannerManager.AddNewProbe(newProbeType);
 
-                    // Configure probe and link to Ephys Link
-                    newProbe.ManipulatorBehaviorController.NumAxes = numAxes;
-                    newProbe.Color = Color.magenta;
-                    newProbe.name = "nsp_" + manipulatorID;
-                    newProbe.Saved = false;
-                    newProbe.SetIsEphysLinkControlled(true, manipulatorID);
+                        // Configure probe and link to Ephys Link
+                        newProbe.ManipulatorBehaviorController.NumAxes = numAxes;
+                        newProbe.ManipulatorBehaviorController.CreatePathfinderProbe = CreatePathfinderProbe;
+                        newProbe.ManipulatorBehaviorController.DestroyThisProbe = () =>
+                            trajectoryPlannerManager.DestroyProbe(newProbe);
+                        newProbe.Color = Color.magenta;
+                        newProbe.name = "nsp_" + manipulatorID;
+                        newProbe.Saved = false;
+                        newProbe.SetIsEphysLinkControlled(true, manipulatorID);
+                    }
                 }, Debug.LogError);
 
                 // Exit (don't need to do anything else for Pathfinder)
