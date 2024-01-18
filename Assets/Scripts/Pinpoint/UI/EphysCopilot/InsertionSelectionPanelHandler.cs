@@ -57,8 +57,8 @@ namespace Pinpoint.UI.EphysCopilot
                 !ManipulatorIDToSelectedTargetProbeManager
                     .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
                     .Select(pair => pair.Value).Contains(manager) && IsCoterminal(
-                    manager.ProbeController.Insertion.angles,
-                    ProbeManager.ProbeController.Insertion.angles));
+                    manager.ProbeController.Insertion.Angles,
+                    ProbeManager.ProbeController.Insertion.Angles));
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
 
@@ -332,7 +332,7 @@ namespace Pinpoint.UI.EphysCopilot
             var manipulatorPosition =
                 ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
                     _movementAxesInsertions
-                        .ml.apmldv);
+                        .ml.APMLDV);
             if (!_acknowledgedOutOfBounds && (manipulatorPosition.x < 0 || manipulatorPosition.x >
                                               ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.x ||
                                               manipulatorPosition.y < 0 || manipulatorPosition.y >
@@ -371,15 +371,15 @@ namespace Pinpoint.UI.EphysCopilot
             var apPosition =
                 ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
                     _movementAxesInsertions
-                        .ap.apmldv);
+                        .ap.APMLDV);
             var mlPosition =
                 ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
                     _movementAxesInsertions
-                        .ml.apmldv);
+                        .ml.APMLDV);
             var dvPosition =
                 ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
                     _movementAxesInsertions
-                        .dv.apmldv);
+                        .dv.APMLDV);
 
             // Move
             CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,

@@ -465,8 +465,8 @@ namespace TrajectoryPlanner
         {
             ProbeManager probeManager = AddNewProbe(probeType, UUID);
 
-            probeManager.ProbeController.SetProbePosition(insertion.apmldv);
-            probeManager.ProbeController.SetProbeAngles(insertion.angles);
+            probeManager.ProbeController.SetProbePosition(insertion.APMLDV);
+            probeManager.ProbeController.SetProbeAngles(insertion.Angles);
 
             return probeManager;
         }
@@ -476,8 +476,8 @@ namespace TrajectoryPlanner
         {
             var probeManager = AddNewProbe(probeType, UUID);
 
-            probeManager.ProbeController.SetProbePosition(insertion.apmldv);
-            probeManager.ProbeController.SetProbeAngles(insertion.angles);
+            probeManager.ProbeController.SetProbePosition(insertion.APMLDV);
+            probeManager.ProbeController.SetProbeAngles(insertion.Angles);
 
             // Return data if there is no current Ephys Link data
             if (Settings.IsEphysLinkDataExpired()) return probeManager;

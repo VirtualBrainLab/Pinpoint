@@ -46,7 +46,7 @@ namespace Pinpoint.UI.EphysCopilot
                 {
                     ManipulatorIdToDuraDepth[ProbeManager.ManipulatorBehaviorController.ManipulatorID] = pos.w;
                     ManipulatorIdToDuraApmldv[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
-                        ProbeManager.ProbeController.Insertion.apmldv;
+                        ProbeManager.ProbeController.Insertion.APMLDV;
                 });
         }
 

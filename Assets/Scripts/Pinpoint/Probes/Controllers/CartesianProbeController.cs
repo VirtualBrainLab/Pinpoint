@@ -333,12 +333,12 @@ public class CartesianProbeController : ProbeController
 
     public override void ResetPosition()
     {
-        Insertion.apmldv = _defaultStart;
+        Insertion.APMLDV = _defaultStart;
     }
 
     public override void ResetAngles()
     {
-        Insertion.angles = _defaultAngles;
+        Insertion.Angles = _defaultAngles;
     }
 
     #endregion
@@ -497,7 +497,7 @@ public class CartesianProbeController : ProbeController
         {
             // Rotate the position delta (unity world space) into the insertion's transformed space
             // Note that we don't apply the transform beacuse we want 1um steps to = 1um steps in transformed space
-            Insertion.apmldv += Insertion.World2T_Vector(posDelta);
+            Insertion.APMLDV += Insertion.World2T_Vector(posDelta);
             _depth += posDelta.w;
 
             // Set probe position and update UI
@@ -566,7 +566,7 @@ public class CartesianProbeController : ProbeController
         axisLockPitch = false;
         axisLockYaw = false;
 
-        origAPMLDV = Insertion.apmldv;
+        origAPMLDV = Insertion.APMLDV;
         origYaw = Insertion.Yaw;
         origPitch = Insertion.Pitch;
         // Note: depth is special since it gets absorbed into the probe position on each frame
@@ -691,7 +691,7 @@ public class CartesianProbeController : ProbeController
 
         if (moved)
         {
-            Insertion.apmldv = origAPMLDV + Insertion.World2T_Vector(newXYZ);
+            Insertion.APMLDV = origAPMLDV + Insertion.World2T_Vector(newXYZ);
         }
 
         if (axisLockDepth)
@@ -764,7 +764,7 @@ public class CartesianProbeController : ProbeController
             transform.position += transform.forward * _depth;
             Vector3 depthAdjustment = Insertion.World2T_Vector(transform.forward) * _depth;
 
-            Insertion.apmldv += depthAdjustment;
+            Insertion.APMLDV += depthAdjustment;
             _depth = 0f;
         }
 
@@ -778,20 +778,20 @@ public class CartesianProbeController : ProbeController
 
     public override void SetProbePosition(Vector3 position)
     {
-        Insertion.apmldv = position;
+        Insertion.APMLDV = position;
         SetProbePosition();
     }
 
     public override void SetProbePosition(Vector4 positionDepth)
     {
-        Insertion.apmldv = positionDepth;
+        Insertion.APMLDV = positionDepth;
         _depth = positionDepth.w;
         SetProbePosition();
     }
 
     public override void SetProbeAngles(Vector3 angles)
     {
-        Insertion.angles = angles;
+        Insertion.Angles = angles;
         SetProbePosition();
     }
 

@@ -127,7 +127,7 @@ public class APISpikeGLX : MonoBehaviour
             if (probeManager.APITarget == null || probeManager.APITarget.Equals("None"))
                 continue;
 
-            Vector3 pos = probeManager.ProbeController.Insertion.apmldv;
+            Vector3 pos = probeManager.ProbeController.Insertion.APMLDV;
 
             if (_lastPositions.ContainsKey(probeManager))
             {

@@ -60,7 +60,7 @@ public abstract class ProbeController : MonoBehaviour
         // Covnert the tip coordinate into the new space
         var tipData = GetTipWorldU();
         Vector3 tipCoordNewSpace = transform.U2T(atlas.World2Space(tipData.tipCoordWorldU));
-        Insertion.apmldv = tipCoordNewSpace;
+        Insertion.APMLDV = tipCoordNewSpace;
         // Set the transforms
         Insertion.AtlasName = atlas.Name;
         Insertion.TransformName = transform.Name;

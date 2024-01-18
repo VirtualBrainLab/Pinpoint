@@ -49,12 +49,12 @@ public class PlaceholderProbeController : ProbeController
 
     public override void ResetPosition()
     {
-        Insertion.apmldv = defaultStart;
+        Insertion.APMLDV = defaultStart;
     }
 
     public override void ResetAngles()
     {
-        Insertion.angles = defaultAngles;
+        Insertion.Angles = defaultAngles;
     }
 
 
@@ -70,7 +70,7 @@ public class PlaceholderProbeController : ProbeController
 
     public override void SetProbePosition(Vector3 position)
     {
-        Insertion.apmldv = position;
+        Insertion.APMLDV = position;
         SetProbePosition();
     }
 
@@ -81,7 +81,7 @@ public class PlaceholderProbeController : ProbeController
 
     public override void SetProbeAngles(Vector3 angles)
     {
-        Insertion.angles = angles;
+        Insertion.Angles = angles;
         SetProbePosition();
     }
 

@@ -664,11 +664,11 @@ public class ProbeManager : MonoBehaviour
         float mult = Settings.DisplayUM ? 1000f : 1f;
 
         Vector3 tipAtlasU = insertion.PositionSpaceU() + BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
-        Vector3 tipAtlasT = insertion.apmldv;
+        Vector3 tipAtlasT = insertion.APMLDV;
 
         Vector3 angles = Settings.UseIBLAngles ?
-            Utils.World2IBL(insertion.angles) :
-            insertion.angles;
+            Utils.World2IBL(insertion.Angles) :
+            insertion.Angles;
 
         (Vector3 entryAtlasT, float depthTransformed) = GetSurfaceCoordinateT();
 
@@ -738,7 +738,7 @@ public class ProbeManager : MonoBehaviour
 
     public (Vector3 surfaceCoordinateT, float depthT) GetSurfaceCoordinateT()
     {
-        return (_brainSurfaceCoordT, Vector3.Distance(_probeController.Insertion.apmldv, _brainSurfaceCoordT));
+        return (_brainSurfaceCoordT, Vector3.Distance(_probeController.Insertion.APMLDV, _brainSurfaceCoordT));
     }
 
     public Vector3 GetSurfaceCoordinateWorldT()
@@ -1120,8 +1120,8 @@ public struct ProbeManagerData
     {
         ProbeManagerData data = new ProbeManagerData();
 
-        data.APMLDV = probeManager.ProbeController.Insertion.apmldv;
-        data.Angles = probeManager.ProbeController.Insertion.angles;
+        data.APMLDV = probeManager.ProbeController.Insertion.APMLDV;
+        data.Angles = probeManager.ProbeController.Insertion.Angles;
 
         data.AtlasSpaceName = probeManager.ProbeController.Insertion.AtlasName;
 

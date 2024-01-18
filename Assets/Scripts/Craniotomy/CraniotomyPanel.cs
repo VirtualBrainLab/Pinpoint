@@ -114,7 +114,7 @@ public class CraniotomyPanel : MonoBehaviour
 
     public void SnapActiveCraniotomy2Probe()
     {
-        Vector3 apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.apmldv;
+        Vector3 apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.APMLDV;
         _positionSpace.x = apmldv.x;
         _positionSpace.y = apmldv.y;
         UpdateCraniotomy();

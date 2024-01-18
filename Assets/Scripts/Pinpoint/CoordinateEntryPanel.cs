@@ -83,7 +83,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         }
 
         Vector3 apmldv;
-        Vector3 angles = ProbeManager.ActiveProbeManager.ProbeController.Insertion.angles;
+        Vector3 angles = ProbeManager.ActiveProbeManager.ProbeController.Insertion.Angles;
         float depth = float.NaN;
 
         if (ProbeManager.ActiveProbeManager.IsProbeInBrain())
@@ -92,7 +92,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         }
         else
         {
-            apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.apmldv;
+            apmldv = ProbeManager.ActiveProbeManager.ProbeController.Insertion.APMLDV;
         }
 
         if (Settings.ConvertAPML2Probe)

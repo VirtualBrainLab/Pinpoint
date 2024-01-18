@@ -228,11 +228,11 @@ namespace Pinpoint.UI.EphysCopilot
                     targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
                 // Converting worldT back to APMLDV (position transformed)
-                targetInsertion.apmldv = targetInsertion.World2T(offsetAdjustedTargetPositionWorldT);
+                targetInsertion.APMLDV = targetInsertion.World2T(offsetAdjustedTargetPositionWorldT);
 
-                print("Target distance: " + Vector3.Distance(targetInsertion.apmldv, _duraAPMLDV));
+                print("Target distance: " + Vector3.Distance(targetInsertion.APMLDV, _duraAPMLDV));
 
-                return Vector3.Distance(targetInsertion.apmldv, _duraAPMLDV);
+                return Vector3.Distance(targetInsertion.APMLDV, _duraAPMLDV);
             }
         }
 

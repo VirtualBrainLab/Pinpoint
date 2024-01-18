@@ -71,7 +71,7 @@ public class ProbeInsertion
     /// <summary>
     /// The **transformed** coordinate in the active CoordinateSpace (AP, ML, DV)
     /// </summary>
-    public Vector3 apmldv
+    public Vector3 APMLDV
     {
         get => _data.APMLDV;
         set
@@ -83,7 +83,7 @@ public class ProbeInsertion
     /// <summary>
     /// (Yaw, Pitch, Spin)
     /// </summary>
-    public Vector3 angles
+    public Vector3 Angles
     {
         get => _data.Angles;
         set
@@ -108,19 +108,19 @@ public class ProbeInsertion
     public ProbeInsertion(Vector3 tipPosition, Vector3 angles,
         string atlasName, string transformName)
     {
-        apmldv = tipPosition;
-        this.angles = angles;
-        AtlasName = atlasName;
-        TransformName = transformName;
+        _data.APMLDV = tipPosition;
+        _data.Angles = angles;
+        _data.AtlasName = atlasName;
+        _data.TransformName = transformName;
         Instances.Add(this);
     }
      
     public ProbeInsertion(ProbeInsertion otherInsertion)
     {
-        apmldv = otherInsertion.apmldv;
-        angles = otherInsertion.angles;
-        AtlasName = otherInsertion.AtlasName;
-        TransformName = otherInsertion.TransformName;
+        _data.APMLDV = otherInsertion.APMLDV;
+        _data.Angles = otherInsertion.Angles;
+        _data.AtlasName = otherInsertion.AtlasName;
+        _data.TransformName = otherInsertion.TransformName;
         Instances.Add(this);
     }
 
