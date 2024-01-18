@@ -155,20 +155,24 @@ public class ProbeInsertion
         return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(PositionSpaceU());
     }
 
+    [Obsolete("Method is now BrainAtlasManager, please replace")]
     public Vector3 World2T(Vector3 coordWorld)
     {
         return BrainAtlasManager.ActiveAtlasTransform.U2T(BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(coordWorld));
     }
 
+    [Obsolete("Method is now BrainAtlasManager, please replace")]
     public Vector3 World2T_Vector(Vector3 vectorWorld)
     {
         return BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(vectorWorld));
     }
 
+    [Obsolete("Method is now BrainAtlasManager, please replace")]
     public Vector3 T2World(Vector3 coordT)
     {
         return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(BrainAtlasManager.ActiveAtlasTransform.T2U(coordT));
     }
+    [Obsolete("Method is now BrainAtlasManager, please replace")]
     public Vector3 T2World_Vector(Vector3 vectorT)
     {
         return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World_Vector(BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(vectorT));

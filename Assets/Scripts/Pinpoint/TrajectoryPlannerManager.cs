@@ -166,7 +166,11 @@ namespace TrajectoryPlanner
 
             // Load Atlas
             // Settings.AtlasName returns CCF if PlayerPrefs is cleared, otherwise returns the previous atlas setting
-            await BrainAtlasManager.LoadAtlas(Settings.AtlasName);
+            string atlasName = Settings.AtlasName;
+            if (!BrainAtlasManager.AtlasNames.Contains(atlasName))
+                atlasName = "allen_mouse_25um";
+
+            await BrainAtlasManager.LoadAtlas(atlasName);
             ReferenceAtlas referenceAtlas = BrainAtlasManager.ActiveReferenceAtlas;
 
             // Set the reference coordinate before anything else happen

@@ -33,7 +33,7 @@ public class Editor_BuildAll
         BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
         {
             scenes = new[] { "Assets/Scenes/TrajectoryPlanner.unity" },
-            locationPathName = "Builds/Linux/Pinpoint",
+            locationPathName = "Builds/Linux/Pinpoint.x86_64",
             target = BuildTarget.StandaloneLinux64,
             options = BuildOptions.None
         };
