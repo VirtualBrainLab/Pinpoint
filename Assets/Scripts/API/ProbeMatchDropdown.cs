@@ -43,9 +43,8 @@ public class ProbeMatchDropdown : MonoBehaviour
             _dropdown.SetValueWithoutNotify(targetIdx);
         else
         {
-            // If it's not possible to target this particular target, reset the APITarget
+            // If it's not possible to target this particular target
             _dropdown.SetValueWithoutNotify(0); // None option
-            _probeManager.APITarget = null;
         }
     }
 
