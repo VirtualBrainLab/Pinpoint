@@ -10481,10 +10481,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1877060505}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
-      propertyPath: ProbeString
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _blDistance
       value: 
       objectReference: {fileID: 1438342718}
@@ -10552,10 +10548,6 @@ PrefabInstance:
       propertyPath: sliceRenderer
       value: 
       objectReference: {fileID: 379075881}
-    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
-      propertyPath: SettingsString
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _relCoordPanel
       value: 
