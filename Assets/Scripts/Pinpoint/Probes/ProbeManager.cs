@@ -470,7 +470,7 @@ public class ProbeManager : MonoBehaviour
         //Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMaxY;
 
         Vector3 baseCoordWorldT = uiManager.ShankTipT().position;
-        Vector3 topCoordWorldT = uiManager.ShankTipT().position + _probeController.ProbeTipT.up * _channelMap.FullHeight;
+        Vector3 topCoordWorldT = uiManager.ShankTipT().position - _probeController.ProbeTipT.forward * _channelMap.FullHeight;
         //float height = _channelMaxY - _channelMinY;
         float height = _channelMap.FullHeight;
 
@@ -549,10 +549,9 @@ public class ProbeManager : MonoBehaviour
                 {
                     // For now we'll ignore x changes and just use the y coordinate, this way we don't need to calculate the forward vector for the probe
                     // note that we're ignoring depth here, this assume the probe tip is on the electrode surface (which it should be)
-                    Vector3 channelCoordWorldT = shankTipCoordWorldT + _probeController.ProbeTipT.up * channelMapData[i].y / 1000f;
+                    Vector3 channelCoordWorldT = shankTipCoordWorldT - _probeController.ProbeTipT.forward * channelMapData[i].y / 1000f;
 
                     // Now transform this into WorldU
-                    ProbeInsertion insertion = _probeController.Insertion;
                     Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(channelCoordWorldT, true);
 
                     int elecIdx = si * channelMapData.Count + i;
@@ -576,10 +575,9 @@ public class ProbeManager : MonoBehaviour
             {
                 // For now we'll ignore x changes and just use the y coordinate, this way we don't need to calculate the forward vector for the probe
                 // note that we're ignoring depth here, this assume the probe tip is on the electrode surface (which it should be)
-                Vector3 channelCoordWorldT = tipCoordWorldT + _probeController.ProbeTipT.up * channelMapData[i].y / 1000f;
+                Vector3 channelCoordWorldT = tipCoordWorldT - _probeController.ProbeTipT.forward * channelMapData[i].y / 1000f;
 
                 // Now transform this into WorldU
-                ProbeInsertion insertion = _probeController.Insertion;
                 Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(channelCoordWorldT, true);
 
                 int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU));
@@ -1082,9 +1080,21 @@ public class ProbeManager : MonoBehaviour
     }
 
     #endregion
+
+    #region Static conversion functions
+    //public static ProbeData ProbeManager2ProbeData(ProbeManager probeManager)
+    //{
+    //    ProbeData data = new ProbeData();
+
+    //    data.Insertion = probeManager.ProbeController.Insertion.Data;
+
+    //    data.SelectionLayerName = probeManager.SelectionLayerName;
+    //    // [TODO]
+    //}
+    #endregion
 }
 
-[Serializable]
+[Serializable, Obsolete("Replaced by ProbeData")]
 public struct ProbeManagerData
 {
     // ProbeInsertion
