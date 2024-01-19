@@ -56,6 +56,7 @@ namespace Pinpoint.UI.EphysCopilot
         [SerializeField] private TMP_Text _driveSpeedText;
         [SerializeField] private Slider _driveSpeedSlider;
         [SerializeField] private TMP_InputField _drivePastDistanceInputField;
+        [SerializeField] private Button _driveButton;
         [SerializeField] private GameObject _stopButton;
         [SerializeField] private GameObject _skipSettlingButton;
         [SerializeField] private GameObject _exitButton;
@@ -68,7 +69,7 @@ namespace Pinpoint.UI.EphysCopilot
         private class DriveStateManager
         {
             // Define state, defaults to at dura
-            public DriveState State { get; private set; } = DriveState.AtDura;
+            public DriveState State { get; private set; } = DriveState.Outside;
 
             /// <summary>
             ///     Increments drive state to be in progress driving down.
@@ -309,7 +310,12 @@ namespace Pinpoint.UI.EphysCopilot
 
         public void ResetDriveStateToDura()
         {
+            // Reset state
             _driveStateManager.ResetToDura();
+            
+            // Reset UI
+            _driveButton.interactable = true;
+            _statusText.text = "Ready to Drive";
         }
 
         /// <summary>
@@ -610,7 +616,8 @@ namespace Pinpoint.UI.EphysCopilot
                     _driveStateManager.CompleteMovement();
 
                     // Reset UI
-                    _statusText.text = "Ready to Drive";
+                    _driveButton.interactable = false;
+                    _statusText.text = "Move to Dura to Drive";
                     _stopButton.SetActive(false);
                     _driveGroup.SetActive(true);
                 }, Debug.LogError);
