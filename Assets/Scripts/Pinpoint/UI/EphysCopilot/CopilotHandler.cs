@@ -8,6 +8,26 @@ namespace Pinpoint.UI.EphysCopilot
 {
     public class CopilotHandler : MonoBehaviour
     {
+        #region Components
+
+        [Serializable]
+        private class PanelComponents
+        {
+            public GameObject PanelPrefab;
+            public GameObject PanelScrollViewContent;
+            public ScrollRect PanelScrollRect;
+        }
+
+        [SerializeField] private PanelComponents _zeroCoordinatePanel;
+
+        [SerializeField] private PanelComponents _gotoPanel;
+
+        [SerializeField] private PanelComponents _duraOffsetPanel;
+
+        [SerializeField] private PanelComponents _drivePanel;
+
+        #endregion
+
         #region Properties
 
         private readonly Dictionary<ProbeManager, List<GameObject>> _probeManagerToPanels = new();
@@ -142,29 +162,13 @@ namespace Pinpoint.UI.EphysCopilot
 
             // Setup
             drivePanelHandler.ProbeManager = probeManager;
+            
+            // Give dura offset panel access to resetting drive state to dura
+            var resetDuraOffsetPanelHandler = _probeManagerToPanels[probeManager][2].GetComponent<ResetDuraOffsetPanelHandler>();
+            resetDuraOffsetPanelHandler.ResetDriveStateToDura = drivePanelHandler.ResetDriveStateToDura;
         }
 
         #endregion
-
-        #endregion
-
-        #region Components
-
-        [Serializable]
-        private class PanelComponents
-        {
-            public GameObject PanelPrefab;
-            public GameObject PanelScrollViewContent;
-            public ScrollRect PanelScrollRect;
-        }
-
-        [SerializeField] private PanelComponents _zeroCoordinatePanel;
-
-        [SerializeField] private PanelComponents _gotoPanel;
-
-        [SerializeField] private PanelComponents _duraOffsetPanel;
-
-        [SerializeField] private PanelComponents _drivePanel;
 
         #endregion
     }

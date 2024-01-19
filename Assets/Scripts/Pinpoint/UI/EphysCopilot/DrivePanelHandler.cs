@@ -184,6 +184,11 @@ namespace Pinpoint.UI.EphysCopilot
                         break;
                 }
             }
+
+            public void ResetToDura()
+            {
+                State = DriveState.AtDura;
+            }
         }
 
         #endregion
@@ -199,7 +204,6 @@ namespace Pinpoint.UI.EphysCopilot
         private bool _acknowledgeHighSpeeds = true;
 
         // Drive state
-        private DriveState _driveState;
         private readonly DriveStateManager _driveStateManager = new();
 
         // Null checked dura APMLDV (NaN if not on dura)
@@ -302,6 +306,11 @@ namespace Pinpoint.UI.EphysCopilot
         #endregion
 
         #region UI Functions
+
+        public void ResetDriveStateToDura()
+        {
+            _driveStateManager.ResetToDura();
+        }
 
         /// <summary>
         ///     Change drive speed (input is in um/s to keep whole numbers, but is converted to mm/s for computation)
