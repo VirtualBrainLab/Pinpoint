@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Pinpoint.UI.EphysCopilot
 {
-    public class EphysCopilotHandler : MonoBehaviour
+    public class CopilotHandler : MonoBehaviour
     {
         #region Properties
 
