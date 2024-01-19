@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using EphysLink;
 using TMPro;
@@ -18,6 +19,8 @@ namespace Pinpoint.UI.EphysCopilot
 
         public static readonly Dictionary<string, float> ManipulatorIdToDuraDepth = new();
         public static readonly Dictionary<string, Vector3> ManipulatorIdToDuraApmldv = new();
+        
+        public Action ResetDriveStateToDura { private get; set; }
 
         #endregion
         
@@ -47,6 +50,7 @@ namespace Pinpoint.UI.EphysCopilot
                     ManipulatorIdToDuraDepth[ProbeManager.ManipulatorBehaviorController.ManipulatorID] = pos.w;
                     ManipulatorIdToDuraApmldv[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
                         ProbeManager.ProbeController.Insertion.APMLDV;
+                    ResetDriveStateToDura.Invoke();
                 });
         }
 
