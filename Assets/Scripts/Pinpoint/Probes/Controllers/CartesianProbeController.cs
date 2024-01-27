@@ -756,7 +756,8 @@ public class CartesianProbeController : ProbeController
         transform.position = Insertion.PositionWorldT();
         transform.RotateAround(_probeTipT.position, transform.up, Insertion.Yaw);
         transform.RotateAround(_probeTipT.position, transform.right, Insertion.Pitch);
-        transform.RotateAround(_probeTipT.position, _probeTipT.up, Insertion.Roll);
+        // Subtract roll to go clockwise
+        transform.RotateAround(_probeTipT.position, _probeTipT.forward, -Insertion.Roll);
 
         // Compute depth transform, if needed
         if (_depth != 0f)
