@@ -382,8 +382,8 @@ public class ProbeManager : MonoBehaviour
         // Update the world coordinates for the tip position
         Vector3 startCoordWorldT = _probeController.ProbeTipT.position + -_probeController.ProbeTipT.forward * channelCoords.startPosmm;
         Vector3 endCoordWorldT = _probeController.ProbeTipT.position + -_probeController.ProbeTipT.forward * channelCoords.endPosmm;
-        _recRegionBaseCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT);
-        _recRegionTopCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT);
+        _recRegionBaseCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT, true);
+        _recRegionTopCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT, true);
     }
 
     #region Channel map
