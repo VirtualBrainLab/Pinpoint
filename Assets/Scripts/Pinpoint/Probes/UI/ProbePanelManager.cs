@@ -102,6 +102,12 @@ public class ProbePanelManager : MonoBehaviour
         ReOrderProbePanels();
     }
 
+    public IEnumerator RecalculateProbePanels_Delayed()
+    {
+        yield return new WaitForEndOfFrame();
+        RecalculateProbePanels();
+    }
+
     /// <summary>
     /// Re-order probe panels to make sure that 4-shank probes are grouped together in the top row first, followed by single shanks
     /// </summary>

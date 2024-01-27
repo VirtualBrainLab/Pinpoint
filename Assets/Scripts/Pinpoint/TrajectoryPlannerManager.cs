@@ -357,18 +357,20 @@ namespace TrajectoryPlanner
         /// Handle TPManager cleanup after a probe was destroyed
         /// </summary>
         private void PostDestroyHandler(bool wasActiveProbe, IEnumerable<ProbeManager> remainingProbes)
-        {            
-            // Cleanup UI if this was last probe in scene
+        {
 
             if (remainingProbes.Count() > 0)
             {
                 if (wasActiveProbe)
                 {
                     SetActiveProbe(remainingProbes.Last());
+
+                    StartCoroutine(_probePanelManager.RecalculateProbePanels_Delayed());
                 }
             }
             else
             {
+                // Cleanup UI if this was last probe in scene
                 // Invalidate ProbeManager.ActiveProbeManager
                 if (wasActiveProbe)
                 {
@@ -954,12 +956,17 @@ namespace TrajectoryPlanner
             if (ProbeManager.ActiveProbeManager == null) return;
             (Vector3 leftCoordU, Vector3 rightCoordU) = BrainAtlasManager.ActiveReferenceAtlas.MeshCenters[atlasID];
 
+
             // switch to right side if needed
-            prevTipSideLeft = atlasID == prevTipID && prevTipSideLeft;
+            if (atlasID == prevTipID)
+                prevTipSideLeft = !prevTipSideLeft;
 
             // transform the coordinate
+            
             Vector3 coordT = BrainAtlasManager.ActiveAtlasTransform.U2T(
                 (prevTipSideLeft ? leftCoordU : rightCoordU) - BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord);
+
+            Debug.Log(coordT);
             ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition(coordT);
 
             prevTipID = atlasID;
