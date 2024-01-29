@@ -57,13 +57,9 @@ public abstract class ProbeController : MonoBehaviour
     /// <param name="transform"></param>
     public void SetSpaceTransform(CoordinateSpace atlas, CoordinateTransform transform)
     {
-        Debug.Log($"Setting new transform to: {transform.Name}");
-        Debug.Log(Insertion.APMLDV);
         // Covnert the tip coordinate into the new space
         var tipData = GetTipWorldU();
-        Debug.Log(tipData.tipCoordWorldU);
         Vector3 tipCoordNewSpace = transform.U2T(atlas.World2Space(tipData.tipCoordWorldU));
-        Debug.Log(tipCoordNewSpace);
         Insertion.APMLDV = tipCoordNewSpace;
         // Set the transforms
         Insertion.AtlasName = atlas.Name;
