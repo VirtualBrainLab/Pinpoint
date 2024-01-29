@@ -18,7 +18,7 @@ public class TP_Search : MonoBehaviour
     [FormerlySerializedAs("maxAreaPanels")][SerializeField] int _maxAreaPanels = 1;
 
     private List<GameObject> localAreaPanels;
-    public List<int> VisibleSearchedAreas { get; private set; }
+    public static List<int> VisibleSearchedAreas { get; private set; }
 
     private const int ACRONYM_FONT_SIZE = 24;
     private const int FULL_FONT_SIZE = 14;
@@ -154,6 +154,8 @@ public class TP_Search : MonoBehaviour
                 node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["opaque-lit"], OntologyNode.OntologyNodeSide.Left);
                 node.SetMaterial(BrainAtlasManager.BrainRegionMaterials["opaque-lit"], OntologyNode.OntologyNodeSide.Right);
                 node.ResetColor();
+
+                PinpointAtlasManager.WarpNode(node, PinpointAtlasManager.WorldU2WorldT_Wrapper);
             }
             VisibleSearchedAreas.Add(targetAreaID);
         }

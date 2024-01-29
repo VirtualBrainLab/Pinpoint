@@ -648,7 +648,7 @@ namespace TrajectoryPlanner
         {
             if (Settings.GhostInactiveAreas)
             {
-                List<int> activeAreas = _searchControl.VisibleSearchedAreas;
+                List<int> activeAreas = TP_Search.VisibleSearchedAreas;
                 List<OntologyNode> activeNodes = activeAreas.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(x));
 
                 foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
@@ -956,17 +956,23 @@ namespace TrajectoryPlanner
             if (ProbeManager.ActiveProbeManager == null) return;
             (Vector3 leftCoordU, Vector3 rightCoordU) = BrainAtlasManager.ActiveReferenceAtlas.MeshCenters[atlasID];
 
+            Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
+
+            // coordinates are really broken right now, the right coordinate is the left, and the left is just missing
+            leftCoordU = rightCoordU;
+            rightCoordU.y = dims.y/ 2f + dims.y/2f - rightCoordU.y;
 
             // switch to right side if needed
             if (atlasID == prevTipID)
                 prevTipSideLeft = !prevTipSideLeft;
+            else
+                prevTipSideLeft = true; // always start on left
 
             // transform the coordinate
-            
+
             Vector3 coordT = BrainAtlasManager.ActiveAtlasTransform.U2T(
                 (prevTipSideLeft ? leftCoordU : rightCoordU) - BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord);
 
-            Debug.Log(coordT);
             ProbeManager.ActiveProbeManager.ProbeController.SetProbePosition(coordT);
 
             prevTipID = atlasID;

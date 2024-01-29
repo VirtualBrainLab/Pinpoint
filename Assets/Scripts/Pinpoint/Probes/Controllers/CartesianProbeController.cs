@@ -769,6 +769,8 @@ public class CartesianProbeController : ProbeController
             _depth = 0f;
         }
 
+        SetTipWorldU();
+
         // update surface position
         ProbeManager.UpdateSurfacePosition();
 
@@ -800,20 +802,29 @@ public class CartesianProbeController : ProbeController
 
     #region Getters
 
+    private Vector3 _tipCoordWorldU;
+    private Vector3 _tipRightWorldU;
+    private Vector3 _tipUpWorldU;
+    private Vector3 _tipForwardWorldU;
+
+    private void SetTipWorldU()
+    {        
+        // Note: we need to use the reference coordinates here so that the world positions resolve to (0,0,0) at Bregma,
+        // otherwise any rotations that get applied will be incorrect
+        _tipCoordWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.position, true);
+        _tipRightWorldU = (BrainAtlasManager.WorldT2WorldU(_probeTipT.position + _probeTipT.right, true) - _tipCoordWorldU).normalized;
+        _tipUpWorldU = (BrainAtlasManager.WorldT2WorldU(_probeTipT.position + _probeTipT.up, true) - _tipCoordWorldU).normalized;
+        _tipForwardWorldU = (BrainAtlasManager.WorldT2WorldU(_probeTipT.position + _probeTipT.forward, true) - _tipCoordWorldU).normalized;
+    }
+
     /// <summary>
     /// Return the tip coordinates and vectors in **un-transformed** world coordinates
     /// </summary>
     /// <returns></returns>
     public override (Vector3 tipCoordWorldU, Vector3 tipRightWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU()
     {
-        // Note: we need to use the reference coordinates here so that the world positions resolve to (0,0,0) at Bregma,
-        // otherwise any rotations that get applied will be incorrect
-        Vector3 tipCoordWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.position, true);
-        Vector3 tipRightWorldU = (BrainAtlasManager.WorldT2WorldU(_probeTipT.position + _probeTipT.right, true) - tipCoordWorldU).normalized;
-        Vector3 tipUpWorldU = (BrainAtlasManager.WorldT2WorldU(_probeTipT.position + _probeTipT.up, true) - tipCoordWorldU).normalized;
-        Vector3 tipForwardWorldU = (BrainAtlasManager.WorldT2WorldU(_probeTipT.position + _probeTipT.forward, true) - tipCoordWorldU).normalized;
 
-        return (tipCoordWorldU, tipRightWorldU, tipUpWorldU, tipForwardWorldU);
+        return (_tipCoordWorldU, _tipRightWorldU, _tipUpWorldU, _tipForwardWorldU);
     }
     #endregion
 

@@ -153,8 +153,6 @@ public class PinpointAtlasManager : MonoBehaviour
         // Check all probes for mis-matches
         foreach (ProbeManager probeManager in ProbeManager.Instances)
             probeManager.Update2ActiveTransform();
-
-        WarpBrain();
     }
 
     private string ConverTransform2UserFriendly(string transformName)
@@ -188,9 +186,12 @@ public class PinpointAtlasManager : MonoBehaviour
 
         foreach (OntologyNode node in DefaultNodes)
             WarpNode(node, WorldU2WorldT_Wrapper);
+
+        foreach (int areaID in TP_Search.VisibleSearchedAreas)
+            WarpNode(BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID), WorldU2WorldT_Wrapper);
     }
 
-    public void WarpNode(OntologyNode node, Func<Vector3, Vector3> warpFunction)
+    public static void WarpNode(OntologyNode node, Func<Vector3, Vector3> warpFunction)
     {
         node.ApplyAtlasTransform(warpFunction);
     }
@@ -203,7 +204,7 @@ public class PinpointAtlasManager : MonoBehaviour
         }
     }
 
-    private Vector3 WorldU2WorldT_Wrapper(Vector3 input)
+    public static Vector3 WorldU2WorldT_Wrapper(Vector3 input)
     {
         return BrainAtlasManager.WorldU2WorldT(input, true);
     }
