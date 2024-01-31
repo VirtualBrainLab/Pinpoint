@@ -20,7 +20,7 @@ namespace EphysLink
 
         #region Properties
 
-        private static readonly int[] EPHYS_LINK_MIN_VERSION = { 1, 1, 0 };
+        private static readonly int[] EPHYS_LINK_MIN_VERSION = { 1, 2, 1 };
 
         public static readonly string EPHYS_LINK_MIN_VERSION_STRING = "≥ v" + string.Join(".", EPHYS_LINK_MIN_VERSION);
 
@@ -151,11 +151,12 @@ namespace EphysLink
 
         public void VerifyVersion(Action onSuccess, Action onFailure)
         {
-            GetVersion(version =>
+            GetVersion(versionString =>
             {
-                var versionNumbers = version.Split(".").Select(versionNumber =>
-                    int.Parse(new string(versionNumber.TakeWhile(char.IsDigit).ToArray()))).ToArray();
-                
+                var versionNumbers = versionString.Split(".").Select(values =>
+                        values.TakeWhile(char.IsDigit).ToArray()).TakeWhile(numbers => numbers.Length > 0)
+                    .Select(nonEmpty => int.Parse(new string(nonEmpty))).ToArray();
+
                 // Fail if major version mismatch (breaking changes).
                 if (versionNumbers[0] != EPHYS_LINK_MIN_VERSION[0])
                 {
@@ -177,7 +178,7 @@ namespace EphysLink
                     onFailure.Invoke();
                     return;
                 }
-                
+
                 // Passed checks.
                 onSuccess.Invoke();
             }, onFailure.Invoke);
