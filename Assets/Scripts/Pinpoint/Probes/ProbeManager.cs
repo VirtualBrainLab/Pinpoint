@@ -953,12 +953,14 @@ public class ProbeManager : MonoBehaviour
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
         else
+        {
             CommunicationManager.Instance.UnregisterManipulator(manipulatorId, () =>
             {
-                IsEphysLinkControlled = false;
                 ManipulatorBehaviorController.Deinitialize();
+                IsEphysLinkControlled = false;
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
+        }
     }
     
 #endregion
