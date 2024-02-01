@@ -89,7 +89,6 @@ namespace Pinpoint.UI.EphysLinkSettings
                         var newProbe = trajectoryPlannerManager.AddNewProbe(newProbeType);
 
                         // Configure probe and link to Ephys Link
-                        newProbe.ManipulatorBehaviorController.NumAxes = numAxes;
                         newProbe.ManipulatorBehaviorController.CreatePathfinderProbe = CreatePathfinderProbe;
                         newProbe.ManipulatorBehaviorController.DestroyThisProbe = () =>
                             trajectoryPlannerManager.DestroyProbe(newProbe);

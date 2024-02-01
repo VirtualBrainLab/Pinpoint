@@ -204,7 +204,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                 {
                     foreach (var probeManager in ProbeManager.Instances
                                  .Where(probeManager => probeManager.IsEphysLinkControlled))
-                        probeManager.SetIsEphysLinkControlled(false);
+                        probeManager.SetIsEphysLinkControlled(false, probeManager.ManipulatorBehaviorController.ManipulatorID);
 
                     CommunicationManager.Instance.DisconnectFromServer(UpdateConnectionPanel);
                 };

@@ -956,6 +956,7 @@ public class ProbeManager : MonoBehaviour
             CommunicationManager.Instance.UnregisterManipulator(manipulatorId, () =>
             {
                 IsEphysLinkControlled = false;
+                ManipulatorBehaviorController.Deinitialize();
                 onSuccess?.Invoke();
             }, err => onError?.Invoke(err));
     }
