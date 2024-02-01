@@ -192,6 +192,12 @@ namespace Pinpoint.Probes
             });
         }
 
+        public void Deinitialize()
+        {
+            // Destroy Pathfinder probe.
+            if (NumAxes == -1) DestroyThisProbe.Invoke();
+        }
+
         private void UpdateSpaceAndTransform()
         {
             CoordinateSpace = NumAxes switch

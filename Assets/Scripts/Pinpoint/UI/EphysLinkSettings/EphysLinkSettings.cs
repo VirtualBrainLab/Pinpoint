@@ -158,6 +158,13 @@ namespace Pinpoint.UI.EphysLinkSettings
                 try
                 {
                     _connectButtonText.text = "Connecting...";
+                    
+                    // Provide default values for IP and port if empty.
+                    if (string.IsNullOrEmpty(_ipAddressInputField.text))
+                        _ipAddressInputField.text = "localhost";
+                    if (string.IsNullOrEmpty(_portInputField.text))
+                        _portInputField.text = "8081";
+                    
                     CommunicationManager.Instance.ConnectToServer(_ipAddressInputField.text,
                         int.Parse(_portInputField.text),
                         () =>
@@ -197,7 +204,13 @@ namespace Pinpoint.UI.EphysLinkSettings
                 {
                     foreach (var probeManager in ProbeManager.Instances
                                  .Where(probeManager => probeManager.IsEphysLinkControlled))
-                        probeManager.SetIsEphysLinkControlled(false);
+                    {
+                        probeManager.SetIsEphysLinkControlled(false,
+                            probeManager.ManipulatorBehaviorController.ManipulatorID);
+                        
+                        // FIXME: This is done because of race condition with closing out server. Should be fixed with non-registration setup.
+                        probeManager.ManipulatorBehaviorController.Deinitialize();
+                    }
 
                     CommunicationManager.Instance.DisconnectFromServer(UpdateConnectionPanel);
                 };
