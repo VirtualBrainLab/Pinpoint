@@ -158,6 +158,13 @@ namespace Pinpoint.UI.EphysLinkSettings
                 try
                 {
                     _connectButtonText.text = "Connecting...";
+                    
+                    // Provide default values for IP and port if empty.
+                    if (string.IsNullOrEmpty(_ipAddressInputField.text))
+                        _ipAddressInputField.text = "localhost";
+                    if (string.IsNullOrEmpty(_portInputField.text))
+                        _portInputField.text = "8081";
+                    
                     CommunicationManager.Instance.ConnectToServer(_ipAddressInputField.text,
                         int.Parse(_portInputField.text),
                         () =>
