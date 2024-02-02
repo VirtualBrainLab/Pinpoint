@@ -20,7 +20,7 @@ namespace Unisave.Editor.BackendUploading
         public static BuildRegistrator GetDefaultInstance()
         {
             return new BuildRegistrator(
-                UnisavePreferences.LoadOrCreate()
+                UnisavePreferences.Resolve()
             );
         }
         

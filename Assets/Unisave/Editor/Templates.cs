@@ -17,7 +17,7 @@ namespace Unisave.Editor
             AssetDatabase.CreateAsset(new TextAsset(), scriptPath);
 
             List<string> lines = AssetDatabase.LoadAssetAtPath<TextAsset>(
-                "Assets/Unisave/Templates/" + templateName
+                "Assets/Plugins/Unisave/Templates/" + templateName
             ).text.Split('\n').ToList();
             
             SetNamespace(lines, targetNamespace);

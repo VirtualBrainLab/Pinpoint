@@ -72,7 +72,7 @@ namespace Unisave.Facades
 
         private static ClientApplication CreateDefaultApplication()
         {
-            SetNewFromPreferences(UnisavePreferences.LoadOrCreate());
+            SetNewFromPreferences(UnisavePreferences.Resolve());
             
             RegisterDisposeCaller(ClientApp);
 

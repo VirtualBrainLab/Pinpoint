@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:engine="UnityEngine.UIElements"
     xmlns:editor="UnityEditor.UIElements"
-    xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+    xsi:noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd"
 >
     <engine:Style src="ConnectionTab.uss"/>
     
@@ -30,6 +30,8 @@
                     text="Connection credentials are missing. Copy them from the web dashboard."
                     message-type="Warning"
             />
+
+            <engine:Button name="save-button" text="Save"/>
             
         </engine:VisualElement>
     </engine:VisualElement>

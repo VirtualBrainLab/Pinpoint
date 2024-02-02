@@ -1,4 +1,5 @@
 using System.Linq;
+using Unisave.Editor.Auditing;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,6 +25,11 @@ namespace Unisave.Editor.Windows.Main
                         "with the instructions in the Unisave window that just " +
                         "opened. If not, you can open it manually " +
                         $"from menu '{UnisaveMainWindow.UnityMenuPath}'."
+                    );
+                    
+                    UnisaveAuditing.EmitEvent(
+                        eventType: "asset.import",
+                        message: "Unity asset has been imported."
                     );
                     
                     var window = UnisaveMainWindow.ShowTab(MainWindowTab.Home);

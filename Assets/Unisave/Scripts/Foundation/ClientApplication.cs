@@ -1,4 +1,5 @@
 using System;
+using TinyIoC;
 using Unisave.Broadcasting;
 using Unisave.Facades;
 using Unisave.Facets;
@@ -13,7 +14,7 @@ namespace Unisave.Foundation
     /// <summary>
     /// Contains the entire client application
     /// </summary>
-    public class ClientApplication : Container
+    public class ClientApplication
     {
         /// <summary>
         /// Preferences that should be used by the application
@@ -31,8 +32,15 @@ namespace Unisave.Foundation
         /// </summary>
         public bool InEditMode { get; }
         
+        /// <summary>
+        /// Service container
+        /// </summary>
+        public IContainer Services { get; }
+        
         public ClientApplication(UnisavePreferences preferences)
         {
+            Services = new TinyIoCAdapter(new TinyIoCContainer());
+            
             InEditMode = !UnityEngine.Application.isPlaying;
             
             Preferences = preferences;
@@ -55,22 +63,29 @@ namespace Unisave.Foundation
         /// </summary>
         private void RegisterServices()
         {
-            Singleton<AssetHttpClient>(_ => new AssetHttpClient(this));
-            
-            Singleton<ApiUrl>(_ => new ApiUrl(Preferences.ServerUrl));
-            
-            Singleton<ClientSessionIdRepository>(_ => new ClientSessionIdRepository());
-            
-            Singleton<DeviceIdRepository>(_ => new DeviceIdRepository());
-            
-            Singleton<FacetCaller>(_ => new UnisaveFacetCaller(this));
-            
-            Singleton<ClientBroadcastingManager>(_ => new ClientBroadcastingManager(this));
+            Services.RegisterSingleton<AssetHttpClient>(
+                _ => new AssetHttpClient(this)
+            );
+            Services.RegisterSingleton<ApiUrl>(
+                _ => new ApiUrl(Preferences.ServerUrl)
+            );
+            Services.RegisterSingleton<ClientSessionIdRepository>(
+                _ => new ClientSessionIdRepository()
+            );
+            Services.RegisterSingleton<DeviceIdRepository>(
+                _ => new DeviceIdRepository()
+            );
+            Services.RegisterSingleton<FacetCaller>(
+                _ => new UnisaveFacetCaller(this)
+            );
+            Services.RegisterSingleton<ClientBroadcastingManager>(
+                _ => new ClientBroadcastingManager(this)
+            );
         }
         
-        public override void Dispose()
+        public void Dispose()
         {
-            base.Dispose();
+            Services.Dispose();
             
             ClientFacade.UnsetIfEqualsGiven(this);
             

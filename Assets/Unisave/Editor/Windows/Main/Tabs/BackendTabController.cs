@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Unisave.BackendFolders;
 using Unisave.Editor.BackendFolders;
 using Unisave.Editor.BackendUploading;
 using Unisave.Editor.BackendUploading.States;
@@ -17,8 +18,6 @@ namespace Unisave.Editor.Windows.Main.Tabs
         
         private readonly VisualElement root;
 
-        private UnisavePreferences preferences;
-        
         private readonly Uploader uploader = Uploader.Instance;
 
         private Toggle automaticUploadToggle;
@@ -49,8 +48,6 @@ namespace Unisave.Editor.Windows.Main.Tabs
 
         public void OnCreateGUI()
         {
-            preferences = UnisavePreferences.LoadOrCreate();
-            
             // === Backend upload and compilation ===
             
             automaticUploadToggle = root.Q<Toggle>(name: "automatic-upload-toggle");
@@ -77,7 +74,7 @@ namespace Unisave.Editor.Windows.Main.Tabs
             // === Backend folder definition files ===
             
             backendDefinitionItem = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                "Assets/Unisave/Editor/Windows/Main/UI/BackendDefinitionItem.uxml"
+                "Assets/Plugins/Unisave/Editor/Windows/Main/UI/BackendDefinitionItem.uxml"
             );
             enabledBackendDefinitions = root.Q(name: "enabled-backend-definitions");
             disabledBackendDefinitions = root.Q(name: "disabled-backend-definitions");
@@ -104,6 +101,8 @@ namespace Unisave.Editor.Windows.Main.Tabs
         // ReSharper disable Unity.PerformanceAnalysis
         public void OnObserveExternalState()
         {
+            var preferences = UnisavePreferences.Resolve();
+            
             RenderTabTaint();
             
             RenderUploaderState();
@@ -125,8 +124,23 @@ namespace Unisave.Editor.Windows.Main.Tabs
 
         public void OnWriteExternalState()
         {
-            // is in editor prefs, need not be save
+            var preferences = UnisavePreferences.Resolve();
+            
+            if (preferences.AutomaticBackendUploading == automaticUploadToggle.value)
+                return; // no need to save anything (IMPORTANT!)
+            
+            SaveUnisavePreferences();
+        }
+        
+        void SaveUnisavePreferences()
+        {
+            var preferences = UnisavePreferences.Resolve();
+            
             preferences.AutomaticBackendUploading = automaticUploadToggle.value;
+            
+            preferences.Save();
+            
+            OnObserveExternalState();
         }
 
         private void RenderTabTaint()
@@ -203,19 +217,13 @@ namespace Unisave.Editor.Windows.Main.Tabs
                 VisualElement item = backendDefinitionItem.Instantiate();
                 
                 var label = item.Q<Label>(className: "backend-def__label");
-                label.text = def.FolderPath;
+                label.text = def.FolderPath?.Replace('\\', '/');
                 
                 var button = item.Q<Button>(className: "backend-def__button");
                 button.text = isEnabled ? "Disable" : "Enable";
-                button.SetEnabled(
-                    def.UploadBehaviour == UploadBehaviour.Always
-                    || def.UploadBehaviour == UploadBehaviour.Never
-                );
+                button.SetEnabled(def.CanToggleBackend());
                 button.clicked += () => {
-                    if (def.UploadBehaviour == UploadBehaviour.Always)
-                        DisableBackendFolder(def);
-                    else if (def.UploadBehaviour == UploadBehaviour.Never)
-                        EnableBackendFolder(def);
+                    ToggleBackendFolder(def);
                     OnObserveExternalState(); // refresh window
                 };
                 
@@ -264,24 +272,22 @@ namespace Unisave.Editor.Windows.Main.Tabs
                     break;
             }
         }
-
-        void EnableBackendFolder(BackendFolderDefinition def)
-        {
-            def.UploadBehaviour = UploadBehaviour.Always;
-            EditorUtility.SetDirty(def);
-			
-            HighlightBackendFolderInInspector(def);
-            
-            BackendFolderDefinition.InvokeAnyChangeEvent();
-        }
 		
-        void DisableBackendFolder(BackendFolderDefinition def)
+        void ToggleBackendFolder(BackendFolderDefinition def)
         {
-            def.UploadBehaviour = UploadBehaviour.Never;
-            EditorUtility.SetDirty(def);
-			
-            HighlightBackendFolderInInspector(def);
+            def.ToggleBackendState();
             
+            // save the backend definition file
+            EditorUtility.SetDirty(def);
+            AssetDatabase.SaveAssetIfDirty(def);
+            
+            // save preferences (may have been edited)
+            var preferences = UnisavePreferences.Resolve();
+            preferences.Save();
+            
+            HighlightBackendFolderInInspector(def);
+
+            // trigger backend upload
             BackendFolderDefinition.InvokeAnyChangeEvent();
         }
 
@@ -300,15 +306,18 @@ namespace Unisave.Editor.Windows.Main.Tabs
             // action cancelled
             if (string.IsNullOrEmpty(selectedPath))
                 return;
+
+            // get OS-specific directory separators
+            selectedPath = Path.GetFullPath(selectedPath);
 			
             // get path inside the assets folder
-            string assetsPath = Path.GetFullPath("Assets/");
-
-            selectedPath = Path.GetFullPath(selectedPath);
-
+            // (the trailing separator is needed for the local-path conversion to work)
+            string assetsPath = Path.GetFullPath("Assets" + Path.DirectorySeparatorChar);
+            
             if (selectedPath.StartsWith(assetsPath))
             {
-                selectedPath = "Assets/" + selectedPath.Substring(assetsPath.Length);
+                // convert to project-relative path
+                selectedPath = Path.Combine("Assets", selectedPath.Substring(assetsPath.Length));
             }
             else
             {

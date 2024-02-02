@@ -24,30 +24,43 @@ namespace Unisave.Broadcasting
         private bool hooksRegistered = false;
 
         /// <summary>
-        /// The broadcasting manager instance
-        /// </summary>
-        private ClientBroadcastingManager Manager
-        {
-            get
-            {
-                if (manager == null)
-                {
-                    manager = ClientFacade.ClientApp
-                        .Resolve<ClientBroadcastingManager>();
-                }
-
-                return manager;
-            }
-        }
-        
-        // backing field
-        private ClientBroadcastingManager manager;
- 
-        /// <summary>
         /// Status of the connection to the Unisave broadcasting server
         /// </summary>
         public BroadcastingConnection ConnectionState
-            => Manager.Tunnel.ConnectionState;
+        {
+            get
+            {
+                ClientBroadcastingManager manager = TryGetManager();
+
+                if (manager == null)
+                    return BroadcastingConnection.Disconnected;
+                
+                return manager.Tunnel.ConnectionState;
+            }
+        }
+
+        /// <summary>
+        /// Tries to get the manager instance,
+        /// returns null if the instance does not exist
+        /// </summary>
+        private ClientBroadcastingManager TryGetManager()
+        {
+            if (!ClientFacade.HasApp)
+                return null;
+            
+            return GetOrCreateManager();
+        }
+
+        /// <summary>
+        /// Gets or creates new manager instance.
+        /// Do not use this in OnDispose/OnDisable/OnApplicationQuit
+        /// since it would re-create the app instance when it may have
+        /// been already disposed of.
+        /// </summary>
+        private ClientBroadcastingManager GetOrCreateManager()
+        {
+            return ClientFacade.ClientApp.Services.Resolve<ClientBroadcastingManager>();
+        }
         
         /// <summary>
         /// Receive messages from a channel subscription
@@ -91,8 +104,10 @@ namespace Unisave.Broadcasting
             if (!subscriptions.Contains(subscription))
                 yield break;
             
+            ClientBroadcastingManager manager = GetOrCreateManager();
+            
             // register the handler
-            Manager.SubscriptionRouter.HandleSubscription(
+            manager.SubscriptionRouter.HandleSubscription(
                 subscription,
                 messageRouter.RouteMessage
             );
@@ -100,8 +115,8 @@ namespace Unisave.Broadcasting
             // register hooks
             if (!hooksRegistered)
             {
-                Manager.Tunnel.OnConnectionLost += OnConnectionLost;
-                Manager.Tunnel.OnConnectionRegained += OnConnectionRegained;
+                manager.Tunnel.OnConnectionLost += OnConnectionLost;
+                manager.Tunnel.OnConnectionRegained += OnConnectionRegained;
                 hooksRegistered = true;
             }
         }
@@ -111,15 +126,23 @@ namespace Unisave.Broadcasting
         /// </summary>
         protected virtual void OnDisable()
         {
-            Manager.SubscriptionRouter.EndSubscriptions(subscriptions);
+            ClientBroadcastingManager manager = TryGetManager();
+
+            // the manager has already been disposed,
+            // because the whole application is quitting
+            // (the order of game object destruction is not defined)
+            if (manager == null)
+                return;
+            
+            manager.SubscriptionRouter.EndSubscriptions(subscriptions);
 
             subscriptions.Clear();
             
             // remove hooks
             if (hooksRegistered)
             {
-                Manager.Tunnel.OnConnectionLost -= OnConnectionLost;
-                Manager.Tunnel.OnConnectionRegained -= OnConnectionRegained;
+                manager.Tunnel.OnConnectionLost -= OnConnectionLost;
+                manager.Tunnel.OnConnectionRegained -= OnConnectionRegained;
                 hooksRegistered = false;
             }
         }

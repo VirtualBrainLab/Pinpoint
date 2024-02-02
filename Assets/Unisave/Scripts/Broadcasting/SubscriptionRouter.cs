@@ -58,9 +58,9 @@ namespace Unisave.Broadcasting
             this.tunnel = tunnel;
             this.app = app;
             
-            http = app.Resolve<AssetHttpClient>();
-            url = app.Resolve<ApiUrl>();
-            sessionIdRepository = app.Resolve<ClientSessionIdRepository>();
+            http = app.Services.Resolve<AssetHttpClient>();
+            url = app.Services.Resolve<ApiUrl>();
+            sessionIdRepository = app.Services.Resolve<ClientSessionIdRepository>();
 
             tunnel.OnMessageEvent += OnMessageEvent;
             tunnel.OnSubscriptionEvent += OnSubscriptionEvent;
@@ -218,7 +218,7 @@ namespace Unisave.Broadcasting
                     new JsonObject {
                         ["gameToken"] = app.Preferences.GameToken,
                         ["editorKey"] = app.Preferences.EditorKey,
-                        ["buildGuid"] = Application.buildGUID,
+                        ["buildGuid"] = ClientIdentity.BuildGuid,
                         ["backendHash"] = app.Preferences.BackendHash,
                         ["sessionId"] = sessionIdRepository.GetSessionId(),
                         ["channels"] = channelsToUnsubscribe

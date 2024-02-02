@@ -7,15 +7,14 @@ namespace Unisave.Broadcasting.Sse
 {
     public class SseDownloadHandler : DownloadHandlerScript
     {
-        private readonly StringBuilder textStream = new StringBuilder();
-        private readonly Action<SseEvent> eventHandler;
-
-        public event Action<string> OnDataReceived;
+        private readonly StreamToEventsSlicer slicer = new StreamToEventsSlicer();
 
         public SseDownloadHandler(Action<SseEvent> eventHandler)
         {
-            this.eventHandler = eventHandler
-                ?? throw new ArgumentNullException(nameof(eventHandler));
+            if (eventHandler == null)
+                throw new ArgumentNullException(nameof(eventHandler));
+            
+            slicer.OnEventReceived += eventHandler.Invoke;
         }
         
         [RequiredMember] // do not IL2CPP strip this away if the class is used
@@ -27,61 +26,16 @@ namespace Unisave.Broadcasting.Sse
                 dataLength
             );
             
-            textStream.Append(stringData);
+#if UNISAVE_BROADCASTING_DEBUG
+            UnityEngine.Debug.Log(
+                "[UnisaveBroadcasting] Received data:\n" + stringData
+            );
+#endif
             
-            ExtractEvents();
-
-            OnDataReceived?.Invoke(stringData);
+            slicer.ReceiveChunk(stringData);
 
             // continue receiving data
             return true;
-        }
-
-        private void ExtractEvents()
-        {
-            while (true)
-            {
-                int length = GetEventLength();
-                
-                if (length == 0)
-                    break;
-
-                char[] rawEvent = new char[length];
-                textStream.CopyTo(0, rawEvent, 0, length);
-                textStream.Remove(0, length);
-                
-                HandleEvent(new string(rawEvent));
-            }
-        }
-
-        private int GetEventLength()
-        {
-            bool wasNewline = false;
-
-            for (int i = 0; i < textStream.Length; i++)
-            {
-                if (textStream[i] != '\n')
-                {
-                    wasNewline = false;
-                    continue;
-                }
-
-                if (wasNewline)
-                {
-                    return i + 1;
-                }
-
-                wasNewline = true;
-            }
-
-            return 0;
-        }
-
-        private void HandleEvent(string raw)
-        {
-            var parsed = SseEvent.Parse(raw);
-
-            eventHandler.Invoke(parsed);
         }
     }
 }

@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
 using Unisave.Editor.BackendFolders;
-using Unisave.Editor.BackendUploading;
-using Unisave.Foundation;
-using Unisave.Utils;
-using UnityEditor.SceneManagement;
-using UnityEngine.SceneManagement;
+using Unisave.BackendFolders;
 
 namespace Unisave.Editor
 {
@@ -65,72 +59,6 @@ namespace Unisave.Editor
                 defaultName: "NewClient",
                 templateName: "Broadcasting/Client.txt",
                 wildcard: "#CLASSNAME#"
-            );
-        }
-        
-        [MenuItem("Assets/Create/Unisave/Email authentication/Backend", false, 20)]
-        public static void CreateEmailAuthenticationBackend()
-        {
-            var path = GetCurrentDirectoryPath();
-            
-            if (AssetDatabase.IsValidFolder(path + "/EmailAuthentication"))
-            {
-                EditorUtility.DisplayDialog(
-                    "Email authentication",
-                    "Folder named 'EmailAuthentication' already exists in this directory.",
-                    "OK"
-                );
-                return;
-            }
-
-            AssetDatabase.CreateFolder(
-                path,
-                "EmailAuthentication"
-            );
-            
-            Templates.CreateScriptFromTemplate(
-                path + "/EmailAuthentication/EmailAuthUtils.cs",
-                "EmailAuthentication/EmailAuthUtils.txt",
-                null
-            );
-            Templates.CreateScriptFromTemplate(
-                path + "/EmailAuthentication/EmailLoginFacet.cs",
-                "EmailAuthentication/EmailLoginFacet.txt",
-                null
-            );
-            Templates.CreateScriptFromTemplate(
-                path + "/EmailAuthentication/EmailRegisterFacet.cs",
-                "EmailAuthentication/EmailRegisterFacet.txt",
-                null
-            );
-            Templates.CreateScriptFromTemplate(
-                path + "/EmailAuthentication/EmailRegisterResponse.cs",
-                "EmailAuthentication/EmailRegisterResponse.txt",
-                null
-            );
-        }
-        
-        [MenuItem("Assets/Create/Unisave/Email authentication/Login form", false, 21)]
-        public static void CreateEmailAuthenticationLoginForm()
-        {
-            var path = GetCurrentDirectoryPath();
-            
-            Templates.CreateScriptFromTemplate(
-                path + "/EmailLoginForm.cs",
-                "EmailAuthentication/EmailLoginForm.txt",
-                null
-            );
-        }
-        
-        [MenuItem("Assets/Create/Unisave/Email authentication/Register form", false, 22)]
-        public static void CreateEmailAuthenticationRegisterForm()
-        {
-            var path = GetCurrentDirectoryPath();
-            
-            Templates.CreateScriptFromTemplate(
-                path + "/EmailRegisterForm.cs",
-                "EmailAuthentication/EmailRegisterForm.txt",
-                null
             );
         }
         
@@ -250,8 +178,8 @@ namespace Unisave.Editor
                 GetCurrentDirectoryPath() + "/MyBackend.asset",
                 AssetDatabase.LoadAssetAtPath<Texture2D>(
                     EditorGUIUtility.isProSkin ?
-                        "Assets/Unisave/Images/NewAssetIconWhite.png" :
-                        "Assets/Unisave/Images/NewAssetIcon.png"
+                        "Assets/Plugins/Unisave/Images/NewAssetIconWhite.png" :
+                        "Assets/Plugins/Unisave/Images/NewAssetIcon.png"
                 ),
                 path => {
                     var def = ScriptableObject.CreateInstance<BackendFolderDefinition>();
@@ -307,7 +235,7 @@ namespace Unisave.Editor
             File.WriteAllText(
                 path,
                 AssetDatabase.LoadAssetAtPath<TextAsset>(
-                    "Assets/Unisave/Templates/" + templateName
+                    "Assets/Plugins/Unisave/Templates/" + templateName
                 ).text.Replace(wildcard, wildcardValue)
             );
 
@@ -330,8 +258,8 @@ namespace Unisave.Editor
                 GetCurrentDirectoryPath() + "/" + defaultName + ".cs",
                 AssetDatabase.LoadAssetAtPath<Texture2D>(
                     EditorGUIUtility.isProSkin ?
-                    "Assets/Unisave/Images/NewAssetIconWhite.png" :
-                    "Assets/Unisave/Images/NewAssetIcon.png"
+                    "Assets/Plugins/Unisave/Images/NewAssetIconWhite.png" :
+                    "Assets/Plugins/Unisave/Images/NewAssetIcon.png"
                 ),
                 (pathName) => {
                     string name = Path.GetFileNameWithoutExtension(pathName);
@@ -339,7 +267,7 @@ namespace Unisave.Editor
                     File.WriteAllText(
                         pathName,
                         AssetDatabase.LoadAssetAtPath<TextAsset>(
-                            "Assets/Unisave/Templates/" + templateName
+                            "Assets/Plugins/Unisave/Templates/" + templateName
                         ).text.Replace(wildcard, name)
                     );
 

@@ -18,7 +18,8 @@ namespace Unisave.Editor.DataWindow
         private TreeViewState treeViewState;
         private DataWindowTreeView treeView;
 
-        [MenuItem("Window/Unisave/Data", false, 3)]
+        [MenuItem("Tools/Unisave/Data", false, 100)]
+        [MenuItem("Window/Unisave/Data", false, 3)] // legacy
 		public static void ShowWindow()
 		{
 			EditorWindow.GetWindow(
@@ -34,7 +35,7 @@ namespace Unisave.Editor.DataWindow
             OnRefresh += PerformRefresh;
 
             titleContent.image = AssetDatabase.LoadAssetAtPath<Texture>(
-                "Assets/Unisave/Images/WindowIcon.png"
+                "Assets/Plugins/Unisave/Images/WindowIcon.png"
             );
             
             if (treeViewState == null)

@@ -1,20 +1,28 @@
 {
     "name": "Unisave.Testing",
+    "rootNamespace": "",
     "references": [
-        "Unisave"
-    ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
+        "Unisave",
+        "Unisave.Editor",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
+    "overrideReferences": true,
     "precompiledReferences": [
         "LightJson.dll",
         "RSG.Promise.dll",
-        "UnisaveFramework.dll"
+        "UnisaveFramework.dll",
+        "nunit.framework.dll",
+        "Owin.dll",
+        "Microsoft.Owin.dll"
     ],
-    "autoReferenced": true,
-    "defineConstraints": []
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

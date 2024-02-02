@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEditor;
+using Unisave.Foundation;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Unisave.Editor.BackendFolders
+namespace Unisave.BackendFolders
 {
     /// <summary>
     /// This scriptable object, when put into an asset folder, marks this folder
@@ -34,15 +34,17 @@ namespace Unisave.Editor.BackendFolders
         /// </summary>
         public static BackendFolderDefinition[] LoadAll()
         {
-            return AssetDatabase
+            #if UNITY_EDITOR
+            
+            return UnityEditor.AssetDatabase
                 .FindAssets(
                     "t:" + nameof(BackendFolderDefinition)
                 )
                 .Select(guid => {
-                    string definitionPath = AssetDatabase.GUIDToAssetPath(guid);
+                    string definitionPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
                     string folderPath = Path.GetDirectoryName(definitionPath);
                     
-                    var definition = AssetDatabase.LoadAssetAtPath
+                    var definition = UnityEditor.AssetDatabase.LoadAssetAtPath
                         <BackendFolderDefinition>(definitionPath);
 
                     // set asset metadata
@@ -54,6 +56,10 @@ namespace Unisave.Editor.BackendFolders
                 })
                 .OrderBy(d => d.FilePath)
                 .ToArray();
+            
+            #else
+            return Array.Empty<BackendFolderDefinition>();
+            #endif
         }
 
         /// <summary>
@@ -61,6 +67,8 @@ namespace Unisave.Editor.BackendFolders
         /// </summary>
         public bool IsEligibleForUpload()
         {
+            #if UNITY_EDITOR
+            
             if (UploadBehaviour == UploadBehaviour.Never)
                 return false;
 
@@ -69,9 +77,9 @@ namespace Unisave.Editor.BackendFolders
                 if (scenesToCheck == null)
                     return false;
 
-                foreach (SceneAsset scene in scenesToCheck)
+                foreach (UnityEditor.SceneAsset scene in scenesToCheck)
                 {
-                    string path = AssetDatabase.GetAssetPath(scene);
+                    string path = UnityEditor.AssetDatabase.GetAssetPath(scene);
 
                     if (IsSceneLoaded(path))
                         return true;
@@ -82,8 +90,20 @@ namespace Unisave.Editor.BackendFolders
                 
                 return false;
             }
+
+            if (UploadBehaviour == UploadBehaviour.CheckPreferences)
+            {
+                var preferences = UnisavePreferences.Resolve();
+                return preferences.PreferencesEnabledBackendFolders.Contains(
+                    unisavePreferencesKey
+                );
+            }
             
             return true;
+            
+            #else
+            return false;
+            #endif
         }
 
         private bool IsSceneLoaded(string path)
@@ -101,15 +121,65 @@ namespace Unisave.Editor.BackendFolders
         
         private bool IsSceneInBuildSettingsAndEnabled(string path)
         {
-            foreach (EditorBuildSettingsScene scene in EditorBuildSettings.scenes)
+            #if UNITY_EDITOR
+            
+            foreach (UnityEditor.EditorBuildSettingsScene scene
+                     in UnityEditor.EditorBuildSettings.scenes)
             {
                 if (scene.path == path && scene.enabled)
                     return true;
             }
+            
+            #endif
 
             return false;
         }
         
+        
+        ///////////////////////////////
+        // Enabled/disabled toggling //
+        ///////////////////////////////
+
+        /// <summary>
+        /// Returns true if the backend can be toggled
+        /// in the list of backend folders in the Unisave window
+        /// </summary>
+        public bool CanToggleBackend()
+        {
+            if (UploadBehaviour == UploadBehaviour.Never)
+                return true;
+            
+            if (UploadBehaviour == UploadBehaviour.Always)
+                return true;
+            
+            if (UploadBehaviour == UploadBehaviour.CheckPreferences)
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Toggles the backend state between enabled and disabled
+        /// </summary>
+        public void ToggleBackendState()
+        {
+            if (UploadBehaviour == UploadBehaviour.Never)
+            {
+                UploadBehaviour = UploadBehaviour.Always;
+            }
+            else if (UploadBehaviour == UploadBehaviour.Always)
+            {
+                UploadBehaviour = UploadBehaviour.Never;
+            }
+            else if (UploadBehaviour == UploadBehaviour.CheckPreferences)
+            {
+                var preferences = UnisavePreferences.Resolve();
+                var set = preferences.PreferencesEnabledBackendFolders;
+
+                if (!set.Add(unisavePreferencesKey))
+                    set.Remove(unisavePreferencesKey);
+            }
+        }
         
         /////////////////////////
         // Properties & fields //
@@ -125,13 +195,21 @@ namespace Unisave.Editor.BackendFolders
         }
         
         [SerializeField]
-        internal string uploadBehaviour = "always";
+        public string uploadBehaviour = "always";
 
         /// <summary>
         /// List of scenes to check, if they are used and if at least one
         /// is, then upload this backend folder.
         /// </summary>
-        public List<SceneAsset> scenesToCheck = new List<SceneAsset>();
+        #if UNITY_EDITOR
+        public List<UnityEditor.SceneAsset> scenesToCheck
+            = new List<UnityEditor.SceneAsset>();
+        #endif
+
+        /// <summary>
+        /// Key used for enabled/disabled tracking via Unisave preferences
+        /// </summary>
+        public string unisavePreferencesKey = "MyCompany.MyUnisaveModule";
 
 
         // === Asset-related metadata, set by the LoadAll method ===

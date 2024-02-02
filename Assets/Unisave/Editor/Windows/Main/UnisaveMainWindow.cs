@@ -28,9 +28,11 @@ namespace Unisave.Editor.Windows.Main
         /// <summary>
         /// Where can the window be opened in the Unity menus
         /// </summary>
-        public const string UnityMenuPath = "Window/Unisave/Unisave Window";
+        public const string UnityMenuPath = "Tools/Unisave/Unisave Window";
+        private const string UnityLegacyMenuPath = "Window/Unisave/Unisave Window";
         
         [MenuItem(UnityMenuPath, false, 1)]
+        [MenuItem(UnityLegacyMenuPath, false, 1)]
         public static void ShowWindow()
         {
             ShowTab(MainWindowTab.Home);
@@ -72,13 +74,13 @@ namespace Unisave.Editor.Windows.Main
         {
             titleContent.image = AssetDatabase.LoadAssetAtPath<Texture>(
                 EditorGUIUtility.isProSkin ?
-                    "Assets/Unisave/Images/WindowIconWhite.png" :
-                    "Assets/Unisave/Images/WindowIcon.png"
+                    "Assets/Plugins/Unisave/Images/WindowIconWhite.png" :
+                    "Assets/Plugins/Unisave/Images/WindowIcon.png"
             );
             
             // set up UI tree
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                "Assets/Unisave/Editor/Windows/Main/UI/UnisaveMainWindow.uxml"
+                "Assets/Plugins/Unisave/Editor/Windows/Main/UI/UnisaveMainWindow.uxml"
             );
             rootVisualElement.Add(visualTree.Instantiate());
             

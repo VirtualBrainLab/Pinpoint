@@ -15,17 +15,17 @@ namespace Unisave.Testing
         /// </summary>
         protected BackendTestCase ActingAs(Entity player)
         {
-            var manager = App.Resolve<AuthenticationManager>();
-            manager.SetPlayer(player);
+            var manager = App.Services.Resolve<AuthenticationManager>();
+            manager.Login(player);
             
             // HACK TO STORE THE UPDATED SESSION:
             // I need to figure out how to properly merge test facade access
             // with middleware logic so that it does not interfere.
-            var sessionRepo = ClientApp.Resolve<ClientSessionIdRepository>();
+            var sessionRepo = ClientApp.Services.Resolve<ClientSessionIdRepository>();
             if (sessionRepo.GetSessionId() == null)
                 sessionRepo.StoreSessionId(Str.Random(16));
             Session.Set(AuthenticationManager.SessionKey, player?.EntityId);
-            App.Resolve<ISession>().StoreSession(sessionRepo.GetSessionId());
+            App.Services.Resolve<ISession>().StoreSession(sessionRepo.GetSessionId());
             
             return this;
         }

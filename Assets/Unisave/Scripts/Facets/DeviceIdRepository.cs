@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using LightJson;
 using Unisave.Utils;
 using UnityEngine;
@@ -15,26 +16,83 @@ namespace Unisave.Facets
         /// Where is the device id stored if when it cannot be obtained
         /// from Unity (say on WebGL platform)
         /// </summary>
-        private const string PlayerPrefsKey = "Unisave.DeviceId";
+        private const string DeviceIdPlayerPrefsKey = "Unisave.DeviceId";
+
+        public DeviceIdRepository()
+        {
+            LoadDeviceId();
+
+            LoadDeviceInfo();
+        }
         
-        private string id;
-        private bool loaded;
+        #region "Device ID"
+        
+        private string deviceId;
         
         /// <summary>
         /// Returns the device id
         /// </summary>
         public string GetDeviceId()
         {
-            if (!loaded)
-                LoadDeviceId();
-
-            return id;
+            return deviceId;
         }
+        
+        private void LoadDeviceId()
+        {
+            deviceId = ObtainDeviceId();
+
+            // cannot be obtained, so try to load it
+            if (string.IsNullOrWhiteSpace(deviceId))
+            {
+                deviceId = PlayerPrefs.GetString(DeviceIdPlayerPrefsKey, null);
+                
+                // is not stored, so generate random device id
+                if (string.IsNullOrWhiteSpace(deviceId))
+                {
+                    deviceId = Str.Random(32);
+                    PlayerPrefs.SetString(DeviceIdPlayerPrefsKey, deviceId);
+                    PlayerPrefs.Save();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtains the device id from Unity
+        /// and returns null when it cannot be done
+        /// </summary>
+        private string ObtainDeviceId()
+        {
+            var unityGaveUs = SystemInfo.deviceUniqueIdentifier;
+
+            if (unityGaveUs == SystemInfo.unsupportedIdentifier)
+                return null;
+
+            if (unityGaveUs == null)
+                return null;
+
+            // remove non-ascii non-text characters
+            // < 32 are control chars
+            // > 126 are non-ascii chars (extended latin, currencies, etc.)
+            return string.Concat(
+                unityGaveUs.Where(c => (c >= 32 && c <= 126))
+            );
+        }
+        
+        #endregion
+        
+        #region "Device Info"
+
+        private JsonObject deviceInfo;
 
         /// <summary>
         /// Obtains information about the device
         /// </summary>
         public JsonObject GetDeviceInfo()
+        {
+            return deviceInfo;
+        }
+
+        public void LoadDeviceInfo()
         {
             string deviceModel = SystemInfo.deviceModel;
             if (deviceModel == SystemInfo.unsupportedIdentifier)
@@ -44,7 +102,7 @@ namespace Unisave.Facets
             if (processorType == SystemInfo.unsupportedIdentifier)
                 processorType = null;
 
-            return new JsonObject()
+            deviceInfo = new JsonObject()
                 // general
                 .Add(
                     "platform",
@@ -69,40 +127,6 @@ namespace Unisave.Facets
                 .Add("processorType", processorType);
         }
         
-        private void LoadDeviceId()
-        {
-            id = ObtainDeviceId();
-
-            // cannot be obtained, so try to load it
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                id = PlayerPrefs.GetString(PlayerPrefsKey, null);
-                
-                // is not stored, so generate random device id
-                if (string.IsNullOrWhiteSpace(id))
-                {
-                    id = Str.Random(32);
-                    PlayerPrefs.SetString(PlayerPrefsKey, id);
-                    PlayerPrefs.Save();
-                }
-            }
-
-            // now the id should be available in the private field
-            loaded = true;
-        }
-
-        /// <summary>
-        /// Obtains the device id from Unity
-        /// and returns null when it cannot be done
-        /// </summary>
-        private string ObtainDeviceId()
-        {
-            var unityGaveUs = SystemInfo.deviceUniqueIdentifier;
-
-            if (unityGaveUs == SystemInfo.unsupportedIdentifier)
-                return null;
-
-            return unityGaveUs;
-        }
+        #endregion
     }
 }

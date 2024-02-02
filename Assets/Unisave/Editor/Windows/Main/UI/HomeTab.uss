@@ -1,6 +1,6 @@
 .home-image {
     background-color: rgba(0, 0, 0, 0.2);
-    background-image: url("/Assets/Unisave/Images/PropertiesLogoWhite.png");
+    background-image: url("/Assets/Plugins/Unisave/Images/PropertiesLogoWhite.png");
     -unity-background-scale-mode: scale-to-fit;
     padding-top: 30%;
     margin: 10px;

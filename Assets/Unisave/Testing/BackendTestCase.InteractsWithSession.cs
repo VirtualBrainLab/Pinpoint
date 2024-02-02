@@ -1,6 +1,4 @@
-using Unisave.Runtime.Kernels;
 using Unisave.Sessions;
-using Unisave.Utils;
 
 namespace Unisave.Testing
 {
@@ -12,14 +10,14 @@ namespace Unisave.Testing
         /// we are inside the test method in between facet calls)
         /// </summary>
         protected string SessionId
-            => ClientApp.Resolve<ClientSessionIdRepository>().GetSessionId();
+            => ClientApp.Services.Resolve<ClientSessionIdRepository>().GetSessionId();
 
         /// <summary>
         /// Generates a session ID and stores it in the client application
         /// </summary>
         protected void GenerateSessionId()
         {
-            ClientApp.Resolve<ClientSessionIdRepository>().StoreSessionId(
+            ClientApp.Services.Resolve<ClientSessionIdRepository>().StoreSessionId(
                 ServerSessionIdRepository.GenerateSessionId()
             );
         }

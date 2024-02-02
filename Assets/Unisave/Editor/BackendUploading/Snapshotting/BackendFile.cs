@@ -43,11 +43,11 @@ namespace Unisave.Editor.BackendUploading.Snapshotting
         /// Hash backing field
         /// </summary>
         private string hash = null;
-
-        public BackendFile(string assetGuid)
+        
+        protected BackendFile(string assetGuid, string path)
         {
             AssetGuid = assetGuid;
-            Path = AssetDatabase.GUIDToAssetPath(assetGuid);
+            Path = path;
         }
         
         /// <summary>

@@ -1,4 +1,5 @@
 using System;
+using Unisave.Facets;
 using Unisave.Foundation;
 using UnityEditor.SceneManagement;
 using UnityEngine.UIElements;
@@ -16,6 +17,8 @@ namespace Unisave.Editor.Windows.Main.Tabs
         private VisualElement checklistItemConnect;
 
         private Label versionsLabel;
+
+        private DeviceIdRepository deviceIdRepository = new DeviceIdRepository();
 
         public HomeTabController(VisualElement root)
         {
@@ -36,7 +39,7 @@ namespace Unisave.Editor.Windows.Main.Tabs
                 Application.OpenURL("https://discord.gg/XV696Tp");
             };
             root.Q<Button>(name: "link-pricing").clicked += () => {
-                Application.OpenURL("https://unisave.cloud/#pricing");
+                Application.OpenURL("https://unisave.cloud/pricing");
             };
             
             // === Checklist items ===
@@ -54,22 +57,28 @@ namespace Unisave.Editor.Windows.Main.Tabs
             };
             root.Q<Button>(name: "cb-ex-chat").clicked += () => {
                 EditorSceneManager.OpenScene(
-                    "Assets/Unisave/Examples/Chat/Chat.unity"
+                    "Assets/Plugins/Unisave/Examples/Chat/Chat.unity"
                 );
             };
             root.Q<Button>(name: "cb-ex-email-auth").clicked += () => {
                 EditorSceneManager.OpenScene(
-                    "Assets/Unisave/Examples/PlayerAuthentication/PlayerAuthentication.unity"
+                    "Assets/Plugins/Unisave/Examples/PlayerAuthentication/" +
+                    "PlayerAuthentication.unity"
                 );
             };
             root.Q<Button>(name: "cb-storing-player-data").clicked += () => {
-                Application.OpenURL("https://unisave.cloud/guides/how-to-store-player-data-online-with-unity");
+                Application.OpenURL(
+                    "https://unisave.cloud/guides/" +
+                    "how-to-store-player-data-online-with-unity"
+                );
             };
             root.Q<Button>(name: "cb-sending-emails").clicked += () => {
                 Application.OpenURL("https://unisave.cloud/docs/mail");
             };
             root.Q<Button>(name: "cb-steam-microtransactions").clicked += () => {
-                Application.OpenURL("https://unisave.cloud/docs/steam-microtransactions");
+                Application.OpenURL(
+                    "https://unisave.cloud/docs/steam-microtransactions"
+                );
             };
             
             root.Q<Button>(name: "cb-discord").clicked += () => {
@@ -77,6 +86,12 @@ namespace Unisave.Editor.Windows.Main.Tabs
             };
             root.Q<Button>(name: "cb-email").clicked += () => {
                 Application.OpenURL("mailto:info@unisave.cloud");
+            };
+            root.Q<Button>(name: "cb-review").clicked += () => {
+                Application.OpenURL(
+                    "https://assetstore.unity.com/packages/tools/network/" +
+                    "unisave-backend-server-142705#reviews"
+                );
             };
             
             // === Other ===
@@ -86,7 +101,7 @@ namespace Unisave.Editor.Windows.Main.Tabs
 
         public void OnObserveExternalState()
         {
-            var preferences = UnisavePreferences.LoadOrCreate();
+            var preferences = UnisavePreferences.Resolve();
             
             bool notConnected = string.IsNullOrWhiteSpace(preferences.GameToken) ||
                 string.IsNullOrWhiteSpace(preferences.EditorKey);
@@ -99,7 +114,8 @@ namespace Unisave.Editor.Windows.Main.Tabs
             );
 
             versionsLabel.text = $"Unisave Asset: {AssetMeta.Version}\n" +
-                                 $"Unisave Framework: {FrameworkMeta.Version}";
+                                 $"Unisave Framework: {FrameworkMeta.Version}\n" +
+                                 $"Device ID: {deviceIdRepository.GetDeviceId()}";
         }
 
         public void OnWriteExternalState()

@@ -12,6 +12,11 @@ namespace Unisave.Broadcasting.Sse
     public struct SseEvent
     {
         /// <summary>
+        /// Event ID that represents the "null" value
+        /// </summary>
+        public const int NullEventId = -1;
+        
+        /// <summary>
         /// Optional event name
         /// </summary>
         public string @event;
@@ -29,7 +34,7 @@ namespace Unisave.Broadcasting.Sse
         /// <summary>
         /// Event id
         /// </summary>
-        public int? id;
+        public int id;
         
         /// <summary>
         /// Recommended retry delay in milliseconds
@@ -52,7 +57,7 @@ namespace Unisave.Broadcasting.Sse
             var message = new SseEvent {
                 data = null,
                 @event = null,
-                id = null,
+                id = NullEventId,
                 retry = null
             };
             

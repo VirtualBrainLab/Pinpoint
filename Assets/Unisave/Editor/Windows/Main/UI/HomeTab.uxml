@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:engine="UnityEngine.UIElements"
     xmlns:editor="UnityEditor.UIElements"
-    xsi:noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd"
+    xsi:noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd"
 >
     <engine:Style src="HomeTab.uss"/>
     
@@ -46,6 +46,9 @@
             <engine:Label class="checklist-text" text="Don't hesitate to join our Discord community, you can ask others or the devs directly. Or you can send us an email."/>
             <engine:Button name="cb-discord" class="checklist-button" text="Join Discord"/>
             <engine:Button name="cb-email" class="checklist-button" text="info@unisave.cloud"/>
+            <engine:Label class="checklist-text" text=""/>
+            <engine:Label class="checklist-text" text="Also, if you like the asset, you can help it grow and get better by leaving a review."/>
+            <engine:Button name="cb-review" class="checklist-button" text="Leave review"/>
         </engine:VisualElement>
     </engine:VisualElement>
     

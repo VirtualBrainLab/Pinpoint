@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using LightJson;
 using NUnit.Framework;
 using Unisave.Arango;
@@ -10,12 +11,14 @@ using Unisave.Foundation;
 using Unisave.Logging;
 using Unisave.Runtime;
 using Unisave.Sessions;
+using Microsoft.Owin;
 
 namespace Unisave.Testing
 {
     /// <summary>
     /// Base class for Unisave backend tests
     /// </summary>
+    [Obsolete("Use fullstack fixtures instead. This hacking fails for broadcasting etc...")]
     public abstract partial class BackendTestCase
     {
         /// <summary>
@@ -26,14 +29,16 @@ namespace Unisave.Testing
         /// <summary>
         /// The server application behind server facades
         /// </summary>
-        protected Application App { get; private set; }
+        protected BackendApplication App { get; private set; }
+
+        private RequestContext fakeGlobalRequestContext;
         
         [SetUp]
         public virtual void SetUp()
         {
             // create testing client application
             ClientApp = new ClientApplication(
-                UnisavePreferences.LoadOrCreate()
+                UnisavePreferences.Resolve()
             );
             
             // prepare environment
@@ -41,35 +46,41 @@ namespace Unisave.Testing
             DownloadEnvFile(env);
             
             // create testing backend application
-            App = Bootstrap.Boot(
+            App = BackendApplication.Start(
                 GetGameAssemblyTypes(),
-                env,
-                new SpecialValues()
+                env
             );
             
             // execute backend code locally
-            ClientApp.Singleton<FacetCaller>(
+            ClientApp.Services.RegisterSingleton<FacetCaller>(
                 _ => new TestingFacetCaller(App, ClientApp)
             );
             
             // logging should go direct, we don't want to wait for app disposal
             // for writing logs to special values
             // HACK: this is a hack, see the ClientSideLog class for more
-            App.Singleton<ILog>(_ => new ClientSideLog());
+            App.Services.RegisterSingleton<ILog>(_ => new ClientSideLog());
             
             // bind facades
-            Facade.SetApplication(App);
             ClientFacade.SetApplication(ClientApp);
             
             // start with a blank slate
-            ClientApp.Resolve<ClientSessionIdRepository>().StoreSessionId(null);
+            ClientApp.Services.Resolve<ClientSessionIdRepository>().StoreSessionId(null);
             ClearDatabase();
+            
+            // create a fake request context for the test itself,
+            // so that we can access the database and other facades
+            fakeGlobalRequestContext = new RequestContext(
+                App.Services,
+                new OwinContext()
+            );
         }
 
         [TearDown]
         public virtual void TearDown()
         {
-            Facade.SetApplication(null);
+            fakeGlobalRequestContext.Dispose();
+            
             ClientFacade.SetApplication(null);
             
             App.Dispose();
@@ -83,13 +94,27 @@ namespace Unisave.Testing
             // (download only once per the test suite execution
             // - use SetUpFixture, or OneTimeSetup)
             // cache only the downloaded string, but reset env for each test
+
+            // just some muffling to prevent github scraping,
+            // but really, it's just a public database for testing
+            // (I really should set up something better,
+            // but it's just for testing...)
+            string url = Encoding.UTF8.GetString(
+                Convert.FromBase64String("aHR0cHM6Ly9hcmFuZ28udW5pc2F2ZS5jbG91ZC8=")
+            );
+            string name = Encoding.UTF8.GetString(
+                Convert.FromBase64String("YXNzZXRfdGVzdGluZw==")
+            );
+            string p = Encoding.UTF8.GetString(
+                Convert.FromBase64String("cGFzc3dvcmQ=")
+            );
             
             env["SESSION_DRIVER"] = "arango";
             env["ARANGO_DRIVER"] = "http";
-            env["ARANGO_BASE_URL"] = "http://arango.unisave.local/";
-            env["ARANGO_DATABASE"] = "db_YZtrs0Lc";
-            env["ARANGO_USERNAME"] = "db_user_YZtrs0Lc";
-            env["ARANGO_PASSWORD"] = "73uCMhHY7WG5stQ+gC3L24kD";
+            env["ARANGO_BASE_URL"] = url;
+            env["ARANGO_DATABASE"] = name;
+            env["ARANGO_USERNAME"] = name;
+            env["ARANGO_PASSWORD"] = p;
         }
         
         private Type[] GetGameAssemblyTypes()
@@ -109,7 +134,7 @@ namespace Unisave.Testing
 
         private void ClearDatabase()
         {
-            var arango = (ArangoConnection)App.Resolve<IArango>();
+            var arango = (ArangoConnection)App.Services.Resolve<IArango>();
             
             JsonArray collections = arango.Get("/_api/collection")["result"];
 

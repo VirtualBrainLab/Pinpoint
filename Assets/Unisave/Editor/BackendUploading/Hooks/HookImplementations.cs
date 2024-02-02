@@ -57,7 +57,7 @@ namespace Unisave.Editor.BackendUploading.Hooks
         /// postprocessing hook wasn't called on Peter's machine.
         /// </summary>
         /// <param name="report"></param>
-        public static void OnPreprocessBuild(BuildReport report)
+        public static void OnPostprocessBuild(BuildReport report)
         {
             // Performs automatic backend upload if enabled
             PerformAutomaticUploadIfEnabled();

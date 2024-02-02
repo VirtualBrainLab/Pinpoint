@@ -25,16 +25,32 @@ namespace Unisave.Editor.BackendUploading.Snapshotting
             string[] guids = AssetDatabase.FindAssets(
                 "t:MonoScript", backendFolders
             );
-
-            return guids.Select(g => new CSharpFile(g));
+            
+            return guids
+                .Select(LoadFromGuid)
+                .Where(s => s != null);
         }
 
-        private CSharpFile(string assetGuid) : base(assetGuid)
+        private static CSharpFile LoadFromGuid(string assetGuid)
         {
-            var m = AssetDatabase.LoadAssetAtPath<MonoScript>(Path);
+            string path = AssetDatabase.GUIDToAssetPath(assetGuid);
+            var script = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
 
-            scriptText = m.text;
-            scriptBytes = m.bytes;
+            // the given asset guid does not belong not a mono script
+            if (script == null)
+                return null;
+
+            return new CSharpFile(assetGuid, path, script);
+        }
+
+        private CSharpFile(
+            string assetGuid,
+            string path,
+            MonoScript script
+        ) : base(assetGuid, path)
+        {
+            scriptText = script.text;
+            scriptBytes = script.bytes;
         }
         
         /// <inheritdoc/>

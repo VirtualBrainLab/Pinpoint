@@ -3,6 +3,7 @@ using LightJson;
 using Unisave.Broadcasting.Sse;
 using Unisave.Foundation;
 using UnityEngine;
+using Application = UnityEngine.Application;
 
 namespace Unisave.Broadcasting
 {
@@ -32,12 +33,18 @@ namespace Unisave.Broadcasting
         /// </summary>
         public event Action OnConnectionRegained;
 
-        private ClientApplication app;
+        private readonly ClientApplication app;
 
         /// <summary>
         /// The underlying SSE socket. Can be null when not needed.
         /// </summary>
-        public SseSocket Socket { get; set; }
+        public ISseSocket Socket { get; private set; }
+
+        /// <summary>
+        /// The game object that owns the socket
+        /// (if the socket is a MonoBehaviour, otherwise null)
+        /// </summary>
+        public GameObject SocketGameObject { get; private set; }
 
         /// <summary>
         /// Status of the connection to the Unisave broadcasting server
@@ -76,17 +83,20 @@ namespace Unisave.Broadcasting
             if (Socket != null)
                 throw new InvalidOperationException("Socket already created");
 
-            GameObject go = new GameObject(
-                "UnisaveBroadcastingSseSocket",
-                typeof(SseSocket)
-            );
-            UnityEngine.Object.DontDestroyOnLoad(go);
+            SocketGameObject = new GameObject("UnisaveBroadcastingSseSocket");
+            UnityEngine.Object.DontDestroyOnLoad(SocketGameObject);
 
             if (!app.InEditMode)
-                go.transform.parent = app.GameObject.transform;
+                SocketGameObject.transform.parent = app.GameObject.transform;
             
-            Socket = go.GetComponent<SseSocket>();
+#if UNITY_WEBGL && !UNITY_EDITOR
+            Socket = SocketGameObject.AddComponent<WebGlSseSocket>();
+#else
+            Socket = SocketGameObject.AddComponent<DefaultSseSocket>();
+#endif
+
             Socket.Initialize(app);
+            
             Socket.OnEventReceived += OnEventReceived;
             Socket.OnConnectionLost += ConnectionLostDelegator;
             Socket.OnConnectionRegained += ConnectionRegainedDelegator;
@@ -101,8 +111,11 @@ namespace Unisave.Broadcasting
             Socket.OnConnectionLost -= ConnectionLostDelegator;
             Socket.OnConnectionRegained -= ConnectionRegainedDelegator;
             
-            UnityEngine.Object.Destroy(Socket.gameObject);
+            if (SocketGameObject != null)
+                UnityEngine.Object.Destroy(SocketGameObject);
+            
             Socket = null;
+            SocketGameObject = null;
         }
 
         private void ConnectionLostDelegator()

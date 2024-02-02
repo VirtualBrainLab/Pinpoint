@@ -1,0 +1,10 @@
+<linker>
+    <!-- consider using [Preserve] attribute in source-code instead of listing types here -->
+    <!-- learn more: https://docs.unity3d.com/Manual/ManagedCodeStripping.html -->
+    
+    <!-- Linq Expressions need this to work, see: -->
+    <!-- https://answers.unity.com/questions/1731418/il2cpp-compiled-expressions-performance.html -->
+    <assembly fullname="System.Core">
+        <type fullname="System.Linq.Expressions.Interpreter.LightLambda" preserve="all"/>
+    </assembly>
+</linker>

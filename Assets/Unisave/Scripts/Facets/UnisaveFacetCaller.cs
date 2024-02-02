@@ -25,7 +25,7 @@ namespace Unisave.Facets
         {
 	        this.app = app;
 	        
-	        http = app.Resolve<AssetHttpClient>();
+	        http = app.Services.Resolve<AssetHttpClient>();
         }
 
 		protected override IPromise<JsonValue> PerformFacetCall(
@@ -34,10 +34,35 @@ namespace Unisave.Facets
             JsonArray arguments
         )
 		{
+			// check that cloud connection is established
+			#if UNITY_EDITOR
+			if (string.IsNullOrEmpty(app.Preferences.GameToken)
+			    || string.IsNullOrEmpty(app.Preferences.EditorKey))
+			{
+				Debug.LogError(
+					"[Unisave] Connection to the cloud has not been established yet. " +
+				    "Fill out the game token and editor key in the Unisave window."
+				);
+				return new Promise<JsonValue>(); // the promise will never finish
+			}
+			#endif
+			
+			// check that some backend was uploaded
+			#if UNITY_EDITOR
+			if (string.IsNullOrEmpty(app.Preferences.BackendHash))
+			{
+				Debug.LogError(
+					"[Unisave] No corresponding backend was uploaded yet. " +
+					"Check the backend uploading status in the Unisave window."
+				);
+				return new Promise<JsonValue>(); // the promise will never finish
+			}
+			#endif
+			
 			var promise = new Promise<JsonValue>();
 			
 			http.Post(
-				app.Resolve<ApiUrl>().CallFacet(),
+				app.Services.Resolve<ApiUrl>().CallFacet(),
 				new JsonObject()
 					.Add("facetName", facetName)
 					.Add("methodName", methodName)
@@ -51,7 +76,7 @@ namespace Unisave.Facets
 						.Add("backendHash", app.Preferences.BackendHash)
 						.Add("frameworkVersion", FrameworkMeta.Version)
 						.Add("assetVersion", AssetMeta.Version)
-						.Add("buildGuid", Application.buildGUID)
+						.Add("buildGuid", ClientIdentity.BuildGuid)
 						.Add("versionString", Application.version)
 					),
 				response => {
@@ -132,7 +157,7 @@ namespace Unisave.Facets
 		
 		// magic
 		// https://stackoverflow.com/a/2085377
-		private static void PreserveStackTrace(Exception e)
+		public static void PreserveStackTrace(Exception e)
 		{
 			var ctx = new StreamingContext(StreamingContextStates.CrossAppDomain);
 			var mgr = new ObjectManager(null, ctx);

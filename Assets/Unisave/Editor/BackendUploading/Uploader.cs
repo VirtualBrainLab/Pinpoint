@@ -23,14 +23,16 @@ namespace Unisave.Editor.BackendUploading
             get
             {
                 if (instance == null)
-                    instance = new Uploader(UnisavePreferences.LoadOrCreate());
+                    instance = new Uploader();
+                else
+                    instance.RefreshPreferences();
 
                 return instance;
             }
         }
 
-        private readonly UnisavePreferences preferences;
-        private readonly ApiUrl apiUrl;
+        private UnisavePreferences preferences;
+        private ApiUrl apiUrl;
 
         public bool AutomaticUploadingEnabled =>
             preferences.AutomaticBackendUploading;
@@ -54,13 +56,21 @@ namespace Unisave.Editor.BackendUploading
         /// </summary>
         private Task uploadingTask;
 
-        private Uploader(UnisavePreferences preferences)
+        private Uploader()
         {
-            this.preferences = preferences;
-
-            apiUrl = new ApiUrl(preferences.ServerUrl);
+            RefreshPreferences();
 
             State = BaseState.RestoreFromEditorPrefs(preferences.GameToken);
+        }
+
+        /// <summary>
+        /// UnisavePreferences should not be kept for long, therefore we need
+        /// to re-resolve them often enough to prevent their spoiling.
+        /// </summary>
+        private void RefreshPreferences()
+        {
+            preferences = UnisavePreferences.Resolve();
+            apiUrl = new ApiUrl(preferences.ServerUrl);
         }
 
         /// <summary>
@@ -73,8 +83,18 @@ namespace Unisave.Editor.BackendUploading
         /// runtime refreshes the new assembly code and the upload gets killed
         /// half-way through.
         /// </param>
-        public void UploadBackend(bool verbose, bool blockThread)
+        /// <param name="snapshot">
+        /// An optional backend snapshot to be provided. If left at null,
+        /// a snapshot according to all backend definition files is taken.
+        /// </param>
+        public void UploadBackend(
+            bool verbose,
+            bool blockThread,
+            BackendSnapshot snapshot = null
+        )
         {
+            RefreshPreferences();
+            
             // check that there isn't another upload running
             if (uploadingTask != null && !uploadingTask.IsCompleted)
             {
@@ -90,13 +110,13 @@ namespace Unisave.Editor.BackendUploading
                 Debug.Log("[Unisave] Starting backend upload...");
             
             // recalculate backend hash and store it in preferences
-            var snapshot = BackendSnapshot.Take();
+            if (snapshot == null)
+                snapshot = BackendSnapshot.Take();
             StoreBackendHash(snapshot);
             
-            // NOTE: preferences.Save() not needed since both values are
-            // stored inside EditorPrefs
             preferences.LastBackendUploadAt = DateTime.Now;
             preferences.LastUploadedBackendHash = snapshot.BackendHash;
+            preferences.Save();
 
             // forget whatever state is persisted
             BaseState.ClearEditorPrefs(preferences.GameToken);

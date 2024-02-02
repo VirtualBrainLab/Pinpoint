@@ -70,7 +70,7 @@ public class ActiveExperimentUI : MonoBehaviour
             return;
 
         // If the experiment was changed, reset the whole panel
-        if (!_accountsManager.ActiveExperiment.Equals(_currentExperiment))
+        if (_accountsManager.ActiveExperiment != null && !_accountsManager.ActiveExperiment.Equals(_currentExperiment))
             ResetUIPanels();
 
         // Then, update the data in the panels

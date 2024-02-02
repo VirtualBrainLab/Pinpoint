@@ -31,8 +31,8 @@ namespace Unisave.Facets
         
         public FacetCaller(ClientApplication clientApp)
         {
-            sessionIdRepository = clientApp.Resolve<ClientSessionIdRepository>();
-            DeviceIdRepository = clientApp.Resolve<DeviceIdRepository>();
+            sessionIdRepository = clientApp.Services.Resolve<ClientSessionIdRepository>();
+            DeviceIdRepository = clientApp.Services.Resolve<DeviceIdRepository>();
         }
         
         /// <summary>

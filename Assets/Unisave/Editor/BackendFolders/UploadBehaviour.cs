@@ -1,4 +1,4 @@
-namespace Unisave.Editor.BackendFolders
+namespace Unisave.BackendFolders
 {
     /// <summary>
     /// Upload behaviours of a backend folder
@@ -8,18 +8,28 @@ namespace Unisave.Editor.BackendFolders
         /// <summary>
         /// The folder should never be uploaded
         /// </summary>
-        public static readonly UploadBehaviour Never = new UploadBehaviour("never");
+        public static readonly UploadBehaviour Never
+            = new UploadBehaviour("never");
         
         /// <summary>
         /// The folder should always be uploaded
         /// </summary>
-        public static readonly UploadBehaviour Always = new UploadBehaviour("always");
+        public static readonly UploadBehaviour Always
+            = new UploadBehaviour("always");
         
         /// <summary>
         /// The folder is uploaded only when its referenced from a scene
         /// that is active or is to be built.
         /// </summary>
-        public static readonly UploadBehaviour CheckScenes = new UploadBehaviour("check-scenes");
+        public static readonly UploadBehaviour CheckScenes
+            = new UploadBehaviour("check-scenes");
+        
+        /// <summary>
+        /// The folder is uploaded only when it is listed in the enabled
+        /// backend folders in the Unisave preferences.
+        /// </summary>
+        public static readonly UploadBehaviour CheckPreferences
+            = new UploadBehaviour("check-preferences");
         
         /// <summary>
         /// String value of the upload behaviour
@@ -43,6 +53,9 @@ namespace Unisave.Editor.BackendFolders
                 
                 case "check-scenes":
                     return CheckScenes;
+                
+                case "check-preferences":
+                    return CheckPreferences;
             }
             
             return Never;

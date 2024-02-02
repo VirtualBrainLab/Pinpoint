@@ -588,6 +588,13 @@ public class Settings : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    public void ResetSettings()
+    {
+        Load(true);
+
+        Apply();
+    }
+
     /// <summary>
     /// Load and apply settings from PlayerPrefs
     /// </summary>
