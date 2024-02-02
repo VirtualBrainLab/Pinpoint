@@ -313,7 +313,7 @@ public class Settings : MonoBehaviour
         }
     }
 
-    private readonly Vector3 RELCOORD_DEFAULT = new Vector3(0f, 0f ,0f);
+    private readonly Vector3 RELCOORD_DEFAULT = new Vector3(float.NaN, float.NaN, float.NaN);
     public UnityEvent<Vector3> RelativeCoordinateChangedEvent;
 
     public static Vector3 ReferenceCoord

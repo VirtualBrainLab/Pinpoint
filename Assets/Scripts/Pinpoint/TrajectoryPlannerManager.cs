@@ -1110,6 +1110,14 @@ namespace TrajectoryPlanner
 
         #region Misc
 
+        public void ResetReferenceCoordinate()
+        {
+            if (float.IsNaN(Settings.ReferenceCoord.x))
+            {
+                Settings.ReferenceCoord = Utils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
+            }
+        }
+
         public void LinkToVBLSite()
         {
             Application.OpenURL("https://virtualbrainlab.org");
