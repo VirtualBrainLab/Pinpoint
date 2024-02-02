@@ -527,7 +527,7 @@ public class UnisaveAccountsManager : AccountsManager
 
     public HashSet<string> GetUUIDsFromExperiment(string experimentName)
     {
-        if (_player == null || !_player.Experiment2UUID.ContainsKey(experimentName))
+        if (_player == null || experimentName == null || !_player.Experiment2UUID.ContainsKey(experimentName))
             return new HashSet<string>();
         
         return _player.Experiment2UUID[experimentName];
