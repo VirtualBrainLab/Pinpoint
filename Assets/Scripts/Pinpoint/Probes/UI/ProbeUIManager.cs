@@ -131,8 +131,8 @@ public class ProbeUIManager : MonoBehaviour
         Vector3 startCoordWorldT = _electrodeBase.transform.position + -_electrodeBase.transform.forward * channelCoords.startPosmm;
         Vector3 endCoordWorldT = _electrodeBase.transform.position + -_electrodeBase.transform.forward * channelCoords.endPosmm;
 
-        Vector3 startCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT);
-        Vector3 endCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT);
+        Vector3 startCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT, true);
+        Vector3 endCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT, true);
 
         // TODO: add back in in the future
 
