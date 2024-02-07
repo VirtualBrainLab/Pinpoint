@@ -137,7 +137,7 @@ namespace Pinpoint.UI.EphysCopilot
                 _lineGameObjects.ap.SetActive(false);
                 _lineGameObjects.ml.SetActive(false);
                 _lineGameObjects.dv.SetActive(false);
-                
+
                 // Reset dropdown color.
                 var colorBlockCopy = _targetInsertionDropdown.colors;
                 colorBlockCopy.normalColor = new Color(1, 1, 1);
@@ -408,14 +408,32 @@ namespace Pinpoint.UI.EphysCopilot
                                                         _lineGameObjects.dv.SetActive(false);
 
                                                         // Complete movement
-                                                        _isMoving = false;
-                                                        _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
+                                                        CompleteMovement();
                                                         _moveButton.interactable = false;
                                                     }, Debug.LogError);
-                                            }, Debug.LogError);
-                                    }, Debug.LogError);
-                            }, Debug.LogError);
+                                            }, error =>
+                                            {
+                                                Debug.LogError(error);
+                                                CompleteMovement();
+                                            });
+                                    }, error =>
+                                    {
+                                        Debug.LogError(error);
+                                        CompleteMovement();
+                                    });
+                            }, error =>
+                            {
+                                Debug.LogError(error);
+                                CompleteMovement();
+                            });
                 }, Debug.LogError);
+            return;
+
+            void CompleteMovement()
+            {
+                _isMoving = false;
+                _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
+            }
         }
 
         private void UpdateMoveButtonInteractable()
