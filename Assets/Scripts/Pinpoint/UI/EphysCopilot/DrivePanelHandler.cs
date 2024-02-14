@@ -90,16 +90,19 @@ namespace Pinpoint.UI.EphysCopilot
                         State = DriveState.ReturningToTarget;
                         break;
 
+                    // Driving in progress: maintain state
+                    case DriveState.DrivingToNearTarget:
+                    case DriveState.DriveToPastTarget:
+                    case DriveState.ReturningToTarget:
+                        break;
+
                     // Error cases: Cannot drive down from these states
                     case DriveState.Outside:
                     case DriveState.ExitingToOutside:
                     case DriveState.AtExitMargin:
                     case DriveState.ExitingToMargin:
                     case DriveState.ExitingToDura:
-                    case DriveState.DrivingToNearTarget:
                     case DriveState.ExitingToNearTarget:
-                    case DriveState.DriveToPastTarget:
-                    case DriveState.ReturningToTarget:
                     case DriveState.AtTarget:
                     default:
                         Debug.LogError("Cannot drive down from state: " + State);
@@ -135,12 +138,15 @@ namespace Pinpoint.UI.EphysCopilot
                         State = DriveState.ExitingToNearTarget;
                         break;
 
-                    // Error cases: Cannot exit from these states
-                    case DriveState.Outside:
+                    // Exit in progress: maintain state
                     case DriveState.ExitingToMargin:
                     case DriveState.ExitingToDura:
                     case DriveState.ExitingToNearTarget:
                     case DriveState.ExitingToOutside:
+                        break;
+
+                    // Error cases: Cannot exit from these states
+                    case DriveState.Outside:
                     default:
                         Debug.LogError("Cannot exit from state: " + State);
                         break;
@@ -461,6 +467,8 @@ namespace Pinpoint.UI.EphysCopilot
                                                 _stopButton.SetActive(false);
 
                                                 // Enable return to surface button
+                                                _driveGroup.SetActive(true);
+                                                _driveButton.interactable = false;
                                                 _exitButton.SetActive(true);
                                             });
                                     }, Debug.LogError);
@@ -476,7 +484,7 @@ namespace Pinpoint.UI.EphysCopilot
                             case DriveState.AtPastTarget:
                             case DriveState.AtTarget:
                             default:
-                                Debug.LogError("Invalid Drive state for driving.");
+                                Debug.LogError("Invalid Drive state for driving: "+_driveStateManager.State);
                                 return;
                         }
                     }, Debug.LogError);
@@ -515,7 +523,7 @@ namespace Pinpoint.UI.EphysCopilot
                             _statusText.text = "Returning to surface...";
 
                             // Replace drive buttons with stop
-                            _exitButton.SetActive(false);
+                            _driveGroup.SetActive(false);
                             _stopButton.SetActive(true);
 
                             // Drive to near target depth
@@ -531,7 +539,7 @@ namespace Pinpoint.UI.EphysCopilot
                             _statusText.text = "Returning to surface...";
 
                             // Replace drive buttons with stop
-                            _exitButton.SetActive(false);
+                            _driveGroup.SetActive(false);
                             _stopButton.SetActive(true);
 
                             // Drive to dura depth (set speed based on dura depth and near target depth)
@@ -548,7 +556,7 @@ namespace Pinpoint.UI.EphysCopilot
                             _statusText.text = "Exiting Dura...";
 
                             // Replace drive buttons with stop
-                            _exitButton.SetActive(false);
+                            _driveGroup.SetActive(false);
                             _stopButton.SetActive(true);
 
                             // Drive to dura margin depth
@@ -565,7 +573,7 @@ namespace Pinpoint.UI.EphysCopilot
                             _statusText.text = "Exiting Dura...";
 
                             // Replace drive buttons with stop
-                            _exitButton.SetActive(false);
+                            _driveGroup.SetActive(false);
                             _stopButton.SetActive(true);
 
                             // Reset dura offset
@@ -620,6 +628,7 @@ namespace Pinpoint.UI.EphysCopilot
                     _driveButton.interactable = false;
                     _statusText.text = "Move to Dura to Drive";
                     _stopButton.SetActive(false);
+                    _exitButton.SetActive(false);
                     _driveGroup.SetActive(true);
                 }, Debug.LogError);
             }
@@ -631,31 +640,34 @@ namespace Pinpoint.UI.EphysCopilot
             {
                 if (!b) return;
 
-                // Show drive group and hide stop button
+                // Show drive group and hide stop button.
                 _statusText.text = "Stopped";
-                _stopButton.SetActive(false);
                 _driveGroup.SetActive(true);
                 _exitButton.SetActive(true);
+                _stopButton.SetActive(false);
 
-                // Disable drive button if at Dura or above
+                // Disable drive button if exiting or at Dura and above, otherwise enable.
                 switch (_driveStateManager.State)
                 {
                     case DriveState.AtDura:
                     case DriveState.ExitingToMargin:
                     case DriveState.AtExitMargin:
                     case DriveState.ExitingToOutside:
+                    case DriveState.ExitingToDura:
+                    case DriveState.ExitingToNearTarget:
                     case DriveState.Outside:
                         _driveButton.interactable = false;
                         break;
-                    case DriveState.ExitingToDura:
                     case DriveState.DrivingToNearTarget:
                     case DriveState.AtNearTarget:
-                    case DriveState.ExitingToNearTarget:
                     case DriveState.DriveToPastTarget:
                     case DriveState.AtPastTarget:
                     case DriveState.ReturningToTarget:
                     case DriveState.AtTarget:
+                        _driveButton.interactable = true;
+                        break;
                     default:
+                        Debug.LogError("Unexpected stop state: " + _driveStateManager.State);
                         break;
                 }
             });
