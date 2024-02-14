@@ -408,28 +408,28 @@ namespace Pinpoint.UI.EphysCopilot
                                                         _lineGameObjects.dv.SetActive(false);
 
                                                         // Complete movement
-                                                        CompleteMovement();
+                                                        EndMovement();
                                                         _moveButton.interactable = false;
                                                     }, Debug.LogError);
                                             }, error =>
                                             {
                                                 Debug.LogError(error);
-                                                CompleteMovement();
+                                                EndMovement();
                                             });
                                     }, error =>
                                     {
                                         Debug.LogError(error);
-                                        CompleteMovement();
+                                        EndMovement();
                                     });
                             }, error =>
                             {
                                 Debug.LogError(error);
-                                CompleteMovement();
+                                EndMovement();
                             });
                 }, Debug.LogError);
             return;
 
-            void CompleteMovement()
+            void EndMovement()
             {
                 _isMoving = false;
                 _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
