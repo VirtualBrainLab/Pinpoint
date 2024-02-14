@@ -28,9 +28,9 @@ namespace Pinpoint.UI.EphysLinkSettings
         [SerializeField] private InputField _zeroCoordinateDInputField;
         [SerializeField] private Dropdown _duraDropDirectionDropdown;
         [SerializeField] private InputField _brainSurfaceOffsetInputField;
-        [SerializeField] private Button _returnToZeroCoordinateButton;
-        [SerializeField] private Text _returnToZeroCoordinateButtonText;
         [SerializeField] private Toggle _enableManualControlToggle;
+        [SerializeField] private GameObject _returnToZeroCoordinateButtonGameObject;
+        [SerializeField] private GameObject _stopReturningToZeroCoordinateButtonGameObject;
 
         private ProbeManager _attachedProbe;
 
@@ -41,8 +41,6 @@ namespace Pinpoint.UI.EphysLinkSettings
         private EphysLinkSettings _ephysLinkSettings;
         private string _manipulatorId;
         private int _numAxes;
-
-        private bool _returningToZeroCoordinate;
 
         #endregion
 
@@ -78,7 +76,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                     var probeType = shankCount == 4
                         ? ProbeProperties.ProbeType.Neuropixels24
                         : ProbeProperties.ProbeType.Neuropixels1;
-                    
+
                     CreatePathfinderProbe(probeType);
                     return;
 
@@ -310,7 +308,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             _attachedProbe.ProbeController.ManipulatorManualControl = state;
 
             // Enable/disable return to zero coordinate button
-            _returnToZeroCoordinateButton.interactable = state;
+            _returnToZeroCoordinateButtonGameObject.SetActive(state);
         }
 
         /// <summary>
@@ -318,44 +316,47 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// </summary>
         public void ReturnToZeroCoordinate()
         {
-            if (_returningToZeroCoordinate)
-            {
-                // Return in progress, should stop
-                _returnToZeroCoordinateButtonText.text = "Stopping...";
+            // Disable keyboard control
+            _attachedProbe.ProbeController.ManipulatorManualControl = false;
+            
+            // Hide move button and show stop button
+            _returnToZeroCoordinateButtonGameObject.SetActive(false);
+            _stopReturningToZeroCoordinateButtonGameObject.SetActive(true);
 
-                CommunicationManager.Instance.Stop(stopState =>
+            // Move manipulator back to zero coordinate
+            _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate(_ =>
                 {
-                    // Update text
-                    _returnToZeroCoordinateButtonText.text =
-                        stopState ? "Return to Zero Coordinate" : "Failed to Stop, Try Again";
+                    PostMoveAction();
+                    
+                    // Reset dura drop direction on successful return
+                    _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
+                },
+                _ => PostMoveAction());
+            return;
 
-                    // Re-enable keyboard control if stop was successful
-                    _attachedProbe.ProbeController.ManipulatorManualControl = stopState;
-
-                    // Update flag
-                    _returningToZeroCoordinate = !stopState;
-                });
-            }
-            else
+            void PostMoveAction()
             {
-                // Disable keyboard control
-                _attachedProbe.ProbeController.ManipulatorManualControl = false;
+                // Show move button and hide stop button
+                _returnToZeroCoordinateButtonGameObject.SetActive(true);
+                _stopReturningToZeroCoordinateButtonGameObject.SetActive(false);
 
-                // Set button text and update flag
-                _returnToZeroCoordinateButtonText.text = "Stop";
-                _returningToZeroCoordinate = true;
-
-                // Move manipulator back to zero coordinate
-                _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate(_ => PostMoveAction(),
-                    _ => PostMoveAction());
-
-                void PostMoveAction()
-                {
-                    _returnToZeroCoordinateButtonText.text = "Return to Zero Coordinate";
-                    _attachedProbe.ProbeController.ManipulatorManualControl = true;
-                    _returningToZeroCoordinate = false;
-                }
+                // Re-enable keyboard control
+                _attachedProbe.ProbeController.ManipulatorManualControl = true;
             }
+        }
+
+        public void StopReturningToZeroCoordinate()
+        {
+            CommunicationManager.Instance.Stop(stopState =>
+            {
+                if (!stopState) return;
+                // Hide stop button and show move button
+                _returnToZeroCoordinateButtonGameObject.SetActive(true);
+                _stopReturningToZeroCoordinateButtonGameObject.SetActive(false);
+                    
+                // Re-enable keyboard control
+                _attachedProbe.ProbeController.ManipulatorManualControl = true;
+            });
         }
 
         #endregion
