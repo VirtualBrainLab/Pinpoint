@@ -81,6 +81,7 @@ public class TP_SliceRenderer : MonoBehaviour
             if (ProbeManager.ActiveProbeManager != null)
                 (tipCoordWorld, _, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
+            Vector3 tipCoordWorldT = ProbeManager.ActiveProbeManager.ProbeController.ProbeTipT.position;
             // vertex order -x-y, +x-y, -x+y, +x+y
 
             // compute the world vertex positions from the raw coordinates
@@ -89,8 +90,10 @@ public class TP_SliceRenderer : MonoBehaviour
             Vector3[] newSagittalVerts = new Vector3[4];
             for (int i = 0; i < _coronalOrigWorldU.Length; i++)
             {
-                newCoronalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(_coronalOrigWorldU[i].x, _coronalOrigWorldU[i].y, tipCoordWorld.z), false);
-                newSagittalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(tipCoordWorld.x, _sagittalOrigWorldU[i].y, _sagittalOrigWorldU[i].z), false);
+                newCoronalVerts[i] = new Vector3(_coronalOrigWorldU[i].x, _coronalOrigWorldU[i].y, tipCoordWorldT.z);
+                newSagittalVerts[i] = new Vector3(tipCoordWorldT.x, _sagittalOrigWorldU[i].y, _sagittalOrigWorldU[i].z);
+                //newCoronalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(_coronalOrigWorldU[i].x, _coronalOrigWorldU[i].y, tipCoordWorld.z), false);
+                //newSagittalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(tipCoordWorld.x, _sagittalOrigWorldU[i].y, _sagittalOrigWorldU[i].z), false);
             }
 
             _coronalSliceGo.GetComponent<MeshFilter>().mesh.vertices = newCoronalVerts;

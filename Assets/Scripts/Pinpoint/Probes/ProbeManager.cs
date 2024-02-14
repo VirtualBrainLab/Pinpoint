@@ -458,7 +458,12 @@ public class ProbeManager : MonoBehaviour
         }
         return depthIDs;
     }
-
+    
+    /// <summary>
+    /// Gets the probe anatomy in depth format (SpikeGLX)
+    /// </summary>
+    /// <param name="shank"></param>
+    /// <returns></returns>
     private string perShankDepthIDs(int shank)
     {
         // Create a list of range, acronym color
@@ -524,6 +529,8 @@ public class ProbeManager : MonoBehaviour
 
     /// <summary>
     /// Get a serialized representation of the channel ID data
+    /// 
+    /// (OpenEphys format)
     /// </summary>
     /// <returns></returns>
     public string GetChannelAnnotationIDs(bool collapsed = true)
