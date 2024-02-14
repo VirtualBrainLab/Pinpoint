@@ -35,6 +35,7 @@ namespace Pinpoint.UI.EphysCopilot
 
         // Base speeds (in mm/s)
         private const float DEPTH_DRIVE_BASE_SPEED_TEST = 0.5f;
+
         // private const float DEPTH_DRIVE_BASE_SPEED = DEPTH_DRIVE_BASE_SPEED_TEST;
         private const float DEPTH_DRIVE_BASE_SPEED = 0.005f;
 
@@ -312,7 +313,7 @@ namespace Pinpoint.UI.EphysCopilot
         {
             // Reset state
             _driveStateManager.ResetToDura();
-            
+
             // Reset UI
             _driveButton.interactable = true;
             _statusText.text = "Ready to Drive";
@@ -566,7 +567,7 @@ namespace Pinpoint.UI.EphysCopilot
                             // Replace drive buttons with stop
                             _exitButton.SetActive(false);
                             _stopButton.SetActive(true);
-                            
+
                             // Reset dura offset
                             ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
 
@@ -630,31 +631,31 @@ namespace Pinpoint.UI.EphysCopilot
             {
                 if (!b) return;
 
-                // Reset UI based on state
+                // Show drive group and hide stop button
+                _statusText.text = "Stopped";
                 _stopButton.SetActive(false);
+                _driveGroup.SetActive(true);
+                _exitButton.SetActive(true);
+
+                // Disable drive button if at Dura or above
                 switch (_driveStateManager.State)
                 {
-                    case DriveState.AtExitMargin:
                     case DriveState.AtDura:
-                    case DriveState.AtNearTarget:
-                    case DriveState.AtTarget:
-                    case DriveState.AtPastTarget:
-                    case DriveState.DriveToPastTarget:
-                    case DriveState.ReturningToTarget:
-                    case DriveState.DrivingToNearTarget:
-                        _exitButton.SetActive(true);
-                        _statusText.text = "Stopped";
-                        break;
-                    case DriveState.Outside:
-                    case DriveState.ExitingToOutside:
                     case DriveState.ExitingToMargin:
-                    case DriveState.ExitingToDura:
-                    case DriveState.ExitingToNearTarget:
-                        _driveGroup.SetActive(true);
-                        _statusText.text = "Drive when outside";
+                    case DriveState.AtExitMargin:
+                    case DriveState.ExitingToOutside:
+                    case DriveState.Outside:
+                        _driveButton.interactable = false;
                         break;
+                    case DriveState.ExitingToDura:
+                    case DriveState.DrivingToNearTarget:
+                    case DriveState.AtNearTarget:
+                    case DriveState.ExitingToNearTarget:
+                    case DriveState.DriveToPastTarget:
+                    case DriveState.AtPastTarget:
+                    case DriveState.ReturningToTarget:
+                    case DriveState.AtTarget:
                     default:
-                        Debug.LogError("Unknown state for stopping: " + _driveStateManager.State);
                         break;
                 }
             });
