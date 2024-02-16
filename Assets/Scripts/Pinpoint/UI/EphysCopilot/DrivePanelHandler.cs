@@ -248,8 +248,6 @@ namespace Pinpoint.UI.EphysCopilot
                 // Converting worldT back to APMLDV (position transformed)
                 targetInsertion.APMLDV = targetInsertion.World2T(offsetAdjustedTargetPositionWorldT);
 
-                print("Target distance: " + Vector3.Distance(targetInsertion.APMLDV, _duraAPMLDV));
-
                 return Vector3.Distance(targetInsertion.APMLDV, _duraAPMLDV);
             }
         }
@@ -261,7 +259,7 @@ namespace Pinpoint.UI.EphysCopilot
             {
                 // Create outside position APMLDV
                 var targetAPMLDV = _duraAPMLDV;
-                targetAPMLDV.z = ProbeManager.ProbeController.Insertion
+                targetAPMLDV.z = BrainAtlasManager
                     .World2T_Vector(InsertionSelectionPanelHandler.PRE_DEPTH_DRIVE_DV_OFFSET).z;
 
                 // Convert to manipulator position 
