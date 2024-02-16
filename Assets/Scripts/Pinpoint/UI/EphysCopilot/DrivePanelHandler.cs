@@ -21,7 +21,7 @@ namespace Pinpoint.UI.EphysCopilot
             DrivingToNearTarget,
             AtNearTarget,
             ExitingToNearTarget,
-            DriveToPastTarget,
+            DrivingToPastTarget,
             AtPastTarget,
             ReturningToTarget,
             AtTarget
@@ -84,15 +84,23 @@ namespace Pinpoint.UI.EphysCopilot
                         State = DriveState.DrivingToNearTarget;
                         break;
                     case DriveState.AtNearTarget:
-                        State = DriveState.DriveToPastTarget;
+                        State = DriveState.DrivingToPastTarget;
                         break;
                     case DriveState.AtPastTarget:
                         State = DriveState.ReturningToTarget;
                         break;
 
+                    // Driving transition case: Switch to driving transition state
+                    case DriveState.ExitingToDura:
+                        State = DriveState.DrivingToNearTarget;
+                        break;
+                    case DriveState.ExitingToNearTarget:
+                        State = DriveState.DrivingToPastTarget;
+                        break;
+
                     // Driving in progress: maintain state
                     case DriveState.DrivingToNearTarget:
-                    case DriveState.DriveToPastTarget:
+                    case DriveState.DrivingToPastTarget:
                     case DriveState.ReturningToTarget:
                         break;
 
@@ -101,8 +109,6 @@ namespace Pinpoint.UI.EphysCopilot
                     case DriveState.ExitingToOutside:
                     case DriveState.AtExitMargin:
                     case DriveState.ExitingToMargin:
-                    case DriveState.ExitingToDura:
-                    case DriveState.ExitingToNearTarget:
                     case DriveState.AtTarget:
                     default:
                         Debug.LogError("Cannot drive down from state: " + State);
@@ -134,7 +140,7 @@ namespace Pinpoint.UI.EphysCopilot
                         State = DriveState.ExitingToDura;
                         break;
                     case DriveState.ReturningToTarget:
-                    case DriveState.DriveToPastTarget:
+                    case DriveState.DrivingToPastTarget:
                         State = DriveState.ExitingToNearTarget;
                         break;
 
@@ -173,7 +179,7 @@ namespace Pinpoint.UI.EphysCopilot
                     case DriveState.ExitingToNearTarget:
                         State = DriveState.AtNearTarget;
                         break;
-                    case DriveState.DriveToPastTarget:
+                    case DriveState.DrivingToPastTarget:
                         State = DriveState.AtPastTarget;
                         break;
                     case DriveState.ReturningToTarget:
@@ -427,7 +433,7 @@ namespace Pinpoint.UI.EphysCopilot
                                     // Already closer than near target depth, so continue
                                     CompleteAndAdvance();
                                 break;
-                            case DriveState.DriveToPastTarget:
+                            case DriveState.DrivingToPastTarget:
                                 // Update status text
                                 _statusText.text = "Driving to " + _drivePastTargetDistance * 1000f +
                                                    " µm past target...";
@@ -484,7 +490,7 @@ namespace Pinpoint.UI.EphysCopilot
                             case DriveState.AtPastTarget:
                             case DriveState.AtTarget:
                             default:
-                                Debug.LogError("Invalid Drive state for driving: "+_driveStateManager.State);
+                                Debug.LogError("Invalid Drive state for driving: " + _driveStateManager.State);
                                 return;
                         }
                     }, Debug.LogError);
@@ -597,7 +603,7 @@ namespace Pinpoint.UI.EphysCopilot
                         case DriveState.AtDura:
                         case DriveState.DrivingToNearTarget:
                         case DriveState.AtNearTarget:
-                        case DriveState.DriveToPastTarget:
+                        case DriveState.DrivingToPastTarget:
                         case DriveState.AtPastTarget:
                         case DriveState.ReturningToTarget:
                         case DriveState.AtTarget:
@@ -646,23 +652,23 @@ namespace Pinpoint.UI.EphysCopilot
                 _exitButton.SetActive(true);
                 _stopButton.SetActive(false);
 
-                // Disable drive button if exiting or at Dura and above, otherwise enable.
+                // Disable drive button if at Dura and above, otherwise enable.
                 switch (_driveStateManager.State)
                 {
                     case DriveState.AtDura:
                     case DriveState.ExitingToMargin:
                     case DriveState.AtExitMargin:
                     case DriveState.ExitingToOutside:
-                    case DriveState.ExitingToDura:
-                    case DriveState.ExitingToNearTarget:
                     case DriveState.Outside:
                         _driveButton.interactable = false;
                         break;
                     case DriveState.DrivingToNearTarget:
                     case DriveState.AtNearTarget:
-                    case DriveState.DriveToPastTarget:
+                    case DriveState.DrivingToPastTarget:
                     case DriveState.AtPastTarget:
                     case DriveState.ReturningToTarget:
+                    case DriveState.ExitingToDura:
+                    case DriveState.ExitingToNearTarget:
                     case DriveState.AtTarget:
                         _driveButton.interactable = true;
                         break;
