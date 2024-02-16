@@ -443,9 +443,8 @@ namespace Pinpoint.Probes
                 CoordinateSpace.Space2World(manipulatorSpacePosition);
 
             // Set probe position (change axes to match probe)
-            var transformedApmldv =
-                _probeController.Insertion.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
-
+            var transformedApmldv = BrainAtlasManager.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
+            
             // Split between 3 and 4 axis assignments
             if (CoordinateTransform.Prefix == "3lhm")
                 _probeController.SetProbePosition(transformedApmldv);
