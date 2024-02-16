@@ -246,21 +246,20 @@ namespace Pinpoint.UI.EphysCopilot
                 .Select(probeManager => (probeManager.OverrideName ?? probeManager.name) + ": " +
                                         SurfaceCoordinateToString(probeManager.GetSurfaceCoordinateT())).ToList());
 
+            // Return early if no manipulator ID
+            if (ProbeManager.ManipulatorBehaviorController.ManipulatorID == null) return;
+
             // Restore selection (if possible)
             var selectedProbeManager = ManipulatorIDToSelectedTargetProbeManager.GetValueOrDefault(
                 ProbeManager.ManipulatorBehaviorController.ManipulatorID, null);
             if (selectedProbeManager == null)
-            {
                 // Select none if no previous selection.
                 _targetInsertionDropdown.SetValueWithoutNotify(0);
-            }
             else
-            {
                 _targetInsertionDropdown.SetValueWithoutNotify(
                     _targetProbeManagerOptions.ToList()
                         .IndexOf(selectedProbeManager) + 1
                 );
-            }
 
 
             // Color dropdown to match probe color
