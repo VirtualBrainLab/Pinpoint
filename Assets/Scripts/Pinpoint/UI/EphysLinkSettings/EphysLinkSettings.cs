@@ -85,15 +85,11 @@ namespace Pinpoint.UI.EphysLinkSettings
         private void UpdateManipulatorPanels()
         {
             // Default Copilot to be disabled unless the right manipulator type is found
-            _copilotToggle.interactable = false;
 
             if (CommunicationManager.Instance.IsConnected)
             {
                 CommunicationManager.Instance.GetManipulators((availableIDs, numAxes, _) =>
                 {
-                    // Enable Copilot button if using Sensapex or New Scale
-                    _copilotToggle.interactable = numAxes > 0;
-
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
 
@@ -232,6 +228,9 @@ namespace Pinpoint.UI.EphysLinkSettings
         public void InvokeShouldUpdateProbesListEvent()
         {
             ShouldUpdateProbesListEvent.Invoke();
+            
+            // Enable/Disable Copilot toggle based on if there are any probes that can be controlled by it.
+            _copilotToggle.interactable = LinkedProbes.Count > 0;
         }
 
         #endregion
