@@ -77,23 +77,21 @@ public class TP_SliceRenderer : MonoBehaviour
         if (Settings.Slice3DDropdownOption > 0 && _started)
         {
             // Use the un-transformed CCF coordinates to obtain the position in the CCF volume
-            Vector3 tipCoordWorld = Vector3.zero;
+            Vector3 tipCoordWorldU = Vector3.zero;
             if (ProbeManager.ActiveProbeManager != null)
-                (tipCoordWorld, _, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
+                (tipCoordWorldU, _, _, _) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
-            Vector3 tipCoordWorldT = ProbeManager.ActiveProbeManager.ProbeController.ProbeTipT.position;
             // vertex order -x-y, +x-y, -x+y, +x+y
 
             // compute the world vertex positions from the raw coordinates
             // then get the four corners, and warp these according to the active warp
             Vector3[] newCoronalVerts = new Vector3[4];
             Vector3[] newSagittalVerts = new Vector3[4];
+
             for (int i = 0; i < _coronalOrigWorldU.Length; i++)
             {
-                newCoronalVerts[i] = new Vector3(_coronalOrigWorldU[i].x, _coronalOrigWorldU[i].y, tipCoordWorldT.z);
-                newSagittalVerts[i] = new Vector3(tipCoordWorldT.x, _sagittalOrigWorldU[i].y, _sagittalOrigWorldU[i].z);
-                //newCoronalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(_coronalOrigWorldU[i].x, _coronalOrigWorldU[i].y, tipCoordWorld.z), false);
-                //newSagittalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(tipCoordWorld.x, _sagittalOrigWorldU[i].y, _sagittalOrigWorldU[i].z), false);
+                newCoronalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(_coronalOrigWorldU[i].x, _coronalOrigWorldU[i].y, tipCoordWorldU.z), true);
+                newSagittalVerts[i] = BrainAtlasManager.WorldU2WorldT(new Vector3(tipCoordWorldU.x, _sagittalOrigWorldU[i].y, _sagittalOrigWorldU[i].z), true);
             }
 
             _coronalSliceGo.GetComponent<MeshFilter>().mesh.vertices = newCoronalVerts;
@@ -102,10 +100,10 @@ public class TP_SliceRenderer : MonoBehaviour
             // Use that coordinate to render the actual slice position
             Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
 
-            apWorldmm = dims.x / 2f - tipCoordWorld.z;
+            apWorldmm = dims.x / 2f - tipCoordWorldU.z;
             coronalSliceMaterial.SetFloat("_SlicePosition", apWorldmm / dims.x);
 
-            mlWorldmm = dims.y / 2f + tipCoordWorld.x;
+            mlWorldmm = dims.y / 2f + tipCoordWorldU.x;
             saggitalSliceMaterial.SetFloat("_SlicePosition", mlWorldmm / dims.y);
 
             UpdateNodeModelSlicing();
