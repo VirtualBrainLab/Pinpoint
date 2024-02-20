@@ -328,7 +328,7 @@ public class Settings : MonoBehaviour
     }
 
 
-    private const string INVIVO_DEFAULT = "null";
+    private const string INVIVO_DEFAULT = "Default";
     public static Action<string> AtlasTransformChangedEvent;
 
     public static string AtlasTransformName

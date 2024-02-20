@@ -47,6 +47,7 @@ public class PinpointAtlasManager : MonoBehaviour
         switch (BrainAtlasManager.ActiveReferenceAtlas.Name)
         {
             case "allen_mouse_25um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
                 BrainAtlasManager.AtlasTransforms.Add(new Qiu2018Transform());
                 BrainAtlasManager.AtlasTransforms.Add(new Dorr2008Transform());
                 BrainAtlasManager.AtlasTransforms.Add(new Dorr2008IBLTransform());
@@ -54,9 +55,11 @@ public class PinpointAtlasManager : MonoBehaviour
 
             // we don't have transforms (yet) for waxholm rat
             case "waxholm_rat_39um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
                 break;
             // we don't have transforms (yet) for waxholm rat
             case "waxholm_rat_78um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
                 break;
         }
 
