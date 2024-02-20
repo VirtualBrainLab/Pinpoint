@@ -75,13 +75,13 @@ public class CartesianProbeController : ProbeController
     }
 
     // angle limits
-    private const float minPitch = 0f;
-    private const float maxPitch = 90f;
+    private const float _minPitch = 0f;
+    private const float _maxPitch = 90f;
 
     // defaults
     private readonly Vector3 _defaultStart = Vector3.zero;
     private const float _defaultDepth = 0f;
-    private readonly Vector2 _defaultAngles = new Vector2(0f, 90f); // 0 yaw is forward, default pitch is 0f (downward)
+    private readonly Vector2 _defaultAngles = new Vector2(0f, 90f); // 0 yaw is forward, default pitch is 90f (downward)
     #endregion
 
     #region Key hold flags
@@ -515,7 +515,7 @@ public class CartesianProbeController : ProbeController
         var angleDelta = Vector3.Scale(angle * speed, UnlockedRot);
 
         Insertion.Yaw += angleDelta.x;
-        Insertion.Pitch = Mathf.Clamp(Insertion.Pitch + angleDelta.y, minPitch, maxPitch);
+        Insertion.Pitch = Mathf.Clamp(Insertion.Pitch + angleDelta.y, _minPitch, _maxPitch);
         Insertion.Roll += angleDelta.z;
 
         // Set probe position and update UI
@@ -704,7 +704,7 @@ public class CartesianProbeController : ProbeController
 
         if (axisLockPitch)
         {
-            Insertion.Pitch = Mathf.Clamp(origPitch + 3f * worldOffset.y, minPitch, maxPitch);
+            Insertion.Pitch = Mathf.Clamp(origPitch + 3f * worldOffset.y, _minPitch, _maxPitch);
             moved = true;
         }
         if (axisLockYaw)
@@ -795,6 +795,7 @@ public class CartesianProbeController : ProbeController
     public override void SetProbeAngles(Vector3 angles)
     {
         Insertion.Angles = angles;
+        Insertion.Pitch = Mathf.Clamp(Insertion.Pitch, _minPitch, _maxPitch);
         SetProbePosition();
     }
 
