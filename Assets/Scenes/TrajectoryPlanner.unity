@@ -8377,11 +8377,11 @@ PrefabInstance:
     - {fileID: 7654437319185297488, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 341190944083206654, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1075215826}
-    - targetCorrespondingSourceObject: {fileID: 341190944083206654, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-      insertIndex: -1
+      insertIndex: 10
       addedObject: {fileID: 1368586111}
+    - targetCorrespondingSourceObject: {fileID: 341190944083206654, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      insertIndex: 11
+      addedObject: {fileID: 1075215826}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 341190945477065611, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       insertIndex: -1
