@@ -11,7 +11,7 @@ namespace CoordinateTransforms
 
         public override string Name { get { return "Default"; } }
 
-        public override string Prefix { get { return "_"; } }
+        public override string Prefix { get { return ""; } }
 
         /// <summary>
         /// Angles are (yaw, pitch, spin)
