@@ -144,7 +144,6 @@ public class APISpikeGLX : MonoBehaviour
 
     private bool FuzzyEquals(Vector3 a, Vector3 b)
     {
-        Debug.Log(Vector3.Distance(a, b));
         return Vector3.Distance(a, b) < FUZZY_DISTANCE;
     }
 
