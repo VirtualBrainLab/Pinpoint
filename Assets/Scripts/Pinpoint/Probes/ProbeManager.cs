@@ -675,7 +675,7 @@ public class ProbeManager : MonoBehaviour
         Vector3 tipAtlasT = insertion.APMLDV;
 
         Vector3 angles = Settings.UseIBLAngles ?
-            Utils.World2IBL(insertion.Angles) :
+            PinpointUtils.World2IBL(insertion.Angles) :
             insertion.Angles;
 
         (Vector3 entryAtlasT, float depthTransformed) = GetSurfaceCoordinateT();

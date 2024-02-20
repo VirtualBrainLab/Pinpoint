@@ -116,7 +116,7 @@ public class CoordinateEntryPanel : MonoBehaviour
 
         // if in IBL angles, rotate the angles appropriately
         if (Settings.UseIBLAngles)
-            angles = Utils.World2IBL(angles);
+            angles = PinpointUtils.World2IBL(angles);
 
         if (!_probeQuickSettings.IsFocused())
         {
@@ -164,7 +164,7 @@ public class CoordinateEntryPanel : MonoBehaviour
                 (_rollField.text.Length > 0) ? float.Parse(_rollField.text) : 0);
 
             if (Settings.UseIBLAngles)
-                angles = Utils.IBL2World(angles);
+                angles = PinpointUtils.IBL2World(angles);
 
             if (Settings.ConvertAPML2Probe)
                 Debug.LogWarning("Converting back from probe angles is not yet implemented");
