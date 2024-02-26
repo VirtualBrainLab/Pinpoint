@@ -18,7 +18,7 @@ public class LoadingUI : MonoBehaviour
 
     public void MetaLoaded()
     {
-        _loadingText.text = $"{baseString}acquiring 3D mesh files";
+        _loadingText.text = $"{baseString}acquiring and transforming 3D mesh files";
     }
 
     public void AtlasLoaded()
@@ -33,7 +33,7 @@ public class LoadingUI : MonoBehaviour
 
     public void SceneLoaded()
     {
-        _loadingText.text = $"{baseString}let's go!";
+        _loadingText.text = $"{baseString}loading settings and launching app!";
     }
 
     public void Complete()

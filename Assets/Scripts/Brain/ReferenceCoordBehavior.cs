@@ -12,14 +12,20 @@ public class ReferenceCoordBehavior : MonoBehaviour
 
     private bool _started;
 
-    private void Start()
+    /// <summary>
+    ///  Triggered from StartupComplete event on TPM
+    /// </summary>
+    public void DelayedStart()
     {
+        UpdateReferenceCoordinate();
+        UpdateAxisDirections();
+
         _started = true;
     }
 
     private void OnEnable()
     {
-        if (_started)
+        if (_started == true)
         {
             UpdateReferenceCoordinate();
             UpdateAxisDirections();
@@ -48,11 +54,20 @@ public class ReferenceCoordBehavior : MonoBehaviour
 
     private void SetAxisDirections(Vector3 apDir, Vector3 mlDir, Vector3 dvDir)
     {
-        _apLine.SetPosition(0, transform.position);
-        _mlLine.SetPosition(0, transform.position);
-        _dvLine.SetPosition(0, transform.position);
-        _apLine.SetPosition(1, transform.position + apDir);
-        _mlLine.SetPosition(1, transform.position + mlDir);
-        _dvLine.SetPosition(1, transform.position + dvDir);
+        if (_apLine != null)
+        {
+            _apLine.SetPosition(0, transform.position);
+            _apLine.SetPosition(1, transform.position + apDir);
+        }
+        if (_mlLine != null)
+        {
+            _mlLine.SetPosition(0, transform.position);
+            _mlLine.SetPosition(1, transform.position + mlDir);
+        }
+        if (_dvLine != null)
+        {
+            _dvLine.SetPosition(0, transform.position);
+            _dvLine.SetPosition(1, transform.position + dvDir);
+        }
     }
 }
