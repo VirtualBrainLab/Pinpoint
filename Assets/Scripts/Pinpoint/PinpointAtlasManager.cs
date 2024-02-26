@@ -145,7 +145,18 @@ public class PinpointAtlasManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"Atlas transform set to {transformName}");
 #endif
-        SetNewTransform(BrainAtlasManager.AtlasTransforms.Find(x => x.Name.Equals(transformName)));
+
+        AtlasTransform newTransform = BrainAtlasManager.AtlasTransforms.Find(x => x.Name.Equals(transformName));
+
+        if (newTransform != null)
+        {
+            SetNewTransform(newTransform);
+        }
+        else
+        {
+            SetNewTransform(BrainAtlasManager.AtlasTransforms[0]);
+            Debug.LogWarning($"(PAM) No matching atlas transform exists for {transformName}, reverting to NULL transform. This is not the intended behavior!");
+        }
     }
 
     public void SetNewTransform(AtlasTransform newTransform)
