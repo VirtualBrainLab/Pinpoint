@@ -1,6 +1,5 @@
 using BrainAtlas;
 using BrainAtlas.CoordinateSystems;
-using CoordinateTransforms;
 using EphysLink;
 using System;
 using System.Collections.Generic;
