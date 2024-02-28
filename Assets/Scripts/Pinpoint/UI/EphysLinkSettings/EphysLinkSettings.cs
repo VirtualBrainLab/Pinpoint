@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using EphysLink;
 using TMPro;
@@ -144,6 +145,14 @@ namespace Pinpoint.UI.EphysLinkSettings
         }
 
         /// <summary>
+        ///     Launch bundled Ephys Link executable.
+        /// </summary>
+        public void OnLaunchEphysLinkPressed()
+        {
+            Application.OpenURL(Path.Combine(Application.streamingAssetsPath, "EphysLink-v1.2.5.exe"));
+        }
+
+        /// <summary>
         ///     Handle when connect/disconnect button is pressed.
         /// </summary>
         public void OnConnectDisconnectPressed()
@@ -154,13 +163,13 @@ namespace Pinpoint.UI.EphysLinkSettings
                 try
                 {
                     _connectButtonText.text = "Connecting...";
-                    
+
                     // Provide default values for IP and port if empty.
                     if (string.IsNullOrEmpty(_ipAddressInputField.text))
                         _ipAddressInputField.text = "localhost";
                     if (string.IsNullOrEmpty(_portInputField.text))
                         _portInputField.text = "8081";
-                    
+
                     CommunicationManager.Instance.ConnectToServer(_ipAddressInputField.text,
                         int.Parse(_portInputField.text),
                         () =>
@@ -203,7 +212,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                     {
                         probeManager.SetIsEphysLinkControlled(false,
                             probeManager.ManipulatorBehaviorController.ManipulatorID);
-                        
+
                         // FIXME: This is done because of race condition with closing out server. Should be fixed with non-registration setup.
                         probeManager.ManipulatorBehaviorController.Deinitialize();
                     }
@@ -228,7 +237,7 @@ namespace Pinpoint.UI.EphysLinkSettings
         public void InvokeShouldUpdateProbesListEvent()
         {
             ShouldUpdateProbesListEvent.Invoke();
-            
+
             // Enable/Disable Copilot toggle based on if there are any probes that can be controlled by it.
             _copilotToggle.interactable = LinkedProbes.Count > 0;
         }
