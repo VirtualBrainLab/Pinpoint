@@ -18,6 +18,10 @@ namespace Pinpoint.UI.EphysLinkSettings
         #region Components
 
         // Server connection
+        [SerializeField] private TMP_Dropdown _manipulatorTypeDropdown;
+        [SerializeField] private TMP_InputField _pathfinderPortInputField;
+        [SerializeField] private Button _launchEphysLinkButton;
+        [SerializeField] private GameObject _customConnectionGroup;
         [SerializeField] private TMP_InputField _ipAddressInputField;
         [SerializeField] private InputField _portInputField;
         [SerializeField] private Text _connectButtonText;
@@ -61,26 +65,12 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         #region UI Functions
 
-        /// <summary>
-        ///     Populate UI elements with current connection settings.
-        /// </summary>
-        private void UpdateConnectionPanel()
+        public void OnTypeChanged(int type)
         {
-            if (CommunicationManager.Instance.IsConnected && !CommunicationManager.Instance.IsEphysLinkCompatible)
-            {
-                _connectionErrorText.text =
-                    "Ephys Link is outdated. Please update to " + CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
-                _connectButtonText.text = "Connect";
-                CommunicationManager.Instance.DisconnectFromServer();
-                return;
-            }
-
-            // Connection UI
-            _connectionErrorText.text = "";
-            _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
-
-            // Update Manipulator Panels
-            UpdateManipulatorPanels();
+            // Show/hide extra groups based on connection type
+            _customConnectionGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
+            _launchEphysLinkButton.gameObject.SetActive(type != _manipulatorTypeDropdown.options.Count - 1);
+            _pathfinderPortInputField.gameObject.SetActive(type == 2);
         }
 
         private void UpdateManipulatorPanels()
@@ -240,6 +230,32 @@ namespace Pinpoint.UI.EphysLinkSettings
 
             // Enable/Disable Copilot toggle based on if there are any probes that can be controlled by it.
             _copilotToggle.interactable = LinkedProbes.Count > 0;
+        }
+
+        #endregion
+
+        #region Internal functions
+
+        /// <summary>
+        ///     Populate UI elements with current connection settings.
+        /// </summary>
+        private void UpdateConnectionPanel()
+        {
+            if (CommunicationManager.Instance.IsConnected && !CommunicationManager.Instance.IsEphysLinkCompatible)
+            {
+                _connectionErrorText.text =
+                    "Ephys Link is outdated. Please update to " + CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
+                _connectButtonText.text = "Connect";
+                CommunicationManager.Instance.DisconnectFromServer();
+                return;
+            }
+
+            // Connection UI
+            _connectionErrorText.text = "";
+            _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
+
+            // Update Manipulator Panels
+            UpdateManipulatorPanels();
         }
 
         #endregion

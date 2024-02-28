@@ -368,6 +368,31 @@ public class Settings : MonoBehaviour
     #region Ephys Link
 
     public UnityEvent EphysLinkServerInfoLoaded;
+    
+    public UnityEvent<int> EphysLinkManipulatorTypeChangedEvent;
+
+    public static int EphysLinkManipulatorType
+    {
+        get => data.EphysLinkManipulatorType;
+        set
+        {
+            data.EphysLinkManipulatorType = value;
+            Save();
+            Instance.EphysLinkManipulatorTypeChangedEvent.Invoke(value);
+        }
+    }
+    
+    public UnityEvent<int> EphysLinkPathfinderPortChangedEvent;
+    public static int EphysLinkPathfinderPort
+    {
+        get => data.EphysLinkPathfinderPort;
+        set
+        {
+            data.EphysLinkPathfinderPort = value;
+            Save();
+            Instance.EphysLinkPathfinderPortChangedEvent.Invoke(value);
+        }
+    }
 
     public UnityEvent<string> EphysLinkServerIpChangedEvent;
     public static string EphysLinkServerIp
@@ -393,7 +418,9 @@ public class Settings : MonoBehaviour
             Instance.EphysLinkServerPortChangedEvent.Invoke(value);
         }
     }
-    
+
+    [SerializeField] private TMP_Dropdown _ephysLinkManipulatorTypeDropdown;
+    [SerializeField] private TMP_InputField _ephysLinkPathfinderPortInput;
     [SerializeField] private TMP_InputField _ephysLinkServerIpInput;
     [SerializeField] private InputField _ephysLinkServerPortInput;
 
@@ -743,6 +770,8 @@ public class Settings : MonoBehaviour
         _apiUpdateRateSlider.SetValueWithoutNotify(APIUpdateRate);
 
         // Ephys link
+        _ephysLinkManipulatorTypeDropdown.value = EphysLinkManipulatorType;
+        _ephysLinkPathfinderPortInput.text = EphysLinkPathfinderPort.ToString();
         _ephysLinkServerIpInput.text = data.EphysLinkServerIP;
         _ephysLinkServerPortInput.text = data.EphysLinkServerPort.ToString();
         EphysLinkServerInfoLoaded.Invoke();
@@ -839,6 +868,8 @@ public class Settings : MonoBehaviour
         public float BregmaLambdaRatio;
 
         // Ephys link
+        public int EphysLinkManipulatorType;
+        public int EphysLinkPathfinderPort;
         public string EphysLinkServerIP;
         public int EphysLinkServerPort;
         public string EphysLinkRightHandedManipulators;
