@@ -771,7 +771,7 @@ public class Settings : MonoBehaviour
 
         // Ephys link
         _ephysLinkManipulatorTypeDropdown.value = EphysLinkManipulatorType;
-        _ephysLinkPathfinderPortInput.text = EphysLinkPathfinderPort.ToString();
+        _ephysLinkPathfinderPortInput.text = EphysLinkPathfinderPort < 1024 ? "8080" : EphysLinkPathfinderPort.ToString();
         _ephysLinkServerIpInput.text = data.EphysLinkServerIP;
         _ephysLinkServerPortInput.text = data.EphysLinkServerPort.ToString();
         EphysLinkServerInfoLoaded.Invoke();

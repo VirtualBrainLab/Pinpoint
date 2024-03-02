@@ -71,6 +71,14 @@ namespace Pinpoint.UI.EphysLinkSettings
             _customConnectionGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
             _launchEphysLinkButton.gameObject.SetActive(type != _manipulatorTypeDropdown.options.Count - 1);
             _pathfinderPortInputField.gameObject.SetActive(type == 2);
+            
+            // Save settings
+            Settings.EphysLinkManipulatorType = type;
+        }
+        
+        public void OnPathfinderPortChanged(string port)
+        {
+            Settings.EphysLinkPathfinderPort = int.Parse(port);
         }
 
         private void UpdateManipulatorPanels()
