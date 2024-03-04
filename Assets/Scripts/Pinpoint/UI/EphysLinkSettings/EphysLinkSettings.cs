@@ -157,12 +157,28 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// </summary>
         public void OnLaunchEphysLinkPressed()
         {
+            // Parse manipulator type string arg (invariant: custom connection should never happen).
+            var manipulatorTypeString = _manipulatorTypeDropdown.value switch
+            {
+                1 => "ump3",
+                2 => "new_scale_pathfinder",
+                3 => "new_scale",
+                _ => "sensapex"
+            };
+            
+            // Make args string.
+            var args = $"-t {manipulatorTypeString}";
+            
+            // Add Pathfinder port if selected.
+            if (_manipulatorTypeDropdown.value == 2)
+                args += $" -p {_pathfinderPortInputField.text}";
+            
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = EphysLinkExePath,
-                    Arguments = "-t new_scale",
+                    Arguments = args,
                     UseShellExecute = false,
                     RedirectStandardOutput = false,
                     CreateNoWindow = false
