@@ -171,7 +171,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             
             // Add Pathfinder port if selected.
             if (_manipulatorTypeDropdown.value == 2)
-                args += $" -p {_pathfinderPortInputField.text}";
+                args += $" --pathfinder_port {_pathfinderPortInputField.text}";
             
             var process = new Process
             {
