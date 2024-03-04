@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EphysLink;
+using KS.Diagnostics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+
+// using Process = KS.Diagnostics.Process;
 
 namespace Pinpoint.UI.EphysLinkSettings
 {
@@ -15,6 +18,13 @@ namespace Pinpoint.UI.EphysLinkSettings
     /// </summary>
     public class EphysLinkSettings : MonoBehaviour
     {
+        #region Constants
+
+        private const string EPHYS_LINK_EXE_NAME = "EphysLink-v1.2.7.exe";
+        private static string EphysLinkExePath => Path.Combine(Application.streamingAssetsPath, EPHYS_LINK_EXE_NAME);
+
+        #endregion
+
         #region Components
 
         // Server connection
@@ -71,11 +81,11 @@ namespace Pinpoint.UI.EphysLinkSettings
             _customConnectionGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
             _launchEphysLinkButton.gameObject.SetActive(type != _manipulatorTypeDropdown.options.Count - 1);
             _pathfinderPortInputField.gameObject.SetActive(type == 2);
-            
+
             // Save settings
             Settings.EphysLinkManipulatorType = type;
         }
-        
+
         public void OnPathfinderPortChanged(string port)
         {
             Settings.EphysLinkPathfinderPort = int.Parse(port);
@@ -147,7 +157,18 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// </summary>
         public void OnLaunchEphysLinkPressed()
         {
-            Application.OpenURL(Path.Combine(Application.streamingAssetsPath, "EphysLink-v1.2.5.exe"));
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = EphysLinkExePath,
+                    Arguments = "-t new_scale",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = false,
+                    CreateNoWindow = false
+                }
+            };
+            process.Start();
         }
 
         /// <summary>
