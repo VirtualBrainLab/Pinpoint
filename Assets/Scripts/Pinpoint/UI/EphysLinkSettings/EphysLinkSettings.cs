@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using EphysLink;
+using KS.Diagnostics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
+
+// using Process = KS.Diagnostics.Process;
 
 namespace Pinpoint.UI.EphysLinkSettings
 {
@@ -14,11 +19,23 @@ namespace Pinpoint.UI.EphysLinkSettings
     /// </summary>
     public class EphysLinkSettings : MonoBehaviour
     {
+        #region Constants
+
+        private const string EPHYS_LINK_EXE_NAME = "EphysLink-v1.2.8.exe";
+        private static string EphysLinkExePath => Path.Combine(Application.streamingAssetsPath, EPHYS_LINK_EXE_NAME);
+
+        #endregion
+
         #region Components
 
         // Server connection
+        [SerializeField] private TMP_Dropdown _manipulatorTypeDropdown;
+        [SerializeField] private TMP_InputField _pathfinderPortInputField;
+        [SerializeField] private Button _launchEphysLinkButton;
+        [SerializeField] private GameObject _existingServerGroup;
         [SerializeField] private TMP_InputField _ipAddressInputField;
         [SerializeField] private InputField _portInputField;
+        [SerializeField] private GameObject _connectButton;
         [SerializeField] private Text _connectButtonText;
         [SerializeField] private TMP_Text _connectionErrorText;
 
@@ -40,6 +57,8 @@ namespace Pinpoint.UI.EphysLinkSettings
         public HashSet<ProbeManager> LinkedProbes { get; } = new();
         public UnityEvent ShouldUpdateProbesListEvent { get; } = new();
 
+        private Process _ephysLinkProcess;
+
         #endregion
 
         #region Unity
@@ -60,26 +79,21 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         #region UI Functions
 
-        /// <summary>
-        ///     Populate UI elements with current connection settings.
-        /// </summary>
-        private void UpdateConnectionPanel()
+        public void OnTypeChanged(int type)
         {
-            if (CommunicationManager.Instance.IsConnected && !CommunicationManager.Instance.IsEphysLinkCompatible)
-            {
-                _connectionErrorText.text =
-                    "Ephys Link is outdated. Please update to " + CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
-                _connectButtonText.text = "Connect";
-                CommunicationManager.Instance.DisconnectFromServer();
-                return;
-            }
+            // Show/hide extra groups based on connection type
+            _existingServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
+            _connectButton.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
+            _launchEphysLinkButton.gameObject.SetActive(type != _manipulatorTypeDropdown.options.Count - 1);
+            _pathfinderPortInputField.gameObject.SetActive(type == 2);
 
-            // Connection UI
-            _connectionErrorText.text = "";
-            _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
+            // Save settings
+            Settings.EphysLinkManipulatorType = type;
+        }
 
-            // Update Manipulator Panels
-            UpdateManipulatorPanels();
+        public void OnPathfinderPortChanged(string port)
+        {
+            Settings.EphysLinkPathfinderPort = int.Parse(port);
         }
 
         private void UpdateManipulatorPanels()
@@ -144,6 +158,69 @@ namespace Pinpoint.UI.EphysLinkSettings
         }
 
         /// <summary>
+        ///     Launch bundled Ephys Link executable.
+        /// </summary>
+        public void OnLaunchEphysLinkPressed()
+        {
+            // Parse manipulator type string arg (invariant: custom connection should never happen).
+            var manipulatorTypeString = _manipulatorTypeDropdown.value switch
+            {
+                1 => "ump3",
+                2 => "new_scale_pathfinder",
+                3 => "new_scale",
+                _ => "sensapex"
+            };
+
+            // Make args string.
+            var args = $"-t {manipulatorTypeString}";
+
+            // Add Pathfinder port if selected.
+            if (_manipulatorTypeDropdown.value == 2)
+                args += $" --pathfinder_port {_pathfinderPortInputField.text}";
+
+            _ephysLinkProcess = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = EphysLinkExePath,
+                    Arguments = args,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = false,
+                    CreateNoWindow = false
+                }
+            };
+            _ephysLinkProcess.Start();
+
+            // Configure UI (disable type dropdown and launch button, enable [dis]connect button).
+            _manipulatorTypeDropdown.interactable = false;
+            _launchEphysLinkButton.interactable = false;
+            _connectButton.SetActive(true);
+
+            // Attempt to connect to server.
+            var attempts = 0;
+            ConnectToServer();
+            return;
+
+            void ConnectToServer()
+            {
+                CommunicationManager.Instance.ConnectToServer("localhost", 8081, HandleSuccessfulConnection,
+                    err =>
+                    {
+                        attempts++;
+                        if (attempts > 5)
+                        {
+                            _connectionErrorText.text = err;
+                            _connectButtonText.text = "Connect";
+                        }
+                        else
+                        {
+                            ConnectToServer();
+                        }
+                    });
+            }
+        }
+
+        /// <summary>
         ///     Handle when connect/disconnect button is pressed.
         /// </summary>
         public void OnConnectDisconnectPressed()
@@ -154,34 +231,16 @@ namespace Pinpoint.UI.EphysLinkSettings
                 try
                 {
                     _connectButtonText.text = "Connecting...";
-                    
+
                     // Provide default values for IP and port if empty.
                     if (string.IsNullOrEmpty(_ipAddressInputField.text))
                         _ipAddressInputField.text = "localhost";
                     if (string.IsNullOrEmpty(_portInputField.text))
                         _portInputField.text = "8081";
-                    
+
                     CommunicationManager.Instance.ConnectToServer(_ipAddressInputField.text,
                         int.Parse(_portInputField.text),
-                        () =>
-                        {
-                            // Check Ephys Link version
-                            CommunicationManager.Instance.VerifyVersion(() =>
-                            {
-                                // Ephys Link is current enough
-                                CommunicationManager.Instance.IsEphysLinkCompatible = true;
-                                UpdateConnectionPanel();
-                            }, () =>
-                            {
-                                CommunicationManager.Instance.DisconnectFromServer(() =>
-                                {
-                                    _connectionErrorText.text =
-                                        "Ephys Link is outdated. Please update to " +
-                                        CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
-                                    _connectButtonText.text = "Connect";
-                                });
-                            });
-                        }, err =>
+                        HandleSuccessfulConnection, err =>
                         {
                             _connectionErrorText.text = err;
                             _connectButtonText.text = "Connect";
@@ -203,12 +262,22 @@ namespace Pinpoint.UI.EphysLinkSettings
                     {
                         probeManager.SetIsEphysLinkControlled(false,
                             probeManager.ManipulatorBehaviorController.ManipulatorID);
-                        
+
                         // FIXME: This is done because of race condition with closing out server. Should be fixed with non-registration setup.
                         probeManager.ManipulatorBehaviorController.Deinitialize();
                     }
 
-                    CommunicationManager.Instance.DisconnectFromServer(UpdateConnectionPanel);
+                    CommunicationManager.Instance.DisconnectFromServer(() =>
+                    {
+                        // Kill internally started Ephys Link process
+                        if (_ephysLinkProcess != null)
+                        {
+                            _ephysLinkProcess.Kill(true);
+                            _ephysLinkProcess.Dispose();
+                        }
+
+                        UpdateConnectionPanel();
+                    });
                 };
 
                 QuestionDialogue.Instance.NewQuestion(
@@ -228,9 +297,59 @@ namespace Pinpoint.UI.EphysLinkSettings
         public void InvokeShouldUpdateProbesListEvent()
         {
             ShouldUpdateProbesListEvent.Invoke();
-            
+
             // Enable/Disable Copilot toggle based on if there are any probes that can be controlled by it.
             _copilotToggle.interactable = LinkedProbes.Count > 0;
+        }
+
+        #endregion
+
+        #region Internal functions
+
+        private void HandleSuccessfulConnection()
+        {
+            // Check Ephys Link version
+            CommunicationManager.Instance.VerifyVersion(() =>
+            {
+                // Ephys Link is current enough
+                CommunicationManager.Instance.IsEphysLinkCompatible = true;
+                UpdateConnectionPanel();
+            }, () =>
+            {
+                CommunicationManager.Instance.DisconnectFromServer(() =>
+                {
+                    _connectionErrorText.text =
+                        "Ephys Link is outdated. Please update to " +
+                        CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
+                    _connectButtonText.text = "Connect";
+                });
+            });
+        }
+
+        /// <summary>
+        ///     Populate UI elements with current connection settings.
+        /// </summary>
+        private void UpdateConnectionPanel()
+        {
+            if (CommunicationManager.Instance.IsConnected && !CommunicationManager.Instance.IsEphysLinkCompatible)
+            {
+                _connectionErrorText.text =
+                    "Ephys Link is outdated. Please update to " + CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
+                _connectButtonText.text = "Connect";
+                CommunicationManager.Instance.DisconnectFromServer();
+                return;
+            }
+
+            // Connection UI
+            _connectionErrorText.text = "";
+            _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
+            _connectButton.SetActive(CommunicationManager.Instance.IsConnected);
+
+            _manipulatorTypeDropdown.interactable = !CommunicationManager.Instance.IsConnected;
+            _launchEphysLinkButton.interactable = !CommunicationManager.Instance.IsConnected;
+
+            // Update Manipulator Panels
+            UpdateManipulatorPanels();
         }
 
         #endregion

@@ -8354,6 +8354,28 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 341190944083206654, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
   m_PrefabInstance: {fileID: 341190943874437988}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &341190943874437993 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5385689347668818472, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &341190943874437994 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 933651686640606426, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b743370ac3e4ec2a1668f5455a8ef8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1302158968208938923
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9187,6 +9209,14 @@ PrefabInstance:
       propertyPath: sensapexLinkServerPortInput
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _ephysLinkPathfinderPortInput
+      value: 
+      objectReference: {fileID: 341190943874437993}
+    - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _ephysLinkManipulatorTypeDropdown
+      value: 
+      objectReference: {fileID: 341190943874437994}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: APIUpdateRateEvent.m_PersistentCalls.m_Calls.Array.size
       value: 0
