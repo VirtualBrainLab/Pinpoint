@@ -56,6 +56,8 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         public HashSet<ProbeManager> LinkedProbes { get; } = new();
         public UnityEvent ShouldUpdateProbesListEvent { get; } = new();
+        
+        private Process _ephysLinkProcess;
 
         #endregion
 
@@ -176,7 +178,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             if (_manipulatorTypeDropdown.value == 2)
                 args += $" --pathfinder_port {_pathfinderPortInputField.text}";
 
-            var process = new Process
+            _ephysLinkProcess = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -187,7 +189,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                     CreateNoWindow = false
                 }
             };
-            process.Start();
+            _ephysLinkProcess.Start();
             
             // Configure UI (disable type dropdown and launch button, enable [dis]connect button).
             _manipulatorTypeDropdown.interactable = false;
@@ -265,7 +267,12 @@ namespace Pinpoint.UI.EphysLinkSettings
                         probeManager.ManipulatorBehaviorController.Deinitialize();
                     }
 
-                    CommunicationManager.Instance.DisconnectFromServer(UpdateConnectionPanel);
+                    CommunicationManager.Instance.DisconnectFromServer(() =>
+                    {
+                        _ephysLinkProcess.Kill(true);
+                        _ephysLinkProcess.Dispose();
+                        UpdateConnectionPanel();
+                    });
                 };
 
                 QuestionDialogue.Instance.NewQuestion(
