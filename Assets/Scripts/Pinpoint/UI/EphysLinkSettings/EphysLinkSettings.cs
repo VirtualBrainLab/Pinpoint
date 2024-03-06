@@ -165,14 +165,14 @@ namespace Pinpoint.UI.EphysLinkSettings
                 3 => "new_scale",
                 _ => "sensapex"
             };
-            
+
             // Make args string.
             var args = $"-t {manipulatorTypeString}";
-            
+
             // Add Pathfinder port if selected.
             if (_manipulatorTypeDropdown.value == 2)
                 args += $" --pathfinder_port {_pathfinderPortInputField.text}";
-            
+
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -185,6 +185,29 @@ namespace Pinpoint.UI.EphysLinkSettings
                 }
             };
             process.Start();
+
+            // Attempt to connect to server.
+            var attempts = 0;
+            ConnectToServer();
+            return;
+
+            void ConnectToServer()
+            {
+                CommunicationManager.Instance.ConnectToServer("localhost", 8081, HandleSuccessfulConnection,
+                    err =>
+                    {
+                        attempts++;
+                        if (attempts > 5)
+                        {
+                            _connectionErrorText.text = err;
+                            _connectButtonText.text = "Connect";
+                        }
+                        else
+                        {
+                            ConnectToServer();
+                        }
+                    });
+            }
         }
 
         /// <summary>
@@ -207,25 +230,7 @@ namespace Pinpoint.UI.EphysLinkSettings
 
                     CommunicationManager.Instance.ConnectToServer(_ipAddressInputField.text,
                         int.Parse(_portInputField.text),
-                        () =>
-                        {
-                            // Check Ephys Link version
-                            CommunicationManager.Instance.VerifyVersion(() =>
-                            {
-                                // Ephys Link is current enough
-                                CommunicationManager.Instance.IsEphysLinkCompatible = true;
-                                UpdateConnectionPanel();
-                            }, () =>
-                            {
-                                CommunicationManager.Instance.DisconnectFromServer(() =>
-                                {
-                                    _connectionErrorText.text =
-                                        "Ephys Link is outdated. Please update to " +
-                                        CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
-                                    _connectButtonText.text = "Connect";
-                                });
-                            });
-                        }, err =>
+                        HandleSuccessfulConnection, err =>
                         {
                             _connectionErrorText.text = err;
                             _connectButtonText.text = "Connect";
@@ -280,6 +285,26 @@ namespace Pinpoint.UI.EphysLinkSettings
         #endregion
 
         #region Internal functions
+
+        private void HandleSuccessfulConnection()
+        {
+            // Check Ephys Link version
+            CommunicationManager.Instance.VerifyVersion(() =>
+            {
+                // Ephys Link is current enough
+                CommunicationManager.Instance.IsEphysLinkCompatible = true;
+                UpdateConnectionPanel();
+            }, () =>
+            {
+                CommunicationManager.Instance.DisconnectFromServer(() =>
+                {
+                    _connectionErrorText.text =
+                        "Ephys Link is outdated. Please update to " +
+                        CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
+                    _connectButtonText.text = "Connect";
+                });
+            });
+        }
 
         /// <summary>
         ///     Populate UI elements with current connection settings.

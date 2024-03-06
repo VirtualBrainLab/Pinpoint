@@ -225,7 +225,7 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: New Scale M3-USB-3:1-EP
       m_Image: {fileID: 0}
-    - m_Text: Custom
+    - m_Text: Existing Server
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
