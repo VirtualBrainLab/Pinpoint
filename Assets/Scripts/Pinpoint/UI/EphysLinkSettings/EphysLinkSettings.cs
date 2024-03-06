@@ -7,6 +7,7 @@ using KS.Diagnostics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 // using Process = KS.Diagnostics.Process;
@@ -31,9 +32,10 @@ namespace Pinpoint.UI.EphysLinkSettings
         [SerializeField] private TMP_Dropdown _manipulatorTypeDropdown;
         [SerializeField] private TMP_InputField _pathfinderPortInputField;
         [SerializeField] private Button _launchEphysLinkButton;
-        [SerializeField] private GameObject _customConnectionGroup;
+        [SerializeField] private GameObject _existingServerGroup;
         [SerializeField] private TMP_InputField _ipAddressInputField;
         [SerializeField] private InputField _portInputField;
+        [SerializeField] private GameObject _connectButton;
         [SerializeField] private Text _connectButtonText;
         [SerializeField] private TMP_Text _connectionErrorText;
 
@@ -78,7 +80,8 @@ namespace Pinpoint.UI.EphysLinkSettings
         public void OnTypeChanged(int type)
         {
             // Show/hide extra groups based on connection type
-            _customConnectionGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
+            _existingServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
+            _connectButton.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
             _launchEphysLinkButton.gameObject.SetActive(type != _manipulatorTypeDropdown.options.Count - 1);
             _pathfinderPortInputField.gameObject.SetActive(type == 2);
 
@@ -185,6 +188,11 @@ namespace Pinpoint.UI.EphysLinkSettings
                 }
             };
             process.Start();
+            
+            // Configure UI (disable type dropdown and launch button, enable [dis]connect button).
+            _manipulatorTypeDropdown.interactable = false;
+            _launchEphysLinkButton.interactable = false;
+            _connectButton.SetActive(true);
 
             // Attempt to connect to server.
             var attempts = 0;
@@ -323,6 +331,10 @@ namespace Pinpoint.UI.EphysLinkSettings
             // Connection UI
             _connectionErrorText.text = "";
             _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
+            _connectButton.SetActive(CommunicationManager.Instance.IsConnected);
+            
+            _manipulatorTypeDropdown.interactable = !CommunicationManager.Instance.IsConnected;
+            _launchEphysLinkButton.interactable = !CommunicationManager.Instance.IsConnected;
 
             // Update Manipulator Panels
             UpdateManipulatorPanels();

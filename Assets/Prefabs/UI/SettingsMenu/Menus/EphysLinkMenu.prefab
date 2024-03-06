@@ -2241,7 +2241,7 @@ GameObject:
   - component: {fileID: 7825047172642515388}
   - component: {fileID: 8970048555616459117}
   m_Layer: 5
-  m_Name: CustomConnectionGroup
+  m_Name: ExistingServerGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2263,7 +2263,6 @@ RectTransform:
   - {fileID: 7270248574281143372}
   - {fileID: 82302228965344709}
   - {fileID: 281125121153602364}
-  - {fileID: 8908337441760298693}
   m_Father: {fileID: 2047283783586261496}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -2504,6 +2503,7 @@ RectTransform:
   - {fileID: 1663071102760197159}
   - {fileID: 7420639422245135252}
   - {fileID: 7825047172642515388}
+  - {fileID: 8908337441760298693}
   - {fileID: 8324711128621182813}
   m_Father: {fileID: 6362176155741130746}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3259,9 +3259,10 @@ MonoBehaviour:
   _manipulatorTypeDropdown: {fileID: 3562381048476560625}
   _pathfinderPortInputField: {fileID: 8590948470658468355}
   _launchEphysLinkButton: {fileID: 2955877670823929658}
-  _customConnectionGroup: {fileID: 4837937430391662035}
+  _existingServerGroup: {fileID: 4837937430391662035}
   _ipAddressInputField: {fileID: 5264199029463603639}
   _portInputField: {fileID: 2570483358674064769}
+  _connectButton: {fileID: 4413907154700555883}
   _connectButtonText: {fileID: 1072600612830375839}
   _connectionErrorText: {fileID: 642282321731354649}
   _manipulatorList: {fileID: 7994738088484906322}
@@ -4819,7 +4820,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 7825047172642515388}
+    m_TransformParent: {fileID: 2047283783586261496}
     m_Modifications:
     - target: {fileID: 1917941435178448969, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_Text
@@ -4869,6 +4870,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ConnectBtn
       objectReference: {fileID: 0}
+    - target: {fileID: 2971839373268861373, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8061307773979316499, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -4899,7 +4904,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8061307773979316499, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 140.27762
+      value: 180.69582
       objectReference: {fileID: 0}
     - target: {fileID: 8061307773979316499, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_SizeDelta.y
@@ -4935,11 +4940,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8061307773979316499, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 425.4652
+      value: 1037.5765
       objectReference: {fileID: 0}
     - target: {fileID: 8061307773979316499, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -50
+      value: -50.397594
       objectReference: {fileID: 0}
     - target: {fileID: 8061307773979316499, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4990,7 +4995,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: 140
+  m_MinWidth: 180
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
