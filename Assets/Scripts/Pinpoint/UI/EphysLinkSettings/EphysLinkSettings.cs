@@ -56,7 +56,7 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         public HashSet<ProbeManager> LinkedProbes { get; } = new();
         public UnityEvent ShouldUpdateProbesListEvent { get; } = new();
-        
+
         private Process _ephysLinkProcess;
 
         #endregion
@@ -190,7 +190,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                 }
             };
             _ephysLinkProcess.Start();
-            
+
             // Configure UI (disable type dropdown and launch button, enable [dis]connect button).
             _manipulatorTypeDropdown.interactable = false;
             _launchEphysLinkButton.interactable = false;
@@ -269,8 +269,13 @@ namespace Pinpoint.UI.EphysLinkSettings
 
                     CommunicationManager.Instance.DisconnectFromServer(() =>
                     {
-                        _ephysLinkProcess.Kill(true);
-                        _ephysLinkProcess.Dispose();
+                        // Kill internally started Ephys Link process
+                        if (_ephysLinkProcess != null)
+                        {
+                            _ephysLinkProcess.Kill(true);
+                            _ephysLinkProcess.Dispose();
+                        }
+
                         UpdateConnectionPanel();
                     });
                 };
@@ -339,7 +344,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             _connectionErrorText.text = "";
             _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
             _connectButton.SetActive(CommunicationManager.Instance.IsConnected);
-            
+
             _manipulatorTypeDropdown.interactable = !CommunicationManager.Instance.IsConnected;
             _launchEphysLinkButton.interactable = !CommunicationManager.Instance.IsConnected;
 
