@@ -4824,7 +4824,9 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1917941435178448969, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_Text
-      value: Connect
+      value: 'Connect
+
+'
       objectReference: {fileID: 0}
     - target: {fileID: 2315289584108803517, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -4904,7 +4906,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8061307773979316499, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 180.69582
+      value: 200.6693
       objectReference: {fileID: 0}
     - target: {fileID: 8061307773979316499, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_SizeDelta.y
@@ -4940,7 +4942,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8061307773979316499, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 1037.5765
+      value: 1046.1573
       objectReference: {fileID: 0}
     - target: {fileID: 8061307773979316499, guid: b70534dfc2e4a52489c512aabd5dd59d, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -4995,7 +4997,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
-  m_MinWidth: 180
+  m_MinWidth: 200
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1

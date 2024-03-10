@@ -76,10 +76,7 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         private void OnDestroy()
         {
-            // Kill internally started Ephys Link process
-            if (_ephysLinkProcess == null) return;
-            _ephysLinkProcess.Kill(true);
-            _ephysLinkProcess.Dispose();
+            KillEphysLinkProcess();
         }
 
         #endregion
@@ -277,13 +274,7 @@ namespace Pinpoint.UI.EphysLinkSettings
 
                     CommunicationManager.Instance.DisconnectFromServer(() =>
                     {
-                        // Kill internally started Ephys Link process
-                        if (_ephysLinkProcess != null)
-                        {
-                            _ephysLinkProcess.Kill(true);
-                            _ephysLinkProcess.Dispose();
-                        }
-
+                        KillEphysLinkProcess();
                         UpdateConnectionPanel();
                     });
                 };
@@ -358,6 +349,14 @@ namespace Pinpoint.UI.EphysLinkSettings
 
             // Update Manipulator Panels
             UpdateManipulatorPanels();
+        }
+
+        private void KillEphysLinkProcess()
+        {
+            if (_ephysLinkProcess == null) return;
+            _ephysLinkProcess.Kill(true);
+            _ephysLinkProcess.Dispose();
+            _ephysLinkProcess = null;
         }
 
         #endregion
