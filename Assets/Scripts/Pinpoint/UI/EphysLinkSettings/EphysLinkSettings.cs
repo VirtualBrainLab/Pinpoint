@@ -7,7 +7,6 @@ using KS.Diagnostics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 // using Process = KS.Diagnostics.Process;
@@ -73,6 +72,11 @@ namespace Pinpoint.UI.EphysLinkSettings
         {
             // Update UI elements every time the settings panel is opened
             UpdateConnectionPanel();
+        }
+
+        private void OnDestroy()
+        {
+            KillEphysLinkProcess();
         }
 
         #endregion
@@ -171,8 +175,8 @@ namespace Pinpoint.UI.EphysLinkSettings
                 _ => "sensapex"
             };
 
-            // Make args string.
-            var args = $"-t {manipulatorTypeString}";
+            // Make args string (ignore updates, select type).
+            var args = $"-i -t {manipulatorTypeString}";
 
             // Add Pathfinder port if selected.
             if (_manipulatorTypeDropdown.value == 2)
@@ -195,6 +199,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             _manipulatorTypeDropdown.interactable = false;
             _launchEphysLinkButton.interactable = false;
             _connectButton.SetActive(true);
+            _connectButtonText.text = "Connecting...";
 
             // Attempt to connect to server.
             var attempts = 0;
@@ -269,13 +274,7 @@ namespace Pinpoint.UI.EphysLinkSettings
 
                     CommunicationManager.Instance.DisconnectFromServer(() =>
                     {
-                        // Kill internally started Ephys Link process
-                        if (_ephysLinkProcess != null)
-                        {
-                            _ephysLinkProcess.Kill(true);
-                            _ephysLinkProcess.Dispose();
-                        }
-
+                        KillEphysLinkProcess();
                         UpdateConnectionPanel();
                     });
                 };
@@ -350,6 +349,14 @@ namespace Pinpoint.UI.EphysLinkSettings
 
             // Update Manipulator Panels
             UpdateManipulatorPanels();
+        }
+
+        private void KillEphysLinkProcess()
+        {
+            if (_ephysLinkProcess == null) return;
+            _ephysLinkProcess.Kill(true);
+            _ephysLinkProcess.Dispose();
+            _ephysLinkProcess = null;
         }
 
         #endregion
