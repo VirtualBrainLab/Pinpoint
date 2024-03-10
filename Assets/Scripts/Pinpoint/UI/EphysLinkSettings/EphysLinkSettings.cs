@@ -194,7 +194,6 @@ namespace Pinpoint.UI.EphysLinkSettings
                 }
             };
             _ephysLinkProcess.Start();
-            _ephysLinkProcess.Exited += (_, _) => HandleDisconnectingFromServer();
 
             // Configure UI (disable type dropdown and launch button, enable [dis]connect button).
             _manipulatorTypeDropdown.interactable = false;
