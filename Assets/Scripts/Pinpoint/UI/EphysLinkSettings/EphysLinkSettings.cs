@@ -216,6 +216,9 @@ namespace Pinpoint.UI.EphysLinkSettings
                         {
                             _connectionErrorText.text = err;
                             _connectButtonText.text = "Connect";
+
+                            _manipulatorTypeDropdown.interactable = !CommunicationManager.Instance.IsConnected;
+                            _launchEphysLinkButton.interactable = !CommunicationManager.Instance.IsConnected;
                         }
                         else
                         {
@@ -260,24 +263,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             else
             {
                 // Disconnect from server
-                QuestionDialogue.Instance.YesCallback = () =>
-                {
-                    foreach (var probeManager in ProbeManager.Instances
-                                 .Where(probeManager => probeManager.IsEphysLinkControlled))
-                    {
-                        probeManager.SetIsEphysLinkControlled(false,
-                            probeManager.ManipulatorBehaviorController.ManipulatorID);
-
-                        // FIXME: This is done because of race condition with closing out server. Should be fixed with non-registration setup.
-                        probeManager.ManipulatorBehaviorController.Deinitialize();
-                    }
-
-                    CommunicationManager.Instance.DisconnectFromServer(() =>
-                    {
-                        KillEphysLinkProcess();
-                        UpdateConnectionPanel();
-                    });
-                };
+                QuestionDialogue.Instance.YesCallback = HandleDisconnectingFromServer;
 
                 QuestionDialogue.Instance.NewQuestion(
                     "Are you sure you want to disconnect?\nAll incomplete movements will be canceled.");
@@ -322,6 +308,25 @@ namespace Pinpoint.UI.EphysLinkSettings
                         CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
                     _connectButtonText.text = "Connect";
                 });
+            });
+        }
+
+        private void HandleDisconnectingFromServer()
+        {
+            foreach (var probeManager in ProbeManager.Instances
+                         .Where(probeManager => probeManager.IsEphysLinkControlled))
+            {
+                probeManager.SetIsEphysLinkControlled(false,
+                    probeManager.ManipulatorBehaviorController.ManipulatorID);
+
+                // FIXME: This is done because of race condition with closing out server. Should be fixed with non-registration setup.
+                probeManager.ManipulatorBehaviorController.Deinitialize();
+            }
+
+            CommunicationManager.Instance.DisconnectFromServer(() =>
+            {
+                KillEphysLinkProcess();
+                UpdateConnectionPanel();
             });
         }
 
