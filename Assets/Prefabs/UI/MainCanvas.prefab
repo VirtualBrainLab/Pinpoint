@@ -2279,7 +2279,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1445278465348587321, guid: 196fe30eaa658f243a73a6225140bf82, type: 3}
       propertyPath: m_Name
-      value: AutomaticManipulatorControlPanel
+      value: CopilotPanel
       objectReference: {fileID: 0}
     - target: {fileID: 1445278465348587321, guid: 196fe30eaa658f243a73a6225140bf82, type: 3}
       propertyPath: m_IsActive
