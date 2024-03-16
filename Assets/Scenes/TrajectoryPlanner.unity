@@ -4618,6 +4618,22 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 1244743588651765272, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1703646459}
+    - target: {fileID: 1244743588651765272, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleRigVisibility
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244743588651765272, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: TP_ToggleRigs, trajectoryplanner.core
+      objectReference: {fileID: 0}
+    - target: {fileID: 1244743588651765272, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 1285464230389330495, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: m_SizeDelta.y
       value: 20
@@ -8493,10 +8509,6 @@ PrefabInstance:
       value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
-      propertyPath: _rigGOs.Array.size
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: rigGOs.Array.data[7]
       value: 
       objectReference: {fileID: 0}
@@ -8736,9 +8748,45 @@ PrefabInstance:
       propertyPath: _selectionLayerAssetRefs.Array.data[4].m_AssetGUID
       value: 8350598c1f432284ebefa28296e18990
       objectReference: {fileID: 0}
+    - target: {fileID: 3116689649775547108, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.09
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116689649775547108, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.09
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116689649775547108, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.09
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116689649775547108, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116689649775547108, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116689649775547108, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116689649775547108, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116689649775547108, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7050590577905447292, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8985606130158294353, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2367291489059947454, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}

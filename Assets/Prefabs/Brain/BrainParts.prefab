@@ -665,6 +665,7 @@ MonoBehaviour:
   - {fileID: 1302158969012861588}
   - {fileID: 1302158968131984694}
   - {fileID: 7050590577905447292}
+  - {fileID: 8985606130158294353}
   _rigUIParentGO: {fileID: 0}
 --- !u!1 &1302158968736254753
 GameObject:
@@ -1416,6 +1417,11 @@ PrefabInstance:
 --- !u!4 &8985606130158294352 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4759250422179955537, guid: c26dcb83a52e9f945946d0af72c2bdb2, type: 3}
+  m_PrefabInstance: {fileID: 4521341492966610433}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8985606130158294353 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4759250422179955536, guid: c26dcb83a52e9f945946d0af72c2bdb2, type: 3}
   m_PrefabInstance: {fileID: 4521341492966610433}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5661326415340311912
