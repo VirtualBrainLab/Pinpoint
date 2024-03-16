@@ -172,3 +172,5 @@ Assets/Resources.meta
 .gitconfig
 
 Library/com.unity.addressables/AddressablesBuildTEP.json
+Assets/AddressableAssetsData/link.xml
+Assets/AddressableAssetsData/link.xml.meta
