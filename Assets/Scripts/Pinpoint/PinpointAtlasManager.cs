@@ -18,7 +18,7 @@ public class PinpointAtlasManager : MonoBehaviour
 
     private Dictionary<string, string> _atlasNameMapping;
     private Dictionary<string, bool> _allowedOnWebGLMapping;
-    List<string> _allowedNames;
+    private List<string> _allowedNames;
 
     public HashSet<OntologyNode> DefaultNodes;
 
@@ -79,7 +79,7 @@ public class PinpointAtlasManager : MonoBehaviour
             if (_allowedOnWebGLMapping[atlasNames[i]])
                 _allowedNames.Add(atlasNames[i]);
 #else
-        var _allowedNames = atlasNames;
+        _allowedNames = atlasNames;
 #endif
 
         _atlasDropdown.options = _allowedNames.ConvertAll(x => ConvertAtlas2Userfriendly(x));
@@ -101,6 +101,9 @@ public class PinpointAtlasManager : MonoBehaviour
 
     private void ResetScene(int option)
     {
+#if UNITY_EDITOR
+        Debug.Log($"(PAM) Resetting atlas to option {option}");
+#endif
         PlayerPrefs.SetInt("scene-atlas-reset", 1);
         Settings.AtlasName = _allowedNames[option];
 #if UNITY_EDITOR
