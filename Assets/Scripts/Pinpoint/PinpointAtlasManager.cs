@@ -54,14 +54,17 @@ public class PinpointAtlasManager : MonoBehaviour
                 break;
 
             // we don't have transforms (yet) for waxholm rat
-            case "waxholm_rat_39um":
+            case "whs_sd_rat_39um":
                 BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
                 break;
             // we don't have transforms (yet) for waxholm rat
-            case "waxholm_rat_78um":
+            case "whs_sd_rat_78um":
                 BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
                 break;
         }
+
+        foreach (var transform in BrainAtlasManager.AtlasTransforms)
+            Debug.Log(transform.Name);
 
         PopulateAtlasDropdown();
         PopulateTransformDropdown();
