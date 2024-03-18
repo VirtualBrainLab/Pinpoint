@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using BrainAtlas;
+using System.Collections.Generic;
 
 public class CraniotomyPanel : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class CraniotomyPanel : MonoBehaviour
 
     private int _lastCraniotomyIdx = 0;
 
-    [FormerlySerializedAs("craniotomySkull")] [SerializeField] private CraniotomySkull _craniotomySkull;
+    [SerializeField] private List<CraniotomySkull> _skullList;
 
     private void Awake()
     {
@@ -35,22 +36,40 @@ public class CraniotomyPanel : MonoBehaviour
 
     private void OnEnable()
     {
-        _craniotomySkull.Enable();
-        UpdateCraniotomyIdx(_lastCraniotomyIdx);
+        foreach (CraniotomySkull skull in _skullList)
+        {
+            if (skull.gameObject.activeSelf)
+            {
+                skull.Enable();
+                UpdateCraniotomyIdx(_lastCraniotomyIdx);
+            }
+        }
     }
 
     private void SetDefaultCraniotomyPositions()
     {
-        for (int i = 0; i < 5; i++)
+        foreach (CraniotomySkull skull in _skullList)
         {
-            _craniotomySkull.SetActiveCraniotomy(i);
-            _craniotomySkull.SetCraniotomyPosition(BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(Vector3.zero));
-        } 
+            if (skull.gameObject.activeSelf)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    skull.SetActiveCraniotomy(i);
+                    skull.SetCraniotomyPosition(BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(Vector3.zero));
+                }
+            }
+        }
     }
 
     private void OnDisable()
     {
-        _craniotomySkull.Disable();
+        foreach (CraniotomySkull skull in _skullList)
+        {
+            if (skull.gameObject.activeSelf)
+            {
+                skull.Disable();
+            }
+        }
     }
 
     public void UpdateAP(float ap)
@@ -74,13 +93,19 @@ public class CraniotomyPanel : MonoBehaviour
 
     public void UpdateCraniotomyIdx(int craniotomyIdx)
     {
-        _lastCraniotomyIdx = craniotomyIdx;
-        _craniotomySkull.SetActiveCraniotomy(craniotomyIdx);
-        _positionWorld = _craniotomySkull.GetCraniotomyPosition();
-        _positionSpace = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(_positionWorld);
-        size = _craniotomySkull.GetCraniotomySize();
-        UpdateText();
-        UpdateSliders();
+        foreach (CraniotomySkull skull in _skullList)
+        {
+            if (skull.gameObject.activeSelf)
+            {
+                _lastCraniotomyIdx = craniotomyIdx;
+                skull.SetActiveCraniotomy(craniotomyIdx);
+                _positionWorld = skull.GetCraniotomyPosition();
+                _positionSpace = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(_positionWorld);
+                size = skull.GetCraniotomySize();
+                UpdateText();
+                UpdateSliders();
+            }
+        }
     }
 
     private void UpdateSliders()
@@ -105,10 +130,16 @@ public class CraniotomyPanel : MonoBehaviour
         // We need to rotate the x/y coordinates into the current transformed space... 
         _positionWorld = BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(_positionSpace);
 
-        if (_craniotomySkull != null)
+        foreach (CraniotomySkull skull in _skullList)
         {
-            _craniotomySkull.SetCraniotomyPosition(_positionWorld);
-            _craniotomySkull.SetCraniotomySize(size);
+            if (skull.gameObject.activeSelf)
+            {
+                if (skull != null)
+                {
+                    skull.SetCraniotomyPosition(_positionWorld);
+                    skull.SetCraniotomySize(size);
+                }
+            }
         }
     }
 
