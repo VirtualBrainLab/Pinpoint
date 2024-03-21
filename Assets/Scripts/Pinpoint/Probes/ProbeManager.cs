@@ -439,7 +439,7 @@ public class ProbeManager : MonoBehaviour
     /// Get a serialized representation of the depth information on each shank of this probe
     /// 
     /// SpikeGLX format
-    /// [probe,shank]()
+    /// [probe,shank](bottom um, top um, r, g, b, acronym)
     /// </summary>
     /// <returns>List of strings, each of which has data for one shank in the scene</returns>
     public List<string> GetProbeDepthIDs()
@@ -472,28 +472,29 @@ public class ProbeManager : MonoBehaviour
 
         ProbeUIManager uiManager = _probeUIManagers[shank];
 
-        Vector3 baseCoordWorldT = uiManager.ShankTipT().position;
-        Vector3 topCoordWorldT = uiManager.ShankTipT().position - _probeController.ProbeTipT.forward * _channelMap.FullHeight;
+        Transform electrodeBaseT = uiManager.ShankTipT();
+        Vector3 baseCoordWorldT = electrodeBaseT.position;
+        Vector3 topCoordWorldT = baseCoordWorldT - electrodeBaseT.forward * _channelMap.FullHeight;
         float height = _channelMap.FullHeight;
 
-        Vector3 baseCoordWorldU = BrainAtlasManager.WorldT2WorldU(baseCoordWorldT, false);
-        Vector3 topCoordWorldU = BrainAtlasManager.WorldT2WorldU(topCoordWorldT, false);
+        Vector3 baseCoordWorldU = BrainAtlasManager.WorldT2WorldU(baseCoordWorldT, true);
+        Vector3 topCoordWorldU = BrainAtlasManager.WorldT2WorldU(topCoordWorldT, true);
 
-        // Lerp between the base and top coordinate in small steps'
-
+        // Lerp between the base and top coordinate in small steps
 
         int lastID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(baseCoordWorldU));
-        if (lastID < 0) lastID = -1;
+        if (lastID < 0) lastID = 0;
 
         float curBottom = 0f;
-        float _channelMinUM = 0f; // _channelMinY * 1000f;
 
         for (float perc = 0f; perc < 1f; perc += 0.01f)
         {
             Vector3 coordU = Vector3.Lerp(baseCoordWorldU, topCoordWorldU, perc);
 
+            Debug.Log(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(coordU));
             int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(coordU));
-            if (ID < 0) ID = -1;
+            if (ID < 0) ID = 0;
+            Debug.Log(ID);
 
             if (Settings.UseBeryl)
                 ID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(ID);
@@ -502,14 +503,14 @@ public class ProbeManager : MonoBehaviour
             {
                 // Save the current step
                 float newHeight = perc * height * 1000f;
-                probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinUM), Mathf.RoundToInt(newHeight + _channelMinUM), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID)));
+                probeAnnotationData.Add((Mathf.RoundToInt(curBottom), Mathf.RoundToInt(newHeight), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID)));
                 curBottom = newHeight;
                 lastID = ID;
             }
         }
 
         // Save the final step
-        probeAnnotationData.Add((Mathf.RoundToInt(curBottom + _channelMinUM), Mathf.RoundToInt(height * 1000 + _channelMinUM), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(lastID), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(lastID)));
+        probeAnnotationData.Add((Mathf.RoundToInt(curBottom), Mathf.RoundToInt(height * 1000), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(lastID), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(lastID)));
 
         // Flatten the list data according to the SpikeGLX format
         // [probe, shank](startpos, endpos, r, g, b, name)
@@ -556,7 +557,7 @@ public class ProbeManager : MonoBehaviour
                     Vector3 channelCoordWorldT = shankTipCoordWorldT - _probeController.ProbeTipT.forward * channelMapData[i].y / 1000f;
 
                     // Now transform this into WorldU
-                    Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(channelCoordWorldT, false);
+                    Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(channelCoordWorldT, true);
 
                     int elecIdx = si * channelMapData.Count + i;
                     int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU));
