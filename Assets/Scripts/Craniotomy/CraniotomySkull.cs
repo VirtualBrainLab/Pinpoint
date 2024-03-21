@@ -26,8 +26,11 @@ public class CraniotomySkull : MonoBehaviour
 
     public void Enable()
     {
-        for (int i = 0; i < 5; i++)
-            skullRenderer.material.SetFloat(string.Format("_CraniotomySize_{0}", i), _craniotomySizes[i] / 2);
+        if (skullRenderer != null)
+        {
+            for (int i = 0; i < 5; i++)
+                skullRenderer.material.SetFloat(string.Format("_CraniotomySize_{0}", i), _craniotomySizes[i] / 2);
+        }
     }
 
     private void UpdateVisibility()
