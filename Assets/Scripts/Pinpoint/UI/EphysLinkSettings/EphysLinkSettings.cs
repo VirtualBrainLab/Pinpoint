@@ -106,13 +106,13 @@ namespace Pinpoint.UI.EphysLinkSettings
 
             if (CommunicationManager.Instance.IsConnected)
             {
-                CommunicationManager.Instance.GetManipulators((availableIDs, numAxes, _) =>
+                CommunicationManager.Instance.GetManipulators((response) =>
                 {
                     // Keep track of handled manipulator panels
                     var handledManipulatorIds = new HashSet<string>();
 
                     // Add any new manipulators in scene to list
-                    foreach (var manipulatorID in availableIDs)
+                    foreach (var manipulatorID in response.Manipulators)
                     {
                         // Create new manipulator connection settings panel if the manipulator is new
                         if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorID))
@@ -125,7 +125,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                                     .GetComponent<ManipulatorConnectionPanel>();
 
                             // Set manipulator id
-                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID, numAxes);
+                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID, response.NumAxes);
 
                             // Add to dictionary
                             _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorID,
@@ -146,7 +146,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                     }
 
                     // Reorder panels to match order of availableIds
-                    foreach (var manipulatorId in availableIDs)
+                    foreach (var manipulatorId in response.Manipulators)
                         _manipulatorIdToManipulatorConnectionSettingsPanel[manipulatorId].gameObject.transform
                             .SetAsLastSibling();
                 });

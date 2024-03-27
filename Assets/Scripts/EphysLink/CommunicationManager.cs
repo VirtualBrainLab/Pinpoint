@@ -40,8 +40,14 @@ namespace EphysLink
 
         private void Awake()
         {
-            if (Instance != null) Debug.LogError("Make sure there is only one CommunicationManager in the scene!");
-            Instance = this;
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(this);
+            } else if (Instance != this)
+            {
+                Destroy(this);
+            }
         }
 
         #endregion
@@ -209,19 +215,19 @@ namespace EphysLink
         /// </summary>
         /// <param name="onSuccessCallback">Callback function to handle incoming manipulator ID's</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GetManipulators(Action<string[], int, float[]> onSuccessCallback,
+        public void GetManipulators(Action<GetManipulatorsResponse> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
             {
                 if (DataKnownAndNotEmpty(data))
                 {
-                    var parsedData = GetManipulatorsCallbackParameters.FromJson(data);
-                    if (parsedData.error == "")
-                        onSuccessCallback?.Invoke(parsedData.manipulators, parsedData.num_axes,
-                            parsedData.dimensions);
+                    var parsedData = ParseJson<GetManipulatorsResponse>(data);
+                    
+                    if (parsedData.Error == "")
+                        onSuccessCallback?.Invoke(parsedData);
                     else
-                        onErrorCallback?.Invoke(parsedData.error);
+                        onErrorCallback?.Invoke(parsedData.Error);
                 }
                 else
                 {
@@ -540,6 +546,11 @@ namespace EphysLink
         private static bool DataKnownAndNotEmpty(string data)
         {
             return data is not ("" or UNKOWN_EVENT);
+        }
+        
+        private static T ParseJson<T>(string json)
+        {
+            return JsonUtility.FromJson<T>(json);
         }
 
         #endregion

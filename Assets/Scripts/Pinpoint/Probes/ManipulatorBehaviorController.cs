@@ -149,15 +149,15 @@ namespace Pinpoint.Probes
 
         public void Initialize(string manipulatorID, bool calibrated)
         {
-            CommunicationManager.Instance.GetManipulators((ids, numAxes, dimensions) =>
+            CommunicationManager.Instance.GetManipulators((reponse) =>
             {
                 // Shortcut exit if we have an invalid manipulator ID
-                if (!ids.Contains(manipulatorID)) return;
+                if (!reponse.Manipulators.Contains(manipulatorID)) return;
 
                 // Set manipulator ID, number of axes, and dimensions
                 ManipulatorID = manipulatorID;
-                NumAxes = numAxes;
-                Dimensions = new Vector3(dimensions[0], dimensions[1], dimensions[2]);
+                NumAxes = reponse.NumAxes;
+                Dimensions = reponse.Dimensions;
 
                 // Update transform and space
                 UpdateSpaceAndTransform();

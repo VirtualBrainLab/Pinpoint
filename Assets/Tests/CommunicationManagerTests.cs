@@ -49,9 +49,9 @@ namespace Tests
             var state = State.None;
 
             _communicationManager.GetManipulators(
-                (returnedManipulators, _, _) =>
+                (response) =>
                 {
-                    _manipulators = returnedManipulators;
+                    _manipulators = response.Manipulators;
                     state = State.Success;
                 },
                 returnedError => state = State.Failed);

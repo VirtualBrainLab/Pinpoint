@@ -11,6 +11,7 @@ namespace Editor
         public static void UpdateSchemas()
         {
             var webClient = new WebClient();
+            
             webClient.DownloadFile(
                 "https://raw.githubusercontent.com/VirtualBrainLab/vbl-aquarium/main/models/csharp/EphysLinkModels.cs",
                 "Assets/Scripts/EphysLink/EphysLinkModels.cs");
