@@ -149,15 +149,15 @@ namespace Pinpoint.Probes
 
         public void Initialize(string manipulatorID, bool calibrated)
         {
-            CommunicationManager.Instance.GetManipulators((ids, numAxes, dimensions) =>
+            CommunicationManager.Instance.GetManipulators(reponse =>
             {
                 // Shortcut exit if we have an invalid manipulator ID
-                if (!ids.Contains(manipulatorID)) return;
+                if (!reponse.Manipulators.Contains(manipulatorID)) return;
 
                 // Set manipulator ID, number of axes, and dimensions
                 ManipulatorID = manipulatorID;
-                NumAxes = numAxes;
-                Dimensions = new Vector3(dimensions[0], dimensions[1], dimensions[2]);
+                NumAxes = reponse.NumAxes;
+                Dimensions = reponse.Dimensions;
 
                 // Update transform and space
                 UpdateSpaceAndTransform();
@@ -169,16 +169,24 @@ namespace Pinpoint.Probes
                     // Bypass calibration and start echoing
                     CommunicationManager.Instance.BypassCalibration(manipulatorID, StartEchoing);
                 else
-                    CommunicationManager.Instance.SetCanWrite(manipulatorID, true, 1,
-                        _ =>
-                        {
-                            CommunicationManager.Instance.Calibrate(manipulatorID,
-                                () =>
+                    CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+                    {
+                        ManipulatorId = manipulatorID,
+                        CanWrite = true,
+                        Hours = 1
+                    }, _ =>
+                    {
+                        CommunicationManager.Instance.Calibrate(manipulatorID,
+                            () =>
+                            {
+                                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
                                 {
-                                    CommunicationManager.Instance.SetCanWrite(manipulatorID, false, 0,
-                                        _ => StartEchoing());
-                                });
-                        });
+                                    ManipulatorId = manipulatorID,
+                                    CanWrite = false,
+                                    Hours = 0
+                                }, _ => StartEchoing());
+                            });
+                    });
                 return;
 
                 void StartEchoing()
@@ -302,21 +310,39 @@ namespace Pinpoint.Probes
                 var targetPosition = pos + new Vector4(manipulatorTransformDelta.x, manipulatorTransformDelta.y,
                     manipulatorTransformDelta.z);
                 // Move manipulator
-                CommunicationManager.Instance.SetCanWrite(ManipulatorID, true, 1, b =>
+                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+                {
+                    ManipulatorId = ManipulatorID,
+                    CanWrite = true,
+                    Hours = 1
+                }, b =>
                 {
                     if (!b) return;
-                    CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED,
+                    CommunicationManager.Instance.GotoPos(
+                        new GotoPositionRequest
+                        {
+                            ManipulatorId = ManipulatorID, Position = targetPosition, Speed = AUTOMATIC_MOVEMENT_SPEED
+                        },
                         newPos =>
                         {
                             // Process depth movement
                             var targetDepth = newPos.w + manipulatorSpaceDepth;
                             // Move the manipulator
                             CommunicationManager.Instance.DriveToDepth(
-                                ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
+                                new DriveToDepthRequest
+                                {
+                                    ManipulatorId = ManipulatorID,
+                                    Depth = targetDepth,
+                                    Speed = AUTOMATIC_MOVEMENT_SPEED
+                                },
                                 _ =>
                                 {
-                                    CommunicationManager.Instance.SetCanWrite(ManipulatorID, false, 0,
-                                        onSuccessCallback, onErrorCallback);
+                                    CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+                                    {
+                                        ManipulatorId = ManipulatorID,
+                                        CanWrite = false,
+                                        Hours = 0
+                                    }, onSuccessCallback, onErrorCallback);
                                 }, onErrorCallback);
                         }, onErrorCallback);
                 }, onErrorCallback);
@@ -331,14 +357,28 @@ namespace Pinpoint.Probes
         public void MoveBackToZeroCoordinate(Action<Vector4> onSuccessCallback, Action<string> onErrorCallBack)
         {
             // Send move command
-            CommunicationManager.Instance.SetCanWrite(ManipulatorID, true, 1, b =>
+            CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+            {
+                ManipulatorId = ManipulatorID,
+                CanWrite = true,
+                Hours = 1
+            }, b =>
             {
                 if (!b) return;
-                CommunicationManager.Instance.GotoPos(ManipulatorID, ZeroCoordinateOffset, AUTOMATIC_MOVEMENT_SPEED,
+                CommunicationManager.Instance.GotoPos(new GotoPositionRequest
+                    {
+                        ManipulatorId = ManipulatorID,
+                        Position = ZeroCoordinateOffset,
+                        Speed = AUTOMATIC_MOVEMENT_SPEED
+                    },
                     pos =>
                     {
-                        CommunicationManager.Instance.SetCanWrite(ManipulatorID, false, 0, _ => onSuccessCallback(pos),
-                            onErrorCallBack);
+                        CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+                        {
+                            ManipulatorId = ManipulatorID,
+                            CanWrite = false,
+                            Hours = 0
+                        }, _ => onSuccessCallback(pos), onErrorCallBack);
                     }, onErrorCallBack);
             }, onErrorCallBack);
         }
@@ -444,7 +484,7 @@ namespace Pinpoint.Probes
 
             // Set probe position (change axes to match probe)
             var transformedApmldv = BrainAtlasManager.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
-            
+
             // Split between 3 and 4 axis assignments
             if (CoordinateTransform.Prefix == "3lhm")
                 _probeController.SetProbePosition(transformedApmldv);
