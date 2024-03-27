@@ -22,7 +22,7 @@ namespace EphysLink
 
         private static readonly int[] EPHYS_LINK_MIN_VERSION = { 1, 2, 8 };
 
-        public static readonly string EPHYS_LINK_MIN_VERSION_STRING = "≥ v" + string.Join(".", EPHYS_LINK_MIN_VERSION);
+        public static readonly string EPHYS_LINK_MIN_VERSION_STRING = $"≥ v{string.Join(".", EPHYS_LINK_MIN_VERSION)}";
 
         private const string UNKOWN_EVENT = "UNKNOWN_EVENT";
 
@@ -44,7 +44,8 @@ namespace EphysLink
             {
                 Instance = this;
                 DontDestroyOnLoad(this);
-            } else if (Instance != this)
+            }
+            else if (Instance != this)
             {
                 Destroy(this);
             }
@@ -57,7 +58,8 @@ namespace EphysLink
         public void ServerSettingsLoaded()
         {
             // Automatically connect if the server credentials are possible
-            if (!IsConnected && Settings.EphysLinkServerIp != "" && Settings.EphysLinkServerPort >= 1025)
+            if (!IsConnected && !string.IsNullOrEmpty(Settings.EphysLinkServerIp) &&
+                Settings.EphysLinkServerPort >= 1025)
                 ConnectToServer(Settings.EphysLinkServerIp, Settings.EphysLinkServerPort, () =>
                 {
                     // Verify Ephys Link version
@@ -89,13 +91,13 @@ namespace EphysLink
             try
             {
                 // Create a new socket
-                _connectionManager = new SocketManager(new Uri("http://" + ip + ":" + port), options);
+                _connectionManager = new SocketManager(new Uri($"http://{ip}:{port}"), options);
                 _socket = _connectionManager.Socket;
 
                 // On successful connection
                 _socket.Once("connect", () =>
                 {
-                    Debug.Log("Connected to WebSocket server at " + ip + ":" + port);
+                    Debug.Log($"Connected to WebSocket server at {ip}:{port}");
                     IsConnected = true;
 
                     // Save settings
@@ -109,7 +111,7 @@ namespace EphysLink
                 _socket.Once("error", () =>
                 {
                     var connectionErrorMessage =
-                        "Error connecting to server at " + ip + ":" + port + ". Check server for details.";
+                        $"Error connecting to server at {ip}:{port}. Check server for details.";
                     Debug.LogWarning(connectionErrorMessage);
                     IsConnected = false;
                     _connectionManager.Close();
@@ -121,7 +123,7 @@ namespace EphysLink
                 // On timeout
                 _socket.Once("connect_timeout", () =>
                 {
-                    var connectionTimeoutMessage = "Connection to server at " + ip + ":" + port + " timed out";
+                    var connectionTimeoutMessage = "Connection to server at {ip}:{port} timed out";
                     Debug.LogWarning(connectionTimeoutMessage);
                     IsConnected = false;
                     _connectionManager.Close();
@@ -134,7 +136,7 @@ namespace EphysLink
             {
                 // On socket generation error
                 var connectionErrorMessage =
-                    "Error connecting to server at " + ip + ":" + port + ". Check server for details.";
+                    "Error connecting to server at {ip}:{port}. Check server for details.";
                 Debug.LogWarning(connectionErrorMessage);
                 Debug.LogWarning("Exception: " + e);
                 IsConnected = false;
@@ -223,15 +225,15 @@ namespace EphysLink
                 if (DataKnownAndNotEmpty(data))
                 {
                     var parsedData = ParseJson<GetManipulatorsResponse>(data);
-                    
-                    if (parsedData.Error == "")
+
+                    if (string.IsNullOrEmpty(parsedData.Error))
                         onSuccessCallback?.Invoke(parsedData);
                     else
                         onErrorCallback?.Invoke(parsedData.Error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke("get_manipulators invalid response: " + data);
+                    onErrorCallback?.Invoke($"get_manipulators invalid response: {data}");
                 }
             }).Emit("get_manipulators");
         }
@@ -247,10 +249,10 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
-                if (error == "")
+                if (string.IsNullOrEmpty(error))
                     onSuccessCallback?.Invoke();
                 else
-                    onErrorCallback?.Invoke("register_manipulators invalid response: " + error);
+                    onErrorCallback?.Invoke($"register_manipulators invalid response: {error}");
             }).Emit("register_manipulator", manipulatorId);
         }
 
@@ -265,10 +267,10 @@ namespace EphysLink
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(error =>
             {
-                if (error == "")
+                if (string.IsNullOrEmpty(error))
                     onSuccessCallback?.Invoke();
                 else
-                    onErrorCallback?.Invoke("unregister_manipulator invalid response: " + error);
+                    onErrorCallback?.Invoke($"unregister_manipulator invalid response: {error}");
             }).Emit("unregister_manipulator", manipulatorId);
         }
 
@@ -286,22 +288,15 @@ namespace EphysLink
                 if (DataKnownAndNotEmpty(data))
                 {
                     var parsedData = ParseJson<PositionalResponse>(data);
-                    
-                    if (parsedData.Error == "")
-                        try
-                        {
-                            onSuccessCallback?.Invoke(parsedData.Position);
-                        }
-                        catch (Exception e)
-                        {
-                            onErrorCallback?.Invoke(e.ToString());
-                        }
+
+                    if (string.IsNullOrEmpty(parsedData.Error))
+                        onSuccessCallback?.Invoke(parsedData.Position);
                     else
                         onErrorCallback?.Invoke(parsedData.Error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke("get_pos invalid response: " + data);
+                    onErrorCallback?.Invoke($"get_pos invalid response: {data}");
                 }
             }).Emit("get_pos", manipulatorId);
         }
@@ -319,23 +314,15 @@ namespace EphysLink
             {
                 if (DataKnownAndNotEmpty(data))
                 {
-                    var parsedData = AngularCallbackParameters.FromJson(data);
-                    if (parsedData.error == "")
-                        try
-                        {
-                            onSuccessCallback?.Invoke(new Vector3(parsedData.angles[0], parsedData.angles[1],
-                                parsedData.angles[2]));
-                        }
-                        catch (Exception e)
-                        {
-                            onErrorCallback?.Invoke(e.ToString());
-                        }
+                    var parsedData = ParseJson<AngularResponse>(data);
+                    if (string.IsNullOrEmpty(parsedData.Error))
+                        onSuccessCallback?.Invoke(parsedData.Angles);
                     else
-                        onErrorCallback?.Invoke(parsedData.error);
+                        onErrorCallback?.Invoke(parsedData.Error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke("get_angles invalid response: " + data);
+                    onErrorCallback?.Invoke($"get_angles invalid response: {data}");
                 }
             }).Emit("get_angles", manipulatorId);
         }
@@ -347,22 +334,15 @@ namespace EphysLink
             {
                 if (DataKnownAndNotEmpty(data))
                 {
-                    var parsedData = ShankCountCallbackParameters.FromJson(data);
-                    if (parsedData.error == "")
-                        try
-                        {
-                            onSuccessCallback?.Invoke(parsedData.shank_count);
-                        }
-                        catch (Exception e)
-                        {
-                            onErrorCallback?.Invoke(e.ToString());
-                        }
+                    var parsedData = ParseJson<ShankCountResponse>(data);
+                    if (string.IsNullOrEmpty(parsedData.Error))
+                        onSuccessCallback?.Invoke(parsedData.ShankCount);
                     else
-                        onErrorCallback?.Invoke(parsedData.error);
+                        onErrorCallback?.Invoke(parsedData.Error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke("get_shank_count invalid response: " + data);
+                    onErrorCallback?.Invoke($"get_shank_count invalid response: {data}");
                 }
             }).Emit("get_shank_count", manipulatorId);
         }
@@ -383,23 +363,15 @@ namespace EphysLink
             {
                 if (DataKnownAndNotEmpty(data))
                 {
-                    var parsedData = PositionalCallbackParameters.FromJson(data);
-                    if (parsedData.error == "")
-                        try
-                        {
-                            onSuccessCallback?.Invoke(new Vector4(parsedData.position[0], parsedData.position[1],
-                                parsedData.position[2], parsedData.position[3]));
-                        }
-                        catch (Exception e)
-                        {
-                            onErrorCallback?.Invoke(e.ToString());
-                        }
+                    var parsedData = ParseJson<PositionalResponse>(data);
+                    if (string.IsNullOrEmpty(parsedData.Error))
+                        onSuccessCallback?.Invoke(parsedData.Position);
                     else
-                        onErrorCallback?.Invoke(parsedData.error);
+                        onErrorCallback?.Invoke(parsedData.Error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke("goto_pos invalid response: " + data);
+                    onErrorCallback?.Invoke($"goto_pos invalid response: {data}");
                 }
             }).Emit("goto_pos", new GotoPositionInputDataFormat(manipulatorId, pos, speed).ToJson());
         }
@@ -419,18 +391,11 @@ namespace EphysLink
             {
                 if (DataKnownAndNotEmpty(data))
                 {
-                    var parsedData = DriveToDepthCallbackParameters.FromJson(data);
-                    if (parsedData.error == "")
-                        try
-                        {
-                            onSuccessCallback?.Invoke(parsedData.depth);
-                        }
-                        catch (Exception e)
-                        {
-                            onErrorCallback?.Invoke(e.ToString());
-                        }
+                    var parsedData = ParseJson<DriveToDepthResponse>(data);
+                    if (string.IsNullOrEmpty(parsedData.Error))
+                        onSuccessCallback?.Invoke(parsedData.Depth);
                     else
-                        onErrorCallback?.Invoke(parsedData.error);
+                        onErrorCallback?.Invoke(parsedData.Error);
                 }
                 else
                 {
@@ -453,15 +418,15 @@ namespace EphysLink
             {
                 if (DataKnownAndNotEmpty(data))
                 {
-                    var parsedData = StateCallbackParameters.FromJson(data);
-                    if (parsedData.error == "")
-                        onSuccessCallback?.Invoke(parsedData.state);
+                    var parsedData = ParseJson<BooleanStateResponse>(data);
+                    if (string.IsNullOrEmpty(parsedData.Error))
+                        onSuccessCallback?.Invoke(parsedData.State);
                     else
-                        onErrorCallback?.Invoke(parsedData.error);
+                        onErrorCallback?.Invoke(parsedData.Error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke("set_inside_brain invalid response: " + data);
+                    onErrorCallback?.Invoke($"set_inside_brain invalid response: {data}");
                 }
             }).Emit("set_inside_brain", new InsideBrainInputDataFormat(manipulatorId, inside).ToJson());
         }
@@ -517,15 +482,15 @@ namespace EphysLink
             {
                 if (DataKnownAndNotEmpty(data))
                 {
-                    var parsedData = StateCallbackParameters.FromJson(data);
-                    if (parsedData.error == "")
-                        onSuccessCallback?.Invoke(parsedData.state);
+                    var parsedData = ParseJson<BooleanStateResponse>(data);
+                    if (string.IsNullOrEmpty(parsedData.Error))
+                        onSuccessCallback?.Invoke(parsedData.State);
                     else
-                        onErrorCallback?.Invoke(parsedData.error);
+                        onErrorCallback?.Invoke(parsedData.Error);
                 }
                 else
                 {
-                    onErrorCallback?.Invoke("set_can_write invalid response: " + data);
+                    onErrorCallback?.Invoke($"set_can_write invalid response: {data}");
                 }
             }).Emit("set_can_write", new CanWriteInputDataFormat(manipulatorId, canWrite, hours).ToJson());
         }
@@ -545,12 +510,17 @@ namespace EphysLink
 
         private static bool DataKnownAndNotEmpty(string data)
         {
-            return data is not ("" or UNKOWN_EVENT);
+            return !string.IsNullOrEmpty(data) && !data.Equals(UNKOWN_EVENT);
         }
-        
+
         private static T ParseJson<T>(string json)
         {
             return JsonUtility.FromJson<T>(json);
+        }
+
+        private string ToJson<T>(T data)
+        {
+            return JsonUtility.ToJson(data);
         }
 
         #endregion
