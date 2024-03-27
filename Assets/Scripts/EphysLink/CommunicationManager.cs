@@ -403,11 +403,10 @@ namespace EphysLink
         /// <summary>
         ///     Set the inside brain state of a manipulator.
         /// </summary>
-        /// <param name="manipulatorId">ID of the manipulator to set the state of</param>
-        /// <param name="inside">State to set to</param>
+        /// <param name="request"></param>
         /// <param name="onSuccessCallback">Callback function to handle setting inside_brain state successfully</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void SetInsideBrain(string manipulatorId, bool inside, Action<bool> onSuccessCallback,
+        public void SetInsideBrain(InsideBrainRequest request, Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
@@ -424,7 +423,7 @@ namespace EphysLink
                 {
                     onErrorCallback?.Invoke($"set_inside_brain invalid response: {data}");
                 }
-            }).Emit("set_inside_brain", new InsideBrainInputDataFormat(manipulatorId, inside).ToJson());
+            }).Emit("set_inside_brain", ToJson(request));
         }
 
         /// <summary>
@@ -466,12 +465,10 @@ namespace EphysLink
         /// <summary>
         ///     Request a write lease for a manipulator.
         /// </summary>
-        /// <param name="manipulatorId">ID of the manipulator to allow writing</param>
-        /// <param name="canWrite">Write state to set the manipulator to</param>
-        /// <param name="hours">How many hours a manipulator may have a write lease</param>
+        /// <param name="request"></param>
         /// <param name="onSuccessCallback">Callback function to handle successfully setting can_write state</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void SetCanWrite(string manipulatorId, bool canWrite, float hours, Action<bool> onSuccessCallback,
+        public void SetCanWrite(CanWriteRequest request, Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
@@ -488,7 +485,7 @@ namespace EphysLink
                 {
                     onErrorCallback?.Invoke($"set_can_write invalid response: {data}");
                 }
-            }).Emit("set_can_write", new CanWriteInputDataFormat(manipulatorId, canWrite, hours).ToJson());
+            }).Emit("set_can_write", ToJson(request));
         }
 
         /// <summary>

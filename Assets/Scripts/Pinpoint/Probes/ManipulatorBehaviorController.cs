@@ -169,16 +169,24 @@ namespace Pinpoint.Probes
                     // Bypass calibration and start echoing
                     CommunicationManager.Instance.BypassCalibration(manipulatorID, StartEchoing);
                 else
-                    CommunicationManager.Instance.SetCanWrite(manipulatorID, true, 1,
-                        _ =>
-                        {
-                            CommunicationManager.Instance.Calibrate(manipulatorID,
-                                () =>
+                    CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+                    {
+                        ManipulatorId = manipulatorID,
+                        CanWrite = true,
+                        Hours = 1
+                    }, _ =>
+                    {
+                        CommunicationManager.Instance.Calibrate(manipulatorID,
+                            () =>
+                            {
+                                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
                                 {
-                                    CommunicationManager.Instance.SetCanWrite(manipulatorID, false, 0,
-                                        _ => StartEchoing());
-                                });
-                        });
+                                    ManipulatorId = manipulatorID,
+                                    CanWrite = false,
+                                    Hours = 0
+                                }, _ => StartEchoing());
+                            });
+                    });
                 return;
 
                 void StartEchoing()
@@ -302,7 +310,12 @@ namespace Pinpoint.Probes
                 var targetPosition = pos + new Vector4(manipulatorTransformDelta.x, manipulatorTransformDelta.y,
                     manipulatorTransformDelta.z);
                 // Move manipulator
-                CommunicationManager.Instance.SetCanWrite(ManipulatorID, true, 1, b =>
+                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+                {
+                    ManipulatorId = ManipulatorID,
+                    CanWrite = true,
+                    Hours = 1
+                }, b =>
                 {
                     if (!b) return;
                     CommunicationManager.Instance.GotoPos(
@@ -324,8 +337,12 @@ namespace Pinpoint.Probes
                                 },
                                 _ =>
                                 {
-                                    CommunicationManager.Instance.SetCanWrite(ManipulatorID, false, 0,
-                                        onSuccessCallback, onErrorCallback);
+                                    CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+                                    {
+                                        ManipulatorId = ManipulatorID,
+                                        CanWrite = false,
+                                        Hours = 0
+                                    }, onSuccessCallback, onErrorCallback);
                                 }, onErrorCallback);
                         }, onErrorCallback);
                 }, onErrorCallback);
@@ -340,7 +357,12 @@ namespace Pinpoint.Probes
         public void MoveBackToZeroCoordinate(Action<Vector4> onSuccessCallback, Action<string> onErrorCallBack)
         {
             // Send move command
-            CommunicationManager.Instance.SetCanWrite(ManipulatorID, true, 1, b =>
+            CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+            {
+                ManipulatorId = ManipulatorID,
+                CanWrite = true,
+                Hours = 1
+            }, b =>
             {
                 if (!b) return;
                 CommunicationManager.Instance.GotoPos(new GotoPositionRequest
@@ -351,8 +373,12 @@ namespace Pinpoint.Probes
                     },
                     pos =>
                     {
-                        CommunicationManager.Instance.SetCanWrite(ManipulatorID, false, 0, _ => onSuccessCallback(pos),
-                            onErrorCallBack);
+                        CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+                        {
+                            ManipulatorId = ManipulatorID,
+                            CanWrite = false,
+                            Hours = 0
+                        }, _ => onSuccessCallback(pos), onErrorCallBack);
                     }, onErrorCallBack);
             }, onErrorCallBack);
         }

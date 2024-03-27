@@ -390,61 +390,69 @@ namespace Pinpoint.UI.EphysCopilot
                         .dv.APMLDV);
 
             // Move
-            CommunicationManager.Instance.SetCanWrite(ProbeManager.ManipulatorBehaviorController.ManipulatorID, true, 1,
-                canWrite =>
-                {
-                    if (canWrite)
-                        CommunicationManager.Instance.GotoPos(new GotoPositionRequest
-                        {
-                            ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                            Position = dvPosition,
-                            Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
-                        }, _ =>
-                        {
-                            CommunicationManager.Instance.GotoPos(
-                                new GotoPositionRequest
+            CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+            {
+                ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                CanWrite = true,
+                Hours = 1
+            }, canWrite =>
+            {
+                if (canWrite)
+                    CommunicationManager.Instance.GotoPos(new GotoPositionRequest
+                    {
+                        ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                        Position = dvPosition,
+                        Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
+                    }, _ =>
+                    {
+                        CommunicationManager.Instance.GotoPos(
+                            new GotoPositionRequest
+                            {
+                                ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                Position = apPosition,
+                                Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
+                            }, _ =>
+                            {
+                                CommunicationManager.Instance.GotoPos(new GotoPositionRequest
                                 {
                                     ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                    Position = apPosition,
+                                    Position = mlPosition,
                                     Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
                                 }, _ =>
                                 {
-                                    CommunicationManager.Instance.GotoPos(new GotoPositionRequest
-                                    {
-                                        ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                        Position = mlPosition,
-                                        Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
-                                    }, _ =>
-                                    {
-                                        CommunicationManager.Instance.SetCanWrite(
-                                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
-                                            1, _ =>
-                                            {
-                                                // Hide lines
-                                                _lineGameObjects.ap.SetActive(false);
-                                                _lineGameObjects.ml.SetActive(false);
-                                                _lineGameObjects.dv.SetActive(false);
+                                    CommunicationManager.Instance.SetCanWrite(
+                                        new CanWriteRequest
+                                        {
+                                            ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                            CanWrite = false,
+                                            Hours = 1
+                                        }, _ =>
+                                        {
+                                            // Hide lines
+                                            _lineGameObjects.ap.SetActive(false);
+                                            _lineGameObjects.ml.SetActive(false);
+                                            _lineGameObjects.dv.SetActive(false);
 
-                                                // Complete movement
-                                                EndMovement();
-                                                _moveButton.interactable = false;
-                                            }, Debug.LogError);
-                                    }, error =>
-                                    {
-                                        Debug.LogError(error);
-                                        EndMovement();
-                                    });
+                                            // Complete movement
+                                            EndMovement();
+                                            _moveButton.interactable = false;
+                                        }, Debug.LogError);
                                 }, error =>
                                 {
                                     Debug.LogError(error);
                                     EndMovement();
                                 });
-                        }, error =>
-                        {
-                            Debug.LogError(error);
-                            EndMovement();
-                        });
-                }, Debug.LogError);
+                            }, error =>
+                            {
+                                Debug.LogError(error);
+                                EndMovement();
+                            });
+                    }, error =>
+                    {
+                        Debug.LogError(error);
+                        EndMovement();
+                    });
+            }, Debug.LogError);
             return;
 
             void EndMovement()
