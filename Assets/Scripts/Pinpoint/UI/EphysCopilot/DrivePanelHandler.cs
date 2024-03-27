@@ -585,8 +585,12 @@ namespace Pinpoint.UI.EphysCopilot
 
                             // Drive to outside position
                             if (position.y < _outsidePosition.y)
-                                CommunicationManager.Instance.GotoPos(_manipulatorId, _outsidePosition,
-                                    _outsideDriveSpeed, _ => CompleteOutside(), Debug.LogError);
+                                CommunicationManager.Instance.GotoPos(new GotoPositionRequest
+                                    {
+                                        ManipulatorId = _manipulatorId,
+                                        Position = _outsidePosition,
+                                        Speed = _outsideDriveSpeed
+                                    }, _ => CompleteOutside(), Debug.LogError);
                             // Drive to outside depth if DV movement is unavailable
                             else if (position.w > _outsideDepth)
                                 CommunicationManager.Instance.DriveToDepth(_manipulatorId, _outsideDepth,

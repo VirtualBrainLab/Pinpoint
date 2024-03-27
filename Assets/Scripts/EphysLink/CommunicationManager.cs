@@ -351,12 +351,10 @@ namespace EphysLink
         ///     Request a manipulator be moved to a specific position.
         /// </summary>
         /// <remarks>Position is defined by a Vector4</remarks>
-        /// <param name="manipulatorId">ID of the manipulator to be moved</param>
-        /// <param name="pos">Position in mm of the manipulator</param>
-        /// <param name="speed">How fast to move the manipulator (in mm/s)</param>
+        /// <param name="request">Goto position request object</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GotoPos(string manipulatorId, Vector4 pos, float speed, Action<Vector4> onSuccessCallback,
+        public void GotoPos(GotoPositionRequest request, Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
@@ -373,7 +371,7 @@ namespace EphysLink
                 {
                     onErrorCallback?.Invoke($"goto_pos invalid response: {data}");
                 }
-            }).Emit("goto_pos", new GotoPositionInputDataFormat(manipulatorId, pos, speed).ToJson());
+            }).Emit("goto_pos", ToJson(request));
         }
 
         /// <summary>

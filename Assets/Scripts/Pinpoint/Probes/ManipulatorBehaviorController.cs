@@ -305,7 +305,11 @@ namespace Pinpoint.Probes
                 CommunicationManager.Instance.SetCanWrite(ManipulatorID, true, 1, b =>
                 {
                     if (!b) return;
-                    CommunicationManager.Instance.GotoPos(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED,
+                    CommunicationManager.Instance.GotoPos(
+                        new GotoPositionRequest
+                        {
+                            ManipulatorId = ManipulatorID, Position = targetPosition, Speed = AUTOMATIC_MOVEMENT_SPEED
+                        },
                         newPos =>
                         {
                             // Process depth movement
@@ -334,7 +338,12 @@ namespace Pinpoint.Probes
             CommunicationManager.Instance.SetCanWrite(ManipulatorID, true, 1, b =>
             {
                 if (!b) return;
-                CommunicationManager.Instance.GotoPos(ManipulatorID, ZeroCoordinateOffset, AUTOMATIC_MOVEMENT_SPEED,
+                CommunicationManager.Instance.GotoPos(new GotoPositionRequest
+                    {
+                        ManipulatorId = ManipulatorID,
+                        Position = ZeroCoordinateOffset,
+                        Speed = AUTOMATIC_MOVEMENT_SPEED
+                    },
                     pos =>
                     {
                         CommunicationManager.Instance.SetCanWrite(ManipulatorID, false, 0, _ => onSuccessCallback(pos),
@@ -444,7 +453,7 @@ namespace Pinpoint.Probes
 
             // Set probe position (change axes to match probe)
             var transformedApmldv = BrainAtlasManager.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
-            
+
             // Split between 3 and 4 axis assignments
             if (CoordinateTransform.Prefix == "3lhm")
                 _probeController.SetProbePosition(transformedApmldv);

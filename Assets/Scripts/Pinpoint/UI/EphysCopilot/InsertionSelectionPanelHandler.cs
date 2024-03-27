@@ -394,46 +394,56 @@ namespace Pinpoint.UI.EphysCopilot
                 canWrite =>
                 {
                     if (canWrite)
-                        CommunicationManager.Instance.GotoPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                            dvPosition,
-                            ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED, _ =>
-                            {
-                                CommunicationManager.Instance.GotoPos(
-                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID, apPosition,
-                                    ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED, _ =>
+                        CommunicationManager.Instance.GotoPos(new GotoPositionRequest
+                        {
+                            ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                            Position = dvPosition,
+                            Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
+                        }, _ =>
+                        {
+                            CommunicationManager.Instance.GotoPos(
+                                new GotoPositionRequest
+                                {
+                                    ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                    Position = apPosition,
+                                    Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
+                                }, _ =>
+                                {
+                                    CommunicationManager.Instance.GotoPos(new GotoPositionRequest
                                     {
-                                        CommunicationManager.Instance.GotoPos(
-                                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, mlPosition,
-                                            ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED, _ =>
+                                        ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                        Position = mlPosition,
+                                        Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
+                                    }, _ =>
+                                    {
+                                        CommunicationManager.Instance.SetCanWrite(
+                                            ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
+                                            1, _ =>
                                             {
-                                                CommunicationManager.Instance.SetCanWrite(
-                                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID, false,
-                                                    1, _ =>
-                                                    {
-                                                        // Hide lines
-                                                        _lineGameObjects.ap.SetActive(false);
-                                                        _lineGameObjects.ml.SetActive(false);
-                                                        _lineGameObjects.dv.SetActive(false);
+                                                // Hide lines
+                                                _lineGameObjects.ap.SetActive(false);
+                                                _lineGameObjects.ml.SetActive(false);
+                                                _lineGameObjects.dv.SetActive(false);
 
-                                                        // Complete movement
-                                                        EndMovement();
-                                                        _moveButton.interactable = false;
-                                                    }, Debug.LogError);
-                                            }, error =>
-                                            {
-                                                Debug.LogError(error);
+                                                // Complete movement
                                                 EndMovement();
-                                            });
+                                                _moveButton.interactable = false;
+                                            }, Debug.LogError);
                                     }, error =>
                                     {
                                         Debug.LogError(error);
                                         EndMovement();
                                     });
-                            }, error =>
-                            {
-                                Debug.LogError(error);
-                                EndMovement();
-                            });
+                                }, error =>
+                                {
+                                    Debug.LogError(error);
+                                    EndMovement();
+                                });
+                        }, error =>
+                        {
+                            Debug.LogError(error);
+                            EndMovement();
+                        });
                 }, Debug.LogError);
             return;
 
