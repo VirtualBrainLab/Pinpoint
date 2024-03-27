@@ -377,12 +377,10 @@ namespace EphysLink
         /// <summary>
         ///     Request a manipulator drive down to a specific depth.
         /// </summary>
-        /// <param name="manipulatorId">ID of the manipulator to move</param>
-        /// <param name="depth">Depth in mm of the manipulator (in needle coordinates)</param>
-        /// <param name="speed">How fast to drive the manipulator (in mm/s)</param>
+        /// <param name="request">Drive to depth request</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void DriveToDepth(string manipulatorId, float depth, float speed, Action<float> onSuccessCallback,
+        public void DriveToDepth(DriveToDepthRequest request, Action<float> onSuccessCallback,
             Action<string> onErrorCallback)
         {
             _connectionManager.Socket.ExpectAcknowledgement<string>(data =>
@@ -397,9 +395,9 @@ namespace EphysLink
                 }
                 else
                 {
-                    onErrorCallback?.Invoke("drive_to_depth invalid response: " + data);
+                    onErrorCallback?.Invoke($"drive_to_depth invalid response: {data}");
                 }
-            }).Emit("drive_to_depth", new DriveToDepthInputDataFormat(manipulatorId, depth, speed).ToJson());
+            }).Emit("drive_to_depth", ToJson(request));
         }
 
         /// <summary>

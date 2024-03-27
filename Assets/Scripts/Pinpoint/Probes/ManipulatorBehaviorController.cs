@@ -149,7 +149,7 @@ namespace Pinpoint.Probes
 
         public void Initialize(string manipulatorID, bool calibrated)
         {
-            CommunicationManager.Instance.GetManipulators((reponse) =>
+            CommunicationManager.Instance.GetManipulators(reponse =>
             {
                 // Shortcut exit if we have an invalid manipulator ID
                 if (!reponse.Manipulators.Contains(manipulatorID)) return;
@@ -316,7 +316,12 @@ namespace Pinpoint.Probes
                             var targetDepth = newPos.w + manipulatorSpaceDepth;
                             // Move the manipulator
                             CommunicationManager.Instance.DriveToDepth(
-                                ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED,
+                                new DriveToDepthRequest
+                                {
+                                    ManipulatorId = ManipulatorID,
+                                    Depth = targetDepth,
+                                    Speed = AUTOMATIC_MOVEMENT_SPEED
+                                },
                                 _ =>
                                 {
                                     CommunicationManager.Instance.SetCanWrite(ManipulatorID, false, 0,

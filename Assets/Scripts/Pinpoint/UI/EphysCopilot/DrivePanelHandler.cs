@@ -425,8 +425,12 @@ namespace Pinpoint.UI.EphysCopilot
 
                                 // Drive to near target depth
                                 if (position.w < _nearTargetDepth)
-                                    CommunicationManager.Instance.DriveToDepth(_manipulatorId, _nearTargetDepth,
-                                        _targetDriveSpeed, _ => CompleteAndAdvance(), Debug.LogError);
+                                    CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
+                                    {
+                                        ManipulatorId = _manipulatorId,
+                                        Depth = _nearTargetDepth,
+                                        Speed = _targetDriveSpeed
+                                    }, _ => CompleteAndAdvance(), Debug.LogError);
                                 else
                                     // Already closer than near target depth, so continue
                                     CompleteAndAdvance();
@@ -442,8 +446,12 @@ namespace Pinpoint.UI.EphysCopilot
 
                                 // Drive to past target depth
                                 if (position.w < _pastTargetDepth)
-                                    CommunicationManager.Instance.DriveToDepth(_manipulatorId, _pastTargetDepth,
-                                        _nearTargetDriveSpeed, _ => CompleteAndAdvance(), Debug.LogError);
+                                    CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
+                                    {
+                                        ManipulatorId = _manipulatorId,
+                                        Depth = _pastTargetDepth,
+                                        Speed = _nearTargetDriveSpeed
+                                    }, _ => CompleteAndAdvance(), Debug.LogError);
                                 else
                                     // Already further than past target depth, so continue
                                     CompleteAndAdvance();
@@ -458,8 +466,12 @@ namespace Pinpoint.UI.EphysCopilot
 
                                 // Drive to target and complete movement
                                 CommunicationManager.Instance.DriveToDepth(
-                                    _manipulatorId, _targetDepth,
-                                    _nearTargetDriveSpeed, _ =>
+                                    new DriveToDepthRequest
+                                    {
+                                        ManipulatorId = _manipulatorId,
+                                        Depth = _targetDepth,
+                                        Speed = _nearTargetDriveSpeed
+                                    }, _ =>
                                     {
                                         CommunicationManager.Instance.SetCanWrite(_manipulatorId, false, 0,
                                             _ =>
@@ -532,8 +544,12 @@ namespace Pinpoint.UI.EphysCopilot
 
                             // Drive to near target depth
                             if (_nearTargetDepth > _duraDepth && position.w > _nearTargetDepth)
-                                CommunicationManager.Instance.DriveToDepth(_manipulatorId, _nearTargetDepth,
-                                    _nearTargetExitSpeed, _ => CompleteAndAdvance(), Debug.LogError);
+                                CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
+                                {
+                                    ManipulatorId = _manipulatorId,
+                                    Depth = _nearTargetDepth,
+                                    Speed = _nearTargetExitSpeed
+                                }, _ => CompleteAndAdvance(), Debug.LogError);
                             else
                                 // Dura depth is within near target distance, so continue
                                 CompleteAndAdvance();
@@ -548,9 +564,12 @@ namespace Pinpoint.UI.EphysCopilot
 
                             // Drive to dura depth (set speed based on dura depth and near target depth)
                             if (position.w > _duraDepth)
-                                CommunicationManager.Instance.DriveToDepth(_manipulatorId, _duraDepth,
-                                    position.w > _nearTargetDepth ? _nearTargetExitSpeed : _exitDriveSpeed,
-                                    _ => CompleteAndAdvance(), Debug.LogError);
+                                CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
+                                {
+                                    ManipulatorId = _manipulatorId,
+                                    Depth = _duraDepth,
+                                    Speed = position.w > _nearTargetDepth ? _nearTargetExitSpeed : _exitDriveSpeed
+                                }, _ => CompleteAndAdvance(), Debug.LogError);
                             else
                                 // Already at dura depth, so continue
                                 CompleteAndAdvance();
@@ -565,9 +584,12 @@ namespace Pinpoint.UI.EphysCopilot
 
                             // Drive to dura margin depth
                             if (position.w > _exitMarginDepth)
-                                CommunicationManager.Instance.DriveToDepth(_manipulatorId, _exitMarginDepth,
-                                    position.w > _nearTargetDepth ? _nearTargetExitSpeed : _exitDriveSpeed,
-                                    _ => CompleteAndAdvance(), Debug.LogError);
+                                CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
+                                {
+                                    ManipulatorId = _manipulatorId,
+                                    Depth = _exitMarginDepth,
+                                    Speed = position.w > _nearTargetDepth ? _nearTargetExitSpeed : _exitDriveSpeed
+                                }, _ => CompleteAndAdvance(), Debug.LogError);
                             else
                                 // Already at dura margin depth, so continue
                                 CompleteAndAdvance();
@@ -586,15 +608,19 @@ namespace Pinpoint.UI.EphysCopilot
                             // Drive to outside position
                             if (position.y < _outsidePosition.y)
                                 CommunicationManager.Instance.GotoPos(new GotoPositionRequest
-                                    {
-                                        ManipulatorId = _manipulatorId,
-                                        Position = _outsidePosition,
-                                        Speed = _outsideDriveSpeed
-                                    }, _ => CompleteOutside(), Debug.LogError);
+                                {
+                                    ManipulatorId = _manipulatorId,
+                                    Position = _outsidePosition,
+                                    Speed = _outsideDriveSpeed
+                                }, _ => CompleteOutside(), Debug.LogError);
                             // Drive to outside depth if DV movement is unavailable
                             else if (position.w > _outsideDepth)
-                                CommunicationManager.Instance.DriveToDepth(_manipulatorId, _outsideDepth,
-                                    _outsideDriveSpeed, _ => CompleteOutside(), Debug.LogError);
+                                CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
+                                {
+                                    ManipulatorId = _manipulatorId,
+                                    Depth = _outsideDepth,
+                                    Speed = _outsideDriveSpeed
+                                }, _ => CompleteOutside(), Debug.LogError);
                             else
                                 // Already outside, so complete
                                 CompleteOutside();
