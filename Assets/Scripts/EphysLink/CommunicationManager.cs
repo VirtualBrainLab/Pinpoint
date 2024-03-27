@@ -285,19 +285,19 @@ namespace EphysLink
             {
                 if (DataKnownAndNotEmpty(data))
                 {
-                    var parsedData = PositionalCallbackParameters.FromJson(data);
-                    if (parsedData.error == "")
+                    var parsedData = ParseJson<PositionalResponse>(data);
+                    
+                    if (parsedData.Error == "")
                         try
                         {
-                            onSuccessCallback?.Invoke(new Vector4(parsedData.position[0], parsedData.position[1],
-                                parsedData.position[2], parsedData.position[3]));
+                            onSuccessCallback?.Invoke(parsedData.Position);
                         }
                         catch (Exception e)
                         {
                             onErrorCallback?.Invoke(e.ToString());
                         }
                     else
-                        onErrorCallback?.Invoke(parsedData.error);
+                        onErrorCallback?.Invoke(parsedData.Error);
                 }
                 else
                 {
