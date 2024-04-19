@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BrainAtlas;
 using EphysLink;
 using TMPro;
@@ -52,18 +53,41 @@ namespace Pinpoint.UI.EphysCopilot
 
         #region Components
 
-        [SerializeField] private TMP_Text _manipulatorIDText;
-        [SerializeField] private GameObject _driveGroup;
-        [SerializeField] private TMP_Text _driveSpeedText;
-        [SerializeField] private Slider _driveSpeedSlider;
-        [SerializeField] private TMP_InputField _drivePastDistanceInputField;
-        [SerializeField] private Button _driveButton;
-        [SerializeField] private GameObject _stopButton;
-        [SerializeField] private GameObject _skipSettlingButton;
-        [SerializeField] private GameObject _exitButton;
-        [SerializeField] private TMP_Text _exitButtonText;
-        [SerializeField] private TMP_Text _statusText;
-        [SerializeField] private TMP_Text _timerText;
+        [SerializeField]
+        private TMP_Text _manipulatorIDText;
+
+        [SerializeField]
+        private GameObject _driveGroup;
+
+        [SerializeField]
+        private TMP_Text _driveSpeedText;
+
+        [SerializeField]
+        private Slider _driveSpeedSlider;
+
+        [SerializeField]
+        private TMP_InputField _drivePastDistanceInputField;
+
+        [SerializeField]
+        private Button _driveButton;
+
+        [SerializeField]
+        private GameObject _stopButton;
+
+        [SerializeField]
+        private GameObject _skipSettlingButton;
+
+        [SerializeField]
+        private GameObject _exitButton;
+
+        [SerializeField]
+        private TMP_Text _exitButtonText;
+
+        [SerializeField]
+        private TMP_Text _statusText;
+
+        [SerializeField]
+        private TMP_Text _timerText;
 
         public ProbeManager ProbeManager { private get; set; }
 
@@ -194,7 +218,9 @@ namespace Pinpoint.UI.EphysCopilot
                     case DriveState.AtPastTarget:
                     case DriveState.AtTarget:
                     default:
-                        Debug.LogError("Cannot complete movement from non-transitional state: " + State);
+                        Debug.LogError(
+                            "Cannot complete movement from non-transitional state: " + State
+                        );
                         break;
                 }
             }
@@ -221,11 +247,13 @@ namespace Pinpoint.UI.EphysCopilot
         private readonly DriveStateManager _driveStateManager = new();
 
         // Null checked dura APMLDV (NaN if not on dura)
-        private Vector3 _duraAPMLDV => ResetDuraOffsetPanelHandler.ManipulatorIdToDuraApmldv.TryGetValue(
-            _manipulatorId, out var duraApmldv)
-            ? duraApmldv
-            : new Vector3(float.NaN, float.NaN, float.NaN);
-
+        private Vector3 DuraApmldv =>
+            ResetDuraOffsetPanelHandler.ManipulatorIdToDuraApmldv.TryGetValue(
+                _manipulatorId,
+                out var duraApmldv
+            )
+                ? duraApmldv
+                : new Vector3(float.NaN, float.NaN, float.NaN);
 
         // Target drive distance (returns NaN if not on dura)
         private float _targetDriveDistance
@@ -234,21 +262,28 @@ namespace Pinpoint.UI.EphysCopilot
             {
                 // Calibrate target insertion depth based on surface position
                 var targetInsertion = new ProbeInsertion(
-                    InsertionSelectionPanelHandler.ManipulatorIDToSelectedTargetProbeManager[
-                        _manipulatorId].ProbeController.Insertion);
+                    InsertionSelectionPanelHandler
+                        .ManipulatorIDToSelectedTargetProbeManager[_manipulatorId]
+                        .ProbeController
+                        .Insertion
+                );
                 var targetPositionWorldT = targetInsertion.PositionWorldT();
                 var relativePositionWorldT =
                     ProbeManager.ProbeController.Insertion.PositionWorldT() - targetPositionWorldT;
                 var probeTipTForward = ProbeManager.ProbeController.ProbeTipT.forward;
-                var offsetAdjustedRelativeTargetPositionWorldT =
-                    Vector3.ProjectOnPlane(relativePositionWorldT, probeTipTForward);
+                var offsetAdjustedRelativeTargetPositionWorldT = Vector3.ProjectOnPlane(
+                    relativePositionWorldT,
+                    probeTipTForward
+                );
                 var offsetAdjustedTargetPositionWorldT =
                     targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
                 // Converting worldT back to APMLDV (position transformed)
-                targetInsertion.APMLDV = targetInsertion.World2T(offsetAdjustedTargetPositionWorldT);
+                targetInsertion.APMLDV = targetInsertion.World2T(
+                    offsetAdjustedTargetPositionWorldT
+                );
 
-                return Vector3.Distance(targetInsertion.APMLDV, _duraAPMLDV);
+                return Vector3.Distance(targetInsertion.APMLDV, DuraApmldv);
             }
         }
 
@@ -258,13 +293,15 @@ namespace Pinpoint.UI.EphysCopilot
             get
             {
                 // Create outside position APMLDV
-                var targetAPMLDV = _duraAPMLDV;
+                var targetAPMLDV = DuraApmldv;
                 targetAPMLDV.z = BrainAtlasManager
-                    .World2T_Vector(InsertionSelectionPanelHandler.PRE_DEPTH_DRIVE_DV_OFFSET).z;
+                    .World2T_Vector(InsertionSelectionPanelHandler.PRE_DEPTH_DRIVE_DV_OFFSET)
+                    .z;
 
-                // Convert to manipulator position 
+                // Convert to manipulator position
                 return ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
-                    targetAPMLDV);
+                    targetAPMLDV
+                );
             }
         }
 
@@ -272,10 +309,7 @@ namespace Pinpoint.UI.EphysCopilot
         private float _exitMarginDepth => _duraDepth - DURA_MARGIN_DISTANCE;
 
         private float _duraDepth =>
-            ResetDuraOffsetPanelHandler.ManipulatorIdToDuraDepth.TryGetValue(
-                _manipulatorId, out var depth)
-                ? depth
-                : float.NaN;
+            ResetDuraOffsetPanelHandler.ManipulatorIdToDuraDepth.GetValueOrDefault(_manipulatorId, float.NaN);
 
         private float _targetDepth => _duraDepth + _targetDriveDistance;
         private float _nearTargetDepth => _targetDepth - NEAR_TARGET_DISTANCE;
@@ -287,10 +321,10 @@ namespace Pinpoint.UI.EphysCopilot
         private float _duraMarginDriveDuration => DURA_MARGIN_DISTANCE / _exitDriveBaseSpeed;
         private float _exitDriveDuration;
 
-
         // Drive Speeds
         private float _driveBaseSpeed = DEPTH_DRIVE_BASE_SPEED;
-        private float _per1000Speed => _driveBaseSpeed <= DEPTH_DRIVE_BASE_SPEED ? PER_1000_SPEED : PER_1000_SPEED_TEST;
+        private float _per1000Speed =>
+            _driveBaseSpeed <= DEPTH_DRIVE_BASE_SPEED ? PER_1000_SPEED : PER_1000_SPEED_TEST;
         private float _targetDriveSpeed => _driveBaseSpeed + _targetDriveDistance * _per1000Speed;
         private float _nearTargetDriveSpeed => _driveBaseSpeed * NEAR_TARGET_SPEED_MULTIPLIER;
         private float _exitDriveBaseSpeed => _driveBaseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER;
@@ -343,10 +377,13 @@ namespace Pinpoint.UI.EphysCopilot
             if (!_acknowledgeHighSpeeds && value > 5)
             {
                 QuestionDialogue.Instance.YesCallback = () => _acknowledgeHighSpeeds = true;
-                QuestionDialogue.Instance.NoCallback = () => OnSpeedChanged(DEPTH_DRIVE_BASE_SPEED * 1000f);
-                QuestionDialogue.Instance.NewQuestion("We don't recommend using an insertion speed above " +
-                                                      SpeedToString(DEPTH_DRIVE_BASE_SPEED) +
-                                                      ". Are you sure you want to continue?");
+                QuestionDialogue.Instance.NoCallback = () =>
+                    OnSpeedChanged(DEPTH_DRIVE_BASE_SPEED * 1000f);
+                QuestionDialogue.Instance.NewQuestion(
+                    "We don't recommend using an insertion speed above "
+                        + SpeedToString(DEPTH_DRIVE_BASE_SPEED)
+                        + ". Are you sure you want to continue?"
+                );
             }
 
             // Update base speed accordingly
@@ -366,9 +403,13 @@ namespace Pinpoint.UI.EphysCopilot
                     _acknowledgeTestSpeeds = true;
                     UseTestSpeed();
                 };
-                QuestionDialogue.Instance.NoCallback = () => { OnSpeedChanged(_driveBaseSpeed * 1000f); };
+                QuestionDialogue.Instance.NoCallback = () =>
+                {
+                    OnSpeedChanged(_driveBaseSpeed * 1000f);
+                };
                 QuestionDialogue.Instance.NewQuestion(
-                    "Please ensure this is for testing purposes only. Do you want to continue?");
+                    "Please ensure this is for testing purposes only. Do you want to continue?"
+                );
             }
 
             return;
@@ -388,7 +429,7 @@ namespace Pinpoint.UI.EphysCopilot
         public void OnDrivePastDistanceChanged(string value)
         {
             if (float.TryParse(value, out var distance))
-                if (distance > 0)
+                if (distance >= 0)
                 {
                     _drivePastTargetDistance = distance / 1000f;
                     return;
@@ -401,296 +442,377 @@ namespace Pinpoint.UI.EphysCopilot
         public void Drive()
         {
             // Get current position
-            CommunicationManager.Instance.GetPos(_manipulatorId, position =>
-            {
-                // Increment state
-                _driveStateManager.DriveIncrement();
-
-                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+            CommunicationManager.Instance.GetPos(
+                _manipulatorId,
+                position =>
                 {
-                    ManipulatorId = _manipulatorId,
-                    CanWrite = true,
-                    Hours = 1
-                }, canWrite =>
-                {
-                    if (!canWrite) return;
+                    // Increment state
+                    _driveStateManager.DriveIncrement();
 
-                    // Do something based on current state
-                    switch (_driveStateManager.State)
-                    {
-                        case DriveState.DrivingToNearTarget:
-                            // Update status text
-                            _statusText.text = "Driving to " + _drivePastTargetDistance * 1000f +
-                                               " µm past target...";
+                    CommunicationManager.Instance.SetCanWrite(
+                        new CanWriteRequest
+                        {
+                            ManipulatorId = _manipulatorId,
+                            CanWrite = true,
+                            Hours = 1
+                        },
+                        canWrite =>
+                        {
+                            if (!canWrite)
+                                return;
 
-                            // Replace drive buttons with stop
-                            _driveGroup.SetActive(false);
-                            _stopButton.SetActive(true);
+                            // Do something based on current state
+                            switch (_driveStateManager.State)
+                            {
+                                case DriveState.DrivingToNearTarget:
+                                    // Update status text
+                                    _statusText.text =
+                                        "Driving to "
+                                        + _drivePastTargetDistance * 1000f
+                                        + " µm past target...";
 
-                            // Drive to near target depth
-                            if (position.w < _nearTargetDepth)
-                                CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
-                                {
-                                    ManipulatorId = _manipulatorId,
-                                    Depth = _nearTargetDepth,
-                                    Speed = _targetDriveSpeed
-                                }, _ => CompleteAndAdvance(), Debug.LogError);
-                            else
-                                // Already closer than near target depth, so continue
-                                CompleteAndAdvance();
-                            break;
-                        case DriveState.DrivingToPastTarget:
-                            // Update status text
-                            _statusText.text = "Driving to " + _drivePastTargetDistance * 1000f +
-                                               " µm past target...";
+                                    // Replace drive buttons with stop
+                                    _driveGroup.SetActive(false);
+                                    _stopButton.SetActive(true);
 
-                            // Replace drive buttons with stop
-                            _driveGroup.SetActive(false);
-                            _stopButton.SetActive(true);
+                                    // Drive to near target depth
+                                    if (position.w < _nearTargetDepth)
+                                        CommunicationManager.Instance.DriveToDepth(
+                                            new DriveToDepthRequest
+                                            {
+                                                ManipulatorId = _manipulatorId,
+                                                Depth = _nearTargetDepth,
+                                                Speed = _targetDriveSpeed
+                                            },
+                                            _ => CompleteAndAdvance(),
+                                            Debug.LogError
+                                        );
+                                    else
+                                        // Already closer than near target depth, so continue
+                                        CompleteAndAdvance();
+                                    break;
+                                case DriveState.DrivingToPastTarget:
+                                    // Update status text
+                                    _statusText.text =
+                                        "Driving to "
+                                        + _drivePastTargetDistance * 1000f
+                                        + " µm past target...";
 
-                            // Drive to past target depth
-                            if (position.w < _pastTargetDepth)
-                                CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
-                                {
-                                    ManipulatorId = _manipulatorId,
-                                    Depth = _pastTargetDepth,
-                                    Speed = _nearTargetDriveSpeed
-                                }, _ => CompleteAndAdvance(), Debug.LogError);
-                            else
-                                // Already further than past target depth, so continue
-                                CompleteAndAdvance();
-                            break;
-                        case DriveState.ReturningToTarget:
-                            // Update status text
-                            _statusText.text = "Returning to target...";
+                                    // Replace drive buttons with stop
+                                    _driveGroup.SetActive(false);
+                                    _stopButton.SetActive(true);
 
-                            // Replace drive buttons with stop
-                            _driveGroup.SetActive(false);
-                            _stopButton.SetActive(true);
+                                    // Drive to past target depth
+                                    if (position.w < _pastTargetDepth)
+                                        CommunicationManager.Instance.DriveToDepth(
+                                            new DriveToDepthRequest
+                                            {
+                                                ManipulatorId = _manipulatorId,
+                                                Depth = _pastTargetDepth,
+                                                Speed = _nearTargetDriveSpeed
+                                            },
+                                            _ => CompleteAndAdvance(),
+                                            Debug.LogError
+                                        );
+                                    else
+                                        // Already further than past target depth, so continue
+                                        CompleteAndAdvance();
+                                    break;
+                                case DriveState.ReturningToTarget:
+                                    // Update status text
+                                    _statusText.text = "Returning to target...";
 
-                            // Drive to target and complete movement
-                            CommunicationManager.Instance.DriveToDepth(
-                                new DriveToDepthRequest
-                                {
-                                    ManipulatorId = _manipulatorId,
-                                    Depth = _targetDepth,
-                                    Speed = _nearTargetDriveSpeed
-                                }, _ =>
-                                {
-                                    CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
-                                    {
-                                        ManipulatorId = _manipulatorId,
-                                        CanWrite = false,
-                                        Hours = 0
-                                    }, _ =>
-                                    {
-                                        _driveStateManager.CompleteMovement();
+                                    // Replace drive buttons with stop
+                                    _driveGroup.SetActive(false);
+                                    _stopButton.SetActive(true);
 
-                                        // Complete driving
-                                        _statusText.text = "Drive complete";
-                                        _stopButton.SetActive(false);
+                                    // Drive to target and complete movement
+                                    CommunicationManager.Instance.DriveToDepth(
+                                        new DriveToDepthRequest
+                                        {
+                                            ManipulatorId = _manipulatorId,
+                                            Depth = _targetDepth,
+                                            Speed = _nearTargetDriveSpeed
+                                        },
+                                        _ =>
+                                        {
+                                            CommunicationManager.Instance.SetCanWrite(
+                                                new CanWriteRequest
+                                                {
+                                                    ManipulatorId = _manipulatorId,
+                                                    CanWrite = false,
+                                                    Hours = 0
+                                                },
+                                                _ =>
+                                                {
+                                                    _driveStateManager.CompleteMovement();
 
-                                        // Enable return to surface button
-                                        _driveGroup.SetActive(true);
-                                        _driveButton.interactable = false;
-                                        _exitButton.SetActive(true);
-                                    });
-                                }, Debug.LogError);
-                            break;
-                        case DriveState.Outside:
-                        case DriveState.ExitingToOutside:
-                        case DriveState.AtExitMargin:
-                        case DriveState.ExitingToMargin:
-                        case DriveState.AtDura:
-                        case DriveState.ExitingToDura:
-                        case DriveState.AtNearTarget:
-                        case DriveState.ExitingToNearTarget:
-                        case DriveState.AtPastTarget:
-                        case DriveState.AtTarget:
-                        default:
-                            Debug.LogError("Invalid Drive state for driving: " + _driveStateManager.State);
-                            return;
-                    }
-                }, Debug.LogError);
-            }, Debug.LogError);
+                                                    // Complete driving
+                                                    _statusText.text = "Drive complete";
+                                                    _stopButton.SetActive(false);
+
+                                                    // Enable return to surface button
+                                                    _driveGroup.SetActive(true);
+                                                    _driveButton.interactable = false;
+                                                    _exitButton.SetActive(true);
+                                                }
+                                            );
+                                        },
+                                        Debug.LogError
+                                    );
+                                    break;
+                                case DriveState.Outside:
+                                case DriveState.ExitingToOutside:
+                                case DriveState.AtExitMargin:
+                                case DriveState.ExitingToMargin:
+                                case DriveState.AtDura:
+                                case DriveState.ExitingToDura:
+                                case DriveState.AtNearTarget:
+                                case DriveState.ExitingToNearTarget:
+                                case DriveState.AtPastTarget:
+                                case DriveState.AtTarget:
+                                default:
+                                    Debug.LogError(
+                                        "Invalid Drive state for driving: "
+                                            + _driveStateManager.State
+                                    );
+                                    return;
+                            }
+                        },
+                        Debug.LogError
+                    );
+                },
+                Debug.LogError
+            );
             return;
 
             void CompleteAndAdvance()
             {
-                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
-                {
-                    ManipulatorId = _manipulatorId,
-                    CanWrite = false,
-                    Hours = 0
-                }, _ =>
-                {
-                    _driveStateManager.CompleteMovement();
-                    Drive();
-                }, Debug.LogError);
+                CommunicationManager.Instance.SetCanWrite(
+                    new CanWriteRequest
+                    {
+                        ManipulatorId = _manipulatorId,
+                        CanWrite = false,
+                        Hours = 0
+                    },
+                    _ =>
+                    {
+                        _driveStateManager.CompleteMovement();
+                        Drive();
+                    },
+                    Debug.LogError
+                );
             }
         }
 
         public void Exit()
         {
             // Get current position
-            CommunicationManager.Instance.GetPos(_manipulatorId, position =>
-            {
-                // Increment state
-                _driveStateManager.ExitIncrement();
-
-                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+            CommunicationManager.Instance.GetPos(
+                _manipulatorId,
+                position =>
                 {
-                    ManipulatorId = _manipulatorId,
-                    CanWrite = true,
-                    Hours = 1
-                }, canWrite =>
-                {
-                    if (!canWrite) return;
+                    // Increment state
+                    _driveStateManager.ExitIncrement();
 
-                    // Do something based on current state
-                    switch (_driveStateManager.State)
-                    {
-                        case DriveState.ExitingToNearTarget:
-                            // Update status text
-                            _statusText.text = "Returning to surface...";
+                    CommunicationManager.Instance.SetCanWrite(
+                        new CanWriteRequest
+                        {
+                            ManipulatorId = _manipulatorId,
+                            CanWrite = true,
+                            Hours = 1
+                        },
+                        canWrite =>
+                        {
+                            if (!canWrite)
+                                return;
 
-                            // Replace drive buttons with stop
-                            _driveGroup.SetActive(false);
-                            _stopButton.SetActive(true);
+                            // Do something based on current state
+                            switch (_driveStateManager.State)
+                            {
+                                case DriveState.ExitingToNearTarget:
+                                    // Update status text
+                                    _statusText.text = "Returning to surface...";
 
-                            // Drive to near target depth
-                            if (_nearTargetDepth > _duraDepth && position.w > _nearTargetDepth)
-                                CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
-                                {
-                                    ManipulatorId = _manipulatorId,
-                                    Depth = _nearTargetDepth,
-                                    Speed = _nearTargetExitSpeed
-                                }, _ => CompleteAndAdvance(), Debug.LogError);
-                            else
-                                // Dura depth is within near target distance, so continue
-                                CompleteAndAdvance();
-                            break;
-                        case DriveState.ExitingToDura:
-                            // Update status text
-                            _statusText.text = "Returning to surface...";
+                                    // Replace drive buttons with stop
+                                    _driveGroup.SetActive(false);
+                                    _stopButton.SetActive(true);
 
-                            // Replace drive buttons with stop
-                            _driveGroup.SetActive(false);
-                            _stopButton.SetActive(true);
+                                    // Drive to near target depth
+                                    if (
+                                        _nearTargetDepth > _duraDepth
+                                        && position.w > _nearTargetDepth
+                                    )
+                                        CommunicationManager.Instance.DriveToDepth(
+                                            new DriveToDepthRequest
+                                            {
+                                                ManipulatorId = _manipulatorId,
+                                                Depth = _nearTargetDepth,
+                                                Speed = _nearTargetExitSpeed
+                                            },
+                                            _ => CompleteAndAdvance(),
+                                            Debug.LogError
+                                        );
+                                    else
+                                        // Dura depth is within near target distance, so continue
+                                        CompleteAndAdvance();
+                                    break;
+                                case DriveState.ExitingToDura:
+                                    // Update status text
+                                    _statusText.text = "Returning to surface...";
 
-                            // Drive to dura depth (set speed based on dura depth and near target depth)
-                            if (position.w > _duraDepth)
-                                CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
-                                {
-                                    ManipulatorId = _manipulatorId,
-                                    Depth = _duraDepth,
-                                    Speed = position.w > _nearTargetDepth ? _nearTargetExitSpeed : _exitDriveSpeed
-                                }, _ => CompleteAndAdvance(), Debug.LogError);
-                            else
-                                // Already at dura depth, so continue
-                                CompleteAndAdvance();
-                            break;
-                        case DriveState.ExitingToMargin:
-                            // Update status text
-                            _statusText.text = "Exiting Dura...";
+                                    // Replace drive buttons with stop
+                                    _driveGroup.SetActive(false);
+                                    _stopButton.SetActive(true);
 
-                            // Replace drive buttons with stop
-                            _driveGroup.SetActive(false);
-                            _stopButton.SetActive(true);
+                                    // Drive to dura depth (set speed based on dura depth and near target depth)
+                                    if (position.w > _duraDepth)
+                                        CommunicationManager.Instance.DriveToDepth(
+                                            new DriveToDepthRequest
+                                            {
+                                                ManipulatorId = _manipulatorId,
+                                                Depth = _duraDepth,
+                                                Speed =
+                                                    position.w > _nearTargetDepth
+                                                        ? _nearTargetExitSpeed
+                                                        : _exitDriveSpeed
+                                            },
+                                            _ => CompleteAndAdvance(),
+                                            Debug.LogError
+                                        );
+                                    else
+                                        // Already at dura depth, so continue
+                                        CompleteAndAdvance();
+                                    break;
+                                case DriveState.ExitingToMargin:
+                                    // Update status text
+                                    _statusText.text = "Exiting Dura...";
 
-                            // Drive to dura margin depth
-                            if (position.w > _exitMarginDepth)
-                                CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
-                                {
-                                    ManipulatorId = _manipulatorId,
-                                    Depth = _exitMarginDepth,
-                                    Speed = position.w > _nearTargetDepth ? _nearTargetExitSpeed : _exitDriveSpeed
-                                }, _ => CompleteAndAdvance(), Debug.LogError);
-                            else
-                                // Already at dura margin depth, so continue
-                                CompleteAndAdvance();
-                            break;
-                        case DriveState.ExitingToOutside:
-                            // Update status text
-                            _statusText.text = "Exiting Dura...";
+                                    // Replace drive buttons with stop
+                                    _driveGroup.SetActive(false);
+                                    _stopButton.SetActive(true);
 
-                            // Replace drive buttons with stop
-                            _driveGroup.SetActive(false);
-                            _stopButton.SetActive(true);
+                                    // Drive to dura margin depth
+                                    if (position.w > _exitMarginDepth)
+                                        CommunicationManager.Instance.DriveToDepth(
+                                            new DriveToDepthRequest
+                                            {
+                                                ManipulatorId = _manipulatorId,
+                                                Depth = _exitMarginDepth,
+                                                Speed =
+                                                    position.w > _nearTargetDepth
+                                                        ? _nearTargetExitSpeed
+                                                        : _exitDriveSpeed
+                                            },
+                                            _ => CompleteAndAdvance(),
+                                            Debug.LogError
+                                        );
+                                    else
+                                        // Already at dura margin depth, so continue
+                                        CompleteAndAdvance();
+                                    break;
+                                case DriveState.ExitingToOutside:
+                                    // Update status text
+                                    _statusText.text = "Exiting Dura...";
 
-                            // Reset dura offset
-                            ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
+                                    // Replace drive buttons with stop
+                                    _driveGroup.SetActive(false);
+                                    _stopButton.SetActive(true);
 
-                            // Drive to outside position
-                            if (position.y < _outsidePosition.y)
-                                CommunicationManager.Instance.GotoPos(new GotoPositionRequest
-                                {
-                                    ManipulatorId = _manipulatorId,
-                                    Position = _outsidePosition,
-                                    Speed = _outsideDriveSpeed
-                                }, _ => CompleteOutside(), Debug.LogError);
-                            // Drive to outside depth if DV movement is unavailable
-                            else if (position.w > _outsideDepth)
-                                CommunicationManager.Instance.DriveToDepth(new DriveToDepthRequest
-                                {
-                                    ManipulatorId = _manipulatorId,
-                                    Depth = _outsideDepth,
-                                    Speed = _outsideDriveSpeed
-                                }, _ => CompleteOutside(), Debug.LogError);
-                            else
-                                // Already outside, so complete
-                                CompleteOutside();
+                                    // Reset dura offset
+                                    ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset =
+                                        0;
 
-                            break;
-                        case DriveState.Outside:
-                        case DriveState.AtExitMargin:
-                        case DriveState.AtDura:
-                        case DriveState.DrivingToNearTarget:
-                        case DriveState.AtNearTarget:
-                        case DriveState.DrivingToPastTarget:
-                        case DriveState.AtPastTarget:
-                        case DriveState.ReturningToTarget:
-                        case DriveState.AtTarget:
-                        default:
-                            Debug.LogError("Invalid Drive state for exiting.");
-                            return;
-                    }
-                }, Debug.LogError);
-            }, Debug.LogError);
+                                    // Drive to outside position
+                                    if (position.y < _outsidePosition.y)
+                                        CommunicationManager.Instance.GotoPos(
+                                            new GotoPositionRequest
+                                            {
+                                                ManipulatorId = _manipulatorId,
+                                                Position = _outsidePosition,
+                                                Speed = _outsideDriveSpeed
+                                            },
+                                            _ => CompleteOutside(),
+                                            Debug.LogError
+                                        );
+                                    // Drive to outside depth if DV movement is unavailable
+                                    else if (position.w > _outsideDepth)
+                                        CommunicationManager.Instance.DriveToDepth(
+                                            new DriveToDepthRequest
+                                            {
+                                                ManipulatorId = _manipulatorId,
+                                                Depth = _outsideDepth,
+                                                Speed = _outsideDriveSpeed
+                                            },
+                                            _ => CompleteOutside(),
+                                            Debug.LogError
+                                        );
+                                    else
+                                        // Already outside, so complete
+                                        CompleteOutside();
+
+                                    break;
+                                case DriveState.Outside:
+                                case DriveState.AtExitMargin:
+                                case DriveState.AtDura:
+                                case DriveState.DrivingToNearTarget:
+                                case DriveState.AtNearTarget:
+                                case DriveState.DrivingToPastTarget:
+                                case DriveState.AtPastTarget:
+                                case DriveState.ReturningToTarget:
+                                case DriveState.AtTarget:
+                                default:
+                                    Debug.LogError("Invalid Drive state for exiting.");
+                                    return;
+                            }
+                        },
+                        Debug.LogError
+                    );
+                },
+                Debug.LogError
+            );
             return;
 
             void CompleteAndAdvance()
             {
-                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
-                {
-                    ManipulatorId = _manipulatorId,
-                    CanWrite = false,
-                    Hours = 0
-                }, _ =>
-                {
-                    _driveStateManager.CompleteMovement();
-                    Exit();
-                }, Debug.LogError);
+                CommunicationManager.Instance.SetCanWrite(
+                    new CanWriteRequest
+                    {
+                        ManipulatorId = _manipulatorId,
+                        CanWrite = false,
+                        Hours = 0
+                    },
+                    _ =>
+                    {
+                        _driveStateManager.CompleteMovement();
+                        Exit();
+                    },
+                    Debug.LogError
+                );
             }
 
             void CompleteOutside()
             {
-                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
-                {
-                    ManipulatorId = _manipulatorId,
-                    CanWrite = false,
-                    Hours = 0
-                }, _ =>
-                {
-                    _driveStateManager.CompleteMovement();
+                CommunicationManager.Instance.SetCanWrite(
+                    new CanWriteRequest
+                    {
+                        ManipulatorId = _manipulatorId,
+                        CanWrite = false,
+                        Hours = 0
+                    },
+                    _ =>
+                    {
+                        _driveStateManager.CompleteMovement();
 
-                    // Reset UI
-                    _driveButton.interactable = false;
-                    _statusText.text = "Move to Dura to Drive";
-                    _stopButton.SetActive(false);
-                    _exitButton.SetActive(false);
-                    _driveGroup.SetActive(true);
-                }, Debug.LogError);
+                        // Reset UI
+                        _driveButton.interactable = false;
+                        _statusText.text = "Move to Dura to Drive";
+                        _stopButton.SetActive(false);
+                        _exitButton.SetActive(false);
+                        _driveGroup.SetActive(true);
+                    },
+                    Debug.LogError
+                );
             }
         }
 
@@ -698,7 +820,8 @@ namespace Pinpoint.UI.EphysCopilot
         {
             CommunicationManager.Instance.Stop(b =>
             {
-                if (!b) return;
+                if (!b)
+                    return;
 
                 // Show drive group and hide stop button.
                 _statusText.text = "Stopped";
@@ -740,7 +863,9 @@ namespace Pinpoint.UI.EphysCopilot
 
         private static string SpeedToString(float speedMillimeters)
         {
-            return Settings.DisplayUM ? speedMillimeters * 1000 + " µm/s" : speedMillimeters + " mm/s";
+            return Settings.DisplayUM
+                ? speedMillimeters * 1000 + " µm/s"
+                : speedMillimeters + " mm/s";
         }
 
         #endregion
