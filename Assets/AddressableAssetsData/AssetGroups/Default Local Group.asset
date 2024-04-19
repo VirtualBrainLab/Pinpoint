@@ -16,12 +16,7 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: eb9eb3c822ec72b468349d4e785d6617
-  m_SerializeEntries:
-  - m_GUID: 4a114a0857a768044bec6acb897ed0c4
-    m_Address: Assets/AddressableAssets/3D/skullRat.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 2d938794e1ac8154b9b50ee21079a3c4, type: 2}
   m_SchemaSet:
