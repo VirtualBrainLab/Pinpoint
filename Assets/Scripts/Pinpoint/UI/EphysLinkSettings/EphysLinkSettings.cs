@@ -20,28 +20,51 @@ namespace Pinpoint.UI.EphysLinkSettings
     {
         #region Constants
 
-        private const string EPHYS_LINK_EXE_NAME = "EphysLink-v1.3.0b1.exe";
-        private static string EphysLinkExePath => Path.Combine(Application.streamingAssetsPath, EPHYS_LINK_EXE_NAME);
+        private const string EPHYS_LINK_EXE_NAME = "EphysLink-v1.3.0b2.exe";
+        private static string EphysLinkExePath =>
+            Path.Combine(Application.streamingAssetsPath, EPHYS_LINK_EXE_NAME);
 
         #endregion
 
         #region Components
 
         // Server connection
-        [SerializeField] private TMP_Dropdown _manipulatorTypeDropdown;
-        [SerializeField] private TMP_InputField _pathfinderPortInputField;
-        [SerializeField] private Button _launchEphysLinkButton;
-        [SerializeField] private GameObject _existingServerGroup;
-        [SerializeField] private TMP_InputField _ipAddressInputField;
-        [SerializeField] private InputField _portInputField;
-        [SerializeField] private GameObject _connectButton;
-        [SerializeField] private Text _connectButtonText;
-        [SerializeField] private TMP_Text _connectionErrorText;
+        [SerializeField]
+        private TMP_Dropdown _manipulatorTypeDropdown;
+
+        [SerializeField]
+        private TMP_InputField _pathfinderPortInputField;
+
+        [SerializeField]
+        private Button _launchEphysLinkButton;
+
+        [SerializeField]
+        private GameObject _existingServerGroup;
+
+        [SerializeField]
+        private TMP_InputField _ipAddressInputField;
+
+        [SerializeField]
+        private InputField _portInputField;
+
+        [SerializeField]
+        private GameObject _connectButton;
+
+        [SerializeField]
+        private Text _connectButtonText;
+
+        [SerializeField]
+        private TMP_Text _connectionErrorText;
 
         // Manipulators
-        [SerializeField] private GameObject _manipulatorList;
-        [SerializeField] private GameObject _manipulatorConnectionPanelPrefab;
-        [SerializeField] private Toggle _copilotToggle;
+        [SerializeField]
+        private GameObject _manipulatorList;
+
+        [SerializeField]
+        private GameObject _manipulatorConnectionPanelPrefab;
+
+        [SerializeField]
+        private Toggle _copilotToggle;
 
         private UIManager _uiManager;
 
@@ -49,9 +72,10 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         #region Properties
 
-        private readonly Dictionary<string, (ManipulatorConnectionPanel manipulatorConnectionSettingsPanel,
-                GameObject gameObject)>
-            _manipulatorIdToManipulatorConnectionSettingsPanel = new();
+        private readonly Dictionary<
+            string,
+            (ManipulatorConnectionPanel manipulatorConnectionSettingsPanel, GameObject gameObject)
+        > _manipulatorIdToManipulatorConnectionSettingsPanel = new();
 
         public HashSet<ProbeManager> LinkedProbes { get; } = new();
         public UnityEvent ShouldUpdateProbesListEvent { get; } = new();
@@ -88,7 +112,9 @@ namespace Pinpoint.UI.EphysLinkSettings
             // Show/hide extra groups based on connection type
             _existingServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
             _connectButton.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
-            _launchEphysLinkButton.gameObject.SetActive(type != _manipulatorTypeDropdown.options.Count - 1);
+            _launchEphysLinkButton.gameObject.SetActive(
+                type != _manipulatorTypeDropdown.options.Count - 1
+            );
             _pathfinderPortInputField.gameObject.SetActive(type == 2);
 
             // Save settings
@@ -106,56 +132,83 @@ namespace Pinpoint.UI.EphysLinkSettings
 
             if (CommunicationManager.Instance.IsConnected)
             {
-                CommunicationManager.Instance.GetManipulators((response) =>
-                {
-                    // Keep track of handled manipulator panels
-                    var handledManipulatorIds = new HashSet<string>();
-
-                    // Add any new manipulators in scene to list
-                    foreach (var manipulatorID in response.Manipulators)
+                CommunicationManager.Instance.GetManipulators(
+                    (response) =>
                     {
-                        // Create new manipulator connection settings panel if the manipulator is new
-                        if (!_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(manipulatorID))
+                        // Keep track of handled manipulator panels
+                        var handledManipulatorIds = new HashSet<string>();
+
+                        // Add any new manipulators in scene to list
+                        foreach (var manipulatorID in response.Manipulators)
                         {
-                            // Instantiate panel
-                            var manipulatorConnectionSettingsPanelGameObject =
-                                Instantiate(_manipulatorConnectionPanelPrefab, _manipulatorList.transform);
-                            var manipulatorConnectionSettingsPanel =
-                                manipulatorConnectionSettingsPanelGameObject
-                                    .GetComponent<ManipulatorConnectionPanel>();
+                            // Create new manipulator connection settings panel if the manipulator is new
+                            if (
+                                !_manipulatorIdToManipulatorConnectionSettingsPanel.ContainsKey(
+                                    manipulatorID
+                                )
+                            )
+                            {
+                                // Instantiate panel
+                                var manipulatorConnectionSettingsPanelGameObject = Instantiate(
+                                    _manipulatorConnectionPanelPrefab,
+                                    _manipulatorList.transform
+                                );
+                                var manipulatorConnectionSettingsPanel =
+                                    manipulatorConnectionSettingsPanelGameObject.GetComponent<ManipulatorConnectionPanel>();
 
-                            // Set manipulator id
-                            manipulatorConnectionSettingsPanel.Initialize(this, manipulatorID, response.NumAxes);
+                                // Set manipulator id
+                                manipulatorConnectionSettingsPanel.Initialize(
+                                    this,
+                                    manipulatorID,
+                                    response.NumAxes
+                                );
 
-                            // Add to dictionary
-                            _manipulatorIdToManipulatorConnectionSettingsPanel.Add(manipulatorID,
-                                new ValueTuple<ManipulatorConnectionPanel, GameObject>(
-                                    manipulatorConnectionSettingsPanel, manipulatorConnectionSettingsPanelGameObject));
+                                // Add to dictionary
+                                _manipulatorIdToManipulatorConnectionSettingsPanel.Add(
+                                    manipulatorID,
+                                    new ValueTuple<ManipulatorConnectionPanel, GameObject>(
+                                        manipulatorConnectionSettingsPanel,
+                                        manipulatorConnectionSettingsPanelGameObject
+                                    )
+                                );
+                            }
+
+                            // Mark ID as handled
+                            handledManipulatorIds.Add(manipulatorID);
                         }
 
-                        // Mark ID as handled
-                        handledManipulatorIds.Add(manipulatorID);
-                    }
+                        // Remove any manipulators that are not connected anymore
+                        foreach (
+                            var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel
+                                .Keys.Except(handledManipulatorIds)
+                                .ToList()
+                        )
+                        {
+                            _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(
+                                disconnectedManipulator
+                            );
+                            Destroy(
+                                _manipulatorIdToManipulatorConnectionSettingsPanel[
+                                    disconnectedManipulator
+                                ].gameObject
+                            );
+                        }
 
-                    // Remove any manipulators that are not connected anymore
-                    foreach (var disconnectedManipulator in _manipulatorIdToManipulatorConnectionSettingsPanel.Keys
-                                 .Except(handledManipulatorIds).ToList())
-                    {
-                        _manipulatorIdToManipulatorConnectionSettingsPanel.Remove(disconnectedManipulator);
-                        Destroy(_manipulatorIdToManipulatorConnectionSettingsPanel[disconnectedManipulator].gameObject);
+                        // Reorder panels to match order of availableIds
+                        foreach (var manipulatorId in response.Manipulators)
+                            _manipulatorIdToManipulatorConnectionSettingsPanel[manipulatorId]
+                                .gameObject.transform.SetAsLastSibling();
                     }
-
-                    // Reorder panels to match order of availableIds
-                    foreach (var manipulatorId in response.Manipulators)
-                        _manipulatorIdToManipulatorConnectionSettingsPanel[manipulatorId].gameObject.transform
-                            .SetAsLastSibling();
-                });
+                );
             }
             else
             {
                 // Clear manipulator panels if not connected
-                foreach (var manipulatorPanel in
-                         _manipulatorIdToManipulatorConnectionSettingsPanel.Values.Select(value => value.gameObject))
+                foreach (
+                    var manipulatorPanel in _manipulatorIdToManipulatorConnectionSettingsPanel.Values.Select(
+                        value => value.gameObject
+                    )
+                )
                     Destroy(manipulatorPanel);
                 _manipulatorIdToManipulatorConnectionSettingsPanel.Clear();
             }
@@ -208,7 +261,10 @@ namespace Pinpoint.UI.EphysLinkSettings
 
             void ConnectToServer()
             {
-                CommunicationManager.Instance.ConnectToServer("localhost", 8081, HandleSuccessfulConnection,
+                CommunicationManager.Instance.ConnectToServer(
+                    "localhost",
+                    8081,
+                    HandleSuccessfulConnection,
                     err =>
                     {
                         attempts++;
@@ -217,14 +273,19 @@ namespace Pinpoint.UI.EphysLinkSettings
                             _connectionErrorText.text = err;
                             _connectButtonText.text = "Connect";
 
-                            _manipulatorTypeDropdown.interactable = !CommunicationManager.Instance.IsConnected;
-                            _launchEphysLinkButton.interactable = !CommunicationManager.Instance.IsConnected;
+                            _manipulatorTypeDropdown.interactable = !CommunicationManager
+                                .Instance
+                                .IsConnected;
+                            _launchEphysLinkButton.interactable = !CommunicationManager
+                                .Instance
+                                .IsConnected;
                         }
                         else
                         {
                             ConnectToServer();
                         }
-                    });
+                    }
+                );
             }
         }
 
@@ -246,9 +307,11 @@ namespace Pinpoint.UI.EphysLinkSettings
                     if (string.IsNullOrEmpty(_portInputField.text))
                         _portInputField.text = "8081";
 
-                    CommunicationManager.Instance.ConnectToServer(_ipAddressInputField.text,
+                    CommunicationManager.Instance.ConnectToServer(
+                        _ipAddressInputField.text,
                         int.Parse(_portInputField.text),
-                        HandleSuccessfulConnection, err =>
+                        HandleSuccessfulConnection,
+                        err =>
                         {
                             _connectionErrorText.text = err;
                             _connectButtonText.text = "Connect";
@@ -266,7 +329,8 @@ namespace Pinpoint.UI.EphysLinkSettings
                 QuestionDialogue.Instance.YesCallback = HandleDisconnectingFromServer;
 
                 QuestionDialogue.Instance.NewQuestion(
-                    "Are you sure you want to disconnect?\nAll incomplete movements will be canceled.");
+                    "Are you sure you want to disconnect?\nAll incomplete movements will be canceled."
+                );
             }
         }
 
@@ -294,30 +358,38 @@ namespace Pinpoint.UI.EphysLinkSettings
         private void HandleSuccessfulConnection()
         {
             // Check Ephys Link version
-            CommunicationManager.Instance.VerifyVersion(() =>
-            {
-                // Ephys Link is current enough
-                CommunicationManager.Instance.IsEphysLinkCompatible = true;
-                UpdateConnectionPanel();
-            }, () =>
-            {
-                CommunicationManager.Instance.DisconnectFromServer(() =>
+            CommunicationManager.Instance.VerifyVersion(
+                () =>
                 {
-                    _connectionErrorText.text =
-                        "Ephys Link is outdated. Please update to " +
-                        CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
-                    _connectButtonText.text = "Connect";
-                });
-            });
+                    // Ephys Link is current enough
+                    CommunicationManager.Instance.IsEphysLinkCompatible = true;
+                    UpdateConnectionPanel();
+                },
+                () =>
+                {
+                    CommunicationManager.Instance.DisconnectFromServer(() =>
+                    {
+                        _connectionErrorText.text =
+                            "Ephys Link is outdated. Please update to "
+                            + CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
+                        _connectButtonText.text = "Connect";
+                    });
+                }
+            );
         }
 
         private void HandleDisconnectingFromServer()
         {
-            foreach (var probeManager in ProbeManager.Instances
-                         .Where(probeManager => probeManager.IsEphysLinkControlled))
+            foreach (
+                var probeManager in ProbeManager.Instances.Where(probeManager =>
+                    probeManager.IsEphysLinkControlled
+                )
+            )
             {
-                probeManager.SetIsEphysLinkControlled(false,
-                    probeManager.ManipulatorBehaviorController.ManipulatorID);
+                probeManager.SetIsEphysLinkControlled(
+                    false,
+                    probeManager.ManipulatorBehaviorController.ManipulatorID
+                );
 
                 // FIXME: This is done because of race condition with closing out server. Should be fixed with non-registration setup.
                 probeManager.ManipulatorBehaviorController.Deinitialize();
@@ -335,10 +407,14 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// </summary>
         private void UpdateConnectionPanel()
         {
-            if (CommunicationManager.Instance.IsConnected && !CommunicationManager.Instance.IsEphysLinkCompatible)
+            if (
+                CommunicationManager.Instance.IsConnected
+                && !CommunicationManager.Instance.IsEphysLinkCompatible
+            )
             {
                 _connectionErrorText.text =
-                    "Ephys Link is outdated. Please update to " + CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
+                    "Ephys Link is outdated. Please update to "
+                    + CommunicationManager.EPHYS_LINK_MIN_VERSION_STRING;
                 _connectButtonText.text = "Connect";
                 CommunicationManager.Instance.DisconnectFromServer();
                 return;
@@ -346,7 +422,9 @@ namespace Pinpoint.UI.EphysLinkSettings
 
             // Connection UI
             _connectionErrorText.text = "";
-            _connectButtonText.text = CommunicationManager.Instance.IsConnected ? "Disconnect" : "Connect";
+            _connectButtonText.text = CommunicationManager.Instance.IsConnected
+                ? "Disconnect"
+                : "Connect";
             _connectButton.SetActive(CommunicationManager.Instance.IsConnected);
 
             _manipulatorTypeDropdown.interactable = !CommunicationManager.Instance.IsConnected;
@@ -358,7 +436,8 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         private void KillEphysLinkProcess()
         {
-            if (_ephysLinkProcess == null) return;
+            if (_ephysLinkProcess == null)
+                return;
             _ephysLinkProcess.Kill(true);
             _ephysLinkProcess.Dispose();
             _ephysLinkProcess = null;
