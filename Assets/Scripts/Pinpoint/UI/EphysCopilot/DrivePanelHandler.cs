@@ -278,11 +278,15 @@ namespace Pinpoint.UI.EphysCopilot
                 var offsetAdjustedTargetPositionWorldT =
                     targetPositionWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
-                // Converting worldT back to APMLDV (position transformed)
-                targetInsertion.APMLDV = targetInsertion.World2T(
-                    offsetAdjustedTargetPositionWorldT
-                );
+                // Converting worldT to AtlasT (to capture new Bregma offset when there is scaling)
+                // then switch axes to get APMLDV.
+                var offsetAdjustedTargetPositionAtlasT =
+                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(offsetAdjustedTargetPositionWorldT);
+                var offsetAdjustedTargetPositionCoordinateT =
+                    BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(offsetAdjustedTargetPositionAtlasT);
+                targetInsertion.APMLDV = offsetAdjustedTargetPositionCoordinateT;
 
+                // Compute target drive distance.
                 return Vector3.Distance(targetInsertion.APMLDV, DuraApmldv);
             }
         }
