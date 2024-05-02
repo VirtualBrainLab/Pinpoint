@@ -55,6 +55,11 @@ namespace EphysLink
         #endregion
 
         #region Connection Handler
+        private struct PinpointIDResponse
+        {
+            public string pinpoint_id;
+            public bool is_requester;
+        };
 
         public void ServerSettingsLoaded()
         {
@@ -119,6 +124,20 @@ namespace EphysLink
                         Settings.EphysLinkServerPort = port;
 
                         onConnected?.Invoke();
+                    }
+                );
+
+                var response = new PinpointIDResponse()
+                {
+                    pinpoint_id = "4a973dbb",
+                    is_requester = true
+                };
+
+                _socket.Once(
+                    "get_pinpoint_id",
+                    () =>
+                    {
+                        _socket.EmitAck(JsonUtility.ToJson(response));
                     }
                 );
 
