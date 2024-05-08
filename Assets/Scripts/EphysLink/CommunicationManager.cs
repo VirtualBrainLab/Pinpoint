@@ -123,13 +123,13 @@ namespace EphysLink
                         Settings.EphysLinkServerIp = ip;
                         Settings.EphysLinkServerPort = port;
 
-                        onConnected?.Invoke();
+                        // onConnected?.Invoke();
                     }
                 );
 
                 var response = new PinpointIDResponse()
                 {
-                    pinpoint_id = "4a973dbb",
+                    pinpoint_id = "abcde",
                     is_requester = true
                 };
 
@@ -138,6 +138,7 @@ namespace EphysLink
                     () =>
                     {
                         _socket.EmitAck(JsonUtility.ToJson(response));
+                        onConnected?.Invoke();
                     }
                 );
 
