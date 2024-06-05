@@ -116,33 +116,14 @@ namespace EphysLink
                     "connect",
                     () =>
                     {
-                        Debug.Log($"Connected to WebSocket server at {ip}:{port}");
+                        Debug.Log($"Connected to Ephys Link server at {ip}:{port}");
                         IsConnected = true;
 
                         // Save settings
                         Settings.EphysLinkServerIp = ip;
                         Settings.EphysLinkServerPort = port;
 
-                        // Invoke callback if not targeting proxy
-                        // FIXME: don't use magic number to determine if proxy is being used 
-                        if (Settings.EphysLinkManipulatorType != 5)
-                        {
-                            onConnected?.Invoke();
-                        }
-                    }
-                );
-
-                var response = new PinpointIDResponse()
-                {
-                    pinpoint_id = "abcde",
-                    is_requester = true
-                };
-
-                _socket.Once(
-                    "get_pinpoint_id",
-                    () =>
-                    {
-                        _socket.EmitAck(JsonUtility.ToJson(response));
+                        // Invoke connected callback
                         onConnected?.Invoke();
                     }
                 );
@@ -169,7 +150,7 @@ namespace EphysLink
                     () =>
                     {
                         var connectionTimeoutMessage =
-                            "Connection to server at {ip}:{port} timed out";
+                            $"Connection to server at {ip}:{port} timed out";
                         Debug.LogWarning(connectionTimeoutMessage);
                         IsConnected = false;
                         _connectionManager.Close();
@@ -184,6 +165,98 @@ namespace EphysLink
                 // On socket generation error
                 var connectionErrorMessage =
                     "Error connecting to server at {ip}:{port}. Check server for details.";
+                Debug.LogWarning(connectionErrorMessage);
+                Debug.LogWarning("Exception: " + e);
+                IsConnected = false;
+                _connectionManager = null;
+                _socket = null;
+                onError?.Invoke(connectionErrorMessage);
+            }
+        }
+
+        public void ConnectToProxy(string proxyAddress, string pinpointID, Action onConnected = null,
+            Action<string> onError = null)
+        {
+             // Disconnect the old connection if needed
+            if (_connectionManager != null && _connectionManager.Socket.IsOpen)
+                _connectionManager.Close();
+
+            // Create new connection
+            var options = new SocketOptions { Timeout = new TimeSpan(0, 0, 2) };
+
+            // Try to open a connection
+            try
+            {
+                // Create a new socket
+                _connectionManager = new SocketManager(new Uri($"http://{proxyAddress}:5000"), options);
+                _socket = _connectionManager.Socket;
+
+                // On successful connection
+                _socket.Once(
+                    "connect",
+                    () =>
+                    {
+                        Debug.Log($"Connected to proxy server at {proxyAddress}:5000");
+                        IsConnected = true;
+
+                        // Save settings and clear Server IP (don't allow auto reconnect)
+                        Settings.EphysLinkServerIp = "";
+                        Settings.EphysLinkProxyAddress = proxyAddress;
+                    }
+                );
+
+                var response = new PinpointIDResponse()
+                {
+                    pinpoint_id = "abcde",
+                    is_requester = true
+                };
+
+                _socket.Once(
+                    "get_pinpoint_id",
+                    () =>
+                    {
+                        _socket.EmitAck(JsonUtility.ToJson(response));
+                        onConnected?.Invoke();
+                    }
+                );
+
+                // On error
+                _socket.Once(
+                    "error",
+                    () =>
+                    {
+                        var connectionErrorMessage =
+                            $"Error connecting to proxy at {proxyAddress}:5000. Check proxy for details.";
+                        Debug.LogWarning(connectionErrorMessage);
+                        IsConnected = false;
+                        _connectionManager.Close();
+                        _connectionManager = null;
+                        _socket = null;
+                        onError?.Invoke(connectionErrorMessage);
+                    }
+                );
+
+                // On timeout
+                _socket.Once(
+                    "connect_timeout",
+                    () =>
+                    {
+                        var connectionTimeoutMessage =
+                            $"Connection to proxy at {proxyAddress}:5000 timed out";
+                        Debug.LogWarning(connectionTimeoutMessage);
+                        IsConnected = false;
+                        _connectionManager.Close();
+                        _connectionManager = null;
+                        _socket = null;
+                        onError?.Invoke(connectionTimeoutMessage);
+                    }
+                );
+            }
+            catch (Exception e)
+            {
+                // On socket generation error
+                var connectionErrorMessage =
+                    $"Error connecting to proxy at {proxyAddress}:5000. Check proxy for details.";
                 Debug.LogWarning(connectionErrorMessage);
                 Debug.LogWarning("Exception: " + e);
                 IsConnected = false;
