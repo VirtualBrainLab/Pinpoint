@@ -123,7 +123,12 @@ namespace EphysLink
                         Settings.EphysLinkServerIp = ip;
                         Settings.EphysLinkServerPort = port;
 
-                        // onConnected?.Invoke();
+                        // Invoke callback if not targeting proxy
+                        // FIXME: don't use magic number to determine if proxy is being used 
+                        if (Settings.EphysLinkManipulatorType != 5)
+                        {
+                            onConnected?.Invoke();
+                        }
                     }
                 );
 

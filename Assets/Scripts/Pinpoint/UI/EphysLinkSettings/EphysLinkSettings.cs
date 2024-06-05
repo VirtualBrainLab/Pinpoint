@@ -48,6 +48,15 @@ namespace Pinpoint.UI.EphysLinkSettings
         private InputField _portInputField;
 
         [SerializeField]
+        private GameObject _proxyServerGroup;
+
+        [SerializeField]
+        private TMP_InputField _proxyAddressInputField;
+
+        [SerializeField]
+        private TMP_InputField _pinpointIDInputField;
+
+        [SerializeField]
         private GameObject _connectButton;
 
         [SerializeField]
@@ -110,10 +119,11 @@ namespace Pinpoint.UI.EphysLinkSettings
         public void OnTypeChanged(int type)
         {
             // Show/hide extra groups based on connection type
-            _existingServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
-            _connectButton.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
+            _existingServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 2);
+            _proxyServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
+            _connectButton.SetActive(type >= _manipulatorTypeDropdown.options.Count - 2);
             _launchEphysLinkButton.gameObject.SetActive(
-                type != _manipulatorTypeDropdown.options.Count - 1
+                type <= _manipulatorTypeDropdown.options.Count - 2
             );
             _pathfinderPortInputField.gameObject.SetActive(type == 2);
 
