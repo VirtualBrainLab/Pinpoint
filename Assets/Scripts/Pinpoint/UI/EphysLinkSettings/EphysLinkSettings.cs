@@ -123,7 +123,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             _proxyServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
             _connectButton.SetActive(type >= _manipulatorTypeDropdown.options.Count - 2);
             _launchEphysLinkButton.gameObject.SetActive(
-                type <= _manipulatorTypeDropdown.options.Count - 2
+                type < _manipulatorTypeDropdown.options.Count - 2
             );
             _pathfinderPortInputField.gameObject.SetActive(type == 2);
 

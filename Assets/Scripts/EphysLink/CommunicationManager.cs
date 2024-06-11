@@ -188,7 +188,7 @@ namespace EphysLink
             try
             {
                 // Create a new socket
-                _connectionManager = new SocketManager(new Uri($"http://{proxyAddress}:5000"), options);
+                _connectionManager = new SocketManager(new Uri($"http://{proxyAddress}:3000"), options);
                 _socket = _connectionManager.Socket;
 
                 // On successful connection
