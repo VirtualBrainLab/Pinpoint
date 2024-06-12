@@ -118,6 +118,7 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         public void OnTypeChanged(int type)
         {
+            print("Type changed to " + type);
             // Show/hide extra groups based on connection type
             _existingServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 2);
             _proxyServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
@@ -467,7 +468,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             _connectButtonText.text = CommunicationManager.Instance.IsConnected
                 ? "Disconnect"
                 : "Connect";
-            _connectButton.SetActive(CommunicationManager.Instance.IsConnected);
+            _connectButton.SetActive(CommunicationManager.Instance.IsConnected || _manipulatorTypeDropdown.value >= _manipulatorTypeDropdown.options.Count - 2);
 
             _manipulatorTypeDropdown.interactable = !CommunicationManager.Instance.IsConnected;
             _launchEphysLinkButton.interactable = !CommunicationManager.Instance.IsConnected;

@@ -174,10 +174,14 @@ namespace EphysLink
             }
         }
 
-        public void ConnectToProxy(string proxyAddress, string pinpointID, Action onConnected = null,
-            Action<string> onError = null)
+        public void ConnectToProxy(
+            string proxyAddress,
+            string pinpointID,
+            Action onConnected = null,
+            Action<string> onError = null
+        )
         {
-             // Disconnect the old connection if needed
+            // Disconnect the old connection if needed
             if (_connectionManager != null && _connectionManager.Socket.IsOpen)
                 _connectionManager.Close();
 
@@ -188,7 +192,10 @@ namespace EphysLink
             try
             {
                 // Create a new socket
-                _connectionManager = new SocketManager(new Uri($"http://{proxyAddress}:3000"), options);
+                _connectionManager = new SocketManager(
+                    new Uri($"http://{proxyAddress}:3000"),
+                    options
+                );
                 _socket = _connectionManager.Socket;
 
                 // On successful connection
@@ -196,7 +203,7 @@ namespace EphysLink
                     "connect",
                     () =>
                     {
-                        Debug.Log($"Connected to proxy server at {proxyAddress}:5000");
+                        Debug.Log($"Connected to proxy server at {proxyAddress}:3000");
                         IsConnected = true;
 
                         // Save settings and clear Server IP (don't allow auto reconnect)
@@ -207,7 +214,7 @@ namespace EphysLink
 
                 var response = new PinpointIDResponse()
                 {
-                    pinpoint_id = "abcde",
+                    pinpoint_id = pinpointID,
                     is_requester = true
                 };
 
@@ -226,7 +233,7 @@ namespace EphysLink
                     () =>
                     {
                         var connectionErrorMessage =
-                            $"Error connecting to proxy at {proxyAddress}:5000. Check proxy for details.";
+                            $"Error connecting to proxy at {proxyAddress}:3000. Check proxy for details.";
                         Debug.LogWarning(connectionErrorMessage);
                         IsConnected = false;
                         _connectionManager.Close();
@@ -242,7 +249,7 @@ namespace EphysLink
                     () =>
                     {
                         var connectionTimeoutMessage =
-                            $"Connection to proxy at {proxyAddress}:5000 timed out";
+                            $"Connection to proxy at {proxyAddress}:3000 timed out";
                         Debug.LogWarning(connectionTimeoutMessage);
                         IsConnected = false;
                         _connectionManager.Close();
@@ -256,7 +263,7 @@ namespace EphysLink
             {
                 // On socket generation error
                 var connectionErrorMessage =
-                    $"Error connecting to proxy at {proxyAddress}:5000. Check proxy for details.";
+                    $"Error connecting to proxy at {proxyAddress}:3000. Check proxy for details.";
                 Debug.LogWarning(connectionErrorMessage);
                 Debug.LogWarning("Exception: " + e);
                 IsConnected = false;
