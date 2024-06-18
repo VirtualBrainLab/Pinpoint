@@ -55,12 +55,6 @@ namespace EphysLink
         #endregion
 
         #region Connection Handler
-        private struct PinpointIDResponse
-        {
-            public string pinpoint_id;
-            public bool is_requester;
-        };
-
         public void ServerSettingsLoaded()
         {
             // Automatically connect if the server credentials are possible
@@ -212,17 +206,11 @@ namespace EphysLink
                     }
                 );
 
-                var response = new PinpointIDResponse()
-                {
-                    pinpoint_id = pinpointID,
-                    is_requester = true
-                };
-
                 _socket.Once(
                     "get_pinpoint_id",
                     () =>
                     {
-                        _socket.EmitAck(JsonUtility.ToJson(response));
+                        _socket.EmitAck(ToJson(new PinpointIdResponse(pinpointID, true)));
                         onConnected?.Invoke();
                     }
                 );
@@ -710,7 +698,7 @@ namespace EphysLink
             return JsonUtility.FromJson<T>(json);
         }
 
-        private string ToJson<T>(T data)
+        private static string ToJson<T>(T data)
         {
             return JsonUtility.ToJson(data);
         }
