@@ -407,7 +407,6 @@ public class Settings : MonoBehaviour
     }
     
     public UnityEvent<int> EphysLinkServerPortChangedEvent;
-
     public static int EphysLinkServerPort
     {
         get => data.EphysLinkServerPort;
@@ -418,11 +417,24 @@ public class Settings : MonoBehaviour
             Instance.EphysLinkServerPortChangedEvent.Invoke(value);
         }
     }
+    
+    public UnityEvent<string> EphysLinkProxyAddressChangedEvent;
+    public static string EphysLinkProxyAddress
+    {
+        get => data.EphysLinkProxyAddress;
+        set
+        {
+            data.EphysLinkProxyAddress = value;
+            Save();
+            Instance.EphysLinkProxyAddressChangedEvent.Invoke(value);
+        }
+    }
 
     [SerializeField] private TMP_Dropdown _ephysLinkManipulatorTypeDropdown;
     [SerializeField] private TMP_InputField _ephysLinkPathfinderPortInput;
     [SerializeField] private TMP_InputField _ephysLinkServerIpInput;
     [SerializeField] private InputField _ephysLinkServerPortInput;
+    [SerializeField] private TMP_InputField _ephysLinkProxyAddressInput;
 
     /// <summary>
     ///     Return if it has been more than 24 hours since the last launch.
@@ -774,6 +786,7 @@ public class Settings : MonoBehaviour
         _ephysLinkPathfinderPortInput.text = EphysLinkPathfinderPort < 1024 ? "8080" : EphysLinkPathfinderPort.ToString();
         _ephysLinkServerIpInput.text = data.EphysLinkServerIP;
         _ephysLinkServerPortInput.text = data.EphysLinkServerPort.ToString();
+        _ephysLinkProxyAddressInput.text = data.EphysLinkProxyAddress;
         EphysLinkServerInfoLoaded.Invoke();
 
         // Camera
@@ -872,6 +885,7 @@ public class Settings : MonoBehaviour
         public int EphysLinkPathfinderPort;
         public string EphysLinkServerIP;
         public int EphysLinkServerPort;
+        public string EphysLinkProxyAddress;
         public string EphysLinkRightHandedManipulators;
 
         // Accounts

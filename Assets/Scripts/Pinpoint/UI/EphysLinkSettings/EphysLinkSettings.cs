@@ -48,6 +48,15 @@ namespace Pinpoint.UI.EphysLinkSettings
         private InputField _portInputField;
 
         [SerializeField]
+        private GameObject _proxyServerGroup;
+
+        [SerializeField]
+        private TMP_InputField _proxyAddressInputField;
+
+        [SerializeField]
+        private TMP_InputField _pinpointIDInputField;
+
+        [SerializeField]
         private GameObject _connectButton;
 
         [SerializeField]
@@ -109,11 +118,13 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         public void OnTypeChanged(int type)
         {
+            print("Type changed to " + type);
             // Show/hide extra groups based on connection type
-            _existingServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
-            _connectButton.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
+            _existingServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 2);
+            _proxyServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
+            _connectButton.SetActive(type >= _manipulatorTypeDropdown.options.Count - 2);
             _launchEphysLinkButton.gameObject.SetActive(
-                type != _manipulatorTypeDropdown.options.Count - 1
+                type < _manipulatorTypeDropdown.options.Count - 2
             );
             _pathfinderPortInputField.gameObject.SetActive(type == 2);
 
@@ -296,27 +307,59 @@ namespace Pinpoint.UI.EphysLinkSettings
         {
             if (!CommunicationManager.Instance.IsConnected)
             {
+                // Check if ID is empty if using proxy server
+                if (
+                    Settings.EphysLinkManipulatorType == _manipulatorTypeDropdown.options.Count - 1
+                    && string.IsNullOrEmpty(_pinpointIDInputField.text)
+                )
+                {
+                    _connectionErrorText.text = "Please enter a Pinpoint ID.";
+                    return;
+                }
+
                 // Attempt to connect to server
                 try
                 {
                     _connectButtonText.text = "Connecting...";
 
-                    // Provide default values for IP and port if empty.
-                    if (string.IsNullOrEmpty(_ipAddressInputField.text))
-                        _ipAddressInputField.text = "localhost";
-                    if (string.IsNullOrEmpty(_portInputField.text))
-                        _portInputField.text = "8081";
+                    // Provide default values for IP and port if empty then connect to proxy or server.
+                    if (
+                        Settings.EphysLinkManipulatorType
+                        == _manipulatorTypeDropdown.options.Count - 1
+                    )
+                    {
+                        if (string.IsNullOrEmpty(_proxyAddressInputField.text))
+                            _proxyAddressInputField.text = "proxy2.virtualbrainlab.org";
 
-                    CommunicationManager.Instance.ConnectToServer(
-                        _ipAddressInputField.text,
-                        int.Parse(_portInputField.text),
-                        HandleSuccessfulConnection,
-                        err =>
-                        {
-                            _connectionErrorText.text = err;
-                            _connectButtonText.text = "Connect";
-                        }
-                    );
+                        CommunicationManager.Instance.ConnectToProxy(
+                            _proxyAddressInputField.text,
+                            _pinpointIDInputField.text,
+                            HandleSuccessfulConnection,
+                            err =>
+                            {
+                                _connectionErrorText.text = err;
+                                _connectButtonText.text = "Connect";
+                            }
+                        );
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(_ipAddressInputField.text))
+                            _ipAddressInputField.text = "localhost";
+                        if (string.IsNullOrEmpty(_portInputField.text))
+                            _portInputField.text = "8081";
+
+                        CommunicationManager.Instance.ConnectToServer(
+                            _ipAddressInputField.text,
+                            int.Parse(_portInputField.text),
+                            HandleSuccessfulConnection,
+                            err =>
+                            {
+                                _connectionErrorText.text = err;
+                                _connectButtonText.text = "Connect";
+                            }
+                        );
+                    }
                 }
                 catch (Exception e)
                 {
@@ -425,7 +468,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             _connectButtonText.text = CommunicationManager.Instance.IsConnected
                 ? "Disconnect"
                 : "Connect";
-            _connectButton.SetActive(CommunicationManager.Instance.IsConnected);
+            _connectButton.SetActive(CommunicationManager.Instance.IsConnected || _manipulatorTypeDropdown.value >= _manipulatorTypeDropdown.options.Count - 2);
 
             _manipulatorTypeDropdown.interactable = !CommunicationManager.Instance.IsConnected;
             _launchEphysLinkButton.interactable = !CommunicationManager.Instance.IsConnected;
