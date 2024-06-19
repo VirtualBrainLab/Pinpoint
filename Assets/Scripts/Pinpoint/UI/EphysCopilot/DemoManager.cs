@@ -17,24 +17,26 @@ namespace Pinpoint.UI.EphysCopilot
 
         public void StartDemo()
         {
-            // Hide existing UI.
+            // Hide existing UI and show demo UI.
             for (var i = 0; i < _canvasGameObject.transform.childCount; i++)
             {
                 var child = _canvasGameObject.transform.GetChild(i).gameObject;
                 if (child.name == "CopilotDemo") continue;
                 child.SetActive(false);
             }
+            gameObject.SetActive(true);
         }
 
         public void StopDemo()
         {
-            // Show existing UI.
+            // Show existing UI and hide demo UI.
             for (var i = 0; i < _canvasGameObject.transform.childCount; i++)
             {
                 var child = _canvasGameObject.transform.GetChild(i).gameObject;
                 if (child.name == "CopilotDemo") continue;
                 child.SetActive(true);
             }
+            gameObject.SetActive(false);
         }
 
         #endregion
