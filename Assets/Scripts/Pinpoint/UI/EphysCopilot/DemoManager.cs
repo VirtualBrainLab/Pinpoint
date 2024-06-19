@@ -148,14 +148,14 @@ namespace Pinpoint.UI.EphysCopilot
                             new Vector3(_demoData.Target1.x, _demoData.Target1.y, 3)
                         )
                 );
-                _convertedTargetCoordinates.Add(
+                _convertedDuraCoordinates.Add(
                     _demoData.Id1,
                     _manipulators[_demoData.Id1]
                         .ConvertInsertionAPMLDVToManipulatorPosition(
                             new Vector3(
                                 _demoData.Target1.x,
                                 _demoData.Target1.y,
-                                _demoData.Target1.z - _demoData.Target1.w
+                                _demoData.Target1.z
                             )
                         )
                 );
@@ -181,14 +181,14 @@ namespace Pinpoint.UI.EphysCopilot
                             new Vector3(_demoData.Target2.x, _demoData.Target2.y, 3)
                         )
                 );
-                _convertedTargetCoordinates.Add(
+                _convertedDuraCoordinates.Add(
                     _demoData.Id2,
                     _manipulators[_demoData.Id2]
                         .ConvertInsertionAPMLDVToManipulatorPosition(
                             new Vector3(
                                 _demoData.Target2.x,
                                 _demoData.Target2.y,
-                                _demoData.Target2.z - _demoData.Target2.w
+                                _demoData.Target2.z
                             )
                         )
                 );
@@ -214,14 +214,14 @@ namespace Pinpoint.UI.EphysCopilot
                             new Vector3(_demoData.Target3.x, _demoData.Target3.y, 3)
                         )
                 );
-                _convertedTargetCoordinates.Add(
+                _convertedDuraCoordinates.Add(
                     _demoData.Id3,
                     _manipulators[_demoData.Id3]
                         .ConvertInsertionAPMLDVToManipulatorPosition(
                             new Vector3(
                                 _demoData.Target3.x,
                                 _demoData.Target3.y,
-                                _demoData.Target3.z - _demoData.Target3.w
+                                _demoData.Target3.z
                             )
                         )
                 );
@@ -282,10 +282,21 @@ namespace Pinpoint.UI.EphysCopilot
                                             CommunicationManager.Instance.GotoPos(
                                                 new GotoPositionRequest(
                                                     _demoData.Id1,
-                                                    _convertedTargetCoordinates[_demoData.Id1],
+                                                    _convertedDuraCoordinates[_demoData.Id1],
                                                     MOVEMENT_SPEED
                                                 ),
-                                                _ => MoveToHome()
+                                                pos =>
+                                                {
+                                                    CommunicationManager.Instance.DriveToDepth(
+                                                        new DriveToDepthRequest(
+                                                            _demoData.Id1,
+                                                            pos.w + _demoData.Target1.w,
+                                                            MOVEMENT_SPEED
+                                                        ),
+                                                        null,
+                                                        null
+                                                    );
+                                                }
                                             );
                                         }
                                     );
