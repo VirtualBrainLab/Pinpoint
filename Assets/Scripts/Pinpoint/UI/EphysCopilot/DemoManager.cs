@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -8,11 +9,17 @@ namespace Pinpoint.UI.EphysCopilot
         #region Components
 
         // Existing UI for toggling.
-        [SerializeField] private GameObject _canvasGameObject;
+        [SerializeField]
+        private GameObject _canvasGameObject;
         // Demo UI
-        
+
         #endregion
 
+        #region Properties
+
+        private HashSet<GameObject> _existingUIGameObjects = new();
+
+        #endregion
         #region UI Functions
 
         public void StartDemo()
@@ -21,8 +28,21 @@ namespace Pinpoint.UI.EphysCopilot
             for (var i = 0; i < _canvasGameObject.transform.childCount; i++)
             {
                 var child = _canvasGameObject.transform.GetChild(i).gameObject;
-                if (child.name == "CopilotDemo") continue;
+
+                // Ignore the demo UI.
+                if (child.name == "CopilotDemo")
+                    continue;
+                // Ignore inactive UI.
+                if (!child.activeSelf)
+                {
+                    continue;
+                }
+
+                // Hide the UI.
                 child.SetActive(false);
+
+                // Add to the list of existing UI.
+                _existingUIGameObjects.Add(child);
             }
             gameObject.SetActive(true);
         }
@@ -30,13 +50,12 @@ namespace Pinpoint.UI.EphysCopilot
         public void StopDemo()
         {
             // Show existing UI and hide demo UI.
-            for (var i = 0; i < _canvasGameObject.transform.childCount; i++)
+            foreach (var existingUIGameObject in _existingUIGameObjects)
             {
-                var child = _canvasGameObject.transform.GetChild(i).gameObject;
-                if (child.name == "CopilotDemo") continue;
-                child.SetActive(true);
+                existingUIGameObject.SetActive(true);
             }
             gameObject.SetActive(false);
+            _existingUIGameObjects.Clear();
         }
 
         #endregion
