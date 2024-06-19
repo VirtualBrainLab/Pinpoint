@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using EphysLink;
 using Pinpoint.Probes;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace Pinpoint.UI.EphysCopilot
 {
@@ -58,11 +60,15 @@ namespace Pinpoint.UI.EphysCopilot
 
         private DemoData _demoData;
 
+        // Converted positions.
         private readonly Dictionary<string, Vector4> _convertedHomePositions = new();
         private readonly Dictionary<string, Vector4> _convertedBregmaCoordinates = new();
         private readonly Dictionary<string, Vector4> _convertedInsertionCoordinates = new();
-        private Dictionary<string, Vector4> _convertedDuraCoordinates = new();
-        private readonly Dictionary<string, Vector4> _convertedTargetCoordinates = new();
+        private readonly Dictionary<string, Vector4> _convertedDuraCoordinates = new();
+        private readonly Dictionary<string, float> _targetDepths = new();
+
+        // Completion flag.
+        private int _completionCount = 0;
 
         #endregion
 
@@ -71,6 +77,7 @@ namespace Pinpoint.UI.EphysCopilot
 
         private void Update()
         {
+            // Rotate the camera
             _mainCamera.transform.Rotate(0, 5 * Time.deltaTime, 0);
         }
 
@@ -118,15 +125,24 @@ namespace Pinpoint.UI.EphysCopilot
                 )
             )
             {
-                _manipulators.Add(
-                    probeManager.ManipulatorBehaviorController.ManipulatorID,
-                    probeManager.ManipulatorBehaviorController
-                );
-                _probeManagers.Add(
-                    probeManager.ManipulatorBehaviorController.ManipulatorID,
-                    probeManager
-                );
+                // Ignore if manipulator is not part of demo data.
+                var manipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
+                if (
+                    manipulatorID != _demoData.Id1
+                    && manipulatorID != _demoData.Id2
+                    && manipulatorID != _demoData.Id3
+                )
+                {
+                    continue;
+                }
+
+                // Add manipulator.
+                _manipulators.Add(manipulatorID, probeManager.ManipulatorBehaviorController);
+                _probeManagers.Add(manipulatorID, probeManager);
             }
+
+            // Set completion count to the number of manipulators.
+            _completionCount = _manipulators.Count;
 
             // Compute Manipulator 1 positions.
             if (_manipulators.ContainsKey(_demoData.Id1))
@@ -159,6 +175,7 @@ namespace Pinpoint.UI.EphysCopilot
                             )
                         )
                 );
+                _targetDepths.Add(_demoData.Id1, _demoData.Target1.w);
             }
 
             // Compute Manipulator 2 positions.
@@ -192,6 +209,7 @@ namespace Pinpoint.UI.EphysCopilot
                             )
                         )
                 );
+                _targetDepths.Add(_demoData.Id2, _demoData.Target2.w);
             }
 
             // Compute Manipulator 3 positions.
@@ -225,10 +243,24 @@ namespace Pinpoint.UI.EphysCopilot
                             )
                         )
                 );
+                _targetDepths.Add(_demoData.Id3, _demoData.Target3.w);
             }
 
-            // Start demo.
-            MoveToHome();
+            // Enable writing.
+            foreach (var id in _manipulators.Keys)
+            {
+                CommunicationManager.Instance.SetCanWrite(
+                    new CanWriteRequest(id, true, 1000),
+                    _ =>
+                    {
+                        _completionCount--;
+                        if (_completionCount == 0)
+                        {
+                            MoveToHome();
+                        }
+                    }
+                );
+            }
         }
 
         public void StopDemo()
@@ -251,61 +283,160 @@ namespace Pinpoint.UI.EphysCopilot
 
         public void MoveToHome()
         {
-            CommunicationManager.Instance.SetCanWrite(
-                new CanWriteRequest(_demoData.Id1, true, 1),
-                _ =>
+            // Reset completion count.
+            _completionCount = _manipulators.Count;
+
+            // Move to home positions.
+            foreach (var id in _manipulators.Keys)
+            {
+                CommunicationManager.Instance.GotoPos(
+                    new GotoPositionRequest(id, _convertedHomePositions[id], MOVEMENT_SPEED),
+                    _ =>
+                    {
+                        _completionCount--;
+                        if (_completionCount != 0)
+                            return;
+                        CalibrateToBregma();
+                    }
+                );
+            }
+        }
+
+        public void CalibrateToBregma()
+        {
+            // Move to bregma coordinates one at a time.
+            Move(
+                _manipulators.Keys.ElementAt(0),
+                () =>
                 {
-                    CommunicationManager.Instance.GotoPos(
-                        new GotoPositionRequest(
-                            _demoData.Id1,
-                            _convertedHomePositions[_demoData.Id1],
-                            MOVEMENT_SPEED
-                        ),
-                        _ =>
+                    // Exit if only 1 manipulator.
+                    if (_manipulators.Count == 1)
+                    {
+                        MoveToInsertion();
+                        return;
+                    }
+                    Move(
+                        _manipulators.Keys.ElementAt(1),
+                        () =>
                         {
-                            CommunicationManager.Instance.GotoPos(
-                                new GotoPositionRequest(
-                                    _demoData.Id1,
-                                    _convertedBregmaCoordinates[_demoData.Id1],
-                                    MOVEMENT_SPEED
-                                ),
-                                _ =>
-                                {
-                                    CommunicationManager.Instance.GotoPos(
-                                        new GotoPositionRequest(
-                                            _demoData.Id1,
-                                            _convertedInsertionCoordinates[_demoData.Id1],
-                                            MOVEMENT_SPEED
-                                        ),
-                                        _ =>
-                                        {
-                                            CommunicationManager.Instance.GotoPos(
-                                                new GotoPositionRequest(
-                                                    _demoData.Id1,
-                                                    _convertedDuraCoordinates[_demoData.Id1],
-                                                    MOVEMENT_SPEED
-                                                ),
-                                                pos =>
-                                                {
-                                                    CommunicationManager.Instance.DriveToDepth(
-                                                        new DriveToDepthRequest(
-                                                            _demoData.Id1,
-                                                            pos.w + _demoData.Target1.w,
-                                                            MOVEMENT_SPEED
-                                                        ),
-                                                        null,
-                                                        null
-                                                    );
-                                                }
-                                            );
-                                        }
-                                    );
-                                }
-                            );
+                            // Exit if only 2 manipulators.
+                            if (_manipulators.Count == 2)
+                            {
+                                MoveToInsertion();
+                                return;
+                            }
+                            Move(_manipulators.Keys.ElementAt(2), MoveToInsertion);
                         }
                     );
                 }
             );
+            return;
+
+            // Movement function.
+            void Move(string id, Action next)
+            {
+                // Skip if manipulator is not found.
+                if (!_manipulators.ContainsKey(id))
+                {
+                    next.Invoke();
+                    return;
+                }
+
+                // Move to Bregma then back to home.
+                CommunicationManager.Instance.GotoPos(
+                    new GotoPositionRequest(id, _convertedBregmaCoordinates[id], MOVEMENT_SPEED),
+                    _ =>
+                    {
+                        CommunicationManager.Instance.GotoPos(
+                            new GotoPositionRequest(
+                                id,
+                                _convertedHomePositions[id],
+                                MOVEMENT_SPEED
+                            ),
+                            _ => next.Invoke()
+                        );
+                    }
+                );
+            }
+        }
+
+        public void MoveToInsertion()
+        {
+            // Reset completion count.
+            _completionCount = _manipulators.Count;
+
+            // Move to home positions.
+            foreach (var id in _manipulators.Keys)
+            {
+                CommunicationManager.Instance.GotoPos(
+                    new GotoPositionRequest(id, _convertedInsertionCoordinates[id], MOVEMENT_SPEED),
+                    _ =>
+                    {
+                        _completionCount--;
+                        if (_completionCount != 0)
+                            return;
+                        CalibrateToDura();
+                    }
+                );
+            }
+        }
+
+        public void CalibrateToDura(bool returnToHome = false)
+        {
+            // Reset completion count.
+            _completionCount = _manipulators.Count;
+
+            // Move to Dura.
+            foreach (var id in _manipulators.Keys)
+            {
+                CommunicationManager.Instance.GotoPos(
+                    new GotoPositionRequest(id, _convertedDuraCoordinates[id], MOVEMENT_SPEED),
+                    _ =>
+                    {
+                        _completionCount--;
+                        if (_completionCount != 0)
+                            return;
+
+                        // Return to home if going back up.
+                        if (returnToHome)
+                        {
+                            MoveToHome();
+                            return;
+                        }
+
+                        // Drive to depth.
+                        DriveToDepth();
+                    }
+                );
+            }
+        }
+
+        public void DriveToDepth()
+        {
+            // Reset completion count.
+            _completionCount = _manipulators.Count;
+
+            // Move to Dura.
+            foreach (var id in _manipulators.Keys)
+            {
+                CommunicationManager.Instance.GetPos(
+                    id,
+                    pos =>
+                    {
+                        CommunicationManager.Instance.DriveToDepth(
+                            new DriveToDepthRequest(id, pos.w + _targetDepths[id], MOVEMENT_SPEED),
+                            _ =>
+                            {
+                                _completionCount--;
+                                if (_completionCount != 0)
+                                    return;
+                                CalibrateToDura(true);
+                            },
+                            null
+                        );
+                    }
+                );
+            }
         }
 
         #endregion
