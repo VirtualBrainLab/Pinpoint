@@ -2,14 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using EphysLink;
 using Pinpoint.Probes;
 using TMPro;
-using UnityEditor.Graphs;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 namespace Pinpoint.UI.EphysCopilot
 {
@@ -29,35 +25,29 @@ namespace Pinpoint.UI.EphysCopilot
             new(0.17254901960784313f, 0.6274509803921569f, 0.17254901960784313f, 1.0f);
 
         #endregion
+
         #region Components
 
         // Existing UI for toggling.
 
-        [SerializeField]
-        private GameObject _canvasGameObject;
+        [SerializeField] private GameObject _canvasGameObject;
 
         private readonly HashSet<GameObject> _existingUIGameObjects = new();
 
         // Demo UI.
-        [SerializeField]
-        private TMP_Text _bregmaText;
+        [SerializeField] private TMP_Text _bregmaText;
 
-        [SerializeField]
-        private TMP_Text _insertionText;
+        [SerializeField] private TMP_Text _insertionText;
 
-        [SerializeField]
-        private TMP_Text _duraText;
+        [SerializeField] private TMP_Text _duraText;
 
-        [SerializeField]
-        private TMP_Text _depthText;
+        [SerializeField] private TMP_Text _depthText;
 
-        [SerializeField]
-        private TMP_Text _resetText;
+        [SerializeField] private TMP_Text _resetText;
 
         // Camera.
 
-        [SerializeField]
-        private BrainCameraController _mainCamera;
+        [SerializeField] private BrainCameraController _mainCamera;
 
         // Manipulators.
         private readonly Dictionary<string, ManipulatorBehaviorController> _manipulators = new();
@@ -119,10 +109,7 @@ namespace Pinpoint.UI.EphysCopilot
                 if (child.name == "CopilotDemo")
                     continue;
                 // Ignore inactive UI.
-                if (!child.activeSelf)
-                {
-                    continue;
-                }
+                if (!child.activeSelf) continue;
 
                 // Hide the UI.
                 child.SetActive(false);
@@ -130,6 +117,7 @@ namespace Pinpoint.UI.EphysCopilot
                 // Add to the list of existing UI.
                 _existingUIGameObjects.Add(child);
             }
+
             gameObject.SetActive(true);
 
             // Setup camera.
@@ -155,9 +143,7 @@ namespace Pinpoint.UI.EphysCopilot
                     && manipulatorID != _demoData.Id2
                     && manipulatorID != _demoData.Id3
                 )
-                {
                     continue;
-                }
 
                 // Add manipulator.
                 _manipulators.Add(manipulatorID, probeManager.ManipulatorBehaviorController);
@@ -270,28 +256,20 @@ namespace Pinpoint.UI.EphysCopilot
 
             // Enable writing.
             foreach (var id in _manipulators.Keys)
-            {
                 CommunicationManager.Instance.SetCanWrite(
                     new CanWriteRequest(id, true, 1000),
                     _ =>
                     {
                         _completionCount--;
-                        if (_completionCount == 0)
-                        {
-                            MoveToHome();
-                        }
+                        if (_completionCount == 0) MoveToHome();
                     }
                 );
-            }
         }
 
         public void StopDemo()
         {
             // Show existing UI and hide demo UI.
-            foreach (var existingUIGameObject in _existingUIGameObjects)
-            {
-                existingUIGameObject.SetActive(true);
-            }
+            foreach (var existingUIGameObject in _existingUIGameObjects) existingUIGameObject.SetActive(true);
             gameObject.SetActive(false);
             _existingUIGameObjects.Clear();
 
@@ -330,7 +308,6 @@ namespace Pinpoint.UI.EphysCopilot
 
             // Move to home positions.
             foreach (var id in _manipulators.Keys)
-            {
                 CommunicationManager.Instance.GotoPos(
                     new GotoPositionRequest(id, _convertedHomePositions[id], MOVEMENT_SPEED),
                     _ =>
@@ -341,7 +318,6 @@ namespace Pinpoint.UI.EphysCopilot
                         CalibrateToBregma();
                     }
                 );
-            }
         }
 
         public void CalibrateToBregma()
@@ -364,6 +340,7 @@ namespace Pinpoint.UI.EphysCopilot
                         MoveToInsertion();
                         return;
                     }
+
                     Move(
                         _manipulators.Keys.ElementAt(1),
                         () =>
@@ -374,6 +351,7 @@ namespace Pinpoint.UI.EphysCopilot
                                 MoveToInsertion();
                                 return;
                             }
+
                             Move(_manipulators.Keys.ElementAt(2), MoveToInsertion);
                         }
                     );
@@ -420,7 +398,6 @@ namespace Pinpoint.UI.EphysCopilot
 
             // Move to home positions.
             foreach (var id in _manipulators.Keys)
-            {
                 CommunicationManager.Instance.GotoPos(
                     new GotoPositionRequest(id, _convertedInsertionCoordinates[id], MOVEMENT_SPEED),
                     _ =>
@@ -431,7 +408,6 @@ namespace Pinpoint.UI.EphysCopilot
                         CalibrateToDura();
                     }
                 );
-            }
         }
 
         public void CalibrateToDura(bool returnToHome = false)
@@ -448,7 +424,6 @@ namespace Pinpoint.UI.EphysCopilot
 
             // Move to Dura.
             foreach (var id in _manipulators.Keys)
-            {
                 CommunicationManager.Instance.GotoPos(
                     new GotoPositionRequest(id, _convertedDuraCoordinates[id], MOVEMENT_SPEED),
                     _ =>
@@ -468,7 +443,6 @@ namespace Pinpoint.UI.EphysCopilot
                         DriveToDepth();
                     }
                 );
-            }
         }
 
         public void DriveToDepth()
@@ -482,7 +456,6 @@ namespace Pinpoint.UI.EphysCopilot
 
             // Move to Dura.
             foreach (var id in _manipulators.Keys)
-            {
                 CommunicationManager.Instance.GetPos(
                     id,
                     pos =>
@@ -506,7 +479,6 @@ namespace Pinpoint.UI.EphysCopilot
                         );
                     }
                 );
-            }
         }
 
         #endregion
