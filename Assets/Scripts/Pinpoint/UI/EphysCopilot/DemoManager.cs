@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -11,15 +12,31 @@ namespace Pinpoint.UI.EphysCopilot
         // Existing UI for toggling.
         [SerializeField]
         private GameObject _canvasGameObject;
-        // Demo UI
+
+        // Demo UI.
+
+        // Camera.
+        [SerializeField]
+        private BrainCameraController _mainCamera;
 
         #endregion
 
         #region Properties
 
-        private HashSet<GameObject> _existingUIGameObjects = new();
+        private readonly HashSet<GameObject> _existingUIGameObjects = new();
 
         #endregion
+
+        private void Start()
+        {
+            StartDemo();
+        }
+
+        private void Update()
+        {
+            _mainCamera.transform.Rotate(0, 5 * Time.deltaTime, 0);
+        }
+
         #region UI Functions
 
         public void StartDemo()
@@ -45,6 +62,10 @@ namespace Pinpoint.UI.EphysCopilot
                 _existingUIGameObjects.Add(child);
             }
             gameObject.SetActive(true);
+
+            // Setup camera.
+            _mainCamera.SetZoom(10);
+            _mainCamera.transform.rotation = Quaternion.Euler(180, -180, -180);
         }
 
         public void StopDemo()
@@ -56,6 +77,9 @@ namespace Pinpoint.UI.EphysCopilot
             }
             gameObject.SetActive(false);
             _existingUIGameObjects.Clear();
+
+            // Reset camera.
+            _mainCamera.SetZoom(5);
         }
 
         #endregion
