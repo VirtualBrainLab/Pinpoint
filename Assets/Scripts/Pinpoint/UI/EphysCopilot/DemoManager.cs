@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -25,17 +26,39 @@ namespace Pinpoint.UI.EphysCopilot
 
         private readonly HashSet<GameObject> _existingUIGameObjects = new();
 
+        private struct DemoData
+        {
+            public string Manipulator1Id;
+            public Positions Manipulator1Positions;
+
+            public string Manipulator2Id;
+            public Positions Manipulator2Positions;
+
+            public string Manipulator3Id;
+            public Positions Manipulator3Positions;
+
+            [Serializable]
+            public struct Positions
+            {
+                public Vector4 Home;
+                public Vector4 Bregma;
+                public Vector4 Target;
+            }
+        }
+
+        private DemoData _demoData;
+
         #endregion
 
-        private void Start()
-        {
-            StartDemo();
-        }
+
+        #region Unity
 
         private void Update()
         {
             _mainCamera.transform.Rotate(0, 5 * Time.deltaTime, 0);
         }
+
+        #endregion
 
         #region UI Functions
 
@@ -66,6 +89,11 @@ namespace Pinpoint.UI.EphysCopilot
             // Setup camera.
             _mainCamera.SetZoom(10);
             _mainCamera.transform.rotation = Quaternion.Euler(180, -180, -180);
+
+            // Read demo data.
+            var demoDataPath = Path.Combine(Application.streamingAssetsPath, "DemoData.json");
+            var demoDataJson = File.ReadAllText(demoDataPath);
+            _demoData = JsonUtility.FromJson<DemoData>(demoDataJson);
         }
 
         public void StopDemo()
