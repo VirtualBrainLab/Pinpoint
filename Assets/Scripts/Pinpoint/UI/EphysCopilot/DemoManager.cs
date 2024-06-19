@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading;
 using EphysLink;
 using Pinpoint.Probes;
+using TMPro;
+using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -17,6 +19,15 @@ namespace Pinpoint.UI.EphysCopilot
 
         private const float MOVEMENT_SPEED = 1f;
 
+        private readonly Color _todoColor =
+            new(0.4980392156862745f, 0.4980392156862745f, 0.4980392156862745f, 1.0f);
+
+        private readonly Color _inProgressColor =
+            new(0.09019607843137255f, 0.7450980392156863f, 0.8117647058823529f, 1.0f);
+
+        private readonly Color _doneColor =
+            new(0.17254901960784313f, 0.6274509803921569f, 0.17254901960784313f, 1.0f);
+
         #endregion
         #region Components
 
@@ -28,7 +39,20 @@ namespace Pinpoint.UI.EphysCopilot
         private readonly HashSet<GameObject> _existingUIGameObjects = new();
 
         // Demo UI.
+        [SerializeField]
+        private TMP_Text _bregmaText;
 
+        [SerializeField]
+        private TMP_Text _insertionText;
+
+        [SerializeField]
+        private TMP_Text _duraText;
+
+        [SerializeField]
+        private TMP_Text _depthText;
+
+        [SerializeField]
+        private TMP_Text _resetText;
 
         // Camera.
 
@@ -37,7 +61,6 @@ namespace Pinpoint.UI.EphysCopilot
 
         // Manipulators.
         private readonly Dictionary<string, ManipulatorBehaviorController> _manipulators = new();
-        private readonly Dictionary<string, ProbeManager> _probeManagers = new();
 
         #endregion
 
@@ -68,7 +91,7 @@ namespace Pinpoint.UI.EphysCopilot
         private readonly Dictionary<string, float> _targetDepths = new();
 
         // Completion flag.
-        private int _completionCount = 0;
+        private int _completionCount;
 
         #endregion
 
@@ -138,7 +161,6 @@ namespace Pinpoint.UI.EphysCopilot
 
                 // Add manipulator.
                 _manipulators.Add(manipulatorID, probeManager.ManipulatorBehaviorController);
-                _probeManagers.Add(manipulatorID, probeManager);
             }
 
             // Set completion count to the number of manipulators.
@@ -275,6 +297,26 @@ namespace Pinpoint.UI.EphysCopilot
 
             // Reset camera.
             _mainCamera.SetZoom(5);
+
+            // Reset components and properties
+            _existingUIGameObjects.Clear();
+            _manipulators.Clear();
+            _convertedHomePositions.Clear();
+            _convertedBregmaCoordinates.Clear();
+            _convertedInsertionCoordinates.Clear();
+            _convertedDuraCoordinates.Clear();
+            _targetDepths.Clear();
+            _completionCount = 0;
+
+            // Reset colors.
+            _bregmaText.color = _todoColor;
+            _insertionText.color = _todoColor;
+            _duraText.color = _todoColor;
+            _depthText.color = _todoColor;
+            _resetText.color = _todoColor;
+
+            // Send stop command to manipulators.
+            CommunicationManager.Instance.Stop(null);
         }
 
         #endregion
@@ -304,6 +346,13 @@ namespace Pinpoint.UI.EphysCopilot
 
         public void CalibrateToBregma()
         {
+            // Reset colors.
+            _bregmaText.color = _inProgressColor;
+            _insertionText.color = _todoColor;
+            _duraText.color = _todoColor;
+            _depthText.color = _todoColor;
+            _resetText.color = _todoColor;
+
             // Move to bregma coordinates one at a time.
             Move(
                 _manipulators.Keys.ElementAt(0),
@@ -365,6 +414,10 @@ namespace Pinpoint.UI.EphysCopilot
             // Reset completion count.
             _completionCount = _manipulators.Count;
 
+            // Set colors.
+            _bregmaText.color = _doneColor;
+            _insertionText.color = _inProgressColor;
+
             // Move to home positions.
             foreach (var id in _manipulators.Keys)
             {
@@ -385,6 +438,13 @@ namespace Pinpoint.UI.EphysCopilot
         {
             // Reset completion count.
             _completionCount = _manipulators.Count;
+
+            // Set colors.
+            if (!returnToHome)
+            {
+                _insertionText.color = _doneColor;
+                _duraText.color = _inProgressColor;
+            }
 
             // Move to Dura.
             foreach (var id in _manipulators.Keys)
@@ -416,6 +476,10 @@ namespace Pinpoint.UI.EphysCopilot
             // Reset completion count.
             _completionCount = _manipulators.Count;
 
+            // Set colors.
+            _duraText.color = _doneColor;
+            _depthText.color = _inProgressColor;
+
             // Move to Dura.
             foreach (var id in _manipulators.Keys)
             {
@@ -430,6 +494,12 @@ namespace Pinpoint.UI.EphysCopilot
                                 _completionCount--;
                                 if (_completionCount != 0)
                                     return;
+
+                                // Set done colors.
+                                _depthText.color = _doneColor;
+                                _resetText.color = _inProgressColor;
+
+                                // Start reset sequence.
                                 CalibrateToDura(true);
                             },
                             null

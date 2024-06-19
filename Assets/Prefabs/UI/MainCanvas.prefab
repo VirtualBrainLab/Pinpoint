@@ -864,7 +864,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: '2.
 
-    Insertion Coordinate'
+    Move to Insertion'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -945,7 +945,7 @@ GameObject:
   - component: {fileID: 8924551139943539419}
   - component: {fileID: 7461597904680208404}
   m_Layer: 5
-  m_Name: InsertText
+  m_Name: DepthText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1000,7 +1000,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: '4.
 
-    Insert into Brain'
+    Drive to Depth'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1350,6 +1350,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvasGameObject: {fileID: 341190944083206642}
+  _bregmaText: {fileID: 8061265383993617281}
+  _insertionText: {fileID: 3545636777658169492}
+  _duraText: {fileID: 4036341010886458945}
+  _depthText: {fileID: 7461597904680208404}
+  _resetText: {fileID: 6760206990519079603}
+  _mainCamera: {fileID: 0}
 --- !u!114 &3295330860222128590
 MonoBehaviour:
   m_ObjectHideFlags: 0
