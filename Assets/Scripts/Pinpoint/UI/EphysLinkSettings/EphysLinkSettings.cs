@@ -282,7 +282,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                     err =>
                     {
                         attempts++;
-                        if (attempts > 5)
+                        if (attempts > 10)
                         {
                             _connectionErrorText.text = err;
                             _connectButtonText.text = "Connect";
