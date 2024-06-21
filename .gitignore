@@ -174,3 +174,5 @@ Assets/Resources.meta
 Library/com.unity.addressables/AddressablesBuildTEP.json
 Assets/AddressableAssetsData/link.xml
 Assets/AddressableAssetsData/link.xml.meta
+
+Assets/StreamingAssets/EphysLink-v1.3.3

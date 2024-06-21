@@ -20,9 +20,12 @@ namespace Pinpoint.UI.EphysLinkSettings
     {
         #region Constants
 
-        private const string EPHYS_LINK_EXE_NAME = "EphysLink-v1.3.0.exe";
+        private const string EPHYS_LINK_NAME = "EphysLink-v1.3.3";
         private static string EphysLinkExePath =>
-            Path.Combine(Application.streamingAssetsPath, EPHYS_LINK_EXE_NAME);
+            Path.Combine(
+                Application.streamingAssetsPath,
+                Path.Combine(EPHYS_LINK_NAME, $"{EPHYS_LINK_NAME}.exe")
+            );
 
         #endregion
 
@@ -279,7 +282,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                     err =>
                     {
                         attempts++;
-                        if (attempts > 5)
+                        if (attempts > 10)
                         {
                             _connectionErrorText.text = err;
                             _connectButtonText.text = "Connect";
@@ -468,7 +471,10 @@ namespace Pinpoint.UI.EphysLinkSettings
             _connectButtonText.text = CommunicationManager.Instance.IsConnected
                 ? "Disconnect"
                 : "Connect";
-            _connectButton.SetActive(CommunicationManager.Instance.IsConnected || _manipulatorTypeDropdown.value >= _manipulatorTypeDropdown.options.Count - 2);
+            _connectButton.SetActive(
+                CommunicationManager.Instance.IsConnected
+                    || _manipulatorTypeDropdown.value >= _manipulatorTypeDropdown.options.Count - 2
+            );
 
             _manipulatorTypeDropdown.interactable = !CommunicationManager.Instance.IsConnected;
             _launchEphysLinkButton.interactable = !CommunicationManager.Instance.IsConnected;
