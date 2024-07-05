@@ -31,7 +31,8 @@ public class ProbeManager : MonoBehaviour
     public static ProbeManager ActiveProbeManager;
 
     // Static events
-    public static readonly UnityEvent<HashSet<ProbeManager>> EphysLinkControlledProbesChangedEvent = new();
+    public static readonly UnityEvent<HashSet<ProbeManager>> EphysLinkControlledProbesChangedEvent =
+        new();
     public static readonly UnityEvent ActiveProbeUIUpdateEvent = new();
     #endregion
 
@@ -63,30 +64,53 @@ public class ProbeManager : MonoBehaviour
     #endregion
 
     // Exposed fields to collect links to other components inside of the Probe prefab
-    [FormerlySerializedAs("probeColliders")][SerializeField] private List<Collider> _probeColliders;
-    [FormerlySerializedAs("probeUIManagers")][SerializeField] private List<ProbeUIManager> _probeUIManagers;
-    [FormerlySerializedAs("probeRenderer")][SerializeField] private Renderer _probeRenderer;
-    [SerializeField] private RecordingRegion _recRegion;
+    [FormerlySerializedAs("probeColliders")]
+    [SerializeField]
+    private List<Collider> _probeColliders;
+
+    [FormerlySerializedAs("probeUIManagers")]
+    [SerializeField]
+    private List<ProbeUIManager> _probeUIManagers;
+
+    [FormerlySerializedAs("probeRenderer")]
+    [SerializeField]
+    private Renderer _probeRenderer;
+
+    [SerializeField]
+    private RecordingRegion _recRegion;
 
     private AxisControl _axisControl;
     public ProbeProperties.ProbeType ProbeType;
 
-    [FormerlySerializedAs("probeController")][SerializeField] private ProbeController _probeController;
+    [FormerlySerializedAs("probeController")]
+    [SerializeField]
+    private ProbeController _probeController;
 
-    [SerializeField] private Material _lineMaterial;
-    [FormerlySerializedAs("ghostMaterial")][SerializeField] private Material _ghostMaterial;
+    [SerializeField]
+    private Material _lineMaterial;
+
+    [FormerlySerializedAs("ghostMaterial")]
+    [SerializeField]
+    private Material _ghostMaterial;
 
     private Dictionary<GameObject, Material> _defaultMaterials;
     private HashSet<Renderer> _activeRenderers;
 
     #region Channel map
     public string SelectionLayerName { get; private set; }
+
     /// <summary>
     /// Return the minimum and maximum channel position in the current selection in mm
     /// </summary>
-    public (float, float) ChannelMinMaxYCoord { get { return (_channelMap.MinChannelHeight, _channelMap.MaxChannelHeight); } }
+    public (float, float) ChannelMinMaxYCoord
+    {
+        get { return (_channelMap.MinChannelHeight, _channelMap.MaxChannelHeight); }
+    }
     private TaskCompletionSource<bool> _channelMapLoadedSource;
-    public Task ChannelMapTask {  get { return _channelMapLoadedSource.Task; } }
+    public Task ChannelMapTask
+    {
+        get { return _channelMapLoadedSource.Task; }
+    }
     private ChannelMap _channelMap;
 
     /// <summary>
@@ -103,7 +127,10 @@ public class ProbeManager : MonoBehaviour
     private Vector3 _recRegionBaseCoordWorldU;
     private Vector3 _recRegionTopCoordWorldU;
 
-    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU { get { return (_recRegionBaseCoordWorldU, _recRegionTopCoordWorldU); } }
+    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU
+    {
+        get { return (_recRegionBaseCoordWorldU, _recRegionTopCoordWorldU); }
+    }
 
     // Text
     private const float minYaw = -180;
@@ -122,10 +149,7 @@ public class ProbeManager : MonoBehaviour
     private ProbeDisplayType _probeDisplayType;
     public ProbeDisplayType ProbeDisplay
     {
-        get
-        {
-            return _probeDisplayType;
-        }
+        get { return _probeDisplayType; }
         set
         {
             _probeDisplayType = value;
@@ -133,16 +157,15 @@ public class ProbeManager : MonoBehaviour
         }
     }
 
-    public ProbeController ProbeController { get => _probeController;
+    public ProbeController ProbeController
+    {
+        get => _probeController;
         private set => _probeController = value;
     }
 
     public bool Locked
     {
-        get
-        {
-            return _probeController.Locked;
-        }
+        get { return _probeController.Locked; }
     }
 
     public ManipulatorBehaviorController ManipulatorBehaviorController =>
@@ -155,7 +178,9 @@ public class ProbeManager : MonoBehaviour
         {
             ManipulatorBehaviorController.enabled = value;
             EphysLinkControlChangeEvent.Invoke();
-            EphysLinkControlledProbesChangedEvent.Invoke(Instances.Where(manager => manager.IsEphysLinkControlled).ToHashSet());
+            EphysLinkControlledProbesChangedEvent.Invoke(
+                Instances.Where(manager => manager.IsEphysLinkControlled).ToHashSet()
+            );
         }
     }
 
@@ -165,7 +190,6 @@ public class ProbeManager : MonoBehaviour
     public Color Color
     {
         get => _color;
-
         set
         {
             // try to return the current color
@@ -260,13 +284,14 @@ public class ProbeManager : MonoBehaviour
         // Force update color
         foreach (ProbeUIManager puiManager in _probeUIManagers)
             puiManager.UpdateColors();
-        if (_probeRenderer) _probeRenderer.material.color = _color;
+        if (_probeRenderer)
+            _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
     }
 
     /// <summary>
-    /// Called by Unity when this object is destroyed. 
+    /// Called by Unity when this object is destroyed.
     /// Unregisters the probe from tpmanager
     /// Removes the probe panels and the position text.
     /// </summary>
@@ -275,14 +300,13 @@ public class ProbeManager : MonoBehaviour
         ProbeProperties.ReturnColor(Color);
 
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
-        
+
         // Force disable Ephys Link
         if (IsEphysLinkControlled)
         {
             IsEphysLinkControlled = false;
-            CommunicationManager.Instance.UnregisterManipulator(ManipulatorBehaviorController.ManipulatorID);
         }
-        
+
         // Delete this gameObject
         foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.Cleanup();
@@ -305,7 +329,6 @@ public class ProbeManager : MonoBehaviour
     }
 
     private void OnEnable() => Instances.Add(this);
-    
 
     #endregion
 
@@ -341,7 +364,10 @@ public class ProbeManager : MonoBehaviour
 
     public void Update2ActiveTransform()
     {
-        _probeController.SetSpaceTransform(BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace, BrainAtlasManager.ActiveAtlasTransform);
+        _probeController.SetSpaceTransform(
+            BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace,
+            BrainAtlasManager.ActiveAtlasTransform
+        );
     }
 
     public void SetUIVisibility(bool state)
@@ -349,7 +375,6 @@ public class ProbeManager : MonoBehaviour
         foreach (ProbeUIManager puimanager in _probeUIManagers)
             puimanager.SetProbePanelVisibility(state);
     }
-
 
     public void OverrideUUID(string newUUID)
     {
@@ -359,7 +384,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Update the name of this probe, when it is in the brain 
+    /// Update the name of this probe, when it is in the brain
     /// </summary>
     public void UpdateName()
     {
@@ -378,16 +403,25 @@ public class ProbeManager : MonoBehaviour
     {
         ProbeInsertion insertion = _probeController.Insertion;
         var channelCoords = GetChannelRangemm();
-        
+
         // Update the world coordinates for the tip position
-        Vector3 startCoordWorldT = _probeController.ProbeTipT.position + -_probeController.ProbeTipT.forward * channelCoords.startPosmm;
-        Vector3 endCoordWorldT = _probeController.ProbeTipT.position + -_probeController.ProbeTipT.forward * channelCoords.endPosmm;
+        Vector3 startCoordWorldT =
+            _probeController.ProbeTipT.position
+            + -_probeController.ProbeTipT.forward * channelCoords.startPosmm;
+        Vector3 endCoordWorldT =
+            _probeController.ProbeTipT.position
+            + -_probeController.ProbeTipT.forward * channelCoords.endPosmm;
         _recRegionBaseCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT, true);
         _recRegionTopCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT, true);
     }
 
     #region Channel map
-    public (float startPosmm, float endPosmm, float recordingSizemm, float fullHeight) GetChannelRangemm()
+    public (
+        float startPosmm,
+        float endPosmm,
+        float recordingSizemm,
+        float fullHeight
+    ) GetChannelRangemm()
     {
         (float startPosmm, float endPosmm) = ChannelMinMaxYCoord;
         float recordingSizemm = endPosmm - startPosmm;
@@ -407,20 +441,20 @@ public class ProbeManager : MonoBehaviour
         UpdateChannelMap();
 
         UIUpdateEvent.Invoke();
-        
     }
 
     /// <summary>
     /// Update the channel map data according to the selected channels
     /// Defaults to the first 384 channels
-    /// 
+    ///
     /// Sets channelMinY/channelMaxY in mm
     /// </summary>
     public void UpdateChannelMap()
     {
-
 #if UNITY_EDITOR
-        Debug.Log($"(ProbeManager) Minimum channel coordinate {_channelMap.MinChannelHeight} max {_channelMap.MaxChannelHeight}");
+        Debug.Log(
+            $"(ProbeManager) Minimum channel coordinate {_channelMap.MinChannelHeight} max {_channelMap.MaxChannelHeight}"
+        );
 #endif
 
         // see if we can bypass this:
@@ -437,7 +471,7 @@ public class ProbeManager : MonoBehaviour
 
     /// <summary>
     /// Get a serialized representation of the depth information on each shank of this probe
-    /// 
+    ///
     /// SpikeGLX format
     /// [probe,shank](bottom um, top um, r, g, b, acronym)
     /// </summary>
@@ -458,7 +492,7 @@ public class ProbeManager : MonoBehaviour
         }
         return depthIDs;
     }
-    
+
     /// <summary>
     /// Gets the probe anatomy in depth format (SpikeGLX)
     /// </summary>
@@ -468,7 +502,6 @@ public class ProbeManager : MonoBehaviour
     {
         // Create a list of range, acronym color
         List<(int bot, int top, string acronym, Color color)> probeAnnotationData = new();
-
 
         ProbeUIManager uiManager = _probeUIManagers[shank];
 
@@ -482,8 +515,11 @@ public class ProbeManager : MonoBehaviour
 
         // Lerp between the base and top coordinate in small steps
 
-        int lastID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(baseCoordWorldU));
-        if (lastID < 0) lastID = 0;
+        int lastID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(
+            BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(baseCoordWorldU)
+        );
+        if (lastID < 0)
+            lastID = 0;
 
         float curBottom = 0f;
 
@@ -492,8 +528,11 @@ public class ProbeManager : MonoBehaviour
             Vector3 coordU = Vector3.Lerp(baseCoordWorldU, topCoordWorldU, perc);
 
             Debug.Log(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(coordU));
-            int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(coordU));
-            if (ID < 0) ID = 0;
+            int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(
+                BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(coordU)
+            );
+            if (ID < 0)
+                ID = 0;
             Debug.Log(ID);
 
             if (Settings.UseBeryl)
@@ -503,14 +542,28 @@ public class ProbeManager : MonoBehaviour
             {
                 // Save the current step
                 float newHeight = perc * height * 1000f;
-                probeAnnotationData.Add((Mathf.RoundToInt(curBottom), Mathf.RoundToInt(newHeight), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID)));
+                probeAnnotationData.Add(
+                    (
+                        Mathf.RoundToInt(curBottom),
+                        Mathf.RoundToInt(newHeight),
+                        BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID),
+                        BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID)
+                    )
+                );
                 curBottom = newHeight;
                 lastID = ID;
             }
         }
 
         // Save the final step
-        probeAnnotationData.Add((Mathf.RoundToInt(curBottom), Mathf.RoundToInt(height * 1000), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(lastID), BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(lastID)));
+        probeAnnotationData.Add(
+            (
+                Mathf.RoundToInt(curBottom),
+                Mathf.RoundToInt(height * 1000),
+                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(lastID),
+                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(lastID)
+            )
+        );
 
         // Flatten the list data according to the SpikeGLX format
         // [probe, shank](startpos, endpos, r, g, b, name)
@@ -520,9 +573,10 @@ public class ProbeManager : MonoBehaviour
 
         foreach (var data in probeAnnotationData)
         {
-            probeStr += $"({data.bot},{data.top}," +
-                $"{Mathf.RoundToInt(data.color.r * 255)},{Mathf.RoundToInt(data.color.g * 255)},{Mathf.RoundToInt(data.color.b * 255)}," +
-                $"{data.acronym})";
+            probeStr +=
+                $"({data.bot},{data.top},"
+                + $"{Mathf.RoundToInt(data.color.r * 255)},{Mathf.RoundToInt(data.color.g * 255)},{Mathf.RoundToInt(data.color.b * 255)},"
+                + $"{data.acronym})";
         }
 
         return probeStr;
@@ -530,7 +584,7 @@ public class ProbeManager : MonoBehaviour
 
     /// <summary>
     /// Get a serialized representation of the channel ID data
-    /// 
+    ///
     /// (OpenEphys format)
     /// </summary>
     /// <returns></returns>
@@ -554,14 +608,22 @@ public class ProbeManager : MonoBehaviour
                 {
                     // For now we'll ignore x changes and just use the y coordinate, this way we don't need to calculate the forward vector for the probe
                     // note that we're ignoring depth here, this assume the probe tip is on the electrode surface (which it should be)
-                    Vector3 channelCoordWorldT = shankTipCoordWorldT - _probeController.ProbeTipT.forward * channelMapData[i].y / 1000f;
+                    Vector3 channelCoordWorldT =
+                        shankTipCoordWorldT
+                        - _probeController.ProbeTipT.forward * channelMapData[i].y / 1000f;
 
                     // Now transform this into WorldU
-                    Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(channelCoordWorldT, true);
+                    Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(
+                        channelCoordWorldT,
+                        true
+                    );
 
                     int elecIdx = si * channelMapData.Count + i;
-                    int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU));
-                    if (ID < 0) ID = -1;
+                    int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(
+                        BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU)
+                    );
+                    if (ID < 0)
+                        ID = -1;
 
                     if (Settings.UseBeryl)
                         ID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(ID);
@@ -575,7 +637,6 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
-
             // Populate the data string
             Vector3 tipCoordWorldT = _probeController.ProbeTipT.position;
 
@@ -583,13 +644,21 @@ public class ProbeManager : MonoBehaviour
             {
                 // For now we'll ignore x changes and just use the y coordinate, this way we don't need to calculate the forward vector for the probe
                 // note that we're ignoring depth here, this assume the probe tip is on the electrode surface (which it should be)
-                Vector3 channelCoordWorldT = tipCoordWorldT - _probeController.ProbeTipT.forward * channelMapData[i].y / 1000f;
+                Vector3 channelCoordWorldT =
+                    tipCoordWorldT
+                    - _probeController.ProbeTipT.forward * channelMapData[i].y / 1000f;
 
                 // Now transform this into WorldU
-                Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(channelCoordWorldT, false);
+                Vector3 channelCoordWorldU = BrainAtlasManager.WorldT2WorldU(
+                    channelCoordWorldT,
+                    false
+                );
 
-                int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU));
-                if (ID < 0) ID = -1;
+                int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(
+                    BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(channelCoordWorldU)
+                );
+                if (ID < 0)
+                    ID = -1;
 
                 if (Settings.UseBeryl)
                     ID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(ID);
@@ -619,7 +688,7 @@ public class ProbeManager : MonoBehaviour
                 if (data.ID != curID)
                 {
                     // save the previous indexes as a range, then start a new one
-                    collapsedAnnotationData.Add(($"{firstIdx}-{curIdx-1}",curAcronym,curColor));
+                    collapsedAnnotationData.Add(($"{firstIdx}-{curIdx - 1}", curAcronym, curColor));
                     // start new
                     firstIdx = curIdx;
                     curID = channelAnnotationData[curIdx].ID;
@@ -629,13 +698,19 @@ public class ProbeManager : MonoBehaviour
             }
 
             // make sure to get the final set of data
-            if (firstIdx < (channelAnnotationData.Count-1))
-                collapsedAnnotationData.Add(($"{firstIdx}-{channelAnnotationData.Count - 1}", curAcronym, curColor));
+            if (firstIdx < (channelAnnotationData.Count - 1))
+                collapsedAnnotationData.Add(
+                    ($"{firstIdx}-{channelAnnotationData.Count - 1}", curAcronym, curColor)
+                );
 
-            channelStrings = collapsedAnnotationData.Select(x => $"{x.idxRange},{x.acronym},{x.color}").ToArray();
+            channelStrings = collapsedAnnotationData
+                .Select(x => $"{x.idxRange},{x.acronym},{x.color}")
+                .ToArray();
         }
         else
-            channelStrings = channelAnnotationData.Select(x => $"{x.idx},{x.ID},{x.acronym},{x.color}").ToArray();
+            channelStrings = channelAnnotationData
+                .Select(x => $"{x.idx},{x.ID},{x.acronym},{x.color}")
+                .ToArray();
 
         return string.Join(";", channelStrings);
     }
@@ -657,7 +732,7 @@ public class ProbeManager : MonoBehaviour
 
         ProbeInsertion insertion = _probeController.Insertion;
 
-        // If we are using the 
+        // If we are using the
         if (Settings.ConvertAPML2Probe)
         {
             Debug.LogWarning("Not working");
@@ -672,16 +747,20 @@ public class ProbeManager : MonoBehaviour
 
         float mult = Settings.DisplayUM ? 1000f : 1f;
 
-        Vector3 tipAtlasU = insertion.PositionSpaceU() + BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
+        Vector3 tipAtlasU =
+            insertion.PositionSpaceU()
+            + BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
         Vector3 tipAtlasT = insertion.APMLDV;
 
-        Vector3 angles = Settings.UseIBLAngles ?
-            PinpointUtils.World2IBL(insertion.Angles) :
-            insertion.Angles;
+        Vector3 angles = Settings.UseIBLAngles
+            ? PinpointUtils.World2IBL(insertion.Angles)
+            : insertion.Angles;
 
         (Vector3 entryAtlasT, float depthTransformed) = GetSurfaceCoordinateT();
 
-        Vector3 entryAtlasU = BrainAtlasManager.ActiveAtlasTransform.T2U(entryAtlasT) + BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
+        Vector3 entryAtlasU =
+            BrainAtlasManager.ActiveAtlasTransform.T2U(entryAtlasT)
+            + BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
 
         if (Settings.ConvertAPML2Probe)
         {
@@ -701,16 +780,18 @@ public class ProbeManager : MonoBehaviour
             tipAtlasT.y = tipYRot;
         }
 
-        string dataStr = string.Format($"{name}: ReferenceAtlas {BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name}, " +
-            $"AtlasTransform {BrainAtlasManager.ActiveAtlasTransform.Name}, " +
-            $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), " +
-            $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), " +
-            $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), " +
-            $"Angles ({round2(Utils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(Utils.CircDeg(angles.z, minRoll, maxRoll))}), " +
-            $"Depth {round0(depthTransformed * mult)}, " +
-            $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), " +
-            $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), " +
-            $"CCF Depth {round0(Vector3.Distance(entryAtlasU, tipAtlasU))}");
+        string dataStr = string.Format(
+            $"{name}: ReferenceAtlas {BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name}, "
+                + $"AtlasTransform {BrainAtlasManager.ActiveAtlasTransform.Name}, "
+                + $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), "
+                + $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), "
+                + $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), "
+                + $"Angles ({round2(Utils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(Utils.CircDeg(angles.z, minRoll, maxRoll))}), "
+                + $"Depth {round0(depthTransformed * mult)}, "
+                + $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), "
+                + $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), "
+                + $"CCF Depth {round0(Vector3.Distance(entryAtlasU, tipAtlasU))}"
+        );
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         Copy2Clipboard(dataStr);
@@ -723,6 +804,7 @@ public class ProbeManager : MonoBehaviour
     {
         return Mathf.Round(input);
     }
+
     private float round2(float input)
     {
         return Mathf.Round(input * 100) / 100;
@@ -732,7 +814,7 @@ public class ProbeManager : MonoBehaviour
 
 
     /// <summary>
-    /// Re-scale probe panels 
+    /// Re-scale probe panels
     /// </summary>
     /// <param name="newPxHeight">Set the probe panels of this probe to a new height</param>
     public void ResizeProbePanel(int newPxHeight)
@@ -747,7 +829,10 @@ public class ProbeManager : MonoBehaviour
 
     public (Vector3 surfaceCoordinateT, float depthT) GetSurfaceCoordinateT()
     {
-        return (_brainSurfaceCoordT, Vector3.Distance(_probeController.Insertion.APMLDV, _brainSurfaceCoordT));
+        return (
+            _brainSurfaceCoordT,
+            Vector3.Distance(_probeController.Insertion.APMLDV, _brainSurfaceCoordT)
+        );
     }
 
     public Vector3 GetSurfaceCoordinateWorldT()
@@ -784,7 +869,9 @@ public class ProbeManager : MonoBehaviour
 
             var entryCoordAtlasT = BrainAtlasManager.ActiveAtlasTransform.U2T(
                 BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(
-                    BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx)));
+                    BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx)
+                )
+            );
 
             _probeController.SetProbePosition(entryCoordAtlasT);
         }
@@ -808,11 +895,14 @@ public class ProbeManager : MonoBehaviour
         else
         {
             // get the surface coordinate in un-transformed world space
-            _brainSurfaceWorldU = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(entryCoordAtlasIdx);
+            _brainSurfaceWorldU = BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(
+                entryCoordAtlasIdx
+            );
             // go back into transformed space, only using the reference coordinate for the entry coordinate (not the transform coordinate)
             _brainSurfaceWorldT = BrainAtlasManager.WorldU2WorldT(_brainSurfaceWorldU, true);
             _brainSurfaceCoordT = BrainAtlasManager.ActiveAtlasTransform.U2T(
-                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(_brainSurfaceWorldU, true));
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(_brainSurfaceWorldU, true)
+            );
         }
     }
 
@@ -821,23 +911,28 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     /// <param name="useDV"></param>
     /// <returns>(entryCoordAtlasIdx, probeInBrain)</returns>
-    public (Vector3 entryCoordAtlasIdx, bool probeInBrain) CalculateEntryCoordinate(bool useDV = false)
+    public (Vector3 entryCoordAtlasIdx, bool probeInBrain) CalculateEntryCoordinate(
+        bool useDV = false
+    )
     {
         // note: the backward axis on the probe is the probe's "up" axis
         (Vector3 tipCoordWorldU, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
 
-        Vector3 tipAtlasIdxU = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(tipCoordWorldU);
+        Vector3 tipAtlasIdxU = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
+            tipCoordWorldU
+        );
 
         Vector3 downDir = useDV ? Vector3.down : tipForwardWorldU;
         Vector3 downDirAtlas = BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(downDir);
 
         // Check if we're in the brain
-        bool probeInBrain = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(tipAtlasIdxU) > 0;
+        bool probeInBrain =
+            BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(tipAtlasIdxU) > 0;
 
         Vector3 tipInBrain = tipAtlasIdxU;
 
         // Adjust the tip coordinate to put it into the brain
-        // This is kind of a dumb algorithm 
+        // This is kind of a dumb algorithm
         if (!probeInBrain)
         {
             // Get which direction we need to go
@@ -854,7 +949,11 @@ public class ProbeManager : MonoBehaviour
             float stepSize = 1000f / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
 
             bool done = false;
-            for (int steps = 1; steps < Mathf.RoundToInt(BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z*2f); steps++)
+            for (
+                int steps = 1;
+                steps < Mathf.RoundToInt(BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z * 2f);
+                steps++
+            )
             {
                 Vector3 tempTip = tipAtlasIdxU + towardBox * stepSize * steps;
                 if (BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(tempTip) > 0)
@@ -871,7 +970,7 @@ public class ProbeManager : MonoBehaviour
                 return (new Vector3(float.NaN, float.NaN, float.NaN), false);
             }
         }
-        
+
         Vector3 entryCoordAtlasIdx = FindEntryIdxCoordinate(tipInBrain, downDirAtlas);
 
         return (entryCoordAtlasIdx, probeInBrain);
@@ -881,7 +980,7 @@ public class ProbeManager : MonoBehaviour
     /// Use the annotation dataset to discover whether there is a surface coordinate by going *down* from a point searchDistance
     /// *above* the startPos
     /// returns the coordinate in the annotation dataset that corresponds to the surface.
-    ///  
+    ///
     /// Function guarantees that you enter the brain *once* before exiting, so if you start below the brain you need
     /// to enter first to discover the surface coordinate.
     /// </summary>
@@ -890,7 +989,10 @@ public class ProbeManager : MonoBehaviour
     /// <returns></returns>
     public Vector3 FindEntryIdxCoordinate(Vector3 bottomIdxCoordU, Vector3 downVector)
     {
-        float searchDistance = BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z * 1000f / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
+        float searchDistance =
+            BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z
+            * 1000f
+            / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
         Vector3 topSearchIdxCoordU = bottomIdxCoordU - downVector * searchDistance;
 
         // If by chance we are inside the brain, go farther
@@ -938,8 +1040,13 @@ public class ProbeManager : MonoBehaviour
     /// <param name="calibrated">Is the manipulator in real life calibrated</param>
     /// <param name="onSuccess">Callback function to handle a successful registration</param>
     /// <param name="onError">Callback function to handle a failed registration</param>
-    public void SetIsEphysLinkControlled(bool register, string manipulatorId = null, bool calibrated = true,
-        Action onSuccess = null, Action<string> onError = null)
+    public void SetIsEphysLinkControlled(
+        bool register,
+        string manipulatorId = null,
+        bool calibrated = true,
+        Action onSuccess = null,
+        Action<string> onError = null
+    )
     {
         // Exit early if this was an invalid call
         switch (register)
@@ -954,24 +1061,20 @@ public class ProbeManager : MonoBehaviour
         UIUpdateEvent.Invoke();
 
         if (register)
-            CommunicationManager.Instance.RegisterManipulator(manipulatorId, () =>
-            {
-                IsEphysLinkControlled = true;
-                ManipulatorBehaviorController.Initialize(manipulatorId, calibrated);
-                onSuccess?.Invoke();
-            }, err => onError?.Invoke(err));
+        {
+            IsEphysLinkControlled = true;
+            ManipulatorBehaviorController.Initialize(manipulatorId, calibrated);
+            onSuccess?.Invoke();
+        }
         else
         {
-            CommunicationManager.Instance.UnregisterManipulator(manipulatorId, () =>
-            {
-                ManipulatorBehaviorController.Deinitialize();
-                IsEphysLinkControlled = false;
-                onSuccess?.Invoke();
-            }, err => onError?.Invoke(err));
+            ManipulatorBehaviorController.Deinitialize();
+            IsEphysLinkControlled = false;
+            onSuccess?.Invoke();
         }
     }
-    
-#endregion
+
+    #endregion
 
     #region AxisControl
 
@@ -1060,6 +1163,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     private LineRenderer _lineRenderer;
+
     private void SetMaterialsLine()
     {
 #if UNITY_EDITOR
@@ -1087,9 +1191,9 @@ public class ProbeManager : MonoBehaviour
             _lineRenderer.positionCount = 2;
 
             var channelData = GetChannelRangemm();
-            _lineRenderer.SetPositions(new Vector3[] {
-            Vector3.zero,
-            Vector3.up * channelData.fullHeight});
+            _lineRenderer.SetPositions(
+                new Vector3[] { Vector3.zero, Vector3.up * channelData.fullHeight }
+            );
         }
     }
 
@@ -1165,14 +1269,17 @@ public struct ProbeManagerData
         data.APITarget = probeManager.APITarget;
 
         // Manipulator Behavior data (if it exists)
-        if (!probeManager.ManipulatorBehaviorController) return data;
-        
+        if (!probeManager.ManipulatorBehaviorController)
+            return data;
+
         data.NumAxes = probeManager.ManipulatorBehaviorController.NumAxes;
         data.ManipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
         data.Dimensions = probeManager.ManipulatorBehaviorController.Dimensions;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
-        data.Drop2SurfaceWithDepth = probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth;
+        data.Drop2SurfaceWithDepth = probeManager
+            .ManipulatorBehaviorController
+            .IsSetToDropToSurfaceWithDepth;
         data.IsRightHanded = probeManager.ManipulatorBehaviorController.IsRightHanded;
 
         return data;

@@ -25,14 +25,26 @@ namespace Pinpoint.UI.EphysCopilot
 
         #region Components
 
-        [SerializeField] private Color _apColor;
-        [SerializeField] private Color _mlColor;
-        [SerializeField] private Color _dvColor;
+        [SerializeField]
+        private Color _apColor;
 
-        [SerializeField] private TMP_Text _manipulatorIDText;
-        [SerializeField] private TMP_Dropdown _targetInsertionDropdown;
-        [SerializeField] private Button _moveButton;
-        [SerializeField] private TMP_Text _moveButtonText;
+        [SerializeField]
+        private Color _mlColor;
+
+        [SerializeField]
+        private Color _dvColor;
+
+        [SerializeField]
+        private TMP_Text _manipulatorIDText;
+
+        [SerializeField]
+        private TMP_Dropdown _targetInsertionDropdown;
+
+        [SerializeField]
+        private Button _moveButton;
+
+        [SerializeField]
+        private TMP_Text _moveButtonText;
 
         public ProbeManager ProbeManager { private get; set; }
 
@@ -52,13 +64,19 @@ namespace Pinpoint.UI.EphysCopilot
         ///     1. Not already selected
         ///     2. Angles are coterminal
         /// </summary>
-        private IEnumerable<ProbeManager> _targetProbeManagerOptions => TargetableProbeManagers
-            .Where(manager =>
+        private IEnumerable<ProbeManager> _targetProbeManagerOptions =>
+            TargetableProbeManagers.Where(manager =>
                 !ManipulatorIDToSelectedTargetProbeManager
-                    .Where(pair => pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID)
-                    .Select(pair => pair.Value).Contains(manager) && IsCoterminal(
+                    .Where(pair =>
+                        pair.Key != ProbeManager.ManipulatorBehaviorController.ManipulatorID
+                    )
+                    .Select(pair => pair.Value)
+                    .Contains(manager)
+                && IsCoterminal(
                     manager.ProbeController.Insertion.Angles,
-                    ProbeManager.ProbeController.Insertion.Angles));
+                    ProbeManager.ProbeController.Insertion.Angles
+                )
+            );
 
         private (ProbeInsertion ap, ProbeInsertion ml, ProbeInsertion dv) _movementAxesInsertions;
 
@@ -69,17 +87,28 @@ namespace Pinpoint.UI.EphysCopilot
         ///     1. Are not ephys link controlled
         ///     2. Are inside the brain (not NaN)
         /// </summary>
-        public static IEnumerable<ProbeManager> TargetableProbeManagers => ProbeManager.Instances
-            .Where(manager => !manager.IsEphysLinkControlled).Where(manager => !float.IsNaN(manager
-                .FindEntryIdxCoordinate(
-                    BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(manager.ProbeController
-                        .Insertion
-                        .PositionWorldU()),
-                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(manager
-                        .ProbeController
-                        .GetTipWorldU().tipUpWorldU)).x));
+        public static IEnumerable<ProbeManager> TargetableProbeManagers =>
+            ProbeManager
+                .Instances.Where(manager => !manager.IsEphysLinkControlled)
+                .Where(manager =>
+                    !float.IsNaN(
+                        manager
+                            .FindEntryIdxCoordinate(
+                                BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
+                                    manager.ProbeController.Insertion.PositionWorldU()
+                                ),
+                                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
+                                    manager.ProbeController.GetTipWorldU().tipUpWorldU
+                                )
+                            )
+                            .x
+                    )
+                );
 
-        public static readonly Dictionary<string, ProbeManager> ManipulatorIDToSelectedTargetProbeManager = new();
+        public static readonly Dictionary<
+            string,
+            ProbeManager
+        > ManipulatorIDToSelectedTargetProbeManager = new();
         private static readonly UnityEvent _shouldUpdateTargetInsertionOptionsEvent = new();
 
         #endregion
@@ -91,7 +120,8 @@ namespace Pinpoint.UI.EphysCopilot
         private void Start()
         {
             // Update manipulator ID text
-            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorBehaviorController.ManipulatorID;
+            _manipulatorIDText.text =
+                "Manipulator " + ProbeManager.ManipulatorBehaviorController.ManipulatorID;
             _manipulatorIDText.color = ProbeManager.Color;
 
             // Attach to dropdown events
@@ -130,8 +160,9 @@ namespace Pinpoint.UI.EphysCopilot
             if (value == 0)
             {
                 // Remove record if no insertion selected
-                ManipulatorIDToSelectedTargetProbeManager.Remove(ProbeManager.ManipulatorBehaviorController
-                    .ManipulatorID);
+                ManipulatorIDToSelectedTargetProbeManager.Remove(
+                    ProbeManager.ManipulatorBehaviorController.ManipulatorID
+                );
 
                 // Hide line
                 _lineGameObjects.ap.SetActive(false);
@@ -148,16 +179,22 @@ namespace Pinpoint.UI.EphysCopilot
             else
             {
                 // Extract insertion name from dropdown text (looks for 'A' in ": AP" and bumps index back to ':')
-                var probeNameString = _targetInsertionDropdown.options[value]
-                    .text[.._targetInsertionDropdown.options[value].text.LastIndexOf(": A", StringComparison.Ordinal)];
+                var probeNameString = _targetInsertionDropdown.options[value].text[
+                    .._targetInsertionDropdown
+                        .options[value]
+                        .text.LastIndexOf(": A", StringComparison.Ordinal)
+                ];
 
                 // Get selection as probe manager
                 var probeManager = TargetableProbeManagers.First(manager =>
-                    manager.name.Equals(probeNameString) || (manager.OverrideName?.Equals(probeNameString) ?? false));
+                    manager.name.Equals(probeNameString)
+                    || (manager.OverrideName?.Equals(probeNameString) ?? false)
+                );
 
                 // Update record if insertion selected
-                ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID] =
-                    probeManager;
+                ManipulatorIDToSelectedTargetProbeManager[
+                    ProbeManager.ManipulatorBehaviorController.ManipulatorID
+                ] = probeManager;
 
                 // Show lines
                 _lineGameObjects.ap.SetActive(true);
@@ -176,11 +213,12 @@ namespace Pinpoint.UI.EphysCopilot
         public void MoveOrStopProbeToInsertionTarget()
         {
             if (_isMoving)
-                // Movement in progress -> should stop movement
+            // Movement in progress -> should stop movement
             {
                 CommunicationManager.Instance.Stop(state =>
                 {
-                    if (!state) return;
+                    if (!state)
+                        return;
 
                     _isMoving = false;
                     _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
@@ -200,8 +238,11 @@ namespace Pinpoint.UI.EphysCopilot
         private void InitializeLineRenderers()
         {
             // Create hosting game objects
-            _lineGameObjects = (new GameObject("APLine") { layer = 5 }, new GameObject("MLLine") { layer = 5 },
-                new GameObject("DVLine") { layer = 5 });
+            _lineGameObjects = (
+                new GameObject("APLine") { layer = 5 },
+                new GameObject("MLLine") { layer = 5 },
+                new GameObject("DVLine") { layer = 5 }
+            );
 
             // Default them to hidden
             _lineGameObjects.ap.SetActive(false);
@@ -209,9 +250,11 @@ namespace Pinpoint.UI.EphysCopilot
             _lineGameObjects.dv.SetActive(false);
 
             // Create line renderer components
-            _lineRenderers = (_lineGameObjects.ap.AddComponent<LineRenderer>(),
+            _lineRenderers = (
+                _lineGameObjects.ap.AddComponent<LineRenderer>(),
                 _lineGameObjects.ml.AddComponent<LineRenderer>(),
-                _lineGameObjects.dv.AddComponent<LineRenderer>());
+                _lineGameObjects.dv.AddComponent<LineRenderer>()
+            );
 
             // Set materials
             var defaultSpriteShader = Shader.Find("Sprites/Default");
@@ -226,7 +269,9 @@ namespace Pinpoint.UI.EphysCopilot
 
             // Set Segment count
             _lineRenderers.ap.positionCount =
-                _lineRenderers.ml.positionCount = _lineRenderers.dv.positionCount = NUM_SEGMENTS;
+                _lineRenderers.ml.positionCount =
+                _lineRenderers.dv.positionCount =
+                    NUM_SEGMENTS;
         }
 
         /// <summary>
@@ -239,67 +284,92 @@ namespace Pinpoint.UI.EphysCopilot
             _targetInsertionDropdown.ClearOptions();
 
             // Add default option
-            _targetInsertionDropdown.options.Add(new TMP_Dropdown.OptionData("Select a target insertion..."));
+            _targetInsertionDropdown.options.Add(
+                new TMP_Dropdown.OptionData("Select a target insertion...")
+            );
 
             // Add other options
-            _targetInsertionDropdown.AddOptions(_targetProbeManagerOptions
-                .Select(probeManager => (probeManager.OverrideName ?? probeManager.name) + ": " +
-                                        SurfaceCoordinateToString(probeManager.GetSurfaceCoordinateT())).ToList());
+            _targetInsertionDropdown.AddOptions(
+                _targetProbeManagerOptions
+                    .Select(probeManager =>
+                        (probeManager.OverrideName ?? probeManager.name)
+                        + ": "
+                        + SurfaceCoordinateToString(probeManager.GetSurfaceCoordinateT())
+                    )
+                    .ToList()
+            );
 
             // Return early if no manipulator ID
-            if (ProbeManager.ManipulatorBehaviorController.ManipulatorID == null) return;
+            if (ProbeManager.ManipulatorBehaviorController.ManipulatorID == null)
+                return;
 
             // Restore selection (if possible)
             var selectedProbeManager = ManipulatorIDToSelectedTargetProbeManager.GetValueOrDefault(
-                ProbeManager.ManipulatorBehaviorController.ManipulatorID, null);
+                ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                null
+            );
             if (selectedProbeManager == null)
                 // Select none if no previous selection.
                 _targetInsertionDropdown.SetValueWithoutNotify(0);
             else
                 _targetInsertionDropdown.SetValueWithoutNotify(
-                    _targetProbeManagerOptions.ToList()
-                        .IndexOf(selectedProbeManager) + 1
+                    _targetProbeManagerOptions.ToList().IndexOf(selectedProbeManager) + 1
                 );
 
-
             // Color dropdown to match probe color
-            if (!selectedProbeManager) return;
+            if (!selectedProbeManager)
+                return;
             var colorBlockCopy = _targetInsertionDropdown.colors;
             colorBlockCopy.normalColor = selectedProbeManager.Color;
-            colorBlockCopy.selectedColor = new Color(colorBlockCopy.normalColor.r * 0.9f,
-                colorBlockCopy.normalColor.g * 0.9f, colorBlockCopy.normalColor.b * 0.9f);
+            colorBlockCopy.selectedColor = new Color(
+                colorBlockCopy.normalColor.r * 0.9f,
+                colorBlockCopy.normalColor.g * 0.9f,
+                colorBlockCopy.normalColor.b * 0.9f
+            );
             colorBlockCopy.highlightedColor = colorBlockCopy.selectedColor;
             _targetInsertionDropdown.colors = colorBlockCopy;
         }
 
-        private static string SurfaceCoordinateToString((Vector3 surfaceCoordinateT, float depthT) surfaceCoordinate)
+        private static string SurfaceCoordinateToString(
+            (Vector3 surfaceCoordinateT, float depthT) surfaceCoordinate
+        )
         {
             var apMicrometers = Math.Truncate(surfaceCoordinate.surfaceCoordinateT.x * 1000);
             var mlMicrometers = Math.Truncate(surfaceCoordinate.surfaceCoordinateT.y * 1000);
             var dvMicrometers = Math.Truncate(surfaceCoordinate.surfaceCoordinateT.z * 1000);
             var depthMicrometers = Math.Truncate(surfaceCoordinate.depthT * 1000);
-            return "AP: " + (Settings.DisplayUM ? apMicrometers : apMicrometers / 1000f) + " ML: " +
-                   (Settings.DisplayUM ? mlMicrometers : mlMicrometers / 1000f) +
-                   " DV: " + (Settings.DisplayUM ? dvMicrometers : dvMicrometers / 1000f) + " Depth: " +
-                   (Settings.DisplayUM ? depthMicrometers : depthMicrometers / 1000f);
+            return "AP: "
+                + (Settings.DisplayUM ? apMicrometers : apMicrometers / 1000f)
+                + " ML: "
+                + (Settings.DisplayUM ? mlMicrometers : mlMicrometers / 1000f)
+                + " DV: "
+                + (Settings.DisplayUM ? dvMicrometers : dvMicrometers / 1000f)
+                + " Depth: "
+                + (Settings.DisplayUM ? depthMicrometers : depthMicrometers / 1000f);
         }
 
         private void ComputeMovementInsertions()
         {
             // Shortcut exit if lines are not drawn (and therefore no path is being planned)
-            if (!_lineGameObjects.ap.activeSelf) return;
+            if (!_lineGameObjects.ap.activeSelf)
+                return;
 
             // Update insertion selection listings
             UpdateTargetInsertionOptions();
 
             // Abort insertion if it is invalid
-            if (!TargetableProbeManagers.Contains(
+            if (
+                !TargetableProbeManagers.Contains(
                     ManipulatorIDToSelectedTargetProbeManager[
-                        ProbeManager.ManipulatorBehaviorController.ManipulatorID]))
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID
+                    ]
+                )
+            )
             {
                 // Remove record (deselected)
-                ManipulatorIDToSelectedTargetProbeManager.Remove(ProbeManager.ManipulatorBehaviorController
-                    .ManipulatorID);
+                ManipulatorIDToSelectedTargetProbeManager.Remove(
+                    ProbeManager.ManipulatorBehaviorController.ManipulatorID
+                );
 
                 // Hide line
                 _lineGameObjects.ap.SetActive(false);
@@ -316,13 +386,17 @@ namespace Pinpoint.UI.EphysCopilot
             // DV axis
             _movementAxesInsertions.dv = new ProbeInsertion(ProbeManager.ProbeController.Insertion)
             {
-                DV = ProbeManager.ProbeController.Insertion.World2T_Vector(PRE_DEPTH_DRIVE_DV_OFFSET).z
+                DV = ProbeManager
+                    .ProbeController.Insertion.World2T_Vector(PRE_DEPTH_DRIVE_DV_OFFSET)
+                    .z
             };
 
             // Recalculate AP and ML based on pre-depth-drive DV
-            var brainSurfaceTransformed =
-                ManipulatorIDToSelectedTargetProbeManager[ProbeManager.ManipulatorBehaviorController.ManipulatorID]
-                    .GetSurfaceCoordinateT().surfaceCoordinateT;
+            var brainSurfaceTransformed = ManipulatorIDToSelectedTargetProbeManager[
+                ProbeManager.ManipulatorBehaviorController.ManipulatorID
+            ]
+                .GetSurfaceCoordinateT()
+                .surfaceCoordinateT;
 
             // AP Axis
             _movementAxesInsertions.ap = new ProbeInsertion(_movementAxesInsertions.dv)
@@ -339,17 +413,26 @@ namespace Pinpoint.UI.EphysCopilot
             // Check if within bounds
             var manipulatorPosition =
                 ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
-                    _movementAxesInsertions
-                        .ml.APMLDV);
-            if (!_acknowledgedOutOfBounds && (manipulatorPosition.x < 0 || manipulatorPosition.x >
-                                              ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.x ||
-                                              manipulatorPosition.y < 0 || manipulatorPosition.y >
-                                              ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.y ||
-                                              manipulatorPosition.z < 0 || manipulatorPosition.z >
-                                              ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.z))
+                    _movementAxesInsertions.ml.APMLDV
+                );
+            if (
+                !_acknowledgedOutOfBounds
+                && (
+                    manipulatorPosition.x < 0
+                    || manipulatorPosition.x
+                        > ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.x
+                    || manipulatorPosition.y < 0
+                    || manipulatorPosition.y
+                        > ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.y
+                    || manipulatorPosition.z < 0
+                    || manipulatorPosition.z
+                        > ProbeManager.ManipulatorBehaviorController.CoordinateSpace.Dimensions.z
+                )
+            )
             {
                 QuestionDialogue.Instance.NewQuestion(
-                    "This insertion is outside the bounds of the manipulator. Are you sure you want to continue?");
+                    "This insertion is outside the bounds of the manipulator. Are you sure you want to continue?"
+                );
                 QuestionDialogue.Instance.YesCallback = () => _acknowledgedOutOfBounds = true;
                 QuestionDialogue.Instance.NoCallback = () => _targetInsertionDropdown.value = 0;
             }
@@ -371,88 +454,82 @@ namespace Pinpoint.UI.EphysCopilot
         private void MoveToTargetInsertion()
         {
             // Check if a target insertion is selected
-            if (!ManipulatorIDToSelectedTargetProbeManager.ContainsKey(ProbeManager.ManipulatorBehaviorController
-                    .ManipulatorID)) return;
+            if (
+                !ManipulatorIDToSelectedTargetProbeManager.ContainsKey(
+                    ProbeManager.ManipulatorBehaviorController.ManipulatorID
+                )
+            )
+                return;
 
             // Setup and compute movement
             _isMoving = true;
             var apPosition =
                 ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
-                    _movementAxesInsertions
-                        .ap.APMLDV);
+                    _movementAxesInsertions.ap.APMLDV
+                );
             var mlPosition =
                 ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
-                    _movementAxesInsertions
-                        .ml.APMLDV);
+                    _movementAxesInsertions.ml.APMLDV
+                );
             var dvPosition =
                 ProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
-                    _movementAxesInsertions
-                        .dv.APMLDV);
+                    _movementAxesInsertions.dv.APMLDV
+                );
 
             // Move
-            CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
-            {
-                ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                CanWrite = true,
-                Hours = 1
-            }, canWrite =>
-            {
-                if (canWrite)
-                    CommunicationManager.Instance.GotoPos(new GotoPositionRequest
-                    {
-                        ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                        Position = dvPosition,
-                        Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
-                    }, _ =>
-                    {
-                        CommunicationManager.Instance.GotoPos(
-                            new GotoPositionRequest
-                            {
-                                ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                Position = apPosition,
-                                Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
-                            }, _ =>
-                            {
-                                CommunicationManager.Instance.GotoPos(new GotoPositionRequest
+            CommunicationManager.Instance.SetPosition(
+                new SetPositionRequest(
+                    ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                    dvPosition,
+                    ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
+                ),
+                _ =>
+                {
+                    CommunicationManager.Instance.SetPosition(
+                        new SetPositionRequest(
+                            ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                            apPosition,
+                            ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
+                        ),
+                        _ =>
+                        {
+                            CommunicationManager.Instance.SetPosition(
+                                new SetPositionRequest(
+                                    ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                                    mlPosition,
+                                    ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
+                                ),
+                                _ =>
                                 {
-                                    ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                    Position = mlPosition,
-                                    Speed = ManipulatorBehaviorController.AUTOMATIC_MOVEMENT_SPEED
-                                }, _ =>
-                                {
-                                    CommunicationManager.Instance.SetCanWrite(
-                                        new CanWriteRequest
-                                        {
-                                            ManipulatorId = ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                                            CanWrite = false,
-                                            Hours = 1
-                                        }, _ =>
-                                        {
-                                            // Hide lines
-                                            _lineGameObjects.ap.SetActive(false);
-                                            _lineGameObjects.ml.SetActive(false);
-                                            _lineGameObjects.dv.SetActive(false);
+                                    // Hide lines
+                                    _lineGameObjects.ap.SetActive(false);
+                                    _lineGameObjects.ml.SetActive(false);
+                                    _lineGameObjects.dv.SetActive(false);
 
-                                            // Complete movement
-                                            EndMovement();
-                                            _moveButton.interactable = false;
-                                        }, Debug.LogError);
-                                }, error =>
+                                    // Complete movement
+                                    EndMovement();
+                                    _moveButton.interactable = false;
+                                },
+                                error =>
                                 {
                                     Debug.LogError(error);
                                     EndMovement();
-                                });
-                            }, error =>
-                            {
-                                Debug.LogError(error);
-                                EndMovement();
-                            });
-                    }, error =>
-                    {
-                        Debug.LogError(error);
-                        EndMovement();
-                    });
-            }, Debug.LogError);
+                                }
+                            );
+                        },
+                        error =>
+                        {
+                            Debug.LogError(error);
+                            EndMovement();
+                        }
+                    );
+                },
+                error =>
+                {
+                    Debug.LogError(error);
+                    EndMovement();
+                }
+            );
             return;
 
             void EndMovement()
@@ -464,15 +541,16 @@ namespace Pinpoint.UI.EphysCopilot
 
         private void UpdateMoveButtonInteractable()
         {
-            _moveButton.interactable =
-                ManipulatorIDToSelectedTargetProbeManager.ContainsKey(ProbeManager.ManipulatorBehaviorController
-                    .ManipulatorID);
+            _moveButton.interactable = ManipulatorIDToSelectedTargetProbeManager.ContainsKey(
+                ProbeManager.ManipulatorBehaviorController.ManipulatorID
+            );
         }
 
         private static bool IsCoterminal(Vector3 first, Vector3 second)
         {
-            return Mathf.Abs(first.x - second.x) % 360 < 0.01f && Mathf.Abs(first.y - second.y) % 360 < 0.01f &&
-                   Mathf.Abs(first.z - second.z) % 360 < 0.01f;
+            return Mathf.Abs(first.x - second.x) % 360 < 0.01f
+                && Mathf.Abs(first.y - second.y) % 360 < 0.01f
+                && Mathf.Abs(first.z - second.z) % 360 < 0.01f;
         }
 
         #endregion
