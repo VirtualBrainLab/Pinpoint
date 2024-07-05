@@ -129,9 +129,9 @@ public struct SetInsideBrainRequest
 [Serializable]
 public struct SetPositionRequest
 {
-    public string ManipulatorId { get; }
-    public Vector4 Position { get; }
-    public float Speed { get; }
+    public string ManipulatorId;
+    public Vector4 Position;
+    public float Speed;
 
     public SetPositionRequest(string manipulatorId, Vector4 position, float speed)
     {

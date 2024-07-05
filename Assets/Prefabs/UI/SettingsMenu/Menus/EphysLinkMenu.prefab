@@ -6203,7 +6203,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5109513604156068580, guid: b5c9c741a0d4edd4c9948dba78e58d2b, type: 3}
       propertyPath: m_Text
-      value: 8081
+      value: 3000
       objectReference: {fileID: 0}
     - target: {fileID: 5109513604156068580, guid: b5c9c741a0d4edd4c9948dba78e58d2b, type: 3}
       propertyPath: m_ContentType
