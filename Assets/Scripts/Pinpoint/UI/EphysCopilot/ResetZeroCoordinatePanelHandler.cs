@@ -23,7 +23,7 @@ namespace Pinpoint.UI.EphysCopilot
         /// </summary>
         public void ResetZeroCoordinate()
         {
-            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+            CommunicationManager.Instance.GetPosition(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                 zeroCoordinate =>
                 {
                     ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinate;

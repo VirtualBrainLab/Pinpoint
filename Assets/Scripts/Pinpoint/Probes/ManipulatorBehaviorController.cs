@@ -21,8 +21,11 @@ namespace Pinpoint.Probes
 
         #region Components
 
-        [SerializeField] private ProbeManager _probeManager;
-        [SerializeField] private ProbeController _probeController;
+        [SerializeField]
+        private ProbeManager _probeManager;
+
+        [SerializeField]
+        private ProbeController _probeController;
 
         #endregion
 
@@ -43,10 +46,12 @@ namespace Pinpoint.Probes
             get => _zeroCoordinateOffset;
             set
             {
-                _zeroCoordinateOffset = new Vector4(float.IsNaN(value.x) ? _zeroCoordinateOffset.x : value.x,
+                _zeroCoordinateOffset = new Vector4(
+                    float.IsNaN(value.x) ? _zeroCoordinateOffset.x : value.x,
                     float.IsNaN(value.y) ? _zeroCoordinateOffset.y : value.y,
                     float.IsNaN(value.z) ? _zeroCoordinateOffset.z : value.z,
-                    float.IsNaN(value.w) ? _zeroCoordinateOffset.w : value.w);
+                    float.IsNaN(value.w) ? _zeroCoordinateOffset.w : value.w
+                );
 
                 ZeroCoordinateOffsetChangedEvent.Invoke(_zeroCoordinateOffset);
             }
@@ -67,7 +72,8 @@ namespace Pinpoint.Probes
             get => _isSetToDropToSurfaceWithDepth;
             set
             {
-                if (BrainSurfaceOffset != 0) return;
+                if (BrainSurfaceOffset != 0)
+                    return;
                 _isSetToDropToSurfaceWithDepth = value;
                 IsSetToDropToSurfaceWithDepthChangedEvent.Invoke(value);
             }
@@ -152,7 +158,8 @@ namespace Pinpoint.Probes
             CommunicationManager.Instance.GetManipulators(reponse =>
             {
                 // Shortcut exit if we have an invalid manipulator ID
-                if (!reponse.Manipulators.Contains(manipulatorID)) return;
+                if (!reponse.Manipulators.Contains(manipulatorID))
+                    return;
 
                 // Set manipulator ID, number of axes, and dimensions
                 ManipulatorID = manipulatorID;
@@ -165,37 +172,20 @@ namespace Pinpoint.Probes
                 // Lock the manipulator from manual control
                 _probeController.SetControllerLock(true);
 
-                if (calibrated)
-                    // Bypass calibration and start echoing
-                    CommunicationManager.Instance.BypassCalibration(manipulatorID, StartEchoing);
-                else
-                    CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
-                    {
-                        ManipulatorId = manipulatorID,
-                        CanWrite = true,
-                        Hours = 1
-                    }, _ =>
-                    {
-                        CommunicationManager.Instance.Calibrate(manipulatorID,
-                            () =>
-                            {
-                                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
-                                {
-                                    ManipulatorId = manipulatorID,
-                                    CanWrite = false,
-                                    Hours = 0
-                                }, _ => StartEchoing());
-                            });
-                    });
+                StartEchoing();
                 return;
 
                 void StartEchoing()
                 {
-                    CommunicationManager.Instance.GetPos(manipulatorID, pos =>
-                    {
-                        if (ZeroCoordinateOffset.Equals(Vector4.zero)) ZeroCoordinateOffset = pos;
-                        EchoPosition(pos);
-                    });
+                    CommunicationManager.Instance.GetPosition(
+                        manipulatorID,
+                        pos =>
+                        {
+                            if (ZeroCoordinateOffset.Equals(Vector4.zero))
+                                ZeroCoordinateOffset = pos;
+                            EchoPosition(pos);
+                        }
+                    );
                 }
             });
         }
@@ -203,7 +193,8 @@ namespace Pinpoint.Probes
         public void Deinitialize()
         {
             // Destroy Pathfinder probe.
-            if (NumAxes == -1) DestroyThisProbe.Invoke();
+            if (NumAxes == -1)
+                DestroyThisProbe.Invoke();
         }
 
         private void UpdateSpaceAndTransform()
@@ -215,10 +206,19 @@ namespace Pinpoint.Probes
             };
             CoordinateTransform = NumAxes switch
             {
-                4 => IsRightHanded
-                    ? new FourAxisRightHandedManipulatorTransform(_probeController.Insertion.Yaw)
-                    : new FourAxisLeftHandedManipulatorTransform(_probeController.Insertion.Yaw),
-                3 => new ThreeAxisLeftHandedTransform(_probeController.Insertion.Yaw, _probeController.Insertion.Pitch),
+                4
+                    => IsRightHanded
+                        ? new FourAxisRightHandedManipulatorTransform(
+                            _probeController.Insertion.Yaw
+                        )
+                        : new FourAxisLeftHandedManipulatorTransform(
+                            _probeController.Insertion.Yaw
+                        ),
+                3
+                    => new ThreeAxisLeftHandedTransform(
+                        _probeController.Insertion.Yaw,
+                        _probeController.Insertion.Pitch
+                    ),
                 _ => CoordinateTransform
             };
         }
@@ -226,16 +226,16 @@ namespace Pinpoint.Probes
         public Vector4 ConvertInsertionAPMLDVToManipulatorPosition(Vector3 insertionAPMLDV)
         {
             // Convert apmldv to world coordinate
-            var convertToWorld = _probeManager.ProbeController.Insertion.T2World_Vector(insertionAPMLDV);
+            var convertToWorld = _probeManager.ProbeController.Insertion.T2World_Vector(
+                insertionAPMLDV
+            );
 
             // Convert to Manipulator space
             var posInManipulatorSpace = CoordinateSpace.World2Space(convertToWorld);
             Vector4 posInManipulatorTransform = CoordinateTransform.U2T(posInManipulatorSpace);
 
             // Apply brain surface offset
-            var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset)
-                ? 0
-                : BrainSurfaceOffset;
+            var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
             if (_probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth)
                 posInManipulatorTransform.w -= brainSurfaceAdjustment;
             else
@@ -252,14 +252,15 @@ namespace Pinpoint.Probes
         {
             if (_probeManager.IsProbeInBrain())
             {
-                // Just calculate the distance from the probe tip position to the brain surface            
+                // Just calculate the distance from the probe tip position to the brain surface
                 BrainSurfaceOffset -= _probeManager.GetSurfaceCoordinateT().depthT;
             }
             else
             {
                 // We need to calculate the surface coordinate ourselves
-                var (brainSurfaceCoordinateIdx, _) =
-                    _probeManager.CalculateEntryCoordinate(!IsSetToDropToSurfaceWithDepth);
+                var (brainSurfaceCoordinateIdx, _) = _probeManager.CalculateEntryCoordinate(
+                    !IsSetToDropToSurfaceWithDepth
+                );
 
                 if (float.IsNaN(brainSurfaceCoordinateIdx.x))
                 {
@@ -267,12 +268,14 @@ namespace Pinpoint.Probes
                     return;
                 }
 
-                var brainSurfaceToTransformed =
-                    _probeController.Insertion.World2T(
-                        BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(brainSurfaceCoordinateIdx));
+                var brainSurfaceToTransformed = _probeController.Insertion.World2T(
+                    BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(brainSurfaceCoordinateIdx)
+                );
 
-                BrainSurfaceOffset += Vector3.Distance(brainSurfaceToTransformed,
-                    _probeController.Insertion.APMLDV);
+                BrainSurfaceOffset += Vector3.Distance(
+                    brainSurfaceToTransformed,
+                    _probeController.Insertion.APMLDV
+                );
             }
         }
 
@@ -291,62 +294,72 @@ namespace Pinpoint.Probes
         /// <param name="worldSpaceDelta">Delta (X, Y, Z, D) to move by in world space coordinates</param>
         /// <param name="onSuccessCallback">Action on success</param>
         /// <param name="onErrorCallback">Action on error</param>
-        public void MoveByWorldSpaceDelta(Vector4 worldSpaceDelta, Action<bool> onSuccessCallback,
-            Action<string> onErrorCallback = null)
+        public void MoveByWorldSpaceDelta(
+            Vector4 worldSpaceDelta,
+            Action<Vector4> onSuccessCallback,
+            Action<string> onErrorCallback = null
+        )
         {
             // Convert to manipulator axes (world -> space -> transform)
             var manipulatorSpaceDelta = CoordinateSpace.World2Space_Vector(worldSpaceDelta);
             var manipulatorTransformDelta = CoordinateTransform.U2T(manipulatorSpaceDelta);
             var manipulatorSpaceDepth = worldSpaceDelta.w;
 
-            print("World space delta: " + worldSpaceDelta + "; Manipulator space delta: " + manipulatorSpaceDelta +
-                  "; Manipulator transform delta: " + manipulatorTransformDelta + "; Manipulator space depth: " +
-                  manipulatorSpaceDepth);
+            print(
+                "World space delta: "
+                    + worldSpaceDelta
+                    + "; Manipulator space delta: "
+                    + manipulatorSpaceDelta
+                    + "; Manipulator transform delta: "
+                    + manipulatorTransformDelta
+                    + "; Manipulator space depth: "
+                    + manipulatorSpaceDepth
+            );
 
             // Get manipulator position
-            CommunicationManager.Instance.GetPos(ManipulatorID, pos =>
-            {
-                // Apply delta
-                var targetPosition = pos + new Vector4(manipulatorTransformDelta.x, manipulatorTransformDelta.y,
-                    manipulatorTransformDelta.z);
-                // Move manipulator
-                CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
+            CommunicationManager.Instance.GetPosition(
+                ManipulatorID,
+                pos =>
                 {
-                    ManipulatorId = ManipulatorID,
-                    CanWrite = true,
-                    Hours = 1
-                }, b =>
-                {
-                    if (!b) return;
-                    CommunicationManager.Instance.GotoPos(
-                        new GotoPositionRequest
-                        {
-                            ManipulatorId = ManipulatorID, Position = targetPosition, Speed = AUTOMATIC_MOVEMENT_SPEED
-                        },
+                    // Apply delta
+                    var targetPosition =
+                        pos
+                        + new Vector4(
+                            manipulatorTransformDelta.x,
+                            manipulatorTransformDelta.y,
+                            manipulatorTransformDelta.z
+                        );
+                    // Move manipulator
+                    CommunicationManager.Instance.SetPosition(
+                        new SetPositionRequest(
+                            ManipulatorID,
+                            targetPosition,
+                            AUTOMATIC_MOVEMENT_SPEED
+                        ),
                         newPos =>
                         {
                             // Process depth movement
                             var targetDepth = newPos.w + manipulatorSpaceDepth;
                             // Move the manipulator
-                            CommunicationManager.Instance.DriveToDepth(
-                                new DriveToDepthRequest
-                                {
-                                    ManipulatorId = ManipulatorID,
-                                    Depth = targetDepth,
-                                    Speed = AUTOMATIC_MOVEMENT_SPEED
-                                },
+                            CommunicationManager.Instance.SetDepth(
+                                new SetDepthRequest(
+                                    ManipulatorID,
+                                    targetDepth,
+                                    AUTOMATIC_MOVEMENT_SPEED
+                                ),
                                 _ =>
-                                {
-                                    CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
-                                    {
-                                        ManipulatorId = ManipulatorID,
-                                        CanWrite = false,
-                                        Hours = 0
-                                    }, onSuccessCallback, onErrorCallback);
-                                }, onErrorCallback);
-                        }, onErrorCallback);
-                }, onErrorCallback);
-            });
+                                    CommunicationManager.Instance.GetPosition(
+                                        ManipulatorID,
+                                        onSuccessCallback,
+                                        onErrorCallback
+                                    ),
+                                onErrorCallback
+                            );
+                        },
+                        onErrorCallback
+                    );
+                }
+            );
         }
 
         /// <summary>
@@ -354,33 +367,21 @@ namespace Pinpoint.Probes
         /// </summary>
         /// <param name="onSuccessCallback">Action on success</param>
         /// <param name="onErrorCallBack">Action on failure</param>
-        public void MoveBackToZeroCoordinate(Action<Vector4> onSuccessCallback, Action<string> onErrorCallBack)
+        public void MoveBackToZeroCoordinate(
+            Action<Vector4> onSuccessCallback,
+            Action<string> onErrorCallBack
+        )
         {
             // Send move command
-            CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
-            {
-                ManipulatorId = ManipulatorID,
-                CanWrite = true,
-                Hours = 1
-            }, b =>
-            {
-                if (!b) return;
-                CommunicationManager.Instance.GotoPos(new GotoPositionRequest
-                    {
-                        ManipulatorId = ManipulatorID,
-                        Position = ZeroCoordinateOffset,
-                        Speed = AUTOMATIC_MOVEMENT_SPEED
-                    },
-                    pos =>
-                    {
-                        CommunicationManager.Instance.SetCanWrite(new CanWriteRequest
-                        {
-                            ManipulatorId = ManipulatorID,
-                            CanWrite = false,
-                            Hours = 0
-                        }, _ => onSuccessCallback(pos), onErrorCallBack);
-                    }, onErrorCallBack);
-            }, onErrorCallBack);
+            CommunicationManager.Instance.SetPosition(
+                new SetPositionRequest(
+                    ManipulatorID,
+                    ZeroCoordinateOffset,
+                    AUTOMATIC_MOVEMENT_SPEED
+                ),
+                onSuccessCallback,
+                onErrorCallBack
+            );
         }
 
         #endregion
@@ -389,71 +390,102 @@ namespace Pinpoint.Probes
 
         private void EchoPosition(Vector4 pos)
         {
-            if (!enabled && _probeController == null) return;
+            if (!enabled && _probeController == null)
+                return;
 
             // Check for special Pathfinder mode
             if (NumAxes == -1)
             {
                 // Check if probe type changed
-                CommunicationManager.Instance.GetShankCount(ManipulatorID, shankCount =>
-                {
-                    // Use 2.4 if 4 shank, otherwise default to 1
-                    var probeType = shankCount == 4
-                        ? ProbeProperties.ProbeType.Neuropixels24
-                        : ProbeProperties.ProbeType.Neuropixels1;
-
-                    // print("Read type: " + probeType + "; Current type: " + _probeManager.ProbeType);
-                    // Check if change is needed
-                    if (probeType != _probeManager.ProbeType)
+                CommunicationManager.Instance.GetShankCount(
+                    ManipulatorID,
+                    shankCount =>
                     {
-                        // Unregister manipulator
-                        _probeManager.SetIsEphysLinkControlled(false, ManipulatorID, true, () =>
+                        // Use 2.4 if 4 shank, otherwise default to 1
+                        var probeType =
+                            shankCount == 4
+                                ? ProbeProperties.ProbeType.Neuropixels24
+                                : ProbeProperties.ProbeType.Neuropixels1;
+
+                        // print("Read type: " + probeType + "; Current type: " + _probeManager.ProbeType);
+                        // Check if change is needed
+                        if (probeType != _probeManager.ProbeType)
                         {
-                            // Create new probe
-                            CreatePathfinderProbe.Invoke(probeType);
+                            // Unregister manipulator
+                            _probeManager.SetIsEphysLinkControlled(
+                                false,
+                                ManipulatorID,
+                                true,
+                                () =>
+                                {
+                                    // Create new probe
+                                    CreatePathfinderProbe.Invoke(probeType);
 
-                            // Destroy current probe
-                            DestroyThisProbe.Invoke();
-                        }, Debug.LogError);
+                                    // Destroy current probe
+                                    DestroyThisProbe.Invoke();
+                                },
+                                Debug.LogError
+                            );
 
-                        // Exit early as this probe no longer exists
-                        return;
-                    }
+                            // Exit early as this probe no longer exists
+                            return;
+                        }
 
-                    // Otherwise, update probe angles
-                    CommunicationManager.Instance.GetAngles(ManipulatorID, angles =>
-                    {
-                        _probeController.SetProbeAngles(new Vector3(angles.x, 90 - angles.y, angles.z));
+                        // Otherwise, update probe angles
+                        CommunicationManager.Instance.GetAngles(
+                            ManipulatorID,
+                            angles =>
+                            {
+                                _probeController.SetProbeAngles(
+                                    new Vector3(angles.x, 90 - angles.y, angles.z)
+                                );
 
-                        // If only the DV axis moved, then we drop on DV. Otherwise, we drop on depth.
-                        if (Math.Abs(pos.z - _lastManipulatorPosition.z) > 0.0001)
-                            IsSetToDropToSurfaceWithDepth = Math.Abs(pos.x - _lastManipulatorPosition.x) > 0.0001 ||
-                                                            Math.Abs(pos.y - _lastManipulatorPosition.y) > 0.0001;
+                                // If only the DV axis moved, then we drop on DV. Otherwise, we drop on depth.
+                                if (Math.Abs(pos.z - _lastManipulatorPosition.z) > 0.0001)
+                                    IsSetToDropToSurfaceWithDepth =
+                                        Math.Abs(pos.x - _lastManipulatorPosition.x) > 0.0001
+                                        || Math.Abs(pos.y - _lastManipulatorPosition.y) > 0.0001;
 
-                        // Copy in new 3-axis position into saved 4-axis position
-                        _lastManipulatorPosition = new Vector4(pos.x, pos.y, pos.z, _lastManipulatorPosition.w);
+                                // Copy in new 3-axis position into saved 4-axis position
+                                _lastManipulatorPosition = new Vector4(
+                                    pos.x,
+                                    pos.y,
+                                    pos.z,
+                                    _lastManipulatorPosition.w
+                                );
 
-                        // Apply brain surface offset on correct axis
-                        var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
-                        if (IsSetToDropToSurfaceWithDepth)
-                            _lastManipulatorPosition.w -= brainSurfaceAdjustment;
-                        else
-                            _lastManipulatorPosition.z -= brainSurfaceAdjustment;
+                                // Apply brain surface offset on correct axis
+                                var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset)
+                                    ? 0
+                                    : BrainSurfaceOffset;
+                                if (IsSetToDropToSurfaceWithDepth)
+                                    _lastManipulatorPosition.w -= brainSurfaceAdjustment;
+                                else
+                                    _lastManipulatorPosition.z -= brainSurfaceAdjustment;
 
-                        // Convert Pathfinder space coordinates into active atlas space
-                        var convertedPos =
-                            _probeController.Insertion.World2T_Vector(
-                                CoordinateSpace.Space2World_Vector(_lastManipulatorPosition));
+                                // Convert Pathfinder space coordinates into active atlas space
+                                var convertedPos = _probeController.Insertion.World2T_Vector(
+                                    CoordinateSpace.Space2World_Vector(_lastManipulatorPosition)
+                                );
 
-                        // Copy and add 4th axis back in
-                        _probeController.SetProbePosition(new Vector4(convertedPos.x, convertedPos.y,
-                            convertedPos.z,
-                            _lastManipulatorPosition.w));
+                                // Copy and add 4th axis back in
+                                _probeController.SetProbePosition(
+                                    new Vector4(
+                                        convertedPos.x,
+                                        convertedPos.y,
+                                        convertedPos.z,
+                                        _lastManipulatorPosition.w
+                                    )
+                                );
 
-                        // Log and continue echoing
-                        LogAndContinue();
-                    }, Debug.LogError);
-                }, Debug.LogError);
+                                // Log and continue echoing
+                                LogAndContinue();
+                            },
+                            Debug.LogError
+                        );
+                    },
+                    Debug.LogError
+                );
 
                 // Exit early as we've handled Pathfinder
                 return;
@@ -462,14 +494,17 @@ namespace Pinpoint.Probes
             // Calculate last used direction for dropping to brain surface (between depth and DV)
             var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
             var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
-            if (dvDelta > 0.0001 || depthDelta > 0.0001) IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
+            if (dvDelta > 0.0001 || depthDelta > 0.0001)
+                IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
             _lastManipulatorPosition = pos;
 
             // Apply zero coordinate offset
             var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
 
             // Convert to coordinate space
-            var manipulatorSpacePosition = CoordinateTransform.T2U(zeroCoordinateAdjustedManipulatorPosition);
+            var manipulatorSpacePosition = CoordinateTransform.T2U(
+                zeroCoordinateAdjustedManipulatorPosition
+            );
 
             // Brain surface adjustment
             var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
@@ -479,18 +514,27 @@ namespace Pinpoint.Probes
                 manipulatorSpacePosition.y -= brainSurfaceAdjustment;
 
             // Convert to world space
-            var zeroCoordinateAdjustedWorldPosition =
-                CoordinateSpace.Space2World(manipulatorSpacePosition);
+            var zeroCoordinateAdjustedWorldPosition = CoordinateSpace.Space2World(
+                manipulatorSpacePosition
+            );
 
             // Set probe position (change axes to match probe)
-            var transformedApmldv = BrainAtlasManager.World2T_Vector(zeroCoordinateAdjustedWorldPosition);
+            var transformedApmldv = BrainAtlasManager.World2T_Vector(
+                zeroCoordinateAdjustedWorldPosition
+            );
 
             // Split between 3 and 4 axis assignments
             if (CoordinateTransform.Prefix == "3lhm")
                 _probeController.SetProbePosition(transformedApmldv);
             else
-                _probeController.SetProbePosition(new Vector4(transformedApmldv.x, transformedApmldv.y,
-                    transformedApmldv.z, zeroCoordinateAdjustedManipulatorPosition.w));
+                _probeController.SetProbePosition(
+                    new Vector4(
+                        transformedApmldv.x,
+                        transformedApmldv.y,
+                        transformedApmldv.z,
+                        zeroCoordinateAdjustedManipulatorPosition.w
+                    )
+                );
 
             // Log and continue echoing
             LogAndContinue();
@@ -507,9 +551,13 @@ namespace Pinpoint.Probes
                     // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
                     string[] data =
                     {
-                        "ephys_link", Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture), ManipulatorID,
-                        pos.x.ToString(CultureInfo.InvariantCulture), pos.y.ToString(CultureInfo.InvariantCulture),
-                        pos.z.ToString(CultureInfo.InvariantCulture), pos.w.ToString(CultureInfo.InvariantCulture),
+                        "ephys_link",
+                        Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture),
+                        ManipulatorID,
+                        pos.x.ToString(CultureInfo.InvariantCulture),
+                        pos.y.ToString(CultureInfo.InvariantCulture),
+                        pos.z.ToString(CultureInfo.InvariantCulture),
+                        pos.w.ToString(CultureInfo.InvariantCulture),
                         _probeController.Insertion.Yaw.ToString(CultureInfo.InvariantCulture),
                         _probeController.Insertion.Pitch.ToString(CultureInfo.InvariantCulture),
                         _probeController.Insertion.Roll.ToString(CultureInfo.InvariantCulture),
@@ -521,7 +569,7 @@ namespace Pinpoint.Probes
                 }
 
                 // Continue echoing position
-                CommunicationManager.Instance.GetPos(ManipulatorID, EchoPosition);
+                CommunicationManager.Instance.GetPosition(ManipulatorID, EchoPosition);
             }
         }
 

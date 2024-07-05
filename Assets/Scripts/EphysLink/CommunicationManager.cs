@@ -20,7 +20,7 @@ namespace EphysLink
 
         #region Properties
 
-        private static readonly int[] EPHYS_LINK_MIN_VERSION = { 1, 3, 0 };
+        private static readonly int[] EPHYS_LINK_MIN_VERSION = { 2, 0, 0 };
 
         public static readonly string EPHYS_LINK_MIN_VERSION_STRING =
             $"≥ v{string.Join(".", EPHYS_LINK_MIN_VERSION)}";
@@ -55,6 +55,7 @@ namespace EphysLink
         #endregion
 
         #region Connection Handler
+
         public void ServerSettingsLoaded()
         {
             // Automatically connect if the server credentials are possible
@@ -283,6 +284,7 @@ namespace EphysLink
                         .TakeWhile(numbers => numbers.Length > 0)
                         .Select(nonEmpty => int.Parse(new string(nonEmpty)))
                         .ToArray();
+                    print(versionNumbers[0]+"."+versionNumbers[1]+"."+versionNumbers[2]);
 
                     // Fail if major version mismatch (breaking changes).
                     if (versionNumbers[0] != EPHYS_LINK_MIN_VERSION[0])
@@ -292,7 +294,7 @@ namespace EphysLink
                     }
 
                     // Fail if minor version is too small (missing features).
-                    if (versionNumbers[1] < EPHYS_LINK_MIN_VERSION[0])
+                    if (versionNumbers[1] < EPHYS_LINK_MIN_VERSION[1])
                     {
                         onFailure.Invoke();
                         return;
@@ -338,6 +340,24 @@ namespace EphysLink
         }
 
         /// <summary>
+        ///     Get the platform type.
+        /// </summary>
+        /// <param name="onSuccessCallback">Callback function to handle incoming platform type info.</param>
+        /// <param name="onErrorCallback">Callback function to handle errors.</param>
+        public void GetPlatformType(Action<string> onSuccessCallback, Action onErrorCallback = null)
+        {
+            _connectionManager
+                .Socket.ExpectAcknowledgement<string>(data =>
+                {
+                    if (DataKnownAndNotEmpty(data))
+                        onSuccessCallback?.Invoke(data);
+                    else
+                        onErrorCallback?.Invoke();
+                })
+                .Emit("get_platform_type");
+        }
+
+        /// <summary>
         ///     Get manipulators event sender.
         /// </summary>
         /// <param name="onSuccessCallback">Callback function to handle incoming manipulator ID's</param>
@@ -368,60 +388,12 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Register a manipulator with the server.
-        /// </summary>
-        /// <param name="manipulatorId">The ID of the manipulator to register</param>
-        /// <param name="onSuccessCallback">Callback function to handle a successful registration</param>
-        /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void RegisterManipulator(
-            string manipulatorId,
-            Action onSuccessCallback = null,
-            Action<string> onErrorCallback = null
-        )
-        {
-            _connectionManager
-                .Socket.ExpectAcknowledgement<string>(error =>
-                {
-                    if (string.IsNullOrEmpty(error))
-                        onSuccessCallback?.Invoke();
-                    else
-                        onErrorCallback?.Invoke($"register_manipulators invalid response: {error}");
-                })
-                .Emit("register_manipulator", manipulatorId);
-        }
-
-        /// <summary>
-        ///     Unregister a manipulator with the server.
-        /// </summary>
-        /// <param name="manipulatorId">The ID of the manipulator to unregister</param>
-        /// <param name="onSuccessCallback">Callback function to handle a successful un-registration</param>
-        /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void UnregisterManipulator(
-            string manipulatorId,
-            Action onSuccessCallback = null,
-            Action<string> onErrorCallback = null
-        )
-        {
-            _connectionManager
-                .Socket.ExpectAcknowledgement<string>(error =>
-                {
-                    if (string.IsNullOrEmpty(error))
-                        onSuccessCallback?.Invoke();
-                    else
-                        onErrorCallback?.Invoke(
-                            $"unregister_manipulator invalid response: {error}"
-                        );
-                })
-                .Emit("unregister_manipulator", manipulatorId);
-        }
-
-        /// <summary>
-        ///     Request the current position of a manipulator.
+        ///     Request the current position of a manipulator (mm).
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
         /// <param name="onSuccessCallback">Callback function to pass manipulator position to</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GetPos(
+        public void GetPosition(
             string manipulatorId,
             Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null
@@ -444,7 +416,7 @@ namespace EphysLink
                         onErrorCallback?.Invoke($"get_pos invalid response: {data}");
                     }
                 })
-                .Emit("get_pos", manipulatorId);
+                .Emit("get_position", manipulatorId);
         }
 
         /// <summary>
@@ -510,8 +482,8 @@ namespace EphysLink
         /// <param name="request">Goto position request object</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void GotoPos(
-            GotoPositionRequest request,
+        public void SetPosition(
+            SetPositionRequest request,
             Action<Vector4> onSuccessCallback,
             Action<string> onErrorCallback = null
         )
@@ -532,7 +504,7 @@ namespace EphysLink
                         onErrorCallback?.Invoke($"goto_pos invalid response: {data}");
                     }
                 })
-                .Emit("goto_pos", ToJson(request));
+                .Emit("set_position", ToJson(request));
         }
 
         /// <summary>
@@ -541,8 +513,8 @@ namespace EphysLink
         /// <param name="request">Drive to depth request</param>
         /// <param name="onSuccessCallback">Callback function to handle successful manipulator movement</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void DriveToDepth(
-            DriveToDepthRequest request,
+        public void SetDepth(
+            SetDepthRequest request,
             Action<float> onSuccessCallback,
             Action<string> onErrorCallback
         )
@@ -552,7 +524,7 @@ namespace EphysLink
                 {
                     if (DataKnownAndNotEmpty(data))
                     {
-                        var parsedData = ParseJson<DriveToDepthResponse>(data);
+                        var parsedData = ParseJson<SetDepthResponse>(data);
                         if (string.IsNullOrEmpty(parsedData.Error))
                             onSuccessCallback?.Invoke(parsedData.Depth);
                         else
@@ -563,7 +535,7 @@ namespace EphysLink
                         onErrorCallback?.Invoke($"drive_to_depth invalid response: {data}");
                     }
                 })
-                .Emit("drive_to_depth", ToJson(request));
+                .Emit("set_depth", ToJson(request));
         }
 
         /// <summary>
@@ -573,7 +545,7 @@ namespace EphysLink
         /// <param name="onSuccessCallback">Callback function to handle setting inside_brain state successfully</param>
         /// <param name="onErrorCallback">Callback function to handle errors</param>
         public void SetInsideBrain(
-            InsideBrainRequest request,
+            SetInsideBrainRequest request,
             Action<bool> onSuccessCallback,
             Action<string> onErrorCallback = null
         )
@@ -598,88 +570,10 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Request a manipulator to be calibrated.
-        /// </summary>
-        /// <param name="manipulatorId">ID of the manipulator to be calibrated</param>
-        /// <param name="onSuccessCallback">Callback function to handle a successful calibration</param>
-        /// <param name="onErrorCallback">Callback function to handle an unsuccessful calibration</param>
-        public void Calibrate(
-            string manipulatorId,
-            Action onSuccessCallback,
-            Action<string> onErrorCallback = null
-        )
-        {
-            _connectionManager
-                .Socket.ExpectAcknowledgement<string>(error =>
-                {
-                    if (error == "")
-                        onSuccessCallback?.Invoke();
-                    else
-                        onErrorCallback?.Invoke(error);
-                })
-                .Emit("calibrate", manipulatorId);
-        }
-
-        /// <summary>
-        ///     Bypass calibration requirement of a manipulator.
-        /// </summary>
-        /// <remarks>This method should only be used for testing and NEVER in production</remarks>
-        /// <param name="manipulatorId">ID of the manipulator to bypass calibration</param>
-        /// <param name="onSuccessCallback">Callback function to handle a successful calibration bypass</param>
-        /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void BypassCalibration(
-            string manipulatorId,
-            Action onSuccessCallback,
-            Action<string> onErrorCallback = null
-        )
-        {
-            _connectionManager
-                .Socket.ExpectAcknowledgement<string>(error =>
-                {
-                    if (error == "")
-                        onSuccessCallback?.Invoke();
-                    else
-                        onErrorCallback?.Invoke(error);
-                })
-                .Emit("bypass_calibration", manipulatorId);
-        }
-
-        /// <summary>
-        ///     Request a write lease for a manipulator.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="onSuccessCallback">Callback function to handle successfully setting can_write state</param>
-        /// <param name="onErrorCallback">Callback function to handle errors</param>
-        public void SetCanWrite(
-            CanWriteRequest request,
-            Action<bool> onSuccessCallback,
-            Action<string> onErrorCallback = null
-        )
-        {
-            _connectionManager
-                .Socket.ExpectAcknowledgement<string>(data =>
-                {
-                    if (DataKnownAndNotEmpty(data))
-                    {
-                        var parsedData = ParseJson<BooleanStateResponse>(data);
-                        if (string.IsNullOrEmpty(parsedData.Error))
-                            onSuccessCallback?.Invoke(parsedData.State);
-                        else
-                            onErrorCallback?.Invoke(parsedData.Error);
-                    }
-                    else
-                    {
-                        onErrorCallback?.Invoke($"set_can_write invalid response: {data}");
-                    }
-                })
-                .Emit("set_can_write", ToJson(request));
-        }
-
-        /// <summary>
         ///     Request all movement to stop.
         /// </summary>
         /// <param name="callback">Callback function to handle stop result</param>
-        public void Stop(Action<bool> callback)
+        public void Stop(Action<string> callback)
         {
             _connectionManager.Socket.ExpectAcknowledgement(callback).Emit("stop");
         }

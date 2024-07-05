@@ -44,7 +44,7 @@ namespace Pinpoint.UI.EphysCopilot
             // Reset dura offset
             ProbeManager.ManipulatorBehaviorController.ComputeBrainSurfaceOffset();
 
-            CommunicationManager.Instance.GetPos(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+            CommunicationManager.Instance.GetPosition(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                 pos =>
                 {
                     ManipulatorIdToDuraDepth[ProbeManager.ManipulatorBehaviorController.ManipulatorID] = pos.w;

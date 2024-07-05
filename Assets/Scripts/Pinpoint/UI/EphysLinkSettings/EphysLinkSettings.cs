@@ -20,7 +20,7 @@ namespace Pinpoint.UI.EphysLinkSettings
     {
         #region Constants
 
-        private const string EPHYS_LINK_NAME = "EphysLink-v1.3.3";
+        private const string EPHYS_LINK_NAME = "EphysLink-v2.0.0b0";
         private static string EphysLinkExePath =>
             Path.Combine(
                 Application.streamingAssetsPath,
@@ -236,10 +236,10 @@ namespace Pinpoint.UI.EphysLinkSettings
             // Parse manipulator type string arg (invariant: custom connection should never happen).
             var manipulatorTypeString = _manipulatorTypeDropdown.value switch
             {
-                1 => "ump3",
-                2 => "new_scale_pathfinder",
-                3 => "new_scale",
-                _ => "sensapex"
+                1 => "ump-3",
+                2 => "pathfinder-mpm",
+                3 => "new-scale",
+                _ => "ump-4"
             };
 
             // Make args string (ignore updates, select type).
@@ -247,7 +247,7 @@ namespace Pinpoint.UI.EphysLinkSettings
 
             // Add Pathfinder port if selected.
             if (_manipulatorTypeDropdown.value == 2)
-                args += $" --pathfinder_port {_pathfinderPortInputField.text}";
+                args += $" --mpm-port {_pathfinderPortInputField.text}";
 
             _ephysLinkProcess = new Process
             {
@@ -277,7 +277,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             {
                 CommunicationManager.Instance.ConnectToServer(
                     "localhost",
-                    8081,
+                    3000,
                     HandleSuccessfulConnection,
                     err =>
                     {
@@ -350,7 +350,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                         if (string.IsNullOrEmpty(_ipAddressInputField.text))
                             _ipAddressInputField.text = "localhost";
                         if (string.IsNullOrEmpty(_portInputField.text))
-                            _portInputField.text = "8081";
+                            _portInputField.text = "3000";
 
                         CommunicationManager.Instance.ConnectToServer(
                             _ipAddressInputField.text,
