@@ -347,9 +347,9 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         public void StopReturningToZeroCoordinate()
         {
-            CommunicationManager.Instance.Stop(stopState =>
+            CommunicationManager.Instance.Stop(stopError =>
             {
-                if (!stopState) return;
+                if (!string.IsNullOrEmpty(stopError)) return;
                 // Hide stop button and show move button
                 _returnToZeroCoordinateButtonGameObject.SetActive(true);
                 _stopReturningToZeroCoordinateButtonGameObject.SetActive(false);

@@ -737,9 +737,9 @@ namespace Pinpoint.UI.EphysCopilot
 
         public void Stop()
         {
-            CommunicationManager.Instance.Stop(b =>
+            CommunicationManager.Instance.Stop(stopError =>
             {
-                if (!b)
+                if (!string.IsNullOrEmpty(stopError))
                     return;
 
                 // Show drive group and hide stop button.

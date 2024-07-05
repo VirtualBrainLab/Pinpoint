@@ -215,9 +215,9 @@ namespace Pinpoint.UI.EphysCopilot
             if (_isMoving)
             // Movement in progress -> should stop movement
             {
-                CommunicationManager.Instance.Stop(state =>
+                CommunicationManager.Instance.Stop(stopError =>
                 {
-                    if (!state)
+                    if (!string.IsNullOrEmpty(stopError))
                         return;
 
                     _isMoving = false;

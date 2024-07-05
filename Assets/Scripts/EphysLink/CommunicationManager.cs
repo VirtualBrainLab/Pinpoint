@@ -573,7 +573,7 @@ namespace EphysLink
         ///     Request all movement to stop.
         /// </summary>
         /// <param name="callback">Callback function to handle stop result</param>
-        public void Stop(Action<bool> callback)
+        public void Stop(Action<string> callback)
         {
             _connectionManager.Socket.ExpectAcknowledgement(callback).Emit("stop");
         }
