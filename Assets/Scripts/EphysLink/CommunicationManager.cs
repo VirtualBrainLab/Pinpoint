@@ -25,7 +25,7 @@ namespace EphysLink
         public static readonly string EPHYS_LINK_MIN_VERSION_STRING =
             $"≥ v{string.Join(".", EPHYS_LINK_MIN_VERSION)}";
 
-        private const string UNKOWN_EVENT = "UNKNOWN_EVENT";
+        private const string UNKOWN_EVENT = "{\"error\": \"Unknown event.\"}";
 
         /// <summary>
         ///     The current state of the connection to Ephys Link.
@@ -284,7 +284,7 @@ namespace EphysLink
                         .TakeWhile(numbers => numbers.Length > 0)
                         .Select(nonEmpty => int.Parse(new string(nonEmpty)))
                         .ToArray();
-                    print(versionNumbers[0]+"."+versionNumbers[1]+"."+versionNumbers[2]);
+                    print(versionNumbers[0] + "." + versionNumbers[1] + "." + versionNumbers[2]);
 
                     // Fail if major version mismatch (breaking changes).
                     if (versionNumbers[0] != EPHYS_LINK_MIN_VERSION[0])
@@ -570,12 +570,56 @@ namespace EphysLink
         }
 
         /// <summary>
+        /// Request a manipulator stops moving.
+        /// </summary>
+        /// <param name="manipulatorId"></param>
+        /// <param name="onSuccessCallback"></param>
+        /// <param name="onErrorCallback"></param>
+        public void Stop(
+            string manipulatorId,
+            Action onSuccessCallback,
+            Action<string> onErrorCallback
+        )
+        {
+            _connectionManager
+                .Socket.ExpectAcknowledgement<string>(data =>
+                {
+                    if (DataKnownAndNotEmpty(data))
+                    {
+                        // Non-empty response means error.
+                        onErrorCallback?.Invoke(data);
+                    }
+                    else
+                    {
+                        // Empty response means success.
+                        onSuccessCallback?.Invoke();
+                    }
+                })
+                .Emit("stop", manipulatorId);
+        }
+
+        /// <summary>
         ///     Request all movement to stop.
         /// </summary>
-        /// <param name="callback">Callback function to handle stop result</param>
-        public void Stop(Action<string> callback)
+        /// <param name="onSuccessCallback">Handle successful stop.</param>
+        /// <param name="onErrorCallback">Handle failed stops.</param>
+        public void StopAll(Action onSuccessCallback, Action<string> onErrorCallback)
         {
-            _connectionManager.Socket.ExpectAcknowledgement(callback).Emit("stop");
+            _connectionManager
+                .Socket.ExpectAcknowledgement<string>(data =>
+                {
+                    if (DataKnownAndNotEmpty(data))
+                    {
+                        // Non-empty response means error.
+                        onErrorCallback?.Invoke(data);
+                    }
+                    else
+                    {
+                        // Empty response means success.
+                        onSuccessCallback?.Invoke();
+                    }
+                })
+                .Emit("stop_all");
         }
 
         #endregion

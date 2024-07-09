@@ -109,6 +109,7 @@ namespace Pinpoint.UI.EphysCopilot
             string,
             ProbeManager
         > ManipulatorIDToSelectedTargetProbeManager = new();
+
         private static readonly UnityEvent _shouldUpdateTargetInsertionOptionsEvent = new();
 
         #endregion
@@ -215,14 +216,15 @@ namespace Pinpoint.UI.EphysCopilot
             if (_isMoving)
             // Movement in progress -> should stop movement
             {
-                CommunicationManager.Instance.Stop(stopError =>
-                {
-                    if (!string.IsNullOrEmpty(stopError))
-                        return;
-
-                    _isMoving = false;
-                    _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
-                });
+                CommunicationManager.Instance.Stop(
+                    ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                    () =>
+                    {
+                        _isMoving = false;
+                        _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
+                    },
+                    Debug.LogError
+                );
             }
             else
             {

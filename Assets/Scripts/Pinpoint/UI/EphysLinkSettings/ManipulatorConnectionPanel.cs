@@ -15,22 +15,50 @@ namespace Pinpoint.UI.EphysLinkSettings
     {
         #region Components
 
-        [SerializeField] private TMP_Text _manipulatorIdText;
-        [SerializeField] private GameObject _handednessGroup;
-        [SerializeField] private Dropdown _handednessDropdown;
-        [SerializeField] private GameObject _probeConnectionGroup;
-        [SerializeField] private Dropdown _linkedProbeDropdown;
+        [SerializeField]
+        private TMP_Text _manipulatorIdText;
 
-        [SerializeField] private GameObject _probePropertiesSection;
-        [SerializeField] private InputField _zeroCoordinateXInputField;
-        [SerializeField] private InputField _zeroCoordinateYInputField;
-        [SerializeField] private InputField _zeroCoordinateZInputField;
-        [SerializeField] private InputField _zeroCoordinateDInputField;
-        [SerializeField] private Dropdown _duraDropDirectionDropdown;
-        [SerializeField] private InputField _brainSurfaceOffsetInputField;
-        [SerializeField] private Toggle _enableManualControlToggle;
-        [SerializeField] private GameObject _returnToZeroCoordinateButtonGameObject;
-        [SerializeField] private GameObject _stopReturningToZeroCoordinateButtonGameObject;
+        [SerializeField]
+        private GameObject _handednessGroup;
+
+        [SerializeField]
+        private Dropdown _handednessDropdown;
+
+        [SerializeField]
+        private GameObject _probeConnectionGroup;
+
+        [SerializeField]
+        private Dropdown _linkedProbeDropdown;
+
+        [SerializeField]
+        private GameObject _probePropertiesSection;
+
+        [SerializeField]
+        private InputField _zeroCoordinateXInputField;
+
+        [SerializeField]
+        private InputField _zeroCoordinateYInputField;
+
+        [SerializeField]
+        private InputField _zeroCoordinateZInputField;
+
+        [SerializeField]
+        private InputField _zeroCoordinateDInputField;
+
+        [SerializeField]
+        private Dropdown _duraDropDirectionDropdown;
+
+        [SerializeField]
+        private InputField _brainSurfaceOffsetInputField;
+
+        [SerializeField]
+        private Toggle _enableManualControlToggle;
+
+        [SerializeField]
+        private GameObject _returnToZeroCoordinateButtonGameObject;
+
+        [SerializeField]
+        private GameObject _stopReturningToZeroCoordinateButtonGameObject;
 
         private ProbeManager _attachedProbe;
 
@@ -46,8 +74,7 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         #region Constructor
 
-        public void Initialize(EphysLinkSettings settingsMenu, string manipulatorID,
-            int numAxes)
+        public void Initialize(EphysLinkSettings settingsMenu, string manipulatorID, int numAxes)
         {
             // Set properties
             _ephysLinkSettings = settingsMenu;
@@ -55,9 +82,10 @@ namespace Pinpoint.UI.EphysLinkSettings
             _numAxes = numAxes;
 
             // Get attached probe (could be null)
-            _attachedProbe = ProbeManager.Instances.Find(manager => manager.IsEphysLinkControlled &&
-                                                                    manager.ManipulatorBehaviorController
-                                                                        .ManipulatorID == manipulatorID);
+            _attachedProbe = ProbeManager.Instances.Find(manager =>
+                manager.IsEphysLinkControlled
+                && manager.ManipulatorBehaviorController.ManipulatorID == manipulatorID
+            );
 
             // Initialize components
             _manipulatorIdText.text = manipulatorID;
@@ -70,32 +98,39 @@ namespace Pinpoint.UI.EphysLinkSettings
                 _probeConnectionGroup.SetActive(false);
                 _probePropertiesSection.SetActive(false);
 
-                CommunicationManager.Instance.GetShankCount(manipulatorID, shankCount =>
-                {
-                    // Use 2.4 if 4 shank, otherwise default to 1
-                    var probeType = shankCount == 4
-                        ? ProbeProperties.ProbeType.Neuropixels24
-                        : ProbeProperties.ProbeType.Neuropixels1;
-
-                    CreatePathfinderProbe(probeType);
-                    return;
-
-                    void CreatePathfinderProbe(ProbeProperties.ProbeType newProbeType)
+                CommunicationManager.Instance.GetShankCount(
+                    manipulatorID,
+                    shankCount =>
                     {
-                        // Create new probe
-                        var trajectoryPlannerManager = FindObjectOfType<TrajectoryPlannerManager>();
-                        var newProbe = trajectoryPlannerManager.AddNewProbe(newProbeType);
+                        // Use 2.4 if 4 shank, otherwise default to 1
+                        var probeType =
+                            shankCount == 4
+                                ? ProbeProperties.ProbeType.Neuropixels24
+                                : ProbeProperties.ProbeType.Neuropixels1;
 
-                        // Configure probe and link to Ephys Link
-                        newProbe.ManipulatorBehaviorController.CreatePathfinderProbe = CreatePathfinderProbe;
-                        newProbe.ManipulatorBehaviorController.DestroyThisProbe = () =>
-                            trajectoryPlannerManager.DestroyProbe(newProbe);
-                        newProbe.Color = Color.magenta;
-                        newProbe.name = "nsp_" + manipulatorID;
-                        newProbe.Saved = false;
-                        newProbe.SetIsEphysLinkControlled(true, manipulatorID);
-                    }
-                }, Debug.LogError);
+                        CreatePathfinderProbe(probeType);
+                        return;
+
+                        void CreatePathfinderProbe(ProbeProperties.ProbeType newProbeType)
+                        {
+                            // Create new probe
+                            var trajectoryPlannerManager =
+                                FindObjectOfType<TrajectoryPlannerManager>();
+                            var newProbe = trajectoryPlannerManager.AddNewProbe(newProbeType);
+
+                            // Configure probe and link to Ephys Link
+                            newProbe.ManipulatorBehaviorController.CreatePathfinderProbe =
+                                CreatePathfinderProbe;
+                            newProbe.ManipulatorBehaviorController.DestroyThisProbe = () =>
+                                trajectoryPlannerManager.DestroyProbe(newProbe);
+                            newProbe.Color = Color.magenta;
+                            newProbe.name = "nsp_" + manipulatorID;
+                            newProbe.Saved = false;
+                            newProbe.SetIsEphysLinkControlled(true, manipulatorID);
+                        }
+                    },
+                    Debug.LogError
+                );
 
                 // Exit (don't need to do anything else for Pathfinder)
                 return;
@@ -119,13 +154,20 @@ namespace Pinpoint.UI.EphysLinkSettings
             // Apply handedness from memory or default to right handed, also pass along manipulator type
             if (_attachedProbe)
             {
-                _handednessDropdown.value = _attachedProbe.ManipulatorBehaviorController.IsRightHanded ? 1 : 0;
+                _handednessDropdown.value = _attachedProbe
+                    .ManipulatorBehaviorController
+                    .IsRightHanded
+                    ? 1
+                    : 0;
                 _attachedProbe.ManipulatorBehaviorController.NumAxes = numAxes;
             }
             else
             {
-                _handednessDropdown.value =
-                    Settings.EphysLinkRightHandedManipulators.Split("\n").Contains(manipulatorID) ? 1 : 0;
+                _handednessDropdown.value = Settings
+                    .EphysLinkRightHandedManipulators.Split("\n")
+                    .Contains(manipulatorID)
+                    ? 1
+                    : 0;
             }
 
             // Register event listeners for updating probes list
@@ -143,16 +185,22 @@ namespace Pinpoint.UI.EphysLinkSettings
         public void OnManipulatorHandednessValueChanged(int value)
         {
             // Set handedness on attached probe if it exists
-            if (_attachedProbe) _attachedProbe.ManipulatorBehaviorController.IsRightHanded = value == 1;
+            if (_attachedProbe)
+                _attachedProbe.ManipulatorBehaviorController.IsRightHanded = value == 1;
 
             // Update handedness in settings
-            var currentRightHandedManipulators = Settings.EphysLinkRightHandedManipulators.Split("\n").ToList();
+            var currentRightHandedManipulators = Settings
+                .EphysLinkRightHandedManipulators.Split("\n")
+                .ToList();
             if (currentRightHandedManipulators.Contains(_manipulatorId) && value == 0)
                 currentRightHandedManipulators.Remove(_manipulatorId);
             else if (!currentRightHandedManipulators.Contains(_manipulatorId) && value == 1)
                 currentRightHandedManipulators.Add(_manipulatorId);
 
-            Settings.EphysLinkRightHandedManipulators = string.Join("\n", currentRightHandedManipulators);
+            Settings.EphysLinkRightHandedManipulators = string.Join(
+                "\n",
+                currentRightHandedManipulators
+            );
         }
 
         /// <summary>
@@ -164,31 +212,38 @@ namespace Pinpoint.UI.EphysLinkSettings
             if (value == 0)
             {
                 // With values != 0, there definitely was an attached probe before
-                _attachedProbe.SetIsEphysLinkControlled(false, _manipulatorId, onSuccess: () =>
-                {
-                    // Disable keyboard control
-                    _attachedProbe.ProbeController.ManipulatorManualControl = false;
-                    _enableManualControlToggle.SetIsOnWithoutNotify(false);
+                _attachedProbe.SetIsEphysLinkControlled(
+                    false,
+                    _manipulatorId,
+                    onSuccess: () =>
+                    {
+                        // Disable keyboard control
+                        _attachedProbe.ProbeController.ManipulatorManualControl = false;
+                        _enableManualControlToggle.SetIsOnWithoutNotify(false);
 
-                    // Clear event listeners
-                    _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.RemoveAllListeners();
-                    _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.RemoveAllListeners();
-                    _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepthChangedEvent
-                        .RemoveAllListeners();
+                        // Clear event listeners
+                        _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.RemoveAllListeners();
+                        _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.RemoveAllListeners();
+                        _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepthChangedEvent.RemoveAllListeners();
 
-                    // Remove probe from linked probes list
-                    _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
-                    _attachedProbe = null;
+                        // Remove probe from linked probes list
+                        _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
+                        _attachedProbe = null;
 
-                    // Inform others a change was made
-                    _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
-                });
+                        // Inform others a change was made
+                        _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
+                    }
+                );
             }
             else
             {
                 // Disconnect currently attached probe (if it's different)
-                if (_attachedProbe && _attachedProbe.UUID != _linkedProbeDropdown.options[value].text)
-                    _attachedProbe.SetIsEphysLinkControlled(false,
+                if (
+                    _attachedProbe
+                    && _attachedProbe.UUID != _linkedProbeDropdown.options[value].text
+                )
+                    _attachedProbe.SetIsEphysLinkControlled(
+                        false,
                         onSuccess: () =>
                         {
                             // Disable keyboard control
@@ -196,36 +251,43 @@ namespace Pinpoint.UI.EphysLinkSettings
                             _enableManualControlToggle.SetIsOnWithoutNotify(false);
 
                             // Clear event listeners
-                            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent
-                                .RemoveAllListeners();
-                            _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent
-                                .RemoveAllListeners();
-                            _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepthChangedEvent
-                                .RemoveAllListeners();
+                            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.RemoveAllListeners();
+                            _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.RemoveAllListeners();
+                            _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepthChangedEvent.RemoveAllListeners();
 
                             // Remove probe from linked probes list
                             _ephysLinkSettings.LinkedProbes.Remove(_attachedProbe);
-                        });
+                        }
+                    );
 
                 // Find the new probe and attach it
                 var selectedProbeUUID = _linkedProbeDropdown.options[value].text;
-                var newProbeManager = ProbeManager.Instances.Find(manager => manager.UUID == selectedProbeUUID);
-                newProbeManager.SetIsEphysLinkControlled(true, _manipulatorId, onSuccess: () =>
-                {
-                    _attachedProbe = newProbeManager;
-                    _ephysLinkSettings.LinkedProbes.Add(_attachedProbe);
+                var newProbeManager = ProbeManager.Instances.Find(manager =>
+                    manager.UUID == selectedProbeUUID
+                );
+                newProbeManager.SetIsEphysLinkControlled(
+                    true,
+                    _manipulatorId,
+                    onSuccess: () =>
+                    {
+                        _attachedProbe = newProbeManager;
+                        _ephysLinkSettings.LinkedProbes.Add(_attachedProbe);
 
-                    // Copy over manipulator type, handedness, and dropdown direction and enable state
-                    _attachedProbe.ManipulatorBehaviorController.NumAxes = _numAxes;
-                    OnManipulatorHandednessValueChanged(_handednessDropdown.value);
-                    UpdateDuraDropDirection(_duraDropDirectionDropdown.value);
-                    SetDuraDropInteractable(_attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset == 0);
-                    _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.AddListener(
-                        brainSurfaceOffset => SetDuraDropInteractable(brainSurfaceOffset == 0));
+                        // Copy over manipulator type, handedness, and dropdown direction and enable state
+                        _attachedProbe.ManipulatorBehaviorController.NumAxes = _numAxes;
+                        OnManipulatorHandednessValueChanged(_handednessDropdown.value);
+                        UpdateDuraDropDirection(_duraDropDirectionDropdown.value);
+                        SetDuraDropInteractable(
+                            _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset == 0
+                        );
+                        _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.AddListener(
+                            brainSurfaceOffset => SetDuraDropInteractable(brainSurfaceOffset == 0)
+                        );
 
-                    // Inform others a change was made
-                    _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
-                });
+                        // Inform others a change was made
+                        _ephysLinkSettings.InvokeShouldUpdateProbesListEvent();
+                    }
+                );
             }
         }
 
@@ -235,8 +297,12 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="newValue">New offset X-axis value</param>
         public void UpdateZeroCoordinateOffsetX(string newValue)
         {
-            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
-                new Vector4(float.Parse(newValue), float.NaN, float.NaN, float.NaN);
+            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                float.Parse(newValue),
+                float.NaN,
+                float.NaN,
+                float.NaN
+            );
         }
 
         /// <summary>
@@ -245,8 +311,12 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="newValue">New offset Y-axis value</param>
         public void UpdateZeroCoordinateOffsetY(string newValue)
         {
-            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
-                new Vector4(float.NaN, float.Parse(newValue), float.NaN, float.NaN);
+            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                float.NaN,
+                float.Parse(newValue),
+                float.NaN,
+                float.NaN
+            );
         }
 
         /// <summary>
@@ -255,8 +325,12 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="newValue">New offset Z-axis value</param>
         public void UpdateZeroCoordinateOffsetZ(string newValue)
         {
-            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
-                new Vector4(float.NaN, float.NaN, float.Parse(newValue), float.NaN);
+            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                float.NaN,
+                float.NaN,
+                float.Parse(newValue),
+                float.NaN
+            );
         }
 
         /// <summary>
@@ -265,14 +339,20 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="newValue">New offset D-axis value</param>
         public void UpdateZeroCoordinateOffsetD(string newValue)
         {
-            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset =
-                new Vector4(float.NaN, float.NaN, float.NaN, float.Parse(newValue));
+            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                float.NaN,
+                float.NaN,
+                float.NaN,
+                float.Parse(newValue)
+            );
         }
 
         public void UpdateDuraDropDirection(int value)
         {
             // Set drop direction on attached probe if it exists
-            if (_attachedProbe) _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = value == 1;
+            if (_attachedProbe)
+                _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth =
+                    value == 1;
         }
 
         public void SetDuraDropInteractable(bool interactable)
@@ -295,7 +375,9 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="positive">Increment in the positive direction or not</param>
         public void IncrementBrainSurfaceOffset(bool positive)
         {
-            _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset += positive ? 0.1f : -0.1f;
+            _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset += positive
+                ? 0.1f
+                : -0.1f;
         }
 
         /// <summary>
@@ -318,20 +400,22 @@ namespace Pinpoint.UI.EphysLinkSettings
         {
             // Disable keyboard control
             _attachedProbe.ProbeController.ManipulatorManualControl = false;
-            
+
             // Hide move button and show stop button
             _returnToZeroCoordinateButtonGameObject.SetActive(false);
             _stopReturningToZeroCoordinateButtonGameObject.SetActive(true);
 
             // Move manipulator back to zero coordinate
-            _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate(_ =>
+            _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate(
+                _ =>
                 {
                     PostMoveAction();
-                    
+
                     // Reset dura drop direction on successful return
                     _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
                 },
-                _ => PostMoveAction());
+                _ => PostMoveAction()
+            );
             return;
 
             void PostMoveAction()
@@ -347,16 +431,19 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         public void StopReturningToZeroCoordinate()
         {
-            CommunicationManager.Instance.Stop(stopError =>
-            {
-                if (!string.IsNullOrEmpty(stopError)) return;
-                // Hide stop button and show move button
-                _returnToZeroCoordinateButtonGameObject.SetActive(true);
-                _stopReturningToZeroCoordinateButtonGameObject.SetActive(false);
-                    
-                // Re-enable keyboard control
-                _attachedProbe.ProbeController.ManipulatorManualControl = true;
-            });
+            CommunicationManager.Instance.Stop(
+                _manipulatorId,
+                () =>
+                {
+                    // Hide stop button and show move button
+                    _returnToZeroCoordinateButtonGameObject.SetActive(true);
+                    _stopReturningToZeroCoordinateButtonGameObject.SetActive(false);
+
+                    // Re-enable keyboard control
+                    _attachedProbe.ProbeController.ManipulatorManualControl = true;
+                },
+                Debug.LogError
+            );
         }
 
         #endregion
@@ -372,15 +459,20 @@ namespace Pinpoint.UI.EphysLinkSettings
             if (_attachedProbe && _numAxes > 0)
             {
                 _probePropertiesSection.SetActive(true);
-                UpdateZeroCoordinateOffsetInputFields(_attachedProbe.ManipulatorBehaviorController
-                    .ZeroCoordinateOffset);
-                UpdateBrainSurfaceOffsetInputField(_attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset);
+                UpdateZeroCoordinateOffsetInputFields(
+                    _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset
+                );
+                UpdateBrainSurfaceOffsetInputField(
+                    _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset
+                );
 
                 // Attach update event listeners
                 _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffsetChangedEvent.AddListener(
-                    UpdateZeroCoordinateOffsetInputFields);
+                    UpdateZeroCoordinateOffsetInputFields
+                );
                 _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffsetChangedEvent.AddListener(
-                    UpdateBrainSurfaceOffsetInputField);
+                    UpdateBrainSurfaceOffsetInputField
+                );
             }
             else
             {
@@ -388,22 +480,26 @@ namespace Pinpoint.UI.EphysLinkSettings
             }
         }
 
-
         /// <summary>
         ///     Updates the list of linkable probes and re-selects the previously selected probe if it is still available.
         /// </summary>
         private void UpdateLinkableProbeOptions()
         {
             // Capture current selection (either from the previous selection or from the attached probe)
-            var previouslyLinkedProbeUUID = _attachedProbe
-                ? _attachedProbe.UUID
-                : "";
+            var previouslyLinkedProbeUUID = _attachedProbe ? _attachedProbe.UUID : "";
 
             // Repopulate dropdown options
             _linkedProbeDropdown.ClearOptions();
-            var availableProbes = ProbeManager.Instances.Where(manager => manager.ManipulatorBehaviorController && (
-                    manager.UUID == previouslyLinkedProbeUUID || !_ephysLinkSettings.LinkedProbes.Contains(manager)))
-                .Select(manager => manager.UUID).ToList();
+            var availableProbes = ProbeManager
+                .Instances.Where(manager =>
+                    manager.ManipulatorBehaviorController
+                    && (
+                        manager.UUID == previouslyLinkedProbeUUID
+                        || !_ephysLinkSettings.LinkedProbes.Contains(manager)
+                    )
+                )
+                .Select(manager => manager.UUID)
+                .ToList();
             availableProbes.Insert(0, "None");
             _linkedProbeDropdown.AddOptions(availableProbes);
 
@@ -414,15 +510,17 @@ namespace Pinpoint.UI.EphysLinkSettings
             else
                 _linkedProbeDropdown.value = value;
 
-
             // Update probe properties section
             UpdateProbePropertiesSectionState();
 
             // Update color of dropdown to match probe
             var colorBlockCopy = _linkedProbeDropdown.colors;
             colorBlockCopy.normalColor = _attachedProbe ? _attachedProbe.Color : Color.white;
-            colorBlockCopy.selectedColor = new Color(colorBlockCopy.normalColor.r * 0.9f,
-                colorBlockCopy.normalColor.g * 0.9f, colorBlockCopy.normalColor.b * 0.9f);
+            colorBlockCopy.selectedColor = new Color(
+                colorBlockCopy.normalColor.r * 0.9f,
+                colorBlockCopy.normalColor.g * 0.9f,
+                colorBlockCopy.normalColor.b * 0.9f
+            );
             colorBlockCopy.highlightedColor = colorBlockCopy.selectedColor;
             _linkedProbeDropdown.colors = colorBlockCopy;
         }
@@ -433,10 +531,18 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="zeroCoordinateOffset">New zero coordinate offset</param>
         private void UpdateZeroCoordinateOffsetInputFields(Vector4 zeroCoordinateOffset)
         {
-            _zeroCoordinateXInputField.text = zeroCoordinateOffset.x.ToString(CultureInfo.InvariantCulture);
-            _zeroCoordinateYInputField.text = zeroCoordinateOffset.y.ToString(CultureInfo.InvariantCulture);
-            _zeroCoordinateZInputField.text = zeroCoordinateOffset.z.ToString(CultureInfo.InvariantCulture);
-            _zeroCoordinateDInputField.text = zeroCoordinateOffset.w.ToString(CultureInfo.InvariantCulture);
+            _zeroCoordinateXInputField.text = zeroCoordinateOffset.x.ToString(
+                CultureInfo.InvariantCulture
+            );
+            _zeroCoordinateYInputField.text = zeroCoordinateOffset.y.ToString(
+                CultureInfo.InvariantCulture
+            );
+            _zeroCoordinateZInputField.text = zeroCoordinateOffset.z.ToString(
+                CultureInfo.InvariantCulture
+            );
+            _zeroCoordinateDInputField.text = zeroCoordinateOffset.w.ToString(
+                CultureInfo.InvariantCulture
+            );
         }
 
         /// <summary>
@@ -445,7 +551,9 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="brainSurfaceOffset">New brain surface offset</param>
         private void UpdateBrainSurfaceOffsetInputField(float brainSurfaceOffset)
         {
-            _brainSurfaceOffsetInputField.text = brainSurfaceOffset.ToString(CultureInfo.InvariantCulture);
+            _brainSurfaceOffsetInputField.text = brainSurfaceOffset.ToString(
+                CultureInfo.InvariantCulture
+            );
         }
 
         #endregion

@@ -334,8 +334,10 @@ namespace Pinpoint.UI.EphysCopilot
 
         // Drive Speeds
         private float _driveBaseSpeed = DEPTH_DRIVE_BASE_SPEED;
+
         private float _per1000Speed =>
             _driveBaseSpeed <= DEPTH_DRIVE_BASE_SPEED ? PER_1000_SPEED : PER_1000_SPEED_TEST;
+
         private float _targetDriveSpeed => _driveBaseSpeed + _targetDriveDistance * _per1000Speed;
         private float _nearTargetDriveSpeed => _driveBaseSpeed * NEAR_TARGET_SPEED_MULTIPLIER;
         private float _exitDriveBaseSpeed => _driveBaseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER;
@@ -735,44 +737,48 @@ namespace Pinpoint.UI.EphysCopilot
             }
         }
 
+        /// <summary>
+        ///     Stop this drive.
+        /// </summary>
         public void Stop()
         {
-            CommunicationManager.Instance.Stop(stopError =>
-            {
-                if (!string.IsNullOrEmpty(stopError))
-                    return;
-
-                // Show drive group and hide stop button.
-                _statusText.text = "Stopped";
-                _driveGroup.SetActive(true);
-                _exitButton.SetActive(true);
-                _stopButton.SetActive(false);
-
-                // Disable drive button if at Dura and above, otherwise enable.
-                switch (_driveStateManager.State)
+            CommunicationManager.Instance.Stop(
+                _manipulatorId,
+                () =>
                 {
-                    case DriveState.AtDura:
-                    case DriveState.ExitingToMargin:
-                    case DriveState.AtExitMargin:
-                    case DriveState.ExitingToOutside:
-                    case DriveState.Outside:
-                        _driveButton.interactable = false;
-                        break;
-                    case DriveState.DrivingToNearTarget:
-                    case DriveState.AtNearTarget:
-                    case DriveState.DrivingToPastTarget:
-                    case DriveState.AtPastTarget:
-                    case DriveState.ReturningToTarget:
-                    case DriveState.ExitingToDura:
-                    case DriveState.ExitingToNearTarget:
-                    case DriveState.AtTarget:
-                        _driveButton.interactable = true;
-                        break;
-                    default:
-                        Debug.LogError("Unexpected stop state: " + _driveStateManager.State);
-                        break;
-                }
-            });
+                    // Show drive group and hide stop button.
+                    _statusText.text = "Stopped";
+                    _driveGroup.SetActive(true);
+                    _exitButton.SetActive(true);
+                    _stopButton.SetActive(false);
+
+                    // Disable drive button if at Dura and above, otherwise enable.
+                    switch (_driveStateManager.State)
+                    {
+                        case DriveState.AtDura:
+                        case DriveState.ExitingToMargin:
+                        case DriveState.AtExitMargin:
+                        case DriveState.ExitingToOutside:
+                        case DriveState.Outside:
+                            _driveButton.interactable = false;
+                            break;
+                        case DriveState.DrivingToNearTarget:
+                        case DriveState.AtNearTarget:
+                        case DriveState.DrivingToPastTarget:
+                        case DriveState.AtPastTarget:
+                        case DriveState.ReturningToTarget:
+                        case DriveState.ExitingToDura:
+                        case DriveState.ExitingToNearTarget:
+                        case DriveState.AtTarget:
+                            _driveButton.interactable = true;
+                            break;
+                        default:
+                            Debug.LogError("Unexpected stop state: " + _driveStateManager.State);
+                            break;
+                    }
+                },
+                Debug.LogError
+            );
         }
 
         #endregion
