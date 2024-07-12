@@ -30,7 +30,7 @@ namespace Pinpoint.UI.EphysCopilot
 
         // Relative distances (in mm)
         private const float OUTSIDE_DISTANCE = 3.5f;
-        private const float DURA_MARGIN_DISTANCE = 0.1f;
+        private const float DURA_MARGIN_DISTANCE = 0.2f;
         private const float NEAR_TARGET_DISTANCE = 1f;
         private const float DRIVE_PAST_TARGET_DISTANCE = 0.05f;
 
@@ -42,8 +42,8 @@ namespace Pinpoint.UI.EphysCopilot
 
         // Speed multipliers
         private const float NEAR_TARGET_SPEED_MULTIPLIER = 2f / 3f;
-        private const int EXIT_DRIVE_SPEED_MULTIPLIER = 5;
-        private const int OUTSIDE_DRIVE_SPEED_MULTIPLIER = 20;
+        private const int EXIT_DRIVE_SPEED_MULTIPLIER = 6;
+        private const int OUTSIDE_DRIVE_SPEED_MULTIPLIER = 50;
 
         // Per 1000 um speed increase (in mm/s)
         private const float PER_1000_SPEED = 0.001f;
