@@ -562,7 +562,7 @@ namespace Pinpoint.Probes
                         string[] data =
                         {
                             "ephys_link",
-                            Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture),
+                            DateTime.Now.ToString(CultureInfo.InvariantCulture),
                             ManipulatorID,
                             pos.x.ToString(CultureInfo.InvariantCulture),
                             pos.y.ToString(CultureInfo.InvariantCulture),
