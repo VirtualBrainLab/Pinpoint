@@ -99,6 +99,7 @@ namespace Pinpoint.Probes
         #region Private internal fields
 
         private Vector4 _lastManipulatorPosition = Vector4.zero;
+        private Vector4 _lastLoggedManipulatorPosition = Vector4.zero;
         private Vector4 _zeroCoordinateOffset = Vector4.zero;
         private float _brainSurfaceOffset;
         private bool _isSetToDropToSurfaceWithDepth = true;
@@ -542,30 +543,50 @@ namespace Pinpoint.Probes
 
             void LogAndContinue()
             {
-                // Log every 5 hz
-                if (Time.time - _lastLoggedTime >= 0.2)
+                // Don't log if the last position is the same.
+                var positionDifference = _lastLoggedManipulatorPosition - pos;
+                if (
+                    Mathf.Abs(positionDifference.x) > 0.0001
+                    || Mathf.Abs(positionDifference.y) > 0.0001
+                    || Mathf.Abs(positionDifference.z) > 0.0001
+                    || Mathf.Abs(positionDifference.w) > 0.0001
+                )
                 {
-                    _lastLoggedTime = Time.time;
-                    var tipPos = _probeController.ProbeTipT.position;
-
-                    // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
-                    string[] data =
+                    // Log every 4 hz
+                    if (Time.time - _lastLoggedTime >= 0.25)
                     {
-                        "ephys_link",
-                        Time.realtimeSinceStartup.ToString(CultureInfo.InvariantCulture),
-                        ManipulatorID,
-                        pos.x.ToString(CultureInfo.InvariantCulture),
-                        pos.y.ToString(CultureInfo.InvariantCulture),
-                        pos.z.ToString(CultureInfo.InvariantCulture),
-                        pos.w.ToString(CultureInfo.InvariantCulture),
-                        _probeController.Insertion.Yaw.ToString(CultureInfo.InvariantCulture),
-                        _probeController.Insertion.Pitch.ToString(CultureInfo.InvariantCulture),
-                        _probeController.Insertion.Roll.ToString(CultureInfo.InvariantCulture),
-                        tipPos.x.ToString(CultureInfo.InvariantCulture),
-                        tipPos.y.ToString(CultureInfo.InvariantCulture),
-                        tipPos.z.ToString(CultureInfo.InvariantCulture)
-                    };
-                    OutputLog.Log(data);
+                        _lastLoggedTime = Time.time;
+                        var tipPos = _probeController.ProbeTipT.position;
+
+                        // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
+                        OutputLog.Log(
+                            new[]
+                            {
+                                "ephys_link",
+                                DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                ManipulatorID,
+                                pos.x.ToString(CultureInfo.InvariantCulture),
+                                pos.y.ToString(CultureInfo.InvariantCulture),
+                                pos.z.ToString(CultureInfo.InvariantCulture),
+                                pos.w.ToString(CultureInfo.InvariantCulture),
+                                _probeController.Insertion.Yaw.ToString(
+                                    CultureInfo.InvariantCulture
+                                ),
+                                _probeController.Insertion.Pitch.ToString(
+                                    CultureInfo.InvariantCulture
+                                ),
+                                _probeController.Insertion.Roll.ToString(
+                                    CultureInfo.InvariantCulture
+                                ),
+                                tipPos.x.ToString(CultureInfo.InvariantCulture),
+                                tipPos.y.ToString(CultureInfo.InvariantCulture),
+                                tipPos.z.ToString(CultureInfo.InvariantCulture)
+                            }
+                        );
+
+                        // Update last logged position
+                        _lastLoggedManipulatorPosition = pos;
+                    }
                 }
 
                 // Continue echoing position

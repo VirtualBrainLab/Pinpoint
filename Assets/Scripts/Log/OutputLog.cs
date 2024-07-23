@@ -25,6 +25,12 @@ public class OutputLog : MonoBehaviour
     private const int MAX_LOG_LINES = 60;
     private bool _warned;
 
+#if !UNITY_WEBGL
+    private string logPath =
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/Pinpoint";
+    private DateTime logStartTime = DateTime.Now;
+#endif
+
     private void Awake()
     {
         if (Instance != null)
@@ -35,6 +41,10 @@ public class OutputLog : MonoBehaviour
 
 #if UNITY_EDITOR
         _lastLogTime = float.MinValue;
+#endif
+#if !UNITY_WEBGL
+        // Create log directory if it doesn't exist.
+        System.IO.Directory.CreateDirectory(logPath);
 #endif
     }
 
@@ -52,9 +62,20 @@ public class OutputLog : MonoBehaviour
         }
         Instance._lastLogTime = Time.realtimeSinceStartup;
 #endif
+        var logLine = string.Join(',', data);
 
-        Instance._log.Add(string.Join(',', data));
+        Instance._log.Add(logLine);
         Instance.UpdateLogText();
+
+#if !UNITY_WEBGL
+        // Log to file.
+        var fileName =
+            Instance.logPath
+            + "/log_"
+            + Instance.logStartTime.ToString("yyyy-MM-dd_HH-mm-ss")
+            + ".csv";
+        System.IO.File.AppendAllText(fileName, logLine + "\n");
+#endif
     }
 
     public void UpdateLogText()

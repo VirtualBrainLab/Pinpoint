@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using EphysLink;
 using TMPro;
 using UnityEngine;
@@ -10,7 +12,8 @@ namespace Pinpoint.UI.EphysCopilot
 
         private void Start()
         {
-            _manipulatorIDText.text = "Manipulator " + ProbeManager.ManipulatorBehaviorController.ManipulatorID;
+            _manipulatorIDText.text =
+                "Manipulator " + ProbeManager.ManipulatorBehaviorController.ManipulatorID;
             _manipulatorIDText.color = ProbeManager.Color;
         }
 
@@ -23,19 +26,35 @@ namespace Pinpoint.UI.EphysCopilot
         /// </summary>
         public void ResetZeroCoordinate()
         {
-            CommunicationManager.Instance.GetPosition(ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+            CommunicationManager.Instance.GetPosition(
+                ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                 zeroCoordinate =>
                 {
-                    ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinate;
+                    ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset =
+                        zeroCoordinate;
                     ProbeManager.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
-                });
+                }
+            );
+
+            // Log event.
+            OutputLog.Log(
+                new[]
+                {
+                    "Copilot",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "ResetZeroCoordinate",
+                    ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                    ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset.ToString()
+                }
+            );
         }
 
         #endregion
 
         #region Components
 
-        [SerializeField] private TMP_Text _manipulatorIDText;
+        [SerializeField]
+        private TMP_Text _manipulatorIDText;
 
         public ProbeManager ProbeManager { private get; set; }
 

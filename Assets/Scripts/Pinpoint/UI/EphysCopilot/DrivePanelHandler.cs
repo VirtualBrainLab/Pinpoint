@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using BrainAtlas;
 using EphysLink;
 using TMPro;
@@ -466,6 +468,18 @@ namespace Pinpoint.UI.EphysCopilot
                     switch (_driveStateManager.State)
                     {
                         case DriveState.DrivingToNearTarget:
+                            // Log start of drive.
+                            OutputLog.Log(
+                                new[]
+                                {
+                                    "Copilot",
+                                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                    "Drive",
+                                    _manipulatorId,
+                                    "Start Driving to Near Target @ " + _driveBaseSpeed,
+                                }
+                            );
+
                             // Update status text
                             _statusText.text =
                                 "Driving to "
@@ -492,6 +506,18 @@ namespace Pinpoint.UI.EphysCopilot
                                 CompleteAndAdvance();
                             break;
                         case DriveState.DrivingToPastTarget:
+                            // Log driving to past target.
+                            OutputLog.Log(
+                                new[]
+                                {
+                                    "Copilot",
+                                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                    "Drive",
+                                    _manipulatorId,
+                                    "Start Driving to Past Target: " + _pastTargetDepth,
+                                }
+                            );
+
                             // Update status text
                             _statusText.text =
                                 "Driving to "
@@ -518,6 +544,18 @@ namespace Pinpoint.UI.EphysCopilot
                                 CompleteAndAdvance();
                             break;
                         case DriveState.ReturningToTarget:
+                            // Log returning to target.
+                            OutputLog.Log(
+                                new[]
+                                {
+                                    "Copilot",
+                                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                    "Drive",
+                                    _manipulatorId,
+                                    "Start Returning to Target: " + _targetDepth,
+                                }
+                            );
+
                             // Update status text
                             _statusText.text = "Returning to target...";
 
@@ -532,7 +570,7 @@ namespace Pinpoint.UI.EphysCopilot
                                     _targetDepth,
                                     _nearTargetDriveSpeed
                                 ),
-                                _ =>
+                                finalDepth =>
                                 {
                                     _driveStateManager.CompleteMovement();
 
@@ -544,6 +582,18 @@ namespace Pinpoint.UI.EphysCopilot
                                     _driveGroup.SetActive(true);
                                     _driveButton.interactable = false;
                                     _exitButton.SetActive(true);
+
+                                    // Log end of drive.
+                                    OutputLog.Log(
+                                        new[]
+                                        {
+                                            "Copilot",
+                                            DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                            "Drive",
+                                            _manipulatorId,
+                                            "End Drive: " + finalDepth,
+                                        }
+                                    );
                                 },
                                 Debug.LogError
                             );
@@ -590,6 +640,18 @@ namespace Pinpoint.UI.EphysCopilot
                     switch (_driveStateManager.State)
                     {
                         case DriveState.ExitingToNearTarget:
+                            // Log start of exit.
+                            OutputLog.Log(
+                                new[]
+                                {
+                                    "Copilot",
+                                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                    "Drive",
+                                    _manipulatorId,
+                                    "Start Exiting to Near Target: " + _nearTargetDepth,
+                                }
+                            );
+
                             // Update status text
                             _statusText.text = "Returning to surface...";
 
@@ -613,6 +675,18 @@ namespace Pinpoint.UI.EphysCopilot
                                 CompleteAndAdvance();
                             break;
                         case DriveState.ExitingToDura:
+                            // Log exiting to dura.
+                            OutputLog.Log(
+                                new[]
+                                {
+                                    "Copilot",
+                                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                    "Drive",
+                                    _manipulatorId,
+                                    "Start Exiting to Dura: " + _duraDepth,
+                                }
+                            );
+
                             // Update status text
                             _statusText.text = "Returning to surface...";
 
@@ -638,6 +712,18 @@ namespace Pinpoint.UI.EphysCopilot
                                 CompleteAndAdvance();
                             break;
                         case DriveState.ExitingToMargin:
+                            // Log exiting to margin.
+                            OutputLog.Log(
+                                new[]
+                                {
+                                    "Copilot",
+                                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                    "Drive",
+                                    _manipulatorId,
+                                    "Start Exiting to Margin: " + _exitMarginDepth,
+                                }
+                            );
+
                             // Update status text
                             _statusText.text = "Exiting Dura...";
 
@@ -663,6 +749,18 @@ namespace Pinpoint.UI.EphysCopilot
                                 CompleteAndAdvance();
                             break;
                         case DriveState.ExitingToOutside:
+                            // Log exiting to outside.
+                            OutputLog.Log(
+                                new[]
+                                {
+                                    "Copilot",
+                                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                    "Drive",
+                                    _manipulatorId,
+                                    "Start Exiting to Outside",
+                                }
+                            );
+
                             // Update status text
                             _statusText.text = "Exiting Dura...";
 
@@ -734,6 +832,18 @@ namespace Pinpoint.UI.EphysCopilot
                 _stopButton.SetActive(false);
                 _exitButton.SetActive(false);
                 _driveGroup.SetActive(true);
+
+                // Log end of exit.
+                OutputLog.Log(
+                    new[]
+                    {
+                        "Copilot",
+                        DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                        "Drive",
+                        _manipulatorId,
+                        "End Exiting to Outside",
+                    }
+                );
             }
         }
 
@@ -746,6 +856,18 @@ namespace Pinpoint.UI.EphysCopilot
                 _manipulatorId,
                 () =>
                 {
+                    // Log stop event.
+                    OutputLog.Log(
+                        new[]
+                        {
+                            "Copilot",
+                            DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                            "Drive",
+                            _manipulatorId,
+                            "Stop",
+                        }
+                    );
+                    
                     // Show drive group and hide stop button.
                     _statusText.text = "Stopped";
                     _driveGroup.SetActive(true);
