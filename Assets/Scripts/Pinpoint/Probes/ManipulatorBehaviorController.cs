@@ -559,23 +559,30 @@ namespace Pinpoint.Probes
                         var tipPos = _probeController.ProbeTipT.position;
 
                         // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
-                        string[] data =
-                        {
-                            "ephys_link",
-                            DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                            ManipulatorID,
-                            pos.x.ToString(CultureInfo.InvariantCulture),
-                            pos.y.ToString(CultureInfo.InvariantCulture),
-                            pos.z.ToString(CultureInfo.InvariantCulture),
-                            pos.w.ToString(CultureInfo.InvariantCulture),
-                            _probeController.Insertion.Yaw.ToString(CultureInfo.InvariantCulture),
-                            _probeController.Insertion.Pitch.ToString(CultureInfo.InvariantCulture),
-                            _probeController.Insertion.Roll.ToString(CultureInfo.InvariantCulture),
-                            tipPos.x.ToString(CultureInfo.InvariantCulture),
-                            tipPos.y.ToString(CultureInfo.InvariantCulture),
-                            tipPos.z.ToString(CultureInfo.InvariantCulture)
-                        };
-                        OutputLog.Log(data);
+                        OutputLog.Log(
+                            new[]
+                            {
+                                "ephys_link",
+                                DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                ManipulatorID,
+                                pos.x.ToString(CultureInfo.InvariantCulture),
+                                pos.y.ToString(CultureInfo.InvariantCulture),
+                                pos.z.ToString(CultureInfo.InvariantCulture),
+                                pos.w.ToString(CultureInfo.InvariantCulture),
+                                _probeController.Insertion.Yaw.ToString(
+                                    CultureInfo.InvariantCulture
+                                ),
+                                _probeController.Insertion.Pitch.ToString(
+                                    CultureInfo.InvariantCulture
+                                ),
+                                _probeController.Insertion.Roll.ToString(
+                                    CultureInfo.InvariantCulture
+                                ),
+                                tipPos.x.ToString(CultureInfo.InvariantCulture),
+                                tipPos.y.ToString(CultureInfo.InvariantCulture),
+                                tipPos.z.ToString(CultureInfo.InvariantCulture)
+                            }
+                        );
 
                         // Update last logged position
                         _lastLoggedManipulatorPosition = pos;

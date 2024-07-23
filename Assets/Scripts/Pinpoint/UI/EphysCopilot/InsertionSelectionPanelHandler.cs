@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using BrainAtlas;
 using EphysLink;
@@ -216,6 +217,19 @@ namespace Pinpoint.UI.EphysCopilot
             if (_isMoving)
             // Movement in progress -> should stop movement
             {
+                // Log that movement is stopping.
+                OutputLog.Log(
+                    new[]
+                    {
+                        "Copilot",
+                        DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                        "MoveToTargetInsertion",
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                        "Stop"
+                    }
+                );
+
+                // Stop movement.
                 CommunicationManager.Instance.Stop(
                     ProbeManager.ManipulatorBehaviorController.ManipulatorID,
                     () =>
@@ -228,6 +242,19 @@ namespace Pinpoint.UI.EphysCopilot
             }
             else
             {
+                // Log that movement is starting.
+                OutputLog.Log(
+                    new[]
+                    {
+                        "Copilot",
+                        DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                        "MoveToTargetInsertion",
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                        "Start"
+                    }
+                );
+
+                // Make movement.
                 MoveToTargetInsertion();
                 _moveButtonText.text = STOP_MOVEMENT_STR;
             }
@@ -511,6 +538,20 @@ namespace Pinpoint.UI.EphysCopilot
                                     // Complete movement
                                     EndMovement();
                                     _moveButton.interactable = false;
+
+                                    // Log movement finish.
+                                    OutputLog.Log(
+                                        new[]
+                                        {
+                                            "Copilot",
+                                            DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                                            "MoveToTargetInsertion",
+                                            ProbeManager
+                                                .ManipulatorBehaviorController
+                                                .ManipulatorID,
+                                            "Finish"
+                                        }
+                                    );
                                 },
                                 error =>
                                 {

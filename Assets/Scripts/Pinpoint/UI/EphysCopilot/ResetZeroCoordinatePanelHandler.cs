@@ -37,15 +37,16 @@ namespace Pinpoint.UI.EphysCopilot
             );
 
             // Log event.
-            string[] data =
-            {
-                "Copilot",
-                DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                "ResetZeroCoordinate",
-                ProbeManager.ManipulatorBehaviorController.ManipulatorID,
-                ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset.ToString()
-            };
-            OutputLog.Log(data);
+            OutputLog.Log(
+                new[]
+                {
+                    "Copilot",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "ResetZeroCoordinate",
+                    ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                    ProbeManager.ManipulatorBehaviorController.ZeroCoordinateOffset.ToString()
+                }
+            );
         }
 
         #endregion
