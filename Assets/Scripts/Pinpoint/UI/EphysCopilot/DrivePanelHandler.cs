@@ -856,6 +856,18 @@ namespace Pinpoint.UI.EphysCopilot
                 _manipulatorId,
                 () =>
                 {
+                    // Log stop event.
+                    OutputLog.Log(
+                        new[]
+                        {
+                            "Copilot",
+                            DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                            "Drive",
+                            _manipulatorId,
+                            "Stop",
+                        }
+                    );
+                    
                     // Show drive group and hide stop button.
                     _statusText.text = "Stopped";
                     _driveGroup.SetActive(true);
