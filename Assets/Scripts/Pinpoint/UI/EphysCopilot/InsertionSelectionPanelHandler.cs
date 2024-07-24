@@ -538,20 +538,6 @@ namespace Pinpoint.UI.EphysCopilot
                                     // Complete movement
                                     EndMovement();
                                     _moveButton.interactable = false;
-
-                                    // Log movement finish.
-                                    OutputLog.Log(
-                                        new[]
-                                        {
-                                            "Copilot",
-                                            DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                                            "MoveToTargetInsertion",
-                                            ProbeManager
-                                                .ManipulatorBehaviorController
-                                                .ManipulatorID,
-                                            "Finish"
-                                        }
-                                    );
                                 },
                                 error =>
                                 {
@@ -579,6 +565,18 @@ namespace Pinpoint.UI.EphysCopilot
             {
                 _isMoving = false;
                 _moveButtonText.text = MOVE_TO_TARGET_INSERTION_STR;
+
+                // Log movement finish.
+                OutputLog.Log(
+                    new[]
+                    {
+                        "Copilot",
+                        DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                        "MoveToTargetInsertion",
+                        ProbeManager.ManipulatorBehaviorController.ManipulatorID,
+                        "Finish"
+                    }
+                );
             }
         }
 
