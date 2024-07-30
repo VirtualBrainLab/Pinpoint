@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Linq;
 using EphysLink;
 using TMPro;
-using TrajectoryPlanner;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -90,52 +89,6 @@ namespace Pinpoint.UI.EphysLinkSettings
             // Initialize components
             _manipulatorIdText.text = manipulatorID;
 
-            // Spawn and setup Pathfinder manipulators
-            if (_numAxes == -1)
-            {
-                // Hide all parts
-                _handednessGroup.SetActive(false);
-                _probeConnectionGroup.SetActive(false);
-                _probePropertiesSection.SetActive(false);
-
-                CommunicationManager.Instance.GetShankCount(
-                    manipulatorID,
-                    shankCount =>
-                    {
-                        // Use 2.4 if 4 shank, otherwise default to 1
-                        var probeType =
-                            shankCount == 4
-                                ? ProbeProperties.ProbeType.Neuropixels24
-                                : ProbeProperties.ProbeType.Neuropixels1;
-
-                        CreatePathfinderProbe(probeType);
-                        return;
-
-                        void CreatePathfinderProbe(ProbeProperties.ProbeType newProbeType)
-                        {
-                            // Create new probe
-                            var trajectoryPlannerManager =
-                                FindObjectOfType<TrajectoryPlannerManager>();
-                            var newProbe = trajectoryPlannerManager.AddNewProbe(newProbeType);
-
-                            // Configure probe and link to Ephys Link
-                            newProbe.ManipulatorBehaviorController.CreatePathfinderProbe =
-                                CreatePathfinderProbe;
-                            newProbe.ManipulatorBehaviorController.DestroyThisProbe = () =>
-                                trajectoryPlannerManager.DestroyProbe(newProbe);
-                            newProbe.Color = Color.magenta;
-                            newProbe.name = "nsp_" + manipulatorID;
-                            newProbe.Saved = false;
-                            newProbe.SetIsEphysLinkControlled(true, manipulatorID);
-                        }
-                    },
-                    Debug.LogError
-                );
-
-                // Exit (don't need to do anything else for Pathfinder)
-                return;
-            }
-
             // Restore or setup normal manipulator
 
             UpdateLinkableProbeOptions();
@@ -151,7 +104,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                 _handednessGroup.SetActive(true);
             }
 
-            // Apply handedness from memory or default to right handed, also pass along manipulator type
+            // Apply handedness from memory or default to right-handed, also pass along manipulator type
             if (_attachedProbe)
             {
                 _handednessDropdown.value = _attachedProbe
@@ -181,7 +134,7 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <summary>
         ///     Handle changing manipulator's registered handedness on UI change.
         /// </summary>
-        /// <param name="value">Selected index of the handedness options (0 = left handed, 1 = right handed)</param>
+        /// <param name="value">Selected index of the handedness options (0 = left-handed, 1 = right-handed)</param>
         public void OnManipulatorHandednessValueChanged(int value)
         {
             // Set handedness on attached probe if it exists
@@ -355,7 +308,7 @@ namespace Pinpoint.UI.EphysLinkSettings
                     value == 1;
         }
 
-        public void SetDuraDropInteractable(bool interactable)
+        private void SetDuraDropInteractable(bool interactable)
         {
             _duraDropDirectionDropdown.interactable = interactable;
         }
