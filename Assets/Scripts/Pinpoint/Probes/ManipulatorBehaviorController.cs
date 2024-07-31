@@ -392,35 +392,65 @@ namespace Pinpoint.Probes
                 IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
             _lastManipulatorPosition = pos;
 
-            // Apply zero coordinate offset
+            // Apply zero coordinate offset.
             var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
 
-            // Convert to coordinate space
+            // Convert to coordinate space.
             var manipulatorSpacePosition = CoordinateTransform.T2U(
                 zeroCoordinateAdjustedManipulatorPosition
             );
 
-            // Brain surface adjustment
+            // Brain surface adjustment.
             var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
             if (IsSetToDropToSurfaceWithDepth)
-                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+            {
+                // Apply depth adjustment to manipulator position for non-3 axis manipulators.
+                if (CoordinateTransform.Prefix != "3lhm")
+                    zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+            }
             else
                 manipulatorSpacePosition.y -= brainSurfaceAdjustment;
 
-            // Convert to world space
+            print(
+                zeroCoordinateAdjustedManipulatorPosition
+                    + "\t"
+                    + manipulatorSpacePosition
+                    + "\t"
+                    + brainSurfaceAdjustment
+            );
+
+            // Convert to world space.
             var zeroCoordinateAdjustedWorldPosition = CoordinateSpace.Space2World(
                 manipulatorSpacePosition
             );
 
-            // Set probe position (change axes to match probe)
+            // Set probe position (change axes to match probe).
             var transformedApmldv = BrainAtlasManager.World2T_Vector(
                 zeroCoordinateAdjustedWorldPosition
             );
 
-            // Split between 3 and 4 axis assignments
+            // Set probe position.
+            // For 3-axis manipulators, use depth to adjust brain offset if applying offset on depth.
             if (CoordinateTransform.Prefix == "3lhm")
-                _probeController.SetProbePosition(transformedApmldv);
+            {
+                if (IsSetToDropToSurfaceWithDepth)
+                {
+                    _probeController.SetProbePosition(
+                        new Vector4(
+                            transformedApmldv.x,
+                            transformedApmldv.y,
+                            transformedApmldv.z,
+                            brainSurfaceAdjustment
+                        )
+                    );
+                }
+                else
+                {
+                    _probeController.SetProbePosition(transformedApmldv);
+                }
+            }
             else
+            {
                 _probeController.SetProbePosition(
                     new Vector4(
                         transformedApmldv.x,
@@ -429,6 +459,7 @@ namespace Pinpoint.Probes
                         zeroCoordinateAdjustedManipulatorPosition.w
                     )
                 );
+            }
 
             // Log and continue echoing
             LogAndContinue();
