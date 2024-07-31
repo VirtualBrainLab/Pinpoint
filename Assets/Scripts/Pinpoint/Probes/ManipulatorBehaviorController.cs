@@ -156,16 +156,16 @@ namespace Pinpoint.Probes
 
         public void Initialize(string manipulatorID, bool calibrated)
         {
-            CommunicationManager.Instance.GetManipulators(reponse =>
+            CommunicationManager.Instance.GetManipulators(response =>
             {
                 // Shortcut exit if we have an invalid manipulator ID
-                if (!reponse.Manipulators.Contains(manipulatorID))
+                if (!response.Manipulators.Contains(manipulatorID))
                     return;
 
                 // Set manipulator ID, number of axes, and dimensions
                 ManipulatorID = manipulatorID;
-                NumAxes = reponse.NumAxes;
-                Dimensions = reponse.Dimensions;
+                NumAxes = response.NumAxes;
+                Dimensions = response.Dimensions;
 
                 // Update transform and space
                 UpdateSpaceAndTransform();
@@ -191,20 +191,9 @@ namespace Pinpoint.Probes
             });
         }
 
-        public void Deinitialize()
-        {
-            // Destroy Pathfinder probe.
-            if (NumAxes == -1)
-                DestroyThisProbe.Invoke();
-        }
-
         private void UpdateSpaceAndTransform()
         {
-            CoordinateSpace = NumAxes switch
-            {
-                -1 => new PathfinderSpace(),
-                _ => new ManipulatorSpace(Dimensions)
-            };
+            CoordinateSpace = new ManipulatorSpace(Dimensions);
             CoordinateTransform = NumAxes switch
             {
                 4
@@ -339,6 +328,7 @@ namespace Pinpoint.Probes
                         ),
                         newPos =>
                         {
+                            print("New pos: " + newPos + "; Setting depth...");
                             // Process depth movement
                             var targetDepth = newPos.w + manipulatorSpaceDepth;
                             // Move the manipulator
@@ -391,106 +381,9 @@ namespace Pinpoint.Probes
 
         private void EchoPosition(Vector4 pos)
         {
+            // Exit if disabled and there is no probe controller.
             if (!enabled && _probeController == null)
                 return;
-
-            // Check for special Pathfinder mode
-            if (NumAxes == -1)
-            {
-                // Check if probe type changed
-                CommunicationManager.Instance.GetShankCount(
-                    ManipulatorID,
-                    shankCount =>
-                    {
-                        // Use 2.4 if 4 shank, otherwise default to 1
-                        var probeType =
-                            shankCount == 4
-                                ? ProbeProperties.ProbeType.Neuropixels24
-                                : ProbeProperties.ProbeType.Neuropixels1;
-
-                        // print("Read type: " + probeType + "; Current type: " + _probeManager.ProbeType);
-                        // Check if change is needed
-                        if (probeType != _probeManager.ProbeType)
-                        {
-                            // Unregister manipulator
-                            _probeManager.SetIsEphysLinkControlled(
-                                false,
-                                ManipulatorID,
-                                true,
-                                () =>
-                                {
-                                    // Create new probe
-                                    CreatePathfinderProbe.Invoke(probeType);
-
-                                    // Destroy current probe
-                                    DestroyThisProbe.Invoke();
-                                },
-                                Debug.LogError
-                            );
-
-                            // Exit early as this probe no longer exists
-                            return;
-                        }
-
-                        // Otherwise, update probe angles
-                        CommunicationManager.Instance.GetAngles(
-                            ManipulatorID,
-                            angles =>
-                            {
-                                _probeController.SetProbeAngles(
-                                    new Vector3(angles.x, 90 - angles.y, angles.z)
-                                );
-
-                                // If only the DV axis moved, then we drop on DV. Otherwise, we drop on depth.
-                                if (Math.Abs(pos.z - _lastManipulatorPosition.z) > 0.0001)
-                                    IsSetToDropToSurfaceWithDepth =
-                                        Math.Abs(pos.x - _lastManipulatorPosition.x) > 0.0001
-                                        || Math.Abs(pos.y - _lastManipulatorPosition.y) > 0.0001;
-
-                                // Copy in new 3-axis position into saved 4-axis position
-                                _lastManipulatorPosition = new Vector4(
-                                    pos.x,
-                                    pos.y,
-                                    pos.z,
-                                    _lastManipulatorPosition.w
-                                );
-
-                                // Apply brain surface offset on correct axis
-                                var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset)
-                                    ? 0
-                                    : BrainSurfaceOffset;
-                                if (IsSetToDropToSurfaceWithDepth)
-                                    _lastManipulatorPosition.w -= brainSurfaceAdjustment;
-                                else
-                                    _lastManipulatorPosition.z -= brainSurfaceAdjustment;
-
-                                // Convert Pathfinder space coordinates into active atlas space
-                                var convertedPos = _probeController.Insertion.World2T_Vector(
-                                    CoordinateSpace.Space2World_Vector(_lastManipulatorPosition)
-                                );
-
-                                // Copy and add 4th axis back in
-                                _probeController.SetProbePosition(
-                                    new Vector4(
-                                        convertedPos.x,
-                                        convertedPos.y,
-                                        convertedPos.z,
-                                        _lastManipulatorPosition.w
-                                    )
-                                );
-
-                                // Log and continue echoing
-                                LogAndContinue();
-                            },
-                            Debug.LogError
-                        );
-                    },
-                    Debug.LogError
-                );
-
-                // Exit early as we've handled Pathfinder
-                return;
-            }
 
             // Calculate last used direction for dropping to brain surface (between depth and DV)
             var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
@@ -499,35 +392,55 @@ namespace Pinpoint.Probes
                 IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
             _lastManipulatorPosition = pos;
 
-            // Apply zero coordinate offset
+            // Apply zero coordinate offset.
             var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
 
-            // Convert to coordinate space
+            // Convert to coordinate space.
             var manipulatorSpacePosition = CoordinateTransform.T2U(
                 zeroCoordinateAdjustedManipulatorPosition
             );
 
-            // Brain surface adjustment
+            // Brain surface adjustment.
             var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
             if (IsSetToDropToSurfaceWithDepth)
-                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+            {
+                // Apply depth adjustment to manipulator position for non-3 axis manipulators.
+                if (CoordinateTransform.Prefix != "3lhm")
+                    zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+            }
             else
+            {
                 manipulatorSpacePosition.y -= brainSurfaceAdjustment;
+            }
 
-            // Convert to world space
+            // Convert to world space.
             var zeroCoordinateAdjustedWorldPosition = CoordinateSpace.Space2World(
                 manipulatorSpacePosition
             );
 
-            // Set probe position (change axes to match probe)
+            // Set probe position (change axes to match probe).
             var transformedApmldv = BrainAtlasManager.World2T_Vector(
                 zeroCoordinateAdjustedWorldPosition
             );
 
-            // Split between 3 and 4 axis assignments
+            // Set probe position.
+            // For 3-axis manipulators, use depth to adjust brain offset if applying offset on depth.
             if (CoordinateTransform.Prefix == "3lhm")
-                _probeController.SetProbePosition(transformedApmldv);
+            {
+                if (IsSetToDropToSurfaceWithDepth)
+                    _probeController.SetProbePosition(
+                        new Vector4(
+                            transformedApmldv.x,
+                            transformedApmldv.y,
+                            transformedApmldv.z,
+                            brainSurfaceAdjustment
+                        )
+                    );
+                else
+                    _probeController.SetProbePosition(transformedApmldv);
+            }
             else
+            {
                 _probeController.SetProbePosition(
                     new Vector4(
                         transformedApmldv.x,
@@ -536,6 +449,7 @@ namespace Pinpoint.Probes
                         zeroCoordinateAdjustedManipulatorPosition.w
                     )
                 );
+            }
 
             // Log and continue echoing
             LogAndContinue();
@@ -551,7 +465,6 @@ namespace Pinpoint.Probes
                     || Mathf.Abs(positionDifference.z) > 0.0001
                     || Mathf.Abs(positionDifference.w) > 0.0001
                 )
-                {
                     // Log every 4 hz
                     if (Time.time - _lastLoggedTime >= 0.25)
                     {
@@ -587,7 +500,6 @@ namespace Pinpoint.Probes
                         // Update last logged position
                         _lastLoggedManipulatorPosition = pos;
                     }
-                }
 
                 // Continue echoing position
                 CommunicationManager.Instance.GetPosition(ManipulatorID, EchoPosition);

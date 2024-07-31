@@ -1068,7 +1068,6 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
-            ManipulatorBehaviorController.Deinitialize();
             IsEphysLinkControlled = false;
             onSuccess?.Invoke();
         }

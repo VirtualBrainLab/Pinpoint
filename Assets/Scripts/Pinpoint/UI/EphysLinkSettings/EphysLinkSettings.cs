@@ -392,9 +392,6 @@ namespace Pinpoint.UI.EphysLinkSettings
         public void InvokeShouldUpdateProbesListEvent()
         {
             ShouldUpdateProbesListEvent.Invoke();
-
-            // Enable/Disable Copilot toggle based on if there are any probes that can be controlled by it.
-            _copilotToggle.interactable = LinkedProbes.Count > 0;
         }
 
         #endregion
@@ -436,9 +433,6 @@ namespace Pinpoint.UI.EphysLinkSettings
                     false,
                     probeManager.ManipulatorBehaviorController.ManipulatorID
                 );
-
-                // FIXME: This is done because of race condition with closing out server. Should be fixed with non-registration setup.
-                probeManager.ManipulatorBehaviorController.Deinitialize();
             }
 
             CommunicationManager.Instance.DisconnectFromServer(() =>
