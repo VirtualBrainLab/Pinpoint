@@ -191,20 +191,9 @@ namespace Pinpoint.Probes
             });
         }
 
-        public void Deinitialize()
-        {
-            // Destroy Pathfinder probe.
-            if (NumAxes == -1)
-                DestroyThisProbe.Invoke();
-        }
-
         private void UpdateSpaceAndTransform()
         {
-            CoordinateSpace = NumAxes switch
-            {
-                -1 => new PathfinderSpace(),
-                _ => new ManipulatorSpace(Dimensions)
-            };
+            CoordinateSpace = new ManipulatorSpace(Dimensions);
             CoordinateTransform = NumAxes switch
             {
                 4
@@ -392,6 +381,7 @@ namespace Pinpoint.Probes
 
         private void EchoPosition(Vector4 pos)
         {
+            // Exit if disabled and there is no probe controller.
             if (!enabled && _probeController == null)
                 return;
 

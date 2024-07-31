@@ -433,9 +433,6 @@ namespace Pinpoint.UI.EphysLinkSettings
                     false,
                     probeManager.ManipulatorBehaviorController.ManipulatorID
                 );
-
-                // FIXME: This is done because of race condition with closing out server. Should be fixed with non-registration setup.
-                probeManager.ManipulatorBehaviorController.Deinitialize();
             }
 
             CommunicationManager.Instance.DisconnectFromServer(() =>
