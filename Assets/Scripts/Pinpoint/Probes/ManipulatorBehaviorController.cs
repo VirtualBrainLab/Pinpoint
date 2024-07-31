@@ -409,15 +409,9 @@ namespace Pinpoint.Probes
                     zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
             }
             else
+            {
                 manipulatorSpacePosition.y -= brainSurfaceAdjustment;
-
-            print(
-                zeroCoordinateAdjustedManipulatorPosition
-                    + "\t"
-                    + manipulatorSpacePosition
-                    + "\t"
-                    + brainSurfaceAdjustment
-            );
+            }
 
             // Convert to world space.
             var zeroCoordinateAdjustedWorldPosition = CoordinateSpace.Space2World(
@@ -434,7 +428,6 @@ namespace Pinpoint.Probes
             if (CoordinateTransform.Prefix == "3lhm")
             {
                 if (IsSetToDropToSurfaceWithDepth)
-                {
                     _probeController.SetProbePosition(
                         new Vector4(
                             transformedApmldv.x,
@@ -443,11 +436,8 @@ namespace Pinpoint.Probes
                             brainSurfaceAdjustment
                         )
                     );
-                }
                 else
-                {
                     _probeController.SetProbePosition(transformedApmldv);
-                }
             }
             else
             {
@@ -475,7 +465,6 @@ namespace Pinpoint.Probes
                     || Mathf.Abs(positionDifference.z) > 0.0001
                     || Mathf.Abs(positionDifference.w) > 0.0001
                 )
-                {
                     // Log every 4 hz
                     if (Time.time - _lastLoggedTime >= 0.25)
                     {
@@ -511,7 +500,6 @@ namespace Pinpoint.Probes
                         // Update last logged position
                         _lastLoggedManipulatorPosition = pos;
                     }
-                }
 
                 // Continue echoing position
                 CommunicationManager.Instance.GetPosition(ManipulatorID, EchoPosition);
