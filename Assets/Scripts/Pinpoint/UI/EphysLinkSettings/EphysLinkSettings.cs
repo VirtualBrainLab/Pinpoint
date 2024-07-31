@@ -392,9 +392,6 @@ namespace Pinpoint.UI.EphysLinkSettings
         public void InvokeShouldUpdateProbesListEvent()
         {
             ShouldUpdateProbesListEvent.Invoke();
-
-            // Enable/Disable Copilot toggle based on if there are any probes that can be controlled by it.
-            _copilotToggle.interactable = LinkedProbes.Count > 0;
         }
 
         #endregion
