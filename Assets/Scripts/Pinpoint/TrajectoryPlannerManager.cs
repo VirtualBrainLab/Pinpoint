@@ -185,7 +185,7 @@ namespace TrajectoryPlanner
             }
             Settings.ReferenceCoord = referenceAtlas.AtlasSpace.ReferenceCoord;
 
-            var nodeTask = _atlasManager.LoadDefaultAreas("");
+            var nodeTask = _atlasManager.LoadDefaultAreas();
 
             await nodeTask;
 
