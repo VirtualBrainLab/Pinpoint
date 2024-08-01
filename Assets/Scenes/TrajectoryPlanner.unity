@@ -2798,13 +2798,23 @@ MonoBehaviour:
   _atlasDropdown: {fileID: 545169175}
   _atlasNames:
   - allen_mouse_25um
+  - allen_mouse_50um
+  - allen_mouse_100um
+  - princeton_mouse_20um
   - whs_sd_rat_39um
   - whs_sd_rat_78um
+  - allen_human_500um
+  - azba_zfish_8um
   _atlasMappings:
   - Mouse CCF (25um)
+  - Mouse CCF (50um)
+  - Mouse CCF (100um)
+  - Mouse Princeton (20um)
   - Rat Waxholm (39um)
   - Rat Waxholm (78um)
-  _allowedOnWebGL: 010001
+  - Human (500um)
+  - Zebrafish (8um)
+  _allowedOnWebGL: 0101010100010101
   _transformDropdown: {fileID: 611159662}
 --- !u!114 &2108153969 stripped
 MonoBehaviour:

@@ -1038,7 +1038,13 @@ namespace TrajectoryPlanner
         public void SetBLUI()
         {
             string atlasName = BrainAtlasManager.ActiveReferenceAtlas.Name;
-            float defaultBLDistance = Utils.LambdaDefaults[atlasName].x - Utils.BregmaDefaults[atlasName].x;
+
+            float defaultBLDistance;
+            if (Utils.BregmaDefaults.ContainsKey(atlasName))
+                defaultBLDistance = Utils.LambdaDefaults[atlasName].x - Utils.BregmaDefaults[atlasName].x;
+            else
+                defaultBLDistance = 1f;
+
             float min = Mathf.Max(0f, Mathf.FloorToInt(defaultBLDistance / 2f));
             float max = Mathf.CeilToInt(defaultBLDistance * 1.5f);
 
