@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Label tabindex="-1" text="Controls" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+    <ui:Button text="Lock" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LockButton" />
+    <ui:Button text="Duplicate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DuplicateButton" />
+    <ui:Button text="Reset to Bregma" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetToBregmaButton" />
+    <ui:Button text="Reset to Dura" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetToDuraButton" />
+</ui:UXML>

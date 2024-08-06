@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Label tabindex="-1" text="Position &amp; Orientation" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+    <ui:FloatField label="AP" value="0" name="APField" />
+    <ui:FloatField label="ML" value="0" name="MLField" />
+    <ui:FloatField label="DV" value="0" name="DVField" />
+    <ui:FloatField label="Depth" value="0" name="DepthField" />
+    <ui:VisualElement style="flex-grow: 0; margin-top: 10px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px;" />
+    <ui:FloatField label="Yaw" value="0" name="YawField" />
+    <ui:FloatField label="Pitch" value="0" name="PitchField" />
+    <ui:FloatField label="Spin" value="0" name="SpinField" />
+</ui:UXML>

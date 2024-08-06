@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="MenuBar" style="flex-grow: 0; flex-direction: row;">
+        <ui:Button text="Pinpoint" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PinpointButton" />
+        <ui:Button text="File" parse-escape-sequences="true" display-tooltip-when-elided="true" name="FileButton" />
+        <ui:Button text="Preferences" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PreferencesButton" />
+        <ui:Button text="Mode" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ModeButton" />
+        <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+        <ui:Button text="&lt;&lt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="HideButton" />
+    </ui:VisualElement>
+    <ui:VisualElement style="flex-grow: 0; height: 10px;" />
+    <ui:VisualElement name="Hierarchies" style="flex-grow: 1;">
+        <ui:VisualElement name="TabBar" style="flex-grow: 0; flex-direction: row;">
+            <ui:Button text="Scene" parse-escape-sequences="true" display-tooltip-when-elided="true" name="SceneTab" style="display: flex; margin-right: 0; margin-bottom: 0;" />
+            <ui:Button text="Brain Areas" parse-escape-sequences="true" display-tooltip-when-elided="true" name="BrainAreasTab" style="margin-right: 0; margin-left: 0; margin-bottom: 0;" />
+            <ui:Button text="Channel Maps &amp; Slices" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ChannelMapsAndSlicesTab" style="margin-left: 0; margin-bottom: 0;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="Content" style="flex-grow: 1;">
+            <ui:ListView name="SceneContent" reorderable="true" show-alternating-row-backgrounds="None" style="display: flex;" />
+            <ui:VisualElement name="BrainAreasContent" style="flex-grow: 1; display: none;">
+                <ui:TextField picking-mode="Ignore" label="Search:" name="SearchField" tooltip="Search for a brain area to highlight" />
+                <ui:TreeView name="BrainAreasSelector" />
+            </ui:VisualElement>
+            <ui:ScrollView name="ChannelMapsAndSlicesContent" mode="Horizontal" style="display: none;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
