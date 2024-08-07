@@ -1,13 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="LeftSidePanel" src="project://database/Assets/UI/LeftSidePanel.uxml?fileID=9197481963319205126&amp;guid=9b006b017abd025498f784ebc48fff6f&amp;type=3#LeftSidePanel" />
     <ui:Template name="RightSidePanel" src="project://database/Assets/UI/RightSidePanel.uxml?fileID=9197481963319205126&amp;guid=b9d668b1f1179fb4f93c0cc2fa1ccec9&amp;type=3#RightSidePanel" />
-    <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
+    <ui:VisualElement picking-mode="Ignore" style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
         <ui:Instance template="LeftSidePanel" name="LeftSidePanel" style="display: flex;" />
         <ui:VisualElement name="ShowLeftSidePanelPanel" style="flex-grow: 0; display: none;">
-            <ui:Button text="&gt;&gt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ShowLeftSidePanelButton" style="flex-shrink: 1; height: auto; flex-grow: 0;" />
+            <ui:Button text="&gt;&gt;" parse-escape-sequences="true" display-tooltip-when-elided="true" style="flex-shrink: 1; height: auto; flex-grow: 0;" />
         </ui:VisualElement>
         <ui:VisualElement name="ShowRightSidePanelPanel" style="flex-grow: 0; display: none;">
-            <ui:Button text="&lt;&lt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ShowRightSidePanelButton" style="flex-shrink: 1; height: auto; flex-grow: 0;" />
+            <ui:Button text="&lt;&lt;" parse-escape-sequences="true" display-tooltip-when-elided="true" style="flex-shrink: 1; height: auto; flex-grow: 0;" />
         </ui:VisualElement>
         <ui:Instance template="RightSidePanel" name="RightSidePanel" />
     </ui:VisualElement>

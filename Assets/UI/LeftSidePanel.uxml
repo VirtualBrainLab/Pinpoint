@@ -4,23 +4,22 @@
         <ui:Button text="File" parse-escape-sequences="true" display-tooltip-when-elided="true" name="FileButton" />
         <ui:Button text="Preferences" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PreferencesButton" />
         <ui:DropdownField index="0" choices="Planning Mode,Visualization Mode, Automation Mode" name="ModeDropdown" />
-        <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+        <ui:VisualElement style="flex-grow: 1;" />
         <ui:Button text="&lt;&lt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LeftSidePanelHideButton" />
     </ui:VisualElement>
     <ui:VisualElement style="flex-grow: 0; height: 10px;" />
-    <ui:VisualElement name="Hierarchies" style="flex-grow: 1;">
-        <ui:VisualElement name="TabBar" style="flex-grow: 0; flex-direction: row;">
-            <ui:Button text="Scene" parse-escape-sequences="true" display-tooltip-when-elided="true" name="SceneTab" style="display: flex; margin-right: 0; margin-bottom: 0;" />
-            <ui:Button text="Brain Areas" parse-escape-sequences="true" display-tooltip-when-elided="true" name="BrainAreasTab" style="margin-right: 0; margin-left: 0; margin-bottom: 0;" />
-            <ui:Button text="Channel Maps &amp; Slices" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ChannelMapsAndSlicesTab" style="margin-left: 0; margin-bottom: 0;" />
-        </ui:VisualElement>
-        <ui:VisualElement name="Content" style="flex-grow: 1;">
+    <ui:TabView view-data-key="HierarchyMenu">
+        <ui:Tab label="Scene" view-data-key="SceneTab">
             <ui:ListView name="SceneContent" reorderable="true" show-alternating-row-backgrounds="None" style="display: flex;" />
+        </ui:Tab>
+        <ui:Tab label="Brain Areas" view-data-key="BrainAreasTab">
             <ui:VisualElement name="BrainAreasContent" style="flex-grow: 1; display: none;">
                 <ui:TextField picking-mode="Ignore" label="Search:" name="SearchField" tooltip="Search for a brain area to highlight" />
                 <ui:TreeView name="BrainAreasSelector" />
             </ui:VisualElement>
+        </ui:Tab>
+        <ui:Tab label="Channel Maps &amp; Slices" view-data-key="ChannelMapsAndSlicesTab">
             <ui:ScrollView name="ChannelMapsAndSlicesContent" mode="Horizontal" style="display: none;" />
-        </ui:VisualElement>
-    </ui:VisualElement>
+        </ui:Tab>
+    </ui:TabView>
 </ui:UXML>
