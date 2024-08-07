@@ -3,9 +3,9 @@
         <ui:Button text="Pinpoint" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PinpointButton" />
         <ui:Button text="File" parse-escape-sequences="true" display-tooltip-when-elided="true" name="FileButton" />
         <ui:Button text="Preferences" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PreferencesButton" />
-        <ui:Button text="Mode" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ModeButton" />
+        <ui:DropdownField index="0" choices="Planning Mode,Visualization Mode, Automation Mode" name="ModeDropdown" />
         <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
-        <ui:Button text="&lt;&lt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="HideButton" />
+        <ui:Button text="&lt;&lt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LeftSidePanelHideButton" />
     </ui:VisualElement>
     <ui:VisualElement style="flex-grow: 0; height: 10px;" />
     <ui:VisualElement name="Hierarchies" style="flex-grow: 1;">
