@@ -1,4 +1,5 @@
-using System;
+using UI.States;
+using Unity.Properties;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -15,12 +16,17 @@ namespace UI
 
         // Main panels.
         private VisualElement _basePanel;
-        private VisualElement _contentPanel;
-        private VisualElement _showPanel;
+        private VisualElement _menuBar;
+        private VisualElement _tabView;
 
-        // Show and hide buttons.
-        private Button _showButton;
-        private Button _hideButton;
+        // Menu bar.
+        private Button _toggleButton;
+
+        #endregion
+
+        #region State
+
+        private readonly LeftSidePanelState _state = new();
 
         #endregion
 
@@ -30,38 +36,51 @@ namespace UI
         {
             // Register components.
             _basePanel = _root.Q("LeftSidePanel");
-            _contentPanel = _basePanel.Q("ContentPanel");
-            _showPanel = _basePanel.Q("ShowPanel");
+            _menuBar = _basePanel.Q("MenuBar");
+            _tabView = _basePanel.Q<TabView>();
 
-            _showButton = _showPanel.Q<Button>();
-            _hideButton = _contentPanel.Q<Button>("HideButton");
+            _toggleButton = _basePanel.Q<Button>("ToggleButton");
+
+            // Bind state.
+            _basePanel.dataSource = _state;
+            _menuBar.SetBinding("style.display", PanelVisibilityBinding());
+            _tabView.SetBinding("style.display", PanelVisibilityBinding());
+            _toggleButton.SetBinding("text", PanelVisibilityBinding());
 
             // Register events.
-            _showButton.clicked += ShowPanel;
-            _hideButton.clicked += HidePanel;
-        }
-
-        private void OnDisable()
-        {
-            // Unregister events.
-            _showButton.clicked -= ShowPanel;
-            _hideButton.clicked -= HidePanel;
+            _toggleButton.clicked += TogglePanelVisibility;
         }
 
         #endregion
 
         #region UI Functions
 
-        private void HidePanel()
+        private void TogglePanelVisibility()
         {
-            _contentPanel.style.display = DisplayStyle.None;
-            _showPanel.style.display = DisplayStyle.Flex;
+            _state.IsPanelVisible = !_state.IsPanelVisible;
+            _state.Publish();
+            print(_menuBar.style.display);
         }
 
-        private void ShowPanel()
+        #endregion
+
+        #region Data binders
+
+        private static DataBinding PanelVisibilityBinding()
         {
-            _contentPanel.style.display = DisplayStyle.Flex;
-            _showPanel.style.display = DisplayStyle.None;
+            var binding = new DataBinding
+            {
+                dataSourcePath = new PropertyPath(nameof(LeftSidePanelState.IsPanelVisible)),
+                bindingMode = BindingMode.ToTarget
+            };
+
+            binding.sourceToUiConverters.AddConverter(
+                (ref bool visible) => visible ? DisplayStyle.Flex : DisplayStyle.None
+            );
+
+            binding.sourceToUiConverters.AddConverter((ref bool visible) => visible ? "<<" : ">>");
+
+            return binding;
         }
 
         #endregion
