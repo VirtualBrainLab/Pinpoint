@@ -4,7 +4,11 @@
             <ui:Button text="Pinpoint" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PinpointButton" />
             <ui:Button text="File" parse-escape-sequences="true" display-tooltip-when-elided="true" name="FileButton" />
             <ui:Button text="Preferences" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PreferencesButton" />
-            <ui:DropdownField index="0" choices="Planning Mode,Visualization Mode, Automation Mode" name="ModeDropdown" />
+            <ui:DropdownField index="0" choices="Planning Mode,Visualization Mode, Automation Mode" name="ModeDropdown">
+                <Bindings>
+                    <ui:DataBinding property="index" data-source-path="ModeIndex" binding-mode="ToSource" />
+                </Bindings>
+            </ui:DropdownField>
             <Bindings>
                 <ui:DataBinding property="style.display" data-source-path="VisibilityDisplayStyle" binding-mode="ToTarget" />
             </Bindings>

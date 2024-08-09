@@ -12,9 +12,12 @@ namespace UI.States
         #region Properties
 
         public bool IsVisible;
-        
+
         [CreateProperty]
-        public DisplayStyle VisibilityDisplayStyle => IsVisible ? DisplayStyle.Flex : DisplayStyle.None;
+        public DisplayStyle VisibilityDisplayStyle =>
+            IsVisible ? DisplayStyle.Flex : DisplayStyle.None;
+
+        public int ModeIndex;
 
         #endregion
 
@@ -31,8 +34,21 @@ namespace UI.States
             var visibilityGroup = new ConverterGroup("Visibility Boolean to Hide Button Text");
             visibilityGroup.AddConverter((ref bool isVisible) => isVisible ? "<<" : ">>");
 
+            // Mode index.
+            var modeIndexGroup = new ConverterGroup("Mode Index to Right Side Panel Header Text");
+            modeIndexGroup.AddConverter(
+                (ref int modeIndex) =>
+                    modeIndex switch
+                    {
+                        0 => "Probe Inspector",
+                        1 => "Manipulator Inspector",
+                        _ => "Automation Pipeline"
+                    }
+            );
+
             // Register converter groups.
             ConverterGroups.RegisterConverterGroup(visibilityGroup);
+            ConverterGroups.RegisterConverterGroup(modeIndexGroup);
         }
 
         #endregion
