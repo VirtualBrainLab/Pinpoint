@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 15652614861718102}
   - component: {fileID: 6646602896389307525}
-  - component: {fileID: 3756151856295658683}
+  - component: {fileID: 7819278259040075858}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -52,7 +52,7 @@ MonoBehaviour:
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
---- !u!114 &3756151856295658683
+--- !u!114 &7819278259040075858
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -65,3 +65,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiDocument: {fileID: 6646602896389307525}
+  _state: {fileID: 11400000, guid: 1a6c5de70346447469b780c3c86c6370, type: 2}

@@ -1,5 +1,4 @@
 using UI.States;
-using Unity.Properties;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,24 +8,20 @@ namespace UI
     {
         #region Components
 
+        // State
+        [SerializeField]
+        private LeftSidePanelState _state;
+
         // Document.
         [SerializeField]
         private UIDocument _uiDocument;
         private VisualElement _root => _uiDocument.rootVisualElement;
 
-        // Main panels.
-        private VisualElement _basePanel;
-        private VisualElement _menuBar;
-        private VisualElement _tabView;
+        // Panels.
+        private VisualElement _leftSidePanel;
 
         // Menu bar.
-        private Button _toggleButton;
-
-        #endregion
-
-        #region State
-
-        private readonly LeftSidePanelState _state = new();
+        private Button _hideButton;
 
         #endregion
 
@@ -34,53 +29,27 @@ namespace UI
 
         private void OnEnable()
         {
-            // Register components.
-            _basePanel = _root.Q("LeftSidePanel");
-            _menuBar = _basePanel.Q("MenuBar");
-            _tabView = _basePanel.Q<TabView>();
+            // Get components.
+            _leftSidePanel = _root.Q("LeftSidePanel");
+            _hideButton = _leftSidePanel.Q<Button>("ToggleButton");
 
-            _toggleButton = _basePanel.Q<Button>("ToggleButton");
+            // Register callbacks.
+            _hideButton.clicked += ToggleVisibility;
+        }
 
-            // Bind state.
-            _basePanel.dataSource = _state;
-            _menuBar.SetBinding("style.display", PanelVisibilityBinding());
-            _tabView.SetBinding("style.display", PanelVisibilityBinding());
-            _toggleButton.SetBinding("text", PanelVisibilityBinding());
-
-            // Register events.
-            _toggleButton.clicked += TogglePanelVisibility;
+        private void OnDisable()
+        {
+            // Unregister callbacks.
+            _hideButton.clicked -= ToggleVisibility;
         }
 
         #endregion
 
         #region UI Functions
 
-        private void TogglePanelVisibility()
+        private void ToggleVisibility()
         {
-            _state.IsPanelVisible = !_state.IsPanelVisible;
-            _state.Publish();
-            print(_menuBar.style.display);
-        }
-
-        #endregion
-
-        #region Data binders
-
-        private static DataBinding PanelVisibilityBinding()
-        {
-            var binding = new DataBinding
-            {
-                dataSourcePath = new PropertyPath(nameof(LeftSidePanelState.IsPanelVisible)),
-                bindingMode = BindingMode.ToTarget
-            };
-
-            binding.sourceToUiConverters.AddConverter(
-                (ref bool visible) => visible ? DisplayStyle.Flex : DisplayStyle.None
-            );
-
-            binding.sourceToUiConverters.AddConverter((ref bool visible) => visible ? "<<" : ">>");
-
-            return binding;
+            _state.IsVisible = !_state.IsVisible;
         }
 
         #endregion

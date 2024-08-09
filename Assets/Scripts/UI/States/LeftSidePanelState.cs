@@ -1,56 +1,38 @@
-using System;
-using System.Runtime.CompilerServices;
+using Core.Util;
 using Unity.Properties;
+using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.States
 {
-    public class LeftSidePanelState : IDataSourceViewHashProvider, INotifyBindablePropertyChanged
+    [CreateAssetMenu]
+    public class LeftSidePanelState : ResettingScriptableObject
     {
-        #region State
-
-        private bool _isPanelVisible = true;
-
-        #endregion
-
         #region Properties
 
-        [CreateProperty]
-        public bool IsPanelVisible
-        {
-            get => _isPanelVisible;
-            set
-            {
-                if (_isPanelVisible == value) return;
-                _isPanelVisible = value;
-                NotifyPropertyChanged();
-            }
-        }
+        public bool IsVisible;
         
-        #endregion
-
-        #region Management
-
-        private long _viewVersion;
-        public event EventHandler<BindablePropertyChangedEventArgs> propertyChanged;
+        [CreateProperty]
+        public DisplayStyle VisibilityDisplayStyle => IsVisible ? DisplayStyle.Flex : DisplayStyle.None;
 
         #endregion
 
-        #region Management Functions
+        #region Converters
 
-        public void Publish()
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+#endif
+        public static void RegisterConverters()
         {
-            ++_viewVersion;
-        }
+            // Visibility boolean.
+            var visibilityGroup = new ConverterGroup("Visibility Boolean to Hide Button Text");
+            visibilityGroup.AddConverter((ref bool isVisible) => isVisible ? "<<" : ">>");
 
-        public long GetViewHashCode()
-        {
-            return _viewVersion;
-        }
-
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            propertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(propertyName));
+            // Register converter groups.
+            ConverterGroups.RegisterConverterGroup(visibilityGroup);
         }
 
         #endregion
