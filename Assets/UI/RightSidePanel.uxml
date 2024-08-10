@@ -1,15 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="ProbeLabel" src="project://database/Assets/UI/Components/ProbeLabel.uxml?fileID=9197481963319205126&amp;guid=d08fc1e610cf8e94a8a8a5caf97fbcff&amp;type=3#ProbeLabel" />
-    <ui:VisualElement style="flex-grow: 1;">
-        <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
-            <ui:Button text="&gt;&gt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ToggleButton" />
-            <ui:Label text="Inspector" parse-escape-sequences="true" display-tooltip-when-elided="true" data-source="project://database/Assets/Scripts/UI/States/LeftSidePanelState.asset?fileID=11400000&amp;guid=1a6c5de70346447469b780c3c86c6370&amp;type=2#LeftSidePanelState" style="-unity-text-align: middle-left;">
-                <Bindings>
-                    <ui:DataBinding property="text" data-source-path="ModeIndex" binding-mode="ToTarget" source-to-ui-converters="Mode Index to Right Side Panel Header Text" />
-                </Bindings>
-            </ui:Label>
-        </ui:VisualElement>
-        <ui:Instance template="ProbeLabel" name="ProbeLabel" />
-        <ui:ScrollView style="flex-grow: 1;" />
+    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
+    <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
+        <ui:Button text="&gt;&gt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ToggleButton" />
+        <ui:Label text="Inspector" parse-escape-sequences="true" display-tooltip-when-elided="true" data-source="project://database/Assets/Scripts/UI/States/LeftSidePanelState.asset?fileID=11400000&amp;guid=1a6c5de70346447469b780c3c86c6370&amp;type=2#LeftSidePanelState" style="-unity-text-align: middle-left;">
+            <Bindings>
+                <ui:DataBinding property="text" data-source-path="ModeIndex" binding-mode="ToTarget" source-to-ui-converters="Mode Index to Right Side Panel Header Text" />
+            </Bindings>
+        </ui:Label>
     </ui:VisualElement>
+    <ui:Instance template="ProbeLabel" name="ProbeLabel" />
+    <ui:ScrollView style="flex-grow: 1;" />
 </ui:UXML>
