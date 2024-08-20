@@ -136,6 +136,14 @@ namespace TrajectoryPlanner
         WebGLInput.captureAllKeyboardInput = true;
 #endif
             ProbeProperties.InitializeColors();
+            foreach (var color in ProbeProperties.ProbeColors)
+            {
+                var r = Mathf.RoundToInt(color.r * 255);
+                var g = Mathf.RoundToInt(color.g * 255);
+                var b = Mathf.RoundToInt(color.b * 255);
+                var a = Mathf.RoundToInt(color.a * 255);
+                print($"#{r:X2}{g:X2}{b:X2}{a:X2}");
+            }
 
             Settings.ProbePrevNextEnabled = true;
 

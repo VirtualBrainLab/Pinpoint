@@ -34,6 +34,10 @@ DropdownField > VisualElement {
 
 .unity-base-text-field__input {
     background-color: rgb(247, 241, 227);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
 }
 
 .unity-radio-button__checkmark-background {

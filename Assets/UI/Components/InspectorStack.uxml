@@ -1,0 +1,51 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
+    <Style src="project://database/Assets/UI/Styles/InspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#InspectorStyle" />
+    <engine:VisualElement class="inspectorBox" style="flex-grow: 1;">
+        <engine:Label tabindex="-1" text="Position &amp; Orientation" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+        <engine:FloatField label="AP" value="0" name="APField" />
+        <engine:FloatField label="ML" value="0" name="MLField" />
+        <engine:FloatField label="DV" value="0" name="DVField" />
+        <engine:FloatField label="Depth" value="0" name="DepthField" />
+        <engine:VisualElement style="flex-grow: 0; margin-top: 10px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px;" />
+        <engine:FloatField label="Yaw" value="0" name="YawField" />
+        <engine:FloatField label="Pitch" value="0" name="PitchField" />
+        <engine:FloatField label="Spin" value="0" name="SpinField" />
+    </engine:VisualElement>
+    <engine:VisualElement class="inspectorBox" style="flex-grow: 1;">
+        <engine:Label tabindex="-1" text="Controls" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+        <engine:Button text="Lock" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LockButton" />
+        <engine:Button text="Duplicate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DuplicateButton" />
+        <engine:Button text="Reset to Bregma" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetToBregmaButton" />
+        <engine:Button text="Reset to Dura" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetToDuraButton" />
+    </engine:VisualElement>
+    <engine:VisualElement class="inspectorBox" style="flex-grow: 1;">
+        <engine:Label tabindex="-1" text="Color" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+        <engine:VisualElement style="flex-grow: 1; flex-wrap: wrap; flex-direction: row;">
+            <engine:RadioButton label="Pelorous" />
+            <engine:RadioButton label="Tropical Blue" />
+            <engine:RadioButton label="Pumpkin" />
+            <engine:RadioButton label="Macaroni And Cheese" />
+            <engine:RadioButton label="Forest Green" />
+            <engine:RadioButton label="Granny Smith Apple" />
+            <engine:RadioButton label="Alizarin" />
+            <engine:RadioButton label="Mona Lisa" />
+            <engine:RadioButton label="Lilac Bush" />
+            <engine:RadioButton label="Lilac Bush" />
+            <engine:RadioButton label="Moon Raker" />
+            <engine:RadioButton label="Lotus" />
+            <engine:RadioButton label="Quicksand" />
+            <engine:RadioButton label="Orchid" />
+            <engine:RadioButton label="Cupid" />
+            <engine:RadioButton label="Grey" />
+            <engine:RadioButton label="Very Light Grey" />
+            <engine:RadioButton label="Sandwisp" />
+            <engine:RadioButton label="Light Sea Green" />
+            <engine:RadioButton label="Charlotte" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+    <engine:VisualElement class="inspectorBox" style="flex-grow: 1;">
+        <engine:Label tabindex="-1" text="Assign to Experiment" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+        <engine:DropdownField label="Experiment" name="ExperimentDropdown" choices="None" index="0" />
+    </engine:VisualElement>
+</engine:UXML>
