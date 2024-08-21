@@ -14,11 +14,11 @@
     </engine:VisualElement>
     <engine:VisualElement class="inspectorBox" style="flex-direction: column; flex-wrap: nowrap;">
         <engine:Label tabindex="-1" text="Controls" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-        <engine:VisualElement style="flex-grow: 1; flex-direction: row; flex-wrap: wrap;">
-            <engine:Button text="Lock" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LockButton" style="flex-grow: 1;" />
-            <engine:Button text="Duplicate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DuplicateButton" style="flex-grow: 1;" />
-            <engine:Button text="Reset to Bregma" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetToBregmaButton" style="flex-grow: 1;" />
-            <engine:Button text="Reset to Dura" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetToDuraButton" style="flex-grow: 1;" />
+        <engine:VisualElement name="ControlsButtonGroup" style="flex-grow: 1; flex-direction: row; flex-wrap: wrap;">
+            <engine:Button text="Lock" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LockButton" />
+            <engine:Button text="Duplicate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DuplicateButton" />
+            <engine:Button text="Reset to Bregma" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetToBregmaButton" />
+            <engine:Button text="Reset to Dura" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetToDuraButton" />
         </engine:VisualElement>
     </engine:VisualElement>
     <engine:VisualElement class="inspectorBox">

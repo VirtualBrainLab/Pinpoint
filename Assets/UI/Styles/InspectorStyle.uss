@@ -38,77 +38,81 @@
 }
 
 #1F77B4 > VisualElement > VisualElement {
-    background-color: #1F77B4;
+    background-color: rgb(31, 119, 180);
 }
 
 #AEC7E8 > VisualElement > VisualElement {
-    background-color: #AEC7E8;
+    background-color: rgb(174, 199, 232);
 }
 
 #FF7F0E > VisualElement > VisualElement {
-    background-color: #FF7F0E;
+    background-color: rgb(255, 127, 14);
 }
 
 #FFBB78 > VisualElement > VisualElement {
-    background-color: #FFBB78;
+    background-color: rgb(255, 187, 120);
 }
 
 #2CA02C > VisualElement > VisualElement {
-    background-color: #2CA02C;
+    background-color: rgb(44, 160, 44);
 }
 
 #98DF8A > VisualElement > VisualElement {
-    background-color: #98DF8A;
+    background-color: rgb(152, 223, 138);
 }
 
 #D62728 > VisualElement > VisualElement {
-    background-color: #D62728;
+    background-color: rgb(214, 39, 40);
 }
 
 #FF9896 > VisualElement > VisualElement {
-    background-color: #FF9896;
+    background-color: rgb(255, 152, 150);
 }
 
 #9467BD > VisualElement > VisualElement {
-    background-color: #9467BD;
+    background-color: rgb(148, 103, 189);
 }
 
 #C5B0D5 > VisualElement > VisualElement {
-    background-color: #C5B0D5;
+    background-color: rgb(197, 176, 213);
 }
 
 #8C564B > VisualElement > VisualElement {
-    background-color: #8C564B;
+    background-color: rgb(140, 86, 75);
 }
 
 #C49C94 > VisualElement > VisualElement {
-    background-color: #C49C94;
+    background-color: rgb(196, 156, 148);
 }
 
 #E377C2 > VisualElement > VisualElement {
-    background-color: #E377C2;
+    background-color: rgb(227, 119, 194);
 }
 
 #F7B6D2 > VisualElement > VisualElement {
-    background-color: #F7B6D2;
+    background-color: rgb(247, 182, 210);
 }
 
 #7F7F7F > VisualElement > VisualElement {
-    background-color: #7F7F7F;
+    background-color: rgb(127, 127, 127);
 }
 
 #C7C7C7 > VisualElement > VisualElement {
-    background-color: #C7C7C7;
+    background-color: rgb(199, 199, 199);
 }
 
 #DBDB8D > VisualElement > VisualElement {
-    background-color: #DBDB8D;
+    background-color: rgb(219, 219, 141);
 }
 
 #17BECF > VisualElement > VisualElement {
-    background-color: #17BECF;
+    background-color: rgb(23, 190, 207);
 }
 
 #9EDAE5 > VisualElement > VisualElement {
-    background-color: #9EDAE5;
+    background-color: rgb(158, 218, 229);
+}
+
+#ControlsButtonGroup > Button {
+    flex-grow: 1;
 }

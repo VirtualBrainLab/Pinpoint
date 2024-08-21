@@ -18,6 +18,12 @@ namespace UI.States
             IsVisible ? DisplayStyle.Flex : DisplayStyle.None;
 
         public int ModeIndex;
+        
+        [CreateProperty]
+        public DisplayStyle InspectorStackDisplayStyle => ModeIndex != 2 ? DisplayStyle.Flex : DisplayStyle.None;
+        
+        [CreateProperty]
+        public DisplayStyle AutomationStackDisplayStyle => InspectorStackDisplayStyle == DisplayStyle.Flex ? DisplayStyle.None : DisplayStyle.Flex;
 
         #endregion
 

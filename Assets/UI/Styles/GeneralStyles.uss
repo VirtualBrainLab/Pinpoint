@@ -43,3 +43,10 @@ DropdownField > VisualElement {
 .unity-radio-button__checkmark-background {
     background-color: rgb(247, 241, 227);
 }
+
+.unity-scroll-view--vertical > #unity-content-and-vertical-scroll-container > #unity-content-viewport {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 10px;
+}
