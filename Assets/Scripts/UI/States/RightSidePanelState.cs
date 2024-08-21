@@ -20,6 +20,12 @@ namespace UI.States
         [CreateProperty]
         public string VisibilityButtonText => IsVisible ? ">>" : "<<";
 
+        [CreateProperty]
+        public Color ProbeColor => ProbeManager.ActiveProbeManager ? ProbeManager.ActiveProbeManager.Color : Color.black;
+        
+        [CreateProperty]
+        public string ProbeName => ProbeManager.ActiveProbeManager ? ProbeManager.ActiveProbeManager.name : "No Probe Selected";
+
         #endregion
     }
 }
