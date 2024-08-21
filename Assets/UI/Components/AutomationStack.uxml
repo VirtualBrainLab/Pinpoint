@@ -31,7 +31,7 @@
             </engine:Button>
         </engine:VisualElement>
         <Bindings>
-            <engine:DataBinding property="enabledSelf" data-source-path="IsEnabled" binding-mode="ToTarget" />
+            <engine:DataBinding property="enabledSelf" binding-mode="ToTarget" data-source-path="IsEnabled" />
         </Bindings>
     </engine:VisualElement>
 </engine:UXML>

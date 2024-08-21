@@ -16,7 +16,6 @@
         </ui:Label>
     </ui:VisualElement>
     <ui:VisualElement name="ProbeLabel" template="ProbeLabel" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" style="flex-direction: row; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
-        <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
         <ui:VisualElement name="ProbeColor" style="flex-grow: 0; width: 40px; height: 40px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); background-color: rgb(52, 172, 224); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 10px;">
             <Bindings>
                 <ui:DataBinding property="style.backgroundColor" data-source-path="ProbeColor" binding-mode="ToTarget" />
@@ -27,14 +26,17 @@
                 <ui:DataBinding property="text" data-source-path="ProbeName" binding-mode="ToTarget" />
             </Bindings>
         </ui:Label>
+        <Bindings>
+            <ui:DataBinding property="style.display" data-source-path="VisibilityDisplayStyle" binding-mode="ToTarget" />
+        </Bindings>
     </ui:VisualElement>
     <ui:ScrollView data-source="project://database/Assets/Scripts/UI/States/LeftSidePanelState.asset?fileID=11400000&amp;guid=1a6c5de70346447469b780c3c86c6370&amp;type=2#LeftSidePanelState" style="flex-grow: 1;">
-        <ui:Instance template="InspectorStack" style="opacity: 1;">
+        <ui:Instance template="InspectorStack" name="InspectorStackPanel" style="opacity: 1;">
             <Bindings>
                 <ui:DataBinding property="style.display" data-source-path="InspectorStackDisplayStyle" binding-mode="ToTarget" />
             </Bindings>
         </ui:Instance>
-        <ui:Instance template="AutomationStack" style="opacity: 1;">
+        <ui:Instance template="AutomationStack" name="AutomationStackPanel" style="opacity: 1;">
             <Bindings>
                 <ui:DataBinding property="style.display" data-source-path="AutomationStackDisplayStyle" binding-mode="ToTarget" />
             </Bindings>

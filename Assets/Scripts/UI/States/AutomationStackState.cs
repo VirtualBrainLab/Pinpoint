@@ -21,7 +21,7 @@ namespace UI.States
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
             ProbeManager.ActiveProbeManager
             && ProbeManager.ActiveProbeManager.IsEphysLinkControlled
-            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.HasResetBregma;
+            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.HasCalibratedToBregma;
 
         [CreateProperty]
         public bool IsDriveToTargetInsertionButtonEnabled =>

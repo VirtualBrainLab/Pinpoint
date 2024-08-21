@@ -4,13 +4,13 @@ using UnityEngine.UIElements;
 
 namespace UI
 {
-    public class RightSidePanel : MonoBehaviour
+    public class LeftSidePanelHandler : MonoBehaviour
     {
         #region Components
 
         // State
         [SerializeField]
-        private RightSidePanelState _state;
+        private LeftSidePanelState _state;
 
         // Document.
         [SerializeField]
@@ -18,7 +18,7 @@ namespace UI
         private VisualElement _root => _uiDocument.rootVisualElement;
 
         // Panels.
-        private VisualElement _rightSidePanel;
+        private VisualElement _leftSidePanel;
 
         // Menu bar.
         private Button _hideButton;
@@ -30,8 +30,8 @@ namespace UI
         private void OnEnable()
         {
             // Get components.
-            _rightSidePanel = _root.Q("RightSidePanel");
-            _hideButton = _rightSidePanel.Q<Button>("ToggleButton");
+            _leftSidePanel = _root.Q("LeftSidePanel");
+            _hideButton = _leftSidePanel.Q<Button>("ToggleButton");
 
             // Register callbacks.
             _hideButton.clicked += ToggleVisibility;
