@@ -229,7 +229,7 @@ public class ProbeManager : MonoBehaviour
     /// When true, this Probe will be saved and re-loaded in the scene the next time Pinpoint loads
     /// </summary>
     public bool Saved { get; set; }
-
+    
     #endregion
 
     #region Unity

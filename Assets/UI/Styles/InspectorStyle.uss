@@ -24,8 +24,6 @@
     border-top-right-radius: 25px;
     border-bottom-right-radius: 25px;
     border-bottom-left-radius: 25px;
-    justify-content: center;
-    padding-top: 0;
 }
 
 #ProbeColorPicker > RadioButton #unity-checkmark {

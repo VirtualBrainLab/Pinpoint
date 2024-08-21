@@ -4,24 +4,36 @@
     <ui:Template name="AutomationStack" src="project://database/Assets/UI/Components/AutomationStack.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#AutomationStack" />
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
     <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
-        <ui:Button text="&gt;&gt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ToggleButton" />
+        <ui:Button text="&gt;&gt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ToggleButton">
+            <Bindings>
+                <ui:DataBinding property="text" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" data-source-path="VisibilityButtonText" />
+            </Bindings>
+        </ui:Button>
         <ui:Label text="Inspector" parse-escape-sequences="true" display-tooltip-when-elided="true" data-source="project://database/Assets/Scripts/UI/States/LeftSidePanelState.asset?fileID=11400000&amp;guid=1a6c5de70346447469b780c3c86c6370&amp;type=2#LeftSidePanelState" style="-unity-text-align: middle-left;">
             <Bindings>
-                <ui:DataBinding property="text" data-source-path="ModeIndex" binding-mode="ToTarget" source-to-ui-converters="Mode Index to Right Side Panel Header Text" />
+                <ui:DataBinding property="text" binding-mode="ToTarget" data-source-path="InspectorHeader" />
+                <ui:DataBinding property="style.display" data-source-path="VisibilityDisplayStyle" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" />
             </Bindings>
         </ui:Label>
     </ui:VisualElement>
-    <ui:Instance template="ProbeLabel" name="ProbeLabel" />
+    <ui:Instance template="ProbeLabel" name="ProbeLabel">
+        <Bindings>
+            <ui:DataBinding property="style.display" data-source-path="VisibilityDisplayStyle" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" />
+        </Bindings>
+    </ui:Instance>
     <ui:ScrollView data-source="project://database/Assets/Scripts/UI/States/LeftSidePanelState.asset?fileID=11400000&amp;guid=1a6c5de70346447469b780c3c86c6370&amp;type=2#LeftSidePanelState" style="flex-grow: 1;">
-        <ui:Instance template="InspectorStack" enabled="false" style="opacity: 1;">
+        <ui:Instance template="InspectorStack" style="opacity: 1;">
             <Bindings>
                 <ui:DataBinding property="style.display" data-source-path="InspectorStackDisplayStyle" binding-mode="ToTarget" />
             </Bindings>
         </ui:Instance>
-        <ui:Instance template="AutomationStack" enabled="false" style="opacity: 1;">
+        <ui:Instance template="AutomationStack" style="opacity: 1;">
             <Bindings>
                 <ui:DataBinding property="style.display" data-source-path="AutomationStackDisplayStyle" binding-mode="ToTarget" />
             </Bindings>
         </ui:Instance>
+        <Bindings>
+            <ui:DataBinding property="style.display" data-source-path="VisibilityDisplayStyle" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" />
+        </Bindings>
     </ui:ScrollView>
 </ui:UXML>

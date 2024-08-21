@@ -96,6 +96,20 @@ namespace Pinpoint.Probes
         public Action<ProbeProperties.ProbeType> CreatePathfinderProbe { private get; set; }
         public Action DestroyThisProbe { private get; set; }
 
+        #region Automation State
+
+        public bool HasResetBregma;
+
+        public Vector4 SelectedTargetInsertion;
+
+        public bool HasResetDura;
+
+        public float BaseDriveSpeed;
+        
+        public float DrivePastDistance;
+
+        #endregion
+
         #region Private internal fields
 
         private Vector4 _lastManipulatorPosition = Vector4.zero;

@@ -16,7 +16,7 @@
         </ui:VisualElement>
         <ui:Button text="&lt;&lt;" display-tooltip-when-elided="true" name="ToggleButton" parse-escape-sequences="true">
             <Bindings>
-                <ui:DataBinding property="text" data-source-path="IsVisible" binding-mode="ToTarget" source-to-ui-converters="Visibility Boolean to Hide Button Text" />
+                <ui:DataBinding property="text" binding-mode="ToTarget" data-source-path="VisibilityButtonText" />
             </Bindings>
         </ui:Button>
     </ui:VisualElement>
