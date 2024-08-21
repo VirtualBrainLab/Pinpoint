@@ -10,6 +10,12 @@ namespace UI.States
     {
         #region Properties
 
+        // Stack enabled state.
+        [CreateProperty]
+        public bool IsEnabled =>
+            ProbeManager.ActiveProbeManager
+            && ProbeManager.ActiveProbeManager.IsEphysLinkControlled;
+
         // Step enabled states.
         [CreateProperty]
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>

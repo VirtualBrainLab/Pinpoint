@@ -1,32 +1,37 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
     <Style src="project://database/Assets/UI/Styles/InspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#InspectorStyle" />
-    <engine:VisualElement enabled="true" class="inspectorBox">
-        <engine:Label tabindex="-1" text="Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-        <engine:Button text="Reset Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetBregmaCalibrationButton" />
-    </engine:VisualElement>
-    <engine:VisualElement class="inspectorBox">
-        <engine:Label tabindex="-1" text="Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-        <engine:DropdownField label="Target" name="TargetInsertionSelectionDropdwon" choices="None" index="0" />
-        <engine:Button text="Drive to Target Entry Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DriveToTargetEntryCoordinateButton" data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState">
-            <Bindings>
-                <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetEntryCoordinateButtonEnabled" binding-mode="ToTarget" />
-            </Bindings>
-        </engine:Button>
-    </engine:VisualElement>
-    <engine:VisualElement class="inspectorBox">
-        <engine:Label tabindex="-1" text="Dura Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-        <engine:Button text="Reset Dura Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetDuraCalibrationButton" />
-    </engine:VisualElement>
-    <engine:VisualElement class="inspectorBox">
-        <engine:Label tabindex="-1" text="Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-        <engine:RadioButtonGroup label="Speed" value="1" choices="2 µm/s,5 µm/s,10 µm/s,Test (500 µm/s),Custom" name="InsertionSpeedRadioGroup" />
-        <engine:FloatField label="Custom Speed" value="20" name="CustomInsertionSpeedField" style="visibility: visible; display: none;" />
-        <engine:FloatField label="Drive Past by (µm)" value="50" name="DrivePastByField" />
-        <engine:Button text="Drive to Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DriveToTargetInsertionButton" data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState">
-            <Bindings>
-                <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetInsertionButtonEnabled" binding-mode="ToTarget" />
-            </Bindings>
-        </engine:Button>
+    <engine:VisualElement data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState">
+        <engine:VisualElement enabled="true" class="inspectorBox">
+            <engine:Label tabindex="-1" text="Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+            <engine:Button text="Reset Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetBregmaCalibrationButton" />
+        </engine:VisualElement>
+        <engine:VisualElement class="inspectorBox">
+            <engine:Label tabindex="-1" text="Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+            <engine:DropdownField label="Target" name="TargetInsertionSelectionDropdwon" choices="None" index="0" />
+            <engine:Button text="Drive to Target Entry Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DriveToTargetEntryCoordinateButton">
+                <Bindings>
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetEntryCoordinateButtonEnabled" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Button>
+        </engine:VisualElement>
+        <engine:VisualElement class="inspectorBox">
+            <engine:Label tabindex="-1" text="Dura Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+            <engine:Button text="Reset Dura Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetDuraCalibrationButton" />
+        </engine:VisualElement>
+        <engine:VisualElement class="inspectorBox">
+            <engine:Label tabindex="-1" text="Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+            <engine:RadioButtonGroup label="Speed" value="1" choices="2 µm/s,5 µm/s,10 µm/s,Test (500 µm/s),Custom" name="InsertionSpeedRadioGroup" />
+            <engine:FloatField label="Custom Speed" value="20" name="CustomInsertionSpeedField" style="visibility: visible; display: none;" />
+            <engine:FloatField label="Drive Past by (µm)" value="50" name="DrivePastByField" />
+            <engine:Button text="Drive to Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DriveToTargetInsertionButton">
+                <Bindings>
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetInsertionButtonEnabled" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Button>
+        </engine:VisualElement>
+        <Bindings>
+            <engine:DataBinding property="enabledSelf" data-source-path="IsEnabled" binding-mode="ToTarget" />
+        </Bindings>
     </engine:VisualElement>
 </engine:UXML>
