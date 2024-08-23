@@ -1,7 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="InspectorStack" src="project://database/Assets/UI/Components/InspectorStack.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#InspectorStack" />
     <ui:Template name="AutomationStack" src="project://database/Assets/UI/Components/AutomationStack.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#AutomationStack" />
-    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
     <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
         <ui:Button text="&gt;&gt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ToggleButton">
             <Bindings>

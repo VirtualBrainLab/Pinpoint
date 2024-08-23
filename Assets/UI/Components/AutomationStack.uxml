@@ -1,5 +1,4 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
     <Style src="project://database/Assets/UI/Styles/InspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#InspectorStyle" />
     <engine:VisualElement data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState">
         <engine:VisualElement enabled="true" class="inspectorBox">
