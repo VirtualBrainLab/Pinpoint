@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using BrainAtlas;
 using UI.States;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -28,6 +30,12 @@ namespace UI
 
         #endregion
 
+        #region Properties
+
+        private readonly Dictionary<string, ProbeManager> _manipulatorIDToSelectedTargetProbeManager = new();
+
+        #endregion
+
         #region Unity
 
         private void OnEnable()
@@ -41,7 +49,7 @@ namespace UI
 
             // Register callbacks.
             _resetBregmaCalibrationButton.clicked += ResetBregmaCalibration;
-            
+
             // Setup List.
             var data = new List<string>
             {
@@ -78,6 +86,61 @@ namespace UI
         private static void ResetBregmaCalibration()
         {
             ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ResetZeroCoordinate();
+        }
+
+        #endregion
+
+        #region Helper Functions
+        
+        
+
+        /// <summary>
+        ///     Filter for probe managers this manipulator can target.
+        ///     1. Not already selected
+        ///     2. Angles are coterminal
+        /// </summary>
+        private IEnumerable<ProbeManager> TargetInsertionProbeManagerOptions =>
+            TargetableInsertionProbeManagers.Where(manager =>
+                !_manipulatorIDToSelectedTargetProbeManager
+                    .Where(pair =>
+                        pair.Key != ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ManipulatorID
+                    )
+                    .Select(pair => pair.Value)
+                    .Contains(manager)
+                && IsCoterminal(
+                    manager.ProbeController.Insertion.Angles,
+                    ProbeManager.ActiveProbeManager.ProbeController.Insertion.Angles
+                )
+            );
+
+        /// <summary>
+        ///     Filter for probe managers that are targetable.<br/>
+        ///     1. Are not ephys link controlled<br/>
+        ///     2. Are inside the brain (not NaN)
+        /// </summary>
+        private static IEnumerable<ProbeManager> TargetableInsertionProbeManagers =>
+            ProbeManager
+                .Instances.Where(manager => !manager.IsEphysLinkControlled)
+                .Where(manager =>
+                    !float.IsNaN(
+                        manager
+                            .FindEntryIdxCoordinate(
+                                BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
+                                    manager.ProbeController.Insertion.PositionWorldU()
+                                ),
+                                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
+                                    manager.ProbeController.GetTipWorldU().tipUpWorldU
+                                )
+                            )
+                            .x
+                    )
+                );
+        
+        private static bool IsCoterminal(Vector3 first, Vector3 second)
+        {
+            return Mathf.Abs(first.x - second.x) % 360 < 0.01f
+                && Mathf.Abs(first.y - second.y) % 360 < 0.01f
+                && Mathf.Abs(first.z - second.z) % 360 < 0.01f;
         }
 
         #endregion
