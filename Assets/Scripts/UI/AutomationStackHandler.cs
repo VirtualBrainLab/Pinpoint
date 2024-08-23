@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UI.States;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -19,6 +21,7 @@ namespace UI
 
         // Panels.
         private VisualElement _automationStackPanel;
+        private ListView _targetInsertionListView;
 
         // Interface.
         private Button _resetBregmaCalibrationButton;
@@ -34,9 +37,28 @@ namespace UI
             _resetBregmaCalibrationButton = _automationStackPanel.Q<Button>(
                 "ResetBregmaCalibrationButton"
             );
+            _targetInsertionListView = _automationStackPanel.Q<ListView>("TargetInsertionListView");
 
             // Register callbacks.
             _resetBregmaCalibrationButton.clicked += ResetBregmaCalibration;
+            
+            // Setup List.
+            var data = new List<string>
+            {
+                "None",
+                "Test",
+                "other test",
+                "more stuff",
+                "even more stuff",
+                "Other"
+            };
+            _targetInsertionListView.bindItem = (element, index) =>
+            {
+                element.Q("ProbeColor").style.backgroundColor = Color.red;
+                element.Q<Label>("ProbeID").text = data[index];
+            };
+
+            _targetInsertionListView.itemsSource = data;
         }
 
         private void OnDisable()
