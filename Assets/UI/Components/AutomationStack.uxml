@@ -8,7 +8,7 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
             <engine:Label tabindex="-1" text="Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:DropdownField label="Target" name="TargetInsertionSelectionDropdwon" choices="None" index="0" />
+            <engine:ListView />
             <engine:Button text="Drive to Target Entry Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DriveToTargetEntryCoordinateButton">
                 <Bindings>
                     <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetEntryCoordinateButtonEnabled" binding-mode="ToTarget" />
@@ -30,8 +30,5 @@
                 </Bindings>
             </engine:Button>
         </engine:VisualElement>
-        <Bindings>
-            <engine:DataBinding property="enabledSelf" binding-mode="ToTarget" data-source-path="IsEnabled" />
-        </Bindings>
     </engine:VisualElement>
 </engine:UXML>
