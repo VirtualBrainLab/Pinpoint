@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Core.Util;
+using UI.AutomationStack;
 using Unity.Properties;
 using UnityEngine;
 
@@ -28,6 +29,11 @@ namespace UI.States
             ProbeManager.ActiveProbeManager
             && ProbeManager.ActiveProbeManager.IsEphysLinkControlled
             && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.HasResetDura;
+        
+        // Target insertion options.
+        [CreateProperty]
+        public List<(Color, string)> TargetInsertionOptions =>
+            AutomationStackHandler.GetTargetInsertionOptions();
         #endregion
     }
 }
