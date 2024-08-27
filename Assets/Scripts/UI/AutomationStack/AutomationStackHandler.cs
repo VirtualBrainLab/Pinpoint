@@ -55,14 +55,14 @@ namespace UI.AutomationStack
             _resetBregmaCalibrationButton.clicked += ResetBregmaCalibration;
 
             // Setup List.
-            _targetInsertionListView.bindItem = (element, index) =>
-            {
-                var targetInsertionOptions = GetTargetInsertionOptions();
-                element.Q("ProbeColor").style.backgroundColor = targetInsertionOptions[index].Item1;
-                element.Q<Label>("ProbeID").text = targetInsertionOptions[index].Item2;
-            };
-            // _targetInsertionListView.itemsSource = GetTargetInsertionOptions();
-            _targetInsertionListView.bindingPath = "TargetInsertionOptions";
+            // _targetInsertionListView.bindItem = (element, index) =>
+            // {
+            //     var targetInsertionOptions = GetTargetInsertionOptions();
+            //     element.Q("ProbeColor").style.backgroundColor = targetInsertionOptions[index].Item1;
+            //     element.Q<Label>("ProbeID").text = targetInsertionOptions[index].Item2;
+            // };
+            // // _targetInsertionListView.itemsSource = GetTargetInsertionOptions();
+            // _targetInsertionListView.bindingPath = "TargetInsertionOptions";
         }
 
         private void OnDisable()
@@ -71,16 +71,16 @@ namespace UI.AutomationStack
             _resetBregmaCalibrationButton.clicked -= ResetBregmaCalibration;
         }
 
-        // TODO: See if this can be avoided by using states (does not appear to be supported right now).
-        /// <summary>
-        ///     Refresh the target insertion list view while the Automation Stack is enabled.
-        /// </summary>
-        private void FixedUpdate()
-        {
-            if (!_state.IsEnabled)
-                return;
-            _targetInsertionListView.RefreshItems();
-        }
+        // // TODO: See if this can be avoided by using states (does not appear to be supported right now).
+        // /// <summary>
+        // ///     Refresh the target insertion list view while the Automation Stack is enabled.
+        // /// </summary>
+        // private void FixedUpdate()
+        // {
+        //     if (!_state.IsEnabled)
+        //         return;
+        //     _targetInsertionListView.RefreshItems();
+        // }
 
         #endregion
 

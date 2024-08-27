@@ -32,7 +32,7 @@ namespace UI.States
         
         // Target insertion options.
         [CreateProperty]
-        public List<(Color, string)> TargetInsertionOptions =>
+        public IEnumerable<string> TargetInsertionOptions =>
             AutomationStackHandler.GetTargetInsertionOptions();
         #endregion
     }

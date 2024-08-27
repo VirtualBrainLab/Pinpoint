@@ -7,8 +7,11 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
             <engine:Label text="Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:ListView name="TargetInsertionListView" item-template="project://database/Assets/UI/Components/ProbeLabel.uxml?fileID=9197481963319205126&amp;guid=d08fc1e610cf8e94a8a8a5caf97fbcff&amp;type=3#ProbeLabel" virtualization-method="DynamicHeight" />
-            <engine:RadioButtonGroup label="Radio Button Group" />
+            <engine:RadioButtonGroup style="flex-wrap: wrap;">
+                <Bindings>
+                    <engine:DataBinding property="choices" data-source-path="TargetInsertionOptions" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:RadioButtonGroup>
             <engine:Button text="Drive to Target Entry Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DriveToTargetEntryCoordinateButton">
                 <Bindings>
                     <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetEntryCoordinateButtonEnabled" binding-mode="ToTarget" />

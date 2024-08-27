@@ -18,9 +18,9 @@ namespace UI.AutomationStack
         ///     3. Not already selected<br />
         ///     4. Angles are coterminal<br />
         /// </summary>
-        public static List<(Color, string)> GetTargetInsertionOptions()
+        public static IEnumerable<string> GetTargetInsertionOptions()
         {
-            print("GetTargetInsertionOptions");
+            // print("GetTargetInsertionOptions");
             // Compute targetable probe managers.
             var targetableProbeManagers = ProbeManager
                 .Instances
@@ -60,23 +60,29 @@ namespace UI.AutomationStack
                         manager.ProbeController.Insertion.Angles,
                         ProbeManager.ActiveProbeManager.ProbeController.Insertion.Angles
                     )
-                );
-            
-            // Generate options.
-            var options = new List<(Color, string)> { (Color.clear, "None") };
-            options.AddRange(
-                targetableProbeManagers.Select(targetableProbeManager =>
-                    (
-                        targetableProbeManager.Color,
-                        (targetableProbeManager.OverrideName ?? targetableProbeManager.name)
-                            + ": "
-                            + SurfaceCoordinateToString(
-                                targetableProbeManager.GetSurfaceCoordinateT()
-                            )
-                    )
                 )
-            );
-            return options;
+                .Select(manager =>
+                    (manager.OverrideName ?? manager.name)
+                    + ":\n"
+                    + SurfaceCoordinateToString(manager.GetSurfaceCoordinateT())
+                );
+            return targetableProbeManagers;
+
+            // Generate options.
+            // var options = new List<(Color, string)> { (Color.clear, "None") };
+            // options.AddRange(
+            //     targetableProbeManagers.Select(targetableProbeManager =>
+            //         (
+            //             targetableProbeManager.Color,
+            //             (targetableProbeManager.OverrideName ?? targetableProbeManager.name)
+            //                 + ": "
+            //                 + SurfaceCoordinateToString(
+            //                     targetableProbeManager.GetSurfaceCoordinateT()
+            //                 )
+            //         )
+            //     )
+            // );
+            // return options;
         }
 
         #region Helper functions
@@ -109,11 +115,11 @@ namespace UI.AutomationStack
             var depthMicrometers = Math.Truncate(surfaceCoordinate.depthT * 1000);
             return "AP: "
                 + (Settings.DisplayUM ? apMicrometers : apMicrometers / 1000f)
-                + " ML: "
+                + "\nML: "
                 + (Settings.DisplayUM ? mlMicrometers : mlMicrometers / 1000f)
-                + " DV: "
+                + "\nDV: "
                 + (Settings.DisplayUM ? dvMicrometers : dvMicrometers / 1000f)
-                + " Depth: "
+                + "\nDepth: "
                 + (Settings.DisplayUM ? depthMicrometers : depthMicrometers / 1000f);
         }
 
