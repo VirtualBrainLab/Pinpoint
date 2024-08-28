@@ -7,9 +7,10 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
             <engine:Label text="Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:RadioButtonGroup style="flex-wrap: wrap;">
+            <engine:RadioButtonGroup choices="this is an example of really long text can you try to make it work for me in this section please,this is an example of really long text can you try to make it work for me in this section please,this is an example of really long text can you try to make it work for me in this section please" style="flex-wrap: wrap;">
                 <Bindings>
                     <engine:DataBinding property="choices" data-source-path="TargetInsertionOptions" binding-mode="ToTarget" />
+                    <engine:DataBinding property="value" data-source-path="SelectedTargetInsertionIndex" binding-mode="TwoWay" />
                 </Bindings>
             </engine:RadioButtonGroup>
             <engine:Button text="Drive to Target Entry Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DriveToTargetEntryCoordinateButton">

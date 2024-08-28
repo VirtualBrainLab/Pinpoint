@@ -31,15 +31,6 @@ namespace UI.AutomationStack
 
         #endregion
 
-        #region Properties
-
-        private readonly Dictionary<
-            string,
-            ProbeManager
-        > _manipulatorIDToSelectedTargetProbeManager = new();
-
-        #endregion
-
         #region Unity
 
         private void OnEnable()

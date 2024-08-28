@@ -110,3 +110,7 @@
 #ControlsButtonGroup > Button {
     flex-grow: 1;
 }
+
+.unity-radio-button-group > .unity-base-field__input > #unity-radio-button-group__container > .unity-radio-button > .unity-radio-button__input > .unity-radio-button__text {
+    white-space: pre-wrap;
+}
