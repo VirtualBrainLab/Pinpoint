@@ -11,7 +11,7 @@ namespace UI.States
     [CreateAssetMenu]
     public class AutomationStackState : ResettingScriptableObject
     {
-        #region Panel States
+        #region Panel
 
         /// <summary>
         ///     Is the entire Automation stack enabled.

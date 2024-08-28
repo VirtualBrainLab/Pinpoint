@@ -1,6 +1,5 @@
 using Core.Util;
 using Unity.Properties;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,7 +8,7 @@ namespace UI.States
     [CreateAssetMenu]
     public class RightSidePanelState : ResettingScriptableObject
     {
-        #region Properties
+        #region Panel
 
         public bool IsVisible;
 
@@ -21,10 +20,21 @@ namespace UI.States
         public string VisibilityButtonText => IsVisible ? ">>" : "<<";
 
         [CreateProperty]
-        public Color ProbeColor => ProbeManager.ActiveProbeManager ? ProbeManager.ActiveProbeManager.Color : Color.black;
-        
+        public Color PanelBackgroundColor => IsVisible ? new Color(0.647058824f, 0.647058824f, 0.647058824f) : Color.clear;
+
+        #endregion
+
+        #region Current Probe Label
+
         [CreateProperty]
-        public string ProbeName => ProbeManager.ActiveProbeManager ? ProbeManager.ActiveProbeManager.name : "No Probe Selected";
+        public Color ProbeColor =>
+            ProbeManager.ActiveProbeManager ? ProbeManager.ActiveProbeManager.Color : Color.black;
+
+        [CreateProperty]
+        public string ProbeName =>
+            ProbeManager.ActiveProbeManager
+                ? ProbeManager.ActiveProbeManager.name
+                : "No Probe Selected";
 
         #endregion
     }

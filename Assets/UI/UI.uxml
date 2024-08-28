@@ -2,7 +2,15 @@
     <ui:Template name="LeftSidePanel" src="project://database/Assets/UI/LeftSidePanel.uxml?fileID=9197481963319205126&amp;guid=9b006b017abd025498f784ebc48fff6f&amp;type=3#LeftSidePanel" />
     <ui:Template name="RightSidePanel" src="project://database/Assets/UI/RightSidePanel.uxml?fileID=9197481963319205126&amp;guid=b9d668b1f1179fb4f93c0cc2fa1ccec9&amp;type=3#RightSidePanel" />
     <ui:VisualElement picking-mode="Ignore" style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
-        <ui:Instance template="LeftSidePanel" name="LeftSidePanel" class="sidePanel" style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; max-width: 35%; background-color: rgb(165, 165, 165);" />
-        <ui:Instance template="RightSidePanel" name="RightSidePanel" class="sidePanel" style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; max-width: 25%; background-color: rgb(165, 165, 165);" />
+        <ui:Instance template="LeftSidePanel" name="LeftSidePanel" picking-mode="Ignore" data-source="project://database/Assets/Scripts/UI/States/LeftSidePanelState.asset?fileID=11400000&amp;guid=1a6c5de70346447469b780c3c86c6370&amp;type=2#LeftSidePanelState" class="sidePanel" style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; max-width: 35%;">
+            <Bindings>
+                <ui:DataBinding property="style.backgroundColor" data-source-path="PanelBackgroundColor" binding-mode="ToTarget" />
+            </Bindings>
+        </ui:Instance>
+        <ui:Instance template="RightSidePanel" name="RightSidePanel" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" picking-mode="Ignore" class="sidePanel" style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; max-width: 25%;">
+            <Bindings>
+                <ui:DataBinding property="style.backgroundColor" data-source-path="PanelBackgroundColor" binding-mode="ToTarget" />
+            </Bindings>
+        </ui:Instance>
     </ui:VisualElement>
 </ui:UXML>
