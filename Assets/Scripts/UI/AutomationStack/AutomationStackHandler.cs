@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UI.States;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -24,12 +23,13 @@ namespace UI.AutomationStack
 
         // Panels.
         private VisualElement _automationStackPanel;
-        private ListView _targetInsertionListView;
 
         // Interface.
         private Button _resetBregmaCalibrationButton;
+        private RadioButtonGroup _targetInsertionRadioButtonGroup;
 
         #endregion
+
 
         #region Unity
 
@@ -40,20 +40,12 @@ namespace UI.AutomationStack
             _resetBregmaCalibrationButton = _automationStackPanel.Q<Button>(
                 "ResetBregmaCalibrationButton"
             );
-            _targetInsertionListView = _automationStackPanel.Q<ListView>("TargetInsertionListView");
+            _targetInsertionRadioButtonGroup = _automationStackPanel.Q<RadioButtonGroup>(
+                "TargetInsertionRadioButtonGroup"
+            );
 
             // Register callbacks.
             _resetBregmaCalibrationButton.clicked += ResetBregmaCalibration;
-
-            // Setup List.
-            // _targetInsertionListView.bindItem = (element, index) =>
-            // {
-            //     var targetInsertionOptions = GetTargetInsertionOptions();
-            //     element.Q("ProbeColor").style.backgroundColor = targetInsertionOptions[index].Item1;
-            //     element.Q<Label>("ProbeID").text = targetInsertionOptions[index].Item2;
-            // };
-            // // _targetInsertionListView.itemsSource = GetTargetInsertionOptions();
-            // _targetInsertionListView.bindingPath = "TargetInsertionOptions";
         }
 
         private void OnDisable()
@@ -62,16 +54,15 @@ namespace UI.AutomationStack
             _resetBregmaCalibrationButton.clicked -= ResetBregmaCalibration;
         }
 
-        // // TODO: See if this can be avoided by using states (does not appear to be supported right now).
-        // /// <summary>
-        // ///     Refresh the target insertion list view while the Automation Stack is enabled.
-        // /// </summary>
-        // private void FixedUpdate()
-        // {
-        //     if (!_state.IsEnabled)
-        //         return;
-        //     _targetInsertionListView.RefreshItems();
-        // }
+        private void FixedUpdate()
+        {
+            // Shortcut exit if not enabled.
+            if (!_state.IsEnabled)
+                return;
+
+            // Update the target insertion options radio button colors.
+            UpdateTargetInsertionOptionsRadioButtonColors();
+        }
 
         #endregion
 
@@ -89,6 +80,11 @@ namespace UI.AutomationStack
 
         #region Target Insertion
 
+        /// <summary>
+        ///     Updates the colors of the target insertion options radio buttons to match the target probe's colors.<br />
+        ///     Will only update if the cached options mismatch the current options.
+        /// </summary>
+        private partial void UpdateTargetInsertionOptionsRadioButtonColors();
 
         #endregion
 

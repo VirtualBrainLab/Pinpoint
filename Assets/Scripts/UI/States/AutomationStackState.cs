@@ -18,7 +18,8 @@ namespace UI.States
         /// </summary>
         [CreateProperty]
         // ReSharper disable once MemberCanBePrivate.Global
-        public static bool IsEnabled =>
+        // ReSharper disable once MemberCanBeMadeStatic.Global
+        public bool IsEnabled =>
             ProbeManager.ActiveProbeManager
             && ProbeManager.ActiveProbeManager.IsEphysLinkControlled;
 
@@ -80,7 +81,7 @@ namespace UI.States
                     return 0;
 
                 // Compute and return the index of the selected target insertion probe manager.
-                return GetTargetInsertionOptionsProbeManagers()
+                return TargetInsertionOptionsProbeManagers
                         .ToList()
                         .IndexOf(selectedTargetInsertionProbeManager) + 1;
             }
@@ -95,9 +96,11 @@ namespace UI.States
                     return;
                 }
 
-                // Get probe manager from index.
-                var targetInsertionProbeManager = GetTargetInsertionOptionsProbeManagers()
-                    .ElementAt(value - 1);
+                // Get probe manager.
+                var targetInsertionProbeManager =
+                    SurfaceCoordinateStringToTargetInsertionOptionProbeManagers[
+                        TargetInsertionOptions.ElementAt(value)
+                    ];
 
                 // Update the mapping
                 _manipulatorProbeManagerToSelectedTargetInsertionProbeManager[
@@ -114,16 +117,26 @@ namespace UI.States
         /// </summary>
         /// <returns>Target insertion options as a string enumerable, or an empty enumerable if the panel is not enabled.</returns>
         [CreateProperty]
+        // ReSharper disable once MemberCanBePrivate.Global
         public IEnumerable<string> TargetInsertionOptions =>
             IsEnabled
-                ? GetTargetInsertionOptionsProbeManagers()
-                    .Select(targetableProbeManager =>
-                        (targetableProbeManager.OverrideName ?? targetableProbeManager.name)
-                        + ": "
-                        + SurfaceCoordinateToString(targetableProbeManager.GetSurfaceCoordinateT())
-                    )
-                    .Prepend("None")
+                ? SurfaceCoordinateStringToTargetInsertionOptionProbeManagers.Keys.Prepend("None")
                 : Enumerable.Empty<string>();
+
+        /// <summary>
+        ///     Expose mapping from target insertion option probe manager to surface coordinate string.
+        /// </summary>
+        public Dictionary<
+            string,
+            ProbeManager
+        > SurfaceCoordinateStringToTargetInsertionOptionProbeManagers =>
+            TargetInsertionOptionsProbeManagers.ToDictionary(
+                manager =>
+                    (manager.OverrideName ?? manager.name)
+                    + ": "
+                    + SurfaceCoordinateToString(manager.GetSurfaceCoordinateT()),
+                manager => manager
+            );
 
         /// <summary>
         ///     Filter for probe managers this manipulator can target defined by:<br />
@@ -133,45 +146,42 @@ namespace UI.States
         ///     4. Angles are coterminal<br />
         /// </summary>
         /// <returns>Filtered enumerable of probe managers, or an empty one if the panel is not enabled.</returns>
-        private IEnumerable<ProbeManager> GetTargetInsertionOptionsProbeManagers()
-        {
-            // Shortcut exit if panel is not enabled.
-            if (!IsEnabled)
-                return Enumerable.Empty<ProbeManager>();
-            return ProbeManager
-                .Instances
-                // 1. Are not EphysLink controlled.
-                .Where(manager => !manager.IsEphysLinkControlled)
-                // 2. Are inside the brain (non-NaN entry coordinate).
-                .Where(manager =>
-                    !float.IsNaN(
-                        manager
-                            .FindEntryIdxCoordinate(
-                                BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
-                                    manager.ProbeController.Insertion.PositionWorldU()
-                                ),
-                                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
-                                    manager.ProbeController.GetTipWorldU().tipUpWorldU
+        public IEnumerable<ProbeManager> TargetInsertionOptionsProbeManagers =>
+            IsEnabled
+                ? ProbeManager
+                    .Instances
+                    // 1. Are not EphysLink controlled.
+                    .Where(manager => !manager.IsEphysLinkControlled)
+                    // 2. Are inside the brain (non-NaN entry coordinate).
+                    .Where(manager =>
+                        !float.IsNaN(
+                            manager
+                                .FindEntryIdxCoordinate(
+                                    BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
+                                        manager.ProbeController.Insertion.PositionWorldU()
+                                    ),
+                                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
+                                        manager.ProbeController.GetTipWorldU().tipUpWorldU
+                                    )
                                 )
-                            )
-                            .x
+                                .x
+                        )
                     )
-                )
-                // 3. Not already selected (except for your own).
-                .Where(manager =>
-                    !_manipulatorProbeManagerToSelectedTargetInsertionProbeManager
-                        .Where(pair => pair.Key != ProbeManager.ActiveProbeManager)
-                        .Select(pair => pair.Value)
-                        .Contains(manager)
-                )
-                // 4. Angles are coterminal.
-                .Where(manager =>
-                    IsCoterminal(
-                        manager.ProbeController.Insertion.Angles,
-                        ProbeManager.ActiveProbeManager.ProbeController.Insertion.Angles
+                    // 3. Not already selected (except for your own).
+                    .Where(manager =>
+                        !_manipulatorProbeManagerToSelectedTargetInsertionProbeManager
+                            .Where(pair => pair.Key != ProbeManager.ActiveProbeManager)
+                            .Select(pair => pair.Value)
+                            .Contains(manager)
                     )
-                );
-        }
+                    // 4. Angles are coterminal.
+                    .Where(manager =>
+                        IsCoterminal(
+                            manager.ProbeController.Insertion.Angles,
+                            ProbeManager.ActiveProbeManager.ProbeController.Insertion.Angles
+                        )
+                    )
+                : Enumerable.Empty<ProbeManager>();
 
         /// <summary>
         ///     Compute if two sets of 3D angles are coterminal.
