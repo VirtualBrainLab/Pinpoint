@@ -78,6 +78,13 @@ namespace UI.States
             }
             set
             {
+                // Throw exception if invariant is violated.
+                if (!IsEnabled)
+                    throw new InvalidOperationException(
+                        "Cannot set the selected target insertion index when automation is not enabled for probe "
+                            + ProbeManager.ActiveProbeManager.name
+                    );
+
                 // Remove mapping if selected index <= 0 ("None").
                 if (value <= 0)
                 {
@@ -226,6 +233,21 @@ namespace UI.States
         /// </summary>
         public readonly HashSet<ProbeManager> AcknowledgedTargetInsertionIsOutOfBoundsProbes =
             new();
+
+        /// <summary>
+        ///     Record of probes that are currently moving.
+        /// </summary>
+        public readonly HashSet<ProbeManager> ProbesInMotion = new();
+
+        /// <summary>
+        ///     Text for the drive to target entry coordinate button.<br />
+        ///     Says "Stop" when the probe is in motion, and "Drive to Target Entry Coordinate" otherwise.
+        /// </summary>
+        [CreateProperty]
+        public string DriveToTargetEntryCoordinateButtonText =>
+            ProbesInMotion.Contains(ProbeManager.ActiveProbeManager)
+                ? "Stop"
+                : "Drive to Target Entry Coordinate";
 
         #endregion
 

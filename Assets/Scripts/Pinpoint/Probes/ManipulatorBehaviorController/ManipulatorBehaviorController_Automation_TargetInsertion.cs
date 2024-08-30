@@ -1,4 +1,7 @@
+using System;
+using System.Globalization;
 using BrainAtlas;
+using EphysLink;
 using UnityEngine;
 
 namespace Pinpoint.Probes.ManipulatorBehaviorController
@@ -65,6 +68,112 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
             // Return final entry coordinate (coordinate of the ML movement, the last in the trajectory).
             return _trajectoryProbeInsertions.ml.APMLDV;
+        }
+
+        /// <summary>
+        ///     Move the probe along the planned trajectory to the target entry coordinate.<br />
+        /// </summary>
+        /// <remarks>Invariant: trajectory is planned.</remarks>
+        public void DriveToTargetEntryCoordinate(Action onDriveEnd)
+        {
+            // Throw exception if invariant is violated.
+            if (_trajectoryProbeInsertions.dv == null)
+                throw new InvalidOperationException(
+                    "No trajectory planned for probe " + _probeManager.name
+                );
+
+            // Convert insertions to manipulator positions.
+            var dvPosition = ConvertInsertionAPMLDVToManipulatorPosition(
+                _trajectoryProbeInsertions.dv.APMLDV
+            );
+            var apPosition = ConvertInsertionAPMLDVToManipulatorPosition(
+                _trajectoryProbeInsertions.ap.APMLDV
+            );
+            var mlPosition = ConvertInsertionAPMLDVToManipulatorPosition(
+                _trajectoryProbeInsertions.ml.APMLDV
+            );
+
+            // Move.
+            CommunicationManager.Instance.SetPosition(
+                new SetPositionRequest(ManipulatorID, dvPosition, AUTOMATIC_MOVEMENT_SPEED),
+                _ =>
+                {
+                    CommunicationManager.Instance.SetPosition(
+                        new SetPositionRequest(ManipulatorID, apPosition, AUTOMATIC_MOVEMENT_SPEED),
+                        _ =>
+                        {
+                            CommunicationManager.Instance.SetPosition(
+                                new SetPositionRequest(
+                                    ManipulatorID,
+                                    mlPosition,
+                                    AUTOMATIC_MOVEMENT_SPEED
+                                ),
+                                _ =>
+                                {
+                                    // Remove trajectory lines.
+                                    RemoveTrajectoryLines();
+
+                                    // Conclude drive.
+                                    ConcludeDrive();
+                                },
+                                error =>
+                                {
+                                    Debug.LogError(error);
+                                    ConcludeDrive();
+                                }
+                            );
+                        },
+                        error =>
+                        {
+                            Debug.LogError(error);
+                            ConcludeDrive();
+                        }
+                    );
+                },
+                error =>
+                {
+                    Debug.LogError(error);
+                    ConcludeDrive();
+                }
+            );
+
+            return;
+
+            void ConcludeDrive()
+            {
+                // Log drive finished.
+                OutputLog.Log(
+                    new[]
+                    {
+                        "Automation",
+                        DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                        "DriveToTargetEntryCoordinate",
+                        ManipulatorID,
+                        "Finish"
+                    }
+                );
+
+                // Callback drive end.
+                onDriveEnd.Invoke();
+            }
+        }
+
+        public void StopDriveToTargetEntryCoordinate(Action onStopped)
+        {
+            // Log that movement is stopping.
+            OutputLog.Log(
+                new[]
+                {
+                    "Copilot",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "MoveToTargetInsertion",
+                    ManipulatorID,
+                    "Stop"
+                }
+            );
+
+            // Stop movement.
+            CommunicationManager.Instance.Stop(ManipulatorID, onStopped.Invoke, Debug.LogError);
         }
 
         #endregion

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -55,6 +56,13 @@ namespace UI.AutomationStack
 
         private partial void OnTargetInsertionSelectionChanged(ChangeEvent<int> changeEvent)
         {
+            // Throw exception if invariant is violated.
+            if (!_state.IsEnabled)
+                throw new InvalidOperationException(
+                    "Cannot select target insertion if automation is not enabled on probe "
+                        + ProbeManager.ActiveProbeManager.name
+                );
+
             // Shortcut deselection state (selected "None" or nothing).
             if (changeEvent.newValue <= 0)
             {
@@ -147,6 +155,33 @@ namespace UI.AutomationStack
                 // Reset the target insertion radio button group to "None".
                 QuestionDialogue.Instance.NoCallback = () =>
                     _targetInsertionRadioButtonGroup.value = 0;
+            }
+        }
+
+        private partial void OnDriveToTargetEntryCoordinatePressed()
+        {
+            // Throw exception if invariant is violated.
+            if (!_state.IsEnabled)
+                throw new InvalidOperationException(
+                    "Cannot drive to target insertion if automation is not enabled on probe "
+                        + ProbeManager.ActiveProbeManager.name
+                );
+
+            // If the probe is moving, call stop.
+            if (!_state.ProbesInMotion.Add(ProbeManager.ActiveProbeManager))
+            {
+                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.StopDriveToTargetEntryCoordinate(
+                    // On completion, remove the probe from the probes in motion.
+                    () => _state.ProbesInMotion.Remove(ProbeManager.ActiveProbeManager)
+                );
+            }
+            else
+            {
+                // Send drive command.
+                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.DriveToTargetEntryCoordinate(
+                    // On completion, remove the probe from the probes in motion.
+                    () => _state.ProbesInMotion.Remove(ProbeManager.ActiveProbeManager)
+                );
             }
         }
 

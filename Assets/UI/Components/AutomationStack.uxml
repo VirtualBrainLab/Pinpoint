@@ -16,6 +16,7 @@
             <engine:Button text="Drive to Target Entry Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DriveToTargetEntryCoordinateButton">
                 <Bindings>
                     <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetEntryCoordinateButtonEnabled" binding-mode="ToTarget" />
+                    <engine:DataBinding property="text" data-source-path="DriveToTargetEntryCoordinateButtonText" binding-mode="ToTarget" />
                 </Bindings>
             </engine:Button>
         </engine:VisualElement>

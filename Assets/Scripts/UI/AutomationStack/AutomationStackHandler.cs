@@ -27,6 +27,7 @@ namespace UI.AutomationStack
         // Interface.
         private Button _resetBregmaCalibrationButton;
         private RadioButtonGroup _targetInsertionRadioButtonGroup;
+        private Button _driveToTargetEntryCoordinateButton;
 
         #endregion
 
@@ -43,12 +44,16 @@ namespace UI.AutomationStack
             _targetInsertionRadioButtonGroup = _automationStackPanel.Q<RadioButtonGroup>(
                 "TargetInsertionRadioButtonGroup"
             );
+            _driveToTargetEntryCoordinateButton = _automationStackPanel.Q<Button>(
+                "DriveToTargetEntryCoordinateButton"
+            );
 
             // Register callbacks.
             _resetBregmaCalibrationButton.clicked += ResetBregmaCalibration;
             _targetInsertionRadioButtonGroup.RegisterValueChangedCallback(
                 OnTargetInsertionSelectionChanged
             );
+            _driveToTargetEntryCoordinateButton.clicked += OnDriveToTargetEntryCoordinatePressed;
         }
 
         private void OnDisable()
@@ -106,6 +111,13 @@ namespace UI.AutomationStack
         /// <param name="changeEvent">The change event holding the new selection.</param>
         /// <remarks>Invariant: The selected probe is Ephys Link controlled.</remarks>
         private partial void OnTargetInsertionSelectionChanged(ChangeEvent<int> changeEvent);
+
+        /// <summary>
+        ///     Callback for moving or stopping the drive to the target entry coordinate.<br />
+        ///     Will switch off of the probe in motion state to determine if the probe should be stopped or moved.
+        /// </summary>
+        /// <remarks>Invariant: The selected probe is Ephys Link controlled.</remarks>
+        private partial void OnDriveToTargetEntryCoordinatePressed();
 
         #endregion
 
