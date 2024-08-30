@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BrainAtlas;
 using EphysLink;
 using Pinpoint.Probes;
+using Pinpoint.Probes.ManipulatorBehaviorController;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;

@@ -23,23 +23,14 @@ namespace UI.States
             ProbeManager.ActiveProbeManager
             && ProbeManager.ActiveProbeManager.IsEphysLinkControlled;
 
-        /// <summary>
-        ///     Is the drive to selected target entry coordinate button enabled.<br />
-        ///     Requires an active probe manager that is Ephys Link controlled, is calibrated to Bregma, TODO and has a selected
-        ///     target.
-        /// </summary>
-        [CreateProperty]
-        public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
-            IsEnabled
-            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.HasCalibratedToBregma;
+        #endregion
+
+        #region Bregma Calibration
 
         /// <summary>
-        ///     Is the drive to target insertion button enabled.<br />
-        ///     Requires an active probe manager that is Ephys Link controlled and has its Dura offset calibrated.
+        ///     Record of probes that have been calibrated at least once to Bregma.
         /// </summary>
-        [CreateProperty]
-        public bool IsDriveToTargetInsertionButtonEnabled =>
-            IsEnabled && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.HasResetDura;
+        public readonly HashSet<ProbeManager> CalibratedToBregmaProbes = new();
 
         #endregion
 
@@ -146,7 +137,7 @@ namespace UI.States
         ///     4. Angles are coterminal<br />
         /// </summary>
         /// <returns>Filtered enumerable of probe managers, or an empty one if the panel is not enabled.</returns>
-        public IEnumerable<ProbeManager> TargetInsertionOptionsProbeManagers =>
+        private IEnumerable<ProbeManager> TargetInsertionOptionsProbeManagers =>
             IsEnabled
                 ? ProbeManager
                     .Instances
@@ -220,6 +211,36 @@ namespace UI.States
         }
 
         #endregion
+
+        /// <summary>
+        ///     Is the drive to selected target entry coordinate button enabled.<br />
+        ///     Requires an active probe manager that is Ephys Link controlled, is calibrated to Bregma, TODO and has a selected
+        ///     target.
+        /// </summary>
+        [CreateProperty]
+        public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
+            IsEnabled && CalibratedToBregmaProbes.Contains(ProbeManager.ActiveProbeManager);
+
+        #endregion
+
+        #region Dura Calibration
+
+        /// <summary>
+        ///     Mapping of probes that have been calibrated to the Dura at least once.
+        /// </summary>
+        public readonly HashSet<ProbeManager> CalibratedToDuraProbes = new();
+
+        #endregion
+
+        #region Insertion
+
+        /// <summary>
+        ///     Is the drive to target insertion button enabled.<br />
+        ///     Requires an active probe manager that is Ephys Link controlled and has its Dura offset calibrated.
+        /// </summary>
+        [CreateProperty]
+        public bool IsDriveToTargetInsertionButtonEnabled =>
+            IsEnabled && CalibratedToDuraProbes.Contains(ProbeManager.ActiveProbeManager);
 
         #endregion
     }

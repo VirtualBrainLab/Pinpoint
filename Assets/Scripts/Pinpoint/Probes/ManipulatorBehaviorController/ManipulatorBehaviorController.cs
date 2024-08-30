@@ -8,9 +8,9 @@ using Pinpoint.CoordinateSystems;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Pinpoint.Probes
+namespace Pinpoint.Probes.ManipulatorBehaviorController
 {
-    public class ManipulatorBehaviorController : MonoBehaviour
+    public partial class ManipulatorBehaviorController : MonoBehaviour
     {
         #region Constants
 
@@ -37,10 +37,10 @@ namespace Pinpoint.Probes
 
         public Vector3 Dimensions { get; private set; }
 
-        /**
-         * Getter and setter or the zero coordinate offset of the manipulator.
-         * If passed a NaN value, the previous value is kept.
-         */
+        /// <summary>
+        ///     Getter and setter or the zero coordinate offset of the manipulator.
+        ///     If passed a NaN value, the previous value is kept.
+        /// </summary>
         public Vector4 ZeroCoordinateOffset
         {
             get => _zeroCoordinateOffset;
@@ -96,20 +96,6 @@ namespace Pinpoint.Probes
         public Action<ProbeProperties.ProbeType> CreatePathfinderProbe { private get; set; }
         public Action DestroyThisProbe { private get; set; }
 
-        #region Automation State
-
-        public bool HasCalibratedToBregma { get; private set; }
-
-        public Vector4 SelectedTargetInsertion;
-
-        public bool HasResetDura;
-
-        public float BaseDriveSpeed;
-
-        public float DrivePastDistance;
-
-        #endregion
-
         #region Private internal fields
 
         private Vector4 _lastManipulatorPosition = Vector4.zero;
@@ -136,26 +122,17 @@ namespace Pinpoint.Probes
         #region Unity
 
         /// <summary>
-        ///     Setup this instance
+        ///     Setup this instance.
         /// </summary>
         private void Awake()
         {
             // Start off as disabled
             enabled = false;
-
-            // Update manipulator inside brain state
-            // _probeController.MovedThisFrameEvent.AddListener(() =>
-            // {
-            //     if (_isSetToInsideBrain != _probeManager.IsProbeInBrain())
-            //         CommunicationManager.Instance.SetInsideBrain(ManipulatorID, _probeManager.IsProbeInBrain(),
-            //             insideBrain =>
-            //             {
-            //                 _isSetToInsideBrain = insideBrain;
-            //                 _probeController.UnlockedDir = insideBrain ? new Vector4(0, 0, 0, 1) : Vector4.one;
-            //             });
-            // });
         }
 
+        /// <summary>
+        ///     Cleanup this instance.
+        /// </summary>
         private void OnDisable()
         {
             ManipulatorID = null;
@@ -168,6 +145,12 @@ namespace Pinpoint.Probes
 
         #region Public Methods
 
+        /// <summary>
+        ///     Initialize the manipulator behavior controller with the given manipulator ID and calibration status.<br />
+        ///     Starts to echo the manipulator position and locks the manipulator from manual control.
+        /// </summary>
+        /// <param name="manipulatorID">ID of the manipulator to represent.</param>
+        /// <param name="calibrated">Whether this manipulator has been calibrated.</param>
         public void Initialize(string manipulatorID, bool calibrated)
         {
             CommunicationManager.Instance.GetManipulators(response =>
@@ -205,6 +188,9 @@ namespace Pinpoint.Probes
             });
         }
 
+        /// <summary>
+        ///     Configure this manipulator's coordinate space and transform based on its handedness, number of axes, and angles.
+        /// </summary>
         private void UpdateSpaceAndTransform()
         {
             CoordinateSpace = new ManipulatorSpace(Dimensions);
@@ -227,6 +213,11 @@ namespace Pinpoint.Probes
             };
         }
 
+        /// <summary>
+        ///     Convert insertion AP, ML, DV coordinates to manipulator translation stage position.
+        /// </summary>
+        /// <param name="insertionAPMLDV">AP, ML, DV coordinates from an insertion.</param>
+        /// <returns>Computed manipulator translation stage positions to match this coordinate.</returns>
         public Vector4 ConvertInsertionAPMLDVToManipulatorPosition(Vector3 insertionAPMLDV)
         {
             // Convert apmldv to world coordinate
@@ -389,42 +380,14 @@ namespace Pinpoint.Probes
             );
         }
 
-        #region Automation
-
-        /// <summary>
-        ///     Reset zero coordinate of the manipulator
-        /// </summary>
-        public void ResetZeroCoordinate()
-        {
-            CommunicationManager.Instance.GetPosition(
-                ManipulatorID,
-                zeroCoordinate =>
-                {
-                    ZeroCoordinateOffset = zeroCoordinate;
-                    BrainSurfaceOffset = 0;
-                    HasCalibratedToBregma = true;
-                }
-            );
-
-            // Log event.
-            OutputLog.Log(
-                new[]
-                {
-                    "Copilot",
-                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                    "ResetZeroCoordinate",
-                    ManipulatorID,
-                    ZeroCoordinateOffset.ToString()
-                }
-            );
-        }
-
-        #endregion
-
         #endregion
 
         #region Private Methods
 
+        /// <summary>
+        ///     Given a manipulator position, set the probe position to match.
+        /// </summary>
+        /// <param name="pos">Absolute manipulator translation stage position.</param>
         private void EchoPosition(Vector4 pos)
         {
             // Exit if disabled and there is no probe controller.
