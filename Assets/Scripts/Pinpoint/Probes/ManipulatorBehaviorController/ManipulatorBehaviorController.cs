@@ -241,6 +241,22 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         }
 
         /// <summary>
+        ///     Compute if a given AP, ML, DV coordinate is within the manipulator's reach.
+        /// </summary>
+        /// <param name="apmldv">Coordinate to check.</param>
+        /// <returns>True if the coordinates are within the bounds, false otherwise.</returns>
+        public bool IsAPMLDVWithinManipulatorBounds(Vector3 apmldv)
+        {
+            var manipulatorPosition = ConvertInsertionAPMLDVToManipulatorPosition(apmldv);
+            return !(manipulatorPosition.x < 0)
+                && !(manipulatorPosition.x > Dimensions.x)
+                && !(manipulatorPosition.y < 0)
+                && !(manipulatorPosition.y > Dimensions.y)
+                && !(manipulatorPosition.z < 0)
+                && !(manipulatorPosition.z > Dimensions.z);
+        }
+
+        /// <summary>
         ///     Set manipulator space offset from brain surface as Depth from manipulator or probe coordinates.
         /// </summary>
         public void ComputeBrainSurfaceOffset()

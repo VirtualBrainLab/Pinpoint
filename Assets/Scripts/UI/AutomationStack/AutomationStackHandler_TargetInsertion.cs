@@ -53,6 +53,103 @@ namespace UI.AutomationStack
                 _targetInsertionOptionsCache = Enumerable.Empty<string>();
         }
 
+        private partial void OnTargetInsertionSelectionChanged(ChangeEvent<int> changeEvent)
+        {
+            // Shortcut deselection state (selected "None" or nothing).
+            if (changeEvent.newValue <= 0)
+            {
+                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(
+                    null
+                );
+                return;
+            }
+
+            // Get target insertion probe manager.
+            var targetInsertionProbeManager =
+                _state.SurfaceCoordinateStringToTargetInsertionOptionProbeManagers[
+                    _state.TargetInsertionOptions.ElementAt(changeEvent.newValue)
+                ];
+
+            // Compute entry coordinate trajectory.
+            var entryCoordinate =
+                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(
+                    targetInsertionProbeManager
+                );
+
+            // Shortcut exit if selection is "None".
+            if (changeEvent.newValue == 0)
+                return;
+
+            // Skip checking if the target insertion is out of bounds if the user has already acknowledged it.
+            if (
+                _state.AcknowledgedTargetInsertionIsOutOfBoundsProbes.Contains(
+                    ProbeManager.ActiveProbeManager
+                )
+            )
+                return;
+
+            // Check if entry coordinate is out of bounds.
+            if (
+                !ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.IsAPMLDVWithinManipulatorBounds(
+                    entryCoordinate
+                )
+            )
+            {
+                // Prompt user acknowledgement.
+                QuestionDialogue.Instance.NewQuestion(
+                    "This insertion's entry coordinate is outside the bounds of the manipulator. Are you sure you want to continue?"
+                );
+
+                // Record that user has acknowledged the entry coordinate is out of bounds.
+                QuestionDialogue.Instance.YesCallback = () =>
+                {
+                    _state.AcknowledgedTargetInsertionIsOutOfBoundsProbes.Add(
+                        ProbeManager.ActiveProbeManager
+                    );
+
+                    // Then also check if the final insertion is out of bounds.
+                    CheckFinalInsertionIsOutOfBounds();
+                };
+
+                // Reset the target insertion radio button group to "None".
+                QuestionDialogue.Instance.NoCallback = () =>
+                    _targetInsertionRadioButtonGroup.value = 0;
+            }
+            // Check if the final insertion is out of bounds too.
+            else
+            {
+                CheckFinalInsertionIsOutOfBounds();
+            }
+
+            return;
+
+            void CheckFinalInsertionIsOutOfBounds()
+            {
+                // Shortcut exit if the target insertion is within the manipulator bounds.
+                if (
+                    ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.IsAPMLDVWithinManipulatorBounds(
+                        targetInsertionProbeManager.ProbeController.Insertion.APMLDV
+                    )
+                )
+                    return;
+
+                // Prompt user acknowledgement.
+                QuestionDialogue.Instance.NewQuestion(
+                    "This insertion is outside the bounds of the manipulator. Are you sure you want to continue?"
+                );
+
+                // Record that user has acknowledged the target insertion is out of bounds.
+                QuestionDialogue.Instance.YesCallback = () =>
+                    _state.AcknowledgedTargetInsertionIsOutOfBoundsProbes.Add(
+                        ProbeManager.ActiveProbeManager
+                    );
+
+                // Reset the target insertion radio button group to "None".
+                QuestionDialogue.Instance.NoCallback = () =>
+                    _targetInsertionRadioButtonGroup.value = 0;
+            }
+        }
+
         #endregion
     }
 }

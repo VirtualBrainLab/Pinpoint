@@ -46,6 +46,9 @@ namespace UI.AutomationStack
 
             // Register callbacks.
             _resetBregmaCalibrationButton.clicked += ResetBregmaCalibration;
+            _targetInsertionRadioButtonGroup.RegisterValueChangedCallback(
+                OnTargetInsertionSelectionChanged
+            );
         }
 
         private void OnDisable()
@@ -95,6 +98,14 @@ namespace UI.AutomationStack
         ///     the issue where returning to an enabled probe will not update the radio button colors.
         /// </summary>
         private partial void FlushTargetInsertionOptionsCache();
+
+        /// <summary>
+        ///     Callback for when the target insertion selection changes.<br />
+        ///     Sets (or unsets) the target insertion on the probe.
+        /// </summary>
+        /// <param name="changeEvent">The change event holding the new selection.</param>
+        /// <remarks>Invariant: The selected probe is Ephys Link controlled.</remarks>
+        private partial void OnTargetInsertionSelectionChanged(ChangeEvent<int> changeEvent);
 
         #endregion
 

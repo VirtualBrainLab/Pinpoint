@@ -78,8 +78,8 @@ namespace UI.States
             }
             set
             {
-                // Remove mapping if selected index is 0 ("None").
-                if (value == 0)
+                // Remove mapping if selected index <= 0 ("None").
+                if (value <= 0)
                 {
                     _manipulatorProbeManagerToSelectedTargetInsertionProbeManager.Remove(
                         ProbeManager.ActiveProbeManager
@@ -220,6 +220,12 @@ namespace UI.States
         [CreateProperty]
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
             IsEnabled && CalibratedToBregmaProbes.Contains(ProbeManager.ActiveProbeManager);
+
+        /// <summary>
+        ///     Record of probes that have acknowledged their target insertion is out of their bounds.
+        /// </summary>
+        public readonly HashSet<ProbeManager> AcknowledgedTargetInsertionIsOutOfBoundsProbes =
+            new();
 
         #endregion
 
