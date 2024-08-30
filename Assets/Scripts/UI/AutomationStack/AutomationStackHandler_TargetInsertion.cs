@@ -12,7 +12,7 @@ namespace UI.AutomationStack
     {
         #region Properties
 
-        private IEnumerable<string> targetInsertionOptionsCache = Enumerable.Empty<string>();
+        private IEnumerable<string> _targetInsertionOptionsCache = Enumerable.Empty<string>();
 
         #endregion
 
@@ -21,11 +21,13 @@ namespace UI.AutomationStack
         private partial void UpdateTargetInsertionOptionsRadioButtonColors()
         {
             // Shortcut exit if the target insertion options have not changed.
-            if (targetInsertionOptionsCache.SequenceEqual(_targetInsertionRadioButtonGroup.choices))
+            if (
+                _targetInsertionOptionsCache.SequenceEqual(_targetInsertionRadioButtonGroup.choices)
+            )
                 return;
 
             // Update the target insertion options cache.
-            targetInsertionOptionsCache = _targetInsertionRadioButtonGroup.choices;
+            _targetInsertionOptionsCache = _targetInsertionRadioButtonGroup.choices.ToList();
 
             // Loop through each child in the target insertion radio button group (skipping first option, "None").
             for (var i = 1; i < _targetInsertionRadioButtonGroup.contentContainer.childCount; i++)
@@ -43,6 +45,12 @@ namespace UI.AutomationStack
                     ]
                     .Color;
             }
+        }
+
+        private partial void FlushTargetInsertionOptionsCache()
+        {
+            if (_targetInsertionOptionsCache.Count() != 0)
+                _targetInsertionOptionsCache = Enumerable.Empty<string>();
         }
 
         #endregion

@@ -56,9 +56,12 @@ namespace UI.AutomationStack
 
         private void FixedUpdate()
         {
-            // Shortcut exit if not enabled.
+            // Shortcut exit if not enabled and cleanup.
             if (!_state.IsEnabled)
+            {
+                FlushTargetInsertionOptionsCache();
                 return;
+            }
 
             // Update the target insertion options radio button colors.
             UpdateTargetInsertionOptionsRadioButtonColors();
@@ -85,6 +88,13 @@ namespace UI.AutomationStack
         ///     Will only update if the cached options mismatch the current options.
         /// </summary>
         private partial void UpdateTargetInsertionOptionsRadioButtonColors();
+
+        /// <summary>
+        ///     Flush cached target insertion options.<br />
+        ///     Used when switching to a probe that may not be enabled (since the cache will not be updated then). This will fix
+        ///     the issue where returning to an enabled probe will not update the radio button colors.
+        /// </summary>
+        private partial void FlushTargetInsertionOptionsCache();
 
         #endregion
 
