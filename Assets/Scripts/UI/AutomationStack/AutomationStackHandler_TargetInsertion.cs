@@ -56,7 +56,6 @@ namespace UI.AutomationStack
 
         private partial void OnTargetInsertionSelectionChanged(ChangeEvent<int> changeEvent)
         {
-            print("Selection changed to: " + changeEvent.newValue);
             // Throw exception if invariant is violated.
             if (!_state.IsEnabled)
                 throw new InvalidOperationException(

@@ -67,13 +67,12 @@ namespace UI.States
                     return 0;
 
                 // Compute and return the index of the selected target insertion probe manager.
-                var output = TargetInsertionOptions
+                return TargetInsertionOptions
                     .ToList()
                     .IndexOf(
                         ProbeManagerToTargetInsertionOption(selectedTargetInsertionProbeManager)
                     );
-                Debug.Log("Selected get: " + output);
-                return output;
+                ;
             }
             set
             {
@@ -106,8 +105,6 @@ namespace UI.States
             }
         }
 
-        #region Options
-
         /// <summary>
         ///     Option list for target insertion.<br />
         ///     Convert's the targetable probe manager's surface coordinate to a string and prepends "None".<br />
@@ -119,6 +116,8 @@ namespace UI.States
             IsEnabled
                 ? SurfaceCoordinateStringToTargetInsertionOptionProbeManagers.Keys.Prepend("None")
                 : Enumerable.Empty<string>();
+
+        #region Option List helpers
 
         /// <summary>
         ///     Expose mapping from target insertion option probe manager to surface coordinate string.
