@@ -56,25 +56,24 @@ namespace UI.States
         {
             get
             {
-                // Shortcut exit if panel is not enabled.
-                if (!IsEnabled)
-                    return -1;
-
-                // Get the current selected target insertion probe manager.
-                var selectedTargetInsertionProbeManager =
-                    _manipulatorProbeManagerToSelectedTargetInsertionProbeManager.GetValueOrDefault(
+                // Shortcut exit if panel is not enabled or if the probe hasn't selected a target.
+                if (
+                    !IsEnabled
+                    || !_manipulatorProbeManagerToSelectedTargetInsertionProbeManager.TryGetValue(
                         ProbeManager.ActiveProbeManager,
-                        null
-                    );
-
-                // Shortcut exit if no target insertion is selected.
-                if (selectedTargetInsertionProbeManager == null)
+                        out var selectedTargetInsertionProbeManager
+                    )
+                )
                     return 0;
 
                 // Compute and return the index of the selected target insertion probe manager.
-                return TargetInsertionOptionsProbeManagers
-                        .ToList()
-                        .IndexOf(selectedTargetInsertionProbeManager) + 1;
+                var output = TargetInsertionOptions
+                    .ToList()
+                    .IndexOf(
+                        ProbeManagerToTargetInsertionOption(selectedTargetInsertionProbeManager)
+                    );
+                Debug.Log("Selected get: " + output);
+                return output;
             }
             set
             {
@@ -128,13 +127,7 @@ namespace UI.States
             string,
             ProbeManager
         > SurfaceCoordinateStringToTargetInsertionOptionProbeManagers =>
-            TargetInsertionOptionsProbeManagers.ToDictionary(
-                manager =>
-                    (manager.OverrideName ?? manager.name)
-                    + ": "
-                    + SurfaceCoordinateToString(manager.GetSurfaceCoordinateT()),
-                manager => manager
-            );
+            TargetInsertionOptionsProbeManagers.ToDictionary(ProbeManagerToTargetInsertionOption);
 
         /// <summary>
         ///     Filter for probe managers this manipulator can target defined by:<br />
@@ -192,6 +185,18 @@ namespace UI.States
             return Mathf.Abs(first.x - second.x) % 360 < 0.01f
                 && Mathf.Abs(first.y - second.y) % 360 < 0.01f
                 && Mathf.Abs(first.z - second.z) % 360 < 0.01f;
+        }
+
+        /// <summary>
+        ///     Create a target insertion option string from a probe manager.
+        /// </summary>
+        /// <param name="manager">Probe manager to extract info from</param>
+        /// <returns>Target insertion option string from a probe manager.</returns>
+        private string ProbeManagerToTargetInsertionOption(ProbeManager manager)
+        {
+            return (manager.OverrideName ?? manager.name)
+                + ": "
+                + SurfaceCoordinateToString(manager.GetSurfaceCoordinateT());
         }
 
         /// <summary>

@@ -56,6 +56,7 @@ namespace UI.AutomationStack
 
         private partial void OnTargetInsertionSelectionChanged(ChangeEvent<int> changeEvent)
         {
+            print("Selection changed to: " + changeEvent.newValue);
             // Throw exception if invariant is violated.
             if (!_state.IsEnabled)
                 throw new InvalidOperationException(
@@ -63,13 +64,17 @@ namespace UI.AutomationStack
                         + ProbeManager.ActiveProbeManager.name
                 );
 
-            // Shortcut deselection state (selected "None" or nothing).
-            if (changeEvent.newValue <= 0)
+            switch (changeEvent.newValue)
             {
-                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(
-                    null
-                );
-                return;
+                // Ignore reset state (-1).
+                case -1:
+                    return;
+                // Shortcut to deselection for "None" (0).
+                case 0:
+                    ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(
+                        null
+                    );
+                    return;
             }
 
             // Get target insertion probe manager.
@@ -83,10 +88,6 @@ namespace UI.AutomationStack
                 ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(
                     targetInsertionProbeManager
                 );
-
-            // Shortcut exit if selection is "None".
-            if (changeEvent.newValue == 0)
-                return;
 
             // Skip checking if the target insertion is out of bounds if the user has already acknowledged it.
             if (
