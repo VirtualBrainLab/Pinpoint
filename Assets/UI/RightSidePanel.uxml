@@ -3,7 +3,7 @@
     <ui:Template name="AutomationStack" src="project://database/Assets/UI/Components/AutomationStack.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#AutomationStack" />
     <ui:VisualElement data-source="project://database/Assets/Scripts/UI/States/UIPanelState.asset?fileID=11400000&amp;guid=d2fb6ddc884d6094f9a210b3dc6cbbf0&amp;type=2#UIPanelState" style="flex-grow: 1; height: 937px;">
         <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
-            <ui:Button text="&gt;&gt;" name="ToggleButton">
+            <ui:Button text="&gt;&gt;" name="toggle-button">
                 <Bindings>
                     <ui:DataBinding property="text" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" data-source-path="RightSidePanelToggleButtonText" />
                 </Bindings>
@@ -15,13 +15,13 @@
                 </Bindings>
             </ui:Label>
         </ui:VisualElement>
-        <ui:VisualElement name="ProbeLabel" template="ProbeLabel" style="flex-direction: row; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
-            <ui:VisualElement name="ProbeColor" style="flex-grow: 0; width: 40px; height: 40px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); background-color: rgb(52, 172, 224); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 10px;">
+        <ui:VisualElement template="ProbeLabel" style="flex-direction: row; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+            <ui:VisualElement style="flex-grow: 0; width: 40px; height: 40px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); background-color: rgb(52, 172, 224); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 10px;">
                 <Bindings>
                     <ui:DataBinding property="style.backgroundColor" data-source-path="ProbeColor" binding-mode="ToTarget" />
                 </Bindings>
             </ui:VisualElement>
-            <ui:Label tabindex="-1" text="Probe asdfghjk" name="ProbeID" style="-unity-text-align: middle-left; flex-grow: 0;">
+            <ui:Label tabindex="-1" text="Probe asdfghjk" style="-unity-text-align: middle-left; flex-grow: 0;">
                 <Bindings>
                     <ui:DataBinding property="text" data-source-path="ProbeName" binding-mode="ToTarget" />
                 </Bindings>
@@ -31,12 +31,12 @@
             </Bindings>
         </ui:VisualElement>
         <ui:ScrollView data-source="project://database/Assets/Scripts/UI/States/LeftSidePanelState.asset?fileID=11400000&amp;guid=1a6c5de70346447469b780c3c86c6370&amp;type=2#LeftSidePanelState" style="flex-grow: 1;">
-            <ui:Instance template="InspectorStack" name="InspectorStackPanel" style="opacity: 1;">
+            <ui:Instance template="InspectorStack" name="inspector-stack-panel" style="opacity: 1;">
                 <Bindings>
                     <ui:DataBinding property="style.display" data-source-path="InspectorStackDisplayStyle" binding-mode="ToTarget" />
                 </Bindings>
             </ui:Instance>
-            <ui:Instance template="AutomationStack" name="AutomationStackPanel" style="opacity: 1;">
+            <ui:Instance template="AutomationStack" name="automation-stack-panel" style="opacity: 1;">
                 <Bindings>
                     <ui:DataBinding property="style.display" data-source-path="AutomationStackDisplayStyle" binding-mode="ToTarget" />
                 </Bindings>

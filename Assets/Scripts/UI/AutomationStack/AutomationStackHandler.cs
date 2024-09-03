@@ -74,18 +74,18 @@ namespace UI.AutomationStack
         private void OnEnable()
         {
             // Get components.
-            _automationStackPanel = _root.Q("AutomationStackPanel");
+            _automationStackPanel = _root.Q("automation-stack-panel");
             _resetBregmaCalibrationButton = _automationStackPanel.Q<Button>(
-                "ResetBregmaCalibrationButton"
+                "reset-bregma-calibration-button"
             );
             _targetInsertionRadioButtonGroup = _automationStackPanel.Q<RadioButtonGroup>(
-                "TargetInsertionRadioButtonGroup"
+                "target-insertion-radio-button-group"
             );
             _driveToTargetEntryCoordinateButton = _automationStackPanel.Q<Button>(
-                "DriveToTargetEntryCoordinateButton"
+                "drive-to-target-entry-coordinate-button"
             );
             _resetDuraCalibrationButton = _automationStackPanel.Q<Button>(
-                "ResetDuraCalibrationButton"
+                "reset-dura-calibration-button"
             );
 
             // Register callbacks.

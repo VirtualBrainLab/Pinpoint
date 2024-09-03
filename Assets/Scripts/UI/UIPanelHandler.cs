@@ -75,11 +75,11 @@ namespace UI
         private void OnEnable()
         {
             // Get components.
-            _leftSidePanel = _root.Q("LeftSidePanel");
-            _rightSidePanel = _root.Q("RightSidePanel");
+            _leftSidePanel = _root.Q("left-side-panel");
+            _rightSidePanel = _root.Q("right-side-panel");
 
-            _leftSidePanelToggleButton = _leftSidePanel.Q<Button>("ToggleButton");
-            _rightSidePanelToggleButton = _rightSidePanel.Q<Button>("ToggleButton");
+            _leftSidePanelToggleButton = _leftSidePanel.Q<Button>("toggle-button");
+            _rightSidePanelToggleButton = _rightSidePanel.Q<Button>("toggle-button");
 
             // Register callbacks.
             _leftSidePanelToggleButton.clicked += ToggleLeftSidePanel;

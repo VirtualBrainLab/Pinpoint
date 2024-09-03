@@ -1,11 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:VisualElement data-source="project://database/Assets/Scripts/UI/States/UIPanelState.asset?fileID=11400000&amp;guid=d2fb6ddc884d6094f9a210b3dc6cbbf0&amp;type=2#UIPanelState" style="flex-grow: 1;">
         <ui:VisualElement data-source="project://database/Assets/Scripts/UI/States/UIPanelState.asset?fileID=11400000&amp;guid=d2fb6ddc884d6094f9a210b3dc6cbbf0&amp;type=2#UIPanelState" style="flex-grow: 0; flex-direction: row;">
-            <ui:VisualElement name="MenuBar" style="flex-grow: 1; flex-direction: row; display: flex;">
-                <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" name="PinpointButton" icon-image="project://database/Assets/Images/icon_with_probes-01.png?fileID=2800000&amp;guid=accd8dc5bfa09f946b2a802d80b1a4e9&amp;type=3#icon_with_probes-01" style="flex-shrink: 1; height: 40px; overflow: hidden; align-items: stretch; width: 40px; padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;" />
-                <ui:Button text="File" parse-escape-sequences="true" display-tooltip-when-elided="true" name="FileButton" />
-                <ui:Button text="Preferences" parse-escape-sequences="true" display-tooltip-when-elided="true" name="PreferencesButton" />
-                <ui:DropdownField index="0" choices="Planning Mode,Visualization Mode, Automation Mode" name="ModeDropdown">
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row; display: flex;">
+                <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" icon-image="project://database/Assets/Images/icon_with_probes-01.png?fileID=2800000&amp;guid=accd8dc5bfa09f946b2a802d80b1a4e9&amp;type=3#icon_with_probes-01" style="flex-shrink: 1; height: 40px; overflow: hidden; align-items: stretch; width: 40px; padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;" />
+                <ui:Button text="File" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                <ui:Button text="Preferences" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                <ui:DropdownField index="0" choices="Planning Mode,Visualization Mode, Automation Mode">
                     <Bindings>
                         <ui:DataBinding property="index" data-source-path="ModeIndex" binding-mode="TwoWay" />
                     </Bindings>
@@ -14,7 +14,7 @@
                     <ui:DataBinding property="style.display" data-source-path="LeftSidePanelVisibilityDisplayStyle" binding-mode="ToTarget" />
                 </Bindings>
             </ui:VisualElement>
-            <ui:Button text="&lt;&lt;" display-tooltip-when-elided="true" name="ToggleButton" parse-escape-sequences="true">
+            <ui:Button text="&lt;&lt;" display-tooltip-when-elided="true" name="toggle-button" parse-escape-sequences="true">
                 <Bindings>
                     <ui:DataBinding property="text" binding-mode="ToTarget" data-source-path="LeftSidePanelToggleButtonText" />
                 </Bindings>

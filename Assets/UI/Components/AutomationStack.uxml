@@ -37,17 +37,17 @@
                     </engine:FloatField>
                 </engine:VisualElement>
             </engine:VisualElement>
-            <engine:Button text="Reset Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetBregmaCalibrationButton" />
+            <engine:Button text="Reset Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="reset-bregma-calibration-button" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
             <engine:Label text="Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:RadioButtonGroup name="TargetInsertionRadioButtonGroup" value="0" style="flex-wrap: wrap;">
+            <engine:RadioButtonGroup value="0" name="target-insertion-radio-button-group" style="flex-wrap: wrap;">
                 <Bindings>
                     <engine:DataBinding property="choices" data-source-path="TargetInsertionOptions" binding-mode="ToTarget" />
                     <engine:DataBinding property="value" data-source-path="SelectedTargetInsertionIndex" binding-mode="TwoWay" />
                 </Bindings>
             </engine:RadioButtonGroup>
-            <engine:Button text="Drive to Target Entry Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DriveToTargetEntryCoordinateButton">
+            <engine:Button text="Drive to Target Entry Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="drive-to-target-entry-coordinate-button">
                 <Bindings>
                     <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetEntryCoordinateButtonEnabled" binding-mode="ToTarget" />
                     <engine:DataBinding property="text" data-source-path="DriveToTargetEntryCoordinateButtonText" binding-mode="ToTarget" />
@@ -61,18 +61,30 @@
                     <engine:DataBinding property="value" data-source-path="DuraCalibrationOffset" binding-mode="TwoWay" />
                 </Bindings>
             </engine:FloatField>
-            <engine:Button text="Reset Dura Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetDuraCalibrationButton" />
+            <engine:Button text="Reset Dura Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="reset-dura-calibration-button" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
             <engine:Label tabindex="-1" text="Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:RadioButtonGroup label="Speed" value="1" choices="2 µm/s,5 µm/s,10 µm/s,Test (500 µm/s),Custom" name="InsertionSpeedRadioGroup" />
-            <engine:FloatField label="Custom Speed" value="20" name="CustomInsertionSpeedField" style="visibility: visible; display: none;" />
-            <engine:FloatField label="Drive Past by (µm)" value="50" name="DrivePastByField" />
-            <engine:Button text="Drive to Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DriveToTargetInsertionButton">
-                <Bindings>
-                    <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetInsertionButtonEnabled" binding-mode="ToTarget" />
-                </Bindings>
-            </engine:Button>
+            <engine:RadioButtonGroup label="Speed" value="1" choices="2 µm/s,5 µm/s,10 µm/s,Test (500 µm/s),Custom" />
+            <engine:FloatField label="Custom Speed" value="20" style="visibility: visible; display: none;" />
+            <engine:FloatField label="Drive Past by (µm)" value="50" />
+            <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <engine:Button text="Drive" parse-escape-sequences="true" display-tooltip-when-elided="true" style="flex-grow: 1;">
+                    <Bindings>
+                        <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetInsertionButtonEnabled" binding-mode="ToTarget" />
+                    </Bindings>
+                </engine:Button>
+                <engine:Button text="Stop" parse-escape-sequences="true" display-tooltip-when-elided="true" style="flex-grow: 1;">
+                    <Bindings>
+                        <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetInsertionButtonEnabled" binding-mode="ToTarget" />
+                    </Bindings>
+                </engine:Button>
+                <engine:Button text="Exit" parse-escape-sequences="true" display-tooltip-when-elided="true" style="flex-grow: 1;">
+                    <Bindings>
+                        <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetInsertionButtonEnabled" binding-mode="ToTarget" />
+                    </Bindings>
+                </engine:Button>
+            </engine:VisualElement>
         </engine:VisualElement>
         <Bindings>
             <engine:DataBinding property="enabledSelf" data-source-path="IsEnabled" binding-mode="ToTarget" />
