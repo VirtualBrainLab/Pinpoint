@@ -64,7 +64,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             }
 
             // Compute the trajectory.
-            ComputeTrajectory(targetInsertionProbeManager);
+            ComputeTargetEntryCoordinateTrajectory(targetInsertionProbeManager);
 
             // Create trajectory lines.
             CreateTrajectoryLines();
@@ -79,7 +79,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <summary>
         ///     Move the probe along the planned trajectory to the target entry coordinate.<br />
         /// </summary>
-        /// <remarks>Invariant: trajectory is planned.</remarks>
+        /// <param name="onDriveEnd">Callback action after movement is completed.</param>
+        /// <exception cref="InvalidOperationException">No trajectory planned for probe</exception>
+        /// <remarks>Will log that movement has started and completed.</remarks>
         public void DriveToTargetEntryCoordinate(Action onDriveEnd)
         {
             // Throw exception if invariant is violated.
@@ -97,6 +99,18 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             );
             var mlPosition = ConvertInsertionAPMLDVToManipulatorPosition(
                 _trajectoryProbeInsertions.ml.APMLDV
+            );
+
+            // Log that movement is starting.
+            OutputLog.Log(
+                new[]
+                {
+                    "Automation",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "DriveToTargetEntryCoordinate",
+                    ManipulatorID,
+                    "Start"
+                }
             );
 
             // Move.
@@ -164,6 +178,11 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             }
         }
 
+        /// <summary>
+        ///     Stop the probe from moving to the target entry coordinate.
+        /// </summary>
+        /// <remarks>Will log that movement has stopped.</remarks>
+        /// <param name="onStopped">Callback action after movement is stopped.</param>
         public void StopDriveToTargetEntryCoordinate(Action onStopped)
         {
             // Log that movement is stopping.
@@ -186,7 +205,13 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
         #region Internal Functions
 
-        private void ComputeTrajectory(ProbeManager targetInsertionProbeManager)
+        /// <summary>
+        ///     Compute the trajectory to the target insertion entry coordinate.
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Probe manager of the target insertion to compute the entry coordinate for.</param>
+        private void ComputeTargetEntryCoordinateTrajectory(
+            ProbeManager targetInsertionProbeManager
+        )
         {
             // Set DV axis.
             _trajectoryProbeInsertions.dv = new ProbeInsertion(

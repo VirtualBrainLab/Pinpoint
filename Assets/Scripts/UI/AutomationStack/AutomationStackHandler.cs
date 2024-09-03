@@ -8,16 +8,23 @@ using UnityEngine.UIElements;
 namespace UI.AutomationStack
 {
     /// <summary>
-    ///     Automation Stack UI origin class.<br />
-    ///     This script handles getting the components, running UI setup functions, and registering callbacks.
+    ///     Automation Stack UI origin class.
     /// </summary>
+    /// <remarks>
+    ///     This script handles getting the components, running UI setup functions, and registering callbacks.
+    /// </remarks>
     public partial class AutomationStackHandler : MonoBehaviour
     {
         #region Components
 
-        // State
+        #region State
+
         [SerializeField]
         private AutomationStackState _state;
+
+        #endregion
+
+        #region UI
 
         // Document.
         [SerializeField]
@@ -27,17 +34,31 @@ namespace UI.AutomationStack
         // Panels.
         private VisualElement _automationStackPanel;
 
-        // Interface.
+        #region Bregma Calibration
+
         private Button _resetBregmaCalibrationButton;
+
+        #endregion
+
+        #region Target Insertion
+
         private RadioButtonGroup _targetInsertionRadioButtonGroup;
         private Button _driveToTargetEntryCoordinateButton;
 
-        // Probe.
+        #endregion
+
+        #endregion
+
+
+        #region Probes
+
         private static ManipulatorBehaviorController ActiveManipulatorBehaviorController =>
             ProbeManager.ActiveProbeManager.ManipulatorBehaviorController;
 
         private static ProbeAutomationStateManager ActiveProbeStateManager =>
             ActiveManipulatorBehaviorController.ProbeAutomationStateManager;
+
+        #endregion
 
         #endregion
 
@@ -123,14 +144,19 @@ namespace UI.AutomationStack
         ///     Sets (or unsets) the target insertion on the probe.
         /// </summary>
         /// <param name="changeEvent">The change event holding the new selection.</param>
-        /// <remarks>Invariant: The selected probe is Ephys Link controlled.</remarks>
+        /// <exception cref="InvalidOperationException">Probe is not selected/active and is not controlled by Ephys Link</exception>
         private partial void OnTargetInsertionSelectionChanged(ChangeEvent<int> changeEvent);
 
         /// <summary>
         ///     Callback for moving or stopping the drive to the target entry coordinate.<br />
-        ///     Will switch off of the probe in motion state to determine if the probe should be stopped or moved.
         /// </summary>
-        /// <remarks>Invariant: The selected probe is Ephys Link controlled and has AtBregma state (been calibrated).</remarks>
+        /// <remarks>
+        ///     Will move or stop based on automation state of the probe.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException">
+        ///     Probe is not selected/active, is not controlled by Ephys Link, and is not
+        ///     calibrated to bregma.
+        /// </exception>
         private partial void OnDriveToTargetEntryCoordinatePressed();
 
         #endregion

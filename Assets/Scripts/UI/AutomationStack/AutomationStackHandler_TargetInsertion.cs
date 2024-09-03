@@ -13,6 +13,9 @@ namespace UI.AutomationStack
     {
         #region Properties
 
+        /// <summary>
+        ///     Cached copy of the target insertion options.
+        /// </summary>
         private IEnumerable<string> _targetInsertionOptionsCache = Enumerable.Empty<string>();
 
         #endregion

@@ -16,6 +16,7 @@ namespace UI.States
         /// <summary>
         ///     Is the entire Automation stack enabled.
         /// </summary>
+        /// <returns>True when the active probe manager is Ephys Link controlled.</returns>
         [CreateProperty]
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once MemberCanBeMadeStatic.Global
@@ -37,11 +38,11 @@ namespace UI.States
         > _manipulatorProbeManagerToSelectedTargetInsertionProbeManager = new();
 
         /// <summary>
-        ///     Property accessor for the selected target insertion index.<br />
-        ///     Converts the selected target insertion probe manager to an index in the target insertion options list.<br />
-        ///     Converts the index to the selected target insertion probe manager and updates the mapping.<br />
+        ///     Selected target insertion option index.
+        ///     Property accessor for the selected target insertion index.
         /// </summary>
-        /// <remarks>Set invariant: the panel is enabled, meaning there are options to pick from.</remarks>
+        /// <remarks>Acts as a conversion layer between the mapping of probe managers to target insertion probe managers.</remarks>
+        /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
         public int SelectedTargetInsertionIndex
         {
@@ -97,9 +98,11 @@ namespace UI.States
         }
 
         /// <summary>
-        ///     Option list for target insertion.<br />
-        ///     Convert's the targetable probe manager's surface coordinate to a string and prepends "None".<br />
+        ///     Option list for target insertion.
         /// </summary>
+        /// <remarks>
+        ///     Convert's the targetable probe manager's surface coordinate to a string and prepends "None".
+        /// </remarks>
         /// <returns>Target insertion options as a string enumerable, or an empty enumerable if the panel is not enabled.</returns>
         [CreateProperty]
         // ReSharper disable once MemberCanBePrivate.Global
@@ -216,13 +219,17 @@ namespace UI.States
 
         /// <summary>
         ///     Is the drive to selected target entry coordinate button enabled.<br />
-        ///     Requires an active probe manager that is Ephys Link controlled, is calibrated to Bregma, TODO and has a selected
-        ///     target.
         /// </summary>
+        /// <returns>
+        ///     Returns true if the active probe manager is Ephys Link controlled, calibrated to Bregma, and has a selected target.
+        /// </returns>
         [CreateProperty]
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
             IsEnabled
-            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ProbeAutomationStateManager.IsCalibrated();
+            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ProbeAutomationStateManager.IsCalibrated()
+            && _manipulatorProbeManagerToSelectedTargetInsertionProbeManager.ContainsKey(
+                ProbeManager.ActiveProbeManager
+            );
 
         /// <summary>
         ///     Record of probes that have acknowledged their target insertion is out of their bounds.
@@ -231,9 +238,11 @@ namespace UI.States
             new();
 
         /// <summary>
-        ///     Text for the drive to target entry coordinate button.<br />
-        ///     Says "Stop" when the probe is in motion, and "Drive to Target Entry Coordinate" otherwise.
+        ///     Text for the drive to target entry coordinate button.
         /// </summary>
+        /// <returns>
+        ///     Says "Stop" when the probe is in motion, and "Drive to Target Entry Coordinate" otherwise.
+        /// </returns>
         [CreateProperty]
         public string DriveToTargetEntryCoordinateButtonText =>
             IsEnabled
@@ -246,9 +255,11 @@ namespace UI.States
         #region Insertion
 
         /// <summary>
-        ///     Is the drive to target insertion button enabled.<br />
-        ///     Requires an active probe manager that is Ephys Link controlled and has its Dura offset calibrated.
+        ///     Is the drive to target insertion button enabled.
         /// </summary>
+        /// <returns>
+        ///     Returns true if the active probe manager is Ephys Link controlled and has its Dura offset calibrated.
+        /// </returns>
         [CreateProperty]
         public bool IsDriveToTargetInsertionButtonEnabled =>
             IsEnabled
