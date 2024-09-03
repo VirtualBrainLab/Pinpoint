@@ -350,7 +350,7 @@ namespace UI.States
         [CreateProperty]
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
             IsEnabled
-            && ActiveProbeAutomationStateManager.IsCalibrated()
+            && ActiveProbeAutomationStateManager.IsCalibrated() && !ActiveProbeAutomationStateManager.HasReachedTargetEntryCoordinate()
             && _manipulatorProbeManagerToSelectedTargetInsertionProbeManager.ContainsKey(
                 ProbeManager.ActiveProbeManager
             );

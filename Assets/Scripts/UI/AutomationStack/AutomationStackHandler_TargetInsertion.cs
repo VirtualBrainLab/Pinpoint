@@ -73,7 +73,12 @@ namespace UI.AutomationStack
                     return;
                 // Shortcut to deselection for "None" (0).
                 case 0:
+                    // Remove existing trajectory.
                     ActiveManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(null);
+
+                    // ReSharper disable once GrammarMistakeInComment
+                    // Reset probe state to calibrated.
+                    ActiveProbeStateManager.SetCalibrated();
                     return;
             }
 
@@ -88,6 +93,10 @@ namespace UI.AutomationStack
                 ActiveManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(
                     targetInsertionProbeManager
                 );
+
+            // Shortcut exit if it is negative infinity (no trajectory, probably finished driving).
+            if (float.IsNegativeInfinity(entryCoordinate.x))
+                return;
 
             // Skip checking if the target insertion is out of bounds if the user has already acknowledged it.
             if (
