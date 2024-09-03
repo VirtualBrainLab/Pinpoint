@@ -1,3 +1,6 @@
+using System;
+using Pinpoint.Probes;
+using Pinpoint.Probes.ManipulatorBehaviorController;
 using UI.States;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -28,6 +31,13 @@ namespace UI.AutomationStack
         private Button _resetBregmaCalibrationButton;
         private RadioButtonGroup _targetInsertionRadioButtonGroup;
         private Button _driveToTargetEntryCoordinateButton;
+
+        // Probe.
+        private static ManipulatorBehaviorController ActiveManipulatorBehaviorController =>
+            ProbeManager.ActiveProbeManager.ManipulatorBehaviorController;
+
+        private static ProbeAutomationStateManager ActiveProbeStateManager =>
+            ActiveManipulatorBehaviorController.ProbeAutomationStateManager;
 
         #endregion
 
@@ -84,7 +94,7 @@ namespace UI.AutomationStack
         /// <summary>
         ///     Reset the Bregma calibration of the active probe.
         /// </summary>
-        /// <remarks>Invariant: a Probe is selected/active, and it is controlled by Ephys Link</remarks>
+        /// <exception cref="InvalidOperationException">Probe is not selected/active and is not controlled by Ephys Link</exception>
         private partial void ResetBregmaCalibration();
 
         #endregion
@@ -92,16 +102,20 @@ namespace UI.AutomationStack
         #region Target Insertion
 
         /// <summary>
-        ///     Updates the colors of the target insertion options radio buttons to match the target probe's colors.<br />
-        ///     Will only update if the cached options mismatch the current options.
+        ///     Updates the colors of the target insertion options radio buttons to match the target probe's colors.
         /// </summary>
+        /// <remarks>
+        ///     Will only update if the cached options mismatch the current options.
+        /// </remarks>
         private partial void UpdateTargetInsertionOptionsRadioButtonColors();
 
         /// <summary>
-        ///     Flush cached target insertion options.<br />
+        ///     Flush cached target insertion options.
+        /// </summary>
+        /// <remarks>
         ///     Used when switching to a probe that may not be enabled (since the cache will not be updated then). This will fix
         ///     the issue where returning to an enabled probe will not update the radio button colors.
-        /// </summary>
+        /// </remarks>
         private partial void FlushTargetInsertionOptionsCache();
 
         /// <summary>
@@ -116,7 +130,7 @@ namespace UI.AutomationStack
         ///     Callback for moving or stopping the drive to the target entry coordinate.<br />
         ///     Will switch off of the probe in motion state to determine if the probe should be stopped or moved.
         /// </summary>
-        /// <remarks>Invariant: The selected probe is Ephys Link controlled.</remarks>
+        /// <remarks>Invariant: The selected probe is Ephys Link controlled and has AtBregma state (been calibrated).</remarks>
         private partial void OnDriveToTargetEntryCoordinatePressed();
 
         #endregion

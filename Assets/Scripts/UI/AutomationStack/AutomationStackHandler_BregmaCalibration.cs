@@ -15,12 +15,12 @@ namespace UI.AutomationStack
                     "Cannot reset Bregma calibration if automation is not enabled on probe "
                         + ProbeManager.ActiveProbeManager.name
                 );
-            
-            // Reset the zero coordinate of the active probe manager.
-            ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ResetZeroCoordinate();
 
-            // Add the active probe manager to the calibrated to Bregma probes.
-            _state.CalibratedToBregmaProbes.Add(ProbeManager.ActiveProbeManager);
+            // Reset the zero coordinate of the active probe manager.
+            ActiveManipulatorBehaviorController.ResetZeroCoordinate();
+
+            // Set probe's automation state to be calibrated.
+            ActiveProbeStateManager.SetCalibrated();
         }
     }
 }

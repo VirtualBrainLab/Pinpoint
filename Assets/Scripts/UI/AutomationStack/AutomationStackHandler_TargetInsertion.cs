@@ -70,9 +70,7 @@ namespace UI.AutomationStack
                     return;
                 // Shortcut to deselection for "None" (0).
                 case 0:
-                    ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(
-                        null
-                    );
+                    ActiveManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(null);
                     return;
             }
 
@@ -84,7 +82,7 @@ namespace UI.AutomationStack
 
             // Compute entry coordinate trajectory.
             var entryCoordinate =
-                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(
+                ActiveManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(
                     targetInsertionProbeManager
                 );
 
@@ -98,7 +96,7 @@ namespace UI.AutomationStack
 
             // Check if entry coordinate is out of bounds.
             if (
-                !ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.IsAPMLDVWithinManipulatorBounds(
+                !ActiveManipulatorBehaviorController.IsAPMLDVWithinManipulatorBounds(
                     entryCoordinate
                 )
             )
@@ -135,7 +133,7 @@ namespace UI.AutomationStack
             {
                 // Shortcut exit if the target insertion is within the manipulator bounds.
                 if (
-                    ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.IsAPMLDVWithinManipulatorBounds(
+                    ActiveManipulatorBehaviorController.IsAPMLDVWithinManipulatorBounds(
                         targetInsertionProbeManager.ProbeController.Insertion.APMLDV
                     )
                 )
@@ -161,26 +159,28 @@ namespace UI.AutomationStack
         private partial void OnDriveToTargetEntryCoordinatePressed()
         {
             // Throw exception if invariant is violated.
-            if (!_state.IsEnabled)
+            if (!_state.IsEnabled || !ActiveProbeStateManager.IsCalibrated())
                 throw new InvalidOperationException(
-                    "Cannot drive to target insertion if automation is not enabled on probe "
-                        + ProbeManager.ActiveProbeManager.name
+                    $"Cannot drive {ProbeManager.ActiveProbeManager.name} to target insertion if not enabled and not calibrated to Bregma."
                 );
 
             // If the probe is moving, call stop.
-            if (!_state.ProbesInMotion.Add(ProbeManager.ActiveProbeManager))
+            if (ActiveProbeStateManager.IsDrivingToEntryCoordinate())
             {
-                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.StopDriveToTargetEntryCoordinate(
-                    // On completion, remove the probe from the probes in motion.
-                    () => _state.ProbesInMotion.Remove(ProbeManager.ActiveProbeManager)
+                ActiveManipulatorBehaviorController.StopDriveToTargetEntryCoordinate(
+                    // On stop, set the probe back to calibrated state.
+                    () => ActiveProbeStateManager.SetCalibrated()
                 );
             }
             else
             {
+                // Set probe to be driving to target entry coordinate.
+                ActiveProbeStateManager.SetDrivingToTargetEntryCoordinate();
+
                 // Send drive command.
                 ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.DriveToTargetEntryCoordinate(
-                    // On completion, remove the probe from the probes in motion.
-                    () => _state.ProbesInMotion.Remove(ProbeManager.ActiveProbeManager)
+                    // On completion, set probe to at entry coordinate.
+                    () => ActiveProbeStateManager.SetAtEntryCoordinate()
                 );
             }
         }

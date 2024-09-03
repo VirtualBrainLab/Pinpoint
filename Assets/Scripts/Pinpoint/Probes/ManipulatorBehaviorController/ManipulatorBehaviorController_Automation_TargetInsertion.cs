@@ -47,11 +47,17 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         ///     Compute the entry coordinate and trajectory for the target insertion. Also, draw the trajectory lines.
         /// </summary>
         /// <param name="targetInsertionProbeManager">Probe manager of the target insertion</param>
-        /// <returns>The computed entry coordinate in AP, ML, DV coordinates. Negative infinity if target is unset.</returns>
+        /// <returns>
+        ///     The computed entry coordinate in AP, ML, DV coordinates. Negative infinity if target is unset or already
+        ///     there.
+        /// </returns>
         public Vector3 ComputeEntryCoordinateTrajectory(ProbeManager targetInsertionProbeManager)
         {
-            // If set to null, cleanup and remove insertion trajectory.
-            if (targetInsertionProbeManager == null)
+            // If set to null or already past the entry coordinate, cleanup and remove insertion trajectory.
+            if (
+                targetInsertionProbeManager == null
+                || ProbeAutomationStateManager.HasReachedTargetEntryCoordinate()
+            )
             {
                 RemoveTrajectoryLines();
                 return Vector3.negativeInfinity;

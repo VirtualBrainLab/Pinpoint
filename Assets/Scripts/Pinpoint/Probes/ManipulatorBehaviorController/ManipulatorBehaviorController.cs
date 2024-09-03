@@ -92,6 +92,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             }
         }
 
+        public readonly ProbeAutomationStateManager ProbeAutomationStateManager = new();
+
         // Helper functions to create and destroy a probe
         public Action<ProbeProperties.ProbeType> CreatePathfinderProbe { private get; set; }
         public Action DestroyThisProbe { private get; set; }

@@ -25,15 +25,6 @@ namespace UI.States
 
         #endregion
 
-        #region Bregma Calibration
-
-        /// <summary>
-        ///     Record of probes that have been calibrated at least once to Bregma.
-        /// </summary>
-        public readonly HashSet<ProbeManager> CalibratedToBregmaProbes = new();
-
-        #endregion
-
         #region Target Insertion
 
         /// <summary>
@@ -230,7 +221,8 @@ namespace UI.States
         /// </summary>
         [CreateProperty]
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
-            IsEnabled && CalibratedToBregmaProbes.Contains(ProbeManager.ActiveProbeManager);
+            IsEnabled
+            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ProbeAutomationStateManager.IsCalibrated();
 
         /// <summary>
         ///     Record of probes that have acknowledged their target insertion is out of their bounds.
@@ -239,28 +231,15 @@ namespace UI.States
             new();
 
         /// <summary>
-        ///     Record of probes that are currently moving.
-        /// </summary>
-        public readonly HashSet<ProbeManager> ProbesInMotion = new();
-
-        /// <summary>
         ///     Text for the drive to target entry coordinate button.<br />
         ///     Says "Stop" when the probe is in motion, and "Drive to Target Entry Coordinate" otherwise.
         /// </summary>
         [CreateProperty]
         public string DriveToTargetEntryCoordinateButtonText =>
-            ProbesInMotion.Contains(ProbeManager.ActiveProbeManager)
+            IsEnabled
+            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ProbeAutomationStateManager.IsDrivingToEntryCoordinate()
                 ? "Stop"
                 : "Drive to Target Entry Coordinate";
-
-        #endregion
-
-        #region Dura Calibration
-
-        /// <summary>
-        ///     Mapping of probes that have been calibrated to the Dura at least once.
-        /// </summary>
-        public readonly HashSet<ProbeManager> CalibratedToDuraProbes = new();
 
         #endregion
 
@@ -272,7 +251,8 @@ namespace UI.States
         /// </summary>
         [CreateProperty]
         public bool IsDriveToTargetInsertionButtonEnabled =>
-            IsEnabled && CalibratedToDuraProbes.Contains(ProbeManager.ActiveProbeManager);
+            IsEnabled
+            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ProbeAutomationStateManager.IsAtDura();
 
         #endregion
     }
