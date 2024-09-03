@@ -118,10 +118,12 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 new SetPositionRequest(ManipulatorID, dvPosition, AUTOMATIC_MOVEMENT_SPEED),
                 _ =>
                 {
+                    print("At DV position");
                     CommunicationManager.Instance.SetPosition(
                         new SetPositionRequest(ManipulatorID, apPosition, AUTOMATIC_MOVEMENT_SPEED),
                         _ =>
                         {
+                            print("At AP position");
                             CommunicationManager.Instance.SetPosition(
                                 new SetPositionRequest(
                                     ManipulatorID,
@@ -130,6 +132,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                 ),
                                 _ =>
                                 {
+                                    print("At Entry coordinate");
                                     // Remove trajectory lines.
                                     RemoveTrajectoryLines();
 
@@ -209,10 +212,19 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         ///     Compute the trajectory to the target insertion entry coordinate.
         /// </summary>
         /// <param name="targetInsertionProbeManager">Probe manager of the target insertion to compute the entry coordinate for.</param>
+        /// <remarks>Does not do this while driving or at target entry coordinate.</remarks>
         private void ComputeTargetEntryCoordinateTrajectory(
             ProbeManager targetInsertionProbeManager
         )
         {
+            // Shortcut exit if driving to or at target entry coordinate.
+            if (
+                ProbeAutomationStateManager.IsDrivingToEntryCoordinate()
+                || ProbeAutomationStateManager.HasReachedTargetEntryCoordinate()
+            )
+                return;
+            print("Computing trajectory");
+            
             // Set DV axis.
             _trajectoryProbeInsertions.dv = new ProbeInsertion(
                 _probeManager.ProbeController.Insertion

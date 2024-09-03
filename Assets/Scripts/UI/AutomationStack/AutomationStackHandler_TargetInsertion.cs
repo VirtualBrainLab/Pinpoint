@@ -181,7 +181,7 @@ namespace UI.AutomationStack
                 ActiveProbeStateManager.SetDrivingToTargetEntryCoordinate();
 
                 // Send drive command.
-                ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.DriveToTargetEntryCoordinate(
+                ActiveManipulatorBehaviorController.DriveToTargetEntryCoordinate(
                     // On completion, set probe to at entry coordinate.
                     () => ActiveProbeStateManager.SetAtEntryCoordinate()
                 );
