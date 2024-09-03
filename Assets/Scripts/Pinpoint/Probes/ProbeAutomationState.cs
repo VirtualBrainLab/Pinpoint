@@ -33,6 +33,11 @@ namespace Pinpoint.Probes
         /// <summary>
         ///     Calibrated to the dura.
         /// </summary>
-        AtDura
+        AtDura,
+        
+        /// <summary>
+        /// Exiting to the dura.
+        /// </summary>
+        ExitingToDura,
     }
 }

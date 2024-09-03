@@ -47,6 +47,12 @@ namespace UI.AutomationStack
 
         #endregion
 
+        #region Dura Calibration
+
+        private Button _resetDuraCalibrationButton;
+
+        #endregion
+
         #endregion
 
 
@@ -78,6 +84,9 @@ namespace UI.AutomationStack
             _driveToTargetEntryCoordinateButton = _automationStackPanel.Q<Button>(
                 "DriveToTargetEntryCoordinateButton"
             );
+            _resetDuraCalibrationButton = _automationStackPanel.Q<Button>(
+                "ResetDuraCalibrationButton"
+            );
 
             // Register callbacks.
             _resetBregmaCalibrationButton.clicked += ResetBregmaCalibration;
@@ -85,6 +94,7 @@ namespace UI.AutomationStack
                 OnTargetInsertionSelectionChanged
             );
             _driveToTargetEntryCoordinateButton.clicked += OnDriveToTargetEntryCoordinatePressed;
+            _resetDuraCalibrationButton.clicked += ResetDuraCalibration;
         }
 
         private void OnDisable()
@@ -158,6 +168,16 @@ namespace UI.AutomationStack
         ///     calibrated to bregma.
         /// </exception>
         private partial void OnDriveToTargetEntryCoordinatePressed();
+
+        #endregion
+
+        #region Dura Calibration
+
+        /// <summary>
+        ///     Reset the Dura calibration of the active probe.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Probe is not selected/active and is not controlled by Ephys Link</exception>
+        private partial void ResetDuraCalibration();
 
         #endregion
 

@@ -47,7 +47,7 @@ namespace UI.States
         #region Bregma Calibration
 
         /// <summary>
-        ///     X offset of the Bregma calibration.
+        ///     X offset of the Bregma calibration (mm).
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
@@ -71,7 +71,7 @@ namespace UI.States
         }
 
         /// <summary>
-        ///     Y offset of the Bregma calibration.
+        ///     Y offset of the Bregma calibration (mm).
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
@@ -95,7 +95,7 @@ namespace UI.States
         }
 
         /// <summary>
-        ///     Z offset of the Bregma calibration.
+        ///     Z offset of the Bregma calibration (mm).
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
@@ -119,7 +119,7 @@ namespace UI.States
         }
 
         /// <summary>
-        ///     Depth offset of the Bregma calibration.
+        ///     Depth offset of the Bregma calibration (mm).
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
@@ -336,6 +336,12 @@ namespace UI.States
         #endregion
 
         /// <summary>
+        ///     Record of probes that have acknowledged their target insertion is out of their bounds.
+        /// </summary>
+        public readonly HashSet<ProbeManager> AcknowledgedTargetInsertionIsOutOfBoundsProbes =
+            new();
+
+        /// <summary>
         ///     Is the drive to selected target entry coordinate button enabled.<br />
         /// </summary>
         /// <returns>
@@ -350,12 +356,6 @@ namespace UI.States
             );
 
         /// <summary>
-        ///     Record of probes that have acknowledged their target insertion is out of their bounds.
-        /// </summary>
-        public readonly HashSet<ProbeManager> AcknowledgedTargetInsertionIsOutOfBoundsProbes =
-            new();
-
-        /// <summary>
         ///     Text for the drive to target entry coordinate button.
         /// </summary>
         /// <returns>
@@ -365,7 +365,32 @@ namespace UI.States
         public string DriveToTargetEntryCoordinateButtonText =>
             IsEnabled && ActiveProbeAutomationStateManager.IsDrivingToEntryCoordinate()
                 ? "Stop"
-                : "Drive to Target Entry Coordinate";
+                : IsEnabled && ActiveProbeAutomationStateManager.IsCalibrated()
+                    ? "Drive to Target Entry Coordinate"
+                    : "Please Calibrate Probe";
+
+        #endregion
+
+        #region Dura Calibration
+
+        /// <summary>
+        ///     Dura calibration offset (mm).
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
+        [CreateProperty]
+        public float DuraCalibrationOffset
+        {
+            get => IsEnabled ? ActiveManipulatorBehaviorController.BrainSurfaceOffset : 0;
+            set
+            {
+                if (!IsEnabled)
+                    throw new InvalidOperationException(
+                        "Cannot set the Dura calibration offset when automation is not enabled for probe "
+                            + ProbeManager.ActiveProbeManager.name
+                    );
+                ActiveManipulatorBehaviorController.BrainSurfaceOffset = value;
+            }
+        }
 
         #endregion
 

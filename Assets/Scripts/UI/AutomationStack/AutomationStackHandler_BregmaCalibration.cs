@@ -16,7 +16,7 @@ namespace UI.AutomationStack
                         + ProbeManager.ActiveProbeManager.name
                 );
 
-            // Reset the zero coordinate of the active probe manager.
+            // Reset the Bregma calibration of the active probe manager.
             ActiveManipulatorBehaviorController.ResetZeroCoordinate();
 
             // Set probe's automation state to be calibrated.

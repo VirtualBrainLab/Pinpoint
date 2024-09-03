@@ -58,6 +58,22 @@ namespace Pinpoint.Probes
             _probeAutomationState = ProbeAutomationState.AtEntryCoordinate;
         }
 
+        /// <summary>
+        ///     Set the probe's state to be at the Dura.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Probe is not at the entry coordinate or exiting to Dura.</exception>
+        public void SetAtDura()
+        {
+            if (
+                _probeAutomationState != ProbeAutomationState.AtEntryCoordinate
+                && _probeAutomationState != ProbeAutomationState.ExitingToDura
+            )
+                throw new InvalidOperationException(
+                    "Cannot set probe to dura if it was not at the entry coordinate or exiting to Dura."
+                );
+            _probeAutomationState = ProbeAutomationState.AtDura;
+        }
+
         #endregion
 
         #region Queries

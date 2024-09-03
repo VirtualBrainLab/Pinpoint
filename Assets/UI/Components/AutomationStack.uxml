@@ -56,7 +56,11 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
             <engine:Label tabindex="-1" text="Dura Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:FloatField label="Offset (mm)" />
+            <engine:FloatField label="Offset (mm)">
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="DuraCalibrationOffset" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:FloatField>
             <engine:Button text="Reset Dura Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetDuraCalibrationButton" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
