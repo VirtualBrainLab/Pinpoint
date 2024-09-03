@@ -3,6 +3,40 @@
     <engine:VisualElement data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState">
         <engine:VisualElement enabled="true" class="inspectorBox">
             <engine:Label tabindex="-1" text="Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+            <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <engine:VisualElement style="flex-grow: 1;">
+                    <engine:Label text="X" style="-unity-text-align: upper-center;" />
+                    <engine:FloatField>
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="BregmaCalibrationX" binding-mode="ToTarget" />
+                        </Bindings>
+                    </engine:FloatField>
+                </engine:VisualElement>
+                <engine:VisualElement style="flex-grow: 1;">
+                    <engine:Label text="Y" style="-unity-text-align: upper-center;" />
+                    <engine:FloatField>
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="BregmaCalibrationY" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:FloatField>
+                </engine:VisualElement>
+                <engine:VisualElement style="flex-grow: 1;">
+                    <engine:Label text="Z" style="-unity-text-align: upper-center;" />
+                    <engine:FloatField>
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="BregmaCalibrationZ" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:FloatField>
+                </engine:VisualElement>
+                <engine:VisualElement style="flex-grow: 1;">
+                    <engine:Label text="Depth" style="-unity-text-align: upper-center;" />
+                    <engine:FloatField>
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="BregmaCalibrationDepth" binding-mode="TwoWay" />
+                        </Bindings>
+                    </engine:FloatField>
+                </engine:VisualElement>
+            </engine:VisualElement>
             <engine:Button text="Reset Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetBregmaCalibrationButton" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
@@ -22,6 +56,7 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
             <engine:Label tabindex="-1" text="Dura Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+            <engine:FloatField label="Offset (mm)" />
             <engine:Button text="Reset Dura Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResetDuraCalibrationButton" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
@@ -35,8 +70,5 @@
                 </Bindings>
             </engine:Button>
         </engine:VisualElement>
-        <Bindings>
-            <engine:DataBinding property="enabledSelf" data-source-path="IsEnabled" binding-mode="ToTarget" />
-        </Bindings>
     </engine:VisualElement>
 </engine:UXML>

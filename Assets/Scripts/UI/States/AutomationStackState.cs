@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using BrainAtlas;
 using Core.Util;
+using Pinpoint.Probes;
+using Pinpoint.Probes.ManipulatorBehaviorController;
 using Unity.Properties;
 using UnityEngine;
 
@@ -11,6 +13,22 @@ namespace UI.States
     [CreateAssetMenu]
     public class AutomationStackState : ResettingScriptableObject
     {
+        #region Common
+
+        /// <summary>
+        ///     Active probe's manipulator behavior controller.
+        /// </summary>
+        private static ManipulatorBehaviorController ActiveManipulatorBehaviorController =>
+            ProbeManager.ActiveProbeManager.ManipulatorBehaviorController;
+
+        /// <summary>
+        ///     Active probe's probe automation state manager.
+        /// </summary>
+        private static ProbeAutomationStateManager ActiveProbeAutomationStateManager =>
+            ActiveManipulatorBehaviorController.ProbeAutomationStateManager;
+
+        #endregion
+
         #region Panel
 
         /// <summary>
@@ -23,6 +41,106 @@ namespace UI.States
         public bool IsEnabled =>
             ProbeManager.ActiveProbeManager
             && ProbeManager.ActiveProbeManager.IsEphysLinkControlled;
+
+        #endregion
+
+        #region Bregma Calibration
+
+        /// <summary>
+        ///     X offset of the Bregma calibration.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
+        [CreateProperty]
+        public float BregmaCalibrationX
+        {
+            get => IsEnabled ? ActiveManipulatorBehaviorController.ZeroCoordinateOffset.x : 0;
+            set
+            {
+                if (!IsEnabled)
+                    throw new InvalidOperationException(
+                        "Cannot set the X offset for Bregma when automation is not enabled for probe "
+                            + ProbeManager.ActiveProbeManager.name
+                    );
+                ActiveManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                    value,
+                    float.NaN,
+                    float.NaN,
+                    float.NaN
+                );
+            }
+        }
+
+        /// <summary>
+        ///     Y offset of the Bregma calibration.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
+        [CreateProperty]
+        public float BregmaCalibrationY
+        {
+            get => IsEnabled ? ActiveManipulatorBehaviorController.ZeroCoordinateOffset.y : 0;
+            set
+            {
+                if (!IsEnabled)
+                    throw new InvalidOperationException(
+                        "Cannot set the Y offset for Bregma when automation is not enabled for probe "
+                            + ProbeManager.ActiveProbeManager.name
+                    );
+                ActiveManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                    float.NaN,
+                    value,
+                    float.NaN,
+                    float.NaN
+                );
+            }
+        }
+
+        /// <summary>
+        ///     Z offset of the Bregma calibration.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
+        [CreateProperty]
+        public float BregmaCalibrationZ
+        {
+            get => IsEnabled ? ActiveManipulatorBehaviorController.ZeroCoordinateOffset.z : 0;
+            set
+            {
+                if (!IsEnabled)
+                    throw new InvalidOperationException(
+                        "Cannot set the Z offset for Bregma when automation is not enabled for probe "
+                            + ProbeManager.ActiveProbeManager.name
+                    );
+                ActiveManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                    float.NaN,
+                    float.NaN,
+                    value,
+                    float.NaN
+                );
+            }
+        }
+
+        /// <summary>
+        ///     Depth offset of the Bregma calibration.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
+        [CreateProperty]
+        public float BregmaCalibrationDepth
+        {
+            get => IsEnabled ? ActiveManipulatorBehaviorController.ZeroCoordinateOffset.w : 0;
+            set
+            {
+                if (!IsEnabled)
+                    throw new InvalidOperationException(
+                        "Cannot set the depth offset for Bregma when automation is not enabled for probe "
+                            + ProbeManager.ActiveProbeManager.name
+                    );
+                ActiveManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                    float.NaN,
+                    float.NaN,
+                    float.NaN,
+                    value
+                );
+            }
+        }
 
         #endregion
 
@@ -226,7 +344,7 @@ namespace UI.States
         [CreateProperty]
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
             IsEnabled
-            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ProbeAutomationStateManager.IsCalibrated()
+            && ActiveProbeAutomationStateManager.IsCalibrated()
             && _manipulatorProbeManagerToSelectedTargetInsertionProbeManager.ContainsKey(
                 ProbeManager.ActiveProbeManager
             );
@@ -245,8 +363,7 @@ namespace UI.States
         /// </returns>
         [CreateProperty]
         public string DriveToTargetEntryCoordinateButtonText =>
-            IsEnabled
-            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ProbeAutomationStateManager.IsDrivingToEntryCoordinate()
+            IsEnabled && ActiveProbeAutomationStateManager.IsDrivingToEntryCoordinate()
                 ? "Stop"
                 : "Drive to Target Entry Coordinate";
 
@@ -262,8 +379,7 @@ namespace UI.States
         /// </returns>
         [CreateProperty]
         public bool IsDriveToTargetInsertionButtonEnabled =>
-            IsEnabled
-            && ProbeManager.ActiveProbeManager.ManipulatorBehaviorController.ProbeAutomationStateManager.IsAtDura();
+            IsEnabled && ActiveProbeAutomationStateManager.IsAtDura();
 
         #endregion
     }
