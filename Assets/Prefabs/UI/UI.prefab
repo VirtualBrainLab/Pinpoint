@@ -10,9 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 15652614861718102}
   - component: {fileID: 6646602896389307525}
-  - component: {fileID: 7819278259040075858}
-  - component: {fileID: 3125202862044128503}
   - component: {fileID: 3182672479199375693}
+  - component: {fileID: 6240793296398976258}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -54,34 +53,6 @@ MonoBehaviour:
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
---- !u!114 &7819278259040075858
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 952126553420751687}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c6f113e71e3e20429d4f8ea0a9921b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _state: {fileID: 11400000, guid: 1a6c5de70346447469b780c3c86c6370, type: 2}
-  _uiDocument: {fileID: 6646602896389307525}
---- !u!114 &3125202862044128503
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 952126553420751687}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b764761ee9e5cb4fa7931259bdc0e05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _state: {fileID: 11400000, guid: 1ffbe2aa43d3bb246a3a88a0d1ab255d, type: 2}
-  _uiDocument: {fileID: 6646602896389307525}
 --- !u!114 &3182672479199375693
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,4 +66,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _state: {fileID: 11400000, guid: 1f3a268d723c7fe4f90bd218f72aa27d, type: 2}
+  _uiDocument: {fileID: 6646602896389307525}
+--- !u!114 &6240793296398976258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 952126553420751687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c4c21d250a58a4c948c37d132330c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _state: {fileID: 11400000, guid: d2fb6ddc884d6094f9a210b3dc6cbbf0, type: 2}
   _uiDocument: {fileID: 6646602896389307525}

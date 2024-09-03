@@ -185,7 +185,7 @@ namespace UI.States
         /// </summary>
         /// <param name="manager">Probe manager to extract info from</param>
         /// <returns>Target insertion option string from a probe manager.</returns>
-        private string ProbeManagerToTargetInsertionOption(ProbeManager manager)
+        private static string ProbeManagerToTargetInsertionOption(ProbeManager manager)
         {
             return (manager.OverrideName ?? manager.name)
                 + ": "
