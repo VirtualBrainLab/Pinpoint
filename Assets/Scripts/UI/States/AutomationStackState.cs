@@ -7,6 +7,7 @@ using Pinpoint.Probes;
 using Pinpoint.Probes.ManipulatorBehaviorController;
 using Unity.Properties;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UI.States
 {
@@ -350,7 +351,8 @@ namespace UI.States
         [CreateProperty]
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
             IsEnabled
-            && ActiveProbeAutomationStateManager.IsCalibrated() && !ActiveProbeAutomationStateManager.HasReachedTargetEntryCoordinate()
+            && ActiveProbeAutomationStateManager.IsCalibrated()
+            && !ActiveProbeAutomationStateManager.HasReachedTargetEntryCoordinate()
             && _manipulatorProbeManagerToSelectedTargetInsertionProbeManager.ContainsKey(
                 ProbeManager.ActiveProbeManager
             );
@@ -359,7 +361,9 @@ namespace UI.States
         ///     Text for the drive to target entry coordinate button.
         /// </summary>
         /// <returns>
-        ///     Says "Stop" when the probe is in motion, and "Drive to Target Entry Coordinate" otherwise.
+        ///     Says "Stop" when the probe is in motion, "Drive to Target Entry Coordinate" when the probe is calibrated (and
+        ///     ready), 'Entry Coordinate Reached' when the probe has reached the target entry coordinate, and "Please Calibrate
+        ///     Probe" when the probe is not calibrated (else case).
         /// </returns>
         [CreateProperty]
         public string DriveToTargetEntryCoordinateButtonText =>
@@ -367,7 +371,10 @@ namespace UI.States
                 ? "Stop"
                 : IsEnabled && ActiveProbeAutomationStateManager.IsCalibrated()
                     ? "Drive to Target Entry Coordinate"
-                    : "Please Calibrate Probe";
+                    : IsEnabled
+                    && ActiveProbeAutomationStateManager.HasReachedTargetEntryCoordinate()
+                        ? "Entry Coordinate Reached"
+                        : "Please Calibrate Probe";
 
         #endregion
 
@@ -395,6 +402,30 @@ namespace UI.States
         #endregion
 
         #region Insertion
+
+        /// <summary>
+        ///     Selection index in radio button group for base insertion speed.
+        /// </summary>
+        public int SelectedInsertionBaseSpeedIndex;
+
+        /// <summary>
+        ///     Custom base insertion speed (µm/s).
+        /// </summary>
+        /// <remarks>Should only be used when <see cref="SelectedInsertionBaseSpeedIndex" /> is on "Custom" index.</remarks>
+        public int CustomInsertionBaseSpeed;
+
+        /// <summary>
+        ///     Visibility of the custom insertion base speed field.
+        /// </summary>
+        /// <remarks>Should be invisible unless <see cref="SelectedInsertionBaseSpeedIndex" /> is on "Custom" index.</remarks>
+        [CreateProperty]
+        public DisplayStyle CustomInsertionBaseSpeedDisplayStyle =>
+            SelectedInsertionBaseSpeedIndex == 4 ? DisplayStyle.Flex : DisplayStyle.None;
+
+        /// <summary>
+        ///     Distance to drive past the target insertion depth (µm).
+        /// </summary>
+        public int DrivePastTargetDistance;
 
         /// <summary>
         ///     Is the drive to target insertion button enabled.
