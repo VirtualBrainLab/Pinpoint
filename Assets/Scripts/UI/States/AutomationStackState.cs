@@ -412,21 +412,21 @@ namespace UI.States
         /// <summary>
         ///     Selection index in radio button group for base insertion speed.
         /// </summary>
-        public int SelectedInsertionBaseSpeedIndex;
+        public int SelectedBaseInsertionSpeedIndex;
 
         /// <summary>
         ///     Custom base insertion speed (µm/s).
         /// </summary>
-        /// <remarks>Should only be used when <see cref="SelectedInsertionBaseSpeedIndex" /> is on "Custom" index.</remarks>
-        public int CustomInsertionBaseSpeed;
+        /// <remarks>Should only be used when <see cref="SelectedBaseInsertionSpeedIndex" /> is on "Custom" index.</remarks>
+        public int CustomBaseInsertionSpeed;
 
         /// <summary>
         ///     Visibility of the custom insertion base speed field.
         /// </summary>
-        /// <remarks>Should be invisible unless <see cref="SelectedInsertionBaseSpeedIndex" /> is on "Custom" index.</remarks>
+        /// <remarks>Should be invisible unless <see cref="SelectedBaseInsertionSpeedIndex" /> is on "Custom" index.</remarks>
         [CreateProperty]
         public DisplayStyle CustomInsertionBaseSpeedDisplayStyle =>
-            SelectedInsertionBaseSpeedIndex == 4 ? DisplayStyle.Flex : DisplayStyle.None;
+            SelectedBaseInsertionSpeedIndex == 4 ? DisplayStyle.Flex : DisplayStyle.None;
 
         /// <summary>
         ///     Distance to drive past the target insertion depth (µm).
@@ -442,6 +442,40 @@ namespace UI.States
         [CreateProperty]
         public bool IsDriveToTargetInsertionButtonEnabled =>
             IsEnabled && ActiveProbeAutomationStateManager.IsAtDuraInsert();
+
+        /// <summary>
+        ///     Is the probe driving in the insertion cycle?
+        /// </summary>
+        /// <remarks>Used to identify which buttons should be made available.</remarks>
+        public bool IsMoving;
+
+        /// <summary>
+        ///     Visibility of the drive button (insert probe into brain).
+        /// </summary>
+        /// <remarks>Shown only when not moving and at the Dura or inside.</remarks>
+        [CreateProperty]
+        public DisplayStyle DriveButtonDisplayStyle =>
+            IsEnabled && !IsMoving && ActiveProbeAutomationStateManager.IsInsertable()
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
+
+        /// <summary>
+        ///     Visibility of the drive stop button (stop the probe from moving).
+        /// </summary>
+        /// <remarks>Shown when probe is moving.</remarks>
+        [CreateProperty]
+        public DisplayStyle StopButtonDisplayStyle =>
+            IsEnabled && IsMoving ? DisplayStyle.Flex : DisplayStyle.None;
+
+        /// <summary>
+        ///     Visibility of the exit button (drive the probe back out of the brain).
+        /// </summary>
+        /// <remarks>Shown when the move is not moving and is through the Dura.</remarks>
+        [CreateProperty]
+        public DisplayStyle ExitButtonDisplayStyle =>
+            IsEnabled && !IsMoving && ActiveProbeAutomationStateManager.IsExitable()
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
 
         #endregion
     }

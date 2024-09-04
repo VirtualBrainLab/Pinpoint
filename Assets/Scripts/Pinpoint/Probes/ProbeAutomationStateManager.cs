@@ -114,6 +114,26 @@ namespace Pinpoint.Probes
             return _probeAutomationState == ProbeAutomationState.AtDuraInsert;
         }
 
+        /// <summary>
+        ///     Checks if the probe can be inserted (driven into the brain).
+        /// </summary>
+        /// <returns>Returns true if the probe is calibrated to the Dura and has not exited back out of the Dura.</returns>
+        public bool IsInsertable()
+        {
+            return _probeAutomationState
+                is >= ProbeAutomationState.AtDuraInsert
+                    and < ProbeAutomationState.AtDuraExit;
+        }
+
+        /// <summary>
+        ///     Checks if the probe can be retracted (drive back out of the brain).
+        /// </summary>
+        /// <returns>Returns true if the probe has gone through/past the Dura.</returns>
+        public bool IsExitable()
+        {
+            return _probeAutomationState > ProbeAutomationState.AtDuraInsert;
+        }
+
         #endregion
     }
 }

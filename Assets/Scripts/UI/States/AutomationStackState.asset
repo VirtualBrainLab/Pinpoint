@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45344050c4e5d8841bdb4cefbe8a2999, type: 3}
   m_Name: AutomationStackState
   m_EditorClassIdentifier: 
-  SelectedInsertionBaseSpeedIndex: 1
-  CustomInsertionBaseSpeed: 20
+  SelectedBaseInsertionSpeedIndex: 1
+  CustomBaseInsertionSpeed: 20
   DrivePastTargetDistance: 50
