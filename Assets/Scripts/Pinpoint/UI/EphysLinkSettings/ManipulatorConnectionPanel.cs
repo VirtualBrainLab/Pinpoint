@@ -303,9 +303,9 @@ namespace Pinpoint.UI.EphysLinkSettings
         public void UpdateDuraDropDirection(int value)
         {
             // Set drop direction on attached probe if it exists
-            if (_attachedProbe)
-                _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth =
-                    value == 1;
+            // if (_attachedProbe)
+            //     _attachedProbe.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth =
+            //         value == 1;
         }
 
         private void SetDuraDropInteractable(bool interactable)

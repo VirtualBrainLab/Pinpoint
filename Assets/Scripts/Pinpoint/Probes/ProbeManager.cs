@@ -907,10 +907,11 @@ public class ProbeManager : MonoBehaviour
         }
     }
 
+    // TODO: Remove useDV and always use depth.
     /// <summary>
     /// Calculate the entry coordinate on the brain surface, returns coordIdx
     /// </summary>
-    /// <param name="useDV"></param>
+    /// <param name="useDV">Whether the surface should be found along the DV axis or depth axis.</param>
     /// <returns>(entryCoordAtlasIdx, probeInBrain)</returns>
     public (Vector3 entryCoordAtlasIdx, bool probeInBrain) CalculateEntryCoordinate(
         bool useDV = false
@@ -1277,9 +1278,9 @@ public struct ProbeManagerData
         data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
         data.Dimensions = probeManager.ManipulatorBehaviorController.Dimensions;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
-        data.Drop2SurfaceWithDepth = probeManager
-            .ManipulatorBehaviorController
-            .IsSetToDropToSurfaceWithDepth;
+        // data.Drop2SurfaceWithDepth = probeManager
+        //     .ManipulatorBehaviorController
+        //     .IsSetToDropToSurfaceWithDepth;
         data.IsRightHanded = probeManager.ManipulatorBehaviorController.IsRightHanded;
 
         return data;
