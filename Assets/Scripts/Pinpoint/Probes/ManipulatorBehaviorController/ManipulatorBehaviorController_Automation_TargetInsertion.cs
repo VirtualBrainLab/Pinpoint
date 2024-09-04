@@ -38,11 +38,15 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
         #region Properties
 
-        private (
-            ProbeInsertion ap,
-            ProbeInsertion ml,
-            ProbeInsertion dv
-        ) _trajectoryProbeInsertions;
+        /// <summary>
+        ///     Trajectory broken into 3 stages (for 3 axes of movement).
+        /// </summary>
+        /// <remarks>Execution order: DV, AP, ML. Defaults to negative infinity when there is no trajectory.</remarks>
+        private (Vector3 ap, Vector3 ml, Vector3 dv) _trajectoryCoordinates = (
+            Vector3.negativeInfinity,
+            Vector3.negativeInfinity,
+            Vector3.negativeInfinity
+        );
 
         #endregion
 
@@ -78,7 +82,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             UpdateTrajectoryLines();
 
             // Return final entry coordinate (coordinate of the ML movement, the last in the trajectory).
-            return _trajectoryProbeInsertions.ml.APMLDV;
+            return _trajectoryCoordinates.ml;
         }
 
         /// <summary>
@@ -90,21 +94,15 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         public void DriveToTargetEntryCoordinate(Action onDriveEnd)
         {
             // Throw exception if invariant is violated.
-            if (_trajectoryProbeInsertions.dv == null)
+            if (float.IsNegativeInfinity(_trajectoryCoordinates.dv.x))
                 throw new InvalidOperationException(
                     "No trajectory planned for probe " + _probeManager.name
                 );
 
             // Convert insertions to manipulator positions.
-            var dvPosition = ConvertInsertionAPMLDVToManipulatorPosition(
-                _trajectoryProbeInsertions.dv.APMLDV
-            );
-            var apPosition = ConvertInsertionAPMLDVToManipulatorPosition(
-                _trajectoryProbeInsertions.ap.APMLDV
-            );
-            var mlPosition = ConvertInsertionAPMLDVToManipulatorPosition(
-                _trajectoryProbeInsertions.ml.APMLDV
-            );
+            var dvPosition = ConvertInsertionAPMLDVToManipulatorPosition(_trajectoryCoordinates.dv);
+            var apPosition = ConvertInsertionAPMLDVToManipulatorPosition(_trajectoryCoordinates.ap);
+            var mlPosition = ConvertInsertionAPMLDVToManipulatorPosition(_trajectoryCoordinates.ml);
 
             // Log that movement is starting.
             OutputLog.Log(
@@ -123,12 +121,10 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 new SetPositionRequest(ManipulatorID, dvPosition, AUTOMATIC_MOVEMENT_SPEED),
                 _ =>
                 {
-                    print("At DV position");
                     CommunicationManager.Instance.SetPosition(
                         new SetPositionRequest(ManipulatorID, apPosition, AUTOMATIC_MOVEMENT_SPEED),
                         _ =>
                         {
-                            print("At AP position");
                             CommunicationManager.Instance.SetPosition(
                                 new SetPositionRequest(
                                     ManipulatorID,
@@ -137,7 +133,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                 ),
                                 _ =>
                                 {
-                                    print("At Entry coordinate");
                                     // Remove trajectory lines.
                                     RemoveTrajectoryLines();
 
@@ -221,36 +216,36 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             ProbeManager targetInsertionProbeManager
         )
         {
-            // Set DV axis.
-            _trajectoryProbeInsertions.dv = new ProbeInsertion(
-                _probeManager.ProbeController.Insertion
-            )
-            {
-                DV = BrainAtlasManager
-                    .ActiveAtlasTransform.U2T_Vector(
-                        BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
-                            PRE_DEPTH_DRIVE_DV_OFFSET
-                        )
-                    )
-                    .z
-            };
+            // Compute entry coordinate in world space.
+            var entryCoordinateWorld =
+                targetInsertionProbeManager.GetSurfaceCoordinateWorldT()
+                - targetInsertionProbeManager.ProbeController.GetTipWorldU().tipForwardWorldU
+                    * ENTRY_COORDINATE_DURA_DISTANCE;
 
-            // Recalculate AP and ML axes.
-            var brainSurfaceTransformed = targetInsertionProbeManager
-                .GetSurfaceCoordinateT()
-                .surfaceCoordinateT;
+            // Convert world space to transformed space.
+            var entryCoordinateAPMLDV = BrainAtlasManager.ActiveAtlasTransform.U2T(
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(entryCoordinateWorld)
+            );
 
-            // Set AP axis.
-            _trajectoryProbeInsertions.ap = new ProbeInsertion(_trajectoryProbeInsertions.dv)
-            {
-                AP = brainSurfaceTransformed.x
-            };
+            // Get current probe coordinate.
+            var currentCoordinate = _probeManager.ProbeController.Insertion.APMLDV;
 
-            // Set ML axis.
-            _trajectoryProbeInsertions.ml = new ProbeInsertion(_trajectoryProbeInsertions.ap)
-            {
-                ML = brainSurfaceTransformed.y
-            };
+            // Set first movement (DV).
+            _trajectoryCoordinates.dv = new Vector3(
+                currentCoordinate.x,
+                currentCoordinate.y,
+                entryCoordinateAPMLDV.z
+            );
+
+            // Set second movement (AP).
+            _trajectoryCoordinates.ap = new Vector3(
+                entryCoordinateAPMLDV.x,
+                currentCoordinate.y,
+                entryCoordinateAPMLDV.z
+            );
+
+            // Set third movement (ML).
+            _trajectoryCoordinates.ml = entryCoordinateAPMLDV;
         }
 
         /// <summary>
@@ -313,25 +308,35 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             _trajectoryLineLineRenderers.dv.SetPosition(0, _probeController.ProbeTipT.position);
             _trajectoryLineLineRenderers.dv.SetPosition(
                 1,
-                _trajectoryProbeInsertions.dv.PositionWorldT()
+                BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_trajectoryCoordinates.dv)
+                )
             );
 
             _trajectoryLineLineRenderers.ap.SetPosition(
                 0,
-                _trajectoryProbeInsertions.dv.PositionWorldT()
+                BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_trajectoryCoordinates.dv)
+                )
             );
             _trajectoryLineLineRenderers.ap.SetPosition(
                 1,
-                _trajectoryProbeInsertions.ap.PositionWorldT()
+                BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_trajectoryCoordinates.ap)
+                )
             );
 
             _trajectoryLineLineRenderers.ml.SetPosition(
                 0,
-                _trajectoryProbeInsertions.ap.PositionWorldT()
+                BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_trajectoryCoordinates.ap)
+                )
             );
             _trajectoryLineLineRenderers.ml.SetPosition(
                 1,
-                _trajectoryProbeInsertions.ml.PositionWorldT()
+                BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_trajectoryCoordinates.ml)
+                )
             );
         }
 
