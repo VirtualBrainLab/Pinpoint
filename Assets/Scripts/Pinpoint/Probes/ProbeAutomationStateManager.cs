@@ -38,7 +38,7 @@ namespace Pinpoint.Probes
                     "Cannot set probe to driving to target entry coordinate if it is not calibrated."
                 );
 
-            _probeAutomationState = ProbeAutomationState.DrivingToEntryCoordinate;
+            _probeAutomationState = ProbeAutomationState.DrivingToTargetEntryCoordinate;
         }
 
         /// <summary>
@@ -48,8 +48,8 @@ namespace Pinpoint.Probes
         public void SetAtEntryCoordinate()
         {
             if (
-                _probeAutomationState != ProbeAutomationState.DrivingToEntryCoordinate
-                && _probeAutomationState != ProbeAutomationState.ExitingToOutside
+                _probeAutomationState != ProbeAutomationState.DrivingToTargetEntryCoordinate
+                && _probeAutomationState != ProbeAutomationState.ExitingToTargetEntryCoordinate
             )
                 throw new InvalidOperationException(
                     "Cannot set probe to entry coordinate if it was not driving there or exiting to there."
@@ -59,10 +59,10 @@ namespace Pinpoint.Probes
         }
 
         /// <summary>
-        ///     Set the probe's state to be at the Dura.
+        ///     Set the probe's state to be at the Dura for insertion.
         /// </summary>
         /// <exception cref="InvalidOperationException">Probe is not at the entry coordinate or exiting to Dura.</exception>
-        public void SetAtDura()
+        public void SetAtDuraInsert()
         {
             if (
                 _probeAutomationState != ProbeAutomationState.AtEntryCoordinate
@@ -71,7 +71,7 @@ namespace Pinpoint.Probes
                 throw new InvalidOperationException(
                     "Cannot set probe to dura if it was not at the entry coordinate or exiting to Dura."
                 );
-            _probeAutomationState = ProbeAutomationState.AtDura;
+            _probeAutomationState = ProbeAutomationState.AtDuraInsert;
         }
 
         #endregion
@@ -93,7 +93,7 @@ namespace Pinpoint.Probes
         /// <returns>True if the probe is in the driving to entry coordinate state, false otherwise.</returns>
         public bool IsDrivingToEntryCoordinate()
         {
-            return _probeAutomationState == ProbeAutomationState.DrivingToEntryCoordinate;
+            return _probeAutomationState == ProbeAutomationState.DrivingToTargetEntryCoordinate;
         }
 
         /// <summary>
@@ -106,12 +106,12 @@ namespace Pinpoint.Probes
         }
 
         /// <summary>
-        ///     Checks if the probe has been calibrated to the dura and is there.
+        ///     Checks if the probe has been calibrated to the dura for insertion.
         /// </summary>
         /// <returns>True if the probe has been calibrated to the dura and is currently there, false otherwise.</returns>
-        public bool IsAtDura()
+        public bool IsAtDuraInsert()
         {
-            return _probeAutomationState == ProbeAutomationState.AtDura;
+            return _probeAutomationState == ProbeAutomationState.AtDuraInsert;
         }
 
         #endregion

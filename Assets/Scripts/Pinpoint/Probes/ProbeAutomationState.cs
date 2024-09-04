@@ -18,7 +18,7 @@ namespace Pinpoint.Probes
         /// <summary>
         ///     Moving to the target entry coordinate.
         /// </summary>
-        DrivingToEntryCoordinate,
+        DrivingToTargetEntryCoordinate,
 
         /// <summary>
         ///     At the target entry coordinate.
@@ -26,18 +26,73 @@ namespace Pinpoint.Probes
         AtEntryCoordinate,
 
         /// <summary>
-        ///     Exiting to the entry coordinate (safe position from dura).
+        ///     Calibrated to the Dura; ready for insertion drive.
         /// </summary>
-        ExitingToOutside,
+        AtDuraInsert,
 
         /// <summary>
-        ///     Calibrated to the dura.
+        ///     Driving to near target depth (insertion drive).
         /// </summary>
-        AtDura,
-        
+        DrivingToNearTarget,
+
         /// <summary>
-        /// Exiting to the dura.
+        ///     At near target depth (insertion drive). Need to switch to 2/3 speed.
+        /// </summary>
+        AtNearTargetInsert,
+
+        /// <summary>
+        ///     Driving to past target depth (insertion drive).
+        /// </summary>
+        DrivingToPastTarget,
+
+        /// <summary>
+        ///     At past target depth (insertion drive).
+        /// </summary>
+        AtPastTarget,
+
+        /// <summary>
+        ///     Driving back up to target depth (insertion drive).
+        /// </summary>
+        ReturningToTarget,
+
+        /// <summary>
+        ///     At target depth (insertion drive).
+        /// </summary>
+        AtTarget,
+
+        /// <summary>
+        ///     Driving back up to near target depth (exit drive).
+        /// </summary>
+        ExitingToNearTarget,
+
+        /// <summary>
+        ///     At near target depth (exit drive). Can switch back to normal speed.
+        /// </summary>
+        AtNearTargetExit,
+
+        /// <summary>
+        ///     Driving back up to the Dura (exit drive).
         /// </summary>
         ExitingToDura,
+
+        /// <summary>
+        ///     At the Dura (exit drive). Should not re-insert.
+        /// </summary>
+        AtDuraExit,
+
+        /// <summary>
+        ///     Driving above the Dura by a safe margin (exit drive).
+        /// </summary>
+        ExitingToMargin,
+
+        /// <summary>
+        ///     At the safe margin above the Dura (exit drive).
+        /// </summary>
+        AtExitMargin,
+
+        /// <summary>
+        ///     Driving back up to the target entry coordinate (exit drive).
+        /// </summary>
+        ExitingToTargetEntryCoordinate
     }
 }

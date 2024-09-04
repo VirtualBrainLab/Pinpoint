@@ -441,7 +441,7 @@ namespace UI.States
         /// </returns>
         [CreateProperty]
         public bool IsDriveToTargetInsertionButtonEnabled =>
-            IsEnabled && ActiveProbeAutomationStateManager.IsAtDura();
+            IsEnabled && ActiveProbeAutomationStateManager.IsAtDuraInsert();
 
         #endregion
     }

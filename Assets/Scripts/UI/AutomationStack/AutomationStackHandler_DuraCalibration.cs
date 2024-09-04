@@ -19,7 +19,7 @@ namespace UI.AutomationStack
             ActiveManipulatorBehaviorController.ResetDuraOffset();
             
             // Set probe's automation state to be at Dura.
-            ActiveProbeStateManager.SetAtDura();
+            ActiveProbeStateManager.SetAtDuraInsert();
         }
     }
 }
