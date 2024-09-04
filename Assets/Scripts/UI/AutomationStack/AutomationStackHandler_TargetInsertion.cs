@@ -59,12 +59,14 @@ namespace UI.AutomationStack
 
         private partial void OnTargetInsertionSelectionChanged(ChangeEvent<int> changeEvent)
         {
-            // Throw exception if invariant is violated.
+            // TODO: Change to throw exception if invariant is violated once update issue is resolved.
+            // Shortcut exit if invariant is violated.
             if (!_state.IsEnabled)
-                throw new InvalidOperationException(
-                    "Cannot select target insertion if automation is not enabled on probe "
-                        + ProbeManager.ActiveProbeManager.name
-                );
+                return;
+            // throw new InvalidOperationException(
+            //     "Cannot select target insertion if automation is not enabled on probe "
+            //         + ProbeManager.ActiveProbeManager.name
+            // );
 
             switch (changeEvent.newValue)
             {
@@ -77,8 +79,9 @@ namespace UI.AutomationStack
                     ActiveManipulatorBehaviorController.ComputeEntryCoordinateTrajectory(null);
 
                     // ReSharper disable once GrammarMistakeInComment
-                    // Reset probe state to calibrated.
-                    ActiveProbeStateManager.SetCalibrated();
+                    // Reset probe state to calibrated if it was calibrated before.
+                    if (ActiveProbeStateManager.IsCalibrated())
+                        ActiveProbeStateManager.SetCalibrated();
                     return;
             }
 

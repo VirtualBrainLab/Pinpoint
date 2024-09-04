@@ -154,9 +154,10 @@ namespace UI.AutomationStack
         /// </summary>
         /// <remarks>
         ///     Sets (or unsets) the target insertion on the probe. Calibrated probes will be set back to "Is Calibrated" state.
+        ///     Will do nothing if the probe is not selected/active and is not controlled by Ephys Link.
         /// </remarks>
         /// <param name="changeEvent">The change event holding the new selection.</param>
-        /// <exception cref="InvalidOperationException">Probe is not selected/active and is not controlled by Ephys Link</exception>
+        // /// <exception cref="InvalidOperationException">Probe is not selected/active and is not controlled by Ephys Link</exception>
         private partial void OnTargetInsertionSelectionChanged(ChangeEvent<int> changeEvent);
 
         /// <summary>

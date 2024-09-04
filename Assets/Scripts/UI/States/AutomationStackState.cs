@@ -160,8 +160,11 @@ namespace UI.States
         ///     Selected target insertion option index.
         ///     Property accessor for the selected target insertion index.
         /// </summary>
-        /// <remarks>Acts as a conversion layer between the mapping of probe managers to target insertion probe managers.</remarks>
-        /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
+        /// <remarks>
+        ///     Acts as a conversion layer between the mapping of probe managers to target insertion probe managers. Does not
+        ///     set any value if automation is not enabled for the active probe manager.
+        /// </remarks>
+        // /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
         public int SelectedTargetInsertionIndex
         {
@@ -187,12 +190,14 @@ namespace UI.States
             }
             set
             {
-                // Throw exception if invariant is violated.
+                // TODO: Change to throw exception if invariant is violated once update issue is resolved.
+                // Shortcut exit if invariant is violated.
                 if (!IsEnabled)
-                    throw new InvalidOperationException(
-                        "Cannot set the selected target insertion index when automation is not enabled for probe "
-                            + ProbeManager.ActiveProbeManager.name
-                    );
+                    return;
+                // throw new InvalidOperationException(
+                //     "Cannot set the selected target insertion index when automation is not enabled for probe "
+                //         + ProbeManager.ActiveProbeManager.name
+                // );
 
                 // Remove mapping if selected index <= 0 ("None").
                 if (value <= 0)
@@ -367,14 +372,15 @@ namespace UI.States
         /// </returns>
         [CreateProperty]
         public string DriveToTargetEntryCoordinateButtonText =>
-            IsEnabled && ActiveProbeAutomationStateManager.IsDrivingToEntryCoordinate()
-                ? "Stop"
-                : IsEnabled && ActiveProbeAutomationStateManager.IsCalibrated()
-                    ? "Drive to Target Entry Coordinate"
-                    : IsEnabled
-                    && ActiveProbeAutomationStateManager.HasReachedTargetEntryCoordinate()
-                        ? "Entry Coordinate Reached"
-                        : "Please Calibrate Probe";
+            IsEnabled
+                ? ActiveProbeAutomationStateManager.HasReachedTargetEntryCoordinate()
+                    ? "Entry Coordinate Reached"
+                    : ActiveProbeAutomationStateManager.IsDrivingToEntryCoordinate()
+                        ? "Stop"
+                        : ActiveProbeAutomationStateManager.IsCalibrated()
+                            ? "Drive to Target Entry Coordinate"
+                            : "Please Calibrate Probe"
+                : "Please Enable Automation";
 
         #endregion
 
