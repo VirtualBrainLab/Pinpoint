@@ -22,6 +22,11 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         // Trajectory values.
         public static readonly Vector3 PRE_DEPTH_DRIVE_DV_OFFSET = new(0, 3.5f, 0);
 
+        /// <summary>
+        ///     Distance from the entry coordinate to the Dura. This is considered a safe distance to put the probe.
+        /// </summary>
+        private const float ENTRY_COORDINATE_DURA_DISTANCE = 3.5f;
+
         #endregion
 
         #region Components
