@@ -48,6 +48,20 @@ namespace UI.States
             IsRightSidePanelOpen ? DisplayStyle.Flex : DisplayStyle.None;
 
         /// <summary>
+        ///     Conversion of <see cref="IsLeftSidePanelOpen" /> to <see cref="PickingMode" /> to allow for click through.
+        /// </summary>
+        [CreateProperty]
+        public PickingMode LeftSidePanelPickingMode =>
+            IsLeftSidePanelOpen ? PickingMode.Position : PickingMode.Ignore;
+
+        /// <summary>
+        ///     Conversion of <see cref="IsRightSidePanelOpen" /> to <see cref="PickingMode" /> to allow for click through.
+        /// </summary>
+        [CreateProperty]
+        public PickingMode RightSidePanelPickingMode =>
+            IsRightSidePanelOpen ? PickingMode.Position : PickingMode.Ignore;
+
+        /// <summary>
         ///     Left side panel close/open button text.
         /// </summary>
         [CreateProperty]

@@ -39,6 +39,7 @@
         </ui:TabView>
         <Bindings>
             <ui:DataBinding property="style.backgroundColor" data-source-path="LeftSidePanelBackgroundColor" binding-mode="ToTarget" />
+            <ui:DataBinding property="pickingMode" data-source-path="LeftSidePanelPickingMode" binding-mode="ToTarget" />
         </Bindings>
     </ui:VisualElement>
 </ui:UXML>

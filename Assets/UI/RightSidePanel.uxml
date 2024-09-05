@@ -47,6 +47,7 @@
         </ui:ScrollView>
         <Bindings>
             <ui:DataBinding property="style.backgroundColor" data-source-path="RightSidePanelBackgroundColor" binding-mode="ToTarget" />
+            <ui:DataBinding property="pickingMode" data-source-path="RightSidePanelPickingMode" binding-mode="ToTarget" />
         </Bindings>
     </ui:VisualElement>
 </ui:UXML>
