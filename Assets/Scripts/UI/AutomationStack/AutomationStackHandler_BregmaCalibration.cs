@@ -7,7 +7,7 @@ namespace UI.AutomationStack
     /// </summary>
     public partial class AutomationStackHandler
     {
-        private partial void ResetBregmaCalibration()
+        private async partial void ResetBregmaCalibration()
         {
             // Throw exception if invariant is violated.
             if (!_state.IsEnabled)
@@ -17,10 +17,9 @@ namespace UI.AutomationStack
                 );
 
             // Reset the Bregma calibration of the active probe manager.
-            ActiveManipulatorBehaviorController.ResetZeroCoordinate();
-
-            // Set probe's automation state to be calibrated.
-            ActiveProbeStateManager.SetCalibrated();
+            if (await ActiveManipulatorBehaviorController.ResetZeroCoordinate())
+                // Set probe's automation state to be calibrated if it did happen.
+                ActiveProbeStateManager.SetCalibrated();
         }
     }
 }

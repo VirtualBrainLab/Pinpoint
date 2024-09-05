@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using BestHTTP.SocketIO3;
 using UnityEngine;
@@ -420,6 +421,29 @@ namespace EphysLink
         }
 
         /// <summary>
+        ///     Request the current position of a manipulator (mm).
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to get teh position of.</param>
+        /// <returns><see cref="PositionalResponse" /> with manipulator's position.</returns>
+        /// <exception cref="InvalidDataException">Invalid response from server.</exception>
+        public async Awaitable<PositionalResponse> GetPosition(string manipulatorId)
+        {
+            // Query server and capture response.
+            var dataCompletionSource = new AwaitableCompletionSource<string>();
+            _connectionManager
+                .Socket.ExpectAcknowledgement<string>(data => dataCompletionSource.SetResult(data))
+                .Emit("get_position", manipulatorId);
+
+            // Wait for data.
+            var data = await dataCompletionSource.Awaitable;
+
+            // Parse and return data.
+            if (DataKnownAndNotEmpty(data))
+                return ParseJson<PositionalResponse>(data);
+            throw new InvalidDataException($"get_position invalid response: {data}");
+        }
+
+        /// <summary>
         ///     Request the current angles of a manipulator.
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
@@ -570,7 +594,7 @@ namespace EphysLink
         }
 
         /// <summary>
-        /// Request a manipulator stops moving.
+        ///     Request a manipulator stops moving.
         /// </summary>
         /// <param name="manipulatorId"></param>
         /// <param name="onSuccessCallback"></param>
@@ -585,15 +609,11 @@ namespace EphysLink
                 .Socket.ExpectAcknowledgement<string>(data =>
                 {
                     if (DataKnownAndNotEmpty(data))
-                    {
                         // Non-empty response means error.
                         onErrorCallback?.Invoke(data);
-                    }
                     else
-                    {
                         // Empty response means success.
                         onSuccessCallback?.Invoke();
-                    }
                 })
                 .Emit("stop", manipulatorId);
         }
@@ -609,17 +629,35 @@ namespace EphysLink
                 .Socket.ExpectAcknowledgement<string>(data =>
                 {
                     if (DataKnownAndNotEmpty(data))
-                    {
                         // Non-empty response means error.
                         onErrorCallback?.Invoke(data);
-                    }
                     else
-                    {
                         // Empty response means success.
                         onSuccessCallback?.Invoke();
-                    }
                 })
                 .Emit("stop_all");
+        }
+
+        #endregion
+
+        #region Utility Functions
+
+        /// <summary>
+        ///     Quick error handler to log the error string if it exists.
+        /// </summary>
+        /// <param name="error">Error response to check.</param>
+        /// <returns>True if there was an error, false otherwise.</returns>
+        public static bool HasError(string error)
+        {
+            // Shortcut exit if there was no error.
+            if (string.IsNullOrEmpty(error))
+                return false;
+
+            // Log the error.
+            Debug.LogError(error);
+
+            // Return true to indicate an error.
+            return true;
         }
 
         #endregion
