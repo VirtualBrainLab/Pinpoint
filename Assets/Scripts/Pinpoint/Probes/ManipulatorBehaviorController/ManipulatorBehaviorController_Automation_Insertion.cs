@@ -91,7 +91,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Get target depth.
             var targetDepth =
                 _duraDepth
-                + GetCurrentDistanceToTarget(targetInsertionProbeManager.ProbeController.Insertion);
+                + GetTargetDistanceToDura(targetInsertionProbeManager.ProbeController.Insertion);
 
             // Set state to driving state (if needed).
             ProbeAutomationStateManager.SetToInsertionDrivingState();
