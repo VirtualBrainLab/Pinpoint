@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using EphysLink;
+using UnityEngine;
 
 namespace Pinpoint.Probes.ManipulatorBehaviorController
 {
@@ -15,6 +16,11 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         ///     Record of the manipulator's depth coordinate at the Dura.
         /// </summary>
         private float _duraDepth;
+
+        /// <summary>
+        ///     Record of the probe's coordinate at the Dura.
+        /// </summary>
+        private Vector3 _duraCoordinate;
 
         #endregion
 
@@ -32,6 +38,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 pos =>
                 {
                     _duraDepth = pos.w;
+                    _duraCoordinate = _probeController.Insertion.APMLDV;
                 }
             );
 

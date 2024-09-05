@@ -67,13 +67,13 @@
             <engine:Label tabindex="-1" text="Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
             <engine:RadioButtonGroup label="Speed (µm/s)" value="1" choices="2,5,10,Test (500),Custom">
                 <Bindings>
-                    <engine:DataBinding property="value" data-source-path="SelectedBaseInsertionSpeedIndex" binding-mode="TwoWay" />
+                    <engine:DataBinding property="value" data-source-path="SelectedBaseSpeedIndex" binding-mode="TwoWay" />
                 </Bindings>
             </engine:RadioButtonGroup>
             <engine:FloatField label="Custom Speed" value="20" readonly="false" style="visibility: visible; display: none;">
                 <Bindings>
                     <engine:DataBinding property="style.display" data-source-path="CustomInsertionBaseSpeedDisplayStyle" binding-mode="ToTarget" />
-                    <engine:DataBinding property="value" data-source-path="CustomBaseInsertionSpeed" binding-mode="TwoWay" />
+                    <engine:DataBinding property="value" data-source-path="CustomBaseSpeed" binding-mode="TwoWay" />
                 </Bindings>
             </engine:FloatField>
             <engine:FloatField label="Drive Past by (µm)" value="50" readonly="false">

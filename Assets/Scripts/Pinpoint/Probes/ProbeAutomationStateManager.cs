@@ -74,6 +74,22 @@ namespace Pinpoint.Probes
             _probeAutomationState = ProbeAutomationState.AtDuraInsert;
         }
 
+        /// <summary>
+        ///     Set the probe's state to be driving to the near target.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Probe is not at the Dura or exiting to Dura.</exception>
+        public void SetDrivingToNearTarget()
+        {
+            if (
+                _probeAutomationState != ProbeAutomationState.AtDuraInsert
+                && _probeAutomationState != ProbeAutomationState.ExitingToDura
+            )
+                throw new InvalidOperationException(
+                    "Cannot set probe to driving to near target if it was not at the Dura or exiting to Dura."
+                );
+            _probeAutomationState = ProbeAutomationState.DrivingToNearTarget;
+        }
+
         #endregion
 
         #region Queries
@@ -132,6 +148,15 @@ namespace Pinpoint.Probes
         public bool IsExitable()
         {
             return _probeAutomationState > ProbeAutomationState.AtDuraInsert;
+        }
+
+        /// <summary>
+        ///     Get the current state of the probe.
+        /// </summary>
+        /// <returns>Probe state.</returns>
+        public ProbeAutomationState GetState()
+        {
+            return _probeAutomationState;
         }
 
         #endregion

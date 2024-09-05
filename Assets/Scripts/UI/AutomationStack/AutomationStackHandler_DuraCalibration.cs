@@ -7,7 +7,7 @@ namespace UI.AutomationStack
     /// </summary>
     public partial class AutomationStackHandler
     {
-        private partial void ResetDuraCalibration()
+        private partial void OnResetDuraCalibrationPressed()
         {
             if (!_state.IsEnabled)
                 throw new InvalidOperationException(

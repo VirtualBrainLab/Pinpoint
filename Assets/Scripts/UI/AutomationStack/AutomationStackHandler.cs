@@ -94,7 +94,7 @@ namespace UI.AutomationStack
                 OnTargetInsertionSelectionChanged
             );
             _driveToTargetEntryCoordinateButton.clicked += OnDriveToTargetEntryCoordinatePressed;
-            _resetDuraCalibrationButton.clicked += ResetDuraCalibration;
+            _resetDuraCalibrationButton.clicked += OnResetDuraCalibrationPressed;
         }
 
         private void OnDisable()
@@ -180,7 +180,33 @@ namespace UI.AutomationStack
         ///     Reset the Dura calibration of the active probe.
         /// </summary>
         /// <exception cref="InvalidOperationException">Probe is not selected/active and is not controlled by Ephys Link</exception>
-        private partial void ResetDuraCalibration();
+        private partial void OnResetDuraCalibrationPressed();
+
+        #endregion
+
+        #region Insertion
+
+        /// <summary>
+        ///     Start or resume probe insertion.
+        /// </summary>
+        /// <remarks>Sets moving state to true.</remarks>
+        /// <exception cref="InvalidOperationException">UI state does not have the button enabled and showing.</exception>
+        private partial void OnDriveToTargetPressed();
+
+        /// <summary>
+        ///     Stop probe movement.
+        /// </summary>
+        /// <remarks>Sets moving state to false.</remarks>
+        /// <exception cref="InvalidOperationException">UI state does not have the button enabled and showing.</exception>
+        private partial void OnStopDrivePressed();
+
+        /// <summary>
+        ///     Start or resume probe retraction.
+        /// </summary>
+        /// <remarks>Sets moving state to true.</remarks>
+        /// <exception cref="InvalidOperationException">UI state does not have the button enabled and show
+        /// ing.</exception>
+        private partial void OnExitPressed();
 
         #endregion
 
