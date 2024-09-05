@@ -341,6 +341,15 @@ namespace EphysLink
         }
 
         /// <summary>
+        ///     Get Ephys Link version.
+        /// </summary>
+        /// <returns>Version number.</returns>
+        private async Awaitable<string> GetVersion()
+        {
+            return await EmitAndGetResponse<string>("get_version");
+        }
+
+        /// <summary>
         ///     Get the platform type.
         /// </summary>
         /// <param name="onSuccessCallback">Callback function to handle incoming platform type info.</param>
@@ -356,6 +365,15 @@ namespace EphysLink
                         onErrorCallback?.Invoke();
                 })
                 .Emit("get_platform_type");
+        }
+
+        /// <summary>
+        ///     Get the platform type.
+        /// </summary>
+        /// <returns>Platform type.</returns>
+        public async Awaitable<string> GetPlatformType()
+        {
+            return await EmitAndGetResponse<string>("get_platform_type");
         }
 
         /// <summary>
@@ -386,6 +404,15 @@ namespace EphysLink
                     }
                 })
                 .Emit("get_manipulators");
+        }
+
+        /// <summary>
+        ///     Get connected manipulators and some basic information about them.
+        /// </summary>
+        /// <returns>Manipulators and their information.</returns>
+        public async Awaitable<GetManipulatorsResponse> GetManipulators()
+        {
+            return await EmitAndGetResponse<GetManipulatorsResponse>("get_manipulators");
         }
 
         /// <summary>
@@ -425,22 +452,12 @@ namespace EphysLink
         /// </summary>
         /// <param name="manipulatorId">ID of the manipulator to get teh position of.</param>
         /// <returns><see cref="PositionalResponse" /> with manipulator's position.</returns>
-        /// <exception cref="InvalidDataException">Invalid response from server.</exception>
         public async Awaitable<PositionalResponse> GetPosition(string manipulatorId)
         {
-            // Query server and capture response.
-            var dataCompletionSource = new AwaitableCompletionSource<string>();
-            _connectionManager
-                .Socket.ExpectAcknowledgement<string>(data => dataCompletionSource.SetResult(data))
-                .Emit("get_position", manipulatorId);
-
-            // Wait for data.
-            var data = await dataCompletionSource.Awaitable;
-
-            // Parse and return data.
-            if (DataKnownAndNotEmpty(data))
-                return ParseJson<PositionalResponse>(data);
-            throw new InvalidDataException($"get_position invalid response: {data}");
+            return await EmitAndGetResponse<PositionalResponse, string>(
+                "get_position",
+                manipulatorId
+            );
         }
 
         /// <summary>
@@ -474,6 +491,16 @@ namespace EphysLink
                 .Emit("get_angles", manipulatorId);
         }
 
+        /// <summary>
+        ///     Request the current angles of a manipulator.
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to get the position of</param>
+        /// <returns><see cref="AngularResponse" /> with manipulator's angles.</returns>
+        public async Awaitable<AngularResponse> GetAngles(string manipulatorId)
+        {
+            return await EmitAndGetResponse<AngularResponse, string>("get_angles", manipulatorId);
+        }
+
         public void GetShankCount(
             string manipulatorId,
             Action<int> onSuccessCallback,
@@ -497,6 +524,19 @@ namespace EphysLink
                     }
                 })
                 .Emit("get_shank_count", manipulatorId);
+        }
+
+        /// <summary>
+        ///     Request the number of shanks on a manipulator.
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to get the shank count of.</param>
+        /// <returns><see cref="ShankCountResponse" /> with the number of shanks.</returns>
+        public async Awaitable<ShankCountResponse> GetShankCount(string manipulatorId)
+        {
+            return await EmitAndGetResponse<ShankCountResponse, string>(
+                "get_shank_count",
+                manipulatorId
+            );
         }
 
         /// <summary>
@@ -532,6 +572,19 @@ namespace EphysLink
         }
 
         /// <summary>
+        ///     Request a manipulator be moved to a specific position.
+        /// </summary>
+        /// <param name="request">Goto position request object</param>
+        /// <returns><see cref="PositionalResponse" /> with the manipulator's new position.</returns>
+        public async Awaitable<PositionalResponse> SetPosition(SetPositionRequest request)
+        {
+            return await EmitAndGetResponse<PositionalResponse, SetPositionRequest>(
+                "set_position",
+                request
+            );
+        }
+
+        /// <summary>
         ///     Request a manipulator drive down to a specific depth.
         /// </summary>
         /// <param name="request">Drive to depth request</param>
@@ -560,6 +613,19 @@ namespace EphysLink
                     }
                 })
                 .Emit("set_depth", ToJson(request));
+        }
+
+        /// <summary>
+        ///     Request a manipulator drive down to a specific depth.
+        /// </summary>
+        /// <param name="request">Drive to depth request</param>
+        /// <returns><see cref="SetDepthResponse" /> with the manipulator's new depth.</returns>
+        public async Awaitable<SetDepthResponse> SetDepth(SetDepthRequest request)
+        {
+            return await EmitAndGetResponse<SetDepthResponse, SetDepthRequest>(
+                "set_depth",
+                request
+            );
         }
 
         /// <summary>
@@ -594,6 +660,19 @@ namespace EphysLink
         }
 
         /// <summary>
+        ///     Set the inside brain state of a manipulator.
+        /// </summary>
+        /// <param name="request">Set inside brain request.</param>
+        /// <returns><see cref="BooleanStateResponse" /> with the manipulator's new inside brain state.</returns>
+        public async Awaitable<BooleanStateResponse> SetInsideBrain(SetInsideBrainRequest request)
+        {
+            return await EmitAndGetResponse<BooleanStateResponse, SetInsideBrainRequest>(
+                "set_inside_brain",
+                request
+            );
+        }
+
+        /// <summary>
         ///     Request a manipulator stops moving.
         /// </summary>
         /// <param name="manipulatorId"></param>
@@ -619,6 +698,16 @@ namespace EphysLink
         }
 
         /// <summary>
+        ///     Request a manipulator stops moving.
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to stop</param>
+        /// <returns>Empty string if successful, error message if failed.</returns>
+        public async Awaitable<string> Stop(string manipulatorId)
+        {
+            return await EmitAndGetResponse<string, string>("stop", manipulatorId);
+        }
+
+        /// <summary>
         ///     Request all movement to stop.
         /// </summary>
         /// <param name="onSuccessCallback">Handle successful stop.</param>
@@ -636,6 +725,15 @@ namespace EphysLink
                         onSuccessCallback?.Invoke();
                 })
                 .Emit("stop_all");
+        }
+
+        /// <summary>
+        ///     Request all manipulators to stop.
+        /// </summary>
+        /// <returns>Empty string if successful, error message if failed.</returns>
+        public async Awaitable<string> StopAll()
+        {
+            return await EmitAndGetResponse<string>("stop_all");
         }
 
         #endregion
@@ -663,6 +761,60 @@ namespace EphysLink
         #endregion
 
         #region Helper functions
+
+        /// <summary>
+        ///     Generic function to emit and event and get a response from the server.
+        /// </summary>
+        /// <param name="eventName">Event to emit to.</param>
+        /// <typeparam name="T">Expected (parsed) response type.</typeparam>
+        /// <returns>Response from server. Parsed to <see cref="T" /> if it's not a string.</returns>
+        /// <exception cref="InvalidDataException">Invalid response from server (empty or unknown).</exception>
+        private async Awaitable<T> EmitAndGetResponse<T>(string eventName)
+        {
+            // Query server and capture response.
+            var dataCompletionSource = new AwaitableCompletionSource<string>();
+            _connectionManager
+                .Socket.ExpectAcknowledgement<string>(data => dataCompletionSource.SetResult(data))
+                .Emit(eventName);
+
+            // Wait for data.
+            var data = await dataCompletionSource.Awaitable;
+
+            // Return data if it exists. Parse if return type is not string.
+            if (DataKnownAndNotEmpty(data))
+                return typeof(T) == typeof(string) ? (T)(object)data : ParseJson<T>(data);
+
+            // Throw exception if data is empty.
+            throw new InvalidDataException($"{eventName} invalid response: {data}");
+        }
+
+        /// <summary>
+        ///     Generic function to emit and event and get a response from the server.
+        /// </summary>
+        /// <param name="eventName">Event to emit to.</param>
+        /// <param name="requestParameter">Parameter to send with the event.</param>
+        /// <typeparam name="T">Expected (parsed) response type.</typeparam>
+        /// <typeparam name="TR">Type of the request parameter.</typeparam>
+        /// <returns>Response from server. Parsed to <see cref="T" /> if it's not a string.</returns>
+        /// <exception cref="InvalidDataException">Invalid response from server (empty or unknown).</exception>
+        private async Awaitable<T> EmitAndGetResponse<T, TR>(string eventName, TR requestParameter)
+        {
+            // Query server and capture response.
+            var dataCompletionSource = new AwaitableCompletionSource<string>();
+            _connectionManager
+                .Socket.ExpectAcknowledgement<string>(data => dataCompletionSource.SetResult(data))
+                .Emit(eventName, requestParameter);
+
+            // Wait for data.
+            var data = await dataCompletionSource.Awaitable;
+
+            // Return data if it exists. Parse if return type is not string.
+            if (DataKnownAndNotEmpty(data))
+                return typeof(T) == typeof(string) ? (T)(object)data : ParseJson<T>(data);
+
+            // Throw exception if data is empty.
+            throw new InvalidDataException($"{eventName} invalid response: {data}");
+        }
 
         private static bool DataKnownAndNotEmpty(string data)
         {
