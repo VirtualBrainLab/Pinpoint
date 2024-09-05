@@ -375,7 +375,8 @@ namespace UI.States
             IsEnabled
                 ? ActiveProbeAutomationStateManager.HasReachedTargetEntryCoordinate()
                     ? "Entry Coordinate Reached"
-                    : ActiveProbeAutomationStateManager.IsDrivingToEntryCoordinate()
+                    : ActiveProbeAutomationStateManager.ProbeAutomationState
+                    == ProbeAutomationState.DrivingToTargetEntryCoordinate
                         ? "Stop"
                         : ActiveProbeAutomationStateManager.IsCalibrated()
                             ? "Drive to Target Entry Coordinate"
@@ -441,7 +442,9 @@ namespace UI.States
         /// </returns>
         [CreateProperty]
         public bool IsDriveToTargetInsertionButtonEnabled =>
-            IsEnabled && ActiveProbeAutomationStateManager.IsAtDuraInsert();
+            IsEnabled
+            && ActiveProbeAutomationStateManager.ProbeAutomationState
+                == ProbeAutomationState.AtDuraInsert;
 
         /// <summary>
         ///     Visibility of the drive button (insert probe into brain).

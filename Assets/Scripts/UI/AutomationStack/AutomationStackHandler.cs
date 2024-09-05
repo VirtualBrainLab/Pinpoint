@@ -53,6 +53,14 @@ namespace UI.AutomationStack
 
         #endregion
 
+        #region Insertion
+
+        private Button _driveButton;
+        private Button _stopButton;
+        private Button _exitButton;
+
+        #endregion
+
         #endregion
 
 
@@ -87,6 +95,9 @@ namespace UI.AutomationStack
             _resetDuraCalibrationButton = _automationStackPanel.Q<Button>(
                 "reset-dura-calibration-button"
             );
+            _driveButton = _automationStackPanel.Q<Button>("drive-button");
+            _stopButton = _automationStackPanel.Q<Button>("stop-button");
+            _exitButton = _automationStackPanel.Q<Button>("exit-button");
 
             // Register callbacks.
             _resetBregmaCalibrationButton.clicked += ResetBregmaCalibration;
@@ -95,12 +106,23 @@ namespace UI.AutomationStack
             );
             _driveToTargetEntryCoordinateButton.clicked += OnDriveToTargetEntryCoordinatePressed;
             _resetDuraCalibrationButton.clicked += OnResetDuraCalibrationPressed;
+            _driveButton.clicked += OnDriveToTargetPressed;
+            _stopButton.clicked += OnStopDrivePressed;
+            _exitButton.clicked += OnExitPressed;
         }
 
         private void OnDisable()
         {
             // Unregister callbacks.
             _resetBregmaCalibrationButton.clicked -= ResetBregmaCalibration;
+            _targetInsertionRadioButtonGroup.UnregisterValueChangedCallback(
+                OnTargetInsertionSelectionChanged
+            );
+            _driveToTargetEntryCoordinateButton.clicked -= OnDriveToTargetEntryCoordinatePressed;
+            _resetDuraCalibrationButton.clicked -= OnResetDuraCalibrationPressed;
+            _driveButton.clicked -= OnDriveToTargetPressed;
+            _stopButton.clicked -= OnStopDrivePressed;
+            _exitButton.clicked -= OnExitPressed;
         }
 
         private void FixedUpdate()
@@ -204,8 +226,10 @@ namespace UI.AutomationStack
         ///     Start or resume probe retraction.
         /// </summary>
         /// <remarks>Sets moving state to true.</remarks>
-        /// <exception cref="InvalidOperationException">UI state does not have the button enabled and show
-        /// ing.</exception>
+        /// <exception cref="InvalidOperationException">
+        ///     UI state does not have the button enabled and show
+        ///     ing.
+        /// </exception>
         private partial void OnExitPressed();
 
         #endregion

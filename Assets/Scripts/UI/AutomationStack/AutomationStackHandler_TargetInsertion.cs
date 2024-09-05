@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Pinpoint.Probes;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -180,7 +181,7 @@ namespace UI.AutomationStack
                 );
 
             // If the probe is moving, call stop.
-            if (ActiveProbeStateManager.IsDrivingToEntryCoordinate())
+            if (ActiveProbeStateManager.ProbeAutomationState == ProbeAutomationState.DrivingToTargetEntryCoordinate)
             {
                 ActiveManipulatorBehaviorController.StopDriveToTargetEntryCoordinate(
                     // On stop, set the probe back to calibrated state.

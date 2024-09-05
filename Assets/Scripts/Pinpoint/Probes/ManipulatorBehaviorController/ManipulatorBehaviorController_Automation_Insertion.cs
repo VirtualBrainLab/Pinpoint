@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using BrainAtlas;
 using EphysLink;
 using UnityEngine;
@@ -92,12 +93,18 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 _duraDepth
                 + GetCurrentDistanceToTarget(targetInsertionProbeManager.ProbeController.Insertion);
 
-            // Switch behavior based on state.
-            switch (ProbeAutomationStateManager.GetState())
+            // Set state to driving state (if needed).
+            ProbeAutomationStateManager.SetToInsertionDrivingState();
+
+            // Log set to driving state.
+            LogDrive();
+
+            // Set probe to be moving.
+            IsMoving = true;
+
+            // Handle driving state.
+            switch (ProbeAutomationStateManager.ProbeAutomationState)
             {
-                case ProbeAutomationState.AtDuraInsert:
-                    ProbeAutomationStateManager.SetDrivingToNearTarget();
-                    goto case ProbeAutomationState.DrivingToNearTarget;
                 case ProbeAutomationState.DrivingToNearTarget:
                     // Drive to near target if not already there.
                     if (distanceToTarget > NEAR_TARGET_DISTANCE)
@@ -107,18 +114,77 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                 targetDepth - NEAR_TARGET_DISTANCE,
                                 baseSpeed
                             ),
-                            _ =>
-                            {
-                                // TODO: Complete drive
-                            },
+                            _ => CompleteDriveStep(),
                             Debug.LogError
                         );
-
+                    // Skip to next step if already through near target.
+                    else
+                        CompleteDriveStep();
+                    break;
+                case ProbeAutomationState.DrivingToPastTarget:
+                    // Drive to past target.
+                    CommunicationManager.Instance.SetDepth(
+                        new SetDepthRequest(
+                            ManipulatorID,
+                            targetDepth + drivePastDistance,
+                            baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
+                        ),
+                        _ => CompleteDriveStep(),
+                        Debug.LogError
+                    );
+                    break;
+                case ProbeAutomationState.ReturningToTarget:
+                    // Drive up to target.
+                    CommunicationManager.Instance.SetDepth(
+                        new SetDepthRequest(
+                            ManipulatorID,
+                            targetDepth,
+                            baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
+                        ),
+                        _ => CompleteDriveStep(),
+                        Debug.LogError
+                    );
                     break;
             }
 
-            // Set probe to be moving.
-            IsMoving = true;
+            return;
+
+            // Log the drive event.
+            void LogDrive()
+            {
+                OutputLog.Log(
+                    new[]
+                    {
+                        "Automation",
+                        DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                        "Drive",
+                        ManipulatorID,
+                        ProbeAutomationStateManager.ProbeAutomationState.ToString(),
+                        targetDepth.ToString(CultureInfo.InvariantCulture),
+                        baseSpeed.ToString(CultureInfo.InvariantCulture),
+                        drivePastDistance.ToString(CultureInfo.InvariantCulture)
+                    }
+                );
+            }
+
+            // Increment the state in the insertion cycle and call drive if not at target.
+            void CompleteDriveStep()
+            {
+                ProbeAutomationStateManager.IncrementInsertionCycleState();
+
+                // Log the event.
+                LogDrive();
+
+                // Call drive if not at target.
+                if (
+                    ProbeAutomationStateManager.ProbeAutomationState
+                    != ProbeAutomationState.AtTarget
+                )
+                    Drive(targetInsertionProbeManager, baseSpeed, drivePastDistance);
+                else
+                    // Set probe to be done moving.
+                    IsMoving = false;
+            }
         }
 
         /// <summary>
