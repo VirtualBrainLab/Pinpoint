@@ -8,9 +8,9 @@ using Pinpoint.CoordinateSystems;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Pinpoint.Probes
+namespace Pinpoint.Probes.ManipulatorBehaviorController
 {
-    public class ManipulatorBehaviorController : MonoBehaviour
+    public partial class ManipulatorBehaviorController : MonoBehaviour
     {
         #region Constants
 
@@ -37,10 +37,10 @@ namespace Pinpoint.Probes
 
         public Vector3 Dimensions { get; private set; }
 
-        /**
-         * Getter and setter or the zero coordinate offset of the manipulator.
-         * If passed a NaN value, the previous value is kept.
-         */
+        /// <summary>
+        ///     Getter and setter or the zero coordinate offset of the manipulator.
+        ///     If passed a NaN value, the previous value is kept.
+        /// </summary>
         public Vector4 ZeroCoordinateOffset
         {
             get => _zeroCoordinateOffset;
@@ -67,18 +67,6 @@ namespace Pinpoint.Probes
             }
         }
 
-        public bool IsSetToDropToSurfaceWithDepth
-        {
-            get => _isSetToDropToSurfaceWithDepth;
-            set
-            {
-                if (BrainSurfaceOffset != 0)
-                    return;
-                _isSetToDropToSurfaceWithDepth = value;
-                IsSetToDropToSurfaceWithDepthChangedEvent.Invoke(value);
-            }
-        }
-
         public CoordinateSpace CoordinateSpace { get; private set; }
         private CoordinateTransform CoordinateTransform { get; set; }
 
@@ -92,17 +80,17 @@ namespace Pinpoint.Probes
             }
         }
 
+        public readonly ProbeAutomationStateManager ProbeAutomationStateManager = new();
+
         // Helper functions to create and destroy a probe
         public Action<ProbeProperties.ProbeType> CreatePathfinderProbe { private get; set; }
         public Action DestroyThisProbe { private get; set; }
 
         #region Private internal fields
 
-        private Vector4 _lastManipulatorPosition = Vector4.zero;
         private Vector4 _lastLoggedManipulatorPosition = Vector4.zero;
         private Vector4 _zeroCoordinateOffset = Vector4.zero;
         private float _brainSurfaceOffset;
-        private bool _isSetToDropToSurfaceWithDepth = true;
         private bool _isRightHanded;
         private float _lastLoggedTime;
         private bool _isSetToInsideBrain;
@@ -122,26 +110,17 @@ namespace Pinpoint.Probes
         #region Unity
 
         /// <summary>
-        ///     Setup this instance
+        ///     Setup this instance.
         /// </summary>
         private void Awake()
         {
             // Start off as disabled
             enabled = false;
-
-            // Update manipulator inside brain state
-            // _probeController.MovedThisFrameEvent.AddListener(() =>
-            // {
-            //     if (_isSetToInsideBrain != _probeManager.IsProbeInBrain())
-            //         CommunicationManager.Instance.SetInsideBrain(ManipulatorID, _probeManager.IsProbeInBrain(),
-            //             insideBrain =>
-            //             {
-            //                 _isSetToInsideBrain = insideBrain;
-            //                 _probeController.UnlockedDir = insideBrain ? new Vector4(0, 0, 0, 1) : Vector4.one;
-            //             });
-            // });
         }
 
+        /// <summary>
+        ///     Cleanup this instance.
+        /// </summary>
         private void OnDisable()
         {
             ManipulatorID = null;
@@ -154,6 +133,12 @@ namespace Pinpoint.Probes
 
         #region Public Methods
 
+        /// <summary>
+        ///     Initialize the manipulator behavior controller with the given manipulator ID and calibration status.<br />
+        ///     Starts to echo the manipulator position and locks the manipulator from manual control.
+        /// </summary>
+        /// <param name="manipulatorID">ID of the manipulator to represent.</param>
+        /// <param name="calibrated">Whether this manipulator has been calibrated.</param>
         public void Initialize(string manipulatorID, bool calibrated)
         {
             CommunicationManager.Instance.GetManipulators(response =>
@@ -191,6 +176,9 @@ namespace Pinpoint.Probes
             });
         }
 
+        /// <summary>
+        ///     Configure this manipulator's coordinate space and transform based on its handedness, number of axes, and angles.
+        /// </summary>
         private void UpdateSpaceAndTransform()
         {
             CoordinateSpace = new ManipulatorSpace(Dimensions);
@@ -213,11 +201,16 @@ namespace Pinpoint.Probes
             };
         }
 
+        /// <summary>
+        ///     Convert insertion AP, ML, DV coordinates to manipulator translation stage position.
+        /// </summary>
+        /// <param name="insertionAPMLDV">AP, ML, DV coordinates from an insertion.</param>
+        /// <returns>Computed manipulator translation stage positions to match this coordinate.</returns>
         public Vector4 ConvertInsertionAPMLDVToManipulatorPosition(Vector3 insertionAPMLDV)
         {
             // Convert apmldv to world coordinate
-            var convertToWorld = _probeManager.ProbeController.Insertion.T2World_Vector(
-                insertionAPMLDV
+            var convertToWorld = BrainAtlasManager.ActiveReferenceAtlas.Atlas2World_Vector(
+                BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(insertionAPMLDV)
             );
 
             // Convert to Manipulator space
@@ -225,14 +218,26 @@ namespace Pinpoint.Probes
             Vector4 posInManipulatorTransform = CoordinateTransform.U2T(posInManipulatorSpace);
 
             // Apply brain surface offset
-            var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
-            if (_probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth)
-                posInManipulatorTransform.w -= brainSurfaceAdjustment;
-            else
-                posInManipulatorTransform.z += brainSurfaceAdjustment;
+            posInManipulatorTransform.w -= float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
 
             // Apply coordinate offsets and return result
             return posInManipulatorTransform + ZeroCoordinateOffset;
+        }
+
+        /// <summary>
+        ///     Compute if a given AP, ML, DV coordinate is within the manipulator's reach.
+        /// </summary>
+        /// <param name="apmldv">Coordinate to check.</param>
+        /// <returns>True if the coordinates are within the bounds, false otherwise.</returns>
+        public bool IsAPMLDVWithinManipulatorBounds(Vector3 apmldv)
+        {
+            var manipulatorPosition = ConvertInsertionAPMLDVToManipulatorPosition(apmldv);
+            return !(manipulatorPosition.x < 0)
+                && !(manipulatorPosition.x > Dimensions.x)
+                && !(manipulatorPosition.y < 0)
+                && !(manipulatorPosition.y > Dimensions.y)
+                && !(manipulatorPosition.z < 0)
+                && !(manipulatorPosition.z > Dimensions.z);
         }
 
         /// <summary>
@@ -248,9 +253,7 @@ namespace Pinpoint.Probes
             else
             {
                 // We need to calculate the surface coordinate ourselves
-                var (brainSurfaceCoordinateIdx, _) = _probeManager.CalculateEntryCoordinate(
-                    !IsSetToDropToSurfaceWithDepth
-                );
+                var (brainSurfaceCoordinateIdx, _) = _probeManager.CalculateEntryCoordinate();
 
                 if (float.IsNaN(brainSurfaceCoordinateIdx.x))
                 {
@@ -258,8 +261,12 @@ namespace Pinpoint.Probes
                     return;
                 }
 
-                var brainSurfaceToTransformed = _probeController.Insertion.World2T(
-                    BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(brainSurfaceCoordinateIdx)
+                var brainSurfaceToTransformed = BrainAtlasManager.ActiveAtlasTransform.U2T(
+                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(
+                        BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(
+                            brainSurfaceCoordinateIdx
+                        )
+                    )
                 );
 
                 BrainSurfaceOffset += Vector3.Distance(
@@ -379,18 +386,15 @@ namespace Pinpoint.Probes
 
         #region Private Methods
 
+        /// <summary>
+        ///     Given a manipulator position, set the probe position to match.
+        /// </summary>
+        /// <param name="pos">Absolute manipulator translation stage position.</param>
         private void EchoPosition(Vector4 pos)
         {
             // Exit if disabled and there is no probe controller.
             if (!enabled && _probeController == null)
                 return;
-
-            // Calculate last used direction for dropping to brain surface (between depth and DV)
-            var dvDelta = Math.Abs(pos.z - _lastManipulatorPosition.z);
-            var depthDelta = Math.Abs(pos.w - _lastManipulatorPosition.w);
-            if (dvDelta > 0.0001 || depthDelta > 0.0001)
-                IsSetToDropToSurfaceWithDepth = depthDelta > dvDelta;
-            _lastManipulatorPosition = pos;
 
             // Apply zero coordinate offset.
             var zeroCoordinateAdjustedManipulatorPosition = pos - ZeroCoordinateOffset;
@@ -402,16 +406,9 @@ namespace Pinpoint.Probes
 
             // Brain surface adjustment.
             var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
-            if (IsSetToDropToSurfaceWithDepth)
-            {
-                // Apply depth adjustment to manipulator position for non-3 axis manipulators.
-                if (CoordinateTransform.Prefix != "3lhm")
-                    zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
-            }
-            else
-            {
-                manipulatorSpacePosition.y -= brainSurfaceAdjustment;
-            }
+            // Apply depth adjustment to manipulator position for non-3 axis manipulators.
+            if (CoordinateTransform.Prefix != "3lhm")
+                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
 
             // Convert to world space.
             var zeroCoordinateAdjustedWorldPosition = CoordinateSpace.Space2World(
@@ -426,21 +423,15 @@ namespace Pinpoint.Probes
             // Set probe position.
             // For 3-axis manipulators, use depth to adjust brain offset if applying offset on depth.
             if (CoordinateTransform.Prefix == "3lhm")
-            {
-                if (IsSetToDropToSurfaceWithDepth)
-                    _probeController.SetProbePosition(
-                        new Vector4(
-                            transformedApmldv.x,
-                            transformedApmldv.y,
-                            transformedApmldv.z,
-                            brainSurfaceAdjustment
-                        )
-                    );
-                else
-                    _probeController.SetProbePosition(transformedApmldv);
-            }
+                _probeController.SetProbePosition(
+                    new Vector4(
+                        transformedApmldv.x,
+                        transformedApmldv.y,
+                        transformedApmldv.z,
+                        brainSurfaceAdjustment
+                    )
+                );
             else
-            {
                 _probeController.SetProbePosition(
                     new Vector4(
                         transformedApmldv.x,
@@ -449,7 +440,6 @@ namespace Pinpoint.Probes
                         zeroCoordinateAdjustedManipulatorPosition.w
                     )
                 );
-            }
 
             // Log and continue echoing
             LogAndContinue();

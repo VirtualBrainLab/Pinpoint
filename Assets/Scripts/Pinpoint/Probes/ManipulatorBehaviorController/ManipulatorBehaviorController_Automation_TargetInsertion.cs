@@ -1,0 +1,360 @@
+using System;
+using System.Globalization;
+using BrainAtlas;
+using EphysLink;
+using UnityEngine;
+
+namespace Pinpoint.Probes.ManipulatorBehaviorController
+{
+    public partial class ManipulatorBehaviorController
+    {
+        #region Constants
+
+        // Axes colors.
+        private static readonly Color AP_COLOR = new(1, 0.3215686f, 0.3215686f);
+        private static readonly Color ML_COLOR = new(0.2039216f, 0.6745098f, 0.8784314f);
+        private static readonly Color DV_COLOR = new(1, 0.854902f, 0.4745098f);
+
+        // Trajectory line properties.
+        private const float LINE_WIDTH = 0.1f;
+        private const int NUM_SEGMENTS = 2;
+
+        // Trajectory values.
+        public static readonly Vector3 PRE_DEPTH_DRIVE_DV_OFFSET = new(0, 3.5f, 0);
+
+        /// <summary>
+        ///     Distance from the entry coordinate to the Dura. This is considered a safe distance to put the probe.
+        /// </summary>
+        private const float ENTRY_COORDINATE_DURA_DISTANCE = 3.5f;
+
+        #endregion
+
+        #region Components
+
+        private (GameObject ap, GameObject ml, GameObject dv) _trajectoryLineGameObjects;
+        private (LineRenderer ap, LineRenderer ml, LineRenderer dv) _trajectoryLineLineRenderers;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        ///     Trajectory broken into 3 stages (for 3 axes of movement).
+        /// </summary>
+        /// <remarks>Execution order: DV, AP, ML. Defaults to negative infinity when there is no trajectory.</remarks>
+        private (Vector3 first, Vector3 second, Vector3 third) _trajectoryCoordinates = (
+            Vector3.negativeInfinity,
+            Vector3.negativeInfinity,
+            Vector3.negativeInfinity
+        );
+
+        #endregion
+
+        #region Public Functions
+
+        /// <summary>
+        ///     Compute the entry coordinate and trajectory for the target insertion. Also, draw the trajectory lines.
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Probe manager of the target insertion</param>
+        /// <returns>
+        ///     The computed entry coordinate in AP, ML, DV coordinates. Negative infinity if target is unset or already
+        ///     there.
+        /// </returns>
+        public Vector3 ComputeEntryCoordinateTrajectory(ProbeManager targetInsertionProbeManager)
+        {
+            // If set to null or already past the entry coordinate, cleanup and remove insertion trajectory.
+            if (
+                targetInsertionProbeManager == null
+                || ProbeAutomationStateManager.HasReachedTargetEntryCoordinate()
+            )
+            {
+                RemoveTrajectoryLines();
+                return Vector3.negativeInfinity;
+            }
+
+            // Compute the trajectory.
+            ComputeTargetEntryCoordinateTrajectory(targetInsertionProbeManager);
+
+            // Create trajectory lines.
+            CreateTrajectoryLines();
+
+            // Set trajectory lines.
+            UpdateTrajectoryLines();
+
+            // Return final entry coordinate (coordinate of the ML movement, the last in the trajectory).
+            return _trajectoryCoordinates.third;
+        }
+
+        /// <summary>
+        ///     Move the probe along the planned trajectory to the target entry coordinate.<br />
+        /// </summary>
+        /// <param name="onDriveEnd">Callback action after movement is completed.</param>
+        /// <exception cref="InvalidOperationException">No trajectory planned for probe</exception>
+        /// <remarks>Will log that movement has started and completed.</remarks>
+        public void DriveToTargetEntryCoordinate(Action onDriveEnd)
+        {
+            // Throw exception if invariant is violated.
+            if (float.IsNegativeInfinity(_trajectoryCoordinates.first.x))
+                throw new InvalidOperationException(
+                    "No trajectory planned for probe " + _probeManager.name
+                );
+
+            // Convert insertions to manipulator positions.
+            var dvPosition = ConvertInsertionAPMLDVToManipulatorPosition(_trajectoryCoordinates.first);
+            var apPosition = ConvertInsertionAPMLDVToManipulatorPosition(_trajectoryCoordinates.second);
+            var mlPosition = ConvertInsertionAPMLDVToManipulatorPosition(_trajectoryCoordinates.third);
+
+            // Log that movement is starting.
+            OutputLog.Log(
+                new[]
+                {
+                    "Automation",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "DriveToTargetEntryCoordinate",
+                    ManipulatorID,
+                    "Start"
+                }
+            );
+
+            // Move.
+            CommunicationManager.Instance.SetPosition(
+                new SetPositionRequest(ManipulatorID, dvPosition, AUTOMATIC_MOVEMENT_SPEED),
+                _ =>
+                {
+                    CommunicationManager.Instance.SetPosition(
+                        new SetPositionRequest(ManipulatorID, apPosition, AUTOMATIC_MOVEMENT_SPEED),
+                        _ =>
+                        {
+                            CommunicationManager.Instance.SetPosition(
+                                new SetPositionRequest(
+                                    ManipulatorID,
+                                    mlPosition,
+                                    AUTOMATIC_MOVEMENT_SPEED
+                                ),
+                                _ =>
+                                {
+                                    // Remove trajectory lines.
+                                    RemoveTrajectoryLines();
+
+                                    // Conclude drive.
+                                    ConcludeDrive();
+                                },
+                                error =>
+                                {
+                                    Debug.LogError(error);
+                                    ConcludeDrive();
+                                }
+                            );
+                        },
+                        error =>
+                        {
+                            Debug.LogError(error);
+                            ConcludeDrive();
+                        }
+                    );
+                },
+                error =>
+                {
+                    Debug.LogError(error);
+                    ConcludeDrive();
+                }
+            );
+
+            return;
+
+            void ConcludeDrive()
+            {
+                // Log drive finished.
+                OutputLog.Log(
+                    new[]
+                    {
+                        "Automation",
+                        DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                        "DriveToTargetEntryCoordinate",
+                        ManipulatorID,
+                        "Finish"
+                    }
+                );
+
+                // Callback drive end.
+                onDriveEnd.Invoke();
+            }
+        }
+
+        /// <summary>
+        ///     Stop the probe from moving to the target entry coordinate.
+        /// </summary>
+        /// <remarks>Will log that movement has stopped.</remarks>
+        /// <param name="onStopped">Callback action after movement is stopped.</param>
+        public void StopDriveToTargetEntryCoordinate(Action onStopped)
+        {
+            // Log that movement is stopping.
+            OutputLog.Log(
+                new[]
+                {
+                    "Copilot",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "MoveToTargetInsertion",
+                    ManipulatorID,
+                    "Stop"
+                }
+            );
+
+            // Stop movement.
+            CommunicationManager.Instance.Stop(ManipulatorID, onStopped.Invoke, Debug.LogError);
+        }
+
+        #endregion
+
+        #region Internal Functions
+
+        /// <summary>
+        ///     Compute the trajectory to the target insertion entry coordinate.
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Probe manager of the target insertion to compute the entry coordinate for.</param>
+        private void ComputeTargetEntryCoordinateTrajectory(
+            ProbeManager targetInsertionProbeManager
+        )
+        {
+            // Compute entry coordinate in world space.
+            var entryCoordinateWorld =
+                targetInsertionProbeManager.GetSurfaceCoordinateWorldT()
+                - targetInsertionProbeManager.ProbeController.GetTipWorldU().tipForwardWorldU
+                    * ENTRY_COORDINATE_DURA_DISTANCE;
+
+            // Convert world space to transformed space.
+            var entryCoordinateAPMLDV = BrainAtlasManager.ActiveAtlasTransform.U2T(
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(entryCoordinateWorld)
+            );
+
+            // Get current probe coordinate.
+            var currentCoordinate = _probeManager.ProbeController.Insertion.APMLDV;
+
+            // Set first movement (DV).
+            _trajectoryCoordinates.first = new Vector3(
+                currentCoordinate.x,
+                currentCoordinate.y,
+                entryCoordinateAPMLDV.z
+            );
+
+            // Set second movement (AP).
+            _trajectoryCoordinates.second = new Vector3(
+                entryCoordinateAPMLDV.x,
+                currentCoordinate.y,
+                entryCoordinateAPMLDV.z
+            );
+
+            // Set third movement (ML).
+            _trajectoryCoordinates.third = entryCoordinateAPMLDV;
+        }
+
+        /// <summary>
+        ///     Create the trajectory line game objects and line renderers (if needed).
+        /// </summary>
+        private void CreateTrajectoryLines()
+        {
+            // Shortcut exit if they already exist.
+            if (_trajectoryLineGameObjects.ap != null)
+                return;
+
+            // Create the trajectory line game objects.
+            _trajectoryLineGameObjects = (
+                new GameObject("APTrajectoryLine") { layer = 5 },
+                new GameObject("MLTrajectoryLine") { layer = 5 },
+                new GameObject("DVTrajectoryLine") { layer = 5 }
+            );
+
+            // Create the line renderers.
+            _trajectoryLineLineRenderers = (
+                _trajectoryLineGameObjects.ap.AddComponent<LineRenderer>(),
+                _trajectoryLineGameObjects.ml.AddComponent<LineRenderer>(),
+                _trajectoryLineGameObjects.dv.AddComponent<LineRenderer>()
+            );
+
+            // Apply materials.
+            var defaultSpriteShader = Shader.Find("Sprites/Default");
+            _trajectoryLineLineRenderers.ap.material = new Material(defaultSpriteShader)
+            {
+                color = AP_COLOR
+            };
+            _trajectoryLineLineRenderers.ml.material = new Material(defaultSpriteShader)
+            {
+                color = ML_COLOR
+            };
+            _trajectoryLineLineRenderers.dv.material = new Material(defaultSpriteShader)
+            {
+                color = DV_COLOR
+            };
+
+            // Set line widths.
+            _trajectoryLineLineRenderers.ap.startWidth = _trajectoryLineLineRenderers.ap.endWidth =
+                LINE_WIDTH;
+            _trajectoryLineLineRenderers.ml.startWidth = _trajectoryLineLineRenderers.ml.endWidth =
+                LINE_WIDTH;
+            _trajectoryLineLineRenderers.dv.startWidth = _trajectoryLineLineRenderers.dv.endWidth =
+                LINE_WIDTH;
+
+            // Set segment counts.
+            _trajectoryLineLineRenderers.ap.positionCount = NUM_SEGMENTS;
+            _trajectoryLineLineRenderers.ml.positionCount = NUM_SEGMENTS;
+            _trajectoryLineLineRenderers.dv.positionCount = NUM_SEGMENTS;
+        }
+
+        /// <summary>
+        ///     Update the trajectory line positions.
+        /// </summary>
+        private void UpdateTrajectoryLines()
+        {
+            _trajectoryLineLineRenderers.dv.SetPosition(0, _probeController.ProbeTipT.position);
+            _trajectoryLineLineRenderers.dv.SetPosition(
+                1,
+                BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_trajectoryCoordinates.first)
+                )
+            );
+
+            _trajectoryLineLineRenderers.ap.SetPosition(
+                0,
+                BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_trajectoryCoordinates.first)
+                )
+            );
+            _trajectoryLineLineRenderers.ap.SetPosition(
+                1,
+                BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_trajectoryCoordinates.second)
+                )
+            );
+
+            _trajectoryLineLineRenderers.ml.SetPosition(
+                0,
+                BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_trajectoryCoordinates.second)
+                )
+            );
+            _trajectoryLineLineRenderers.ml.SetPosition(
+                1,
+                BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(_trajectoryCoordinates.third)
+                )
+            );
+        }
+
+        /// <summary>
+        ///     Destroy the trajectory line game objects and line renderers. Also reset the references.
+        /// </summary>
+        private void RemoveTrajectoryLines()
+        {
+            // Destroy the objects.
+            Destroy(_trajectoryLineGameObjects.ap);
+            Destroy(_trajectoryLineGameObjects.ml);
+            Destroy(_trajectoryLineGameObjects.dv);
+
+            // Reset the references.
+            _trajectoryLineGameObjects = (null, null, null);
+            _trajectoryLineLineRenderers = (null, null, null);
+        }
+
+        #endregion
+    }
+}

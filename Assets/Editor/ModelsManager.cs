@@ -1,7 +1,10 @@
+using System.Collections;
 using System.IO;
 using System.Net;
+using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Editor
 {
@@ -11,32 +14,51 @@ namespace Editor
         public static void UpdateSchemas()
         {
             var webClient = new WebClient();
-            
-            webClient.DownloadFile(
-                "https://raw.githubusercontent.com/VirtualBrainLab/vbl-aquarium/main/models/csharp/EphysLinkModels.cs",
-                "Assets/Scripts/EphysLink/EphysLinkModels.cs");
-            
+
+            EditorCoroutineUtility.StartCoroutineOwnerless(
+                DownloadFile(
+                    "https://raw.githubusercontent.com/VirtualBrainLab/vbl-aquarium/main/models/csharp/EphysLinkModels.cs",
+                    "Assets/Scripts/EphysLink/EphysLinkModels.cs"
+                )
+            );
+
             Debug.Log("Schemas updated successfully!");
         }
 
         private static void GetSchemas(string srcURL, string outFile)
         {
+            if (!Directory.Exists(outFile)) Directory.CreateDirectory(outFile);
 
-            if (!Directory.Exists(outFile))
+            var files = Directory.GetFiles(srcURL, "*.cs");
+
+            foreach (var file in files)
             {
-                Directory.CreateDirectory(outFile);
-            }
-
-            string[] files = Directory.GetFiles(srcURL, "*.cs");
-
-            foreach (string file in files)
-            {
-                string fileName = Path.GetFileName(file);
-                string destFilePath = Path.Combine(outFile, fileName);
+                var fileName = Path.GetFileName(file);
+                var destFilePath = Path.Combine(outFile, fileName);
                 File.Copy(file, destFilePath, true);
             }
 
             AssetDatabase.Refresh();
+        }
+
+        private static IEnumerator DownloadFile(string url, string outputPath)
+        {
+            using var request = UnityWebRequest.Get(url);
+            yield return request.SendWebRequest();
+
+            if (
+                request.result
+                is UnityWebRequest.Result.ConnectionError
+                or UnityWebRequest.Result.ProtocolError
+            )
+            {
+                Debug.LogError(request.error);
+            }
+            else
+            {
+                File.WriteAllBytes(outputPath, request.downloadHandler.data);
+                Debug.Log("File downloaded successfully!");
+            }
         }
     }
 }

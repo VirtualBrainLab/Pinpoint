@@ -487,8 +487,8 @@ namespace TrajectoryPlanner
             probeManager.ManipulatorBehaviorController.NumAxes = numAxes;
             probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset = zeroCoordinateOffset;
             probeManager.ManipulatorBehaviorController.BrainSurfaceOffset = brainSurfaceOffset;
-            probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
-            probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
+            // probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
+            // probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
             probeManager.ManipulatorBehaviorController.IsRightHanded = isRightHanded;
             var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
                 
