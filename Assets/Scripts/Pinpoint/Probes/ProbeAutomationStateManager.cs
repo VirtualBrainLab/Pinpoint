@@ -163,8 +163,9 @@ namespace Pinpoint.Probes
         public bool IsInsertable()
         {
             return ProbeAutomationState
-                is >= ProbeAutomationState.AtDuraInsert
-                    and < ProbeAutomationState.AtDuraExit;
+                    is >= ProbeAutomationState.AtDuraInsert
+                        and < ProbeAutomationState.AtDuraExit
+                && ProbeAutomationState != ProbeAutomationState.AtTarget;
         }
 
         /// <summary>

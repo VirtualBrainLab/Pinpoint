@@ -55,7 +55,7 @@ namespace UI.AutomationStack
 
         #region Insertion
 
-        private Button _driveButton;
+        private Button _driveToTargetInsertionButton;
         private Button _stopButton;
         private Button _exitButton;
 
@@ -95,7 +95,9 @@ namespace UI.AutomationStack
             _resetDuraCalibrationButton = _automationStackPanel.Q<Button>(
                 "reset-dura-calibration-button"
             );
-            _driveButton = _automationStackPanel.Q<Button>("drive-button");
+            _driveToTargetInsertionButton = _automationStackPanel.Q<Button>(
+                "drive-to-target-insertion-button"
+            );
             _stopButton = _automationStackPanel.Q<Button>("stop-button");
             _exitButton = _automationStackPanel.Q<Button>("exit-button");
 
@@ -106,9 +108,9 @@ namespace UI.AutomationStack
             );
             _driveToTargetEntryCoordinateButton.clicked += OnDriveToTargetEntryCoordinatePressed;
             _resetDuraCalibrationButton.clicked += OnResetDuraCalibrationPressed;
-            _driveButton.clicked += OnDriveToTargetPressed;
-            _stopButton.clicked += OnStopDrivePressed;
-            _exitButton.clicked += OnExitPressed;
+            _driveToTargetInsertionButton.clicked += OnDriveToTargetInsertionButtonPressed;
+            _stopButton.clicked += OnStopDriveButtonPressed;
+            _exitButton.clicked += OnExitButtonPressed;
         }
 
         private void OnDisable()
@@ -120,9 +122,9 @@ namespace UI.AutomationStack
             );
             _driveToTargetEntryCoordinateButton.clicked -= OnDriveToTargetEntryCoordinatePressed;
             _resetDuraCalibrationButton.clicked -= OnResetDuraCalibrationPressed;
-            _driveButton.clicked -= OnDriveToTargetPressed;
-            _stopButton.clicked -= OnStopDrivePressed;
-            _exitButton.clicked -= OnExitPressed;
+            _driveToTargetInsertionButton.clicked -= OnDriveToTargetInsertionButtonPressed;
+            _stopButton.clicked -= OnStopDriveButtonPressed;
+            _exitButton.clicked -= OnExitButtonPressed;
         }
 
         private void FixedUpdate()
@@ -213,14 +215,14 @@ namespace UI.AutomationStack
         /// </summary>
         /// <remarks>Sets moving state to true.</remarks>
         /// <exception cref="InvalidOperationException">UI state does not have the button enabled and showing.</exception>
-        private partial void OnDriveToTargetPressed();
+        private partial void OnDriveToTargetInsertionButtonPressed();
 
         /// <summary>
         ///     Stop probe movement.
         /// </summary>
         /// <remarks>Sets moving state to false.</remarks>
         /// <exception cref="InvalidOperationException">UI state does not have the button enabled and showing.</exception>
-        private partial void OnStopDrivePressed();
+        private partial void OnStopDriveButtonPressed();
 
         /// <summary>
         ///     Start or resume probe retraction.
@@ -230,7 +232,7 @@ namespace UI.AutomationStack
         ///     UI state does not have the button enabled and show
         ///     ing.
         /// </exception>
-        private partial void OnExitPressed();
+        private partial void OnExitButtonPressed();
 
         #endregion
 

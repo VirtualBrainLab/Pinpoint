@@ -11,12 +11,12 @@ namespace UI.AutomationStack
     {
         #region Implementations
 
-        private partial void OnDriveToTargetPressed()
+        private partial void OnDriveToTargetInsertionButtonPressed()
         {
             // Throw exception if invariant is violated.
             if (
                 !_state.IsDriveToTargetInsertionButtonEnabled
-                || _state.DriveButtonDisplayStyle == DisplayStyle.None
+                || _state.DriveToTargetInsertionButtonDisplayStyle == DisplayStyle.None
             )
                 throw new InvalidOperationException(
                     "Cannot drive to target insertion if the button is not enabled or visible (ready to drive)."
@@ -46,7 +46,7 @@ namespace UI.AutomationStack
             );
         }
 
-        private partial void OnStopDrivePressed()
+        private partial void OnStopDriveButtonPressed()
         {
             // Throw exception if invariant is violated.
             if (_state.StopButtonDisplayStyle == DisplayStyle.None)
@@ -58,7 +58,7 @@ namespace UI.AutomationStack
             ActiveManipulatorBehaviorController.Stop();
         }
 
-        private partial void OnExitPressed()
+        private partial void OnExitButtonPressed()
         {
             // Throw exception if invariant is violated.
             if (_state.ExitButtonDisplayStyle == DisplayStyle.None)

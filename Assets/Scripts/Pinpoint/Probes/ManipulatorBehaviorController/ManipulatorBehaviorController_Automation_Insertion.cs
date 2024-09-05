@@ -145,6 +145,29 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         Debug.LogError
                     );
                     break;
+                case ProbeAutomationState.IsUncalibrated:
+                case ProbeAutomationState.IsCalibrated:
+                case ProbeAutomationState.DrivingToTargetEntryCoordinate:
+                case ProbeAutomationState.AtEntryCoordinate:
+                case ProbeAutomationState.AtDuraInsert:
+                case ProbeAutomationState.AtNearTargetInsert:
+                case ProbeAutomationState.AtPastTarget:
+                case ProbeAutomationState.AtTarget:
+                case ProbeAutomationState.ExitingToNearTarget:
+                case ProbeAutomationState.AtNearTargetExit:
+                case ProbeAutomationState.ExitingToDura:
+                case ProbeAutomationState.AtDuraExit:
+                case ProbeAutomationState.ExitingToMargin:
+                case ProbeAutomationState.AtExitMargin:
+                case ProbeAutomationState.ExitingToTargetEntryCoordinate:
+                case ProbeAutomationState.DrivingToBregma:
+                    throw new InvalidOperationException(
+                        $"Not a valid driving state: {ProbeAutomationStateManager.ProbeAutomationState}"
+                    );
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        $"Unhandled probe drive state: {ProbeAutomationStateManager.ProbeAutomationState}"
+                    );
             }
 
             return;
@@ -192,8 +215,27 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// </summary>
         public void Stop()
         {
-            // Set probe to be not moving.
-            IsMoving = false;
+            CommunicationManager.Instance.Stop(
+                ManipulatorID,
+                () =>
+                {
+                    // Set probe to be not moving.
+                    IsMoving = false;
+                    
+                    // Log stop event.
+                    OutputLog.Log(
+                        new[]
+                        {
+                            "Automation",
+                            DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                            "Drive",
+                            ManipulatorID,
+                            "Stop"
+                        }
+                    );
+                },
+                Debug.LogError
+            );
         }
 
         #endregion

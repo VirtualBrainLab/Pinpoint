@@ -444,17 +444,29 @@ namespace UI.States
         public bool IsDriveToTargetInsertionButtonEnabled =>
             IsEnabled
             && ActiveProbeAutomationStateManager.ProbeAutomationState
-                == ProbeAutomationState.AtDuraInsert;
+                >= ProbeAutomationState.AtDuraInsert;
 
         /// <summary>
-        ///     Visibility of the drive button (insert probe into brain).
+        ///     Text for the drive to target insertion button.
+        /// </summary>
+        /// <returns>Request to calibrate to the Dura if not calibrated, otherwise "Drive".</returns>
+        [CreateProperty]
+        public string DriveToTargetInsertionButtonText =>
+            IsEnabled
+            && ActiveProbeAutomationStateManager.ProbeAutomationState
+                < ProbeAutomationState.AtDuraInsert
+                ? "Please Calibrate to the Dura"
+                : "Drive";
+
+        /// <summary>
+        ///     Visibility of the drive to target insertion button (insert probe into brain).
         /// </summary>
         /// <remarks>
         ///     Shown only when selected/active probe is Ephys Link controlled, has a target insertion selected, not moving,
         ///     at the Dura or inside.
         /// </remarks>
         [CreateProperty]
-        public DisplayStyle DriveButtonDisplayStyle =>
+        public DisplayStyle DriveToTargetInsertionButtonDisplayStyle =>
             IsEnabled
             && SelectedTargetInsertionIndex > 0
             && !ActiveManipulatorBehaviorController.IsMoving

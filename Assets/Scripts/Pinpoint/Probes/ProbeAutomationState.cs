@@ -93,6 +93,11 @@ namespace Pinpoint.Probes
         /// <summary>
         ///     Driving back up to the target entry coordinate (exit drive).
         /// </summary>
-        ExitingToTargetEntryCoordinate
+        ExitingToTargetEntryCoordinate,
+
+        /// <summary>
+        ///     Driving back to Bregma.
+        /// </summary>
+        DrivingToBregma
     }
 }
