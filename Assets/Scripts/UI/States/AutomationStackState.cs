@@ -443,6 +443,7 @@ namespace UI.States
         [CreateProperty]
         public bool IsDriveToTargetInsertionButtonEnabled =>
             IsEnabled
+            && SelectedTargetInsertionIndex > 0
             && ActiveProbeAutomationStateManager.ProbeAutomationState
                 >= ProbeAutomationState.AtDuraInsert;
 
@@ -468,9 +469,11 @@ namespace UI.States
         [CreateProperty]
         public DisplayStyle DriveToTargetInsertionButtonDisplayStyle =>
             IsEnabled
-            && SelectedTargetInsertionIndex > 0
             && !ActiveManipulatorBehaviorController.IsMoving
-            && ActiveProbeAutomationStateManager.IsInsertable()
+            && ActiveProbeAutomationStateManager.ProbeAutomationState
+                < ProbeAutomationState.AtDuraExit
+            && ActiveProbeAutomationStateManager.ProbeAutomationState
+                != ProbeAutomationState.AtTarget
                 ? DisplayStyle.Flex
                 : DisplayStyle.None;
 

@@ -86,6 +86,7 @@
                     <Bindings>
                         <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetInsertionButtonEnabled" binding-mode="ToTarget" />
                         <engine:DataBinding property="style.display" data-source-path="DriveToTargetInsertionButtonDisplayStyle" binding-mode="ToTarget" />
+                        <engine:DataBinding property="text" data-source-path="DriveToTargetInsertionButtonText" binding-mode="ToTarget" />
                     </Bindings>
                 </engine:Button>
                 <engine:Button text="Stop" parse-escape-sequences="true" display-tooltip-when-elided="true" name="stop-button" style="flex-grow: 1;">

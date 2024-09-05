@@ -71,6 +71,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <param name="baseSpeed">Base driving speed in mm/s.</param>
         /// <param name="drivePastDistance">Distance to drive past target in mm.</param>
         /// <exception cref="InvalidOperationException">Probe is not in a drivable state.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Unhandled probe drive state.</exception>
         public void Drive(
             ProbeManager targetInsertionProbeManager,
             float baseSpeed,
@@ -83,21 +84,14 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     "Cannot drive to target insertion if the probe is not in a drivable state."
                 );
 
-            // Get distance to target.
-            var distanceToTarget = GetCurrentDistanceToTarget(
-                targetInsertionProbeManager.ProbeController.Insertion
-            );
-
             // Get target depth.
-            var targetDepth =
-                _duraDepth
-                + GetTargetDistanceToDura(targetInsertionProbeManager.ProbeController.Insertion);
+            var targetDepth = GetTargetDepth(targetInsertionProbeManager);
 
             // Set state to driving state (if needed).
             ProbeAutomationStateManager.SetToInsertionDrivingState();
 
             // Log set to driving state.
-            LogDrive();
+            LogDrive(targetDepth, baseSpeed, drivePastDistance);
 
             // Set probe to be moving.
             IsMoving = true;
@@ -107,7 +101,10 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             {
                 case ProbeAutomationState.DrivingToNearTarget:
                     // Drive to near target if not already there.
-                    if (distanceToTarget > NEAR_TARGET_DISTANCE)
+                    if (
+                        GetCurrentDistanceToTarget(targetInsertionProbeManager)
+                        > NEAR_TARGET_DISTANCE
+                    )
                         CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
                                 ManipulatorID,
@@ -172,40 +169,23 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
             return;
 
-            // Log the drive event.
-            void LogDrive()
-            {
-                OutputLog.Log(
-                    new[]
-                    {
-                        "Automation",
-                        DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                        "Drive",
-                        ManipulatorID,
-                        ProbeAutomationStateManager.ProbeAutomationState.ToString(),
-                        targetDepth.ToString(CultureInfo.InvariantCulture),
-                        baseSpeed.ToString(CultureInfo.InvariantCulture),
-                        drivePastDistance.ToString(CultureInfo.InvariantCulture)
-                    }
-                );
-            }
-
-            // Increment the state in the insertion cycle and call drive if not at target.
+            // Increment the state in the insertion cycle and call drive if not at target yet.
             void CompleteDriveStep()
             {
+                // Increment cycle state.
                 ProbeAutomationStateManager.IncrementInsertionCycleState();
 
                 // Log the event.
-                LogDrive();
+                LogDrive(targetDepth, baseSpeed, drivePastDistance);
 
-                // Call drive if not at target.
+                // Call drive if not at target yet.
                 if (
                     ProbeAutomationStateManager.ProbeAutomationState
                     != ProbeAutomationState.AtTarget
                 )
                     Drive(targetInsertionProbeManager, baseSpeed, drivePastDistance);
+                // Set probe to be done moving.
                 else
-                    // Set probe to be done moving.
                     IsMoving = false;
             }
         }
@@ -221,7 +201,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 {
                     // Set probe to be not moving.
                     IsMoving = false;
-                    
+
                     // Log stop event.
                     OutputLog.Log(
                         new[]
@@ -238,17 +218,184 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             );
         }
 
+        /// <summary>
+        ///     Start or resume exiting the probe to the target insertion.
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Probe manager for the target insertion.</param>
+        /// <param name="baseSpeed">Base driving speed in mm/s.</param>
+        /// <exception cref="InvalidOperationException">Probe is not in an exitable state.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Unhandled probe exit state.</exception>
+        public void Exit(ProbeManager targetInsertionProbeManager, float baseSpeed)
+        {
+            // Throw exception if state is not valid.
+            if (!ProbeAutomationStateManager.IsExitable())
+                throw new InvalidOperationException(
+                    "Cannot exit to target insertion if the probe is not in a state that can exit."
+                );
+
+            // Get target depth.
+            var targetDepth = GetTargetDepth(targetInsertionProbeManager);
+
+            // Set state to exiting state (if needed).
+            ProbeAutomationStateManager.SetToExitingDrivingState();
+
+            // Log set to exiting state.
+            LogDrive(targetDepth, baseSpeed);
+
+            // Set probe to be moving.
+            IsMoving = true;
+
+            // Handle exiting state.
+            switch (ProbeAutomationStateManager.ProbeAutomationState)
+            {
+                case ProbeAutomationState.ExitingToNearTarget:
+                    // Exit to near target if not already there.
+                    if (
+                        GetCurrentDistanceToTarget(targetInsertionProbeManager)
+                        < NEAR_TARGET_DISTANCE
+                    )
+                        CommunicationManager.Instance.SetDepth(
+                            new SetDepthRequest(
+                                ManipulatorID,
+                                targetDepth - NEAR_TARGET_DISTANCE,
+                                baseSpeed
+                                    * EXIT_DRIVE_SPEED_MULTIPLIER
+                                    * NEAR_TARGET_SPEED_MULTIPLIER
+                            ),
+                            _ => CompleteExitStep(),
+                            Debug.LogError
+                        );
+                    // Skip to next step if already above near target.
+                    else
+                        CompleteExitStep();
+                    break;
+                case ProbeAutomationState.ExitingToDura:
+                    // Exit back up to the Dura.
+                    CommunicationManager.Instance.SetDepth(
+                        new SetDepthRequest(
+                            ManipulatorID,
+                            _duraDepth,
+                            baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
+                        ),
+                        _ => CompleteExitStep(),
+                        Debug.LogError
+                    );
+                    break;
+                case ProbeAutomationState.ExitingToMargin:
+                    // Exit to the safe margin above the Dura.
+                    CommunicationManager.Instance.SetDepth(
+                        new SetDepthRequest(
+                            ManipulatorID,
+                            _duraDepth - DURA_MARGIN_DISTANCE,
+                            baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
+                        ),
+                        _ => CompleteExitStep(),
+                        Debug.LogError
+                    );
+                    break;
+                case ProbeAutomationState.ExitingToTargetEntryCoordinate:
+                    // Drive to the target entry coordinate (same place before calibrating to the Dura).
+                    CommunicationManager.Instance.SetPosition(
+                        new SetPositionRequest(
+                            ManipulatorID,
+                            ConvertInsertionAPMLDVToManipulatorPosition(
+                                _trajectoryCoordinates.third
+                            ),
+                            AUTOMATIC_MOVEMENT_SPEED
+                        ),
+                        _ => CompleteExitStep(),
+                        Debug.LogError
+                    );
+                    break;
+                case ProbeAutomationState.IsUncalibrated:
+                case ProbeAutomationState.IsCalibrated:
+                case ProbeAutomationState.DrivingToTargetEntryCoordinate:
+                case ProbeAutomationState.AtEntryCoordinate:
+                case ProbeAutomationState.AtDuraInsert:
+                case ProbeAutomationState.DrivingToNearTarget:
+                case ProbeAutomationState.AtNearTargetInsert:
+                case ProbeAutomationState.DrivingToPastTarget:
+                case ProbeAutomationState.AtPastTarget:
+                case ProbeAutomationState.ReturningToTarget:
+                case ProbeAutomationState.AtTarget:
+                case ProbeAutomationState.AtNearTargetExit:
+                case ProbeAutomationState.AtDuraExit:
+                case ProbeAutomationState.AtExitMargin:
+                case ProbeAutomationState.DrivingToBregma:
+                    throw new InvalidOperationException(
+                        $"Not a valid exit state: {ProbeAutomationStateManager.ProbeAutomationState}"
+                    );
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        $"Unhandled probe exit state: {ProbeAutomationStateManager.ProbeAutomationState}"
+                    );
+            }
+
+            return;
+
+            // Increment the state in the insertion cycle and call exit if not at entry coordinate yet.
+            void CompleteExitStep()
+            {
+                // Increment cycle state.
+                ProbeAutomationStateManager.IncrementInsertionCycleState();
+
+                // Log the event.
+                LogDrive(targetDepth, baseSpeed);
+
+                // Call exit if not back at entry coordinate yet.
+                if (
+                    ProbeAutomationStateManager.ProbeAutomationState
+                    != ProbeAutomationState.AtEntryCoordinate
+                )
+                {
+                    Exit(targetInsertionProbeManager, baseSpeed);
+                }
+                // Set probe to be done moving and remove Dura offset.
+                else
+                {
+                    IsMoving = false;
+                    BrainSurfaceOffset = 0;
+                }
+            }
+        }
+
         #endregion
 
         #region Helper Functions
 
         /// <summary>
+        ///     Log a drive event.
+        /// </summary>
+        /// <param name="targetDepth">Target depth of drive.</param>
+        /// <param name="baseSpeed">Base speed of drive.</param>
+        /// <param name="drivePastDistance">Distance (mm) driven past the target. Only supplied in insertion drives.</param>
+        private void LogDrive(float targetDepth, float baseSpeed, float drivePastDistance = 0)
+        {
+            OutputLog.Log(
+                new[]
+                {
+                    "Automation",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "Drive",
+                    ManipulatorID,
+                    ProbeAutomationStateManager.ProbeAutomationState.ToString(),
+                    targetDepth.ToString(CultureInfo.InvariantCulture),
+                    baseSpeed.ToString(CultureInfo.InvariantCulture),
+                    drivePastDistance.ToString(CultureInfo.InvariantCulture)
+                }
+            );
+        }
+
+        /// <summary>
         ///     Compute the target coordinate adjusted for the probe's actual position.
         /// </summary>
-        /// <param name="targetInsertion">Target insertion to computer with.</param>
+        /// <param name="targetInsertionProbeManager"></param>
         /// <returns>APMLDV coordinates of where the probe should actually go.</returns>
-        private Vector3 GetOffsetAdjustedTargetCoordinate(ProbeInsertion targetInsertion)
+        private Vector3 GetOffsetAdjustedTargetCoordinate(ProbeManager targetInsertionProbeManager)
         {
+            // Extract target insertion.
+            var targetInsertion = targetInsertionProbeManager.ProbeController.Insertion;
+
             // Shortcut exit if already computed and targetInsertion did not change.
             if (
                 targetInsertion.APMLDV == _cachedTargetCoordinate
@@ -286,12 +433,12 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <summary>
         ///     Compute the absolute distance from the target insertion to the Dura.
         /// </summary>
-        /// <param name="targetInsertion">Target insertion object to calculate with.</param>
+        /// <param name="targetInsertionProbeManager">Target to computer distance to.</param>
         /// <returns>Distance in mm to the target from the Dura.</returns>
-        private float GetTargetDistanceToDura(ProbeInsertion targetInsertion)
+        private float GetTargetDistanceToDura(ProbeManager targetInsertionProbeManager)
         {
             return Vector3.Distance(
-                GetOffsetAdjustedTargetCoordinate(targetInsertion),
+                GetOffsetAdjustedTargetCoordinate(targetInsertionProbeManager),
                 _duraCoordinate
             );
         }
@@ -299,14 +446,24 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <summary>
         ///     Compute the current distance to the target insertion.
         /// </summary>
-        /// <param name="targetInsertion">Target insertion to compute distance to.</param>
+        /// <param name="targetInsertionProbeManager"></param>
         /// <returns>Distance in mm to the target from the probe.</returns>
-        private float GetCurrentDistanceToTarget(ProbeInsertion targetInsertion)
+        private float GetCurrentDistanceToTarget(ProbeManager targetInsertionProbeManager)
         {
             return Vector3.Distance(
                 _probeController.Insertion.APMLDV,
-                GetOffsetAdjustedTargetCoordinate(targetInsertion)
+                GetOffsetAdjustedTargetCoordinate(targetInsertionProbeManager)
             );
+        }
+
+        /// <summary>
+        ///     Compute the target depth for the probe to drive to.
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Target to drive (insert) to.</param>
+        /// <returns>The depth the manipulator needs to drive to reach the target insertion.</returns>
+        private float GetTargetDepth(ProbeManager targetInsertionProbeManager)
+        {
+            return _duraDepth + GetTargetDistanceToDura(targetInsertionProbeManager);
         }
 
         #endregion

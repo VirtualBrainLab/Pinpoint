@@ -81,18 +81,25 @@ namespace Pinpoint.Probes
         /// <exception cref="InvalidOperationException">Probe is not in the insertion cycle.</exception>
         public void IncrementInsertionCycleState()
         {
-            // Throw exception if required state is not met.
-            if (
-                ProbeAutomationState
-                is < ProbeAutomationState.AtDuraInsert
-                    or > ProbeAutomationState.ExitingToTargetEntryCoordinate
-            )
-                throw new InvalidOperationException(
-                    "Cannot increment the insertion cycle state if the probe is not in the insertion cycle."
-                );
+            switch (ProbeAutomationState)
+            {
+                // Throw exception if required state is not met.
+                case < ProbeAutomationState.AtDuraInsert
+                or > ProbeAutomationState.ExitingToTargetEntryCoordinate:
+                    throw new InvalidOperationException(
+                        "Cannot increment the insertion cycle state if the probe is not in the insertion cycle."
+                    );
 
-            // Increment state.
-            ProbeAutomationState++;
+                // If exiting to the target entry coordinate, set to the target entry coordinate (end of cycle).
+                case ProbeAutomationState.ExitingToTargetEntryCoordinate:
+                    ProbeAutomationState = ProbeAutomationState.AtEntryCoordinate;
+                    return;
+
+                // Otherwise, increment state.
+                default:
+                    ProbeAutomationState++;
+                    break;
+            }
         }
 
         /// <summary>
@@ -102,11 +109,7 @@ namespace Pinpoint.Probes
         public void SetToInsertionDrivingState()
         {
             // Throw exception if required state is not met.
-            if (
-                ProbeAutomationState
-                is < ProbeAutomationState.AtDuraInsert
-                    or > ProbeAutomationState.ExitingToDura
-            )
+            if (!IsInsertable())
                 throw new InvalidOperationException(
                     "Cannot set probe to insertion driving state if it is not at the Dura or inside the brain."
                 );
@@ -128,6 +131,46 @@ namespace Pinpoint.Probes
                 // States for returning to the target.
                 ProbeAutomationState.AtPastTarget
                     => ProbeAutomationState.ReturningToTarget,
+
+                // Do nothing for driving states.
+                _ => ProbeAutomationState
+            };
+        }
+
+        /// <summary>
+        ///     Set the probe's state to be in the next exit driving state.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Probe is not in a state that can exit.</exception>
+        public void SetToExitingDrivingState()
+        {
+            // Throw exception if required state is not met.
+            if (!IsExitable())
+                throw new InvalidOperationException(
+                    "Cannot set probe to exit driving state if it is not past the Dura."
+                );
+
+            // Set state.
+            ProbeAutomationState = ProbeAutomationState switch
+            {
+                // States for Exiting to near target depth.
+                ProbeAutomationState.AtTarget
+                or ProbeAutomationState.ReturningToTarget
+                or ProbeAutomationState.DrivingToPastTarget
+                    => ProbeAutomationState.ExitingToNearTarget,
+
+                // States for Exiting to the Dura.
+                ProbeAutomationState.AtNearTargetExit
+                or ProbeAutomationState.AtNearTargetInsert
+                or ProbeAutomationState.DrivingToNearTarget
+                    => ProbeAutomationState.ExitingToDura,
+
+                // States for exiting to margin.
+                ProbeAutomationState.AtDuraExit
+                    => ProbeAutomationState.ExitingToMargin,
+
+                // States for exiting to target entry coordinate.
+                ProbeAutomationState.AtExitMargin
+                    => ProbeAutomationState.ExitingToTargetEntryCoordinate,
 
                 // Do nothing for driving states.
                 _ => ProbeAutomationState

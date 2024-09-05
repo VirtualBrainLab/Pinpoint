@@ -9,27 +9,21 @@ namespace UI.AutomationStack
     /// </summary>
     public partial class AutomationStackHandler
     {
-        #region Implementations
+        #region Properties
 
-        private partial void OnDriveToTargetInsertionButtonPressed()
-        {
-            // Throw exception if invariant is violated.
-            if (
-                !_state.IsDriveToTargetInsertionButtonEnabled
-                || _state.DriveToTargetInsertionButtonDisplayStyle == DisplayStyle.None
-            )
-                throw new InvalidOperationException(
-                    "Cannot drive to target insertion if the button is not enabled or visible (ready to drive)."
-                );
+        /// <summary>
+        ///     Compute the target insertion probe manager from selected target insertion index.
+        /// </summary>
+        private ProbeManager TargetInsertionProbeManager =>
+            _state.SurfaceCoordinateStringToTargetInsertionOptionProbeManagers[
+                _state.TargetInsertionOptions.ElementAt(_state.SelectedTargetInsertionIndex)
+            ];
 
-            // Get target insertion probe manager.
-            var targetInsertionProbeManager =
-                _state.SurfaceCoordinateStringToTargetInsertionOptionProbeManagers[
-                    _state.TargetInsertionOptions.ElementAt(_state.SelectedTargetInsertionIndex)
-                ];
-
-            // Compute base speed.
-            var baseSpeed = _state.SelectedBaseSpeedIndex switch
+        /// <summary>
+        ///     Compute the base speed from selected base speed index.
+        /// </summary>
+        private float BaseSpeed =>
+            _state.SelectedBaseSpeedIndex switch
             {
                 0 => 0.002f,
                 1 => 0.005f,
@@ -38,35 +32,51 @@ namespace UI.AutomationStack
                 _ => _state.CustomBaseSpeed / 1000f
             };
 
+        #endregion
+
+        #region Implementations
+
+        private partial void OnDriveToTargetInsertionButtonPressed()
+        {
+            // Throw exception if in an invalid state.
+            if (
+                !_state.IsDriveToTargetInsertionButtonEnabled
+                || _state.DriveToTargetInsertionButtonDisplayStyle == DisplayStyle.None
+            )
+                throw new InvalidOperationException(
+                    "Cannot drive to target insertion if the button is not enabled or visible (ready to drive)."
+                );
+
             // Call drive.
             ActiveManipulatorBehaviorController.Drive(
-                targetInsertionProbeManager,
-                baseSpeed,
+                TargetInsertionProbeManager,
+                BaseSpeed,
                 _state.DrivePastTargetDistance / 1000f
             );
         }
 
         private partial void OnStopDriveButtonPressed()
         {
-            // Throw exception if invariant is violated.
+            // Throw exception if in an invalid state.
             if (_state.StopButtonDisplayStyle == DisplayStyle.None)
                 throw new InvalidOperationException(
                     "Cannot stop driving to target insertion if the button is not visible (driving)."
                 );
-            
+
             // Call stop.
             ActiveManipulatorBehaviorController.Stop();
         }
 
         private partial void OnExitButtonPressed()
         {
-            // Throw exception if invariant is violated.
+            // Throw exception if in an invalid state.
             if (_state.ExitButtonDisplayStyle == DisplayStyle.None)
                 throw new InvalidOperationException(
                     "Cannot exit to target insertion if the button is not visible (ready to exit)."
                 );
-            
+
             // Call exit.
+            ActiveManipulatorBehaviorController.Exit(TargetInsertionProbeManager, BaseSpeed);
         }
 
         #endregion
