@@ -88,10 +88,10 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <summary>
         ///     Move the probe along the planned trajectory to the target entry coordinate.<br />
         /// </summary>
-        /// <param name="onDriveEnd">Callback action after movement is completed.</param>
         /// <exception cref="InvalidOperationException">No trajectory planned for probe</exception>
         /// <remarks>Will log that movement has started and completed.</remarks>
-        public void DriveToTargetEntryCoordinate(Action onDriveEnd)
+        /// <returns>True if movement was successful, false otherwise.</returns>
+        public async Awaitable<bool> DriveToTargetEntryCoordinate()
         {
             // Throw exception if invariant is violated.
             if (float.IsNegativeInfinity(_trajectoryCoordinates.first.x))
@@ -100,9 +100,15 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 );
 
             // Convert insertions to manipulator positions.
-            var dvPosition = ConvertInsertionAPMLDVToManipulatorPosition(_trajectoryCoordinates.first);
-            var apPosition = ConvertInsertionAPMLDVToManipulatorPosition(_trajectoryCoordinates.second);
-            var mlPosition = ConvertInsertionAPMLDVToManipulatorPosition(_trajectoryCoordinates.third);
+            var dvPosition = ConvertInsertionAPMLDVToManipulatorPosition(
+                _trajectoryCoordinates.first
+            );
+            var apPosition = ConvertInsertionAPMLDVToManipulatorPosition(
+                _trajectoryCoordinates.second
+            );
+            var mlPosition = ConvertInsertionAPMLDVToManipulatorPosition(
+                _trajectoryCoordinates.third
+            );
 
             // Log that movement is starting.
             OutputLog.Log(
@@ -116,92 +122,74 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 }
             );
 
-            // Move.
-            CommunicationManager.Instance.SetPosition(
-                new SetPositionRequest(ManipulatorID, dvPosition, AUTOMATIC_MOVEMENT_SPEED),
-                _ =>
-                {
-                    CommunicationManager.Instance.SetPosition(
-                        new SetPositionRequest(ManipulatorID, apPosition, AUTOMATIC_MOVEMENT_SPEED),
-                        _ =>
-                        {
-                            CommunicationManager.Instance.SetPosition(
-                                new SetPositionRequest(
-                                    ManipulatorID,
-                                    mlPosition,
-                                    AUTOMATIC_MOVEMENT_SPEED
-                                ),
-                                _ =>
-                                {
-                                    // Remove trajectory lines.
-                                    RemoveTrajectoryLines();
-
-                                    // Conclude drive.
-                                    ConcludeDrive();
-                                },
-                                error =>
-                                {
-                                    Debug.LogError(error);
-                                    ConcludeDrive();
-                                }
-                            );
-                        },
-                        error =>
-                        {
-                            Debug.LogError(error);
-                            ConcludeDrive();
-                        }
-                    );
-                },
-                error =>
-                {
-                    Debug.LogError(error);
-                    ConcludeDrive();
-                }
+            // First move.
+            var firstMoveResponse = await CommunicationManager.Instance.SetPosition(
+                new SetPositionRequest(ManipulatorID, dvPosition, AUTOMATIC_MOVEMENT_SPEED)
             );
 
-            return;
-
-            void ConcludeDrive()
+            // Shortcut exit if error.
+            if (CommunicationManager.HasError(firstMoveResponse.Error))
             {
-                // Log drive finished.
-                OutputLog.Log(
-                    new[]
-                    {
-                        "Automation",
-                        DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                        "DriveToTargetEntryCoordinate",
-                        ManipulatorID,
-                        "Finish"
-                    }
-                );
-
-                // Callback drive end.
-                onDriveEnd.Invoke();
+                LogDriveToTargetEntryCoordinateProgress("Failed to move to DV position");
+                return false;
             }
+
+            // Second move.
+            var secondMoveResponse = await CommunicationManager.Instance.SetPosition(
+                new SetPositionRequest(ManipulatorID, apPosition, AUTOMATIC_MOVEMENT_SPEED)
+            );
+
+            // Shortcut exit if error.
+            if (CommunicationManager.HasError(secondMoveResponse.Error))
+            {
+                LogDriveToTargetEntryCoordinateProgress("Failed to move to AP position");
+                return false;
+            }
+
+            // Third move.
+            var thirdMoveResponse = await CommunicationManager.Instance.SetPosition(
+                new SetPositionRequest(ManipulatorID, mlPosition, AUTOMATIC_MOVEMENT_SPEED)
+            );
+
+            // Shortcut exit if error.
+            if (CommunicationManager.HasError(thirdMoveResponse.Error))
+            {
+                LogDriveToTargetEntryCoordinateProgress("Failed to move to ML position");
+                return false;
+            }
+
+            // Complete drive.
+
+            // Remove trajectory lines.
+            RemoveTrajectoryLines();
+
+            // Log drive finished.
+            LogDriveToTargetEntryCoordinateProgress("Finish");
+
+            // Return success.
+            return true;
         }
 
         /// <summary>
         ///     Stop the probe from moving to the target entry coordinate.
         /// </summary>
         /// <remarks>Will log that movement has stopped.</remarks>
-        /// <param name="onStopped">Callback action after movement is stopped.</param>
-        public void StopDriveToTargetEntryCoordinate(Action onStopped)
+        /// <returns>True if movement was stopped successfully, false otherwise.</returns>
+        public async Awaitable<bool> StopDriveToTargetEntryCoordinate()
         {
             // Log that movement is stopping.
-            OutputLog.Log(
-                new[]
-                {
-                    "Copilot",
-                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                    "MoveToTargetInsertion",
-                    ManipulatorID,
-                    "Stop"
-                }
-            );
+            LogDriveToTargetEntryCoordinateProgress("Stopped");
 
             // Stop movement.
-            CommunicationManager.Instance.Stop(ManipulatorID, onStopped.Invoke, Debug.LogError);
+            var stopResponse = await CommunicationManager.Instance.Stop(ManipulatorID);
+
+            // Shortcut exit if no errors.
+            if (string.IsNullOrEmpty(stopResponse))
+                return true;
+
+            // Log errors.
+            Debug.LogError(stopResponse);
+            return false;
         }
 
         #endregion
@@ -353,6 +341,24 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Reset the references.
             _trajectoryLineGameObjects = (null, null, null);
             _trajectoryLineLineRenderers = (null, null, null);
+        }
+
+        /// <summary>
+        ///     Log the progress of the drive to the target entry coordinate.
+        /// </summary>
+        /// <param name="progressMessage">Message to log</param>
+        private void LogDriveToTargetEntryCoordinateProgress(string progressMessage)
+        {
+            OutputLog.Log(
+                new[]
+                {
+                    "Automation",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "DriveToTargetEntryCoordinate",
+                    ManipulatorID,
+                    progressMessage
+                }
+            );
         }
 
         #endregion

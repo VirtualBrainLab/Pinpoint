@@ -27,20 +27,19 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <summary>
         ///     Reset the dura offset of the probe and enable the next step
         /// </summary>
-        public void ResetDuraOffset()
+        /// <returns>True if the dura offset was reset successfully, false otherwise.</returns>
+        public async Awaitable<bool> ResetDuraOffset()
         {
             // Reset dura offset.
             ComputeBrainSurfaceOffset();
 
             // Record the dura depth.
-            CommunicationManager.Instance.GetPosition(
-                ManipulatorID,
-                pos =>
-                {
-                    _duraDepth = pos.w;
-                    _duraCoordinate = _probeController.Insertion.APMLDV;
-                }
-            );
+            var positionResponse = await CommunicationManager.Instance.GetPosition(ManipulatorID);
+            if (CommunicationManager.HasError(positionResponse.Error))
+                return false;
+
+            _duraDepth = positionResponse.Position.w;
+            _duraCoordinate = _probeController.Insertion.APMLDV;
 
             // Log the event.
             OutputLog.Log(
@@ -53,6 +52,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     BrainSurfaceOffset.ToString(CultureInfo.InvariantCulture)
                 }
             );
+
+            // Return success.
+            return true;
         }
     }
 }

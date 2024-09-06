@@ -72,7 +72,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <param name="drivePastDistance">Distance to drive past target in mm.</param>
         /// <exception cref="InvalidOperationException">Probe is not in a drivable state.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Unhandled probe drive state.</exception>
-        public void Drive(
+        public async void Drive(
             ProbeManager targetInsertionProbeManager,
             float baseSpeed,
             float drivePastDistance
@@ -91,7 +91,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             ProbeAutomationStateManager.SetToInsertionDrivingState();
 
             // Log set to driving state.
-            LogDrive(targetDepth, baseSpeed, drivePastDistance);
+            LogDriveToTargetInsertion(targetDepth, baseSpeed, drivePastDistance);
 
             // Set probe to be moving.
             IsMoving = true;
@@ -105,42 +105,49 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         GetCurrentDistanceToTarget(targetInsertionProbeManager)
                         > NEAR_TARGET_DISTANCE
                     )
-                        CommunicationManager.Instance.SetDepth(
-                            new SetDepthRequest(
-                                ManipulatorID,
-                                targetDepth - NEAR_TARGET_DISTANCE,
-                                baseSpeed
-                            ),
-                            _ => CompleteDriveStep(),
-                            Debug.LogError
-                        );
-                    // Skip to next step if already through near target.
-                    else
-                        CompleteDriveStep();
+                    {
+                        var driveToNearTargetResponse =
+                            await CommunicationManager.Instance.SetDepth(
+                                new SetDepthRequest(
+                                    ManipulatorID,
+                                    targetDepth - NEAR_TARGET_DISTANCE,
+                                    baseSpeed
+                                )
+                            );
+
+                        // Shortcut exit if there was an error.
+                        if (CommunicationManager.HasError(driveToNearTargetResponse.Error))
+                            return;
+                    }
+
                     break;
                 case ProbeAutomationState.DrivingToPastTarget:
                     // Drive to past target.
-                    CommunicationManager.Instance.SetDepth(
+                    var driveToPastTargetResponse = await CommunicationManager.Instance.SetDepth(
                         new SetDepthRequest(
                             ManipulatorID,
                             targetDepth + drivePastDistance,
                             baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
-                        ),
-                        _ => CompleteDriveStep(),
-                        Debug.LogError
+                        )
                     );
+
+                    // Shortcut exit if there was an error.
+                    if (CommunicationManager.HasError(driveToPastTargetResponse.Error))
+                        return;
                     break;
                 case ProbeAutomationState.ReturningToTarget:
                     // Drive up to target.
-                    CommunicationManager.Instance.SetDepth(
+                    var returnToTargetResponse = await CommunicationManager.Instance.SetDepth(
                         new SetDepthRequest(
                             ManipulatorID,
                             targetDepth,
                             baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
-                        ),
-                        _ => CompleteDriveStep(),
-                        Debug.LogError
+                        )
                     );
+
+                    // Shortcut exit if there was an error.
+                    if (CommunicationManager.HasError(returnToTargetResponse.Error))
+                        return;
                     break;
                 case ProbeAutomationState.IsUncalibrated:
                 case ProbeAutomationState.IsCalibrated:
@@ -167,54 +174,47 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     );
             }
 
-            return;
+            // Increment cycle state.
+            ProbeAutomationStateManager.IncrementInsertionCycleState();
 
-            // Increment the state in the insertion cycle and call drive if not at target yet.
-            void CompleteDriveStep()
-            {
-                // Increment cycle state.
-                ProbeAutomationStateManager.IncrementInsertionCycleState();
+            // Log the event.
+            LogDriveToTargetInsertion(targetDepth, baseSpeed, drivePastDistance);
 
-                // Log the event.
-                LogDrive(targetDepth, baseSpeed, drivePastDistance);
-
-                // Call drive if not at target yet.
-                if (
-                    ProbeAutomationStateManager.ProbeAutomationState
-                    != ProbeAutomationState.AtTarget
-                )
-                    Drive(targetInsertionProbeManager, baseSpeed, drivePastDistance);
-                // Set probe to be done moving.
-                else
-                    IsMoving = false;
-            }
+            // Call drive if not at target yet.
+            if (ProbeAutomationStateManager.ProbeAutomationState != ProbeAutomationState.AtTarget)
+                Drive(targetInsertionProbeManager, baseSpeed, drivePastDistance);
+            // Set probe to be done moving.
+            else
+                IsMoving = false;
         }
 
         /// <summary>
         ///     Stop the probe's movement.
         /// </summary>
-        public void Stop()
+        public async void Stop()
         {
-            CommunicationManager.Instance.Stop(
-                ManipulatorID,
-                () =>
-                {
-                    // Set probe to be not moving.
-                    IsMoving = false;
+            var stopResponse = await CommunicationManager.Instance.Stop(ManipulatorID);
 
-                    // Log stop event.
-                    OutputLog.Log(
-                        new[]
-                        {
-                            "Automation",
-                            DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                            "Drive",
-                            ManipulatorID,
-                            "Stop"
-                        }
-                    );
-                },
-                Debug.LogError
+            // Log and exit if there was an error.
+            if (!string.IsNullOrEmpty(stopResponse))
+            {
+                Debug.LogError(stopResponse);
+                return;
+            }
+
+            // Set probe to be not moving.
+            IsMoving = false;
+
+            // Log stop event.
+            OutputLog.Log(
+                new[]
+                {
+                    "Automation",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "Drive",
+                    ManipulatorID,
+                    "Stop"
+                }
             );
         }
 
@@ -225,7 +225,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <param name="baseSpeed">Base driving speed in mm/s.</param>
         /// <exception cref="InvalidOperationException">Probe is not in an exitable state.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Unhandled probe exit state.</exception>
-        public void Exit(ProbeManager targetInsertionProbeManager, float baseSpeed)
+        public async void Exit(ProbeManager targetInsertionProbeManager, float baseSpeed)
         {
             // Throw exception if state is not valid.
             if (!ProbeAutomationStateManager.IsExitable())
@@ -240,7 +240,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             ProbeAutomationStateManager.SetToExitingDrivingState();
 
             // Log set to exiting state.
-            LogDrive(targetDepth, baseSpeed);
+            LogDriveToTargetInsertion(targetDepth, baseSpeed);
 
             // Set probe to be moving.
             IsMoving = true;
@@ -254,58 +254,67 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         GetCurrentDistanceToTarget(targetInsertionProbeManager)
                         < NEAR_TARGET_DISTANCE
                     )
-                        CommunicationManager.Instance.SetDepth(
+                    {
+                        var exitToNearTargetResponse = await CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
                                 ManipulatorID,
                                 targetDepth - NEAR_TARGET_DISTANCE,
                                 baseSpeed
                                     * EXIT_DRIVE_SPEED_MULTIPLIER
                                     * NEAR_TARGET_SPEED_MULTIPLIER
-                            ),
-                            _ => CompleteExitStep(),
-                            Debug.LogError
+                            )
                         );
-                    // Skip to next step if already above near target.
-                    else
-                        CompleteExitStep();
+
+                        // Shortcut exit if there was an error.
+                        if (CommunicationManager.HasError(exitToNearTargetResponse.Error))
+                            return;
+                    }
+
                     break;
                 case ProbeAutomationState.ExitingToDura:
                     // Exit back up to the Dura.
-                    CommunicationManager.Instance.SetDepth(
+                    var exitToDuaraResponse = await CommunicationManager.Instance.SetDepth(
                         new SetDepthRequest(
                             ManipulatorID,
                             _duraDepth,
                             baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
-                        ),
-                        _ => CompleteExitStep(),
-                        Debug.LogError
+                        )
                     );
+
+                    // Shortcut exit if there was an error.
+                    if (CommunicationManager.HasError(exitToDuaraResponse.Error))
+                        return;
                     break;
                 case ProbeAutomationState.ExitingToMargin:
                     // Exit to the safe margin above the Dura.
-                    CommunicationManager.Instance.SetDepth(
+                    var exitToMarginResponse = await CommunicationManager.Instance.SetDepth(
                         new SetDepthRequest(
                             ManipulatorID,
                             _duraDepth - DURA_MARGIN_DISTANCE,
                             baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
-                        ),
-                        _ => CompleteExitStep(),
-                        Debug.LogError
+                        )
                     );
+
+                    // Shortcut exit if there was an error.
+                    if (CommunicationManager.HasError(exitToMarginResponse.Error))
+                        return;
                     break;
                 case ProbeAutomationState.ExitingToTargetEntryCoordinate:
                     // Drive to the target entry coordinate (same place before calibrating to the Dura).
-                    CommunicationManager.Instance.SetPosition(
-                        new SetPositionRequest(
-                            ManipulatorID,
-                            ConvertInsertionAPMLDVToManipulatorPosition(
-                                _trajectoryCoordinates.third
-                            ),
-                            AUTOMATIC_MOVEMENT_SPEED
-                        ),
-                        _ => CompleteExitStep(),
-                        Debug.LogError
-                    );
+                    var exitToTargetEntryCoordinateResponse =
+                        await CommunicationManager.Instance.SetPosition(
+                            new SetPositionRequest(
+                                ManipulatorID,
+                                ConvertInsertionAPMLDVToManipulatorPosition(
+                                    _trajectoryCoordinates.third
+                                ),
+                                AUTOMATIC_MOVEMENT_SPEED
+                            )
+                        );
+
+                    // Shortcut exit if there was an error.
+                    if (CommunicationManager.HasError(exitToTargetEntryCoordinateResponse.Error))
+                        return;
                     break;
                 case ProbeAutomationState.IsUncalibrated:
                 case ProbeAutomationState.IsCalibrated:
@@ -331,31 +340,25 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     );
             }
 
-            return;
+            // Increment cycle state.
+            ProbeAutomationStateManager.IncrementInsertionCycleState();
 
-            // Increment the state in the insertion cycle and call exit if not at entry coordinate yet.
-            void CompleteExitStep()
+            // Log the event.
+            LogDriveToTargetInsertion(targetDepth, baseSpeed);
+
+            // Call exit if not back at entry coordinate yet.
+            if (
+                ProbeAutomationStateManager.ProbeAutomationState
+                != ProbeAutomationState.AtEntryCoordinate
+            )
             {
-                // Increment cycle state.
-                ProbeAutomationStateManager.IncrementInsertionCycleState();
-
-                // Log the event.
-                LogDrive(targetDepth, baseSpeed);
-
-                // Call exit if not back at entry coordinate yet.
-                if (
-                    ProbeAutomationStateManager.ProbeAutomationState
-                    != ProbeAutomationState.AtEntryCoordinate
-                )
-                {
-                    Exit(targetInsertionProbeManager, baseSpeed);
-                }
-                // Set probe to be done moving and remove Dura offset.
-                else
-                {
-                    IsMoving = false;
-                    BrainSurfaceOffset = 0;
-                }
+                Exit(targetInsertionProbeManager, baseSpeed);
+            }
+            // Set probe to be done moving and remove Dura offset.
+            else
+            {
+                IsMoving = false;
+                BrainSurfaceOffset = 0;
             }
         }
 
@@ -369,14 +372,18 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <param name="targetDepth">Target depth of drive.</param>
         /// <param name="baseSpeed">Base speed of drive.</param>
         /// <param name="drivePastDistance">Distance (mm) driven past the target. Only supplied in insertion drives.</param>
-        private void LogDrive(float targetDepth, float baseSpeed, float drivePastDistance = 0)
+        private void LogDriveToTargetInsertion(
+            float targetDepth,
+            float baseSpeed,
+            float drivePastDistance = 0
+        )
         {
             OutputLog.Log(
                 new[]
                 {
                     "Automation",
                     DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                    "Drive",
+                    "DriveToTargetInsertion",
                     ManipulatorID,
                     ProbeAutomationStateManager.ProbeAutomationState.ToString(),
                     targetDepth.ToString(CultureInfo.InvariantCulture),

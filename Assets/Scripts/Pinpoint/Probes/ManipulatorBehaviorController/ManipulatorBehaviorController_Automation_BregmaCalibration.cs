@@ -24,56 +24,67 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         ///     Alerts user of 4-axis manipulators if depth axis is not at 0 and 3-axis manipulators if depth is too far from
         ///     center.
         /// </remarks>
-        public void ResetZeroCoordinate()
+        public async Awaitable<bool> ResetZeroCoordinate()
         {
-            CommunicationManager.Instance.GetPosition(
-                ManipulatorID,
-                zeroCoordinate =>
+            // Query current position.
+            var positionalResponse = await CommunicationManager.Instance.GetPosition(ManipulatorID);
+
+            // Shortcut exit if error.
+            if (CommunicationManager.HasError(positionalResponse.Error))
+                return false;
+
+            // Setup callback completion source.
+            var canDoResetCompletionSource = new AwaitableCompletionSource<bool>();
+
+            // Setup alert callbacks (continue with reset).
+            QuestionDialogue.Instance.YesCallback = () =>
+                canDoResetCompletionSource.SetResult(true);
+            QuestionDialogue.Instance.NoCallback = () =>
+                canDoResetCompletionSource.SetResult(false);
+
+            // Check depth position and alert.
+            switch (NumAxes)
+            {
+                case 3
+                    when Mathf.Abs(Dimensions.z / 2f - positionalResponse.Position.w)
+                        > CENTER_DEVIATION_FACTOR * Dimensions.z:
+                    QuestionDialogue.Instance.NewQuestion(
+                        "The depth axis is too far from the center of its range and may not have enough space to reach the target. Are you sure you want to continue?"
+                    );
+                    break;
+                case 4 when Mathf.Approximately(positionalResponse.Position.w, 0f):
+                    QuestionDialogue.Instance.NewQuestion(
+                        "The depth axis is not at 0 and may not have enough space to reach the target. Are you sure you want to continue?"
+                    );
+                    break;
+                default:
+                    canDoResetCompletionSource.SetResult(true);
+                    break;
+            }
+
+            // Wait for verification to continue.
+            var canDoReset = await canDoResetCompletionSource.Awaitable;
+
+            // Shortcut exit if reset is canceled.
+            if (!canDoReset)
+                return false;
+
+            // Complete reset.
+            ZeroCoordinateOffset = positionalResponse.Position;
+            BrainSurfaceOffset = 0;
+
+            // Log event.
+            OutputLog.Log(
+                new[]
                 {
-                    // Setup alert affirmative callback (continue with reset).
-                    QuestionDialogue.Instance.YesCallback = DoReset;
-
-                    // Check depth position and alert.
-                    switch (NumAxes)
-                    {
-                        case 3
-                            when Mathf.Abs(Dimensions.z / 2f - zeroCoordinate.w)
-                                > CENTER_DEVIATION_FACTOR * Dimensions.z:
-                            QuestionDialogue.Instance.NewQuestion(
-                                "The depth axis is too far from the center of its range and may not have enough space to reach the target. Are you sure you want to continue?"
-                            );
-                            break;
-                        case 4 when Mathf.Approximately(zeroCoordinate.w, 0f):
-                            QuestionDialogue.Instance.NewQuestion(
-                                "The depth axis is not at 0 and may not have enough space to reach the target. Are you sure you want to continue?"
-                            );
-                            break;
-                        default:
-                            DoReset();
-                            break;
-                    }
-
-                    return;
-
-                    void DoReset()
-                    {
-                        ZeroCoordinateOffset = zeroCoordinate;
-                        BrainSurfaceOffset = 0;
-
-                        // Log event.
-                        OutputLog.Log(
-                            new[]
-                            {
-                                "Copilot",
-                                DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                                "ResetZeroCoordinate",
-                                ManipulatorID,
-                                ZeroCoordinateOffset.ToString()
-                            }
-                        );
-                    }
+                    "Copilot",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "ResetZeroCoordinate",
+                    ManipulatorID,
+                    ZeroCoordinateOffset.ToString()
                 }
             );
+            return true;
         }
     }
 }
