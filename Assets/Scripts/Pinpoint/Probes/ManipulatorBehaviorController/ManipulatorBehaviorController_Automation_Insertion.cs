@@ -78,114 +78,116 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             float drivePastDistance
         )
         {
-            // Throw exception if invariant is violated.
-            if (!ProbeAutomationStateManager.IsInsertable())
-                throw new InvalidOperationException(
-                    "Cannot drive to target insertion if the probe is not in a drivable state."
-                );
-
-            // Get target depth.
-            var targetDepth = GetTargetDepth(targetInsertionProbeManager);
-
-            // Set state to driving state (if needed).
-            ProbeAutomationStateManager.SetToInsertionDrivingState();
-
-            // Log set to driving state.
-            LogDriveToTargetInsertion(targetDepth, baseSpeed, drivePastDistance);
-
-            // Set probe to be moving.
-            IsMoving = true;
-
-            // Handle driving state.
-            switch (ProbeAutomationStateManager.ProbeAutomationState)
+            while (
+                ProbeAutomationStateManager.ProbeAutomationState != ProbeAutomationState.AtTarget
+            )
             {
-                case ProbeAutomationState.DrivingToNearTarget:
-                    // Drive to near target if not already there.
-                    if (
-                        GetCurrentDistanceToTarget(targetInsertionProbeManager)
-                        > NEAR_TARGET_DISTANCE
-                    )
-                    {
-                        var driveToNearTargetResponse =
+                // Throw exception if state is not valid.
+                if (!ProbeAutomationStateManager.IsInsertable())
+                    throw new InvalidOperationException(
+                        "Cannot drive to target insertion if the probe is not in a drivable state."
+                    );
+
+                // Get target depth.
+                var targetDepth = GetTargetDepth(targetInsertionProbeManager);
+
+                // Set state to driving state (if needed).
+                ProbeAutomationStateManager.SetToInsertionDrivingState();
+
+                // Log set to driving state.
+                LogDriveToTargetInsertion(targetDepth, baseSpeed, drivePastDistance);
+
+                // Set probe to be moving.
+                IsMoving = true;
+
+                // Handle driving state.
+                switch (ProbeAutomationStateManager.ProbeAutomationState)
+                {
+                    case ProbeAutomationState.DrivingToNearTarget:
+                        // Drive to near target if not already there.
+                        if (
+                            GetCurrentDistanceToTarget(targetInsertionProbeManager)
+                            > NEAR_TARGET_DISTANCE
+                        )
+                        {
+                            var driveToNearTargetResponse =
+                                await CommunicationManager.Instance.SetDepth(
+                                    new SetDepthRequest(
+                                        ManipulatorID,
+                                        targetDepth - NEAR_TARGET_DISTANCE,
+                                        baseSpeed
+                                    )
+                                );
+
+                            // Shortcut exit if there was an error.
+                            if (CommunicationManager.HasError(driveToNearTargetResponse.Error))
+                                return;
+                        }
+
+                        break;
+                    case ProbeAutomationState.DrivingToPastTarget:
+                        // Drive to past target.
+                        var driveToPastTargetResponse =
                             await CommunicationManager.Instance.SetDepth(
                                 new SetDepthRequest(
                                     ManipulatorID,
-                                    targetDepth - NEAR_TARGET_DISTANCE,
-                                    baseSpeed
+                                    targetDepth + drivePastDistance,
+                                    baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
                                 )
                             );
 
                         // Shortcut exit if there was an error.
-                        if (CommunicationManager.HasError(driveToNearTargetResponse.Error))
+                        if (CommunicationManager.HasError(driveToPastTargetResponse.Error))
                             return;
-                    }
+                        break;
+                    case ProbeAutomationState.ReturningToTarget:
+                        // Drive up to target.
+                        var returnToTargetResponse = await CommunicationManager.Instance.SetDepth(
+                            new SetDepthRequest(
+                                ManipulatorID,
+                                targetDepth,
+                                baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
+                            )
+                        );
 
-                    break;
-                case ProbeAutomationState.DrivingToPastTarget:
-                    // Drive to past target.
-                    var driveToPastTargetResponse = await CommunicationManager.Instance.SetDepth(
-                        new SetDepthRequest(
-                            ManipulatorID,
-                            targetDepth + drivePastDistance,
-                            baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
-                        )
-                    );
+                        // Shortcut exit if there was an error.
+                        if (CommunicationManager.HasError(returnToTargetResponse.Error))
+                            return;
+                        break;
+                    case ProbeAutomationState.IsUncalibrated:
+                    case ProbeAutomationState.IsCalibrated:
+                    case ProbeAutomationState.DrivingToTargetEntryCoordinate:
+                    case ProbeAutomationState.AtEntryCoordinate:
+                    case ProbeAutomationState.AtDuraInsert:
+                    case ProbeAutomationState.AtNearTargetInsert:
+                    case ProbeAutomationState.AtPastTarget:
+                    case ProbeAutomationState.AtTarget:
+                    case ProbeAutomationState.ExitingToNearTarget:
+                    case ProbeAutomationState.AtNearTargetExit:
+                    case ProbeAutomationState.ExitingToDura:
+                    case ProbeAutomationState.AtDuraExit:
+                    case ProbeAutomationState.ExitingToMargin:
+                    case ProbeAutomationState.AtExitMargin:
+                    case ProbeAutomationState.ExitingToTargetEntryCoordinate:
+                    case ProbeAutomationState.DrivingToBregma:
+                        throw new InvalidOperationException(
+                            $"Not a valid driving state: {ProbeAutomationStateManager.ProbeAutomationState}"
+                        );
+                    default:
+                        throw new ArgumentOutOfRangeException(
+                            $"Unhandled probe drive state: {ProbeAutomationStateManager.ProbeAutomationState}"
+                        );
+                }
 
-                    // Shortcut exit if there was an error.
-                    if (CommunicationManager.HasError(driveToPastTargetResponse.Error))
-                        return;
-                    break;
-                case ProbeAutomationState.ReturningToTarget:
-                    // Drive up to target.
-                    var returnToTargetResponse = await CommunicationManager.Instance.SetDepth(
-                        new SetDepthRequest(
-                            ManipulatorID,
-                            targetDepth,
-                            baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
-                        )
-                    );
+                // Increment cycle state.
+                ProbeAutomationStateManager.IncrementInsertionCycleState();
 
-                    // Shortcut exit if there was an error.
-                    if (CommunicationManager.HasError(returnToTargetResponse.Error))
-                        return;
-                    break;
-                case ProbeAutomationState.IsUncalibrated:
-                case ProbeAutomationState.IsCalibrated:
-                case ProbeAutomationState.DrivingToTargetEntryCoordinate:
-                case ProbeAutomationState.AtEntryCoordinate:
-                case ProbeAutomationState.AtDuraInsert:
-                case ProbeAutomationState.AtNearTargetInsert:
-                case ProbeAutomationState.AtPastTarget:
-                case ProbeAutomationState.AtTarget:
-                case ProbeAutomationState.ExitingToNearTarget:
-                case ProbeAutomationState.AtNearTargetExit:
-                case ProbeAutomationState.ExitingToDura:
-                case ProbeAutomationState.AtDuraExit:
-                case ProbeAutomationState.ExitingToMargin:
-                case ProbeAutomationState.AtExitMargin:
-                case ProbeAutomationState.ExitingToTargetEntryCoordinate:
-                case ProbeAutomationState.DrivingToBregma:
-                    throw new InvalidOperationException(
-                        $"Not a valid driving state: {ProbeAutomationStateManager.ProbeAutomationState}"
-                    );
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        $"Unhandled probe drive state: {ProbeAutomationStateManager.ProbeAutomationState}"
-                    );
+                // Log the event.
+                LogDriveToTargetInsertion(targetDepth, baseSpeed, drivePastDistance);
             }
 
-            // Increment cycle state.
-            ProbeAutomationStateManager.IncrementInsertionCycleState();
-
-            // Log the event.
-            LogDriveToTargetInsertion(targetDepth, baseSpeed, drivePastDistance);
-
-            // Call drive if not at target yet.
-            if (ProbeAutomationStateManager.ProbeAutomationState != ProbeAutomationState.AtTarget)
-                Drive(targetInsertionProbeManager, baseSpeed, drivePastDistance);
             // Set probe to be done moving.
-            else
-                IsMoving = false;
+            IsMoving = false;
         }
 
         /// <summary>
@@ -227,139 +229,143 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <exception cref="ArgumentOutOfRangeException">Unhandled probe exit state.</exception>
         public async void Exit(ProbeManager targetInsertionProbeManager, float baseSpeed)
         {
-            // Throw exception if state is not valid.
-            if (!ProbeAutomationStateManager.IsExitable())
-                throw new InvalidOperationException(
-                    "Cannot exit to target insertion if the probe is not in a state that can exit."
-                );
-
-            // Get target depth.
-            var targetDepth = GetTargetDepth(targetInsertionProbeManager);
-
-            // Set state to exiting state (if needed).
-            ProbeAutomationStateManager.SetToExitingDrivingState();
-
-            // Log set to exiting state.
-            LogDriveToTargetInsertion(targetDepth, baseSpeed);
-
-            // Set probe to be moving.
-            IsMoving = true;
-
-            // Handle exiting state.
-            switch (ProbeAutomationStateManager.ProbeAutomationState)
-            {
-                case ProbeAutomationState.ExitingToNearTarget:
-                    // Exit to near target if not already there.
-                    if (
-                        GetCurrentDistanceToTarget(targetInsertionProbeManager)
-                        < NEAR_TARGET_DISTANCE
-                    )
-                    {
-                        var exitToNearTargetResponse = await CommunicationManager.Instance.SetDepth(
-                            new SetDepthRequest(
-                                ManipulatorID,
-                                targetDepth - NEAR_TARGET_DISTANCE,
-                                baseSpeed
-                                    * EXIT_DRIVE_SPEED_MULTIPLIER
-                                    * NEAR_TARGET_SPEED_MULTIPLIER
-                            )
-                        );
-
-                        // Shortcut exit if there was an error.
-                        if (CommunicationManager.HasError(exitToNearTargetResponse.Error))
-                            return;
-                    }
-
-                    break;
-                case ProbeAutomationState.ExitingToDura:
-                    // Exit back up to the Dura.
-                    var exitToDuaraResponse = await CommunicationManager.Instance.SetDepth(
-                        new SetDepthRequest(
-                            ManipulatorID,
-                            _duraDepth,
-                            baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
-                        )
-                    );
-
-                    // Shortcut exit if there was an error.
-                    if (CommunicationManager.HasError(exitToDuaraResponse.Error))
-                        return;
-                    break;
-                case ProbeAutomationState.ExitingToMargin:
-                    // Exit to the safe margin above the Dura.
-                    var exitToMarginResponse = await CommunicationManager.Instance.SetDepth(
-                        new SetDepthRequest(
-                            ManipulatorID,
-                            _duraDepth - DURA_MARGIN_DISTANCE,
-                            baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
-                        )
-                    );
-
-                    // Shortcut exit if there was an error.
-                    if (CommunicationManager.HasError(exitToMarginResponse.Error))
-                        return;
-                    break;
-                case ProbeAutomationState.ExitingToTargetEntryCoordinate:
-                    // Drive to the target entry coordinate (same place before calibrating to the Dura).
-                    var exitToTargetEntryCoordinateResponse =
-                        await CommunicationManager.Instance.SetPosition(
-                            new SetPositionRequest(
-                                ManipulatorID,
-                                ConvertInsertionAPMLDVToManipulatorPosition(
-                                    _trajectoryCoordinates.third
-                                ),
-                                AUTOMATIC_MOVEMENT_SPEED
-                            )
-                        );
-
-                    // Shortcut exit if there was an error.
-                    if (CommunicationManager.HasError(exitToTargetEntryCoordinateResponse.Error))
-                        return;
-                    break;
-                case ProbeAutomationState.IsUncalibrated:
-                case ProbeAutomationState.IsCalibrated:
-                case ProbeAutomationState.DrivingToTargetEntryCoordinate:
-                case ProbeAutomationState.AtEntryCoordinate:
-                case ProbeAutomationState.AtDuraInsert:
-                case ProbeAutomationState.DrivingToNearTarget:
-                case ProbeAutomationState.AtNearTargetInsert:
-                case ProbeAutomationState.DrivingToPastTarget:
-                case ProbeAutomationState.AtPastTarget:
-                case ProbeAutomationState.ReturningToTarget:
-                case ProbeAutomationState.AtTarget:
-                case ProbeAutomationState.AtNearTargetExit:
-                case ProbeAutomationState.AtDuraExit:
-                case ProbeAutomationState.AtExitMargin:
-                case ProbeAutomationState.DrivingToBregma:
-                    throw new InvalidOperationException(
-                        $"Not a valid exit state: {ProbeAutomationStateManager.ProbeAutomationState}"
-                    );
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        $"Unhandled probe exit state: {ProbeAutomationStateManager.ProbeAutomationState}"
-                    );
-            }
-
-            // Increment cycle state.
-            ProbeAutomationStateManager.IncrementInsertionCycleState();
-
-            // Log the event.
-            LogDriveToTargetInsertion(targetDepth, baseSpeed);
-
-            // Call exit if not back at entry coordinate yet.
-            if (
+            while (
                 ProbeAutomationStateManager.ProbeAutomationState
                 != ProbeAutomationState.AtEntryCoordinate
             )
             {
-                Exit(targetInsertionProbeManager, baseSpeed);
+                // Throw exception if state is not valid.
+                if (!ProbeAutomationStateManager.IsExitable())
+                    throw new InvalidOperationException(
+                        "Cannot exit to target insertion if the probe is not in a state that can exit."
+                    );
+
+                // Get target depth.
+                var targetDepth = GetTargetDepth(targetInsertionProbeManager);
+
+                // Set state to exiting state (if needed).
+                ProbeAutomationStateManager.SetToExitingDrivingState();
+
+                // Log set to exiting state.
+                LogDriveToTargetInsertion(targetDepth, baseSpeed);
+
+                // Set probe to be moving.
+                IsMoving = true;
+
+                // Handle exiting state.
+                switch (ProbeAutomationStateManager.ProbeAutomationState)
+                {
+                    case ProbeAutomationState.ExitingToNearTarget:
+                        // Exit to near target if not already there.
+                        if (
+                            GetCurrentDistanceToTarget(targetInsertionProbeManager)
+                            < NEAR_TARGET_DISTANCE
+                        )
+                        {
+                            var exitToNearTargetResponse =
+                                await CommunicationManager.Instance.SetDepth(
+                                    new SetDepthRequest(
+                                        ManipulatorID,
+                                        targetDepth - NEAR_TARGET_DISTANCE,
+                                        baseSpeed
+                                            * EXIT_DRIVE_SPEED_MULTIPLIER
+                                            * NEAR_TARGET_SPEED_MULTIPLIER
+                                    )
+                                );
+
+                            // Shortcut exit if there was an error.
+                            if (CommunicationManager.HasError(exitToNearTargetResponse.Error))
+                                return;
+                        }
+
+                        break;
+                    case ProbeAutomationState.ExitingToDura:
+                        // Exit back up to the Dura.
+                        var exitToDuraResponse = await CommunicationManager.Instance.SetDepth(
+                            new SetDepthRequest(
+                                ManipulatorID,
+                                _duraDepth,
+                                baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
+                            )
+                        );
+
+                        // Shortcut exit if there was an error.
+                        if (CommunicationManager.HasError(exitToDuraResponse.Error))
+                            return;
+                        break;
+                    case ProbeAutomationState.ExitingToMargin:
+                        // Remove brain surface offset.
+                        BrainSurfaceOffset = 0;
+
+                        // Shortcut skip if user wanted to skip exit margin.
+                        if (_skipExitMargin)
+                            break;
+
+                        // Exit to the safe margin above the Dura.
+                        var exitToMarginResponse = await CommunicationManager.Instance.SetDepth(
+                            new SetDepthRequest(
+                                ManipulatorID,
+                                _duraDepth - DURA_MARGIN_DISTANCE,
+                                baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
+                            )
+                        );
+
+                        // Shortcut exit if there was an error.
+                        if (CommunicationManager.HasError(exitToMarginResponse.Error))
+                            return;
+                        break;
+                    case ProbeAutomationState.ExitingToTargetEntryCoordinate:
+                        // Drive to the target entry coordinate (same place before calibrating to the Dura).
+                        var exitToTargetEntryCoordinateResponse =
+                            await CommunicationManager.Instance.SetPosition(
+                                new SetPositionRequest(
+                                    ManipulatorID,
+                                    ConvertInsertionAPMLDVToManipulatorPosition(
+                                        _trajectoryCoordinates.third
+                                    ),
+                                    AUTOMATIC_MOVEMENT_SPEED
+                                )
+                            );
+
+                        // Shortcut exit if there was an error.
+                        if (
+                            CommunicationManager.HasError(exitToTargetEntryCoordinateResponse.Error)
+                        )
+                            return;
+                        break;
+                    case ProbeAutomationState.IsUncalibrated:
+                    case ProbeAutomationState.IsCalibrated:
+                    case ProbeAutomationState.DrivingToTargetEntryCoordinate:
+                    case ProbeAutomationState.AtEntryCoordinate:
+                    case ProbeAutomationState.AtDuraInsert:
+                    case ProbeAutomationState.DrivingToNearTarget:
+                    case ProbeAutomationState.AtNearTargetInsert:
+                    case ProbeAutomationState.DrivingToPastTarget:
+                    case ProbeAutomationState.AtPastTarget:
+                    case ProbeAutomationState.ReturningToTarget:
+                    case ProbeAutomationState.AtTarget:
+                    case ProbeAutomationState.AtNearTargetExit:
+                    case ProbeAutomationState.AtDuraExit:
+                    case ProbeAutomationState.AtExitMargin:
+                    case ProbeAutomationState.DrivingToBregma:
+                        throw new InvalidOperationException(
+                            $"Not a valid exit state: {ProbeAutomationStateManager.ProbeAutomationState}"
+                        );
+                    default:
+                        throw new ArgumentOutOfRangeException(
+                            $"Unhandled probe exit state: {ProbeAutomationStateManager.ProbeAutomationState}"
+                        );
+                }
+
+                // Increment cycle state.
+                ProbeAutomationStateManager.IncrementInsertionCycleState();
+
+                // Log the event.
+                LogDriveToTargetInsertion(targetDepth, baseSpeed);
             }
-            // Set probe to be done moving and remove Dura offset.
-            else
-            {
-                IsMoving = false;
-                BrainSurfaceOffset = 0;
-            }
+
+            // Set probe to be done moving.
+            IsMoving = false;
         }
 
         #endregion

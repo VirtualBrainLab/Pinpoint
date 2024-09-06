@@ -349,7 +349,7 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <summary>
         ///     Return manipulator back to zero coordinate
         /// </summary>
-        public void ReturnToZeroCoordinate()
+        public async void ReturnToZeroCoordinate()
         {
             // Disable keyboard control
             _attachedProbe.ProbeController.ManipulatorManualControl = false;
@@ -359,27 +359,16 @@ namespace Pinpoint.UI.EphysLinkSettings
             _stopReturningToZeroCoordinateButtonGameObject.SetActive(true);
 
             // Move manipulator back to zero coordinate
-            _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate(
-                _ =>
-                {
-                    PostMoveAction();
+            if (await _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate())
+                // Reset dura drop direction on successful return.
+                _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
+            
+            // Show move button and hide stop button
+            _returnToZeroCoordinateButtonGameObject.SetActive(true);
+            _stopReturningToZeroCoordinateButtonGameObject.SetActive(false);
 
-                    // Reset dura drop direction on successful return
-                    _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
-                },
-                _ => PostMoveAction()
-            );
-            return;
-
-            void PostMoveAction()
-            {
-                // Show move button and hide stop button
-                _returnToZeroCoordinateButtonGameObject.SetActive(true);
-                _stopReturningToZeroCoordinateButtonGameObject.SetActive(false);
-
-                // Re-enable keyboard control
-                _attachedProbe.ProbeController.ManipulatorManualControl = true;
-            }
+            // Re-enable keyboard control
+            _attachedProbe.ProbeController.ManipulatorManualControl = true;
         }
 
         public void StopReturningToZeroCoordinate()
