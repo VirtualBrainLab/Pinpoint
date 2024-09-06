@@ -54,7 +54,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     break;
                 case 4 when positionalResponse.Position.w > Dimensions.z * 0.05f:
                     QuestionDialogue.Instance.NewQuestion(
-                        "The depth axis is retracted and may not have enough space to reach the target. Are you sure you want to continue?"
+                        "The depth axis is not retracted and may not have enough space to reach the target. Are you sure you want to continue?"
                     );
                     break;
                 default:

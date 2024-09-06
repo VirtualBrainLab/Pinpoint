@@ -281,7 +281,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         break;
                     case ProbeAutomationState.ExitingToDura:
                         // Exit back up to the Dura.
-                        var exitToDuaraResponse = await CommunicationManager.Instance.SetDepth(
+                        var exitToDuraResponse = await CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
                                 ManipulatorID,
                                 _duraDepth,
@@ -290,10 +290,17 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         );
 
                         // Shortcut exit if there was an error.
-                        if (CommunicationManager.HasError(exitToDuaraResponse.Error))
+                        if (CommunicationManager.HasError(exitToDuraResponse.Error))
                             return;
                         break;
                     case ProbeAutomationState.ExitingToMargin:
+                        // Remove brain surface offset.
+                        BrainSurfaceOffset = 0;
+                        
+                        // Shortcut skip if user wanted to skip exit margin.
+                        if (_skipExitMargin)
+                            break;
+
                         // Exit to the safe margin above the Dura.
                         var exitToMarginResponse = await CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
@@ -357,9 +364,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 LogDriveToTargetInsertion(targetDepth, baseSpeed);
             }
 
-            // Set probe to be done moving and remove Dura offset.
+            // Set probe to be done moving.
             IsMoving = false;
-            BrainSurfaceOffset = 0;
         }
 
         #endregion

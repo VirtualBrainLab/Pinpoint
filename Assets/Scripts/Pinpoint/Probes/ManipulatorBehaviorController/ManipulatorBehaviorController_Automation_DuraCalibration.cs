@@ -22,6 +22,11 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// </summary>
         private Vector3 _duraCoordinate;
 
+        /// <summary>
+        ///     Skip passing through the exit margin.
+        /// </summary>
+        private bool _skipExitMargin;
+
         #endregion
 
         /// <summary>
@@ -30,14 +35,46 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <returns>True if the dura offset was reset successfully, false otherwise.</returns>
         public async Awaitable<bool> ResetDuraOffset()
         {
-            // Reset dura offset.
-            ComputeBrainSurfaceOffset();
-
-            // Record the dura depth.
+            // Get the current manipulator depth.
             var positionResponse = await CommunicationManager.Instance.GetPosition(ManipulatorID);
             if (CommunicationManager.HasError(positionResponse.Error))
                 return false;
 
+            // Check if there is enough room for exit margin.
+            var continueWithDuraResetCompletionSource = new AwaitableCompletionSource<bool>();
+
+            // Alert user if there is not enough space for exit margin.
+            if (_duraDepth < 1.5f * DURA_MARGIN_DISTANCE)
+            {
+                QuestionDialogue.Instance.NewQuestion(
+                    "The depth axis is too retracted and does not leave enough space for a safe exit. Are you sure you want to continue (safety measures will be skipped)?"
+                );
+                QuestionDialogue.Instance.YesCallback = () =>
+                {
+                    continueWithDuraResetCompletionSource.SetResult(true);
+
+                    // Mark that they are ok with skipping the exit margin.
+                    _skipExitMargin = true;
+                };
+                QuestionDialogue.Instance.NoCallback = () =>
+                    continueWithDuraResetCompletionSource.SetResult(false);
+            }
+            else
+            {
+                continueWithDuraResetCompletionSource.SetResult(true);
+            }
+
+            // Shortcut exit if user does not want to continue.
+            if (!await continueWithDuraResetCompletionSource.Awaitable)
+                return false;
+
+            // Reset dura offset.
+            ComputeBrainSurfaceOffset();
+            
+            // Wait for computation to complete.
+            await Awaitable.NextFrameAsync();
+            
+            // Reset Dura offset.
             _duraDepth = positionResponse.Position.w;
             _duraCoordinate = _probeController.Insertion.APMLDV;
 
