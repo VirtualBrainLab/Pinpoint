@@ -36,11 +36,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// </summary>
         private const int EXIT_DRIVE_SPEED_MULTIPLIER = 6;
 
-        /// <summary>
-        ///     Speed multiplier of the probe once outside the brain.
-        /// </summary>
-        private const int OUTSIDE_DRIVE_SPEED_MULTIPLIER = 50;
-
         #endregion
 
         #endregion
@@ -477,6 +472,16 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         private float GetTargetDepth(ProbeManager targetInsertionProbeManager)
         {
             return _duraDepth + GetTargetDistanceToDura(targetInsertionProbeManager);
+        }
+
+        /// <summary>
+        ///     Compute the ETA for a probe to reach a target insertion (or exit).
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Target to calculate ETA to.</param>
+        /// <returns>MM:SS format ETA for reaching a target or exiting, based on the probe's state.</returns>
+        public string GetETA(ProbeManager targetInsertionProbeManager)
+        {
+            return "";
         }
 
         #endregion

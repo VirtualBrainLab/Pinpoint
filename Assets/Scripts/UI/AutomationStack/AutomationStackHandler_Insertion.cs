@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using UnityEngine.UIElements;
 
 namespace UI.AutomationStack
@@ -10,14 +9,6 @@ namespace UI.AutomationStack
     public partial class AutomationStackHandler
     {
         #region Properties
-
-        /// <summary>
-        ///     Compute the target insertion probe manager from selected target insertion index.
-        /// </summary>
-        private ProbeManager TargetInsertionProbeManager =>
-            _state.SurfaceCoordinateStringToTargetInsertionOptionProbeManagers[
-                _state.TargetInsertionOptions.ElementAt(_state.SelectedTargetInsertionIndex)
-            ];
 
         /// <summary>
         ///     Compute the base speed from selected base speed index.
@@ -49,7 +40,7 @@ namespace UI.AutomationStack
 
             // Call drive.
             ActiveManipulatorBehaviorController.Drive(
-                TargetInsertionProbeManager,
+                _state.TargetInsertionProbeManager,
                 BaseSpeed,
                 _state.DrivePastTargetDistance / 1000f
             );
@@ -76,7 +67,7 @@ namespace UI.AutomationStack
                 );
 
             // Call exit.
-            ActiveManipulatorBehaviorController.Exit(TargetInsertionProbeManager, BaseSpeed);
+            ActiveManipulatorBehaviorController.Exit(_state.TargetInsertionProbeManager, BaseSpeed);
         }
 
         #endregion
