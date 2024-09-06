@@ -52,9 +52,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         "The depth axis is too far from the center of its range and may not have enough space to reach the target. Are you sure you want to continue?"
                     );
                     break;
-                case 4 when Mathf.Approximately(positionalResponse.Position.w, 0f):
+                case 4 when positionalResponse.Position.w > Dimensions.z * 0.05f:
                     QuestionDialogue.Instance.NewQuestion(
-                        "The depth axis is not at 0 and may not have enough space to reach the target. Are you sure you want to continue?"
+                        "The depth axis is retracted and may not have enough space to reach the target. Are you sure you want to continue?"
                     );
                     break;
                 default:
