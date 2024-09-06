@@ -346,7 +346,7 @@ namespace EphysLink
         /// <returns>Version number.</returns>
         private async Awaitable<string> GetVersion()
         {
-            return await EmitAndGetResponse<string>("get_version");
+            return await EmitAndGetStringResponse<object>("get_version", null);
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace EphysLink
         /// <returns>Platform type.</returns>
         public async Awaitable<string> GetPlatformType()
         {
-            return await EmitAndGetResponse<string>("get_platform_type");
+            return await EmitAndGetStringResponse<object>("get_platform_type", null);
         }
 
         /// <summary>
@@ -412,7 +412,10 @@ namespace EphysLink
         /// <returns>Manipulators and their information.</returns>
         public async Awaitable<GetManipulatorsResponse> GetManipulators()
         {
-            return await EmitAndGetResponse<GetManipulatorsResponse>("get_manipulators");
+            return await EmitAndGetResponse<GetManipulatorsResponse, object>(
+                "get_manipulators",
+                null
+            );
         }
 
         /// <summary>
@@ -704,7 +707,7 @@ namespace EphysLink
         /// <returns>Empty string if successful, error message if failed.</returns>
         public async Awaitable<string> Stop(string manipulatorId)
         {
-            return await EmitAndGetResponse<string, string>("stop", manipulatorId);
+            return await EmitAndGetStringResponse("stop", manipulatorId);
         }
 
         /// <summary>
@@ -733,7 +736,7 @@ namespace EphysLink
         /// <returns>Empty string if successful, error message if failed.</returns>
         public async Awaitable<string> StopAll()
         {
-            return await EmitAndGetResponse<string>("stop_all");
+            return await EmitAndGetStringResponse<object>("stop_all", null);
         }
 
         #endregion
@@ -766,32 +769,6 @@ namespace EphysLink
         ///     Generic function to emit and event and get a response from the server.
         /// </summary>
         /// <param name="eventName">Event to emit to.</param>
-        /// <typeparam name="T">Expected (parsed) response type.</typeparam>
-        /// <returns>Response from server. Parsed to <see cref="T" /> if it's not a string.</returns>
-        /// <exception cref="InvalidDataException">Invalid response from server (empty or unknown).</exception>
-        private async Awaitable<T> EmitAndGetResponse<T>(string eventName)
-        {
-            // Query server and capture response.
-            var dataCompletionSource = new AwaitableCompletionSource<string>();
-            _connectionManager
-                .Socket.ExpectAcknowledgement<string>(data => dataCompletionSource.SetResult(data))
-                .Emit(eventName);
-
-            // Wait for data.
-            var data = await dataCompletionSource.Awaitable;
-
-            // Return data if it exists. Parse if return type is not string.
-            if (DataKnownAndNotEmpty(data))
-                return typeof(T) == typeof(string) ? (T)(object)data : ParseJson<T>(data);
-
-            // Throw exception if data is empty.
-            throw new InvalidDataException($"{eventName} invalid response: {data}");
-        }
-
-        /// <summary>
-        ///     Generic function to emit and event and get a response from the server.
-        /// </summary>
-        /// <param name="eventName">Event to emit to.</param>
         /// <param name="requestParameter">Parameter to send with the event.</param>
         /// <typeparam name="T">Expected (parsed) response type.</typeparam>
         /// <typeparam name="TR">Type of the request parameter.</typeparam>
@@ -803,29 +780,77 @@ namespace EphysLink
             var dataCompletionSource = new AwaitableCompletionSource<string>();
             _connectionManager
                 .Socket.ExpectAcknowledgement<string>(data => dataCompletionSource.SetResult(data))
-                .Emit(eventName, requestParameter);
+                .Emit(
+                    eventName,
+                    typeof(TR) == typeof(string) ? requestParameter : ToJson(requestParameter)
+                );
 
             // Wait for data.
             var data = await dataCompletionSource.Awaitable;
 
             // Return data if it exists. Parse if return type is not string.
             if (DataKnownAndNotEmpty(data))
-                return typeof(T) == typeof(string) ? (T)(object)data : ParseJson<T>(data);
+                return ParseJson<T>(data);
 
             // Throw exception if data is empty.
             throw new InvalidDataException($"{eventName} invalid response: {data}");
         }
 
+        /// <summary>
+        ///     Emit an event and get a string response from the server.
+        /// </summary>
+        /// <param name="eventName">Event to emit to.</param>
+        /// <param name="requestParameter">Parameter to send with the event.</param>
+        /// <typeparam name="TR">Type of the request parameter.</typeparam>
+        /// <returns>Response from server as a string.</returns>
+        private async Awaitable<string> EmitAndGetStringResponse<TR>(
+            string eventName,
+            TR requestParameter
+        )
+        {
+            // Query server and capture response.
+            var dataCompletionSource = new AwaitableCompletionSource<string>();
+            _connectionManager
+                .Socket.ExpectAcknowledgement<string>(data => dataCompletionSource.SetResult(data))
+                .Emit(
+                    eventName,
+                    typeof(TR) == typeof(string) ? requestParameter : ToJson(requestParameter)
+                );
+
+            // Wait for data.
+            var data = await dataCompletionSource.Awaitable;
+
+            // Return data.
+            return data;
+        }
+
+        /// <summary>
+        ///     Check if data is not empty and is not the "unkown event" error.
+        /// </summary>
+        /// <param name="data">Data to check.</param>
+        /// <returns>True if data is not empty and not the "unkown event" error, false otherwise.</returns>
         private static bool DataKnownAndNotEmpty(string data)
         {
             return !string.IsNullOrEmpty(data) && !data.Equals(UNKOWN_EVENT);
         }
 
+        /// <summary>
+        ///     Parse a JSON string into a data object.
+        /// </summary>
+        /// <param name="json">JSON string to parse.</param>
+        /// <typeparam name="T">Type of the data object.</typeparam>
+        /// <returns>Parsed data object.</returns>
         private static T ParseJson<T>(string json)
         {
             return JsonUtility.FromJson<T>(json);
         }
 
+        /// <summary>
+        ///     Convert a data object into a JSON string.
+        /// </summary>
+        /// <param name="data">Data object to convert.</param>
+        /// <typeparam name="T">Type of the data object.</typeparam>
+        /// <returns>JSON string.</returns>
         private static string ToJson<T>(T data)
         {
             return JsonUtility.ToJson(data);
