@@ -70,10 +70,10 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
             // Reset dura offset.
             ComputeBrainSurfaceOffset();
-            
+
             // Wait for computation to complete.
             await Awaitable.NextFrameAsync();
-            
+
             // Reset Dura offset.
             _duraDepth = positionResponse.Position.w;
             _duraCoordinate = _probeController.Insertion.APMLDV;

@@ -296,7 +296,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     case ProbeAutomationState.ExitingToMargin:
                         // Remove brain surface offset.
                         BrainSurfaceOffset = 0;
-                        
+
                         // Shortcut skip if user wanted to skip exit margin.
                         if (_skipExitMargin)
                             break;

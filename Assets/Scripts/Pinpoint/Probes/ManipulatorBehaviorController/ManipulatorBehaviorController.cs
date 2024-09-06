@@ -339,7 +339,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         #region Private Methods
 
         /// <summary>
-        ///    Echo the manipulator position to the probe controller.
+        ///     Echo the manipulator position to the probe controller.
         /// </summary>
         private async void EchoPosition()
         {
