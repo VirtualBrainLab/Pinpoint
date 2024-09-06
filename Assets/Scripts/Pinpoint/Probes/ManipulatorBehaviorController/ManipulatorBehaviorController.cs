@@ -289,97 +289,60 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         ///     Move manipulator by a given delta in world space
         /// </summary>
         /// <param name="worldSpaceDelta">Delta (X, Y, Z, D) to move by in world space coordinates</param>
-        /// <param name="onSuccessCallback">Action on success</param>
-        /// <param name="onErrorCallback">Action on error</param>
-        public void MoveByWorldSpaceDelta(
-            Vector4 worldSpaceDelta,
-            Action<Vector4> onSuccessCallback,
-            Action<string> onErrorCallback = null
-        )
+        /// <returns>True on successful movement, false otherwise.</returns>
+        public async Awaitable<bool> MoveByWorldSpaceDelta(Vector4 worldSpaceDelta)
         {
-            // Convert to manipulator axes (world -> space -> transform)
+            // Convert to manipulator axes (world -> space -> transform).
             var manipulatorSpaceDelta = CoordinateSpace.World2Space_Vector(worldSpaceDelta);
             var manipulatorTransformDelta = CoordinateTransform.U2T(manipulatorSpaceDelta);
             var manipulatorSpaceDepth = worldSpaceDelta.w;
 
-            print(
-                "World space delta: "
-                    + worldSpaceDelta
-                    + "; Manipulator space delta: "
-                    + manipulatorSpaceDelta
-                    + "; Manipulator transform delta: "
-                    + manipulatorTransformDelta
-                    + "; Manipulator space depth: "
-                    + manipulatorSpaceDepth
+            // Get manipulator position.
+            var positionResponse = await CommunicationManager.Instance.GetPosition(ManipulatorID);
+            if (CommunicationManager.HasError(positionResponse.Error))
+                return false;
+
+            // Apply delta.
+            var targetPosition =
+                positionResponse.Position
+                + new Vector4(
+                    manipulatorTransformDelta.x,
+                    manipulatorTransformDelta.y,
+                    manipulatorTransformDelta.z
+                );
+
+            // Move manipulator.
+            var setPositionResponse = await CommunicationManager.Instance.SetPosition(
+                new SetPositionRequest(ManipulatorID, targetPosition, AUTOMATIC_MOVEMENT_SPEED)
+            );
+            if (CommunicationManager.HasError(setPositionResponse.Error))
+                return false;
+
+            // Process depth movement.
+            var targetDepth = positionResponse.Position.w + manipulatorSpaceDepth;
+
+            // Move manipulator.
+            var setDepthResponse = await CommunicationManager.Instance.SetDepth(
+                new SetDepthRequest(ManipulatorID, targetDepth, AUTOMATIC_MOVEMENT_SPEED)
             );
 
-            // Get manipulator position
-            CommunicationManager.Instance.GetPosition(
-                ManipulatorID,
-                pos =>
-                {
-                    // Apply delta
-                    var targetPosition =
-                        pos
-                        + new Vector4(
-                            manipulatorTransformDelta.x,
-                            manipulatorTransformDelta.y,
-                            manipulatorTransformDelta.z
-                        );
-                    // Move manipulator
-                    CommunicationManager.Instance.SetPosition(
-                        new SetPositionRequest(
-                            ManipulatorID,
-                            targetPosition,
-                            AUTOMATIC_MOVEMENT_SPEED
-                        ),
-                        newPos =>
-                        {
-                            print("New pos: " + newPos + "; Setting depth...");
-                            // Process depth movement
-                            var targetDepth = newPos.w + manipulatorSpaceDepth;
-                            // Move the manipulator
-                            CommunicationManager.Instance.SetDepth(
-                                new SetDepthRequest(
-                                    ManipulatorID,
-                                    targetDepth,
-                                    AUTOMATIC_MOVEMENT_SPEED
-                                ),
-                                _ =>
-                                    CommunicationManager.Instance.GetPosition(
-                                        ManipulatorID,
-                                        onSuccessCallback,
-                                        onErrorCallback
-                                    ),
-                                onErrorCallback
-                            );
-                        },
-                        onErrorCallback
-                    );
-                }
-            );
+            return !CommunicationManager.HasError(setDepthResponse.Error);
         }
 
         /// <summary>
         ///     Drive the manipulator back to the zero coordinate position
         /// </summary>
-        /// <param name="onSuccessCallback">Action on success</param>
-        /// <param name="onErrorCallBack">Action on failure</param>
-        public void MoveBackToZeroCoordinate(
-            Action<Vector4> onSuccessCallback,
-            Action<string> onErrorCallBack
-        )
+        public async Awaitable<bool> MoveBackToZeroCoordinate()
         {
             // Send move command
-            CommunicationManager.Instance.SetPosition(
+            var setPositionResponse = await CommunicationManager.Instance.SetPosition(
                 new SetPositionRequest(
                     ManipulatorID,
                     ZeroCoordinateOffset,
                     AUTOMATIC_MOVEMENT_SPEED
-                ),
-                onSuccessCallback,
-                onErrorCallBack
+                )
             );
+            return !CommunicationManager.HasError(setPositionResponse.Error);
         }
 
         #endregion

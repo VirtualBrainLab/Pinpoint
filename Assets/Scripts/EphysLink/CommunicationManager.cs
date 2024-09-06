@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using BestHTTP.SocketIO3;
@@ -756,6 +757,14 @@ namespace EphysLink
 
             // Log the error.
             Debug.LogError(error);
+            OutputLog.Log(
+                new[]
+                {
+                    "ephys_link",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    $"ERROR: {error}"
+                }
+            );
 
             // Return true to indicate an error.
             return true;
