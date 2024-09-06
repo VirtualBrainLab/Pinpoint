@@ -172,7 +172,7 @@ namespace UI.AutomationStack
             }
         }
 
-        private partial void OnDriveToTargetEntryCoordinatePressed()
+        private async partial void OnDriveToTargetEntryCoordinatePressed()
         {
             // Throw exception if invariant is violated.
             if (!_state.IsEnabled || !ActiveProbeStateManager.IsCalibrated())
@@ -181,12 +181,15 @@ namespace UI.AutomationStack
                 );
 
             // If the probe is moving, call stop.
-            if (ActiveProbeStateManager.ProbeAutomationState == ProbeAutomationState.DrivingToTargetEntryCoordinate)
+            if (
+                ActiveProbeStateManager.ProbeAutomationState
+                == ProbeAutomationState.DrivingToTargetEntryCoordinate
+            )
             {
-                ActiveManipulatorBehaviorController.StopDriveToTargetEntryCoordinate(
-                    // On stop, set the probe back to calibrated state.
-                    () => ActiveProbeStateManager.SetCalibrated()
-                );
+                // Call stop and wait.
+                if (await ActiveManipulatorBehaviorController.StopDriveToTargetEntryCoordinate())
+                    // Reset probe to be calibrated on stop.
+                    ActiveProbeStateManager.SetCalibrated();
             }
             else
             {
@@ -194,10 +197,9 @@ namespace UI.AutomationStack
                 ActiveProbeStateManager.SetDrivingToTargetEntryCoordinate();
 
                 // Send drive command.
-                ActiveManipulatorBehaviorController.DriveToTargetEntryCoordinate(
-                    // On completion, set probe to at entry coordinate.
-                    () => ActiveProbeStateManager.SetAtEntryCoordinate()
-                );
+                if (await ActiveManipulatorBehaviorController.DriveToTargetEntryCoordinate())
+                    // Mark as at entry coordinate when completed.
+                    ActiveProbeStateManager.SetAtEntryCoordinate();
             }
         }
 
