@@ -122,10 +122,8 @@ namespace Pinpoint.Probes
                 or ProbeAutomationState.ExitingToDura
                     => ProbeAutomationState.DrivingToNearTarget,
 
-                // States for driving to the target.
+                // States for driving to past target.
                 ProbeAutomationState.AtNearTargetInsert
-                or ProbeAutomationState.ExitingToNearTarget
-                or ProbeAutomationState.AtNearTargetExit
                     => ProbeAutomationState.DrivingToPastTarget,
 
                 // States for returning to the target.
@@ -152,14 +150,10 @@ namespace Pinpoint.Probes
             // Set state.
             ProbeAutomationState = ProbeAutomationState switch
             {
-                // States for Exiting to near target depth.
+                // States for Exiting to the Dura.
                 ProbeAutomationState.AtTarget
                 or ProbeAutomationState.ReturningToTarget
                 or ProbeAutomationState.DrivingToPastTarget
-                    => ProbeAutomationState.ExitingToNearTarget,
-
-                // States for Exiting to the Dura.
-                ProbeAutomationState.AtNearTargetExit
                 or ProbeAutomationState.AtNearTargetInsert
                 or ProbeAutomationState.DrivingToNearTarget
                     => ProbeAutomationState.ExitingToDura,

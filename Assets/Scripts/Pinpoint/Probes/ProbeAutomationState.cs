@@ -61,16 +61,6 @@ namespace Pinpoint.Probes
         AtTarget,
 
         /// <summary>
-        ///     Driving back up to near target depth (exit drive).
-        /// </summary>
-        ExitingToNearTarget,
-
-        /// <summary>
-        ///     At near target depth (exit drive). Can switch back to normal speed.
-        /// </summary>
-        AtNearTargetExit,
-
-        /// <summary>
         ///     Driving back up to the Dura (exit drive).
         /// </summary>
         ExitingToDura,
@@ -94,10 +84,5 @@ namespace Pinpoint.Probes
         ///     Driving back up to the target entry coordinate (exit drive).
         /// </summary>
         ExitingToTargetEntryCoordinate,
-
-        /// <summary>
-        ///     Driving back to Bregma.
-        /// </summary>
-        DrivingToBregma
     }
 }
