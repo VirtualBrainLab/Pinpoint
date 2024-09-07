@@ -257,7 +257,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         var exitToDuraResponse = await CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
                                 ManipulatorID,
-                                _duraDepth,
+                                _duraPosition.w,
                                 baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
                             )
                         );
@@ -278,7 +278,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         var exitToMarginResponse = await CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
                                 ManipulatorID,
-                                _duraDepth - DURA_MARGIN_DISTANCE,
+                                _duraPosition.w - DURA_MARGIN_DISTANCE,
                                 baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
                             )
                         );
@@ -422,8 +422,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         private float GetTargetDistanceToDura(ProbeManager targetInsertionProbeManager)
         {
             return Vector3.Distance(
-                GetOffsetAdjustedTargetCoordinate(targetInsertionProbeManager),
-                _duraCoordinate
+                ConvertInsertionAPMLDVToManipulatorPosition(GetOffsetAdjustedTargetCoordinate(targetInsertionProbeManager)),
+                _duraPosition
             );
         }
 
@@ -447,7 +447,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <returns>The depth the manipulator needs to drive to reach the target insertion.</returns>
         private float GetTargetDepth(ProbeManager targetInsertionProbeManager)
         {
-            return _duraDepth + GetTargetDistanceToDura(targetInsertionProbeManager);
+            return _duraPosition.w + GetTargetDistanceToDura(targetInsertionProbeManager);
         }
 
         #endregion

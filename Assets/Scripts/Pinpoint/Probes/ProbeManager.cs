@@ -907,11 +907,12 @@ public class ProbeManager : MonoBehaviour
         }
     }
 
-    // TODO: Remove useDV and always use depth.
+    // TODO: Remove useDV and always use depth. Also make synchronous or return a task.
     /// <summary>
     /// Calculate the entry coordinate on the brain surface, returns coordIdx
     /// </summary>
     /// <param name="useDV">Whether the surface should be found along the DV axis or depth axis.</param>
+    /// <remarks>This function takes a few frames to complete its calculation. Treat it as asynchronous.</remarks>
     /// <returns>(entryCoordAtlasIdx, probeInBrain)</returns>
     public (Vector3 entryCoordAtlasIdx, bool probeInBrain) CalculateEntryCoordinate(
         bool useDV = false
