@@ -8,23 +8,6 @@ namespace UI.AutomationStack
     /// </summary>
     public partial class AutomationStackHandler
     {
-        #region Properties
-
-        /// <summary>
-        ///     Compute the base speed from selected base speed index.
-        /// </summary>
-        private float BaseSpeed =>
-            _state.SelectedBaseSpeedIndex switch
-            {
-                0 => 0.002f,
-                1 => 0.005f,
-                2 => 0.01f,
-                3 => 0.5f,
-                _ => _state.CustomBaseSpeed / 1000f
-            };
-
-        #endregion
-
         #region Implementations
 
         private partial void OnDriveToTargetInsertionButtonPressed()
@@ -41,7 +24,7 @@ namespace UI.AutomationStack
             // Call drive.
             ActiveManipulatorBehaviorController.Drive(
                 _state.TargetInsertionProbeManager,
-                BaseSpeed,
+                _state.BaseSpeed,
                 _state.DrivePastTargetDistance / 1000f
             );
         }
@@ -67,7 +50,7 @@ namespace UI.AutomationStack
                 );
 
             // Call exit.
-            ActiveManipulatorBehaviorController.Exit(_state.TargetInsertionProbeManager, BaseSpeed);
+            ActiveManipulatorBehaviorController.Exit(_state.TargetInsertionProbeManager, _state.BaseSpeed);
         }
 
         #endregion

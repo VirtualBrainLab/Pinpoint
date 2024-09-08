@@ -448,6 +448,19 @@ namespace UI.States
         public int CustomBaseSpeed;
 
         /// <summary>
+        ///     Compute the base speed from selected base speed index.
+        /// </summary>
+        public float BaseSpeed =>
+            SelectedBaseSpeedIndex switch
+            {
+                0 => 0.002f,
+                1 => 0.005f,
+                2 => 0.01f,
+                3 => 0.5f,
+                _ => CustomBaseSpeed / 1000f
+            };
+
+        /// <summary>
         ///     Visibility of the custom insertion base speed field.
         /// </summary>
         /// <remarks>Should be invisible unless <see cref="SelectedBaseSpeedIndex" /> is on "Custom" index.</remarks>
@@ -540,7 +553,7 @@ namespace UI.States
         [CreateProperty]
         public string ETA =>
             IsEnabled && SelectedTargetInsertionIndex > 0
-                ? $"ETA: {ActiveManipulatorBehaviorController.GetETA(TargetInsertionProbeManager)}"
+                ? $"ETA: {ActiveManipulatorBehaviorController.GetETA(TargetInsertionProbeManager, BaseSpeed, DrivePastTargetDistance)}"
                 : "ETA: N/A";
 
         /// <summary>

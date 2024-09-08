@@ -464,10 +464,53 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         ///     Compute the ETA for a probe to reach a target insertion (or exit).
         /// </summary>
         /// <param name="targetInsertionProbeManager">Target to calculate ETA to.</param>
+        /// <param name="baseSpeed">Base driving speed in mm/s.</param>
+        /// <param name="drivePastDistance">Distance to drive past target in mm.</param>
         /// <returns>MM:SS format ETA for reaching a target or exiting, based on the probe's state.</returns>
-        public string GetETA(ProbeManager targetInsertionProbeManager)
+        public string GetETA(
+            ProbeManager targetInsertionProbeManager,
+            float baseSpeed,
+            float drivePastDistance
+        )
         {
-            return "";
+            // Get current distance to target.
+            var distanceToTarget = GetCurrentDistanceToTarget(targetInsertionProbeManager);
+
+            // Compute ETA.
+            var secondsToDestination = ProbeAutomationStateManager.ProbeAutomationState switch
+            {
+                ProbeAutomationState.DrivingToNearTarget
+                    => Mathf.Max(0, distanceToTarget - NEAR_TARGET_DISTANCE) / baseSpeed
+                        + (NEAR_TARGET_DISTANCE + 2 * drivePastDistance)
+                            / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER),
+                ProbeAutomationState.DrivingToPastTarget
+                    => (distanceToTarget + 2 * drivePastDistance)
+                        / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER),
+                ProbeAutomationState.ReturningToTarget
+                    => distanceToTarget / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER),
+                ProbeAutomationState.ExitingToDura
+                    => (GetTargetDistanceToDura(targetInsertionProbeManager) - distanceToTarget)
+                        / baseSpeed
+                        * EXIT_DRIVE_SPEED_MULTIPLIER
+                        + DURA_MARGIN_DISTANCE / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER)
+                        + ENTRY_COORDINATE_DURA_DISTANCE / AUTOMATIC_MOVEMENT_SPEED,
+                ProbeAutomationState.ExitingToMargin
+                    => (
+                        DURA_MARGIN_DISTANCE
+                        - distanceToTarget
+                        - GetTargetDistanceToDura(targetInsertionProbeManager)
+                    ) / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER)
+                        + ENTRY_COORDINATE_DURA_DISTANCE / AUTOMATIC_MOVEMENT_SPEED,
+                ProbeAutomationState.ExitingToTargetEntryCoordinate
+                    => (
+                        ENTRY_COORDINATE_DURA_DISTANCE
+                        - distanceToTarget
+                        - GetTargetDistanceToDura(targetInsertionProbeManager)
+                    ) / AUTOMATIC_MOVEMENT_SPEED,
+                _ => 0
+            };
+
+            return TimeSpan.FromSeconds(secondsToDestination).ToString(@"mm\:ss");
         }
 
         #endregion
