@@ -13,12 +13,12 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         #region Properties
 
         /// <summary>
-        ///     Record of the manipulator's depth coordinate at the Dura.
+        ///     Record of the manipulator's depth at the Dura.
         /// </summary>
         private float _duraDepth;
 
         /// <summary>
-        ///     Record of the probe's coordinate at the Dura.
+        ///     AP, ML, DV coordinate of the Dura.
         /// </summary>
         private Vector3 _duraCoordinate;
 
@@ -71,10 +71,10 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Reset dura offset.
             ComputeBrainSurfaceOffset();
 
-            // Wait for computation to complete.
-            await Awaitable.NextFrameAsync();
+            // Force update probe position.
+            await UpdateProbePositionFromManipulator();
 
-            // Reset Dura offset.
+            // Save the Dura's position.
             _duraDepth = positionResponse.Position.w;
             _duraCoordinate = _probeController.Insertion.APMLDV;
 

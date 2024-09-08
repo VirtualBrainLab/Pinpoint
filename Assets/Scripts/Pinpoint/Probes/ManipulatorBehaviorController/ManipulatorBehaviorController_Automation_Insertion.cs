@@ -110,6 +110,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                             > NEAR_TARGET_DISTANCE
                         )
                         {
+                            print(
+                                $"{ProbeAutomationStateManager.ProbeAutomationState}: Going to {targetDepth - NEAR_TARGET_DISTANCE}"
+                            );
                             var driveToNearTargetResponse =
                                 await CommunicationManager.Instance.SetDepth(
                                     new SetDepthRequest(
@@ -119,6 +122,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                     )
                                 );
 
+                            print($"At {driveToNearTargetResponse.Depth}");
+
                             // Shortcut exit if there was an error.
                             if (CommunicationManager.HasError(driveToNearTargetResponse.Error))
                                 return;
@@ -126,6 +131,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
                         break;
                     case ProbeAutomationState.DrivingToPastTarget:
+                        print(
+                            $"{ProbeAutomationStateManager.ProbeAutomationState}: Going to {targetDepth + drivePastDistance}"
+                        );
                         // Drive to past target.
                         var driveToPastTargetResponse =
                             await CommunicationManager.Instance.SetDepth(
@@ -136,11 +144,16 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                 )
                             );
 
+                        print($"At {driveToPastTargetResponse.Depth}");
+
                         // Shortcut exit if there was an error.
                         if (CommunicationManager.HasError(driveToPastTargetResponse.Error))
                             return;
                         break;
                     case ProbeAutomationState.ReturningToTarget:
+                        print(
+                            $"{ProbeAutomationStateManager.ProbeAutomationState}: Going to {targetDepth}"
+                        );
                         // Drive up to target.
                         var returnToTargetResponse = await CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
@@ -149,6 +162,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                 baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
                             )
                         );
+
+                        print($"At {returnToTargetResponse.Depth}");
 
                         // Shortcut exit if there was an error.
                         if (CommunicationManager.HasError(returnToTargetResponse.Error))
@@ -162,14 +177,11 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     case ProbeAutomationState.AtNearTargetInsert:
                     case ProbeAutomationState.AtPastTarget:
                     case ProbeAutomationState.AtTarget:
-                    case ProbeAutomationState.ExitingToNearTarget:
-                    case ProbeAutomationState.AtNearTargetExit:
                     case ProbeAutomationState.ExitingToDura:
                     case ProbeAutomationState.AtDuraExit:
                     case ProbeAutomationState.ExitingToMargin:
                     case ProbeAutomationState.AtExitMargin:
                     case ProbeAutomationState.ExitingToTargetEntryCoordinate:
-                    case ProbeAutomationState.DrivingToBregma:
                         throw new InvalidOperationException(
                             $"Not a valid driving state: {ProbeAutomationStateManager.ProbeAutomationState}"
                         );
@@ -255,30 +267,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 // Handle exiting state.
                 switch (ProbeAutomationStateManager.ProbeAutomationState)
                 {
-                    case ProbeAutomationState.ExitingToNearTarget:
-                        // Exit to near target if not already there.
-                        if (
-                            GetCurrentDistanceToTarget(targetInsertionProbeManager)
-                            < NEAR_TARGET_DISTANCE
-                        )
-                        {
-                            var exitToNearTargetResponse =
-                                await CommunicationManager.Instance.SetDepth(
-                                    new SetDepthRequest(
-                                        ManipulatorID,
-                                        targetDepth - NEAR_TARGET_DISTANCE,
-                                        baseSpeed
-                                            * EXIT_DRIVE_SPEED_MULTIPLIER
-                                            * NEAR_TARGET_SPEED_MULTIPLIER
-                                    )
-                                );
-
-                            // Shortcut exit if there was an error.
-                            if (CommunicationManager.HasError(exitToNearTargetResponse.Error))
-                                return;
-                        }
-
-                        break;
                     case ProbeAutomationState.ExitingToDura:
                         // Exit back up to the Dura.
                         var exitToDuraResponse = await CommunicationManager.Instance.SetDepth(
@@ -344,10 +332,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     case ProbeAutomationState.AtPastTarget:
                     case ProbeAutomationState.ReturningToTarget:
                     case ProbeAutomationState.AtTarget:
-                    case ProbeAutomationState.AtNearTargetExit:
                     case ProbeAutomationState.AtDuraExit:
                     case ProbeAutomationState.AtExitMargin:
-                    case ProbeAutomationState.DrivingToBregma:
                         throw new InvalidOperationException(
                             $"Not a valid exit state: {ProbeAutomationStateManager.ProbeAutomationState}"
                         );
@@ -460,7 +446,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         ///     Compute the current distance to the target insertion.
         /// </summary>
         /// <param name="targetInsertionProbeManager"></param>
-        /// <returns>Distance in mm to the target from the probe.</returns>
+        /// <returns>Distance in mm to the target from the probe. NaN on error.</returns>
         private float GetCurrentDistanceToTarget(ProbeManager targetInsertionProbeManager)
         {
             return Vector3.Distance(
