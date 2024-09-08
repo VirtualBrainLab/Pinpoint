@@ -345,104 +345,106 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         {
             // Continue echoing position while enabled and there exists a probe controller.
             while (enabled && _probeController)
-            {
-                // Get manipulator position.
-                var positionResponse = await CommunicationManager.Instance.GetPosition(
-                    ManipulatorID
+                await UpdateProbePositionFromManipulator();
+        }
+
+        /// <summary>
+        ///     Update the probe's position based on the manipulator's position.
+        /// </summary>
+        private async Awaitable UpdateProbePositionFromManipulator()
+        {
+            // Get manipulator position.
+            var positionResponse = await CommunicationManager.Instance.GetPosition(ManipulatorID);
+
+            // Shortcut exit if there was an error.
+            if (CommunicationManager.HasError(positionResponse.Error))
+                return;
+
+            // Apply zero coordinate offset.
+            var zeroCoordinateAdjustedManipulatorPosition =
+                positionResponse.Position - ZeroCoordinateOffset;
+
+            // Convert to coordinate space.
+            var manipulatorSpacePosition = CoordinateTransform.T2U(
+                zeroCoordinateAdjustedManipulatorPosition
+            );
+
+            // Brain surface adjustment.
+            var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
+            // Apply depth adjustment to manipulator position for non-3 axis manipulators.
+            if (CoordinateTransform.Prefix != "3lhm")
+                zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+
+            // Convert to world space.
+            var zeroCoordinateAdjustedWorldPosition = CoordinateSpace.Space2World(
+                manipulatorSpacePosition
+            );
+
+            // Set probe position (change axes to match probe).
+            var transformedApmldv = BrainAtlasManager.World2T_Vector(
+                zeroCoordinateAdjustedWorldPosition
+            );
+
+            // Set probe position.
+            // For 3-axis manipulators, use depth to adjust brain offset if applying offset on depth.
+            if (CoordinateTransform.Prefix == "3lhm")
+                _probeController.SetProbePosition(
+                    new Vector4(
+                        transformedApmldv.x,
+                        transformedApmldv.y,
+                        transformedApmldv.z,
+                        brainSurfaceAdjustment
+                    )
+                );
+            else
+                _probeController.SetProbePosition(
+                    new Vector4(
+                        transformedApmldv.x,
+                        transformedApmldv.y,
+                        transformedApmldv.z,
+                        zeroCoordinateAdjustedManipulatorPosition.w
+                    )
                 );
 
-                // Shortcut exit if there was an error.
-                if (CommunicationManager.HasError(positionResponse.Error))
-                    return;
+            // Don't log if the last position is the same.
+            var positionDifference = _lastLoggedManipulatorPosition - positionResponse.Position;
+            if (
+                !(Mathf.Abs(positionDifference.x) > 0.0001)
+                && !(Mathf.Abs(positionDifference.y) > 0.0001)
+                && !(Mathf.Abs(positionDifference.z) > 0.0001)
+                && !(Mathf.Abs(positionDifference.w) > 0.0001)
+            )
+                return;
 
-                // Apply zero coordinate offset.
-                var zeroCoordinateAdjustedManipulatorPosition =
-                    positionResponse.Position - ZeroCoordinateOffset;
+            // Log every 4 hz
+            if (!(Time.time - _lastLoggedTime >= 0.25))
+                return;
 
-                // Convert to coordinate space.
-                var manipulatorSpacePosition = CoordinateTransform.T2U(
-                    zeroCoordinateAdjustedManipulatorPosition
-                );
+            _lastLoggedTime = Time.time;
+            var tipPos = _probeController.ProbeTipT.position;
 
-                // Brain surface adjustment.
-                var brainSurfaceAdjustment = float.IsNaN(BrainSurfaceOffset)
-                    ? 0
-                    : BrainSurfaceOffset;
-                // Apply depth adjustment to manipulator position for non-3 axis manipulators.
-                if (CoordinateTransform.Prefix != "3lhm")
-                    zeroCoordinateAdjustedManipulatorPosition.w += brainSurfaceAdjustment;
+            // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
+            OutputLog.Log(
+                new[]
+                {
+                    "ephys_link",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    ManipulatorID,
+                    positionResponse.Position.x.ToString(CultureInfo.InvariantCulture),
+                    positionResponse.Position.y.ToString(CultureInfo.InvariantCulture),
+                    positionResponse.Position.z.ToString(CultureInfo.InvariantCulture),
+                    positionResponse.Position.w.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.Yaw.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.Pitch.ToString(CultureInfo.InvariantCulture),
+                    _probeController.Insertion.Roll.ToString(CultureInfo.InvariantCulture),
+                    tipPos.x.ToString(CultureInfo.InvariantCulture),
+                    tipPos.y.ToString(CultureInfo.InvariantCulture),
+                    tipPos.z.ToString(CultureInfo.InvariantCulture)
+                }
+            );
 
-                // Convert to world space.
-                var zeroCoordinateAdjustedWorldPosition = CoordinateSpace.Space2World(
-                    manipulatorSpacePosition
-                );
-
-                // Set probe position (change axes to match probe).
-                var transformedApmldv = BrainAtlasManager.World2T_Vector(
-                    zeroCoordinateAdjustedWorldPosition
-                );
-
-                // Set probe position.
-                // For 3-axis manipulators, use depth to adjust brain offset if applying offset on depth.
-                if (CoordinateTransform.Prefix == "3lhm")
-                    _probeController.SetProbePosition(
-                        new Vector4(
-                            transformedApmldv.x,
-                            transformedApmldv.y,
-                            transformedApmldv.z,
-                            brainSurfaceAdjustment
-                        )
-                    );
-                else
-                    _probeController.SetProbePosition(
-                        new Vector4(
-                            transformedApmldv.x,
-                            transformedApmldv.y,
-                            transformedApmldv.z,
-                            zeroCoordinateAdjustedManipulatorPosition.w
-                        )
-                    );
-
-                // Don't log if the last position is the same.
-                var positionDifference = _lastLoggedManipulatorPosition - positionResponse.Position;
-                if (
-                    !(Mathf.Abs(positionDifference.x) > 0.0001)
-                    && !(Mathf.Abs(positionDifference.y) > 0.0001)
-                    && !(Mathf.Abs(positionDifference.z) > 0.0001)
-                    && !(Mathf.Abs(positionDifference.w) > 0.0001)
-                )
-                    continue;
-
-                // Log every 4 hz
-                if (!(Time.time - _lastLoggedTime >= 0.25))
-                    continue;
-
-                _lastLoggedTime = Time.time;
-                var tipPos = _probeController.ProbeTipT.position;
-
-                // ["ephys_link", Real time stamp, Manipulator ID, X, Y, Z, W, Phi, Theta, Spin, TipX, TipY, TipZ]
-                OutputLog.Log(
-                    new[]
-                    {
-                        "ephys_link",
-                        DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                        ManipulatorID,
-                        positionResponse.Position.x.ToString(CultureInfo.InvariantCulture),
-                        positionResponse.Position.y.ToString(CultureInfo.InvariantCulture),
-                        positionResponse.Position.z.ToString(CultureInfo.InvariantCulture),
-                        positionResponse.Position.w.ToString(CultureInfo.InvariantCulture),
-                        _probeController.Insertion.Yaw.ToString(CultureInfo.InvariantCulture),
-                        _probeController.Insertion.Pitch.ToString(CultureInfo.InvariantCulture),
-                        _probeController.Insertion.Roll.ToString(CultureInfo.InvariantCulture),
-                        tipPos.x.ToString(CultureInfo.InvariantCulture),
-                        tipPos.y.ToString(CultureInfo.InvariantCulture),
-                        tipPos.z.ToString(CultureInfo.InvariantCulture)
-                    }
-                );
-
-                // Update last logged position
-                _lastLoggedManipulatorPosition = positionResponse.Position;
-            }
+            // Update last logged position
+            _lastLoggedManipulatorPosition = positionResponse.Position;
         }
 
         #endregion

@@ -695,19 +695,19 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   scriptingDefineSymbols:
-    Android: ENABLE_JSON_CATALOG
-    EmbeddedLinux: ENABLE_JSON_CATALOG
-    LinuxHeadlessSimulation: ENABLE_JSON_CATALOG
-    Nintendo Switch: ENABLE_JSON_CATALOG
-    PS4: ENABLE_JSON_CATALOG
-    QNX: ENABLE_JSON_CATALOG
-    Server: ENABLE_JSON_CATALOG
-    Standalone: ENABLE_JSON_CATALOG;ENABLE_HYBRID_RENDERER_V2
-    WebGL: ENABLE_JSON_CATALOG;UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP
-    Windows Store Apps: ENABLE_JSON_CATALOG
-    XboxOne: ENABLE_JSON_CATALOG
-    iPhone: ENABLE_JSON_CATALOG
-    tvOS: ENABLE_JSON_CATALOG
+    Android: 
+    EmbeddedLinux: 
+    LinuxHeadlessSimulation: 
+    Nintendo Switch: 
+    PS4: 
+    QNX: 
+    Server: 
+    Standalone: ENABLE_HYBRID_RENDERER_V2
+    WebGL: UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP
+    Windows Store Apps: 
+    XboxOne: 
+    iPhone: 
+    tvOS: 
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
