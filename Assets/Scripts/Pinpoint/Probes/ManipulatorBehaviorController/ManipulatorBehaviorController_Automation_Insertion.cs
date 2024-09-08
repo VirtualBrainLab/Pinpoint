@@ -110,6 +110,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                             > NEAR_TARGET_DISTANCE
                         )
                         {
+                            print(
+                                $"{ProbeAutomationStateManager.ProbeAutomationState}: Going to {targetDepth - NEAR_TARGET_DISTANCE}"
+                            );
                             var driveToNearTargetResponse =
                                 await CommunicationManager.Instance.SetDepth(
                                     new SetDepthRequest(
@@ -119,6 +122,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                     )
                                 );
 
+                            print($"At {driveToNearTargetResponse.Depth}");
+
                             // Shortcut exit if there was an error.
                             if (CommunicationManager.HasError(driveToNearTargetResponse.Error))
                                 return;
@@ -126,6 +131,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
                         break;
                     case ProbeAutomationState.DrivingToPastTarget:
+                        print(
+                            $"{ProbeAutomationStateManager.ProbeAutomationState}: Going to {targetDepth + drivePastDistance}"
+                        );
                         // Drive to past target.
                         var driveToPastTargetResponse =
                             await CommunicationManager.Instance.SetDepth(
@@ -136,11 +144,16 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                 )
                             );
 
+                        print($"At {driveToPastTargetResponse.Depth}");
+
                         // Shortcut exit if there was an error.
                         if (CommunicationManager.HasError(driveToPastTargetResponse.Error))
                             return;
                         break;
                     case ProbeAutomationState.ReturningToTarget:
+                        print(
+                            $"{ProbeAutomationStateManager.ProbeAutomationState}: Going to {targetDepth}"
+                        );
                         // Drive up to target.
                         var returnToTargetResponse = await CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
@@ -149,6 +162,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                 baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
                             )
                         );
+
+                        print($"At {returnToTargetResponse.Depth}");
 
                         // Shortcut exit if there was an error.
                         if (CommunicationManager.HasError(returnToTargetResponse.Error))
@@ -257,7 +272,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         var exitToDuraResponse = await CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
                                 ManipulatorID,
-                                _duraPosition.w,
+                                _duraDepth,
                                 baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
                             )
                         );
@@ -278,7 +293,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         var exitToMarginResponse = await CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
                                 ManipulatorID,
-                                _duraPosition.w - DURA_MARGIN_DISTANCE,
+                                _duraDepth - DURA_MARGIN_DISTANCE,
                                 baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
                             )
                         );
@@ -422,8 +437,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         private float GetTargetDistanceToDura(ProbeManager targetInsertionProbeManager)
         {
             return Vector3.Distance(
-                ConvertInsertionAPMLDVToManipulatorPosition(GetOffsetAdjustedTargetCoordinate(targetInsertionProbeManager)),
-                _duraPosition
+                GetOffsetAdjustedTargetCoordinate(targetInsertionProbeManager),
+                _duraCoordinate
             );
         }
 
@@ -431,7 +446,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         ///     Compute the current distance to the target insertion.
         /// </summary>
         /// <param name="targetInsertionProbeManager"></param>
-        /// <returns>Distance in mm to the target from the probe.</returns>
+        /// <returns>Distance in mm to the target from the probe. NaN on error.</returns>
         private float GetCurrentDistanceToTarget(ProbeManager targetInsertionProbeManager)
         {
             return Vector3.Distance(
@@ -447,7 +462,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <returns>The depth the manipulator needs to drive to reach the target insertion.</returns>
         private float GetTargetDepth(ProbeManager targetInsertionProbeManager)
         {
-            return _duraPosition.w + GetTargetDistanceToDura(targetInsertionProbeManager);
+            return _duraDepth + GetTargetDistanceToDura(targetInsertionProbeManager);
         }
 
         #endregion

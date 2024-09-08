@@ -13,9 +13,14 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         #region Properties
 
         /// <summary>
-        ///     Record of the manipulator's depth coordinate at the Dura.
+        ///     Record of the manipulator's depth at the Dura.
         /// </summary>
-        private Vector4 _duraPosition;
+        private float _duraDepth;
+
+        /// <summary>
+        ///     AP, ML, DV coordinate of the Dura.
+        /// </summary>
+        private Vector3 _duraCoordinate;
 
         /// <summary>
         ///     Skip passing through the exit margin.
@@ -39,7 +44,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             var continueWithDuraResetCompletionSource = new AwaitableCompletionSource<bool>();
 
             // Alert user if there is not enough space for exit margin.
-            if (_duraPosition.w < 1.5f * DURA_MARGIN_DISTANCE)
+            if (_duraDepth < 1.5f * DURA_MARGIN_DISTANCE)
             {
                 QuestionDialogue.Instance.NewQuestion(
                     "The depth axis is too retracted and does not leave enough space for a safe exit. Are you sure you want to continue (safety measures will be skipped)?"
@@ -66,8 +71,12 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Reset dura offset.
             ComputeBrainSurfaceOffset();
 
+            // Force update probe position.
+            await UpdateProbePositionFromManipulator();
+
             // Save the Dura's position.
-            _duraPosition = positionResponse.Position;
+            _duraDepth = positionResponse.Position.w;
+            _duraCoordinate = _probeController.Insertion.APMLDV;
 
             // Log the event.
             OutputLog.Log(
