@@ -15,7 +15,11 @@ namespace Editor
             webClient.DownloadFile(
                 "https://raw.githubusercontent.com/VirtualBrainLab/vbl-aquarium/main/models/csharp/EphysLinkModels.cs",
                 "Assets/Scripts/EphysLink/EphysLinkModels.cs");
-            
+
+            webClient.DownloadFile(
+                "https://raw.githubusercontent.com/VirtualBrainLab/vbl-aquarium/main/models/csharp/PinpointModels.cs",
+                "Assets/Scripts/Pinpoint/JSON/PinpointModels.cs");
+
             Debug.Log("Schemas updated successfully!");
         }
 

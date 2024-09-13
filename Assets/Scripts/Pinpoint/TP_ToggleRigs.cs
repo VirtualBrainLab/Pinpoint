@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -48,4 +49,12 @@ public class TP_ToggleRigs : MonoBehaviour
 
         PlayerPrefs.SetInt($"rig{rigIdx}", active ? 1 : 0);
     }
+}
+
+[Serializable]
+public struct RigData
+{
+    public string Name;
+    public Vector3 Position;
+    public bool Active;
 }
