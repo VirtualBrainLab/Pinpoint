@@ -48,13 +48,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <remarks>Used to identify which buttons should be made available.</remarks>
         public bool IsMoving { get; private set; }
 
-        #region Caches
-
-        private Vector3 _cachedTargetCoordinate = Vector3.negativeInfinity;
-        private Vector3 _cachedOffsetAdjustedTargetCoordinate = Vector3.negativeInfinity;
-
-        #endregion
-
         #endregion
 
         #region Drive Functions
@@ -390,13 +383,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Extract target insertion.
             var targetInsertion = targetInsertionProbeManager.ProbeController.Insertion;
 
-            // Shortcut exit if already computed and targetInsertion did not change.
-            if (
-                targetInsertion.APMLDV == _cachedTargetCoordinate
-                && !float.IsNegativeInfinity(_cachedOffsetAdjustedTargetCoordinate.x)
-            )
-                return _cachedOffsetAdjustedTargetCoordinate;
-
             var targetWorldT = targetInsertion.PositionWorldT();
             var relativePositionWorldT = _probeController.Insertion.PositionWorldT() - targetWorldT;
             var probeTipTForward = _probeController.ProbeTipT.forward;
@@ -417,11 +403,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 offsetAdjustedTargetCoordinateAtlasT
             );
 
-            // Cache the computed values.
-            _cachedTargetCoordinate = targetInsertion.APMLDV;
-            _cachedOffsetAdjustedTargetCoordinate = offsetAdjustedTargetCoordinateT;
-
-            return _cachedOffsetAdjustedTargetCoordinate;
+            return offsetAdjustedTargetCoordinateT;
         }
 
         /// <summary>
