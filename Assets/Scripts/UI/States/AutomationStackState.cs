@@ -477,9 +477,20 @@ namespace UI.States
             IsEnabled && !ActiveManipulatorBehaviorController.IsMoving;
 
         /// <summary>
+        ///     Distance to drive past the target insertion depth (mm).
+        /// </summary>
+        public float DrivePastTargetDistanceMillimeters;
+
+        /// <summary>
         ///     Distance to drive past the target insertion depth (µm).
         /// </summary>
-        public int DrivePastTargetDistance;
+        /// <remarks>Used in UI since these are small numbers.</remarks>
+        [CreateProperty]
+        public int DrivePastTargetDistanceMicrometers
+        {
+            get => Mathf.RoundToInt(DrivePastTargetDistanceMillimeters * 1000);
+            set => DrivePastTargetDistanceMillimeters = value / 1000f;
+        }
 
         /// <summary>
         ///     Is the drive to target insertion button enabled.
@@ -553,7 +564,7 @@ namespace UI.States
         [CreateProperty]
         public string ETA =>
             IsEnabled && SelectedTargetInsertionIndex > 0
-                ? $"ETA: {ActiveManipulatorBehaviorController.GetETA(TargetInsertionProbeManager, BaseSpeed, DrivePastTargetDistance)}"
+                ? $"ETA: {ActiveManipulatorBehaviorController.GetETA(TargetInsertionProbeManager, BaseSpeed, DrivePastTargetDistanceMillimeters)}"
                 : "ETA: N/A";
 
         /// <summary>

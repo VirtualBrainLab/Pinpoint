@@ -25,7 +25,7 @@ namespace UI.AutomationStack
             ActiveManipulatorBehaviorController.Drive(
                 _state.TargetInsertionProbeManager,
                 _state.BaseSpeed,
-                _state.DrivePastTargetDistance / 1000f
+                _state.DrivePastTargetDistanceMillimeters / 1000f
             );
         }
 

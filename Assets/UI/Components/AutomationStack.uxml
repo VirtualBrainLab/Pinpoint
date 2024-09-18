@@ -80,7 +80,7 @@
             </engine:FloatField>
             <engine:FloatField label="Drive Past by (µm)" value="50" readonly="false">
                 <Bindings>
-                    <engine:DataBinding property="value" data-source-path="DrivePastTargetDistance" binding-mode="TwoWay" />
+                    <engine:DataBinding property="value" data-source-path="DrivePastTargetDistanceMicrometers" binding-mode="TwoWay" />
                     <engine:DataBinding property="enabledSelf" data-source-path="IsDrivePastTargetDistanceEnabled" binding-mode="ToTarget" />
                 </Bindings>
             </engine:FloatField>
