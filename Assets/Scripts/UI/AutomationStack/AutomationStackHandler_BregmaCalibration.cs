@@ -1,4 +1,5 @@
 using System;
+using UI.States;
 
 namespace UI.AutomationStack
 {
@@ -10,7 +11,7 @@ namespace UI.AutomationStack
         private async partial void ResetBregmaCalibration()
         {
             // Throw exception if invariant is violated.
-            if (!_state.IsEnabled)
+            if (!AutomationStackState.IsEnabled)
                 throw new InvalidOperationException(
                     "Cannot reset Bregma calibration if automation is not enabled on probe "
                         + ProbeManager.ActiveProbeManager.name

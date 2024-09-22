@@ -1,5 +1,10 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/InspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#InspectorStyle" />
+    <engine:Label text="Unsupported probe angle.&#10;Ensure pitch is &gt; 30°." style="color: rgb(179, 57, 57); -unity-font-style: bold; white-space: normal;">
+        <Bindings>
+            <engine:DataBinding property="style.display" data-source-path="PitchWarningDisplayStyle" binding-mode="ToTarget" data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState" />
+        </Bindings>
+    </engine:Label>
     <engine:VisualElement data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState">
         <engine:VisualElement enabled="true" class="inspectorBox">
             <engine:Label tabindex="-1" text="Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" />

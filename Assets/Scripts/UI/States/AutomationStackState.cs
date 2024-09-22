@@ -33,15 +33,32 @@ namespace UI.States
         #region Panel
 
         /// <summary>
+        ///     Is the current probe's pitch valid for automation.
+        /// </summary>
+        /// <returns>True if the probe's pitch is above 30°, false otherwise (or when there is no active probe).</returns>
+        private static bool IsPitchValid =>
+            ProbeManager.ActiveProbeManager
+            && ProbeManager.ActiveProbeManager.ProbeController.Insertion.Pitch > 30;
+        
+        /// <summary>
+        ///     Visibility of the pitch warning.
+        /// </summary>
+        /// <returns>Flex when the pitch is invalid, none otherwise.</returns>
+        /// <see cref="IsPitchValid"/>
+        [CreateProperty]
+        public DisplayStyle PitchWarningDisplayStyle =>
+            !IsPitchValid ? DisplayStyle.Flex : DisplayStyle.None;
+
+        /// <summary>
         ///     Is the entire Automation stack enabled.
         /// </summary>
         /// <returns>True when the active probe manager is Ephys Link controlled.</returns>
         [CreateProperty]
         // ReSharper disable once MemberCanBePrivate.Global
-        // ReSharper disable once MemberCanBeMadeStatic.Global
-        public bool IsEnabled =>
+        public static bool IsEnabled =>
             ProbeManager.ActiveProbeManager
-            && ProbeManager.ActiveProbeManager.IsEphysLinkControlled;
+            && ProbeManager.ActiveProbeManager.IsEphysLinkControlled
+            && IsPitchValid;
 
         #endregion
 
