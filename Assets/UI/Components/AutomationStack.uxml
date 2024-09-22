@@ -13,7 +13,7 @@
                     <engine:Label text="X" style="-unity-text-align: upper-center;" />
                     <engine:FloatField>
                         <Bindings>
-                            <engine:DataBinding property="value" data-source-path="BregmaCalibrationX" binding-mode="ToTarget" />
+                            <engine:DataBinding property="value" data-source-path="ReferenceCoordinateCalibrationX" binding-mode="ToTarget" />
                         </Bindings>
                     </engine:FloatField>
                 </engine:VisualElement>
@@ -21,7 +21,7 @@
                     <engine:Label text="Y" style="-unity-text-align: upper-center;" />
                     <engine:FloatField>
                         <Bindings>
-                            <engine:DataBinding property="value" data-source-path="BregmaCalibrationY" binding-mode="TwoWay" />
+                            <engine:DataBinding property="value" data-source-path="ReferenceCoordinateCalibrationY" binding-mode="TwoWay" />
                         </Bindings>
                     </engine:FloatField>
                 </engine:VisualElement>
@@ -29,7 +29,7 @@
                     <engine:Label text="Z" style="-unity-text-align: upper-center;" />
                     <engine:FloatField>
                         <Bindings>
-                            <engine:DataBinding property="value" data-source-path="BregmaCalibrationZ" binding-mode="TwoWay" />
+                            <engine:DataBinding property="value" data-source-path="ReferenceCoordinateCalibrationZ" binding-mode="TwoWay" />
                         </Bindings>
                     </engine:FloatField>
                 </engine:VisualElement>
@@ -37,7 +37,7 @@
                     <engine:Label text="Depth" style="-unity-text-align: upper-center;" />
                     <engine:FloatField>
                         <Bindings>
-                            <engine:DataBinding property="value" data-source-path="BregmaCalibrationDepth" binding-mode="TwoWay" />
+                            <engine:DataBinding property="value" data-source-path="ReferenceCoordinateCalibrationDepth" binding-mode="TwoWay" />
                         </Bindings>
                     </engine:FloatField>
                 </engine:VisualElement>
@@ -50,6 +50,7 @@
                 <Bindings>
                     <engine:DataBinding property="choices" data-source-path="TargetInsertionOptions" binding-mode="ToTarget" />
                     <engine:DataBinding property="value" data-source-path="SelectedTargetInsertionIndex" binding-mode="TwoWay" />
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsTargetInsertionRadioButtonGroupEnabled" binding-mode="ToTarget" />
                 </Bindings>
             </engine:RadioButtonGroup>
             <engine:Button text="Drive to Target Entry Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="drive-to-target-entry-coordinate-button">

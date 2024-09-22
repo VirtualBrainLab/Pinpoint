@@ -39,12 +39,12 @@ namespace UI.States
         private static bool IsPitchValid =>
             ProbeManager.ActiveProbeManager
             && ProbeManager.ActiveProbeManager.ProbeController.Insertion.Pitch > 30;
-        
+
         /// <summary>
         ///     Visibility of the pitch warning.
         /// </summary>
         /// <returns>Flex when the pitch is invalid, none otherwise.</returns>
-        /// <see cref="IsPitchValid"/>
+        /// <see cref="IsPitchValid" />
         [CreateProperty]
         public DisplayStyle PitchWarningDisplayStyle =>
             !IsPitchValid ? DisplayStyle.Flex : DisplayStyle.None;
@@ -93,7 +93,7 @@ namespace UI.States
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
-        public float BregmaCalibrationY
+        public float ReferenceCoordinateCalibrationY
         {
             get => IsEnabled ? ActiveManipulatorBehaviorController.ReferenceCoordinateOffset.y : 0;
             set
@@ -117,7 +117,7 @@ namespace UI.States
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
-        public float BregmaCalibrationZ
+        public float ReferenceCoordinateCalibrationZ
         {
             get => IsEnabled ? ActiveManipulatorBehaviorController.ReferenceCoordinateOffset.z : 0;
             set
@@ -141,7 +141,7 @@ namespace UI.States
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
-        public float BregmaCalibrationDepth
+        public float ReferenceCoordinateCalibrationDepth
         {
             get => IsEnabled ? ActiveManipulatorBehaviorController.ReferenceCoordinateOffset.w : 0;
             set
@@ -172,6 +172,18 @@ namespace UI.States
             ProbeManager,
             ProbeManager
         > _manipulatorProbeManagerToSelectedTargetInsertionProbeManager = new();
+
+        /// <summary>
+        ///     Is the target insertion radio button group enabled.
+        /// </summary>
+        /// <returns>
+        ///     True if the probe is enabled and has not started driving into the brain yet, false otherwise.
+        /// </returns>
+        [CreateProperty]
+        public bool IsTargetInsertionRadioButtonGroupEnabled =>
+            IsEnabled
+            && ActiveProbeAutomationStateManager.ProbeAutomationState
+                < ProbeAutomationState.DrivingToNearTarget;
 
         /// <summary>
         ///     Selected target insertion option index.
@@ -378,7 +390,8 @@ namespace UI.States
         ///     Is the drive to selected target entry coordinate button enabled.<br />
         /// </summary>
         /// <returns>
-        ///     Returns true if the active probe manager is Ephys Link controlled, calibrated to reference coordinate, and has a selected target.
+        ///     Returns true if the active probe manager is Ephys Link controlled, calibrated to reference coordinate, and has a
+        ///     selected target.
         /// </returns>
         [CreateProperty]
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
