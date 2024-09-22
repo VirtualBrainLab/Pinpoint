@@ -39,6 +39,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             var positionResponse = await CommunicationManager.Instance.GetPosition(ManipulatorID);
             if (CommunicationManager.HasError(positionResponse.Error))
                 return false;
+            
+            // Save the Dura's position.
+            _duraDepth = positionResponse.Position.w;
 
             // Check if there is enough room for exit margin.
             var continueWithDuraResetCompletionSource = new AwaitableCompletionSource<bool>();
@@ -74,10 +77,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Force update probe position.
             await UpdateProbePositionFromManipulator();
 
-            // Save the Dura's position.
-            _duraDepth = positionResponse.Position.w;
+            // Save the probe's coordinates at the Dura.
             _duraCoordinate = _probeController.Insertion.APMLDV;
-
+            
             // Log the event.
             OutputLog.Log(
                 new[]

@@ -238,6 +238,16 @@ namespace UI.States
         #region Option List helpers
 
         /// <summary>
+        ///     Compute the target insertion probe manager from selected target insertion index.
+        /// </summary>
+        public ProbeManager TargetInsertionProbeManager =>
+            SelectedTargetInsertionIndex > 0
+                ? SurfaceCoordinateStringToTargetInsertionOptionProbeManagers[
+                    TargetInsertionOptions.ElementAt(SelectedTargetInsertionIndex)
+                ]
+                : null;
+
+        /// <summary>
         ///     Expose mapping from target insertion option probe manager to surface coordinate string.
         /// </summary>
         public Dictionary<
@@ -411,15 +421,44 @@ namespace UI.States
         #region Insertion
 
         /// <summary>
+        ///     Is the base speed radio group enabled for editing.
+        /// </summary>
+        /// <returns>True when the selected probe is Ephys Link controlled and not moving, false otherwise.</returns>
+        [CreateProperty]
+        public bool IsBaseSpeedRadioGroupEnabled =>
+            IsEnabled && !ActiveManipulatorBehaviorController.IsMoving;
+
+        /// <summary>
         ///     Selection index in radio button group for base insertion speed.
         /// </summary>
         public int SelectedBaseSpeedIndex;
+
+        /// <summary>
+        ///     Is the custom base speed field enabled.
+        /// </summary>
+        /// <returns>True when the selected probe is Ephys Link controlled and not moving, false otherwise.</returns>
+        [CreateProperty]
+        public bool IsCustomBaseSpeedEnabled =>
+            IsEnabled && !ActiveManipulatorBehaviorController.IsMoving;
 
         /// <summary>
         ///     Custom base insertion speed (µm/s).
         /// </summary>
         /// <remarks>Should only be used when <see cref="SelectedBaseSpeedIndex" /> is on "Custom" index.</remarks>
         public int CustomBaseSpeed;
+
+        /// <summary>
+        ///     Compute the base speed from selected base speed index.
+        /// </summary>
+        public float BaseSpeed =>
+            SelectedBaseSpeedIndex switch
+            {
+                0 => 0.002f,
+                1 => 0.005f,
+                2 => 0.01f,
+                3 => 0.5f,
+                _ => CustomBaseSpeed / 1000f
+            };
 
         /// <summary>
         ///     Visibility of the custom insertion base speed field.
@@ -430,9 +469,28 @@ namespace UI.States
             SelectedBaseSpeedIndex == 4 ? DisplayStyle.Flex : DisplayStyle.None;
 
         /// <summary>
+        ///     Is the drive past target distance field enabled.
+        /// </summary>
+        /// <returns>True when the selected probe is Ephys Link controlled and not moving, false otherwise.</returns>
+        [CreateProperty]
+        public bool IsDrivePastTargetDistanceEnabled =>
+            IsEnabled && !ActiveManipulatorBehaviorController.IsMoving;
+
+        /// <summary>
+        ///     Distance to drive past the target insertion depth (mm).
+        /// </summary>
+        public float DrivePastTargetDistanceMillimeters;
+
+        /// <summary>
         ///     Distance to drive past the target insertion depth (µm).
         /// </summary>
-        public int DrivePastTargetDistance;
+        /// <remarks>Used in UI since these are small numbers.</remarks>
+        [CreateProperty]
+        public int DrivePastTargetDistanceMicrometers
+        {
+            get => Mathf.RoundToInt(DrivePastTargetDistanceMillimeters * 1000);
+            set => DrivePastTargetDistanceMillimeters = value / 1000f;
+        }
 
         /// <summary>
         ///     Is the drive to target insertion button enabled.
@@ -500,6 +558,28 @@ namespace UI.States
             && SelectedTargetInsertionIndex > 0
             && !ActiveManipulatorBehaviorController.IsMoving
             && ActiveProbeAutomationStateManager.IsExitable()
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
+
+        [CreateProperty]
+        public string ETA =>
+            IsEnabled && SelectedTargetInsertionIndex > 0
+                ? $"ETA: {ActiveManipulatorBehaviorController.GetETA(TargetInsertionProbeManager, BaseSpeed, DrivePastTargetDistanceMillimeters)}"
+                : "ETA: N/A";
+
+        /// <summary>
+        ///     Visibility of the ETA label.
+        /// </summary>
+        /// <remarks>
+        ///     Shown only when selected/active probe is Ephys Link controlled, the probe is moving, and the probe is in the
+        ///     brain.
+        /// </remarks>
+        [CreateProperty]
+        public DisplayStyle ETADisplayStyle =>
+            IsEnabled
+            && ActiveManipulatorBehaviorController.IsMoving
+            && ActiveProbeAutomationStateManager.ProbeAutomationState
+                >= ProbeAutomationState.AtDuraInsert
                 ? DisplayStyle.Flex
                 : DisplayStyle.None;
 

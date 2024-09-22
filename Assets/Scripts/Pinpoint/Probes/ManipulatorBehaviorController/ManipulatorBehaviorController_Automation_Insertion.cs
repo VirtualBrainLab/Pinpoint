@@ -36,11 +36,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// </summary>
         private const int EXIT_DRIVE_SPEED_MULTIPLIER = 6;
 
-        /// <summary>
-        ///     Speed multiplier of the probe once outside the brain.
-        /// </summary>
-        private const int OUTSIDE_DRIVE_SPEED_MULTIPLIER = 50;
-
         #endregion
 
         #endregion
@@ -53,12 +48,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <remarks>Used to identify which buttons should be made available.</remarks>
         public bool IsMoving { get; private set; }
 
-        #region Caches
-
-        private Vector3 _cachedTargetCoordinate = Vector3.negativeInfinity;
-        private Vector3 _cachedOffsetAdjustedTargetCoordinate = Vector3.negativeInfinity;
-
-        #endregion
+        private float _actualExitMarginToDuraDistance => _duraDepth - _entryCoordinateDepth;
 
         #endregion
 
@@ -110,9 +100,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                             > NEAR_TARGET_DISTANCE
                         )
                         {
-                            print(
-                                $"{ProbeAutomationStateManager.ProbeAutomationState}: Going to {targetDepth - NEAR_TARGET_DISTANCE}"
-                            );
                             var driveToNearTargetResponse =
                                 await CommunicationManager.Instance.SetDepth(
                                     new SetDepthRequest(
@@ -122,8 +109,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                     )
                                 );
 
-                            print($"At {driveToNearTargetResponse.Depth}");
-
                             // Shortcut exit if there was an error.
                             if (CommunicationManager.HasError(driveToNearTargetResponse.Error))
                                 return;
@@ -131,9 +116,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
                         break;
                     case ProbeAutomationState.DrivingToPastTarget:
-                        print(
-                            $"{ProbeAutomationStateManager.ProbeAutomationState}: Going to {targetDepth + drivePastDistance}"
-                        );
                         // Drive to past target.
                         var driveToPastTargetResponse =
                             await CommunicationManager.Instance.SetDepth(
@@ -144,16 +126,11 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                 )
                             );
 
-                        print($"At {driveToPastTargetResponse.Depth}");
-
                         // Shortcut exit if there was an error.
                         if (CommunicationManager.HasError(driveToPastTargetResponse.Error))
                             return;
                         break;
                     case ProbeAutomationState.ReturningToTarget:
-                        print(
-                            $"{ProbeAutomationStateManager.ProbeAutomationState}: Going to {targetDepth}"
-                        );
                         // Drive up to target.
                         var returnToTargetResponse = await CommunicationManager.Instance.SetDepth(
                             new SetDepthRequest(
@@ -162,8 +139,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                                 baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
                             )
                         );
-
-                        print($"At {returnToTargetResponse.Depth}");
 
                         // Shortcut exit if there was an error.
                         if (CommunicationManager.HasError(returnToTargetResponse.Error))
@@ -395,13 +370,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Extract target insertion.
             var targetInsertion = targetInsertionProbeManager.ProbeController.Insertion;
 
-            // Shortcut exit if already computed and targetInsertion did not change.
-            if (
-                targetInsertion.APMLDV == _cachedTargetCoordinate
-                && !float.IsNegativeInfinity(_cachedOffsetAdjustedTargetCoordinate.x)
-            )
-                return _cachedOffsetAdjustedTargetCoordinate;
-
             var targetWorldT = targetInsertion.PositionWorldT();
             var relativePositionWorldT = _probeController.Insertion.PositionWorldT() - targetWorldT;
             var probeTipTForward = _probeController.ProbeTipT.forward;
@@ -422,11 +390,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 offsetAdjustedTargetCoordinateAtlasT
             );
 
-            // Cache the computed values.
-            _cachedTargetCoordinate = targetInsertion.APMLDV;
-            _cachedOffsetAdjustedTargetCoordinate = offsetAdjustedTargetCoordinateT;
-
-            return _cachedOffsetAdjustedTargetCoordinate;
+            return offsetAdjustedTargetCoordinateT;
         }
 
         /// <summary>
@@ -463,6 +427,59 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         private float GetTargetDepth(ProbeManager targetInsertionProbeManager)
         {
             return _duraDepth + GetTargetDistanceToDura(targetInsertionProbeManager);
+        }
+
+        /// <summary>
+        ///     Compute the ETA for a probe to reach a target insertion (or exit).
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Target to calculate ETA to.</param>
+        /// <param name="baseSpeed">Base driving speed in mm/s.</param>
+        /// <param name="drivePastDistance">Distance to drive past target in mm.</param>
+        /// <returns>MM:SS format ETA for reaching a target or exiting, based on the probe's state.</returns>
+        public string GetETA(
+            ProbeManager targetInsertionProbeManager,
+            float baseSpeed,
+            float drivePastDistance
+        )
+        {
+            // Get current distance to target.
+            var distanceToTarget = GetCurrentDistanceToTarget(targetInsertionProbeManager);
+
+            // Compute ETA.
+            var secondsToDestination = ProbeAutomationStateManager.ProbeAutomationState switch
+            {
+                ProbeAutomationState.DrivingToNearTarget
+                    => Mathf.Max(0, distanceToTarget - NEAR_TARGET_DISTANCE) / baseSpeed // To near target.
+                        + (NEAR_TARGET_DISTANCE + 2 * drivePastDistance)
+                            / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER), // To past target and back to target.
+                ProbeAutomationState.DrivingToPastTarget
+                    => (distanceToTarget + 2 * drivePastDistance)
+                        / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER), // To past target and back to target.
+                ProbeAutomationState.ReturningToTarget
+                    => distanceToTarget / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER), // Back to target.
+                ProbeAutomationState.ExitingToDura
+                    => (GetTargetDistanceToDura(targetInsertionProbeManager) - distanceToTarget)
+                        / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER) // To Dura.
+                        + DURA_MARGIN_DISTANCE / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER) // To exit margin.
+                        + _actualExitMarginToDuraDistance / AUTOMATIC_MOVEMENT_SPEED, // To entry coordinate.
+                ProbeAutomationState.ExitingToMargin
+                    => (
+                        DURA_MARGIN_DISTANCE
+                        - (distanceToTarget - GetTargetDistanceToDura(targetInsertionProbeManager))
+                    ) / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER) // To exit margin.
+                        + _actualExitMarginToDuraDistance / AUTOMATIC_MOVEMENT_SPEED, // To entry coordinate.
+                ProbeAutomationState.ExitingToTargetEntryCoordinate
+                    => (
+                        IDEAL_ENTRY_COORDINATE_TO_DURA_DISTANCE
+                        - (distanceToTarget - GetTargetDistanceToDura(targetInsertionProbeManager))
+                    ) / AUTOMATIC_MOVEMENT_SPEED,
+                _ => 0
+            };
+
+            // Return formatted time if above 1 minute.
+            return secondsToDestination < 60
+                ? secondsToDestination.ToString("F1")
+                : TimeSpan.FromSeconds(secondsToDestination).ToString(@"mm\:ss");
         }
 
         #endregion

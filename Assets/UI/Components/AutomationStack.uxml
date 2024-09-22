@@ -68,19 +68,27 @@
             <engine:RadioButtonGroup label="Speed (µm/s)" value="1" choices="2,5,10,Test (500),Custom">
                 <Bindings>
                     <engine:DataBinding property="value" data-source-path="SelectedBaseSpeedIndex" binding-mode="TwoWay" />
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsBaseSpeedRadioGroupEnabled" binding-mode="ToTarget" />
                 </Bindings>
             </engine:RadioButtonGroup>
             <engine:FloatField label="Custom Speed" value="20" readonly="false" style="visibility: visible; display: none;">
                 <Bindings>
                     <engine:DataBinding property="style.display" data-source-path="CustomInsertionBaseSpeedDisplayStyle" binding-mode="ToTarget" />
                     <engine:DataBinding property="value" data-source-path="CustomBaseSpeed" binding-mode="TwoWay" />
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsCustomBaseSpeedEnabled" binding-mode="ToTarget" />
                 </Bindings>
             </engine:FloatField>
             <engine:FloatField label="Drive Past by (µm)" value="50" readonly="false">
                 <Bindings>
-                    <engine:DataBinding property="value" data-source-path="DrivePastTargetDistance" binding-mode="TwoWay" />
+                    <engine:DataBinding property="value" data-source-path="DrivePastTargetDistanceMicrometers" binding-mode="TwoWay" />
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsDrivePastTargetDistanceEnabled" binding-mode="ToTarget" />
                 </Bindings>
             </engine:FloatField>
+            <engine:Label text="ETA: ">
+                <Bindings>
+                    <engine:DataBinding property="text" data-source-path="ETA" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Label>
             <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
                 <engine:Button text="Drive" parse-escape-sequences="true" display-tooltip-when-elided="true" name="drive-to-target-insertion-button" style="flex-grow: 1;">
                     <Bindings>
