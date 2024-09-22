@@ -1,4 +1,5 @@
 using System;
+using UI.States;
 
 namespace UI.AutomationStack
 {
@@ -9,7 +10,7 @@ namespace UI.AutomationStack
     {
         private async partial void OnResetDuraCalibrationPressed()
         {
-            if (!_state.IsEnabled)
+            if (!AutomationStackState.IsEnabled)
                 throw new InvalidOperationException(
                     "Cannot reset Dura calibration if automation is not enabled on probe "
                         + ProbeManager.ActiveProbeManager.name

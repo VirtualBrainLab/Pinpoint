@@ -130,7 +130,7 @@ namespace UI.AutomationStack
         private void FixedUpdate()
         {
             // Shortcut exit if not enabled and cleanup.
-            if (!_state.IsEnabled)
+            if (!AutomationStackState.IsEnabled)
             {
                 FlushTargetInsertionOptionsCache();
                 return;
