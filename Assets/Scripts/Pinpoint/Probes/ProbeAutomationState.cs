@@ -11,7 +11,7 @@ namespace Pinpoint.Probes
         IsUncalibrated,
 
         /// <summary>
-        ///     Is calibrated to Bregma. Could be positioned anywhere.
+        ///     Is calibrated to the reference coordinate. Could be positioned anywhere.
         /// </summary>
         IsCalibrated,
 

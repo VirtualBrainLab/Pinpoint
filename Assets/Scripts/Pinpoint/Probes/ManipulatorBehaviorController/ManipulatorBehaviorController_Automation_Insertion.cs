@@ -380,7 +380,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             var offsetAdjustedTargetCoordinateWorldT =
                 targetWorldT + offsetAdjustedRelativeTargetPositionWorldT;
 
-            // Converting worldT to AtlasT (to capture new Bregma offset when there is scaling)
+            // Converting worldT to AtlasT (to capture new reference coordinate offset when there is scaling)
             // then switch axes to get APMLDV.
             var offsetAdjustedTargetCoordinateAtlasT =
                 BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(

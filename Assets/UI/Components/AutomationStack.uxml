@@ -7,7 +7,7 @@
     </engine:Label>
     <engine:VisualElement data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState">
         <engine:VisualElement enabled="true" class="inspectorBox">
-            <engine:Label tabindex="-1" text="Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+            <engine:Label tabindex="-1" text="Reference Coordinate&#10;" parse-escape-sequences="true" display-tooltip-when-elided="true" />
             <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
                 <engine:VisualElement style="flex-grow: 1;">
                     <engine:Label text="X" style="-unity-text-align: upper-center;" />
@@ -42,7 +42,7 @@
                     </engine:FloatField>
                 </engine:VisualElement>
             </engine:VisualElement>
-            <engine:Button text="Reset Bregma Calibration" parse-escape-sequences="true" display-tooltip-when-elided="true" name="reset-bregma-calibration-button" />
+            <engine:Button text="Reset Reference Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="reset-reference-coordinate-button" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox">
             <engine:Label text="Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />

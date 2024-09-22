@@ -1275,7 +1275,7 @@ public struct ProbeManagerData
 
         data.NumAxes = probeManager.ManipulatorBehaviorController.NumAxes;
         data.ManipulatorID = probeManager.ManipulatorBehaviorController.ManipulatorID;
-        data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ZeroCoordinateOffset;
+        data.ZeroCoordOffset = probeManager.ManipulatorBehaviorController.ReferenceCoordinateOffset;
         data.Dimensions = probeManager.ManipulatorBehaviorController.Dimensions;
         data.BrainSurfaceOffset = probeManager.ManipulatorBehaviorController.BrainSurfaceOffset;
         // data.Drop2SurfaceWithDepth = probeManager

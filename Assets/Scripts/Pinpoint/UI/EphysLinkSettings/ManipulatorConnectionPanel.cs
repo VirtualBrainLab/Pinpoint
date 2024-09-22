@@ -250,7 +250,7 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="newValue">New offset X-axis value</param>
         public void UpdateZeroCoordinateOffsetX(string newValue)
         {
-            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+            _attachedProbe.ManipulatorBehaviorController.ReferenceCoordinateOffset = new Vector4(
                 float.Parse(newValue),
                 float.NaN,
                 float.NaN,
@@ -264,7 +264,7 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="newValue">New offset Y-axis value</param>
         public void UpdateZeroCoordinateOffsetY(string newValue)
         {
-            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+            _attachedProbe.ManipulatorBehaviorController.ReferenceCoordinateOffset = new Vector4(
                 float.NaN,
                 float.Parse(newValue),
                 float.NaN,
@@ -278,7 +278,7 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="newValue">New offset Z-axis value</param>
         public void UpdateZeroCoordinateOffsetZ(string newValue)
         {
-            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+            _attachedProbe.ManipulatorBehaviorController.ReferenceCoordinateOffset = new Vector4(
                 float.NaN,
                 float.NaN,
                 float.Parse(newValue),
@@ -292,7 +292,7 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// <param name="newValue">New offset D-axis value</param>
         public void UpdateZeroCoordinateOffsetD(string newValue)
         {
-            _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+            _attachedProbe.ManipulatorBehaviorController.ReferenceCoordinateOffset = new Vector4(
                 float.NaN,
                 float.NaN,
                 float.NaN,
@@ -402,7 +402,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             {
                 _probePropertiesSection.SetActive(true);
                 UpdateZeroCoordinateOffsetInputFields(
-                    _attachedProbe.ManipulatorBehaviorController.ZeroCoordinateOffset
+                    _attachedProbe.ManipulatorBehaviorController.ReferenceCoordinateOffset
                 );
                 UpdateBrainSurfaceOffsetInputField(
                     _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset

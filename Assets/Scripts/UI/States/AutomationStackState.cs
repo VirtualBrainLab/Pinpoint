@@ -62,24 +62,24 @@ namespace UI.States
 
         #endregion
 
-        #region Bregma Calibration
+        #region Reference Coordinate Calibration
 
         /// <summary>
-        ///     X offset of the Bregma calibration (mm).
+        ///     X offset of the reference coordinate calibration (mm).
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
-        public float BregmaCalibrationX
+        public float ReferenceCoordinateCalibrationX
         {
-            get => IsEnabled ? ActiveManipulatorBehaviorController.ZeroCoordinateOffset.x : 0;
+            get => IsEnabled ? ActiveManipulatorBehaviorController.ReferenceCoordinateOffset.x : 0;
             set
             {
                 if (!IsEnabled)
                     throw new InvalidOperationException(
-                        "Cannot set the X offset for Bregma when automation is not enabled for probe "
+                        "Cannot set the X offset for reference coordinate when automation is not enabled for probe "
                             + ProbeManager.ActiveProbeManager.name
                     );
-                ActiveManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                ActiveManipulatorBehaviorController.ReferenceCoordinateOffset = new Vector4(
                     value,
                     float.NaN,
                     float.NaN,
@@ -89,21 +89,21 @@ namespace UI.States
         }
 
         /// <summary>
-        ///     Y offset of the Bregma calibration (mm).
+        ///     Y offset of the reference coordinate calibration (mm).
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
         public float BregmaCalibrationY
         {
-            get => IsEnabled ? ActiveManipulatorBehaviorController.ZeroCoordinateOffset.y : 0;
+            get => IsEnabled ? ActiveManipulatorBehaviorController.ReferenceCoordinateOffset.y : 0;
             set
             {
                 if (!IsEnabled)
                     throw new InvalidOperationException(
-                        "Cannot set the Y offset for Bregma when automation is not enabled for probe "
+                        "Cannot set the Y offset for reference coordinate when automation is not enabled for probe "
                             + ProbeManager.ActiveProbeManager.name
                     );
-                ActiveManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                ActiveManipulatorBehaviorController.ReferenceCoordinateOffset = new Vector4(
                     float.NaN,
                     value,
                     float.NaN,
@@ -113,21 +113,21 @@ namespace UI.States
         }
 
         /// <summary>
-        ///     Z offset of the Bregma calibration (mm).
+        ///     Z offset of the reference coordinate calibration (mm).
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
         public float BregmaCalibrationZ
         {
-            get => IsEnabled ? ActiveManipulatorBehaviorController.ZeroCoordinateOffset.z : 0;
+            get => IsEnabled ? ActiveManipulatorBehaviorController.ReferenceCoordinateOffset.z : 0;
             set
             {
                 if (!IsEnabled)
                     throw new InvalidOperationException(
-                        "Cannot set the Z offset for Bregma when automation is not enabled for probe "
+                        "Cannot set the Z offset for reference coordinate when automation is not enabled for probe "
                             + ProbeManager.ActiveProbeManager.name
                     );
-                ActiveManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                ActiveManipulatorBehaviorController.ReferenceCoordinateOffset = new Vector4(
                     float.NaN,
                     float.NaN,
                     value,
@@ -137,21 +137,21 @@ namespace UI.States
         }
 
         /// <summary>
-        ///     Depth offset of the Bregma calibration (mm).
+        ///     Depth offset of the reference coordinate calibration (mm).
         /// </summary>
         /// <exception cref="InvalidOperationException">Automation is not enabled for the active probe manager.</exception>
         [CreateProperty]
         public float BregmaCalibrationDepth
         {
-            get => IsEnabled ? ActiveManipulatorBehaviorController.ZeroCoordinateOffset.w : 0;
+            get => IsEnabled ? ActiveManipulatorBehaviorController.ReferenceCoordinateOffset.w : 0;
             set
             {
                 if (!IsEnabled)
                     throw new InvalidOperationException(
-                        "Cannot set the depth offset for Bregma when automation is not enabled for probe "
+                        "Cannot set the depth offset for reference coordinate when automation is not enabled for probe "
                             + ProbeManager.ActiveProbeManager.name
                     );
-                ActiveManipulatorBehaviorController.ZeroCoordinateOffset = new Vector4(
+                ActiveManipulatorBehaviorController.ReferenceCoordinateOffset = new Vector4(
                     float.NaN,
                     float.NaN,
                     float.NaN,
@@ -378,7 +378,7 @@ namespace UI.States
         ///     Is the drive to selected target entry coordinate button enabled.<br />
         /// </summary>
         /// <returns>
-        ///     Returns true if the active probe manager is Ephys Link controlled, calibrated to Bregma, and has a selected target.
+        ///     Returns true if the active probe manager is Ephys Link controlled, calibrated to reference coordinate, and has a selected target.
         /// </returns>
         [CreateProperty]
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
