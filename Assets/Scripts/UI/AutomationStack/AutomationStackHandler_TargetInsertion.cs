@@ -178,7 +178,7 @@ namespace UI.AutomationStack
             // Throw exception if invariant is violated.
             if (!AutomationStackState.IsEnabled || !ActiveProbeStateManager.IsCalibrated())
                 throw new InvalidOperationException(
-                    $"Cannot drive {ProbeManager.ActiveProbeManager.name} to target insertion if not enabled and not calibrated to Bregma."
+                    $"Cannot drive {ProbeManager.ActiveProbeManager.name} to target insertion if not enabled and not calibrated to reference coordinate."
                 );
 
             // If the probe is moving, call stop.

@@ -34,7 +34,7 @@ namespace UI.AutomationStack
         // Panels.
         private VisualElement _automationStackPanel;
 
-        #region Bregma Calibration
+        #region Reference Coordinate Calibration
 
         private Button _resetReferenceCoordinateButton;
 
@@ -144,10 +144,10 @@ namespace UI.AutomationStack
 
         #region Stages
 
-        #region Bregma Calibration
+        #region Reference Coordinate Calibration
 
         /// <summary>
-        ///     Reset the Bregma calibration of the active probe.
+        ///     Reset the reference coordinate calibration of the active probe.
         /// </summary>
         /// <exception cref="InvalidOperationException">Probe is not selected/active and is not controlled by Ephys Link</exception>
         private partial void ResetReferenceCoordinate();
@@ -192,7 +192,7 @@ namespace UI.AutomationStack
         /// </remarks>
         /// <exception cref="InvalidOperationException">
         ///     Probe is not selected/active, is not controlled by Ephys Link, and is not
-        ///     calibrated to bregma.
+        ///     calibrated to reference coordinate.
         /// </exception>
         private partial void OnDriveToTargetEntryCoordinatePressed();
 

@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 namespace UI.AutomationStack
 {
     /// <summary>
-    ///     Implements Bregma calibration in the Automation Stack.<br />
+    ///     Implements reference coordinate calibration in the Automation Stack.<br />
     /// </summary>
     public partial class AutomationStackHandler
     {

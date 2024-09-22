@@ -378,7 +378,7 @@ namespace UI.States
         ///     Is the drive to selected target entry coordinate button enabled.<br />
         /// </summary>
         /// <returns>
-        ///     Returns true if the active probe manager is Ephys Link controlled, calibrated to Bregma, and has a selected target.
+        ///     Returns true if the active probe manager is Ephys Link controlled, calibrated to reference coordinate, and has a selected target.
         /// </returns>
         [CreateProperty]
         public bool IsDriveToTargetEntryCoordinateButtonEnabled =>
