@@ -25,7 +25,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <summary>
         ///     Distance from the entry coordinate to the Dura. This is considered a safe distance to put the probe.
         /// </summary>
-        private const float ENTRY_COORDINATE_DURA_DISTANCE = 3.5f;
+        private const float IDEAL_ENTRY_COORDINATE_TO_DURA_DISTANCE = 3.5f;
 
         #endregion
 
@@ -47,6 +47,12 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             Vector3.negativeInfinity,
             Vector3.negativeInfinity
         );
+
+        /// <summary>
+        ///     Record the depth at the entry coordinate.
+        /// </summary>
+        /// <remarks>Used during insertion to calculate the actual distance needed to retract back to the entry coordinate.</remarks>
+        private float _entryCoordinateDepth;
 
         #endregion
 
@@ -130,7 +136,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Shortcut exit if error.
             if (CommunicationManager.HasError(firstMoveResponse.Error))
             {
-                LogDriveToTargetEntryCoordinateProgress("Failed to move to DV position");
+                LogDriveToTargetEntryCoordinateProgress("Failed to move to DV position.");
                 return false;
             }
 
@@ -142,7 +148,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Shortcut exit if error.
             if (CommunicationManager.HasError(secondMoveResponse.Error))
             {
-                LogDriveToTargetEntryCoordinateProgress("Failed to move to AP position");
+                LogDriveToTargetEntryCoordinateProgress("Failed to move to AP position.");
                 return false;
             }
 
@@ -154,11 +160,25 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Shortcut exit if error.
             if (CommunicationManager.HasError(thirdMoveResponse.Error))
             {
-                LogDriveToTargetEntryCoordinateProgress("Failed to move to ML position");
+                LogDriveToTargetEntryCoordinateProgress("Failed to move to ML position.");
                 return false;
             }
 
             // Complete drive.
+
+            // Record depth at entry coordinate.
+            var entryCoordinatePositionResponse = await CommunicationManager.Instance.GetPosition(
+                ManipulatorID
+            );
+            if (CommunicationManager.HasError(entryCoordinatePositionResponse.Error))
+            {
+                LogDriveToTargetEntryCoordinateProgress(
+                    "Failed to get final position at entry coordinate."
+                );
+                return false;
+            }
+
+            _entryCoordinateDepth = entryCoordinatePositionResponse.Position.w;
 
             // Remove trajectory lines.
             RemoveTrajectoryLines();
@@ -208,7 +228,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             var entryCoordinateWorld =
                 targetInsertionProbeManager.GetSurfaceCoordinateWorldT()
                 - targetInsertionProbeManager.ProbeController.GetTipWorldU().tipForwardWorldU
-                    * ENTRY_COORDINATE_DURA_DISTANCE;
+                    * IDEAL_ENTRY_COORDINATE_TO_DURA_DISTANCE;
 
             // Convert world space to transformed space.
             var entryCoordinateAPMLDV = BrainAtlasManager.ActiveAtlasTransform.U2T(

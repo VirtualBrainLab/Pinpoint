@@ -84,6 +84,11 @@
                     <engine:DataBinding property="enabledSelf" data-source-path="IsDrivePastTargetDistanceEnabled" binding-mode="ToTarget" />
                 </Bindings>
             </engine:FloatField>
+            <engine:Label text="ETA: ">
+                <Bindings>
+                    <engine:DataBinding property="text" data-source-path="ETA" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Label>
             <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
                 <engine:Button text="Drive" parse-escape-sequences="true" display-tooltip-when-elided="true" name="drive-to-target-insertion-button" style="flex-grow: 1;">
                     <Bindings>
@@ -103,12 +108,6 @@
                     </Bindings>
                 </engine:Button>
             </engine:VisualElement>
-            <engine:Label text="ETA: ">
-                <Bindings>
-                    <engine:DataBinding property="text" data-source-path="ETA" binding-mode="ToTarget" />
-                    <engine:DataBinding property="style.display" data-source-path="ETADisplayStyle" binding-mode="ToTarget" />
-                </Bindings>
-            </engine:Label>
         </engine:VisualElement>
         <Bindings>
             <engine:DataBinding property="enabledSelf" data-source-path="IsEnabled" binding-mode="ToTarget" />
