@@ -18,13 +18,13 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         #endregion
 
         /// <summary>
-        ///     Reset zero coordinate of the manipulator
+        ///     Reset reference coordinate of the manipulator
         /// </summary>
         /// <remarks>
         ///     Alerts user of 4-axis manipulators if depth axis is not at 0 and 3-axis manipulators if depth is too far from
         ///     center.
         /// </remarks>
-        public async Awaitable<bool> ResetZeroCoordinate()
+        public async Awaitable<bool> ResetReferenceCoordinate()
         {
             // Query current position.
             var positionalResponse = await CommunicationManager.Instance.GetPosition(ManipulatorID);
@@ -70,18 +70,18 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 return false;
 
             // Complete reset.
-            ZeroCoordinateOffset = positionalResponse.Position;
+            ReferenceCoordinateOffset = positionalResponse.Position;
             BrainSurfaceOffset = 0;
 
             // Log event.
             OutputLog.Log(
                 new[]
                 {
-                    "Copilot",
+                    "Automation",
                     DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                    "ResetZeroCoordinate",
+                    "ResetReferenceCoordinate",
                     ManipulatorID,
-                    ZeroCoordinateOffset.ToString()
+                    ReferenceCoordinateOffset.ToString()
                 }
             );
             return true;

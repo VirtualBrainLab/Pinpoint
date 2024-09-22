@@ -36,7 +36,7 @@ namespace UI.AutomationStack
 
         #region Bregma Calibration
 
-        private Button _resetBregmaCalibrationButton;
+        private Button _resetReferenceCoordinateButton;
 
         #endregion
 
@@ -83,8 +83,8 @@ namespace UI.AutomationStack
         {
             // Get components.
             _automationStackPanel = _root.Q("automation-stack-panel");
-            _resetBregmaCalibrationButton = _automationStackPanel.Q<Button>(
-                "reset-bregma-calibration-button"
+            _resetReferenceCoordinateButton = _automationStackPanel.Q<Button>(
+                "reset-reference-coordinate-button"
             );
             _targetInsertionRadioButtonGroup = _automationStackPanel.Q<RadioButtonGroup>(
                 "target-insertion-radio-button-group"
@@ -102,7 +102,7 @@ namespace UI.AutomationStack
             _exitButton = _automationStackPanel.Q<Button>("exit-button");
 
             // Register callbacks.
-            _resetBregmaCalibrationButton.clicked += ResetBregmaCalibration;
+            _resetReferenceCoordinateButton.clicked += ResetReferenceCoordinate;
             _targetInsertionRadioButtonGroup.RegisterValueChangedCallback(
                 OnTargetInsertionSelectionChanged
             );
@@ -116,7 +116,7 @@ namespace UI.AutomationStack
         private void OnDisable()
         {
             // Unregister callbacks.
-            _resetBregmaCalibrationButton.clicked -= ResetBregmaCalibration;
+            _resetReferenceCoordinateButton.clicked -= ResetReferenceCoordinate;
             _targetInsertionRadioButtonGroup.UnregisterValueChangedCallback(
                 OnTargetInsertionSelectionChanged
             );
@@ -150,7 +150,7 @@ namespace UI.AutomationStack
         ///     Reset the Bregma calibration of the active probe.
         /// </summary>
         /// <exception cref="InvalidOperationException">Probe is not selected/active and is not controlled by Ephys Link</exception>
-        private partial void ResetBregmaCalibration();
+        private partial void ResetReferenceCoordinate();
 
         #endregion
 

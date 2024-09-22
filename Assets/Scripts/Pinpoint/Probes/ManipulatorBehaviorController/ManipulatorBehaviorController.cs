@@ -41,19 +41,19 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         ///     Getter and setter or the zero coordinate offset of the manipulator.
         ///     If passed a NaN value, the previous value is kept.
         /// </summary>
-        public Vector4 ZeroCoordinateOffset
+        public Vector4 ReferenceCoordinateOffset
         {
-            get => _zeroCoordinateOffset;
+            get => _referenceCoordinateOffset;
             set
             {
-                _zeroCoordinateOffset = new Vector4(
-                    float.IsNaN(value.x) ? _zeroCoordinateOffset.x : value.x,
-                    float.IsNaN(value.y) ? _zeroCoordinateOffset.y : value.y,
-                    float.IsNaN(value.z) ? _zeroCoordinateOffset.z : value.z,
-                    float.IsNaN(value.w) ? _zeroCoordinateOffset.w : value.w
+                _referenceCoordinateOffset = new Vector4(
+                    float.IsNaN(value.x) ? _referenceCoordinateOffset.x : value.x,
+                    float.IsNaN(value.y) ? _referenceCoordinateOffset.y : value.y,
+                    float.IsNaN(value.z) ? _referenceCoordinateOffset.z : value.z,
+                    float.IsNaN(value.w) ? _referenceCoordinateOffset.w : value.w
                 );
 
-                ZeroCoordinateOffsetChangedEvent.Invoke(_zeroCoordinateOffset);
+                ZeroCoordinateOffsetChangedEvent.Invoke(_referenceCoordinateOffset);
             }
         }
 
@@ -89,7 +89,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         #region Private internal fields
 
         private Vector4 _lastLoggedManipulatorPosition = Vector4.zero;
-        private Vector4 _zeroCoordinateOffset = Vector4.zero;
+        private Vector4 _referenceCoordinateOffset = Vector4.zero;
         private float _brainSurfaceOffset;
         private bool _isRightHanded;
         private float _lastLoggedTime;
@@ -124,7 +124,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         private void OnDisable()
         {
             ManipulatorID = null;
-            _zeroCoordinateOffset = Vector4.zero;
+            _referenceCoordinateOffset = Vector4.zero;
             _brainSurfaceOffset = 0;
         }
 
@@ -210,7 +210,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             posInManipulatorTransform.w -= float.IsNaN(BrainSurfaceOffset) ? 0 : BrainSurfaceOffset;
 
             // Apply coordinate offsets and return result
-            return posInManipulatorTransform + ZeroCoordinateOffset;
+            return posInManipulatorTransform + ReferenceCoordinateOffset;
         }
 
         /// <summary>
@@ -327,7 +327,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             var setPositionResponse = await CommunicationManager.Instance.SetPosition(
                 new SetPositionRequest(
                     ManipulatorID,
-                    ZeroCoordinateOffset,
+                    ReferenceCoordinateOffset,
                     AUTOMATIC_MOVEMENT_SPEED
                 )
             );
@@ -362,7 +362,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
             // Apply zero coordinate offset.
             var zeroCoordinateAdjustedManipulatorPosition =
-                positionResponse.Position - ZeroCoordinateOffset;
+                positionResponse.Position - ReferenceCoordinateOffset;
 
             // Convert to coordinate space.
             var manipulatorSpacePosition = CoordinateTransform.T2U(
