@@ -41,7 +41,7 @@ namespace UI.AutomationStack
             ActiveManipulatorBehaviorController.StopInsertion();
         }
 
-        private partial void OnExitButtonPressed()
+        private async partial void OnExitButtonPressed()
         {
             // Throw exception if in an invalid state.
             if (_state.ExitButtonDisplayStyle == DisplayStyle.None)
@@ -49,8 +49,14 @@ namespace UI.AutomationStack
                     "Cannot exit to target insertion if the button is not visible (ready to exit)."
                 );
 
-            // Call exit.
-            ActiveManipulatorBehaviorController.Exit(_state.TargetInsertionProbeManager, _state.BaseSpeed);
+            // Call exit and reset insertion selection once exit has completed.
+            if (
+                await ActiveManipulatorBehaviorController.Exit(
+                    _state.TargetInsertionProbeManager,
+                    _state.BaseSpeed
+                )
+            )
+                _state.SelectedTargetInsertionIndex = 0;
         }
 
         #endregion
