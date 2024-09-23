@@ -11,7 +11,7 @@ namespace UI.AutomationStack
         private async partial void ResetReferenceCoordinate()
         {
             // Throw exception if invariant is violated.
-            if (!AutomationStackState.IsEnabled)
+            if (!_state.IsEnabled)
                 throw new InvalidOperationException(
                     "Cannot reset reference coordinate calibration if automation is not enabled on probe "
                         + ProbeManager.ActiveProbeManager.name
