@@ -178,9 +178,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         }
 
         /// <summary>
-        ///     Stop the probe's movement.
+        ///     Stop the probe's insertion.
         /// </summary>
-        public async void Stop()
+        public async void StopInsertion()
         {
             var stopResponse = await CommunicationManager.Instance.Stop(ManipulatorID);
 
@@ -214,7 +214,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <param name="baseSpeed">Base driving speed in mm/s.</param>
         /// <exception cref="InvalidOperationException">Probe is not in an exitable state.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Unhandled probe exit state.</exception>
-        public async void Exit(ProbeManager targetInsertionProbeManager, float baseSpeed)
+        /// <returns>True when exited out to entry coordinate, false otherwise.</returns>
+        public async Awaitable<bool> Exit(ProbeManager targetInsertionProbeManager, float baseSpeed)
         {
             while (
                 ProbeAutomationStateManager.ProbeAutomationState
@@ -254,7 +255,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
                         // Shortcut exit if there was an error.
                         if (CommunicationManager.HasError(exitToDuraResponse.Error))
-                            return;
+                            return false;
                         break;
                     case ProbeAutomationState.ExitingToMargin:
                         // Remove brain surface offset.
@@ -275,7 +276,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
                         // Shortcut exit if there was an error.
                         if (CommunicationManager.HasError(exitToMarginResponse.Error))
-                            return;
+                            return false;
                         break;
                     case ProbeAutomationState.ExitingToTargetEntryCoordinate:
                         // Drive to the target entry coordinate (same place before calibrating to the Dura).
@@ -294,7 +295,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                         if (
                             CommunicationManager.HasError(exitToTargetEntryCoordinateResponse.Error)
                         )
-                            return;
+                            return false;
+
                         break;
                     case ProbeAutomationState.IsUncalibrated:
                     case ProbeAutomationState.IsCalibrated:
@@ -327,6 +329,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
             // Set probe to be done moving.
             IsMoving = false;
+
+            // Indicate that the exit has completed.
+            return true;
         }
 
         #endregion

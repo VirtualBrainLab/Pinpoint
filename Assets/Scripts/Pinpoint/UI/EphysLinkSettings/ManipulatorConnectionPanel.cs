@@ -359,7 +359,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             _stopReturningToZeroCoordinateButtonGameObject.SetActive(true);
 
             // Move manipulator back to zero coordinate
-            if (await _attachedProbe.ManipulatorBehaviorController.MoveBackToZeroCoordinate())
+            if (await _attachedProbe.ManipulatorBehaviorController.MoveBackToReferenceCoordinate())
                 // Reset dura drop direction on successful return.
                 _attachedProbe.ManipulatorBehaviorController.BrainSurfaceOffset = 0;
             

@@ -63,7 +63,7 @@ namespace UI.AutomationStack
         {
             // TODO: Change to throw exception if invariant is violated once update issue is resolved.
             // Shortcut exit if invariant is violated.
-            if (!AutomationStackState.IsEnabled)
+            if (!_state.IsEnabled)
                 return;
             // throw new InvalidOperationException(
             //     "Cannot select target insertion if automation is not enabled on probe "
@@ -176,7 +176,7 @@ namespace UI.AutomationStack
         private async partial void OnDriveToTargetEntryCoordinatePressed()
         {
             // Throw exception if invariant is violated.
-            if (!AutomationStackState.IsEnabled || !ActiveProbeStateManager.IsCalibrated())
+            if (!_state.IsEnabled || !ActiveProbeStateManager.IsCalibrated())
                 throw new InvalidOperationException(
                     $"Cannot drive {ProbeManager.ActiveProbeManager.name} to target insertion if not enabled and not calibrated to reference coordinate."
                 );

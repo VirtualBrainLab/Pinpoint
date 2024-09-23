@@ -124,6 +124,14 @@ namespace UI.States
         public DisplayStyle AutomationStackDisplayStyle =>
             ModeIndex == 2 ? DisplayStyle.Flex : DisplayStyle.None;
 
+        /// <summary>
+        ///     Manual control stack visibility.
+        /// </summary>
+        /// <remarks>Don't show in planning mode (0)</remarks>
+        [CreateProperty]
+        public DisplayStyle ManualControlStackDisplayStyle =>
+            ModeIndex != 0 ? DisplayStyle.Flex : DisplayStyle.None;
+
         #endregion
 
         #region Inspector Header

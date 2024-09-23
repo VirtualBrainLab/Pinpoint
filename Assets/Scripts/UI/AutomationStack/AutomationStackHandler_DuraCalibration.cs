@@ -10,7 +10,7 @@ namespace UI.AutomationStack
     {
         private async partial void OnResetDuraCalibrationPressed()
         {
-            if (!AutomationStackState.IsEnabled)
+            if (!_state.IsEnabled)
                 throw new InvalidOperationException(
                     "Cannot reset Dura calibration if automation is not enabled on probe "
                         + ProbeManager.ActiveProbeManager.name

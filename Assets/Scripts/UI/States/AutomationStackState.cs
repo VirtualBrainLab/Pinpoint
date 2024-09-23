@@ -55,7 +55,8 @@ namespace UI.States
         /// <returns>True when the active probe manager is Ephys Link controlled.</returns>
         [CreateProperty]
         // ReSharper disable once MemberCanBePrivate.Global
-        public static bool IsEnabled =>
+        // ReSharper disable once MemberCanBeMadeStatic.Global
+        public bool IsEnabled =>
             ProbeManager.ActiveProbeManager
             && ProbeManager.ActiveProbeManager.IsEphysLinkControlled
             && IsPitchValid;

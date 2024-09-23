@@ -318,21 +318,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             return !CommunicationManager.HasError(setDepthResponse.Error);
         }
 
-        /// <summary>
-        ///     Drive the manipulator back to the zero coordinate position
-        /// </summary>
-        public async Awaitable<bool> MoveBackToZeroCoordinate()
-        {
-            // Send move command
-            var setPositionResponse = await CommunicationManager.Instance.SetPosition(
-                new SetPositionRequest(
-                    ManipulatorID,
-                    ReferenceCoordinateOffset,
-                    AUTOMATIC_MOVEMENT_SPEED
-                )
-            );
-            return !CommunicationManager.HasError(setPositionResponse.Error);
-        }
 
         #endregion
 
