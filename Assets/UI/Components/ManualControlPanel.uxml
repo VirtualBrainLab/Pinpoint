@@ -10,6 +10,7 @@
         <engine:Button text="Return to Reference Coordinate" name="return-to-reference-coordinate-button">
             <Bindings>
                 <engine:DataBinding property="text" data-source-path="ReturnToReferenceCoordinatesButtonText" binding-mode="ToTarget" />
+                <engine:DataBinding property="style.display" data-source-path="ReturnToReferenceCoordinatesButtonDisplayStyle" binding-mode="ToTarget" />
             </Bindings>
         </engine:Button>
         <Bindings>

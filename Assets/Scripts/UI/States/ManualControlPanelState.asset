@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 90da237d6af3f404b8c9b966e6bcd990, type: 3}
-  m_Name: ManualControlStackState
+  m_Name: ManualControlPanelState
   m_EditorClassIdentifier: 
   IsControlEnabled: 0

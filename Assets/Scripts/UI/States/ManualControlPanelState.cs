@@ -1,4 +1,5 @@
 using Core.Util;
+using Pinpoint.Probes;
 using Unity.Properties;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -6,18 +7,23 @@ using UnityEngine.UIElements;
 namespace UI.States
 {
     [CreateAssetMenu]
-    public class ManualControlStackState : ResettingScriptableObject
+    public class ManualControlPanelState : ResettingScriptableObject
     {
         /// <summary>
         ///     Stack enabled state.
         /// </summary>
-        /// <remarks>Enabled if there is an active probe controlled by Ephys Link.</remarks>
+        /// <remarks>Enabled if there is an active probe controlled by Ephys Link and not inside the brain.</remarks>
         [CreateProperty]
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once MemberCanBeMadeStatic.Global
         public bool IsPanelEnabled =>
             ProbeManager.ActiveProbeManager
-            && ProbeManager.ActiveProbeManager.IsEphysLinkControlled;
+            && ProbeManager.ActiveProbeManager.IsEphysLinkControlled
+            && ProbeManager
+                .ActiveProbeManager
+                .ManipulatorBehaviorController
+                .ProbeAutomationStateManager
+                .ProbeAutomationState < ProbeAutomationState.DrivingToNearTarget;
 
         /// <summary>
         ///     Control enabled state.

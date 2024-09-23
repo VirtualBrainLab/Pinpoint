@@ -38,7 +38,7 @@ namespace UI.AutomationStack
                 );
 
             // Call stop.
-            ActiveManipulatorBehaviorController.Stop();
+            ActiveManipulatorBehaviorController.StopInsertion();
         }
 
         private partial void OnExitButtonPressed()

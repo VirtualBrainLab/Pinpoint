@@ -178,9 +178,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         }
 
         /// <summary>
-        ///     Stop the probe's movement.
+        ///     Stop the probe's insertion.
         /// </summary>
-        public async void Stop()
+        public async void StopInsertion()
         {
             var stopResponse = await CommunicationManager.Instance.Stop(ManipulatorID);
 

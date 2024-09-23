@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="InspectorStack" src="project://database/Assets/UI/Components/InspectorStack.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#InspectorStack" />
     <ui:Template name="AutomationStack" src="project://database/Assets/UI/Components/AutomationStack.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#AutomationStack" />
-    <ui:Template name="ManualControlStack" src="project://database/Assets/UI/Components/ManualControlStack.uxml?fileID=9197481963319205126&amp;guid=ed795aeb41983854f9804fe26f1a7f44&amp;type=3#ManualControlStack" />
+    <ui:Template name="ManualControlStack" src="project://database/Assets/UI/Components/ManualControlPanel.uxml?fileID=9197481963319205126&amp;guid=ed795aeb41983854f9804fe26f1a7f44&amp;type=3#ManualControlPanel" />
     <ui:VisualElement data-source="project://database/Assets/Scripts/UI/States/UIPanelState.asset?fileID=11400000&amp;guid=d2fb6ddc884d6094f9a210b3dc6cbbf0&amp;type=2#UIPanelState" style="flex-grow: 1; height: 937px;">
         <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
             <ui:Button text="&gt;&gt;" name="toggle-button">
@@ -42,7 +42,11 @@
                     <ui:DataBinding property="style.display" data-source-path="AutomationStackDisplayStyle" binding-mode="ToTarget" />
                 </Bindings>
             </ui:Instance>
-            <ui:Instance template="ManualControlStack" />
+            <ui:Instance template="ManualControlStack" name="manual-control-panel">
+                <Bindings>
+                    <ui:DataBinding property="style.display" data-source-path="ManualControlStackDisplayStyle" binding-mode="ToTarget" />
+                </Bindings>
+            </ui:Instance>
             <Bindings>
                 <ui:DataBinding property="style.display" data-source-path="RightSidePanelVisibilityDisplayStyle" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" />
             </Bindings>
