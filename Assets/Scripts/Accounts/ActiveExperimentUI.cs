@@ -112,8 +112,7 @@ public class ActiveExperimentUI : MonoBehaviour
 
             // Get angles
             Vector3 angles = new Vector3(insertionData.phi, insertionData.theta, insertionData.spin);
-            if (Settings.UseIBLAngles)
-                angles = PinpointUtils.World2IBL(angles);
+            // [TODO] Should this convert according to the active convention?
 
             // Set the insertion data and active state
             insertionUI.SetInsertionData(_accountsManager, insertionData.UUID, insertionData.name, insertionData.active);
