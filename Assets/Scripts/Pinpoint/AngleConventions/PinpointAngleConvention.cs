@@ -4,6 +4,12 @@ public class PinpointAngleConvention : AngleConvention
 {
     public override string DisplayName => "Pinpoint";
 
+    public override string XName => "Yaw";
+
+    public override string YName => "Pitch";
+
+    public override string ZName => "Roll";
+
     public override Vector3 FromConvention(Vector3 conventionAngles)
     {
         return conventionAngles;

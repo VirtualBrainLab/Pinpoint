@@ -4,6 +4,12 @@ public class IBLAngleConvention : AngleConvention
 {
     public override string DisplayName => "IBL";
 
+    public override string XName => "Phi";
+
+    public override string YName => "Theta";
+
+    public override string ZName => "Roll";
+
     /// <summary>
     /// Convert Pinpoint angles to IBL format
     /// </summary>

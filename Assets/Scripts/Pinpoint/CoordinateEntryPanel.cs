@@ -10,6 +10,10 @@ public class CoordinateEntryPanel : MonoBehaviour
     [SerializeField] private TMP_Text _dvText;
     [SerializeField] private TMP_Text _depthText;
 
+    [SerializeField] private TMP_Text _xAngleText;
+    [SerializeField] private TMP_Text _yAngleText;
+    [SerializeField] private TMP_Text _zAngleText;
+
     [SerializeField] private TMP_InputField _apField;
     [SerializeField] private TMP_InputField _mlField;
     [SerializeField] private TMP_InputField _dvField;
@@ -179,5 +183,8 @@ public class CoordinateEntryPanel : MonoBehaviour
     public void SetActiveAngleConvention(AngleConvention newAngleConvention)
     {
         _angleConvention = newAngleConvention;
+        _xAngleText.text = newAngleConvention.XName;
+        _yAngleText.text = newAngleConvention.YName;
+        _zAngleText.text = newAngleConvention.ZName;
     }
 }

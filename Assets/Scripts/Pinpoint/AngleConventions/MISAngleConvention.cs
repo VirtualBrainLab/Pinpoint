@@ -6,6 +6,12 @@ public class MISAngleConvention : AngleConvention
 
     public override string DisplayName => "New Scale MIS";
 
+    public override string XName => "AP";
+
+    public override string YName => "ML";
+
+    public override string ZName => "Spin";
+
     /// <summary>
     /// Convert MIS angles to IBL format
     /// </summary>
