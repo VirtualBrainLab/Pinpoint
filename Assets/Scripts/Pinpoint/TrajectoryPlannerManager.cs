@@ -450,7 +450,8 @@ namespace TrajectoryPlanner
 
             UpdateQuickSettingsProbeIdText();
 
-            newProbeManager.UIUpdateEvent.AddListener(() => UpdateQuickSettings(newProbeManager));
+            // This listener seems to be redundant with LateUpdate call
+            //newProbeManager.UIUpdateEvent.AddListener(() => UpdateQuickSettings(newProbeManager));
             newProbeManager.ProbeController.MovedThisFrameEvent.AddListener(SetMovedThisFrame);
 
             // Add listener for SetActiveProbe

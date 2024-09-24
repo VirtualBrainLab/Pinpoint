@@ -10,6 +10,8 @@ public class PinpointAngleConvention : AngleConvention
 
     public override string ZName => "Roll";
 
+    public override bool AllowFrom => true;
+
     public override Vector3 FromConvention(Vector3 conventionAngles)
     {
         return conventionAngles;

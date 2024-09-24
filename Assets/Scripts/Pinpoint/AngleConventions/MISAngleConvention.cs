@@ -6,11 +6,13 @@ public class MISAngleConvention : AngleConvention
 
     public override string DisplayName => "New Scale MIS";
 
-    public override string XName => "AP";
+    public override string XName => "Arc angle";
 
-    public override string YName => "ML";
+    public override string YName => "Arc tilt";
 
     public override string ZName => "Spin";
+
+    public override bool AllowFrom => false;
 
     /// <summary>
     /// Convert MIS angles to IBL format
@@ -20,6 +22,9 @@ public class MISAngleConvention : AngleConvention
     public override Vector3 ToConvention(Vector3 pinpointAngles)
     {
         // todo
+        Vector3 cartesianCoords = ToCartesian(pinpointAngles);
+        //float arc_tilt = Mathf.Asin(pinpointAngles)
+        //float arc_angle = 
         return new Vector3();
     }
 

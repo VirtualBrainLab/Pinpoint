@@ -75,7 +75,8 @@ public class Settings : MonoBehaviour
 
     private AngleConvention[] _angleConventionOptions = {new PinpointAngleConvention(),
         new IBLAngleConvention(),
-        new MISAngleConvention()};
+        new MISAngleConvention(),
+        new SagittalCoronalAngleConvention()};
 
     public static void SetAngleConvention(int dropdownIndex)
     {

@@ -4259,6 +4259,8 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: 'Angle convention: New Scale MIS'
       m_Image: {fileID: 0}
+    - m_Text: 'Angle convention: Coronal/Sagittal'
+      m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:

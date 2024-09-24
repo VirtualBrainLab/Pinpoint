@@ -10,6 +10,8 @@ public class IBLAngleConvention : AngleConvention
 
     public override string ZName => "Roll";
 
+    public override bool AllowFrom => true;
+
     /// <summary>
     /// Convert Pinpoint angles to IBL format
     /// </summary>

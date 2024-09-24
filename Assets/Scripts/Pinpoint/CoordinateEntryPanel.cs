@@ -68,9 +68,18 @@ public class CoordinateEntryPanel : MonoBehaviour
         _dvField.interactable = pos.z != 0f;
         _depthField.interactable = pos.w != 0f;
 
-        _yawField.interactable = ang.x != 0f;
-        _pitchField.interactable = ang.y != 0f;
-        _rollField.interactable = ang.z != 0f;
+        if (Settings.AngleConvention.AllowFrom)
+        {
+            _yawField.interactable = ang.x != 0f;
+            _pitchField.interactable = ang.y != 0f;
+            _rollField.interactable = ang.z != 0f;
+        }
+        else
+        {
+            _yawField.interactable = false;
+            _pitchField.interactable = false;
+            _rollField.interactable = false;
+        }
     }
 
     public void UpdateText()
