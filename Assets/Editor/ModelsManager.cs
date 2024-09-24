@@ -42,5 +42,16 @@ namespace Editor
 
             AssetDatabase.Refresh();
         }
+
+        [MenuItem("Tools/Update Pinpoint Schemas")]
+        public static void UpdatePinpointSchemas()
+        {
+            string sourceFile = "C:\\proj\\VBL\\vbl-aquarium\\models\\csharp\\PinpointModels.cs";
+            string destinationFile = "Assets/Scripts/Pinpoint/Models/PinpointModels.cs";
+
+            File.Copy(sourceFile, destinationFile, true);
+
+            AssetDatabase.Refresh();
+        }
     }
 }
