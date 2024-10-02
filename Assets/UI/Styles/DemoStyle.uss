@@ -1,0 +1,14 @@
+VisualElement {
+}
+
+VisualElement > .unity-label {
+    font-size: 20px;
+    flex-grow: 1;
+    align-self: center;
+}
+
+#bg {
+    background-color: rgb(200, 200, 200);
+    width: 60%;
+    align-self: center;
+}
