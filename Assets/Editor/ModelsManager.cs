@@ -42,24 +42,15 @@ namespace Editor
             AssetDatabase.Refresh();
         }
 
-        private static IEnumerator DownloadFile(string url, string outputPath)
+        [MenuItem("Tools/Update Pinpoint Schemas")]
+        public static void UpdatePinpointSchemas()
         {
-            using var request = UnityWebRequest.Get(url);
-            yield return request.SendWebRequest();
+            string sourceFile = "C:\\proj\\VBL\\vbl-aquarium\\models\\csharp\\PinpointModels.cs";
+            string destinationFile = "Assets/Scripts/Pinpoint/Models/PinpointModels.cs";
 
-            if (
-                request.result
-                is UnityWebRequest.Result.ConnectionError
-                or UnityWebRequest.Result.ProtocolError
-            )
-            {
-                Debug.LogError(request.error);
-            }
-            else
-            {
-                File.WriteAllBytes(outputPath, request.downloadHandler.data);
-                Debug.Log("File downloaded successfully!");
-            }
+            File.Copy(sourceFile, destinationFile, true);
+
+            AssetDatabase.Refresh();
         }
     }
 }
