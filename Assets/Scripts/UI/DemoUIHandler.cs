@@ -138,14 +138,13 @@ namespace UI
                         MOVEMENT_SPEED
                     )
                 );
-                // var home3 = CommunicationManager.Instance.SetPosition(
-                //     new SetPositionRequest(
-                //         _manipulator3.ManipulatorID,
-                //         _manipulator3.ConvertInsertionAPMLDVToManipulatorPosition(_demoData.Home3),
-                //         MOVEMENT_SPEED
-                //     )
-                // );
-
+                var home3 = CommunicationManager.Instance.SetPosition(
+                    new SetPositionRequest(
+                        _manipulator3.ManipulatorID,
+                        _manipulator3.ConvertInsertionAPMLDVToManipulatorPosition(_demoData.Home3),
+                        MOVEMENT_SPEED
+                    )
+                );
 
                 if (CommunicationManager.HasError((await home1).Error))
                 {
@@ -155,10 +154,10 @@ namespace UI
                 {
                     break;
                 }
-                // if (CommunicationManager.HasError(home3.Error))
-                // {
-                //     break;
-                // }
+                if (CommunicationManager.HasError((await home3).Error))
+                {
+                    break;
+                }
 
                 // Reference coordinate.
                 _state.Stage = DemoStage.ReferenceCoordinate;
@@ -191,18 +190,19 @@ namespace UI
                     break;
                 }
 
-                // if(!await _manipulator3.MoveBackToReferenceCoordinate())break;
-                // var home3 = await CommunicationManager.Instance.SetPosition(
-                //     new SetPositionRequest(
-                //         _manipulator3.ManipulatorID,
-                //         _manipulator3.ConvertInsertionAPMLDVToManipulatorPosition(_demoData.Home3),
-                //         MOVEMENT_SPEED
-                //     )
-                // );
-                // if (CommunicationManager.HasError(home3.Error))
-                // {
-                //     break;
-                // }
+                if (!await _manipulator3.MoveBackToReferenceCoordinate())
+                    break;
+                var homePos3 = await CommunicationManager.Instance.SetPosition(
+                    new SetPositionRequest(
+                        _manipulator3.ManipulatorID,
+                        _manipulator3.ConvertInsertionAPMLDVToManipulatorPosition(_demoData.Home3),
+                        MOVEMENT_SPEED
+                    )
+                );
+                if (CommunicationManager.HasError(homePos3.Error))
+                {
+                    break;
+                }
 
                 // Entry.
                 _state.Stage = DemoStage.Entry;
@@ -225,19 +225,15 @@ namespace UI
                         MOVEMENT_SPEED
                     )
                 );
-                // var entry3 = CommunicationManager.Instance.SetPosition(
-                //     new SetPositionRequest(
-                //         _manipulator3.ManipulatorID,
-                //         _manipulator3.ConvertInsertionAPMLDVToManipulatorPosition(
-                //             new Vector3(
-                //                 _demoData.Target3.x,
-                //                 _demoData.Target3.y,
-                //                 3
-                //             )
-                //         ),
-                //         MOVEMENT_SPEED
-                //     )
-                // );
+                var entry3 = CommunicationManager.Instance.SetPosition(
+                    new SetPositionRequest(
+                        _manipulator3.ManipulatorID,
+                        _manipulator3.ConvertInsertionAPMLDVToManipulatorPosition(
+                            new Vector3(_demoData.Target3.x, _demoData.Target3.y, 3)
+                        ),
+                        MOVEMENT_SPEED
+                    )
+                );
 
                 if (CommunicationManager.HasError((await entry1).Error))
                 {
@@ -247,10 +243,10 @@ namespace UI
                 {
                     break;
                 }
-                // if (CommunicationManager.HasError((await entry3).Error))
-                // {
-                //     break;
-                // }
+                if (CommunicationManager.HasError((await entry3).Error))
+                {
+                    break;
+                }
 
                 // Dura.
                 _state.Stage = DemoStage.Dura;
@@ -273,13 +269,15 @@ namespace UI
                         MOVEMENT_SPEED
                     )
                 );
-                // var dura3 = CommunicationManager.Instance.SetPosition(
-                //     new SetPositionRequest(
-                //         _manipulator3.ManipulatorID,
-                //         _manipulator3.ConvertInsertionAPMLDVToManipulatorPosition(_demoData.Target3),
-                //         MOVEMENT_SPEED
-                //     )
-                // );
+                var dura3 = CommunicationManager.Instance.SetPosition(
+                    new SetPositionRequest(
+                        _manipulator3.ManipulatorID,
+                        _manipulator3.ConvertInsertionAPMLDVToManipulatorPosition(
+                            _demoData.Target3
+                        ),
+                        MOVEMENT_SPEED
+                    )
+                );
 
                 var dura1Position = await dura1;
                 if (CommunicationManager.HasError(dura1Position.Error))
@@ -291,11 +289,11 @@ namespace UI
                 {
                     break;
                 }
-                // var dura3Position = await dura3;
-                // if (CommunicationManager.HasError(dura3Position.Error))
-                // {
-                //     break;
-                // }
+                var dura3Position = await dura3;
+                if (CommunicationManager.HasError(dura3Position.Error))
+                {
+                    break;
+                }
 
                 // Target.
                 _state.Stage = DemoStage.Target;
@@ -314,13 +312,13 @@ namespace UI
                         MOVEMENT_SPEED / 2
                     )
                 );
-                // var target3 = CommunicationManager.Instance.SetDepth(
-                //     new SetDepthRequest(
-                //         _manipulator3.ManipulatorID,
-                //         dura3Position.Position.w + _demoData.Target3.w,
-                //         MOVEMENT_SPEED / 2
-                //     )
-                // );
+                var target3 = CommunicationManager.Instance.SetDepth(
+                    new SetDepthRequest(
+                        _manipulator3.ManipulatorID,
+                        dura3Position.Position.w + _demoData.Target3.w,
+                        MOVEMENT_SPEED / 2
+                    )
+                );
 
                 if (CommunicationManager.HasError((await target1).Error))
                 {
@@ -330,10 +328,10 @@ namespace UI
                 {
                     break;
                 }
-                // if (CommunicationManager.HasError((await target3).Error))
-                // {
-                //     break;
-                // }
+                if (CommunicationManager.HasError((await target3).Error))
+                {
+                    break;
+                }
 
                 // Return to surface.
                 dura1 = CommunicationManager.Instance.SetPosition(
@@ -354,13 +352,15 @@ namespace UI
                         MOVEMENT_SPEED
                     )
                 );
-                // dura3 = CommunicationManager.Instance.SetPosition(
-                //     new SetPositionRequest(
-                //         _manipulator3.ManipulatorID,
-                //         _manipulator3.ConvertInsertionAPMLDVToManipulatorPosition(_demoData.Target3),
-                //         MOVEMENT_SPEED
-                //     )
-                // );
+                dura3 = CommunicationManager.Instance.SetPosition(
+                    new SetPositionRequest(
+                        _manipulator3.ManipulatorID,
+                        _manipulator3.ConvertInsertionAPMLDVToManipulatorPosition(
+                            _demoData.Target3
+                        ),
+                        MOVEMENT_SPEED
+                    )
+                );
 
                 if (CommunicationManager.HasError((await dura1).Error))
                 {
@@ -370,10 +370,10 @@ namespace UI
                 {
                     break;
                 }
-                // if (CommunicationManager.HasError((await dura3).Error))
-                // {
-                //     break;
-                // }
+                if (CommunicationManager.HasError((await dura3).Error))
+                {
+                    break;
+                }
             }
         }
 
