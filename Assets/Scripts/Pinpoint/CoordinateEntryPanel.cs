@@ -2,7 +2,6 @@ using BrainAtlas;
 using TMPro;
 using TrajectoryPlanner;
 using UnityEngine;
-using Urchin.Utils;
 
 public class CoordinateEntryPanel : MonoBehaviour
 {
@@ -10,6 +9,10 @@ public class CoordinateEntryPanel : MonoBehaviour
     [SerializeField] private TMP_Text _mlText;
     [SerializeField] private TMP_Text _dvText;
     [SerializeField] private TMP_Text _depthText;
+
+    [SerializeField] private TMP_Text _xAngleText;
+    [SerializeField] private TMP_Text _yAngleText;
+    [SerializeField] private TMP_Text _zAngleText;
 
     [SerializeField] private TMP_InputField _apField;
     [SerializeField] private TMP_InputField _mlField;
@@ -20,6 +23,8 @@ public class CoordinateEntryPanel : MonoBehaviour
     [SerializeField] private TMP_InputField _rollField;
     
     [SerializeField] private TP_ProbeQuickSettings _probeQuickSettings;
+
+    private AngleConvention _angleConvention;
 
     private void Awake()
     {
@@ -63,9 +68,18 @@ public class CoordinateEntryPanel : MonoBehaviour
         _dvField.interactable = pos.z != 0f;
         _depthField.interactable = pos.w != 0f;
 
-        _yawField.interactable = ang.x != 0f;
-        _pitchField.interactable = ang.y != 0f;
-        _rollField.interactable = ang.z != 0f;
+        if (Settings.AngleConvention.AllowFrom)
+        {
+            _yawField.interactable = ang.x != 0f;
+            _pitchField.interactable = ang.y != 0f;
+            _rollField.interactable = ang.z != 0f;
+        }
+        else
+        {
+            _yawField.interactable = false;
+            _pitchField.interactable = false;
+            _rollField.interactable = false;
+        }
     }
 
     public void UpdateText()
@@ -115,8 +129,7 @@ public class CoordinateEntryPanel : MonoBehaviour
         _depthField.text = float.IsNaN(depth) ? "nan" : Round2Str(depth * mult);
 
         // if in IBL angles, rotate the angles appropriately
-        if (Settings.UseIBLAngles)
-            angles = PinpointUtils.World2IBL(angles);
+        angles = _angleConvention.ToConvention(angles);
 
         if (!_probeQuickSettings.IsFocused())
         {
@@ -163,8 +176,7 @@ public class CoordinateEntryPanel : MonoBehaviour
                 (_pitchField.text.Length > 0) ? float.Parse(_pitchField.text) : 0,
                 (_rollField.text.Length > 0) ? float.Parse(_rollField.text) : 0);
 
-            if (Settings.UseIBLAngles)
-                angles = PinpointUtils.IBL2World(angles);
+            angles = _angleConvention.FromConvention(angles);
 
             if (Settings.ConvertAPML2Probe)
                 Debug.LogWarning("Converting back from probe angles is not yet implemented");
@@ -175,5 +187,13 @@ public class CoordinateEntryPanel : MonoBehaviour
         {
             Debug.Log("Bad formatting?");
         }
+    }
+
+    public void SetActiveAngleConvention(AngleConvention newAngleConvention)
+    {
+        _angleConvention = newAngleConvention;
+        _xAngleText.text = newAngleConvention.XName;
+        _yAngleText.text = newAngleConvention.YName;
+        _zAngleText.text = newAngleConvention.ZName;
     }
 }

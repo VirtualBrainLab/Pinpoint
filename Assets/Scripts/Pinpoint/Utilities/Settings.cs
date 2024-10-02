@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -68,18 +69,45 @@ public class Settings : MonoBehaviour
         }
     }
 
-    private const bool USEIBLANGLES_DEFAULT = false;
-    [FormerlySerializedAs("iblAngleToggle")][SerializeField] private Toggle _iblAngleToggle;
-    public UnityEvent UseIBLAnglesChangedEvent;
+    private const string ANGLECONVENTION_DEFAULT = "Pinpoint";
+    [SerializeField] private TMP_Dropdown _angleConventionDropdown;
+    public UnityEvent<AngleConvention> AngleConventionChangedEvent;
 
-    public static bool UseIBLAngles
+    private AngleConvention[] _angleConventionOptions = {new PinpointAngleConvention(),
+        new IBLAngleConvention(),
+        new MISAngleConvention(),
+        new SagittalCoronalAngleConvention()};
+
+    public static void SetAngleConvention(int dropdownIndex)
     {
-        get { return data.UseIBLAngles; }
+        string text = Instance._angleConventionDropdown.options[dropdownIndex].text;
+        SetAngleConvention(text);
+    }
+
+    public static void SetAngleConvention(string conventionString)
+    {
+        for (int i = 0; i < Instance._angleConventionOptions.Length; i++)
+        {
+            if (conventionString.Contains(Instance._angleConventionOptions[i].DisplayName))
+            {
+                Settings.AngleConvention = Instance._angleConventionOptions[i];
+                break;
+            }
+        }
+    }
+
+    public static AngleConvention AngleConvention
+    {
+        get
+        {
+            return Instance._angleConventionOptions.Single(x => x.DisplayName.Equals(data.AngleConvention));
+        }
         set
         {
-            data.UseIBLAngles = value;
+            data.AngleConvention = value.DisplayName;
             Save();
-            Instance.UseIBLAnglesChangedEvent.Invoke();
+            Instance._angleConventionDropdown.SetValueWithoutNotify(Instance._angleConventionDropdown.options.FindIndex(x => x.text.Contains(data.AngleConvention)));
+            Instance.AngleConventionChangedEvent.Invoke(value);
         }
     }
 
@@ -660,7 +688,7 @@ public class Settings : MonoBehaviour
             // probe
             data.DetectCollisions = COLLISIONS_DEFAULT;
             data.RotateAPML2ProbeAxis = APML2PROBE_DEFAULT;
-            data.UseIBLAngles = USEIBLANGLES_DEFAULT;
+            data.AngleConvention = ANGLECONVENTION_DEFAULT;
             data.AxisControl = AXISCONTROL_DEFAULT;
             data.ProbeSpeed = PROBE_SPEED_DEFAULT;
 
@@ -729,7 +757,7 @@ public class Settings : MonoBehaviour
 
         _probeAxisToggle.SetIsOnWithoutNotify(ConvertAPML2Probe);
 
-        _iblAngleToggle.SetIsOnWithoutNotify(UseIBLAngles);
+        SetAngleConvention(data.AngleConvention);
 
         _acronymToggle.SetIsOnWithoutNotify(UseAcronyms);
 
@@ -899,7 +927,7 @@ public class Settings : MonoBehaviour
         public string SpikeGLXHelloPath;
         public float APIUpdateRate;
 
-        public bool UseIBLAngles;
+        public string AngleConvention;
         public bool AxisControl;
         public bool UseAcronyms;
         public bool UseBeryl;

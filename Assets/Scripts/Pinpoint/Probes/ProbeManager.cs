@@ -753,9 +753,7 @@ public class ProbeManager : MonoBehaviour
             + BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
         Vector3 tipAtlasT = insertion.APMLDV;
 
-        Vector3 angles = Settings.UseIBLAngles
-            ? PinpointUtils.World2IBL(insertion.Angles)
-            : insertion.Angles;
+        Vector3 angles = insertion.Angles;
 
         (Vector3 entryAtlasT, float depthTransformed) = GetSurfaceCoordinateT();
 
