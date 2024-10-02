@@ -15,7 +15,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         #region Constants
 
         // Default movement speed: 0.5 mm/s
-        public const float AUTOMATIC_MOVEMENT_SPEED = 0.5f;
+        public const float AUTOMATIC_MOVEMENT_SPEED = 0.5f * 2;
 
         #endregion
 
