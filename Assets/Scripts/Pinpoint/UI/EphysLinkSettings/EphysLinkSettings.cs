@@ -80,6 +80,12 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         private UIManager _uiManager;
 
+        [SerializeField]
+        private List<GameObject> _nonDemoUIGameObjects;
+
+        [SerializeField]
+        private GameObject _automationDemoUI;
+
         #endregion
 
         #region Properties
@@ -387,6 +393,18 @@ namespace Pinpoint.UI.EphysLinkSettings
         {
             if (_uiManager != null)
                 _uiManager.EnableEphysCopilotPanel(isEnabled);
+        }
+
+        public void StartAutomationDemo()
+        {
+            // Enable automation UI.
+            _automationDemoUI.SetActive(true);
+
+            // Disable right-side UI.
+            foreach (var uiGameObject in _nonDemoUIGameObjects)
+            {
+                uiGameObject.SetActive(false);
+            }
         }
 
         public void InvokeShouldUpdateProbesListEvent()
