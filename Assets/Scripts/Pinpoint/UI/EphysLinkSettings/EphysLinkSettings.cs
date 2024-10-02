@@ -85,7 +85,7 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         [SerializeField]
         private GameObject _automationDemoUI;
-
+        
         #endregion
 
         #region Properties
@@ -404,6 +404,18 @@ namespace Pinpoint.UI.EphysLinkSettings
             foreach (var uiGameObject in _nonDemoUIGameObjects)
             {
                 uiGameObject.SetActive(false);
+            }
+        }
+
+        public void StopAutomationDemo()
+        {
+            // Disable automation UI.
+            _automationDemoUI.SetActive(false);
+            
+            // Enable right-side UI.
+            foreach (var uiGameObject in _nonDemoUIGameObjects)
+            {
+                uiGameObject.SetActive(true);
             }
         }
 

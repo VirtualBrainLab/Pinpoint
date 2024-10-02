@@ -978,13 +978,14 @@ GameObject:
   m_Component:
   - component: {fileID: 678495612}
   - component: {fileID: 678495611}
+  - component: {fileID: 678495613}
   m_Layer: 5
   m_Name: AutomationDemo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &678495611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1019,6 +1020,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &678495613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 678495610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: facbc7a0d20b526409cfc6bdda99e18a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiState: {fileID: 11400000, guid: cf43abba78d65904797510703375fcf3, type: 2}
+  _uiDocument: {fileID: 678495611}
+  _ephysLinkSettings: {fileID: 470935020}
+  _brainCameraController: {fileID: 1758557703}
 --- !u!1 &698998060 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8278374878278529525, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -2918,7 +2935,7 @@ PrefabInstance:
       objectReference: {fileID: 678495610}
     - target: {fileID: 52129431122917559, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: _nonDemoUIGameObjects.Array.size
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 52129431122917559, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: '_nonDemoUIGameObjects.Array.data[0]'
@@ -2931,11 +2948,11 @@ PrefabInstance:
     - target: {fileID: 52129431122917559, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: '_nonDemoUIGameObjects.Array.data[2]'
       value: 
-      objectReference: {fileID: 2085964517}
+      objectReference: {fileID: 1765928153}
     - target: {fileID: 52129431122917559, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: '_nonDemoUIGameObjects.Array.data[3]'
       value: 
-      objectReference: {fileID: 1765928153}
+      objectReference: {fileID: 2060334557}
     - target: {fileID: 52129431122917559, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
       propertyPath: '_nonDemoUIGameObjects.Array.data[4]'
       value: 

@@ -1,14 +1,34 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/DemoStyle.uss?fileID=7433441132597879392&amp;guid=326ef3385a9df2f4880927cfe6f600ca&amp;type=3#DemoStyle" />
-    <engine:VisualElement style="flex-grow: 7;" />
-    <engine:VisualElement name="bg" style="flex-grow: 1;">
+    <engine:VisualElement picking-mode="Ignore" style="flex-grow: 7;" />
+    <engine:VisualElement name="bg" data-source="project://database/Assets/Scripts/UI/States/DemoState.asset?fileID=11400000&amp;guid=cf43abba78d65904797510703375fcf3&amp;type=2#DemoState" style="flex-grow: 1;">
         <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
-            <engine:Label text="1.&#10;Home Position" enabled="true" style="-unity-text-align: upper-center;" />
-            <engine:Label text="2.&#10;Calibrate to&#10;Reference Coordinate" enabled="true" style="-unity-text-align: upper-center;" />
-            <engine:Label text="3.&#10;Move to&#10;Entry Coordinate" enabled="true" style="-unity-text-align: upper-center;" />
-            <engine:Label text="4.&#10;Calibrate to&#10;Dura" enabled="true" style="-unity-text-align: upper-center;" />
-            <engine:Label text="5.&#10;Drive to&#10;Target" enabled="true" style="-unity-text-align: upper-center;" />
+            <engine:Label text="1.&#10;Home Position" enabled="true" style="-unity-text-align: upper-center;">
+                <Bindings>
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsHomeEnabled" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Label>
+            <engine:Label text="2.&#10;Calibrate to&#10;Reference Coordinate" enabled="true" style="-unity-text-align: upper-center;">
+                <Bindings>
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsReferenceCoordinateEnabled" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Label>
+            <engine:Label text="3.&#10;Move to&#10;Entry Coordinate" enabled="true" style="-unity-text-align: upper-center;">
+                <Bindings>
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsEntryEnabled" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Label>
+            <engine:Label text="4.&#10;Calibrate to&#10;Dura" enabled="true" style="-unity-text-align: upper-center;">
+                <Bindings>
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsDuraEnabled" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Label>
+            <engine:Label text="5.&#10;Drive to&#10;Target" enabled="true" style="-unity-text-align: upper-center;">
+                <Bindings>
+                    <engine:DataBinding property="enabledSelf" data-source-path="IsTargetEnabled" binding-mode="ToTarget" />
+                </Bindings>
+            </engine:Label>
         </engine:VisualElement>
-        <engine:Button text="Exit Demo" style="font-size: 20px; margin-bottom: 4px;" />
+        <engine:Button text="Exit Demo" name="exit-button" style="font-size: 20px; margin-bottom: 4px;" />
     </engine:VisualElement>
 </engine:UXML>
