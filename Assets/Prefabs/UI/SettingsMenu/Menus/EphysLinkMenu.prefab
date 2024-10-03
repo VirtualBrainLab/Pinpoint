@@ -719,7 +719,7 @@ MonoBehaviour:
       - m_Target: {fileID: 4412914667077470364}
         m_TargetAssemblyTypeName: Pinpoint.UI.EphysLinkSettings.EphysLinkSettings,
           trajectoryplanner.ui.ephyslinksettings
-        m_MethodName: StartAutomationDemo
+        m_MethodName: ToggleNewUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4413,6 +4413,7 @@ MonoBehaviour:
   _copilotToggle: {fileID: 6762999849811435235}
   _nonDemoUIGameObjects: []
   _automationDemoUI: {fileID: 0}
+  _newUI: {fileID: 0}
 --- !u!114 &7858764217905313557
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -86,9 +86,14 @@ namespace Pinpoint.UI.EphysLinkSettings
         [SerializeField]
         private GameObject _automationDemoUI;
         
+        [SerializeField]
+        private GameObject _newUI;
+        
         #endregion
 
         #region Properties
+
+        private bool _isNewUIActiveBeforeDemo = true;
 
         private readonly Dictionary<
             string,
@@ -400,6 +405,9 @@ namespace Pinpoint.UI.EphysLinkSettings
             // Enable automation UI.
             _automationDemoUI.SetActive(true);
 
+            // Save state of new UI.
+            _isNewUIActiveBeforeDemo = _newUI.activeSelf;
+            
             // Disable right-side UI.
             foreach (var uiGameObject in _nonDemoUIGameObjects)
             {
@@ -417,6 +425,14 @@ namespace Pinpoint.UI.EphysLinkSettings
             {
                 uiGameObject.SetActive(true);
             }
+            
+            // Restore state of new UI.
+            _newUI.SetActive(_isNewUIActiveBeforeDemo);
+        }
+
+        public void ToggleNewUI()
+        {
+            _newUI.SetActive(!_newUI.activeSelf);
         }
 
         public void InvokeShouldUpdateProbesListEvent()

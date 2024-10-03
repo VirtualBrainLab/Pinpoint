@@ -393,8 +393,15 @@ namespace UI
             // Reset UI state.
             _state.Stage = DemoStage.Home;
 
-            // Stop manipulators.
-            await CommunicationManager.Instance.StopAll();
+            try
+            {
+                // Stop manipulators.
+                await CommunicationManager.Instance.StopAll();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
 
             // Close the UI.
             _ephysLinkSettings.StopAutomationDemo();
