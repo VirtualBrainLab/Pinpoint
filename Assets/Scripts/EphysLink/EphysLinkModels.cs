@@ -1,5 +1,5 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 
 [Serializable]
 public struct AngularResponse
@@ -39,7 +39,16 @@ public struct EphysLinkOptions
     public int MpmPort;
     public string Serial;
 
-    public EphysLinkOptions(bool background, bool ignoreUpdates, string type, bool debug, bool useProxy, string proxyAddress, int mpmPort, string serial)
+    public EphysLinkOptions(
+        bool background,
+        bool ignoreUpdates,
+        string type,
+        bool debug,
+        bool useProxy,
+        string proxyAddress,
+        int mpmPort,
+        string serial
+    )
     {
         Background = background;
         IgnoreUpdates = ignoreUpdates;
@@ -52,24 +61,35 @@ public struct EphysLinkOptions
     }
 }
 
-
 [Serializable]
 public struct GetManipulatorsResponse
 {
     public string[] Manipulators;
-    public int NumAxes;
-    public Vector4 Dimensions;
     public string Error;
 
-    public GetManipulatorsResponse(string[] manipulators, int numAxes, Vector4 dimensions, string error)
+    public GetManipulatorsResponse(string[] manipulators, string error)
     {
         Manipulators = manipulators;
-        NumAxes = numAxes;
-        Dimensions = dimensions;
         Error = error;
     }
 }
 
+[Serializable]
+public struct PlatformInfo
+{
+    public string Name;
+    public string CliName;
+    public int AxesCount;
+    public Vector4 Dimensions;
+
+    public PlatformInfo(string name, string cliName, int axesCount, Vector4 dimensions)
+    {
+        Name = name;
+        CliName = cliName;
+        AxesCount = axesCount;
+        Dimensions = dimensions;
+    }
+}
 
 [Serializable]
 public struct PositionalResponse
@@ -125,7 +145,6 @@ public struct SetInsideBrainRequest
     }
 }
 
-
 [Serializable]
 public struct SetPositionRequest
 {
@@ -153,4 +172,3 @@ public struct ShankCountResponse
         Error = error;
     }
 }
-

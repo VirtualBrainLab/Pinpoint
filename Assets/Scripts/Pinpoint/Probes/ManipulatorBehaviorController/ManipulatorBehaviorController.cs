@@ -141,19 +141,13 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <param name="calibrated">Whether this manipulator has been calibrated.</param>
         public async void Initialize(string manipulatorID, bool calibrated)
         {
-            // Get manipulator information
-            var manipulatorResponse = await CommunicationManager.Instance.GetManipulators();
-            if (CommunicationManager.HasError(manipulatorResponse.Error))
-                return;
-
-            // Shortcut exit if we have an invalid manipulator ID
-            if (!manipulatorResponse.Manipulators.Contains(manipulatorID))
-                return;
+            // Get platform information
+            var platformInfoResponse = await CommunicationManager.Instance.GetPlatformInfo();
 
             // Set manipulator ID, number of axes, and dimensions
             ManipulatorID = manipulatorID;
-            NumAxes = manipulatorResponse.NumAxes;
-            Dimensions = manipulatorResponse.Dimensions;
+            NumAxes = platformInfoResponse.AxesCount;
+            Dimensions = platformInfoResponse.Dimensions;
 
             // Update transform and space
             UpdateSpaceAndTransform();
