@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Signers;
 using BestHTTP.SocketIO3;
 using UnityEngine;
 
@@ -351,30 +352,33 @@ namespace EphysLink
         }
 
         /// <summary>
-        ///     Get the platform type.
+        ///     Get the platform info.
         /// </summary>
-        /// <param name="onSuccessCallback">Callback function to handle incoming platform type info.</param>
+        /// <param name="onSuccessCallback">Callback function to handle incoming platform info.</param>
         /// <param name="onErrorCallback">Callback function to handle errors.</param>
-        public void GetPlatformType(Action<string> onSuccessCallback, Action onErrorCallback = null)
+        public void GetPlatformInfo(Action<PlatformInfo> onSuccessCallback, Action onErrorCallback = null)
         {
             _connectionManager
                 .Socket.ExpectAcknowledgement<string>(data =>
                 {
                     if (DataKnownAndNotEmpty(data))
-                        onSuccessCallback?.Invoke(data);
+                    {
+                        var parsedData = ParseJson<PlatformInfo>(data);
+                        onSuccessCallback?.Invoke(parsedData);
+                    }
                     else
                         onErrorCallback?.Invoke();
                 })
-                .Emit("get_platform_type");
+                .Emit("get_platform_info");
         }
 
         /// <summary>
-        ///     Get the platform type.
+        ///     Get the platform info.
         /// </summary>
-        /// <returns>Platform type.</returns>
-        public async Awaitable<string> GetPlatformType()
+        /// <returns>Platform info.</returns>
+        public async Awaitable<PlatformInfo> GetPlatformInfo()
         {
-            return await EmitAndGetStringResponse<object>("get_platform_type", null);
+            return await EmitAndGetResponse<PlatformInfo, object>("get_platform_info", null);
         }
 
         /// <summary>
