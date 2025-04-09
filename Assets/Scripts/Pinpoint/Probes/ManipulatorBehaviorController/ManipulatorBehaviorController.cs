@@ -167,20 +167,14 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             CoordinateSpace = new ManipulatorSpace(Dimensions);
             CoordinateTransform = NumAxes switch
             {
-                4
-                    => IsRightHanded
-                        ? new FourAxisRightHandedManipulatorTransform(
-                            _probeController.Insertion.Yaw
-                        )
-                        : new FourAxisLeftHandedManipulatorTransform(
-                            _probeController.Insertion.Yaw
-                        ),
-                3
-                    => new ThreeAxisLeftHandedTransform(
-                        _probeController.Insertion.Yaw,
-                        _probeController.Insertion.Pitch
-                    ),
-                _ => CoordinateTransform
+                4 => IsRightHanded
+                    ? new FourAxisRightHandedManipulatorTransform(_probeController.Insertion.Yaw)
+                    : new FourAxisLeftHandedManipulatorTransform(_probeController.Insertion.Yaw),
+                3 => new ThreeAxisLeftHandedTransform(
+                    _probeController.Insertion.Yaw,
+                    _probeController.Insertion.Pitch
+                ),
+                _ => CoordinateTransform,
             };
         }
 
@@ -269,7 +263,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         }
 
         /// <summary>
-        ///     Move manipulator by a given delta in world space
+        ///     Move manipulator by a given delta in world space at the automatic movement speed.
         /// </summary>
         /// <param name="worldSpaceDelta">Delta (X, Y, Z, D) to move by in world space coordinates</param>
         /// <returns>True on successful movement, false otherwise.</returns>
@@ -278,7 +272,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Convert to manipulator axes (world -> space -> transform).
             var manipulatorSpaceDelta = CoordinateSpace.World2Space_Vector(worldSpaceDelta);
             var manipulatorTransformDelta = CoordinateTransform.U2T(manipulatorSpaceDelta);
-            var manipulatorSpaceDepth = worldSpaceDelta.w;
+            var manipulatorSpaceDepthDelta = worldSpaceDelta.w;
 
             // Get manipulator position.
             var positionResponse = await CommunicationManager.Instance.GetPosition(ManipulatorID);
@@ -291,7 +285,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                 + new Vector4(
                     manipulatorTransformDelta.x,
                     manipulatorTransformDelta.y,
-                    manipulatorTransformDelta.z
+                    manipulatorTransformDelta.z,
+                    manipulatorSpaceDepthDelta
                 );
 
             // Move manipulator.
@@ -300,9 +295,13 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             );
             if (CommunicationManager.HasError(setPositionResponse.Error))
                 return false;
+            
+            // 3-axis manipulators need to set depth separately if requested.
 
-            // Process depth movement.
-            var targetDepth = positionResponse.Position.w + manipulatorSpaceDepth;
+            if (NumAxes != 3) return true;
+            
+            // Process depth movement after regular movement.
+            var targetDepth = setPositionResponse.Position.w + manipulatorSpaceDepthDelta;
 
             // Move manipulator.
             var setDepthResponse = await CommunicationManager.Instance.SetDepth(
@@ -311,7 +310,6 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
             return !CommunicationManager.HasError(setDepthResponse.Error);
         }
-
 
         #endregion
 
@@ -418,7 +416,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     _probeController.Insertion.Roll.ToString(CultureInfo.InvariantCulture),
                     tipPos.x.ToString(CultureInfo.InvariantCulture),
                     tipPos.y.ToString(CultureInfo.InvariantCulture),
-                    tipPos.z.ToString(CultureInfo.InvariantCulture)
+                    tipPos.z.ToString(CultureInfo.InvariantCulture),
                 }
             );
 
