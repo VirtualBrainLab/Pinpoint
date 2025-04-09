@@ -489,9 +489,8 @@ public class CartesianProbeController : ProbeController
             // Disable/ignore more input until movement is done.
             ManipulatorKeyboardMoveInProgress = true;
 
-            // Call movement and re-enable input when done.
-            if (!await ProbeManager.ManipulatorBehaviorController.MoveByWorldSpaceDelta(posDelta))
-                return;
+            // Call movement (does nothing if movement is invalid).
+            await ProbeManager.ManipulatorBehaviorController.MoveByWorldSpaceDelta(posDelta);
             
             // Re-enable input.
             ManipulatorKeyboardMoveInProgress = false;
