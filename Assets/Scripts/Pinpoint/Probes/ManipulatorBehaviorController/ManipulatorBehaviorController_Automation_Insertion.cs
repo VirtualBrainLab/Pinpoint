@@ -202,7 +202,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     DateTime.Now.ToString(CultureInfo.InvariantCulture),
                     "Drive",
                     ManipulatorID,
-                    "Stop"
+                    "Stop",
                 }
             );
         }
@@ -358,9 +358,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     "DriveToTargetInsertion",
                     ManipulatorID,
                     ProbeAutomationStateManager.ProbeAutomationState.ToString(),
-                    targetDepth.ToString(CultureInfo.InvariantCulture),
-                    baseSpeed.ToString(CultureInfo.InvariantCulture),
-                    drivePastDistance.ToString(CultureInfo.InvariantCulture)
+                    (targetDepth * 1000).ToString(CultureInfo.InvariantCulture),
+                    (baseSpeed * 1000).ToString(CultureInfo.InvariantCulture),
+                    (drivePastDistance * 1000).ToString(CultureInfo.InvariantCulture),
                 }
             );
         }
@@ -453,32 +453,32 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Compute ETA.
             var secondsToDestination = ProbeAutomationStateManager.ProbeAutomationState switch
             {
-                ProbeAutomationState.DrivingToNearTarget
-                    => Mathf.Max(0, distanceToTarget - NEAR_TARGET_DISTANCE) / baseSpeed // To near target.
-                        + (NEAR_TARGET_DISTANCE + 2 * drivePastDistance)
-                            / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER), // To past target and back to target.
-                ProbeAutomationState.DrivingToPastTarget
-                    => (distanceToTarget + 2 * drivePastDistance)
+                ProbeAutomationState.DrivingToNearTarget => Mathf.Max(
+                    0,
+                    distanceToTarget - NEAR_TARGET_DISTANCE
+                ) / baseSpeed // To near target.
+                    + (NEAR_TARGET_DISTANCE + 2 * drivePastDistance)
                         / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER), // To past target and back to target.
-                ProbeAutomationState.ReturningToTarget
-                    => distanceToTarget / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER), // Back to target.
-                ProbeAutomationState.ExitingToDura
-                    => (GetTargetDistanceToDura(targetInsertionProbeManager) - distanceToTarget)
-                        / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER) // To Dura.
-                        + DURA_MARGIN_DISTANCE / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER) // To exit margin.
-                        + _actualExitMarginToDuraDistance / AUTOMATIC_MOVEMENT_SPEED, // To entry coordinate.
-                ProbeAutomationState.ExitingToMargin
-                    => (
-                        DURA_MARGIN_DISTANCE
-                        - (distanceToTarget - GetTargetDistanceToDura(targetInsertionProbeManager))
-                    ) / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER) // To exit margin.
-                        + _actualExitMarginToDuraDistance / AUTOMATIC_MOVEMENT_SPEED, // To entry coordinate.
-                ProbeAutomationState.ExitingToTargetEntryCoordinate
-                    => (
-                        IDEAL_ENTRY_COORDINATE_TO_DURA_DISTANCE
-                        - (distanceToTarget - GetTargetDistanceToDura(targetInsertionProbeManager))
-                    ) / AUTOMATIC_MOVEMENT_SPEED,
-                _ => 0
+                ProbeAutomationState.DrivingToPastTarget => (
+                    distanceToTarget + 2 * drivePastDistance
+                ) / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER), // To past target and back to target.
+                ProbeAutomationState.ReturningToTarget => distanceToTarget
+                    / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER), // Back to target.
+                ProbeAutomationState.ExitingToDura => (
+                    GetTargetDistanceToDura(targetInsertionProbeManager) - distanceToTarget
+                ) / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER) // To Dura.
+                    + DURA_MARGIN_DISTANCE / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER) // To exit margin.
+                    + _actualExitMarginToDuraDistance / AUTOMATIC_MOVEMENT_SPEED, // To entry coordinate.
+                ProbeAutomationState.ExitingToMargin => (
+                    DURA_MARGIN_DISTANCE
+                    - (distanceToTarget - GetTargetDistanceToDura(targetInsertionProbeManager))
+                ) / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER) // To exit margin.
+                    + _actualExitMarginToDuraDistance / AUTOMATIC_MOVEMENT_SPEED, // To entry coordinate.
+                ProbeAutomationState.ExitingToTargetEntryCoordinate => (
+                    IDEAL_ENTRY_COORDINATE_TO_DURA_DISTANCE
+                    - (distanceToTarget - GetTargetDistanceToDura(targetInsertionProbeManager))
+                ) / AUTOMATIC_MOVEMENT_SPEED,
+                _ => 0,
             };
 
             // Return formatted time if above 1 minute.

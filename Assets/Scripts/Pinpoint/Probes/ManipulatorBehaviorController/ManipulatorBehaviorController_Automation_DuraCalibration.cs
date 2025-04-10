@@ -39,7 +39,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             var positionResponse = await CommunicationManager.Instance.GetPosition(ManipulatorID);
             if (CommunicationManager.HasError(positionResponse.Error))
                 return false;
-            
+
             // Save the Dura's position.
             _duraDepth = positionResponse.Position.w;
 
@@ -79,7 +79,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
             // Save the probe's coordinates at the Dura.
             _duraCoordinate = _probeController.Insertion.APMLDV;
-            
+
             // Log the event.
             OutputLog.Log(
                 new[]
@@ -88,7 +88,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     DateTime.Now.ToString(CultureInfo.InvariantCulture),
                     "ResetDuraOffset",
                     ManipulatorID,
-                    BrainSurfaceOffset.ToString(CultureInfo.InvariantCulture)
+                    (BrainSurfaceOffset * 1000).ToString(CultureInfo.InvariantCulture),
                 }
             );
 

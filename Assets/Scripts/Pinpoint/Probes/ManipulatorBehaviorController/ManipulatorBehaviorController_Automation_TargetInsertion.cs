@@ -124,7 +124,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     DateTime.Now.ToString(CultureInfo.InvariantCulture),
                     "DriveToTargetEntryCoordinate",
                     ManipulatorID,
-                    "Start"
+                    "Start",
                 }
             );
 
@@ -283,15 +283,15 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             var defaultSpriteShader = Shader.Find("Sprites/Default");
             _trajectoryLineLineRenderers.ap.material = new Material(defaultSpriteShader)
             {
-                color = AP_COLOR
+                color = AP_COLOR,
             };
             _trajectoryLineLineRenderers.ml.material = new Material(defaultSpriteShader)
             {
-                color = ML_COLOR
+                color = ML_COLOR,
             };
             _trajectoryLineLineRenderers.dv.material = new Material(defaultSpriteShader)
             {
-                color = DV_COLOR
+                color = DV_COLOR,
             };
 
             // Set line widths.
@@ -376,7 +376,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     DateTime.Now.ToString(CultureInfo.InvariantCulture),
                     "DriveToTargetEntryCoordinate",
                     ManipulatorID,
-                    progressMessage
+                    progressMessage,
                 }
             );
         }

@@ -27,7 +27,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     DateTime.Now.ToString(CultureInfo.InvariantCulture),
                     "MoveBackToReferenceCoordinate",
                     ManipulatorID,
-                    "Start"
+                    "Start",
                 }
             );
 
@@ -51,7 +51,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     DateTime.Now.ToString(CultureInfo.InvariantCulture),
                     "MoveBackToReferenceCoordinate",
                     ManipulatorID,
-                    "End"
+                    "End",
                 }
             );
 
@@ -83,7 +83,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     DateTime.Now.ToString(CultureInfo.InvariantCulture),
                     "MoveBackToReferenceCoordinate",
                     ManipulatorID,
-                    "Stop"
+                    "Stop",
                 }
             );
         }

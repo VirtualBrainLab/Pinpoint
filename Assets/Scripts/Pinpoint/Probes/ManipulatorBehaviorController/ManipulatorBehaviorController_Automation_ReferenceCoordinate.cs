@@ -81,7 +81,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     DateTime.Now.ToString(CultureInfo.InvariantCulture),
                     "ResetReferenceCoordinate",
                     ManipulatorID,
-                    ReferenceCoordinateOffset.ToString()
+                    (ReferenceCoordinateOffset * 1000).ToString(),
                 }
             );
             return true;
