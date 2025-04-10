@@ -295,11 +295,12 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             );
             if (CommunicationManager.HasError(setPositionResponse.Error))
                 return false;
-            
+
             // 3-axis manipulators need to set depth separately if requested.
 
-            if (NumAxes != 3) return true;
-            
+            if (NumAxes != 3)
+                return true;
+
             // Process depth movement after regular movement.
             var targetDepth = setPositionResponse.Position.w + manipulatorSpaceDepthDelta;
 
