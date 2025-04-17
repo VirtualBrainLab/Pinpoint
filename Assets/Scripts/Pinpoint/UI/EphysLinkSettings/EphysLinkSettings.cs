@@ -20,7 +20,7 @@ namespace Pinpoint.UI.EphysLinkSettings
     {
         #region Constants
 
-        private const string EPHYS_LINK_NAME = "EphysLink-v2.0.2";
+        private const string EPHYS_LINK_NAME = "EphysLink-v2.1.0b1";
 
         private static string EphysLinkExePath =>
             Path.Combine(
@@ -109,7 +109,6 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         public void OnTypeChanged(int type)
         {
-            print("Type changed to " + type);
             // Show/hide extra groups based on connection type
             _existingServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 2);
             _proxyServerGroup.SetActive(type == _manipulatorTypeDropdown.options.Count - 1);
@@ -117,7 +116,7 @@ namespace Pinpoint.UI.EphysLinkSettings
             _launchEphysLinkButton.gameObject.SetActive(
                 type < _manipulatorTypeDropdown.options.Count - 2
             );
-            _pathfinderPortInputField.gameObject.SetActive(type == 2);
+            _pathfinderPortInputField.gameObject.SetActive(type == 1);
 
             // Save settings
             Settings.EphysLinkManipulatorType = type;
@@ -225,14 +224,8 @@ namespace Pinpoint.UI.EphysLinkSettings
         /// </summary>
         public void OnLaunchEphysLinkPressed()
         {
-            // Parse manipulator type string arg (invariant: custom connection should never happen).
-            var manipulatorTypeString = _manipulatorTypeDropdown.value switch
-            {
-                1 => "ump-3",
-                2 => "pathfinder-mpm",
-                3 => "new-scale",
-                _ => "ump-4"
-            };
+            // Parse manipulator type string arg.
+            var manipulatorTypeString = _manipulatorTypeDropdown.value == 0 ? "ump" : "pathfinder-mpm";
 
             // Make args string (ignore updates, select type).
             var args = $"-i -t {manipulatorTypeString}";
