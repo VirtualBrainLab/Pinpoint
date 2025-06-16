@@ -1,5 +1,7 @@
 # Pinpoint
 
+**11/16/25: PINPOINT IS BEING MOVED TO A NEW SERVER, WE'LL BE BACK ONLINE SOON**
+
 Pinpoint is a tool for planning trajectories in the space of brain reference atlases, such as the mouse CCF.
 
 ![Azimuth example](https://virtualbrainlab.org/_static/images/center.png)
