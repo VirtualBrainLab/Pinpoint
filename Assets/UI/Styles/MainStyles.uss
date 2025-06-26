@@ -1,0 +1,9 @@
+.side-panel--open {
+    background-color: var(--unity-colors-default-background);
+    width: 25%;
+}
+
+.side-panel--close {
+    background-color: transparent;
+    width: auto;
+}

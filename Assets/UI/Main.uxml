@@ -2,29 +2,28 @@
     <ui:Template name="InspectorStack" src="project://database/Assets/UI/Components/InspectorStack.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#InspectorStack" />
     <ui:Template name="AutomationStack" src="project://database/Assets/UI/Components/AutomationStack.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#AutomationStack" />
     <ui:Template name="ManualControlStack" src="project://database/Assets/UI/Components/ManualControlPanel.uxml?fileID=9197481963319205126&amp;guid=ed795aeb41983854f9804fe26f1a7f44&amp;type=3#ManualControlPanel" />
+    <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
     <ui:VisualElement data-source="project://database/Assets/Scripts/UI/Views/MainViewBindings.asset?fileID=11400000&amp;guid=118af7afb9fa79f49b2a383f46cdcc21&amp;type=2#MainViewBindings" style="flex-direction: row; flex-grow: 1;">
-        <ui:VisualElement data-source="project://database/Assets/Scripts/UI/States/UIPanelState.asset?fileID=11400000&amp;guid=d2fb6ddc884d6094f9a210b3dc6cbbf0&amp;type=2#UIPanelState" name="side-panel__left" style="width: 33%;">
-            <ui:VisualElement data-source="project://database/Assets/Scripts/UI/States/UIPanelState.asset?fileID=11400000&amp;guid=d2fb6ddc884d6094f9a210b3dc6cbbf0&amp;type=2#UIPanelState" style="flex-grow: 0; flex-direction: row;">
-                <ui:VisualElement style="flex-grow: 1; flex-direction: row; display: flex;">
-                    <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" icon-image="project://database/Assets/Images/icon_with_probes-01.png?fileID=2800000&amp;guid=accd8dc5bfa09f946b2a802d80b1a4e9&amp;type=3#icon_with_probes-01" style="flex-shrink: 1; height: 40px; overflow: hidden; align-items: stretch; width: 40px; padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;" />
-                    <ui:Button text="File" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-                    <ui:Button text="Preferences" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+        <ui:VisualElement name="side-panel__left" class="side-panel--open">
+            <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
+                <ui:VisualElement class="side-panel__item--open" style="flex-direction: row; flex-grow: 1;">
+                    <ui:Button text="Menu" />
                     <ui:DropdownField index="0" choices="Planning Mode,Visualization Mode, Automation Mode">
                         <Bindings>
                             <ui:DataBinding property="index" data-source-path="ModeIndex" binding-mode="TwoWay" />
                         </Bindings>
                     </ui:DropdownField>
                     <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="LeftSidePanelVisibilityDisplayStyle" binding-mode="ToTarget" />
+                        <ui:DataBinding property="style.display" data-source-path="SidePanelLeftItemDisplayStyle" binding-mode="ToTarget" />
                     </Bindings>
                 </ui:VisualElement>
-                <ui:Button text="&lt;&lt;" display-tooltip-when-elided="true" name="side-panel__toggle" parse-escape-sequences="true">
+                <ui:Button text="▶" name="side-panel__toggle">
                     <Bindings>
-                        <ui:DataBinding property="text" binding-mode="ToTarget" data-source-path="LeftSidePanelToggleButtonText" />
+                        <ui:DataBinding property="text" binding-mode="ToTarget" data-source-path="SidePanelLeftToggleText" />
                     </Bindings>
                 </ui:Button>
             </ui:VisualElement>
-            <ui:TabView view-data-key="HierarchyMenu" data-source="project://database/Assets/Scripts/UI/States/LeftSidePanelState.asset?fileID=11400000&amp;guid=1a6c5de70346447469b780c3c86c6370&amp;type=2#LeftSidePanelState" style="flex-grow: 1; display: flex;">
+            <ui:TabView class="side-panel__item--open" style="flex-grow: 1;">
                 <ui:Tab label="Scene" view-data-key="SceneTab">
                     <ui:ListView name="SceneContent" reorderable="true" show-alternating-row-backgrounds="None" style="display: flex;" />
                 </ui:Tab>
@@ -38,22 +37,22 @@
                     <ui:ScrollView name="ChannelMapsAndSlicesContent" mode="Horizontal" style="display: flex;" />
                 </ui:Tab>
                 <Bindings>
-                    <ui:DataBinding property="style.display" data-source-path="LeftSidePanelVisibilityDisplayStyle" binding-mode="ToTarget" data-source="project://database/Assets/Scripts/UI/States/UIPanelState.asset?fileID=11400000&amp;guid=d2fb6ddc884d6094f9a210b3dc6cbbf0&amp;type=2#UIPanelState" />
+                    <ui:DataBinding property="style.display" data-source-path="SidePanelLeftItemDisplayStyle" binding-mode="ToTarget" />
                 </Bindings>
             </ui:TabView>
             <Bindings>
-                <ui:DataBinding property="pickingMode" data-source-path="LeftSidePanelPickingMode" binding-mode="ToTarget" />
+                <ui:DataBinding property="pickingMode" data-source-path="SidePanelLeftPickingMode" binding-mode="ToTarget" />
             </Bindings>
         </ui:VisualElement>
         <ui:VisualElement name="spacer" picking-mode="Ignore" style="flex-direction: row; flex-grow: 1;" />
-        <ui:VisualElement data-source="project://database/Assets/Scripts/UI/States/UIPanelState.asset?fileID=11400000&amp;guid=d2fb6ddc884d6094f9a210b3dc6cbbf0&amp;type=2#UIPanelState" name="side-panel__right" style="width: 25%;">
+        <ui:VisualElement name="side-panel__right" class="side-panel--open">
             <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
                 <ui:Button text="&gt;&gt;" name="side-panel__toggle">
                     <Bindings>
                         <ui:DataBinding property="text" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" data-source-path="RightSidePanelToggleButtonText" />
                     </Bindings>
                 </ui:Button>
-                <ui:Label text="Inspector" data-source="project://database/Assets/Scripts/UI/States/LeftSidePanelState.asset?fileID=11400000&amp;guid=1a6c5de70346447469b780c3c86c6370&amp;type=2#LeftSidePanelState" style="-unity-text-align: middle-left;">
+                <ui:Label text="Inspector" style="-unity-text-align: middle-left;">
                     <Bindings>
                         <ui:DataBinding property="text" binding-mode="ToTarget" data-source-path="InspectorHeader" />
                         <ui:DataBinding property="style.display" data-source-path="RightSidePanelVisibilityDisplayStyle" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" />
@@ -75,7 +74,7 @@
                     <ui:DataBinding property="style.display" data-source-path="RightSidePanelVisibilityDisplayStyle" binding-mode="ToTarget" />
                 </Bindings>
             </ui:VisualElement>
-            <ui:ScrollView data-source="project://database/Assets/Scripts/UI/States/LeftSidePanelState.asset?fileID=11400000&amp;guid=1a6c5de70346447469b780c3c86c6370&amp;type=2#LeftSidePanelState" style="flex-grow: 1;">
+            <ui:ScrollView style="flex-grow: 1;">
                 <ui:Instance template="InspectorStack" name="inspector-stack-panel" style="opacity: 1;">
                     <Bindings>
                         <ui:DataBinding property="style.display" data-source-path="InspectorStackDisplayStyle" binding-mode="ToTarget" />
