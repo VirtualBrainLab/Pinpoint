@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using UI.ViewModels;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.Views
@@ -41,7 +42,7 @@ namespace UI.Views
             _viewModel = mainViewModel;
             _viewModel.PropertyChanged += OnPropertyChanged;
             dataSource = _viewModel;
-
+            
             // Register component references.
             _sidePanelLeft = this.Q<VisualElement>("side-panel__left");
             _sidePanelRight = this.Q<VisualElement>("side-panel__right");
@@ -51,6 +52,16 @@ namespace UI.Views
             // Register callbacks.
             _sidePanelLeftToggle.clicked += () => _viewModel.ToggleSidePanelLeftCommand.Execute();
             _sidePanelRightToggle.clicked += () => _viewModel.ToggleSidePanelRightCommand.Execute();
+            
+            // Initialize view from view model state.
+            if (_viewModel.IsSidePanelLeftItemVisible == DisplayStyle.None)
+            {
+                _sidePanelLeft.AddToClassList("side-panel--close");
+            }
+            if (_viewModel.IsSidePanelRightItemVisible == DisplayStyle.None)
+            {
+                _sidePanelRight.AddToClassList("side-panel--close");
+            }
         }
 
         /// <summary>

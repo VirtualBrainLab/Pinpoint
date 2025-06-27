@@ -6,6 +6,7 @@ using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using Unity.Properties;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace UI.ViewModels
@@ -31,13 +32,23 @@ namespace UI.ViewModels
 
         [ObservableProperty]
         [AlsoNotifyChangeFor(nameof(SidePanelLeftToggleText))]
+        [AlsoNotifyChangeFor(nameof(SidePanelLeftPickingMode))]
         private DisplayStyle _isSidePanelLeftItemVisible;
 
         [ObservableProperty]
         [AlsoNotifyChangeFor(nameof(SidePanelRightToggleText))]
+        [AlsoNotifyChangeFor(nameof(SidePanelRightPickingMode))]
         private DisplayStyle _isSidePanelRightItemVisible;
 
         #region Converted
+
+        [CreateProperty]
+        public PickingMode SidePanelLeftPickingMode =>
+            SidePanelVisibleToPickingMode(IsSidePanelLeftItemVisible);
+
+        [CreateProperty]
+        public PickingMode SidePanelRightPickingMode =>
+            SidePanelVisibleToPickingMode(IsSidePanelRightItemVisible);
 
         [CreateProperty]
         public string SidePanelLeftToggleText =>
@@ -46,6 +57,9 @@ namespace UI.ViewModels
         [CreateProperty]
         public string SidePanelRightToggleText =>
             IsSidePanelRightItemVisible == DisplayStyle.Flex ? "\u25B6" : "\u25C0";
+
+        [CreateProperty]
+        public Color ActiveProbeColor => ProbeManager.ActiveProbeManager?.Color ?? Color.gray;
 
         #endregion
 
@@ -61,14 +75,7 @@ namespace UI.ViewModels
             // Register state.
             _storeService = storeService;
             var initialState = _storeService.Store.GetState<MainState>(SliceNames.MAIN_SLICE);
-
-            _modeIndex = MainModeToInt(initialState.Mode);
-            _isSidePanelLeftItemVisible = SidePanelOpenToDisplayStyle(
-                initialState.IsSidePanelLeftOpen
-            );
-            _isSidePanelRightItemVisible = SidePanelOpenToDisplayStyle(
-                initialState.IsSidePanelRightOpen
-            );
+            OnStateChanged(initialState);
 
             // Subscribe to state changes.
             _subscription = _storeService.Store.Subscribe(
@@ -76,7 +83,7 @@ namespace UI.ViewModels
                 OnStateChanged
             );
             PropertyChanged += OnPropertyChanged;
-            App.shuttingDown += OnShuttingDown; 
+            App.shuttingDown += OnShuttingDown;
         }
 
         private void OnStateChanged(MainState state)
@@ -122,6 +129,9 @@ namespace UI.ViewModels
         #region Converters
         private static DisplayStyle SidePanelOpenToDisplayStyle(bool isOpen) =>
             isOpen ? DisplayStyle.Flex : DisplayStyle.None;
+
+        private static PickingMode SidePanelVisibleToPickingMode(DisplayStyle displayStyle) =>
+            displayStyle == DisplayStyle.Flex ? PickingMode.Position : PickingMode.Ignore;
 
         private static int MainModeToInt(MainModes mode) => (int)mode;
         #endregion
