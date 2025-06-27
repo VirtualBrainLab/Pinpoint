@@ -4,6 +4,10 @@ using UnityEngine.UIElements;
 
 namespace UI.Views
 {
+    /// <summary>
+    /// Represents the main view of the Pinpoint application UI.
+    /// Binds to the <see cref="MainViewModel"/> for property changes.
+    /// </summary>
     public class MainView : VisualElement
     {
         #region Component References
@@ -22,6 +26,11 @@ namespace UI.Views
 
         #endregion
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainView"/> class.
+        /// Sets up UI document, component references, and event bindings.
+        /// </summary>
+        /// <param name="mainViewModel">The view model to bind to.</param>
         public MainView(MainViewModel mainViewModel)
         {
             // Instantiate the UI document.
@@ -44,31 +53,23 @@ namespace UI.Views
             _sidePanelRightToggle.clicked += () => _viewModel.ToggleSidePanelRightCommand.Execute();
         }
 
+        /// <summary>
+        /// Handles property change notifications from the view model.
+        /// Updates the UI based on which property changed.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The property changed event arguments.</param>
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case nameof(MainViewModel.IsSidePanelLeftOpen):
-                    ToggleSidePanelLeft();
+                case nameof(MainViewModel.IsSidePanelLeftItemVisible):
+                    _sidePanelLeft.ToggleInClassList("side-panel--close");
                     break;
-                case nameof(MainViewModel.IsSidePanelRightOpen):
-                    ToggleSidePanelRight();
+                case nameof(MainViewModel.IsSidePanelRightItemVisible):
+                    _sidePanelRight.ToggleInClassList("side-panel--close");
                     break;
             }
         }
-
-        #region Functions
-
-        private void ToggleSidePanelLeft()
-        {
-            _sidePanelLeft.ToggleInClassList("side-panel--close");
-        }
-
-        private void ToggleSidePanelRight()
-        {
-            _sidePanelRight.ToggleInClassList("side-panel--close");
-        }
-
-        #endregion
     }
 }

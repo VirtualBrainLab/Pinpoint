@@ -7,13 +7,22 @@ namespace UI.Services
 {
     /// <summary>
     /// Provides access to the application's Redux store implementation.
+    /// Handles initialization and persistence of application state using local storage.
     /// </summary>
     public class StoreService : IStoreService
     {
         private readonly ILocalStorageService _localStorageService;
 
+        /// <summary>
+        /// Gets the Redux store instance for partitioned application state.
+        /// </summary>
         public IStore<PartitionedState> Store { get; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StoreService"/> class.
+        /// Loads initial state from local storage and configures the Redux store.
+        /// </summary>
+        /// <param name="localStorageService">The local storage service for state persistence.</param>
         public StoreService(ILocalStorageService localStorageService)
         {
             _localStorageService = localStorageService;
@@ -34,6 +43,7 @@ namespace UI.Services
                         builder =>
                         {
                             builder
+                                .AddCase(MainActions.SET_MODE, MainReducers.SetModeReducer)
                                 .AddCase(
                                     MainActions.TOGGLE_SIDE_PANEL_LEFT,
                                     MainReducers.ToggleSidePanelLeftReducer
@@ -48,6 +58,9 @@ namespace UI.Services
             );
         }
 
+        /// <summary>
+        /// Saves the current main state to local storage.
+        /// </summary>
         public void Save()
         {
             // Get the current state from memory.

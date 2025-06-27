@@ -10,7 +10,7 @@
                     <ui:Button text="Menu" />
                     <ui:DropdownField index="0" choices="Planning Mode,Visualization Mode, Automation Mode">
                         <Bindings>
-                            <ui:DataBinding property="index" data-source-path="ModeIndex" binding-mode="TwoWay" />
+                            <ui:DataBinding property="index" binding-mode="TwoWay" data-source-path="ModeIndex" />
                         </Bindings>
                     </ui:DropdownField>
                     <Bindings>

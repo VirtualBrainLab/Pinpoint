@@ -1,13 +1,19 @@
+using System.ComponentModel;
 using UI.Models;
 using UI.Services;
 using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using Unity.Properties;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.ViewModels
 {
+    /// <summary>
+    /// ViewModel for the main view of the Pinpoint application.
+    /// Handles state management, property binding, and commands for UI interaction.
+    /// </summary>
     [ObservableObject]
     public partial class MainViewModel
     {
@@ -21,59 +27,80 @@ namespace UI.ViewModels
         #region Properties
 
         [ObservableProperty]
-        [AlsoNotifyChangeFor(nameof(IsSidePanelLeftItemVisible))]
-        [AlsoNotifyChangeFor(nameof(SidePanelLeftToggleText))]
-        private bool _isSidePanelLeftOpen;
+        private int _modeIndex;
 
         [ObservableProperty]
-        [AlsoNotifyChangeFor(nameof(IsSidePanelRightItemVisible))]
+        [AlsoNotifyChangeFor(nameof(SidePanelLeftToggleText))]
+        private DisplayStyle _isSidePanelLeftItemVisible;
+
+        [ObservableProperty]
         [AlsoNotifyChangeFor(nameof(SidePanelRightToggleText))]
-        private bool _isSidePanelRightOpen;
+        private DisplayStyle _isSidePanelRightItemVisible;
 
         #region Converted
 
-        [CreateProperty(ReadOnly = true)]
-        public DisplayStyle IsSidePanelLeftItemVisible =>
-            IsSidePanelLeftOpen ? DisplayStyle.Flex : DisplayStyle.None;
+        [CreateProperty]
+        public string SidePanelLeftToggleText =>
+            IsSidePanelLeftItemVisible == DisplayStyle.Flex ? "\u25C0" : "\u25B6";
 
-        [CreateProperty(ReadOnly = true)]
-        public string SidePanelLeftToggleText => IsSidePanelLeftOpen ? "\u25C0" : "\u25B6";
-
-        [CreateProperty(ReadOnly = true)]
-        public DisplayStyle IsSidePanelRightItemVisible =>
-            IsSidePanelRightOpen ? DisplayStyle.Flex : DisplayStyle.None;
-
-        [CreateProperty(ReadOnly = true)]
-        public string SidePanelRightToggleText => IsSidePanelRightOpen ? "\u25B6" : "\u25C0";
+        [CreateProperty]
+        public string SidePanelRightToggleText =>
+            IsSidePanelRightItemVisible == DisplayStyle.Flex ? "\u25B6" : "\u25C0";
 
         #endregion
 
         #endregion
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainViewModel"/> class.
+        /// Registers state, initializes properties from the store, and subscribes to state changes.
+        /// </summary>
+        /// <param name="storeService">The store service for state management.</param>
         public MainViewModel(IStoreService storeService)
         {
             // Register state.
             _storeService = storeService;
+            var initialState = _storeService.Store.GetState<MainState>(SliceNames.MAIN_SLICE);
 
-            _isSidePanelLeftOpen = _storeService
-                .Store.GetState<MainState>(SliceNames.MAIN_SLICE)
-                .IsSidePanelLeftOpen;
-            _isSidePanelRightOpen = _storeService
-                .Store.GetState<MainState>(SliceNames.MAIN_SLICE)
-                .IsSidePanelRightOpen;
+            _modeIndex = MainModeToInt(initialState.Mode);
+            _isSidePanelLeftItemVisible = SidePanelOpenToDisplayStyle(
+                initialState.IsSidePanelLeftOpen
+            );
+            _isSidePanelRightItemVisible = SidePanelOpenToDisplayStyle(
+                initialState.IsSidePanelRightOpen
+            );
 
             // Subscribe to state changes.
             _subscription = _storeService.Store.Subscribe(
                 state => state.Get<MainState>(SliceNames.MAIN_SLICE),
                 OnStateChanged
             );
+            PropertyChanged += OnPropertyChanged;
+            App.shuttingDown += OnShuttingDown; 
         }
 
         private void OnStateChanged(MainState state)
         {
-            // Update the view model properties based on the state.
-            IsSidePanelLeftOpen = state.IsSidePanelLeftOpen;
-            IsSidePanelRightOpen = state.IsSidePanelRightOpen;
+            ModeIndex = MainModeToInt(state.Mode);
+            IsSidePanelLeftItemVisible = SidePanelOpenToDisplayStyle(state.IsSidePanelLeftOpen);
+            IsSidePanelRightItemVisible = SidePanelOpenToDisplayStyle(state.IsSidePanelRightOpen);
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(ModeIndex):
+                    _storeService.Store.Dispatch(MainActions.SET_MODE, ModeIndex);
+                    break;
+            }
+        }
+
+        private void OnShuttingDown()
+        {
+            _storeService.Save();
+            App.shuttingDown -= OnShuttingDown;
+            _subscription.Dispose();
         }
 
         #region Commands
@@ -90,6 +117,13 @@ namespace UI.ViewModels
             _storeService.Store.Dispatch(MainActions.TOGGLE_SIDE_PANEL_RIGHT);
         }
 
+        #endregion
+
+        #region Converters
+        private static DisplayStyle SidePanelOpenToDisplayStyle(bool isOpen) =>
+            isOpen ? DisplayStyle.Flex : DisplayStyle.None;
+
+        private static int MainModeToInt(MainModes mode) => (int)mode;
         #endregion
     }
 }
