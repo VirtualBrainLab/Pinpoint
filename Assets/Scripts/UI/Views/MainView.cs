@@ -1,6 +1,4 @@
-using System;
 using System.ComponentModel;
-using System.Linq;
 using UI.ViewModels;
 using UnityEngine.UIElements;
 
@@ -20,7 +18,6 @@ namespace UI.Views
 
         #region Architecture
 
-        private readonly MainViewBindings _viewBindings;
         private readonly MainViewModel _viewModel;
 
         #endregion
@@ -31,19 +28,10 @@ namespace UI.Views
             var document = PinpointAppBuilder.Instance.MainUIDocument;
             document.CloneTree(this);
 
-            // Set the flex grow to fill the parent container.
-            style.flexGrow = 1;
-
-            // Get view bindings.
-            _viewBindings = Children().First().dataSource as MainViewBindings;
-            if (_viewBindings == null)
-            {
-                throw new MissingFieldException("MainViewBindings was not found.");
-            }
-
-            // Get view model.
+            // Get view model and register property changes and bindings.
             _viewModel = mainViewModel;
-            mainViewModel.PropertyChanged += OnPropertyChanged;
+            _viewModel.PropertyChanged += OnPropertyChanged;
+            dataSource = _viewModel;
 
             // Register component references.
             _sidePanelLeft = this.Q<VisualElement>("side-panel__left");
@@ -53,7 +41,7 @@ namespace UI.Views
 
             // Register callbacks.
             _sidePanelLeftToggle.clicked += () =>
-                mainViewModel.ToggleSidePanelLeftCommand.Execute();
+                _viewModel.ToggleSidePanelLeftCommand.Execute();
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -71,13 +59,13 @@ namespace UI.Views
         private void ToggleSidePanelLeft()
         {
             _sidePanelLeft.ToggleInClassList("side-panel--close");
-            _viewBindings.SidePanelLeftPickingMode = _viewModel.IsSidePanelLeftOpen
-                ? PickingMode.Position
-                : PickingMode.Ignore;
-            _viewBindings.SidePanelLeftToggleText = _viewModel.IsSidePanelLeftOpen ? "◀" : "▶";
-            _viewBindings.SidePanelLeftItemDisplayStyle = _viewModel.IsSidePanelLeftOpen
-                ? DisplayStyle.Flex
-                : DisplayStyle.None;
+            // _viewBindings.SidePanelLeftPickingMode = _viewModel.IsSidePanelLeftOpen
+            //     ? PickingMode.Position
+            //     : PickingMode.Ignore;
+            // _viewBindings.SidePanelLeftToggleText = _viewModel.IsSidePanelLeftOpen ? "◀" : "▶";
+            // _viewBindings.SidePanelLeftItemDisplayStyle = _viewModel.IsSidePanelLeftOpen
+            //     ? DisplayStyle.Flex
+            //     : DisplayStyle.None;
         }
 
         #endregion

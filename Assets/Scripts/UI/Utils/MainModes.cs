@@ -1,4 +1,4 @@
-namespace UI.Models
+namespace UI.Utils
 {
     public enum MainModes
     {

@@ -1,57 +1,71 @@
 using UI.Models;
 using UI.Services;
+using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
-using UnityEngine;
+using Unity.Properties;
+using UnityEngine.UIElements;
 
 namespace UI.ViewModels
 {
-    public class MainViewModel: ObservableObject
+    [ObservableObject]
+    public partial class MainViewModel
     {
         #region Services
 
-        private readonly ILocalStorageService _localStorageService;
         private readonly IStoreService _storeService;
-        private readonly Unsubscriber _unsubscribe;
-        private const string SLICE_NAME = "MainState";
-
-        #endregion
-        #region Commands
-
-        public RelayCommand ToggleSidePanelLeftCommand { get; }
+        private readonly IDisposableSubscription _subscription;
 
         #endregion
 
         #region Properties
 
-        private bool _isSidePanelLeftOpen = true;
+        [ObservableProperty]
+        [AlsoNotifyChangeFor(nameof(IsSidePanelLeftItemVisible))]
+        [AlsoNotifyChangeFor(nameof(SidePanelLeftToggleText))]
+        private bool _isSidePanelLeftOpen;
 
-        public bool IsSidePanelLeftOpen
-        {
-            get => _isSidePanelLeftOpen;
-            private set => SetProperty(ref _isSidePanelLeftOpen, value);
-        }
+        #region Converted
+
+        [CreateProperty(ReadOnly = true)]
+        public DisplayStyle IsSidePanelLeftItemVisible =>
+            IsSidePanelLeftOpen ? DisplayStyle.Flex : DisplayStyle.None;
+
+        [CreateProperty(ReadOnly = true)]
+        public string SidePanelLeftToggleText => IsSidePanelLeftOpen ? "◀" : "▶";
 
         #endregion
 
-        public MainViewModel(ILocalStorageService localStorageService, IStoreService storeService)
+        #endregion
+
+        public MainViewModel(IStoreService storeService)
         {
-            // Services.
-            _localStorageService = localStorageService;
+            // Register state.
             _storeService = storeService;
-            
-            // Commands.
-            ToggleSidePanelLeftCommand = new RelayCommand(ToggleSidePanelLeft);
-            
-            // State.
-            var initialState = _localStorageService.GetValue(SLICE_NAME, new MainState());
+
+            _isSidePanelLeftOpen = _storeService
+                .Store.GetState<MainState>(SliceNames.MAIN_SLICE)
+                .IsSidePanelLeftOpen;
+
+            // Subscribe to state changes.
+            _subscription = _storeService.Store.Subscribe(
+                state => state.Get<MainState>(SliceNames.MAIN_SLICE),
+                OnStateChanged
+            );
         }
 
-        #region Command Implementation
+        private void OnStateChanged(MainState state)
+        {
+            // Update the view model properties based on the state.
+            IsSidePanelLeftOpen = state.IsSidePanelLeftOpen;
+        }
 
+        #region Commands
+
+        [ICommand]
         private void ToggleSidePanelLeft()
         {
-            IsSidePanelLeftOpen = !IsSidePanelLeftOpen;
+            _storeService.Store.Dispatch(MainActions.TOGGLE_SIDE_PANEL_LEFT);
         }
 
         #endregion

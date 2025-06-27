@@ -1,3 +1,4 @@
+using UI.Utils;
 using Unity.AppUI.Redux;
 
 namespace UI.Models
@@ -16,6 +17,16 @@ namespace UI.Models
         public static MainState SetModeReducer(MainState state, Action<int> action)
         {
             return state with { Mode = (MainModes)action.payload };
+        }
+        
+        public static MainState ToggleSidePanelLeftReducer(MainState state, IAction action)
+        {
+            return state with { IsSidePanelLeftOpen = !state.IsSidePanelLeftOpen };
+        }
+        
+        public static MainState ToggleSidePanelRightReducer(MainState state, IAction action)
+        {
+            return state with { IsSidePanelRightOpen = !state.IsSidePanelRightOpen };
         }
         
     }

@@ -8,8 +8,13 @@ namespace UI.Services
     public interface IStoreService
     {
         /// <summary>
-        /// Gets the Redux store instance used by the application.
+        /// Gets the application's Redux store instance.
         /// </summary>
-        Store Store { get; }
+        IStore<PartitionedState> Store { get; }
+
+        /// <summary>
+        /// Persists the current state of the store.
+        /// </summary>
+        void Save();
     }
 }

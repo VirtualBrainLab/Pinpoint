@@ -3,8 +3,8 @@
     <ui:Template name="AutomationStack" src="project://database/Assets/UI/Components/AutomationStack.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#AutomationStack" />
     <ui:Template name="ManualControlStack" src="project://database/Assets/UI/Components/ManualControlPanel.uxml?fileID=9197481963319205126&amp;guid=ed795aeb41983854f9804fe26f1a7f44&amp;type=3#ManualControlPanel" />
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
-    <ui:VisualElement data-source="project://database/Assets/Scripts/UI/Views/MainViewBindings.asset?fileID=11400000&amp;guid=118af7afb9fa79f49b2a383f46cdcc21&amp;type=2#MainViewBindings" style="flex-direction: row; flex-grow: 1;">
-        <ui:VisualElement name="side-panel__left" class="side-panel--open">
+    <ui:VisualElement data-source-type="UI.ViewModels.MainViewModel, pinpoint.ui" style="flex-direction: row; flex-grow: 1;">
+        <ui:VisualElement name="side-panel__left" class="side-panel--open" style="height: auto;">
             <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
                 <ui:VisualElement class="side-panel__item--open" style="flex-direction: row; flex-grow: 1;">
                     <ui:Button text="Menu" />
@@ -14,10 +14,10 @@
                         </Bindings>
                     </ui:DropdownField>
                     <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="SidePanelLeftItemDisplayStyle" binding-mode="ToTarget" />
+                        <ui:DataBinding property="style.display" data-source-path="IsSidePanelLeftItemVisible" binding-mode="ToTarget" />
                     </Bindings>
                 </ui:VisualElement>
-                <ui:Button text="▶" name="side-panel__toggle">
+                <ui:Button name="side-panel__toggle">
                     <Bindings>
                         <ui:DataBinding property="text" binding-mode="ToTarget" data-source-path="SidePanelLeftToggleText" />
                     </Bindings>
@@ -37,7 +37,7 @@
                     <ui:ScrollView name="ChannelMapsAndSlicesContent" mode="Horizontal" style="display: flex;" />
                 </ui:Tab>
                 <Bindings>
-                    <ui:DataBinding property="style.display" data-source-path="SidePanelLeftItemDisplayStyle" binding-mode="ToTarget" />
+                    <ui:DataBinding property="style.display" data-source-path="IsSidePanelLeftItemVisible" binding-mode="ToTarget" />
                 </Bindings>
             </ui:TabView>
             <Bindings>

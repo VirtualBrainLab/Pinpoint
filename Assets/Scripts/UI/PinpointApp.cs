@@ -5,9 +5,12 @@ namespace UI
 {
     public class PinpointApp: App
     {
-        public PinpointApp(MainView mainView)
+        public static PinpointApp Current => (PinpointApp)current;
+
+        public override void InitializeComponent()
         {
-            mainPage = mainView;
+            base.InitializeComponent();
+            rootVisualElement.Add(services.GetRequiredService<MainView>());
         }
     }
 }
