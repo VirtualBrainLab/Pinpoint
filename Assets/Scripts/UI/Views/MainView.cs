@@ -40,8 +40,8 @@ namespace UI.Views
             _sidePanelRightToggle = _sidePanelRight.Q<Button>("side-panel__toggle");
 
             // Register callbacks.
-            _sidePanelLeftToggle.clicked += () =>
-                _viewModel.ToggleSidePanelLeftCommand.Execute();
+            _sidePanelLeftToggle.clicked += () => _viewModel.ToggleSidePanelLeftCommand.Execute();
+            _sidePanelRightToggle.clicked += () => _viewModel.ToggleSidePanelRightCommand.Execute();
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -51,6 +51,9 @@ namespace UI.Views
                 case nameof(MainViewModel.IsSidePanelLeftOpen):
                     ToggleSidePanelLeft();
                     break;
+                case nameof(MainViewModel.IsSidePanelRightOpen):
+                    ToggleSidePanelRight();
+                    break;
             }
         }
 
@@ -59,13 +62,11 @@ namespace UI.Views
         private void ToggleSidePanelLeft()
         {
             _sidePanelLeft.ToggleInClassList("side-panel--close");
-            // _viewBindings.SidePanelLeftPickingMode = _viewModel.IsSidePanelLeftOpen
-            //     ? PickingMode.Position
-            //     : PickingMode.Ignore;
-            // _viewBindings.SidePanelLeftToggleText = _viewModel.IsSidePanelLeftOpen ? "◀" : "▶";
-            // _viewBindings.SidePanelLeftItemDisplayStyle = _viewModel.IsSidePanelLeftOpen
-            //     ? DisplayStyle.Flex
-            //     : DisplayStyle.None;
+        }
+
+        private void ToggleSidePanelRight()
+        {
+            _sidePanelRight.ToggleInClassList("side-panel--close");
         }
 
         #endregion

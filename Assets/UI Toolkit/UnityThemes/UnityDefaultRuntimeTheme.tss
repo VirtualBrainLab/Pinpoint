@@ -5,3 +5,7 @@
 .appui {
     flex-grow: 1;
 }
+
+MainView {
+    flex-grow: 1;
+}

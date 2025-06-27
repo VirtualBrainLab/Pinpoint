@@ -25,6 +25,11 @@ namespace UI.ViewModels
         [AlsoNotifyChangeFor(nameof(SidePanelLeftToggleText))]
         private bool _isSidePanelLeftOpen;
 
+        [ObservableProperty]
+        [AlsoNotifyChangeFor(nameof(IsSidePanelRightItemVisible))]
+        [AlsoNotifyChangeFor(nameof(SidePanelRightToggleText))]
+        private bool _isSidePanelRightOpen;
+
         #region Converted
 
         [CreateProperty(ReadOnly = true)]
@@ -32,7 +37,14 @@ namespace UI.ViewModels
             IsSidePanelLeftOpen ? DisplayStyle.Flex : DisplayStyle.None;
 
         [CreateProperty(ReadOnly = true)]
-        public string SidePanelLeftToggleText => IsSidePanelLeftOpen ? "◀" : "▶";
+        public string SidePanelLeftToggleText => IsSidePanelLeftOpen ? "\u25C0" : "\u25B6";
+
+        [CreateProperty(ReadOnly = true)]
+        public DisplayStyle IsSidePanelRightItemVisible =>
+            IsSidePanelRightOpen ? DisplayStyle.Flex : DisplayStyle.None;
+
+        [CreateProperty(ReadOnly = true)]
+        public string SidePanelRightToggleText => IsSidePanelRightOpen ? "\u25B6" : "\u25C0";
 
         #endregion
 
@@ -46,6 +58,9 @@ namespace UI.ViewModels
             _isSidePanelLeftOpen = _storeService
                 .Store.GetState<MainState>(SliceNames.MAIN_SLICE)
                 .IsSidePanelLeftOpen;
+            _isSidePanelRightOpen = _storeService
+                .Store.GetState<MainState>(SliceNames.MAIN_SLICE)
+                .IsSidePanelRightOpen;
 
             // Subscribe to state changes.
             _subscription = _storeService.Store.Subscribe(
@@ -58,6 +73,7 @@ namespace UI.ViewModels
         {
             // Update the view model properties based on the state.
             IsSidePanelLeftOpen = state.IsSidePanelLeftOpen;
+            IsSidePanelRightOpen = state.IsSidePanelRightOpen;
         }
 
         #region Commands
@@ -66,6 +82,12 @@ namespace UI.ViewModels
         private void ToggleSidePanelLeft()
         {
             _storeService.Store.Dispatch(MainActions.TOGGLE_SIDE_PANEL_LEFT);
+        }
+
+        [ICommand]
+        private void ToggleSidePanelRight()
+        {
+            _storeService.Store.Dispatch(MainActions.TOGGLE_SIDE_PANEL_RIGHT);
         }
 
         #endregion
