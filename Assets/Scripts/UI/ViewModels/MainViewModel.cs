@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Timers;
 using UI.Models;
 using UI.Services;
 using UI.Utils;
@@ -22,6 +23,7 @@ namespace UI.ViewModels
 
         private readonly IStoreService _storeService;
         private readonly IDisposableSubscription _subscription;
+        private readonly Timer _externalPropertyTimer;
 
         #endregion
 
@@ -39,6 +41,12 @@ namespace UI.ViewModels
         [AlsoNotifyChangeFor(nameof(SidePanelRightToggleText))]
         [AlsoNotifyChangeFor(nameof(SidePanelRightPickingMode))]
         private DisplayStyle _isSidePanelRightItemVisible;
+        
+        [ObservableProperty]
+        private Color _activeProbeColor;
+        
+        [ObservableProperty]
+        private string _activeProbeName;
 
         #region Converted
 
@@ -57,9 +65,6 @@ namespace UI.ViewModels
         [CreateProperty]
         public string SidePanelRightToggleText =>
             IsSidePanelRightItemVisible == DisplayStyle.Flex ? "\u25B6" : "\u25C0";
-
-        [CreateProperty]
-        public Color ActiveProbeColor => ProbeManager.ActiveProbeManager?.Color ?? Color.gray;
 
         #endregion
 
@@ -83,6 +88,10 @@ namespace UI.ViewModels
                 OnStateChanged
             );
             PropertyChanged += OnPropertyChanged;
+            _externalPropertyTimer = new Timer(200);
+            _externalPropertyTimer.Elapsed += UpdateExternalProperties;
+            _externalPropertyTimer.AutoReset = true;
+            _externalPropertyTimer.Start();
             App.shuttingDown += OnShuttingDown;
         }
 
@@ -91,6 +100,12 @@ namespace UI.ViewModels
             ModeIndex = MainModeToInt(state.Mode);
             IsSidePanelLeftItemVisible = SidePanelOpenToDisplayStyle(state.IsSidePanelLeftOpen);
             IsSidePanelRightItemVisible = SidePanelOpenToDisplayStyle(state.IsSidePanelRightOpen);
+        }
+
+        private void UpdateExternalProperties(object sender, ElapsedEventArgs e)
+        {
+            ActiveProbeColor = ProbeManager.ActiveProbeManager?.Color ?? Color.gray;
+            ActiveProbeName = ProbeManager.ActiveProbeManager?.OverrideName ?? "No Active Probe";
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -106,6 +121,8 @@ namespace UI.ViewModels
         private void OnShuttingDown()
         {
             _storeService.Save();
+            _externalPropertyTimer.Stop();
+            _externalPropertyTimer.Dispose();
             App.shuttingDown -= OnShuttingDown;
             _subscription.Dispose();
         }
