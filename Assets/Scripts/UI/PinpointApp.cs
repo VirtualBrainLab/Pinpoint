@@ -1,5 +1,6 @@
 using UI.Views;
 using Unity.AppUI.MVVM;
+using UnityEngine.UIElements;
 
 namespace UI
 {
@@ -21,6 +22,7 @@ namespace UI
         {
             base.InitializeComponent();
             rootVisualElement.Add(services.GetRequiredService<MainView>());
+            rootVisualElement.pickingMode = PickingMode.Ignore;
         }
     }
 }

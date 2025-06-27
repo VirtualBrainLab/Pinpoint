@@ -37,6 +37,8 @@ namespace UI.Views
             // Instantiate the UI document.
             var document = PinpointAppBuilder.Instance.MainUIDocument;
             document.CloneTree(this);
+            
+            pickingMode = PickingMode.Ignore;
 
             // Get view model and register property changes and bindings.
             _viewModel = mainViewModel;
