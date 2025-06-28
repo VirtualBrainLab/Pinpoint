@@ -23,7 +23,7 @@ namespace UI.ViewModels
 
         private readonly IStoreService _storeService;
         private readonly IDisposableSubscription _subscription;
-        private readonly Timer _externalPropertyTimer;
+        private readonly IProbeService _probeService;
 
         #endregion
 
@@ -92,10 +92,13 @@ namespace UI.ViewModels
         /// Registers state, initializes properties from the store, and subscribes to state changes.
         /// </summary>
         /// <param name="storeService">The store service for state management.</param>
-        public MainViewModel(IStoreService storeService)
+        /// <param name="probeService">The probe service for getting probe info.</param>
+        public MainViewModel(IStoreService storeService, IProbeService probeService)
         {
             // Register state.
             _storeService = storeService;
+            _probeService = probeService;
+
             var initialState = _storeService.Store.GetState<MainState>(SliceNames.MAIN_SLICE);
             OnStateChanged(initialState);
 
@@ -104,11 +107,8 @@ namespace UI.ViewModels
                 state => state.Get<MainState>(SliceNames.MAIN_SLICE),
                 OnStateChanged
             );
+            probeService.OnPropertyChanged += OnExternalPropertiesChanged;
             PropertyChanged += OnPropertyChanged;
-            _externalPropertyTimer = new Timer(200);
-            _externalPropertyTimer.Elapsed += UpdateExternalProperties;
-            _externalPropertyTimer.AutoReset = true;
-            _externalPropertyTimer.Start();
             App.shuttingDown += OnShuttingDown;
         }
 
@@ -116,13 +116,15 @@ namespace UI.ViewModels
         {
             ModeIndex = MainModeToInt(state.Mode);
             SidePanelLeftItemDisplayStyle = SidePanelOpenToDisplayStyle(state.IsSidePanelLeftOpen);
-            SidePanelRightItemDisplayStyle = SidePanelOpenToDisplayStyle(state.IsSidePanelRightOpen);
+            SidePanelRightItemDisplayStyle = SidePanelOpenToDisplayStyle(
+                state.IsSidePanelRightOpen
+            );
         }
 
-        private void UpdateExternalProperties(object sender, ElapsedEventArgs e)
+        private void OnExternalPropertiesChanged()
         {
-            ActiveProbeColor = ProbeManager.ActiveProbeManager?.Color ?? Color.gray;
-            ActiveProbeName = ProbeManager.ActiveProbeManager?.OverrideName ?? "No Active Probe";
+            ActiveProbeColor = _probeService.ActiveProbeColor;
+            ActiveProbeName = _probeService.ActiveProbeOverrideName;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -138,10 +140,10 @@ namespace UI.ViewModels
         private void OnShuttingDown()
         {
             _storeService.Save();
-            _externalPropertyTimer.Stop();
-            _externalPropertyTimer.Dispose();
+            _probeService.OnPropertyChanged -= OnExternalPropertiesChanged;
             App.shuttingDown -= OnShuttingDown;
             _subscription.Dispose();
+            _probeService.Dispose();
         }
 
         #region Commands
