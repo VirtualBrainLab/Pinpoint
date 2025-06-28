@@ -1,7 +1,7 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/InspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#InspectorStyle" />
-    <engine:VisualElement data-source="project://database/Assets/Scripts/UI/States/InspectorStackState.asset?fileID=11400000&amp;guid=c0394e2018e29e3469735c7bf5a54c06&amp;type=2#InspectorStackState" style="flex-grow: 1;">
-        <engine:VisualElement class="inspectorBox">
+    <engine:VisualElement style="flex-grow: 1;">
+        <engine:VisualElement name="VisualElement" class="inspectorBox">
             <engine:Label tabindex="-1" text="Position &amp; Orientation" parse-escape-sequences="true" display-tooltip-when-elided="true" />
             <engine:FloatField label="AP" value="0" name="APField" />
             <engine:FloatField label="ML" value="0" name="MLField" />
@@ -45,12 +45,5 @@
                 <engine:RadioButton name="9EDAE5" />
             </engine:VisualElement>
         </engine:VisualElement>
-        <engine:VisualElement class="inspectorBox">
-            <engine:Label tabindex="-1" text="Assign to Experiment" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:DropdownField label="Experiment" name="ExperimentDropdown" choices="None" index="0" />
-        </engine:VisualElement>
-        <Bindings>
-            <engine:DataBinding property="enabledSelf" data-source-path="IsEnabled" binding-mode="ToTarget" />
-        </Bindings>
     </engine:VisualElement>
 </engine:UXML>

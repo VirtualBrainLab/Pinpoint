@@ -56,11 +56,11 @@ namespace UI.Views
             _sidePanelRightToggle.clicked += () => _viewModel.ToggleSidePanelRightCommand.Execute();
             
             // Initialize view from view model state.
-            if (_viewModel.IsSidePanelLeftItemVisible == DisplayStyle.None)
+            if (_viewModel.SidePanelLeftItemDisplayStyle == DisplayStyle.None)
             {
                 _sidePanelLeft.AddToClassList("side-panel--close");
             }
-            if (_viewModel.IsSidePanelRightItemVisible == DisplayStyle.None)
+            if (_viewModel.SidePanelRightItemDisplayStyle == DisplayStyle.None)
             {
                 _sidePanelRight.AddToClassList("side-panel--close");
             }
@@ -76,10 +76,10 @@ namespace UI.Views
         {
             switch (e.PropertyName)
             {
-                case nameof(MainViewModel.IsSidePanelLeftItemVisible):
+                case nameof(MainViewModel.SidePanelLeftItemDisplayStyle):
                     _sidePanelLeft.ToggleInClassList("side-panel--close");
                     break;
-                case nameof(MainViewModel.IsSidePanelRightItemVisible):
+                case nameof(MainViewModel.SidePanelRightItemDisplayStyle):
                     _sidePanelRight.ToggleInClassList("side-panel--close");
                     break;
             }

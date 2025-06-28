@@ -30,21 +30,24 @@ namespace UI.ViewModels
         #region Properties
 
         [ObservableProperty]
+        [AlsoNotifyChangeFor(nameof(InspectorPanelDisplayStyle))]
+        [AlsoNotifyChangeFor(nameof(AutomationPanelDisplayStyle))]
+        [AlsoNotifyChangeFor(nameof(ManualControlPanelDisplayStyle))]
         private int _modeIndex;
 
         [ObservableProperty]
         [AlsoNotifyChangeFor(nameof(SidePanelLeftToggleText))]
         [AlsoNotifyChangeFor(nameof(SidePanelLeftPickingMode))]
-        private DisplayStyle _isSidePanelLeftItemVisible;
+        private DisplayStyle _sidePanelLeftItemDisplayStyle;
 
         [ObservableProperty]
         [AlsoNotifyChangeFor(nameof(SidePanelRightToggleText))]
         [AlsoNotifyChangeFor(nameof(SidePanelRightPickingMode))]
-        private DisplayStyle _isSidePanelRightItemVisible;
-        
+        private DisplayStyle _sidePanelRightItemDisplayStyle;
+
         [ObservableProperty]
         private Color _activeProbeColor;
-        
+
         [ObservableProperty]
         private string _activeProbeName;
 
@@ -52,19 +55,33 @@ namespace UI.ViewModels
 
         [CreateProperty]
         public PickingMode SidePanelLeftPickingMode =>
-            SidePanelVisibleToPickingMode(IsSidePanelLeftItemVisible);
+            SidePanelVisibleToPickingMode(_sidePanelLeftItemDisplayStyle);
 
         [CreateProperty]
         public PickingMode SidePanelRightPickingMode =>
-            SidePanelVisibleToPickingMode(IsSidePanelRightItemVisible);
+            SidePanelVisibleToPickingMode(SidePanelRightItemDisplayStyle);
 
         [CreateProperty]
         public string SidePanelLeftToggleText =>
-            IsSidePanelLeftItemVisible == DisplayStyle.Flex ? "\u25C0" : "\u25B6";
+            _sidePanelLeftItemDisplayStyle == DisplayStyle.Flex ? "\u25C0" : "\u25B6";
 
         [CreateProperty]
         public string SidePanelRightToggleText =>
-            IsSidePanelRightItemVisible == DisplayStyle.Flex ? "\u25B6" : "\u25C0";
+            SidePanelRightItemDisplayStyle == DisplayStyle.Flex ? "\u25B6" : "\u25C0";
+
+        [CreateProperty]
+        public DisplayStyle InspectorPanelDisplayStyle =>
+            ModeIndex < MainModeToInt(MainModes.Automation) ? DisplayStyle.Flex : DisplayStyle.None;
+
+        [CreateProperty]
+        public DisplayStyle AutomationPanelDisplayStyle =>
+            ModeIndex > MainModeToInt(MainModes.Visualization)
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
+
+        [CreateProperty]
+        public DisplayStyle ManualControlPanelDisplayStyle =>
+            ModeIndex > MainModeToInt(MainModes.Planning) ? DisplayStyle.Flex : DisplayStyle.None;
 
         #endregion
 
@@ -98,8 +115,8 @@ namespace UI.ViewModels
         private void OnStateChanged(MainState state)
         {
             ModeIndex = MainModeToInt(state.Mode);
-            IsSidePanelLeftItemVisible = SidePanelOpenToDisplayStyle(state.IsSidePanelLeftOpen);
-            IsSidePanelRightItemVisible = SidePanelOpenToDisplayStyle(state.IsSidePanelRightOpen);
+            SidePanelLeftItemDisplayStyle = SidePanelOpenToDisplayStyle(state.IsSidePanelLeftOpen);
+            SidePanelRightItemDisplayStyle = SidePanelOpenToDisplayStyle(state.IsSidePanelRightOpen);
         }
 
         private void UpdateExternalProperties(object sender, ElapsedEventArgs e)

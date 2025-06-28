@@ -14,7 +14,7 @@
                         </Bindings>
                     </ui:DropdownField>
                     <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="IsSidePanelLeftItemVisible" binding-mode="ToTarget" />
+                        <ui:DataBinding property="style.display" data-source-path="SidePanelLeftItemDisplayStyle" binding-mode="ToTarget" />
                     </Bindings>
                 </ui:VisualElement>
                 <ui:Button name="side-panel__toggle" text="◀">
@@ -37,7 +37,7 @@
                     <ui:ScrollView name="ChannelMapsAndSlicesContent" mode="Horizontal" style="display: flex;" />
                 </ui:Tab>
                 <Bindings>
-                    <ui:DataBinding property="style.display" data-source-path="IsSidePanelLeftItemVisible" binding-mode="ToTarget" />
+                    <ui:DataBinding property="style.display" data-source-path="SidePanelLeftItemDisplayStyle" binding-mode="ToTarget" />
                 </Bindings>
             </ui:TabView>
             <Bindings>
@@ -55,7 +55,7 @@
                 <ui:Label text="Inspector" style="-unity-text-align: middle-left;">
                     <Bindings>
                         <ui:DataBinding property="text" binding-mode="ToTarget" data-source-path="InspectorHeader" />
-                        <ui:DataBinding property="style.display" data-source-path="IsSidePanelRightItemVisible" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" />
+                        <ui:DataBinding property="style.display" data-source-path="SidePanelRightItemDisplayStyle" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" />
                     </Bindings>
                 </ui:Label>
             </ui:VisualElement>
@@ -71,27 +71,27 @@
                     </Bindings>
                 </ui:Label>
                 <Bindings>
-                    <ui:DataBinding property="style.display" data-source-path="IsSidePanelRightItemVisible" binding-mode="ToTarget" />
+                    <ui:DataBinding property="style.display" data-source-path="SidePanelRightItemDisplayStyle" binding-mode="ToTarget" />
                 </Bindings>
             </ui:VisualElement>
             <ui:ScrollView style="flex-grow: 1;">
-                <ui:Instance template="InspectorStack" name="inspector-stack-panel" style="opacity: 1;">
+                <ui:Instance template="InspectorStack" name="inspector-stack-panel">
                     <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="InspectorStackDisplayStyle" binding-mode="ToTarget" />
+                        <ui:DataBinding property="style.display" data-source-path="InspectorPanelDisplayStyle" binding-mode="ToTarget" />
                     </Bindings>
                 </ui:Instance>
-                <ui:Instance template="AutomationStack" name="automation-stack-panel" style="opacity: 1;">
+                <ui:Instance template="AutomationStack" name="automation-stack-panel">
                     <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="AutomationStackDisplayStyle" binding-mode="ToTarget" />
+                        <ui:DataBinding property="style.display" data-source-path="AutomationPanelDisplayStyle" binding-mode="ToTarget" />
                     </Bindings>
                 </ui:Instance>
                 <ui:Instance template="ManualControlStack" name="manual-control-panel">
                     <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="ManualControlStackDisplayStyle" binding-mode="ToTarget" />
+                        <ui:DataBinding property="style.display" data-source-path="ManualControlPanelDisplayStyle" binding-mode="ToTarget" />
                     </Bindings>
                 </ui:Instance>
                 <Bindings>
-                    <ui:DataBinding property="style.display" data-source-path="IsSidePanelRightItemVisible" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" />
+                    <ui:DataBinding property="style.display" data-source-path="SidePanelRightItemDisplayStyle" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" />
                 </Bindings>
             </ui:ScrollView>
             <Bindings>

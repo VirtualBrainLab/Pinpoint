@@ -5,7 +5,7 @@
             <engine:DataBinding property="style.display" data-source-path="PitchWarningDisplayStyle" binding-mode="ToTarget" data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState" />
         </Bindings>
     </engine:Label>
-    <engine:VisualElement data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState">
+    <engine:VisualElement>
         <engine:VisualElement enabled="true" class="inspectorBox">
             <engine:Label tabindex="-1" text="Reference Coordinate&#10;" parse-escape-sequences="true" display-tooltip-when-elided="true" />
             <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
