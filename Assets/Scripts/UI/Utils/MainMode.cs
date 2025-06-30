@@ -1,6 +1,6 @@
 namespace UI.Utils
 {
-    public enum MainModes
+    public enum MainMode
     {
         Planning,
         Visualization,

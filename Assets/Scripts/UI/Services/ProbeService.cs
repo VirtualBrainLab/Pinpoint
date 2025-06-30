@@ -18,17 +18,26 @@ namespace UI.Services
 
         public ProbeService()
         {
-            _timer = new Timer(500); // Poll every 500 milliseconds.
+            _timer = new Timer(250); // Poll 4 Hz.
             _timer.Elapsed += Update;
             _timer.AutoReset = true;
             _timer.Start();
         }
 
-
         private void Update(object sender, ElapsedEventArgs e)
         {
             var activeProbeManager = ProbeManager.ActiveProbeManager;
+
+            // Exit if there is no active probe manager.
+            if (!activeProbeManager)
+            {
+                return;
+            }
+
+            // Flag for changes.
             var hasChanged = false;
+
+            // Check for changes.
 
             if (activeProbeManager.Color != ActiveProbeColor)
             {

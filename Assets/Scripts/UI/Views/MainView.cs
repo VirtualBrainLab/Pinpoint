@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using UI.ViewModels;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.Views
@@ -56,11 +55,11 @@ namespace UI.Views
             _sidePanelRightToggle.clicked += () => _viewModel.ToggleSidePanelRightCommand.Execute();
             
             // Initialize view from view model state.
-            if (_viewModel.SidePanelLeftItemDisplayStyle == DisplayStyle.None)
+            if (!_viewModel.IsSidePanelLeftOpen)
             {
                 _sidePanelLeft.AddToClassList("side-panel--close");
             }
-            if (_viewModel.SidePanelRightItemDisplayStyle == DisplayStyle.None)
+            if (!_viewModel.IsSidePanelRightOpen)
             {
                 _sidePanelRight.AddToClassList("side-panel--close");
             }
@@ -76,10 +75,10 @@ namespace UI.Views
         {
             switch (e.PropertyName)
             {
-                case nameof(MainViewModel.SidePanelLeftItemDisplayStyle):
+                case nameof(MainViewModel.IsSidePanelLeftOpen):
                     _sidePanelLeft.ToggleInClassList("side-panel--close");
                     break;
-                case nameof(MainViewModel.SidePanelRightItemDisplayStyle):
+                case nameof(MainViewModel.IsSidePanelRightOpen):
                     _sidePanelRight.ToggleInClassList("side-panel--close");
                     break;
             }

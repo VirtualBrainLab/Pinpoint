@@ -1,13 +1,11 @@
 using System.ComponentModel;
-using System.Timers;
 using UI.Models;
 using UI.Services;
 using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
-using Unity.Properties;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace UI.ViewModels
@@ -30,60 +28,19 @@ namespace UI.ViewModels
         #region Properties
 
         [ObservableProperty]
-        [AlsoNotifyChangeFor(nameof(InspectorPanelDisplayStyle))]
-        [AlsoNotifyChangeFor(nameof(AutomationPanelDisplayStyle))]
-        [AlsoNotifyChangeFor(nameof(ManualControlPanelDisplayStyle))]
-        private int _modeIndex;
+        private MainMode _mainMode;
 
         [ObservableProperty]
-        [AlsoNotifyChangeFor(nameof(SidePanelLeftToggleText))]
-        [AlsoNotifyChangeFor(nameof(SidePanelLeftPickingMode))]
-        private DisplayStyle _sidePanelLeftItemDisplayStyle;
+        private bool _isSidePanelLeftOpen;
 
         [ObservableProperty]
-        [AlsoNotifyChangeFor(nameof(SidePanelRightToggleText))]
-        [AlsoNotifyChangeFor(nameof(SidePanelRightPickingMode))]
-        private DisplayStyle _sidePanelRightItemDisplayStyle;
+        private bool _isSidePanelRightOpen;
 
         [ObservableProperty]
         private Color _activeProbeColor;
 
         [ObservableProperty]
-        private string _activeProbeName;
-
-        #region Converted
-
-        [CreateProperty]
-        public PickingMode SidePanelLeftPickingMode =>
-            SidePanelVisibleToPickingMode(_sidePanelLeftItemDisplayStyle);
-
-        [CreateProperty]
-        public PickingMode SidePanelRightPickingMode =>
-            SidePanelVisibleToPickingMode(SidePanelRightItemDisplayStyle);
-
-        [CreateProperty]
-        public string SidePanelLeftToggleText =>
-            _sidePanelLeftItemDisplayStyle == DisplayStyle.Flex ? "\u25C0" : "\u25B6";
-
-        [CreateProperty]
-        public string SidePanelRightToggleText =>
-            SidePanelRightItemDisplayStyle == DisplayStyle.Flex ? "\u25B6" : "\u25C0";
-
-        [CreateProperty]
-        public DisplayStyle InspectorPanelDisplayStyle =>
-            ModeIndex < MainModeToInt(MainModes.Automation) ? DisplayStyle.Flex : DisplayStyle.None;
-
-        [CreateProperty]
-        public DisplayStyle AutomationPanelDisplayStyle =>
-            ModeIndex > MainModeToInt(MainModes.Visualization)
-                ? DisplayStyle.Flex
-                : DisplayStyle.None;
-
-        [CreateProperty]
-        public DisplayStyle ManualControlPanelDisplayStyle =>
-            ModeIndex > MainModeToInt(MainModes.Planning) ? DisplayStyle.Flex : DisplayStyle.None;
-
-        #endregion
+        private string _activeProbeOverrideName;
 
         #endregion
 
@@ -99,8 +56,10 @@ namespace UI.ViewModels
             _storeService = storeService;
             _probeService = probeService;
 
+            // Initialize properties from the store.
             var initialState = _storeService.Store.GetState<MainState>(SliceNames.MAIN_SLICE);
             OnStateChanged(initialState);
+            OnExternalPropertiesChanged();
 
             // Subscribe to state changes.
             _subscription = _storeService.Store.Subscribe(
@@ -114,25 +73,23 @@ namespace UI.ViewModels
 
         private void OnStateChanged(MainState state)
         {
-            ModeIndex = MainModeToInt(state.Mode);
-            SidePanelLeftItemDisplayStyle = SidePanelOpenToDisplayStyle(state.IsSidePanelLeftOpen);
-            SidePanelRightItemDisplayStyle = SidePanelOpenToDisplayStyle(
-                state.IsSidePanelRightOpen
-            );
+            MainMode = state.MainMode;
+            IsSidePanelLeftOpen = state.IsSidePanelLeftOpen;
+            IsSidePanelRightOpen = state.IsSidePanelRightOpen;
         }
 
         private void OnExternalPropertiesChanged()
         {
             ActiveProbeColor = _probeService.ActiveProbeColor;
-            ActiveProbeName = _probeService.ActiveProbeOverrideName;
+            ActiveProbeOverrideName = _probeService.ActiveProbeOverrideName;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case nameof(ModeIndex):
-                    _storeService.Store.Dispatch(MainActions.SET_MODE, ModeIndex);
+                case nameof(MainMode):
+                    _storeService.Store.Dispatch(MainActions.SET_MODE, MainMode);
                     break;
             }
         }
@@ -163,13 +120,54 @@ namespace UI.ViewModels
         #endregion
 
         #region Converters
-        private static DisplayStyle SidePanelOpenToDisplayStyle(bool isOpen) =>
-            isOpen ? DisplayStyle.Flex : DisplayStyle.None;
 
-        private static PickingMode SidePanelVisibleToPickingMode(DisplayStyle displayStyle) =>
-            displayStyle == DisplayStyle.Flex ? PickingMode.Position : PickingMode.Ignore;
+        [InitializeOnLoadMethod]
+        public static void RegisterMainViewConverters()
+        {
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "SidePanelLeftToggleText",
+                (ref bool isVisible) => isVisible ? "\u25C0" : "\u25B6"
+            );
 
-        private static int MainModeToInt(MainModes mode) => (int)mode;
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "SidePanelRightToggleText",
+                (ref bool isVisible) => isVisible ? "\u25B6" : "\u25C0"
+            );
+
+            DataTypeConverters.RegisterBidirectionalConverterGroup(
+                "MainModeToInt",
+                (ref MainMode mode) => (int)mode,
+                (ref int modeIndex) => (MainMode)modeIndex
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                MainMode,
+                StyleEnum<DisplayStyle>
+            >(
+                "MainModeToInspectorPanelDisplayStyle",
+                (ref MainMode mode) =>
+                    mode < MainMode.Automation ? DisplayStyle.Flex : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                MainMode,
+                StyleEnum<DisplayStyle>
+            >(
+                "MainModeToAutomationPanelDisplayStyle",
+                (ref MainMode mode) =>
+                    mode > MainMode.Visualization ? DisplayStyle.Flex : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                MainMode,
+                StyleEnum<DisplayStyle>
+            >(
+                "MainModeToManualControlPanelDisplayStyle",
+                (ref MainMode mode) =>
+                    mode > MainMode.Planning ? DisplayStyle.Flex : DisplayStyle.None
+            );
+        }
+
         #endregion
     }
 }

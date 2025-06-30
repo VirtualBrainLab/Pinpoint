@@ -8,7 +8,7 @@ namespace UI.Models
     public record MainState
     {
         [SerializeField]
-        public MainModes Mode;
+        public MainMode MainMode;
 
         [SerializeField]
         public bool IsSidePanelLeftOpen = true;
