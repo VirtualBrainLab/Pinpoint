@@ -44,12 +44,6 @@ namespace UI
 
             // Views.
             builder.services.AddTransient<MainView>();
-
-            // Register converters.
-            ConverterGroups.RegisterGlobalConverter(
-                (ref DisplayStyle displayStyle) =>
-                    displayStyle == DisplayStyle.None ? PickingMode.Ignore : PickingMode.Position
-            );
         }
     }
 }

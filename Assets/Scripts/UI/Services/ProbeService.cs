@@ -12,7 +12,7 @@ namespace UI.Services
 
         public event Action OnPropertyChanged;
         public Color ActiveProbeColor { get; private set; } = Color.gray;
-        public string ActiveProbeOverrideName { get; private set; } = "No Active Probe";
+        public string ActiveProbeName { get; private set; } = "No Active Probe";
 
         #endregion
 
@@ -45,9 +45,15 @@ namespace UI.Services
                 hasChanged = true;
             }
 
-            if (activeProbeManager.OverrideName != ActiveProbeOverrideName)
+            if (
+                activeProbeManager.UUID != ActiveProbeName
+                || (
+                    activeProbeManager.OverrideName != null
+                    && activeProbeManager.OverrideName != ActiveProbeName
+                )
+            )
             {
-                ActiveProbeOverrideName = activeProbeManager.OverrideName;
+                ActiveProbeName = activeProbeManager.OverrideName ?? activeProbeManager.UUID;
                 hasChanged = true;
             }
 

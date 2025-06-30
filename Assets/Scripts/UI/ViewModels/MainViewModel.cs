@@ -40,7 +40,7 @@ namespace UI.ViewModels
         private Color _activeProbeColor;
 
         [ObservableProperty]
-        private string _activeProbeOverrideName;
+        private string _activeProbeName;
 
         #endregion
 
@@ -81,7 +81,7 @@ namespace UI.ViewModels
         private void OnExternalPropertiesChanged()
         {
             ActiveProbeColor = _probeService.ActiveProbeColor;
-            ActiveProbeOverrideName = _probeService.ActiveProbeOverrideName;
+            ActiveProbeName = _probeService.ActiveProbeName;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -121,7 +121,10 @@ namespace UI.ViewModels
 
         #region Converters
 
+#if UNITY_EDITOR
         [InitializeOnLoadMethod]
+#endif
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void RegisterMainViewConverters()
         {
             DataTypeConverters.RegisterUnidirectionalConverterGroup(

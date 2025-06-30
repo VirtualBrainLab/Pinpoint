@@ -67,7 +67,7 @@
                 </ui:VisualElement>
                 <ui:Label tabindex="-1" text="No Active Probe" style="-unity-text-align: middle-left; flex-grow: 0;">
                     <Bindings>
-                        <ui:DataBinding property="text" data-source-path="ActiveProbeOverrideName" binding-mode="ToTarget" />
+                        <ui:DataBinding property="text" data-source-path="ActiveProbeName" binding-mode="ToTarget" />
                     </Bindings>
                 </ui:Label>
                 <Bindings>

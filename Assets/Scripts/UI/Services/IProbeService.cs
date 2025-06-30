@@ -21,6 +21,6 @@ namespace UI.Services
         /// <summary>
         /// Override name of the currently active probe. "No Active Probe" if none is set.
         /// </summary>
-        string ActiveProbeOverrideName { get; }
+        string ActiveProbeName { get; }
     }
 }

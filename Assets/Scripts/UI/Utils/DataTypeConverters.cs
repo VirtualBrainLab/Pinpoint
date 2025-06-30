@@ -1,5 +1,6 @@
 using Unity.Properties;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.Utils
@@ -9,7 +10,10 @@ namespace UI.Utils
     /// </summary>
     public class DataTypeConverters
     {
+#if UNITY_EDITOR
         [InitializeOnLoadMethod]
+#endif
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void RegisterConverters()
         {
             // Boolean -> StyleEnum<DisplayStyle>
