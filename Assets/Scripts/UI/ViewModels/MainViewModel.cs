@@ -4,9 +4,7 @@ using UI.Services;
 using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace UI.ViewModels
 {
@@ -111,60 +109,6 @@ namespace UI.ViewModels
         private void ToggleSidePanelRight()
         {
             _storeService.Store.Dispatch(MainActions.TOGGLE_SIDE_PANEL_RIGHT);
-        }
-
-        #endregion
-
-        #region Converters
-
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-#endif
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void RegisterMainViewConverters()
-        {
-            DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "SidePanelLeftToggleText",
-                (ref bool isVisible) => isVisible ? "\u25C0" : "\u25B6"
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "SidePanelRightToggleText",
-                (ref bool isVisible) => isVisible ? "\u25B6" : "\u25C0"
-            );
-
-            DataTypeConverters.RegisterBidirectionalConverterGroup(
-                "MainModeToInt",
-                (ref MainMode mode) => (int)mode,
-                (ref int modeIndex) => (MainMode)modeIndex
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToInspectorPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode < MainMode.Automation ? DisplayStyle.Flex : DisplayStyle.None
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToAutomationPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode > MainMode.Visualization ? DisplayStyle.Flex : DisplayStyle.None
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToManualControlPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode > MainMode.Planning ? DisplayStyle.Flex : DisplayStyle.None
-            );
         }
 
         #endregion

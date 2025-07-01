@@ -6,9 +6,10 @@
         </Bindings>
     </engine:Label>
     <engine:VisualElement>
-        <engine:VisualElement enabled="true" class="inspector-panel">
-            <engine:Label tabindex="-1" text="Calibrate Reference Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
+        <engine:VisualElement class="inspector-panel">
+            <engine:Label text="Calibrate Reference Coordinate" />
+            <engine:Vector4Field />
+            <engine:VisualElement style="flex-grow: 1; flex-direction: row; display: none;">
                 <engine:VisualElement style="flex-grow: 1;">
                     <engine:Label text="X" style="-unity-text-align: upper-center;" />
                     <engine:FloatField>

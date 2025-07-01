@@ -28,9 +28,9 @@ namespace UI.ViewModels
             // Register services.
             _storeService = storeService;
             _probeService = probeService;
-            
+
             // Initialize properties from the store.
-            
+
             // Subscribe to state changes.
             App.shuttingDown += OnShuttingDown;
         }
