@@ -1,14 +1,18 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
-    <engine:Label text="Unsupported probe angle.&#10;Ensure pitch is &gt; 30°." style="color: rgb(179, 57, 57); -unity-font-style: bold; white-space: normal;">
-        <Bindings>
-            <engine:DataBinding property="style.display" data-source-path="PitchWarningDisplayStyle" binding-mode="ToTarget" data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState" />
-        </Bindings>
-    </engine:Label>
-    <engine:VisualElement>
+    <engine:VisualElement data-source-type="UI.ViewModels.AutomationViewModel, pinpoint.ui" enabled="true">
+        <engine:Label text="Unsupported probe angle.&#10;Ensure pitch is &gt; 30°." style="color: rgb(179, 57, 57); -unity-font-style: bold; white-space: normal;">
+            <Bindings>
+                <engine:DataBinding property="style.display" data-source-path="PitchWarningDisplayStyle" binding-mode="ToTarget" data-source="project://database/Assets/Scripts/UI/States/AutomationStackState.asset?fileID=11400000&amp;guid=1f3a268d723c7fe4f90bd218f72aa27d&amp;type=2#AutomationStackState" />
+            </Bindings>
+        </engine:Label>
         <engine:VisualElement class="inspector-panel">
             <engine:Label text="Calibrate Reference Coordinate" />
-            <engine:Vector4Field />
+            <engine:Vector4Field>
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="ReferenceCoordinate" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:Vector4Field>
             <engine:VisualElement style="flex-grow: 1; flex-direction: row; display: none;">
                 <engine:VisualElement style="flex-grow: 1;">
                     <engine:Label text="X" style="-unity-text-align: upper-center;" />
@@ -93,7 +97,7 @@
             </engine:Button>
         </engine:VisualElement>
         <Bindings>
-            <engine:DataBinding property="enabledSelf" data-source-path="IsEnabled" binding-mode="ToTarget" />
+            <engine:DataBinding property="enabledSelf" data-source-path="IsAutomationEnabled" binding-mode="ToTarget" />
         </Bindings>
     </engine:VisualElement>
 </engine:UXML>

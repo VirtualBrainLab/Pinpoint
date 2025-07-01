@@ -19,8 +19,23 @@ namespace UI.Services
         Color ActiveProbeColor { get; }
         
         /// <summary>
-        /// Override name of the currently active probe. "No Active Probe" if none is set.
+        /// Name of the currently active probe. "No Active Probe" if none is set.
         /// </summary>
         string ActiveProbeName { get; }
+        
+        /// <summary>
+        /// Automation state list index of the currently active probe.
+        /// </summary>
+        int ActiveProbeAutomationStateIndex { get; }
+        
+        Vector4 ActiveProbeReferenceCoordinate { get; }
+        
+        /// <summary>
+        /// Set the active probe's automation state index.
+        /// </summary>
+        /// <param name="index">Index in the state list.</param>
+        void SetActiveProbeAutomationStateIndex(int index);
+        
+        void setActiveProbeReferenceCoordinate(Vector4 coordinate);
     }
 }

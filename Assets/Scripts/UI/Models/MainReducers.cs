@@ -25,9 +25,9 @@ namespace UI.Models
         /// <param name="state">The current main state.</param>
         /// <param name="action">The action triggering the toggle.</param>
         /// <returns>A new <see cref="MainState"/> with the left side panel state toggled.</returns>
-        public static MainState ToggleSidePanelLeftReducer(MainState state, IAction action)
+        public static MainState ToggleLeftSidePanelReducer(MainState state, IAction action)
         {
-            return state with { IsSidePanelLeftOpen = !state.IsSidePanelLeftOpen };
+            return state with { IsLeftSidePanelOpen = !state.IsLeftSidePanelOpen };
         }
         
         /// <summary>
@@ -36,9 +36,9 @@ namespace UI.Models
         /// <param name="state">The current main state.</param>
         /// <param name="action">The action triggering the toggle.</param>
         /// <returns>A new <see cref="MainState"/> with the right side panel state toggled.</returns>
-        public static MainState ToggleSidePanelRightReducer(MainState state, IAction action)
+        public static MainState ToggleRightSidePanelReducer(MainState state, IAction action)
         {
-            return state with { IsSidePanelRightOpen = !state.IsSidePanelRightOpen };
+            return state with { IsRightSidePanelOpen = !state.IsRightSidePanelOpen };
         }
         
     }

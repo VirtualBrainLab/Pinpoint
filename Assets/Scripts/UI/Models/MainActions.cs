@@ -7,9 +7,9 @@ namespace UI.Models
     {
         internal static readonly ActionCreator<MainMode> SET_MODE =
             $"{SliceNames.MAIN_SLICE}/SetMode";
-        internal static readonly ActionCreator TOGGLE_SIDE_PANEL_LEFT =
-            $"{SliceNames.MAIN_SLICE}/ToggleSidePanelLeft";
-        internal static readonly ActionCreator TOGGLE_SIDE_PANEL_RIGHT =
-            $"{SliceNames.MAIN_SLICE}/ToggleSidePanelRight";
+        internal static readonly ActionCreator TOGGLE_LEFT_SIDE_PANEL =
+            $"{SliceNames.MAIN_SLICE}/ToggleLeftSidePanel";
+        internal static readonly ActionCreator TOGGLE_RIGHT_SIDE_PANEL =
+            $"{SliceNames.MAIN_SLICE}/ToggleRightSidePanel";
     }
 }

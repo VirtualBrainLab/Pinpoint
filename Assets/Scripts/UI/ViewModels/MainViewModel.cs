@@ -25,10 +25,10 @@ namespace UI.ViewModels
         private MainMode _mainMode;
 
         [ObservableProperty]
-        private bool _isSidePanelLeftOpen;
+        private bool _isLeftSidePanelOpen;
 
         [ObservableProperty]
-        private bool _isSidePanelRightOpen;
+        private bool _isRightSidePanelOpen;
 
         [ObservableProperty]
         private Color _activeProbeColor;
@@ -68,8 +68,8 @@ namespace UI.ViewModels
         private void OnStateChanged(MainState state)
         {
             MainMode = state.MainMode;
-            IsSidePanelLeftOpen = state.IsSidePanelLeftOpen;
-            IsSidePanelRightOpen = state.IsSidePanelRightOpen;
+            IsLeftSidePanelOpen = state.IsLeftSidePanelOpen;
+            IsRightSidePanelOpen = state.IsRightSidePanelOpen;
         }
 
         private void OnExternalPropertiesChanged()
@@ -100,15 +100,15 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
-        private void ToggleSidePanelLeft()
+        private void ToggleLeftSidePanel()
         {
-            _storeService.Store.Dispatch(MainActions.TOGGLE_SIDE_PANEL_LEFT);
+            _storeService.Store.Dispatch(MainActions.TOGGLE_LEFT_SIDE_PANEL);
         }
 
         [ICommand]
-        private void ToggleSidePanelRight()
+        private void ToggleRightSidePanel()
         {
-            _storeService.Store.Dispatch(MainActions.TOGGLE_SIDE_PANEL_RIGHT);
+            _storeService.Store.Dispatch(MainActions.TOGGLE_RIGHT_SIDE_PANEL);
         }
 
         #endregion

@@ -8,6 +8,9 @@ namespace UI.Models.Automation
     public record AutomationState
     {
         [SerializeField]
-        public HashSet<ProbeAutomationState> Probes;
+        public List<ProbeAutomationState> Probes;
+        
+        [SerializeField]
+        public int ActiveProbeIndex;
     }
 }
