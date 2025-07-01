@@ -10,10 +10,6 @@ using UnityEngine.UIElements;
 
 namespace UI.ViewModels
 {
-    /// <summary>
-    /// ViewModel for the main view of the Pinpoint application.
-    /// Handles state management, property binding, and commands for UI interaction.
-    /// </summary>
     [ObservableObject]
     public partial class MainViewModel
     {
@@ -52,7 +48,7 @@ namespace UI.ViewModels
         /// <param name="probeService">The probe service for getting probe info.</param>
         public MainViewModel(IStoreService storeService, IProbeService probeService)
         {
-            // Register state.
+            // Register services.
             _storeService = storeService;
             _probeService = probeService;
 
