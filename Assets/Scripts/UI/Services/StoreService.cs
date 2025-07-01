@@ -35,45 +35,38 @@ namespace UI.Services
             );
 
             // Initialize the Redux store.
-            Store = StoreFactory.CreateStore(
-                new[]
+            var mainSlice = StoreFactory.CreateSlice(
+                SliceNames.MAIN_SLICE,
+                initialMainState,
+                builder =>
                 {
-                    StoreFactory.CreateSlice(
-                        SliceNames.MAIN_SLICE,
-                        initialMainState,
-                        builder =>
-                        {
-                            builder
-                                .AddCase(MainActions.SET_MODE, MainReducers.SetModeReducer)
-                                .AddCase(
-                                    MainActions.TOGGLE_LEFT_SIDE_PANEL,
-                                    MainReducers.ToggleLeftSidePanelReducer
-                                )
-                                .AddCase(
-                                    MainActions.TOGGLE_RIGHT_SIDE_PANEL,
-                                    MainReducers.ToggleRightSidePanelReducer
-                                );
-                        }
-                    ),
-                    StoreFactory.CreateSlice(
-                        SliceNames.AUTOMATION_SLICE,
-                        new AutomationState(),
-                        builder =>
-                        {
-                            builder
-                                .AddCase(AutomationActions.ADD_PROBE, AutomationReducers.AddProbe)
-                                .AddCase(
-                                    AutomationActions.REMOVE_PROBE,
-                                    AutomationReducers.RemoveProbe
-                                )
-                                .AddCase(
-                                    AutomationActions.SET_ACTIVE_PROBE_INDEX,
-                                    AutomationReducers.SetActiveProbeIndex
-                                );
-                        }
-                    ),
+                    builder
+                        .AddCase(MainActions.SET_MODE, MainReducers.SetModeReducer)
+                        .AddCase(
+                            MainActions.TOGGLE_LEFT_SIDE_PANEL,
+                            MainReducers.ToggleLeftSidePanelReducer
+                        )
+                        .AddCase(
+                            MainActions.TOGGLE_RIGHT_SIDE_PANEL,
+                            MainReducers.ToggleRightSidePanelReducer
+                        );
                 }
             );
+            var automationSlice = StoreFactory.CreateSlice(
+                SliceNames.AUTOMATION_SLICE,
+                new AutomationState(),
+                builder =>
+                {
+                    builder
+                        .AddCase(AutomationActions.ADD_PROBE, AutomationReducers.AddProbe)
+                        .AddCase(AutomationActions.REMOVE_PROBE, AutomationReducers.RemoveProbe)
+                        .AddCase(
+                            AutomationActions.SET_ACTIVE_PROBE_INDEX,
+                            AutomationReducers.SetActiveProbeIndex
+                        );
+                }
+            );
+            Store = StoreFactory.CreateStore(new ISlice<PartitionedState>[] { mainSlice, automationSlice });
         }
 
         /// <summary>
