@@ -100,9 +100,12 @@ public class ChannelMap
     {
         Data = data;
 
-        Texture = new Texture2D(60, 10000, TextureFormat.Alpha8, false);
-        Texture.wrapMode = TextureWrapMode.Clamp;
-        Texture.filterMode = FilterMode.Point;
+        int maxTextureSize = Mathf.Min(SystemInfo.maxTextureSize, 10000);
+        Texture = new Texture2D(60, maxTextureSize, TextureFormat.Alpha8, false)
+        {
+            wrapMode = TextureWrapMode.Clamp,
+            filterMode = FilterMode.Point
+        };
         SetSelectionLayer(Data.DefaultSelectionLayer);
     }
 
