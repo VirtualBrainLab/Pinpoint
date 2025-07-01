@@ -1,10 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:Template name="InspectorStack" src="project://database/Assets/UI/Components/InspectorStack.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#InspectorStack" />
-    <ui:Template name="AutomationStack" src="project://database/Assets/UI/Components/AutomationStack.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#AutomationStack" />
-    <ui:Template name="ManualControlStack" src="project://database/Assets/UI/Components/ManualControlPanel.uxml?fileID=9197481963319205126&amp;guid=ed795aeb41983854f9804fe26f1a7f44&amp;type=3#ManualControlPanel" />
+    <ui:Template name="InspectorStack" src="project://database/Assets/UI/Views/InspectorStack.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#InspectorStack" />
+    <ui:Template name="AutomationStack" src="project://database/Assets/UI/Views/Automation.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#Automation" />
+    <ui:Template name="ManualControlStack" src="project://database/Assets/UI/Views/ManualControlPanel.uxml?fileID=9197481963319205126&amp;guid=ed795aeb41983854f9804fe26f1a7f44&amp;type=3#ManualControlPanel" />
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
+    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
     <ui:VisualElement data-source-type="UI.ViewModels.MainViewModel, pinpoint.ui" picking-mode="Ignore" style="flex-direction: row; flex-grow: 1;">
-        <ui:VisualElement name="side-panel__left" class="side-panel--open" style="height: auto;">
+        <ui:VisualElement name="left-side-panel" class="side-panel" style="height: auto;">
             <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
                 <ui:VisualElement class="side-panel__item--open" style="flex-direction: row; flex-grow: 1;">
                     <ui:Button text="Menu" />
@@ -17,7 +18,7 @@
                         <ui:DataBinding property="style.display" data-source-path="IsSidePanelLeftOpen" binding-mode="ToTarget" />
                     </Bindings>
                 </ui:VisualElement>
-                <ui:Button name="side-panel__toggle" text="◀">
+                <ui:Button name="left-side-panel__toggle" text="◀">
                     <Bindings>
                         <ui:DataBinding property="text" data-source-path="IsSidePanelLeftOpen" binding-mode="ToTarget" source-to-ui-converters="SidePanelLeftToggleText" />
                     </Bindings>
@@ -45,9 +46,9 @@
             </Bindings>
         </ui:VisualElement>
         <ui:VisualElement picking-mode="Ignore" style="flex-direction: row; flex-grow: 1;" />
-        <ui:VisualElement name="side-panel__right" class="side-panel--open">
+        <ui:VisualElement name="right-side-panel" class="side-panel--open side-panel">
             <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
-                <ui:Button name="side-panel__toggle" text="▶">
+                <ui:Button name="right-side-panel__toggle" text="▶">
                     <Bindings>
                         <ui:DataBinding property="text" data-source="project://database/Assets/Scripts/UI/States/RightSidePanelState.asset?fileID=11400000&amp;guid=1ffbe2aa43d3bb246a3a88a0d1ab255d&amp;type=2#RightSidePanelState" binding-mode="ToTarget" data-source-path="IsSidePanelRightOpen" source-to-ui-converters="SidePanelRightToggleText" />
                     </Bindings>
@@ -80,7 +81,7 @@
                         <ui:DataBinding property="style.display" data-source-path="MainMode" binding-mode="ToTarget" source-to-ui-converters="MainModeToInspectorPanelDisplayStyle" />
                     </Bindings>
                 </ui:Instance>
-                <ui:Instance template="AutomationStack" name="automation-stack-panel">
+                <ui:Instance template="AutomationStack" name="automation-view">
                     <Bindings>
                         <ui:DataBinding property="style.display" data-source-path="MainMode" binding-mode="ToTarget" source-to-ui-converters="MainModeToAutomationPanelDisplayStyle" />
                     </Bindings>

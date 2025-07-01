@@ -45,10 +45,13 @@ namespace UI.Views
             dataSource = _viewModel;
             
             // Register component references.
-            _sidePanelLeft = this.Q<VisualElement>("side-panel__left");
-            _sidePanelRight = this.Q<VisualElement>("side-panel__right");
-            _sidePanelLeftToggle = _sidePanelLeft.Q<Button>("side-panel__toggle");
-            _sidePanelRightToggle = _sidePanelRight.Q<Button>("side-panel__toggle");
+            _sidePanelLeft = this.Q<VisualElement>("left-side-panel");
+            _sidePanelRight = this.Q<VisualElement>("right-side-panel");
+            _sidePanelLeftToggle = _sidePanelLeft.Q<Button>("left-side-panel__toggle");
+            _sidePanelRightToggle = _sidePanelRight.Q<Button>("right-side-panel__toggle");
+            
+            // Initialize subviews.
+            _ = new AutomationView(this.Q<VisualElement>("automation-view"));
 
             // Register callbacks.
             _sidePanelLeftToggle.clicked += () => _viewModel.ToggleSidePanelLeftCommand.Execute();
