@@ -1,4 +1,5 @@
 using UI.Models;
+using UI.Models.Automation;
 using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
@@ -51,6 +52,23 @@ namespace UI.Services
                                 .AddCase(
                                     MainActions.TOGGLE_RIGHT_SIDE_PANEL,
                                     MainReducers.ToggleRightSidePanelReducer
+                                );
+                        }
+                    ),
+                    StoreFactory.CreateSlice(
+                        SliceNames.AUTOMATION_SLICE,
+                        new AutomationState(),
+                        builder =>
+                        {
+                            builder
+                                .AddCase(AutomationActions.ADD_PROBE, AutomationReducers.AddProbe)
+                                .AddCase(
+                                    AutomationActions.REMOVE_PROBE,
+                                    AutomationReducers.RemoveProbe
+                                )
+                                .AddCase(
+                                    AutomationActions.SET_ACTIVE_PROBE_INDEX,
+                                    AutomationReducers.SetActiveProbeIndex
                                 );
                         }
                     ),

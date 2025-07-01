@@ -8,9 +8,9 @@ namespace UI.Models.Automation
     public record AutomationState
     {
         [SerializeField]
-        public List<ProbeAutomationState> Probes;
-        
+        public List<ProbeAutomationState> Probes = new();
+
         [SerializeField]
-        public int ActiveProbeIndex;
+        public int ActiveProbeIndex = -1;
     }
 }
