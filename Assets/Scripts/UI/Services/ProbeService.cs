@@ -1,0 +1,72 @@
+using System;
+using System.Timers;
+using UnityEngine;
+
+namespace UI.Services
+{
+    public class ProbeService : IProbeService
+    {
+        private readonly Timer _timer;
+
+        #region Properties
+
+        public event Action OnPropertyChanged;
+        public Color ActiveProbeColor { get; private set; } = Color.gray;
+        public string ActiveProbeName { get; private set; } = "No Active Probe";
+
+        #endregion
+
+        public ProbeService()
+        {
+            _timer = new Timer(250); // Poll 4 Hz.
+            _timer.Elapsed += Update;
+            _timer.AutoReset = true;
+            _timer.Start();
+        }
+
+        private void Update(object sender, ElapsedEventArgs e)
+        {
+            var activeProbeManager = ProbeManager.ActiveProbeManager;
+
+            // Exit if there is no active probe manager.
+            if (!activeProbeManager)
+            {
+                return;
+            }
+
+            // Flag for changes.
+            var hasChanged = false;
+
+            // Check for changes.
+
+            if (activeProbeManager.Color != ActiveProbeColor)
+            {
+                ActiveProbeColor = activeProbeManager.Color;
+                hasChanged = true;
+            }
+
+            if (
+                activeProbeManager.UUID != ActiveProbeName
+                || (
+                    activeProbeManager.OverrideName != null
+                    && activeProbeManager.OverrideName != ActiveProbeName
+                )
+            )
+            {
+                ActiveProbeName = activeProbeManager.OverrideName ?? activeProbeManager.UUID;
+                hasChanged = true;
+            }
+
+            // Signal property change if any value has changed.
+            if (hasChanged)
+            {
+                OnPropertyChanged?.Invoke();
+            }
+        }
+
+        public void Dispose()
+        {
+            _timer?.Dispose();
+        }
+    }
+}
