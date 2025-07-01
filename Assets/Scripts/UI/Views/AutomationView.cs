@@ -1,3 +1,5 @@
+using UI.Utils;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -22,7 +24,7 @@ namespace UI.Views
         public AutomationView(VisualElement root)
         {
             _root = root;
-            
+
             // Register component references.
             _resetReferenceCoordinateButton = _root.Q<Button>("reference-coordinate__reset-button");
             _targetDriveButton = _root.Q<Button>("target__drive-button");
@@ -32,6 +34,17 @@ namespace UI.Views
             _insertionStopButton = _root.Q<Button>("insertion__stop-button");
             _insertionResetButton = _root.Q<Button>("insertion__reset-button");
             
+            // Edit default components.
+            var referenceCoordinateDepthLabel = _root.Q<FloatField>("unity-w-input").Q<Label>();
+            referenceCoordinateDepthLabel.text = "Depth";
+        }
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#endif
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void RegisterAutomationViewConverters()
+        {
         }
     }
 }

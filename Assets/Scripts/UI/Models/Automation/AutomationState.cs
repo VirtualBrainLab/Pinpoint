@@ -1,4 +1,16 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
 namespace UI.Models.Automation
 {
-    public record AutomationState();
+    [Serializable]
+    public record AutomationState
+    {
+        [SerializeField]
+        public List<ProbeAutomationState> Probes;
+        
+        [SerializeField]
+        public int ActiveProbeIndex;
+    }
 }

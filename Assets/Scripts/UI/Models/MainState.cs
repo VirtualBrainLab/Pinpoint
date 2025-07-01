@@ -11,9 +11,9 @@ namespace UI.Models
         public MainMode MainMode;
 
         [SerializeField]
-        public bool IsSidePanelLeftOpen = true;
+        public bool IsLeftSidePanelOpen = true;
 
         [SerializeField]
-        public bool IsSidePanelRightOpen = true;
+        public bool IsRightSidePanelOpen = true;
     }
 }

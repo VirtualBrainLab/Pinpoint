@@ -4,9 +4,7 @@ using UI.Services;
 using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace UI.ViewModels
 {
@@ -27,10 +25,10 @@ namespace UI.ViewModels
         private MainMode _mainMode;
 
         [ObservableProperty]
-        private bool _isSidePanelLeftOpen;
+        private bool _isLeftSidePanelOpen;
 
         [ObservableProperty]
-        private bool _isSidePanelRightOpen;
+        private bool _isRightSidePanelOpen;
 
         [ObservableProperty]
         private Color _activeProbeColor;
@@ -70,8 +68,8 @@ namespace UI.ViewModels
         private void OnStateChanged(MainState state)
         {
             MainMode = state.MainMode;
-            IsSidePanelLeftOpen = state.IsSidePanelLeftOpen;
-            IsSidePanelRightOpen = state.IsSidePanelRightOpen;
+            IsLeftSidePanelOpen = state.IsLeftSidePanelOpen;
+            IsRightSidePanelOpen = state.IsRightSidePanelOpen;
         }
 
         private void OnExternalPropertiesChanged()
@@ -102,69 +100,15 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
-        private void ToggleSidePanelLeft()
+        private void ToggleLeftSidePanel()
         {
-            _storeService.Store.Dispatch(MainActions.TOGGLE_SIDE_PANEL_LEFT);
+            _storeService.Store.Dispatch(MainActions.TOGGLE_LEFT_SIDE_PANEL);
         }
 
         [ICommand]
-        private void ToggleSidePanelRight()
+        private void ToggleRightSidePanel()
         {
-            _storeService.Store.Dispatch(MainActions.TOGGLE_SIDE_PANEL_RIGHT);
-        }
-
-        #endregion
-
-        #region Converters
-
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-#endif
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void RegisterMainViewConverters()
-        {
-            DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "SidePanelLeftToggleText",
-                (ref bool isVisible) => isVisible ? "\u25C0" : "\u25B6"
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "SidePanelRightToggleText",
-                (ref bool isVisible) => isVisible ? "\u25B6" : "\u25C0"
-            );
-
-            DataTypeConverters.RegisterBidirectionalConverterGroup(
-                "MainModeToInt",
-                (ref MainMode mode) => (int)mode,
-                (ref int modeIndex) => (MainMode)modeIndex
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToInspectorPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode < MainMode.Automation ? DisplayStyle.Flex : DisplayStyle.None
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToAutomationPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode > MainMode.Visualization ? DisplayStyle.Flex : DisplayStyle.None
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToManualControlPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode > MainMode.Planning ? DisplayStyle.Flex : DisplayStyle.None
-            );
+            _storeService.Store.Dispatch(MainActions.TOGGLE_RIGHT_SIDE_PANEL);
         }
 
         #endregion

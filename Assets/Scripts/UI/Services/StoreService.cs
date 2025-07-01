@@ -45,12 +45,12 @@ namespace UI.Services
                             builder
                                 .AddCase(MainActions.SET_MODE, MainReducers.SetModeReducer)
                                 .AddCase(
-                                    MainActions.TOGGLE_SIDE_PANEL_LEFT,
-                                    MainReducers.ToggleSidePanelLeftReducer
+                                    MainActions.TOGGLE_LEFT_SIDE_PANEL,
+                                    MainReducers.ToggleLeftSidePanelReducer
                                 )
                                 .AddCase(
-                                    MainActions.TOGGLE_SIDE_PANEL_RIGHT,
-                                    MainReducers.ToggleSidePanelRightReducer
+                                    MainActions.TOGGLE_RIGHT_SIDE_PANEL,
+                                    MainReducers.ToggleRightSidePanelReducer
                                 );
                         }
                     ),
@@ -59,15 +59,15 @@ namespace UI.Services
         }
 
         /// <summary>
-        /// Saves the current main state to local storage.
+        /// Saves the chosen slices to local storage.
         /// </summary>
         public void Save()
         {
-            // Get the current state from memory.
-            var currentMainState = Store.GetState<MainState>(SliceNames.MAIN_SLICE);
-            
-            // Save the current state to local storage.
-            _localStorageService.SetValue(SliceNames.MAIN_SLICE, currentMainState);
+            // Main state.
+            _localStorageService.SetValue(
+                SliceNames.MAIN_SLICE,
+                Store.GetState<MainState>(SliceNames.MAIN_SLICE)
+            );
         }
     }
 }

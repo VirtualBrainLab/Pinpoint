@@ -1,8 +1,3 @@
-.side-panel {
-    background-color: var(--unity-colors-default-background);
-    width: 25%;
-}
-
 .inspector-panel {
     background-color: var(--unity-colors-window-background);
     padding: var(--unity-metrics-default-font_normal_size);

@@ -1,5 +1,8 @@
 using System.ComponentModel;
+using UI.Utils;
 using UI.ViewModels;
+using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.Views
@@ -12,8 +15,8 @@ namespace UI.Views
     {
         #region Component References
 
-        private readonly VisualElement _sidePanelLeft;
-        private readonly VisualElement _sidePanelRight;
+        private readonly VisualElement _leftSidePanel;
+        private readonly VisualElement _rightSidePanel;
 
         private readonly Button _sidePanelLeftToggle;
         private readonly Button _sidePanelRightToggle;
@@ -36,35 +39,35 @@ namespace UI.Views
             // Instantiate the UI document.
             var document = PinpointAppBuilder.Instance.MainUIDocument;
             document.CloneTree(this);
-            
+
             pickingMode = PickingMode.Ignore;
 
             // Get view model and register property changes and bindings.
             _viewModel = mainViewModel;
             _viewModel.PropertyChanged += OnPropertyChanged;
             dataSource = _viewModel;
-            
+
             // Register component references.
-            _sidePanelLeft = this.Q<VisualElement>("left-side-panel");
-            _sidePanelRight = this.Q<VisualElement>("right-side-panel");
-            _sidePanelLeftToggle = _sidePanelLeft.Q<Button>("left-side-panel__toggle");
-            _sidePanelRightToggle = _sidePanelRight.Q<Button>("right-side-panel__toggle");
-            
+            _leftSidePanel = this.Q<VisualElement>("left-side-panel");
+            _rightSidePanel = this.Q<VisualElement>("right-side-panel");
+            _sidePanelLeftToggle = _leftSidePanel.Q<Button>("left-side-panel__toggle");
+            _sidePanelRightToggle = _rightSidePanel.Q<Button>("right-side-panel__toggle");
+
             // Initialize subviews.
             _ = new AutomationView(this.Q<VisualElement>("automation-view"));
 
             // Register callbacks.
-            _sidePanelLeftToggle.clicked += () => _viewModel.ToggleSidePanelLeftCommand.Execute();
-            _sidePanelRightToggle.clicked += () => _viewModel.ToggleSidePanelRightCommand.Execute();
-            
+            _sidePanelLeftToggle.clicked += () => _viewModel.ToggleLeftSidePanelCommand.Execute();
+            _sidePanelRightToggle.clicked += () => _viewModel.ToggleRightSidePanelCommand.Execute();
+
             // Initialize view from view model state.
-            if (!_viewModel.IsSidePanelLeftOpen)
+            if (!_viewModel.IsLeftSidePanelOpen)
             {
-                _sidePanelLeft.AddToClassList("side-panel--close");
+                _leftSidePanel.AddToClassList("side-panel--close");
             }
-            if (!_viewModel.IsSidePanelRightOpen)
+            if (!_viewModel.IsRightSidePanelOpen)
             {
-                _sidePanelRight.AddToClassList("side-panel--close");
+                _rightSidePanel.AddToClassList("side-panel--close");
             }
         }
 
@@ -78,13 +81,63 @@ namespace UI.Views
         {
             switch (e.PropertyName)
             {
-                case nameof(MainViewModel.IsSidePanelLeftOpen):
-                    _sidePanelLeft.ToggleInClassList("side-panel--close");
+                case nameof(MainViewModel.IsLeftSidePanelOpen):
+                    _leftSidePanel.ToggleInClassList("side-panel--close");
                     break;
-                case nameof(MainViewModel.IsSidePanelRightOpen):
-                    _sidePanelRight.ToggleInClassList("side-panel--close");
+                case nameof(MainViewModel.IsRightSidePanelOpen):
+                    _rightSidePanel.ToggleInClassList("side-panel--close");
                     break;
             }
+        }
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#endif
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void RegisterMainViewConverters()
+        {
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "BooleanToLeftSidePanelToggleText",
+                (ref bool isVisible) => isVisible ? "\u25C0" : "\u25B6"
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "BooleanToRightSidePanelToggleText",
+                (ref bool isVisible) => isVisible ? "\u25B6" : "\u25C0"
+            );
+
+            DataTypeConverters.RegisterBidirectionalConverterGroup(
+                "MainModeToInt",
+                (ref MainMode mode) => (int)mode,
+                (ref int modeIndex) => (MainMode)modeIndex
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                MainMode,
+                StyleEnum<DisplayStyle>
+            >(
+                "MainModeToInspectorPanelDisplayStyle",
+                (ref MainMode mode) =>
+                    mode < MainMode.Automation ? DisplayStyle.Flex : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                MainMode,
+                StyleEnum<DisplayStyle>
+            >(
+                "MainModeToAutomationPanelDisplayStyle",
+                (ref MainMode mode) =>
+                    mode > MainMode.Visualization ? DisplayStyle.Flex : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                MainMode,
+                StyleEnum<DisplayStyle>
+            >(
+                "MainModeToManualControlPanelDisplayStyle",
+                (ref MainMode mode) =>
+                    mode > MainMode.Planning ? DisplayStyle.Flex : DisplayStyle.None
+            );
         }
     }
 }
