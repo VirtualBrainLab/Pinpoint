@@ -53,10 +53,10 @@ namespace UI.ViewModels
         private void OnAutomationStateChanged(AutomationState state)
         {
             // Check if an active manipulator probe is selected.
-            _isAutomationEnabled = state.ActiveProbeIndex > -1;
+            IsAutomationEnabled = state.ActiveProbeIndex > -1;
 
             // Exit if not enabled.
-            if (!_isAutomationEnabled)
+            if (!IsAutomationEnabled)
             {
                 return;
             }

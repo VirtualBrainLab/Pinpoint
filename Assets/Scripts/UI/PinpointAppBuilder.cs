@@ -40,6 +40,7 @@ namespace UI
 
             // ViewModels.
             builder.services.AddTransient<MainViewModel>();
+            builder.services.AddTransient<AutomationViewModel>();
 
             // Views.
             builder.services.AddTransient<MainView>();

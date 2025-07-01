@@ -23,18 +23,15 @@ namespace UI.Views
 
         #endregion
 
-        #region Architecture
-
         private readonly MainViewModel _viewModel;
-
-        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainView"/> class.
         /// Sets up UI document, component references, and event bindings.
         /// </summary>
         /// <param name="mainViewModel">The view model to bind to.</param>
-        public MainView(MainViewModel mainViewModel)
+        /// <param name="automationViewModel">Automation view model to pass to the view.</param>
+        public MainView(MainViewModel mainViewModel, AutomationViewModel automationViewModel)
         {
             // Instantiate the UI document.
             var document = PinpointAppBuilder.Instance.MainUIDocument;
@@ -54,7 +51,7 @@ namespace UI.Views
             _sidePanelRightToggle = _rightSidePanel.Q<Button>("right-side-panel__toggle");
 
             // Initialize subviews.
-            _ = new AutomationView(this.Q<VisualElement>("automation-view"));
+            _ = new AutomationView(this.Q<VisualElement>("automation-view"), automationViewModel);
 
             // Register callbacks.
             _sidePanelLeftToggle.clicked += () => _viewModel.ToggleLeftSidePanelCommand.Execute();
