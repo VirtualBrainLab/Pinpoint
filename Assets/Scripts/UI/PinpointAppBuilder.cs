@@ -1,4 +1,4 @@
-using UI.Services;
+using Services;
 using UI.ViewModels;
 using UI.Views;
 using Unity.AppUI.MVVM;

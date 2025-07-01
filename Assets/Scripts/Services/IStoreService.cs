@@ -1,6 +1,6 @@
 using Unity.AppUI.Redux;
 
-namespace UI.Services
+namespace Services
 {
     /// <summary>
     /// Provides access to the application's Redux store.

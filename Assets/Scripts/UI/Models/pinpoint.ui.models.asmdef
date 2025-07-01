@@ -1,0 +1,17 @@
+{
+    "name": "pinpoint.ui.models",
+    "rootNamespace": "",
+    "references": [
+        "GUID:710bb277e6ff49ed91ba164465e106ef",
+        "GUID:3d89e5e6385986e44aeeaee733e02423"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

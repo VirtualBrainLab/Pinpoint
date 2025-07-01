@@ -1,8 +1,7 @@
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 
-namespace UI.Services
+namespace Services
 {
     /// <summary>
     /// Interface for probe services, providing methods to start polling and retrieve
@@ -36,6 +35,6 @@ namespace UI.Services
         /// <param name="index">Index in the state list.</param>
         void SetActiveProbeAutomationStateIndex(int index);
         
-        void setActiveProbeReferenceCoordinate(Vector4 coordinate);
+        void SetActiveProbeReferenceCoordinate(Vector4 coordinate);
     }
 }

@@ -1,10 +1,9 @@
 using UI.Models;
 using UI.Models.Automation;
 using UI.Utils;
-using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 
-namespace UI.Services
+namespace Services
 {
     /// <summary>
     /// Provides access to the application's Redux store implementation.

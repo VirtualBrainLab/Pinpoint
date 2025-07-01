@@ -2,7 +2,7 @@ using System;
 using System.Timers;
 using UnityEngine;
 
-namespace UI.Services
+namespace Services
 {
     public class ProbeService : IProbeService
     {
@@ -112,7 +112,7 @@ namespace UI.Services
             activeProbeManager.ManipulatorBehaviorController.ProbeAutomationStateIndex = index;
         }
 
-        public void setActiveProbeReferenceCoordinate(Vector4 coordinate)
+        public void SetActiveProbeReferenceCoordinate(Vector4 coordinate)
         {
             var activeProbeManager = ProbeManager.ActiveProbeManager;
 
