@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using Services;
-using UI.Models.Automation;
+using UI.Models.Scene;
 using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
@@ -54,22 +53,22 @@ namespace UI.ViewModels
             _probeService = probeService;
 
             // Initialize properties from the store.
-            var initialAutomationState = _storeService.Store.GetState<AutomationState>(
-                SliceNames.AUTOMATION_SLICE
+            var initialAutomationState = _storeService.Store.GetState<SceneState>(
+                SliceNames.SCENE_SLICE
             );
             OnAutomationStateChanged(initialAutomationState);
             OnExternalPropertiesChanged();
 
             // Subscribe to state changes.
             _automationStateSubscription = _storeService.Store.Subscribe(
-                state => state.Get<AutomationState>(SliceNames.AUTOMATION_SLICE),
+                state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
                 OnAutomationStateChanged
             );
             probeService.OnPropertyChanged += OnExternalPropertiesChanged;
             App.shuttingDown += OnShuttingDown;
         }
 
-        private void OnAutomationStateChanged(AutomationState state)
+        private void OnAutomationStateChanged(SceneState state)
         {
             // Check if an active manipulator probe is selected.
             // TODO: Re-enable when actually using automation.
@@ -86,7 +85,7 @@ namespace UI.ViewModels
 
             // Check for the index of the selected target insertion probe manager.
             var selectedTargetInsertionProbeManagerIndex = TargetInsertionProbeManagers.IndexOf(
-                probeAutomationState.SelectedTargetInsertionProbeManager
+                probeAutomationState.SelectedTargetInsertionProbeState
             );
 
             // Reset the selected target insertion probe manager index if it is not valid.
@@ -103,7 +102,7 @@ namespace UI.ViewModels
         {
             // Keep the active probe in sync with the store.
             _storeService.Store.Dispatch(
-                AutomationActions.SET_ACTIVE_PROBE_INDEX,
+                SceneActions.SET_ACTIVE_PROBE_INDEX,
                 _probeService.ActiveProbeAutomationStateIndex
             );
 
@@ -135,7 +134,10 @@ namespace UI.ViewModels
                     var selectedTargetInsertionProbeManager = TargetInsertionProbeManagers[
                         SelectedTargetInsertionProbeManagerIndex
                     ];
-                    // TODO: Dispatch new target insertion selected.
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_STATE,
+                        selectedTargetInsertionProbeManager
+                    );
                     break;
             }
         }

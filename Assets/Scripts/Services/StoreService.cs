@@ -1,5 +1,5 @@
 using UI.Models;
-using UI.Models.Automation;
+using UI.Models.Scene;
 using UI.Utils;
 using Unity.AppUI.Redux;
 
@@ -52,20 +52,26 @@ namespace Services
                 }
             );
             var automationSlice = StoreFactory.CreateSlice(
-                SliceNames.AUTOMATION_SLICE,
-                new AutomationState(),
+                SliceNames.SCENE_SLICE,
+                new SceneState(),
                 builder =>
                 {
                     builder
-                        .AddCase(AutomationActions.ADD_PROBE, AutomationReducers.AddProbe)
-                        .AddCase(AutomationActions.REMOVE_PROBE, AutomationReducers.RemoveProbe)
+                        .AddCase(SceneActions.ADD_PROBE, SceneReducers.AddProbeReducer)
+                        .AddCase(SceneActions.REMOVE_PROBE, SceneReducers.RemoveProbeReducer)
                         .AddCase(
-                            AutomationActions.SET_ACTIVE_PROBE_INDEX,
-                            AutomationReducers.SetActiveProbeIndex
+                            SceneActions.SET_ACTIVE_PROBE_INDEX,
+                            SceneReducers.SetActiveProbeIndexReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_STATE,
+                            SceneReducers.SetSelectedTargetInsertionReducer
                         );
                 }
             );
-            Store = StoreFactory.CreateStore(new ISlice<PartitionedState>[] { mainSlice, automationSlice });
+            Store = StoreFactory.CreateStore(
+                new ISlice<PartitionedState>[] { mainSlice, automationSlice }
+            );
         }
 
         /// <summary>
