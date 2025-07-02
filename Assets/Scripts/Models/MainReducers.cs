@@ -1,7 +1,7 @@
 using UI.Utils;
 using Unity.AppUI.Redux;
 
-namespace UI.Models
+namespace Models
 {
     /// <summary>
     /// Contains reducer methods for updating the main application state.
@@ -18,7 +18,7 @@ namespace UI.Models
         {
             return state with { MainMode = action.payload };
         }
-        
+
         /// <summary>
         /// Toggles the open/close state of the left side panel.
         /// </summary>
@@ -29,7 +29,7 @@ namespace UI.Models
         {
             return state with { IsLeftSidePanelOpen = !state.IsLeftSidePanelOpen };
         }
-        
+
         /// <summary>
         /// Toggles the open/close state of the right side panel.
         /// </summary>
@@ -40,6 +40,15 @@ namespace UI.Models
         {
             return state with { IsRightSidePanelOpen = !state.IsRightSidePanelOpen };
         }
-        
+    }
+
+    public static class MainActions
+    {
+        public static readonly ActionCreator<MainMode> SET_MODE =
+            $"{SliceNames.MAIN_SLICE}/SetMode";
+        public static readonly ActionCreator TOGGLE_LEFT_SIDE_PANEL =
+            $"{SliceNames.MAIN_SLICE}/ToggleLeftSidePanel";
+        public static readonly ActionCreator TOGGLE_RIGHT_SIDE_PANEL =
+            $"{SliceNames.MAIN_SLICE}/ToggleRightSidePanel";
     }
 }

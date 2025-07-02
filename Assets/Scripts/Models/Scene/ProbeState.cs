@@ -2,7 +2,7 @@ using System;
 using UI.Utils;
 using UnityEngine;
 
-namespace UI.Models.Scene
+namespace Models.Scene
 {
     [Serializable]
     public record ProbeState

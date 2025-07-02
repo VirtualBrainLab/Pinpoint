@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Models;
+using Models.Scene;
 using Services;
-using UI.Models.Scene;
-using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
@@ -72,7 +72,7 @@ namespace UI.ViewModels
         {
             // Check if an active manipulator probe is selected.
             // TODO: Re-enable when actually using automation.
-            // IsAutomationEnabled = state.ActiveProbeIndex > -1;
+            IsAutomationEnabled = state.ActiveProbeIndex > -1;
 
             // Exit if not enabled.
             if (!IsAutomationEnabled)

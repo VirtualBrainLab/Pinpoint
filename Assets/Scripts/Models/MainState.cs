@@ -2,7 +2,7 @@ using System;
 using UI.Utils;
 using UnityEngine;
 
-namespace UI.Models
+namespace Models
 {
     [Serializable]
     public record MainState
