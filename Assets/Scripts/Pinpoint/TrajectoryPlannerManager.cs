@@ -65,7 +65,6 @@ namespace TrajectoryPlanner
 
         // Managers and accessors
         [SerializeField] private Transform _probeParentT;
-        [FormerlySerializedAs("accountsManager")] [SerializeField] private UnisaveAccountsManager _accountsManager;
         [SerializeField] private ProbePanelManager _probePanelManager;
         [SerializeField] private AtlasManager _atlasManager;
         [SerializeField] private PinpointAtlasManager _pinpointAtlasManager;
@@ -148,7 +147,7 @@ namespace TrajectoryPlanner
             inputActions.ProbeMetaControl.PrevProbe.performed += PrevProbe;
             inputActions.ProbeMetaControl.SwitchAxisMode.performed += x => Settings.ConvertAPML2Probe = !Settings.ConvertAPML2Probe;
 
-            _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
+            // _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
         }
 
         public async void Startup()
@@ -234,8 +233,8 @@ namespace TrajectoryPlanner
             CheckForSavedProbes();
             await _checkForSavedProbesTaskSource.Task;
             // Finally, load accounts if we didn't load a query string or a saved set of probes
-            if (!_checkForSavedProbesTaskSource.Task.Result)
-                _accountsManager.DelayedStart();
+            // if (!_checkForSavedProbesTaskSource.Task.Result)
+            //     _accountsManager.DelayedStart();
         }
 
         void Update()
@@ -295,7 +294,7 @@ namespace TrajectoryPlanner
 
                 _sliceRenderer.UpdateSlicePosition();
 
-                _accountsManager.UpdateProbeData();
+                // _accountsManager.UpdateProbeData();
 
                 _probesChangedEvent.Invoke();
             }
@@ -991,14 +990,14 @@ namespace TrajectoryPlanner
 
         #region Accounts
 
-        public (Vector3 apmldv, Vector3 angles, CoordinateSpace space, CoordinateTransform transform, bool targetable) ServerProbeInsertion2ProbeInsertion(ServerProbeInsertion serverInsertion)
-        {
-            return (new Vector3(serverInsertion.ap, serverInsertion.ml, serverInsertion.dv),
-                new Vector3(serverInsertion.phi, serverInsertion.theta, serverInsertion.spin),
-                BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace,
-                BrainAtlasManager.ActiveAtlasTransform,
-                true);
-        }
+        // public (Vector3 apmldv, Vector3 angles, CoordinateSpace space, CoordinateTransform transform, bool targetable) ServerProbeInsertion2ProbeInsertion(ServerProbeInsertion serverInsertion)
+        // {
+        //     return (new Vector3(serverInsertion.ap, serverInsertion.ml, serverInsertion.dv),
+        //         new Vector3(serverInsertion.phi, serverInsertion.theta, serverInsertion.spin),
+        //         BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace,
+        //         BrainAtlasManager.ActiveAtlasTransform,
+        //         true);
+        // }
 
         /// <summary>
         /// Called by the AccountsManager class when a probe's visibility is updated
