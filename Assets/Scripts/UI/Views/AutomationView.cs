@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
 using UI.Utils;
 using UI.ViewModels;
 using UnityEditor;
@@ -42,12 +45,30 @@ namespace UI.Views
             // Edit default components.
             var referenceCoordinateDepthLabel = _root.Q<FloatField>("unity-w-input").Q<Label>();
             referenceCoordinateDepthLabel.text = "Depth";
+
+            // Register callbacks.
+            _resetReferenceCoordinateButton.clicked += _automationViewModel
+                .ResetReferenceCoordinateCommand
+                .Execute;
         }
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
 #endif
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void RegisterAutomationViewConverters() { }
+        public static void RegisterAutomationViewConverters()
+        {
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "TargetableProbeManagersToTargetInsertionOptions",
+                (ref List<ProbeManager> targetableProbeManagers) =>
+                    targetableProbeManagers
+                        .Select(manager =>
+                            $"{manager.name}: {manager.ProbeController.Insertion.APMLDV}"
+                        )
+                        .Prepend("None")
+                        .ToList()
+            );
+            
+        }
     }
 }

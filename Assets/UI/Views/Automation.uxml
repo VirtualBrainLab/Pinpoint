@@ -50,8 +50,13 @@
             <engine:Button text="Reset Reference Coordinate" name="reference-coordinate__reset-button" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
-            <engine:Label text="Choose Target" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:RadioButtonGroup style="flex-wrap: wrap;" />
+            <engine:Label text="Choose a Target" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+            <engine:DropdownField choices="None" index="0">
+                <Bindings>
+                    <engine:DataBinding property="choices" data-source-path="TargetInsertionProbeManagers" binding-mode="ToTarget" source-to-ui-converters="TargetableProbeManagersToTargetInsertionOptions" />
+                    <engine:DataBinding property="index" data-source-path="SelectedTargetInsertionProbeManagerIndex" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:DropdownField>
             <engine:Button text="Drive to Target Entry Coordinate" name="target__drive-button" />
             <engine:Button text="Stop" name="target__stop-button" />
         </engine:VisualElement>

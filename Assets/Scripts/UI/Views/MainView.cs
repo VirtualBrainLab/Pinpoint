@@ -54,8 +54,8 @@ namespace UI.Views
             _ = new AutomationView(this.Q<VisualElement>("automation-view"), automationViewModel);
 
             // Register callbacks.
-            _sidePanelLeftToggle.clicked += () => _viewModel.ToggleLeftSidePanelCommand.Execute();
-            _sidePanelRightToggle.clicked += () => _viewModel.ToggleRightSidePanelCommand.Execute();
+            _sidePanelLeftToggle.clicked += _viewModel.ToggleLeftSidePanelCommand.Execute;
+            _sidePanelRightToggle.clicked += _viewModel.ToggleRightSidePanelCommand.Execute;
 
             // Initialize view from view model state.
             if (!_viewModel.IsLeftSidePanelOpen)
