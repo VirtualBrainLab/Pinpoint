@@ -8,7 +8,7 @@
         <ui:VisualElement name="left-side-panel" class="side-panel" style="height: auto;">
             <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
                 <ui:VisualElement class="side-panel__item--open" style="flex-direction: row; flex-grow: 1;">
-                    <ui:Button text="Menu" />
+                    <ui:Button text="Menu" name="Button" />
                     <ui:DropdownField index="0" choices="Planning Mode,Visualization Mode, Automation Mode">
                         <Bindings>
                             <ui:DataBinding property="index" data-source-path="MainMode" source-to-ui-converters="MainModeToInt" ui-to-source-converters="MainModeToInt" binding-mode="TwoWay" />
