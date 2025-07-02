@@ -29,9 +29,9 @@
                     <ui:ListView name="SceneContent" reorderable="true" show-alternating-row-backgrounds="None" style="display: flex;" />
                 </ui:Tab>
                 <ui:Tab label="Brain Areas" view-data-key="BrainAreasTab">
-                    <ui:VisualElement name="BrainAreasContent" tabindex="0" style="flex-grow: 1; display: flex;">
-                        <ui:TextField picking-mode="Ignore" label="Search:" name="SearchField" tooltip="Search for a brain area to highlight" />
-                        <ui:TreeView name="BrainAreasSelector" />
+                    <ui:VisualElement name="atlas-view" style="flex-grow: 1;">
+                        <ui:TextField picking-mode="Ignore" label="Search:" name="atlas-search" tooltip="Search for a brain area to highlight" />
+                        <ui:TreeView name="atlas-tree" />
                     </ui:VisualElement>
                 </ui:Tab>
                 <ui:Tab label="Channels &amp; Slices" view-data-key="ChannelMapsAndSlicesTab">

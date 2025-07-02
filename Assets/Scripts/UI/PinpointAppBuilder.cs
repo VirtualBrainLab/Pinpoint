@@ -37,10 +37,12 @@ namespace UI
             builder.services.AddSingleton<ILocalStorageService, LocalStorageService>();
             builder.services.AddSingleton<IStoreService, StoreService>();
             builder.services.AddSingleton<IProbeService, ProbeService>();
+            builder.services.AddSingleton<AtlasService>();
 
             // ViewModels.
             builder.services.AddTransient<MainViewModel>();
             builder.services.AddTransient<AutomationViewModel>();
+            builder.services.AddTransient<AtlasViewModel>();
 
             // Views.
             builder.services.AddTransient<MainView>();

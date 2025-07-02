@@ -31,7 +31,7 @@ namespace UI.Views
         /// </summary>
         /// <param name="mainViewModel">The view model to bind to.</param>
         /// <param name="automationViewModel">Automation view model to pass to the view.</param>
-        public MainView(MainViewModel mainViewModel, AutomationViewModel automationViewModel)
+        public MainView(MainViewModel mainViewModel, AutomationViewModel automationViewModel, AtlasViewModel atlasViewModel)
         {
             // Instantiate the UI document.
             var document = PinpointAppBuilder.Instance.MainUIDocument;
@@ -52,6 +52,7 @@ namespace UI.Views
 
             // Initialize subviews.
             _ = new AutomationView(this.Q<VisualElement>("automation-view"), automationViewModel);
+            _ = new AtlasView(this.Q<VisualElement>("atlas-view"), atlasViewModel);
 
             // Register callbacks.
             _sidePanelLeftToggle.clicked += _viewModel.ToggleLeftSidePanelCommand.Execute;
