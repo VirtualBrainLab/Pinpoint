@@ -1,6 +1,5 @@
-using UI.Models;
-using UI.Models.Scene;
-using UI.Utils;
+using Models;
+using Models.Scene;
 using Unity.AppUI.Redux;
 
 namespace Services

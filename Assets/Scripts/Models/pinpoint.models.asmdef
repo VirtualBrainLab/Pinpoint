@@ -1,5 +1,5 @@
 {
-    "name": "pinpoint.ui.models",
+    "name": "pinpoint.models",
     "rootNamespace": "",
     "references": [
         "GUID:710bb277e6ff49ed91ba164465e106ef",

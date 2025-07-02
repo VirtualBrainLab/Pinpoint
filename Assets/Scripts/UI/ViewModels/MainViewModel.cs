@@ -1,6 +1,6 @@
 using System.ComponentModel;
+using Models;
 using Services;
-using UI.Models;
 using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;

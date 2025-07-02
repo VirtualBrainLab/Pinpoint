@@ -1,4 +1,4 @@
-namespace UI.Utils
+namespace Models
 {
     public static class SliceNames
     {

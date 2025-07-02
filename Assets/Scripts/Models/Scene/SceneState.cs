@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UI.Models.Scene
+namespace Models.Scene
 {
     [Serializable]
     public record SceneState
