@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
 using UI.Utils;
+using UI.ViewModels;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -21,9 +25,13 @@ namespace UI.Views
 
         #endregion
 
-        public AutomationView(VisualElement root)
+        private readonly AutomationViewModel _automationViewModel;
+
+        public AutomationView(VisualElement root, AutomationViewModel automationViewModel)
         {
             _root = root;
+            _automationViewModel = automationViewModel;
+            _root.dataSource = _automationViewModel;
 
             // Register component references.
             _resetReferenceCoordinateButton = _root.Q<Button>("reference-coordinate__reset-button");
@@ -33,10 +41,15 @@ namespace UI.Views
             _insertionDriveButton = _root.Q<Button>("insertion__drive-button");
             _insertionStopButton = _root.Q<Button>("insertion__stop-button");
             _insertionResetButton = _root.Q<Button>("insertion__reset-button");
-            
+
             // Edit default components.
             var referenceCoordinateDepthLabel = _root.Q<FloatField>("unity-w-input").Q<Label>();
             referenceCoordinateDepthLabel.text = "Depth";
+
+            // Register callbacks.
+            _resetReferenceCoordinateButton.clicked += _automationViewModel
+                .ResetReferenceCoordinateCommand
+                .Execute;
         }
 
 #if UNITY_EDITOR
@@ -45,6 +58,17 @@ namespace UI.Views
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void RegisterAutomationViewConverters()
         {
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "TargetableProbeManagersToTargetInsertionOptions",
+                (ref List<ProbeManager> targetableProbeManagers) =>
+                    targetableProbeManagers
+                        .Select(manager =>
+                            $"{manager.name}: {manager.ProbeController.Insertion.APMLDV}"
+                        )
+                        .Prepend("None")
+                        .ToList()
+            );
+            
         }
     }
 }

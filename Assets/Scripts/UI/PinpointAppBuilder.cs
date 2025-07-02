@@ -1,5 +1,4 @@
-using UI.Services;
-using UI.Utils;
+using Services;
 using UI.ViewModels;
 using UI.Views;
 using Unity.AppUI.MVVM;
@@ -41,6 +40,7 @@ namespace UI
 
             // ViewModels.
             builder.services.AddTransient<MainViewModel>();
+            builder.services.AddTransient<AutomationViewModel>();
 
             // Views.
             builder.services.AddTransient<MainView>();

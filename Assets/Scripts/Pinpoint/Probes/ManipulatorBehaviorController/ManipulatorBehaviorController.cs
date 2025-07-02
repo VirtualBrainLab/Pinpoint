@@ -82,7 +82,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
         public readonly ProbeAutomationStateManager ProbeAutomationStateManager = new();
 
-        // FIXME: This is a temporary solution to allow before transitioning to the new probe data record.
+        // TODO: This is a temporary solution to allow before transitioning to the new probe data record.
         public int ProbeAutomationStateIndex=-1;
 
         // Helper functions to create and destroy a probe

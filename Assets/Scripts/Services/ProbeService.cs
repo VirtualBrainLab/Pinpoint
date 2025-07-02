@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
+using BrainAtlas;
 using UnityEngine;
 
-namespace UI.Services
+namespace Services
 {
     public class ProbeService : IProbeService
     {
@@ -14,7 +18,9 @@ namespace UI.Services
         public Color ActiveProbeColor { get; private set; } = Color.gray;
         public string ActiveProbeName { get; private set; } = "No Active Probe";
         public int ActiveProbeAutomationStateIndex { get; private set; } = -1;
-        public Vector4 ActiveProbeReferenceCoordinate { get; private set; } = Vector4.zero;
+        public Vector3 ActiveProbeAngles { get; private set; }
+        public Vector4 ActiveProbeReferenceCoordinate { get; private set; }
+        public IEnumerable<ProbeManager> TargetableInsertionProbeManagers { get; private set; }
 
         #endregion
 
@@ -59,6 +65,12 @@ namespace UI.Services
                 hasChanged = true;
             }
 
+            if (activeProbeManager.ProbeController.Insertion.Angles != ActiveProbeAngles)
+            {
+                ActiveProbeAngles = activeProbeManager.ProbeController.Insertion.Angles;
+                hasChanged = true;
+            }
+
             switch (activeProbeManager.IsEphysLinkControlled)
             {
                 case false when ActiveProbeAutomationStateIndex != -1:
@@ -87,6 +99,32 @@ namespace UI.Services
                     break;
             }
 
+            var targetableInsertionProbeManagers = ProbeManager
+                .Instances
+                // 1. Are not EphysLink controlled.
+                .Where(manager => !manager.IsEphysLinkControlled)
+                // 2. Are inside the brain (non-NaN entry coordinate).
+                .Where(manager =>
+                    !float.IsNaN(
+                        manager
+                            .FindEntryIdxCoordinate(
+                                BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
+                                    manager.ProbeController.Insertion.PositionWorldU()
+                                ),
+                                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
+                                    manager.ProbeController.GetTipWorldU().tipUpWorldU
+                                )
+                            )
+                            .x
+                    )
+                );
+
+            if (!targetableInsertionProbeManagers.Equals(TargetableInsertionProbeManagers))
+            {
+                TargetableInsertionProbeManagers = targetableInsertionProbeManagers;
+                hasChanged = true;
+            }
+
             // Signal property change if any value has changed.
             if (hasChanged)
             {
@@ -112,17 +150,17 @@ namespace UI.Services
             activeProbeManager.ManipulatorBehaviorController.ProbeAutomationStateIndex = index;
         }
 
-        public void setActiveProbeReferenceCoordinate(Vector4 coordinate)
+        public async Task<bool> ResetActiveProbeReferenceCoordinate()
         {
             var activeProbeManager = ProbeManager.ActiveProbeManager;
 
             // Exit if there is no active probe manager.
             if (!activeProbeManager || !activeProbeManager.IsEphysLinkControlled)
             {
-                return;
+                return false;
             }
 
-            activeProbeManager.ManipulatorBehaviorController.ReferenceCoordinateOffset = coordinate;
+            return await activeProbeManager.ManipulatorBehaviorController.ResetReferenceCoordinate();
         }
     }
 }

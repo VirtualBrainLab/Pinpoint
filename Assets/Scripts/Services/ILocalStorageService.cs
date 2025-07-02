@@ -1,4 +1,4 @@
-namespace UI.Services
+namespace Services
 {
     /// <summary>
     /// Defines methods for storing and retrieving values in local storage.

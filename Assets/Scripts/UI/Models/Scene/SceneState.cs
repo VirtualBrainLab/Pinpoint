@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UI.Models.Automation
+namespace UI.Models.Scene
 {
     [Serializable]
-    public record AutomationState
+    public record SceneState
     {
         [SerializeField]
-        public List<ProbeAutomationState> Probes;
+        public List<ProbeState> Probes = new();
         
         [SerializeField]
-        public int ActiveProbeIndex;
+        public int ActiveProbeIndex = -1;
+        
     }
 }
