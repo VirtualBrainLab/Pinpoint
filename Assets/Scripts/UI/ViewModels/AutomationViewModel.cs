@@ -72,7 +72,7 @@ namespace UI.ViewModels
         private void OnAutomationStateChanged(AutomationState state)
         {
             // Check if an active manipulator probe is selected.
-            // FIXME: Re-enable when actually using automation.
+            // TODO: Re-enable when actually using automation.
             // IsAutomationEnabled = state.ActiveProbeIndex > -1;
 
             // Exit if not enabled.
@@ -80,26 +80,28 @@ namespace UI.ViewModels
             {
                 return;
             }
-            
+
             // Get this probe's automation state.
             var probeAutomationState = state.Probes[state.ActiveProbeIndex];
-            
+
             // Check for the index of the selected target insertion probe manager.
-            var selectedTargetInsertionProbeManagerIndex =
-                TargetInsertionProbeManagers.IndexOf(probeAutomationState.SelectedTargetInsertionProbeManager);
-            
+            var selectedTargetInsertionProbeManagerIndex = TargetInsertionProbeManagers.IndexOf(
+                probeAutomationState.SelectedTargetInsertionProbeManager
+            );
+
             // Reset the selected target insertion probe manager index if it is not valid.
             if (selectedTargetInsertionProbeManagerIndex < 0)
             {
                 // TODO: dispatch an action to reset the selected target insertion probe manager.
             }
-            
+
             // Set the selected target insertion probe manager index to the resolved index.
             SelectedTargetInsertionProbeManagerIndex = selectedTargetInsertionProbeManagerIndex;
         }
 
         private void OnExternalPropertiesChanged()
         {
+            // Keep the active probe in sync with the store.
             _storeService.Store.Dispatch(
                 AutomationActions.SET_ACTIVE_PROBE_INDEX,
                 _probeService.ActiveProbeAutomationStateIndex
@@ -130,6 +132,9 @@ namespace UI.ViewModels
             switch (e.PropertyName)
             {
                 case nameof(SelectedTargetInsertionProbeManagerIndex):
+                    var selectedTargetInsertionProbeManager = TargetInsertionProbeManagers[
+                        SelectedTargetInsertionProbeManagerIndex
+                    ];
                     // TODO: Dispatch new target insertion selected.
                     break;
             }
