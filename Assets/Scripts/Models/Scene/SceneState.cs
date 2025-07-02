@@ -17,9 +17,6 @@ namespace Models.Scene
         public string ActiveProbeUUID;
 
         [SerializeField]
-        public HashSet<string> EphysLinkControlledProbeUUIDs = new HashSet<string>();
-
-        [SerializeField]
         public int TotalProbeCount = 0;
 
         [SerializeField]

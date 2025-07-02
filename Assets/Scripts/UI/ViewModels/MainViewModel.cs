@@ -13,9 +13,9 @@ namespace UI.ViewModels
     {
         #region Services
 
-        private readonly IStoreService _storeService;
+        private readonly StoreService _storeService;
         private readonly IDisposableSubscription _subscription;
-        private readonly IProbeService _probeService;
+        private readonly ProbeService _probeService;
 
         #endregion
 
@@ -44,7 +44,7 @@ namespace UI.ViewModels
         /// </summary>
         /// <param name="storeService">The store service for state management.</param>
         /// <param name="probeService">The probe service for getting probe info.</param>
-        public MainViewModel(IStoreService storeService, IProbeService probeService)
+        public MainViewModel(StoreService storeService, ProbeService probeService)
         {
             // Register services.
             _storeService = storeService;

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Services
 {
-    public class ProbeService : IProbeService
+    public class ProbeService
     {
         private readonly Timer _timer;
 

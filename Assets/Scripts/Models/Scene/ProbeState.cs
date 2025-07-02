@@ -125,10 +125,20 @@ namespace Models.Scene
 
         #endregion
 
+        #region UI State
+
+        [SerializeField]
+        public bool IsActive = false;
+
+        [SerializeField]
+        public bool UIVisible = true;
+
+        #endregion
+
         #region Ephys Link Control
 
         [SerializeField]
-        public bool IsEphysLinkControlled = false;
+        public bool IsEphysLinkControlled;
 
         [SerializeField]
         public int NumAxes;
@@ -150,16 +160,6 @@ namespace Models.Scene
 
         [SerializeField]
         public bool IsRightHanded;
-
-        #endregion
-
-        #region UI State
-
-        [SerializeField]
-        public bool IsActive = false;
-
-        [SerializeField]
-        public bool UIVisible = true;
 
         #endregion
 

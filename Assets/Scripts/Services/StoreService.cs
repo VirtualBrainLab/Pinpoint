@@ -8,9 +8,9 @@ namespace Services
     /// Provides access to the application's Redux store implementation.
     /// Handles initialization and persistence of application state using local storage.
     /// </summary>
-    public class StoreService : IStoreService
+    public class StoreService
     {
-        private readonly ILocalStorageService _localStorageService;
+        private readonly LocalStorageService _localStorageService;
 
         /// <summary>
         /// Gets the Redux store instance for partitioned application state.
@@ -22,7 +22,7 @@ namespace Services
         /// Loads initial state from local storage and configures the Redux store.
         /// </summary>
         /// <param name="localStorageService">The local storage service for state persistence.</param>
-        public StoreService(ILocalStorageService localStorageService)
+        public StoreService(LocalStorageService localStorageService)
         {
             _localStorageService = localStorageService;
 
