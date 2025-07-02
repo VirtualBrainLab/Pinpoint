@@ -108,14 +108,15 @@ namespace UI.ViewModels
 
             ReferenceCoordinate = _probeService.ActiveProbeReferenceCoordinate;
 
+            // If there are no options, return an empty list.
             TargetInsertionProbeManagers = _probeService
-                .TargetableInsertionProbeManagers.Where(manager =>
+                .TargetableInsertionProbeManagers?.Where(manager =>
                     IsCoterminal(
                         manager.ProbeController.Insertion.APMLDV,
                         _probeService.ActiveProbeAngles
                     )
                 )
-                .ToList();
+                .ToList() ?? new List<ProbeManager>();
             return;
 
             bool IsCoterminal(Vector3 first, Vector3 second)
