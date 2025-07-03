@@ -73,6 +73,10 @@ namespace Services
                         .AddCase(
                             SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_UUID,
                             SceneReducers.SetSelectedTargetInsertionProbeUUIDReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_STATE_CALIBRATED,
+                            SceneReducers.SetActiveProbeAutomationStateCalibratedReducer
                         );
                 }
             );

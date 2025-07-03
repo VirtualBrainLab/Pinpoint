@@ -68,12 +68,14 @@ namespace Models.Scene
             try
             {
                 // Verify selected target exists and is targetable.
-                var selectedTarget = state.Probes.First(probeState => probeState.UUID == action.payload);
+                var selectedTarget = state.Probes.First(probeState =>
+                    probeState.UUID == action.payload
+                );
                 if (selectedTarget.IsEphysLinkControlled)
                 {
                     throw new ArgumentException("Selected target is not targetable.");
                 }
-                
+
                 // Update the selected target insertion probe for the active probe.
                 var probesCopy = state.Probes.ToList();
                 probesCopy
@@ -91,6 +93,28 @@ namespace Models.Scene
                 return state;
             }
         }
+
+        public static SceneState SetActiveProbeAutomationStateCalibratedReducer(
+            SceneState state,
+            IAction action
+        )
+        {
+            // If no active probe, return the state unchanged.
+            if (string.IsNullOrEmpty(state.ActiveProbeUUID))
+            {
+                return state;
+            }
+
+            // Set the active probe's automation state to calibrated.
+            var probesCopy = state.Probes.ToList();
+            var activeProbe = probesCopy.First(probe => probe.UUID == state.ActiveProbeUUID);
+            activeProbe.AutomationState = AutomationState.IsCalibrated;
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
     }
 
     public static class SceneActions
@@ -105,5 +129,8 @@ namespace Models.Scene
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeUUID";
         public static readonly ActionCreator<string> SET_SELECTED_TARGET_INSERTION_PROBE_UUID =
             $"{SliceNames.SCENE_SLICE}/SetSelectedTargetInsertionProbeUUID";
+
+        public static readonly ActionCreator SET_ACTIVE_PROBE_AUTOMATION_STATE_CALIBRATED =
+            $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationStateCalibrated";
     }
 }

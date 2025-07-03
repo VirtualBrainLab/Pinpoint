@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -30,18 +29,18 @@ namespace UI.ViewModels
         private Vector4 _referenceCoordinate;
 
         /// <summary>
+        /// Selected target insertion probe manager dropdown index (including the none option).
+        /// </summary>
+        [ObservableProperty]
+        private int _selectedTargetInsertionProbeIndex;
+
+        /// <summary>
         /// Filtered list of targetable insertion probes for the active manipulator probe.
         ///
         /// For insertions that are co-terminal and have not been selected yet. Does not include the "None" option.
         /// </summary>
         [ObservableProperty]
         private List<ProbeState> _targetInsertionProbeStates = new();
-
-        /// <summary>
-        /// Selected target insertion probe manager dropdown index (including the none option).
-        /// </summary>
-        [ObservableProperty]
-        private int _selectedTargetInsertionProbeIndex;
 
         #endregion
 
@@ -188,12 +187,16 @@ namespace UI.ViewModels
                 .ResetActiveProbeReferenceCoordinate()
                 .ContinueWith(task =>
                 {
+                    // Do not proceed if the reset failed.
                     if (!task.Result)
                     {
                         return;
                     }
 
-                    // TODO: Advance to the next state.
+                    // If the reset was successful, set the active probe's automation state to calibrated.
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_ACTIVE_PROBE_AUTOMATION_STATE_CALIBRATED
+                    );
                 });
         }
 
