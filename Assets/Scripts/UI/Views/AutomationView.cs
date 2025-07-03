@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Models.Scene;
 using NUnit.Framework;
 using UI.Utils;
 using UI.ViewModels;
@@ -59,16 +60,13 @@ namespace UI.Views
         public static void RegisterAutomationViewConverters()
         {
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "TargetableProbeManagersToTargetInsertionOptions",
-                (ref List<ProbeManager> targetableProbeManagers) =>
+                "TargetableProbeStatesToTargetInsertionOptions",
+                (ref List<ProbeState> targetableProbeManagers) =>
                     targetableProbeManagers
-                        .Select(manager =>
-                            $"{manager.name}: {manager.ProbeController.Insertion.APMLDV}"
-                        )
+                        .Select(probeState => $"{probeState.Name}: {probeState.APMLDV}")
                         .Prepend("None")
                         .ToList()
             );
-            
         }
     }
 }
