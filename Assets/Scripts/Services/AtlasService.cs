@@ -1,41 +1,29 @@
-using UnityEngine;
-// using TrajectoryPlanner;
 using BrainAtlas;
-using UnityEditor;
+using UnityEngine;
 
-public class AtlasService
+namespace Services
 {
-    // TrajectoryPlannerManager _tpManager;
+    public class AtlasService
+    {
+        // TrajectoryPlannerManager _tpManager;
     
-    public AtlasService()
-    {
-        Debug.Log("here1");
-    }
+        public AtlasService()
+        {
+        }
 
-    [RuntimeInitializeOnLoadMethod]
-    public void Method()
-    {
-        Debug.Log("here3");
-    }
+        public void LoadActiveReferenceAtlas()
+        {
+            var ontology = BrainAtlasManager.ActiveReferenceAtlas.Ontology;
+            var root = ontology.SearchByAcronym("root");
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    public static void GetTPManagerReference()
-    {
-        if (BrainAtlasManager.ActiveReferenceAtlas != null)
-            LoadAtlas();
-        // else
-            // TrajectoryPlannerManager.Instance.StartupEvent_RefAtlasLoaded.AddListener(LoadAtlas);
-    }
+            OntologyNode rootNode = ontology.ID2Node(root[0]);
 
-    public static void LoadAtlas()
-    {
-        var ontology = BrainAtlasManager.ActiveReferenceAtlas.Ontology;
-        var root = ontology.SearchByAcronym("root");
+            var allIDs = ontology.SearchByName("");
 
-        OntologyNode rootNode = ontology.ID2Node(root[0]);
-
-        var allIDs = ontology.SearchByName("");
-
-        Debug.Log(allIDs);
+            // foreach (var id in allIDs)
+            // {
+            //     Debug.Log(id);
+            // }
+        }
     }
 }

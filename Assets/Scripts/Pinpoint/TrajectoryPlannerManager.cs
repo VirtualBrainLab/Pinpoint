@@ -218,6 +218,8 @@ namespace TrajectoryPlanner
             SetBLUI();
 
             StartupEvent_RefAtlasLoaded.Invoke();
+            // Trigger atlas service to populate the ontology.
+            PinpointApp.Current.services.GetRequiredService<AtlasService>().LoadActiveReferenceAtlas();
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
 
             _checkForSavedProbesTaskSource = new TaskCompletionSource<bool>();

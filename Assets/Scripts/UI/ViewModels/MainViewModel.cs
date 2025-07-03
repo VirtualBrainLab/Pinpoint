@@ -73,8 +73,8 @@ namespace UI.ViewModels
 
         private void OnSceneStateChanged(SceneState state)
         {
-            ActiveProbeName = state.ActiveProbeState.Name;
-            ActiveProbeColor = state.ActiveProbeState.Color;
+            ActiveProbeName = state.ActiveProbeState?.Name ?? "No Active Probe";
+            ActiveProbeColor = state.ActiveProbeState?.Color ?? Color.gray;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -90,9 +90,9 @@ namespace UI.ViewModels
         private void OnShuttingDown()
         {
             _storeService.Save();
-            App.shuttingDown -= OnShuttingDown;
             _mainStateSubscription.Dispose();
             _sceneStateSubscription.Dispose();
+            App.shuttingDown -= OnShuttingDown;
         }
 
         #region Commands
