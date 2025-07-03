@@ -1,11 +1,11 @@
 using UnityEngine;
-using TrajectoryPlanner;
+// using TrajectoryPlanner;
 using BrainAtlas;
 using UnityEditor;
 
 public class AtlasService
 {
-    TrajectoryPlannerManager _tpManager;
+    // TrajectoryPlannerManager _tpManager;
     
     public AtlasService()
     {
@@ -23,8 +23,8 @@ public class AtlasService
     {
         if (BrainAtlasManager.ActiveReferenceAtlas != null)
             LoadAtlas();
-        else
-            TrajectoryPlannerManager.Instance.StartupEvent_RefAtlasLoaded.AddListener(LoadAtlas);
+        // else
+            // TrajectoryPlannerManager.Instance.StartupEvent_RefAtlasLoaded.AddListener(LoadAtlas);
     }
 
     public static void LoadAtlas()

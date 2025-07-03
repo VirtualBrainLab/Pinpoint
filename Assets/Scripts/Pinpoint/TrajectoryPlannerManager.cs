@@ -1,19 +1,24 @@
-using BrainAtlas;
-using BrainAtlas.CoordinateSystems;
-using EphysLink;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrainAtlas;
+using BrainAtlas.CoordinateSystems;
+using EphysLink;
+using Models.Scene;
+using Services;
 using TMPro;
+using UI;
 using UITabs;
+using Unity.AppUI.MVVM;
+using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Urchin.Managers;
-using static UnityEngine.InputSystem.InputAction;
 using Urchin.Utils;
+using static UnityEngine.InputSystem.InputAction;
 
 
 #if UNITY_WEBGL
@@ -376,7 +381,10 @@ namespace TrajectoryPlanner
                 // Invalidate ProbeManager.ActiveProbeManager
                 if (wasActiveProbe)
                 {
+                    // TODO: Remove old probe manager behavior.
                     ProbeManager.ActiveProbeManager = null;
+                    PinpointApp.Current.services.GetRequiredService<StoreService>().Store
+                        .Dispatch(SceneActions.SET_ACTIVE_PROBE_UUID, string.Empty);
                     _activeProbeChangedEvent.Invoke();
                 }
                 SetSurfaceDebugActive(false);
@@ -522,7 +530,10 @@ namespace TrajectoryPlanner
                 }
             // if we get here we didn't find an active probe
             Debug.LogWarning($"Probe {UUID} doesn't exist in the scene");
+            // TODO: Remove old probe manager behavior.
             ProbeManager.ActiveProbeManager = null;
+            PinpointApp.Current.services.GetRequiredService<StoreService>().Store
+                .Dispatch(SceneActions.SET_ACTIVE_PROBE_UUID, string.Empty);
             _activeProbeChangedEvent.Invoke();
         }
 
@@ -542,7 +553,10 @@ namespace TrajectoryPlanner
             }
 
             // Replace the probe object and set to active
+            // TODO: Remove old probe manager behavior.
             ProbeManager.ActiveProbeManager = newActiveProbeManager;
+            PinpointApp.Current.services.GetRequiredService<StoreService>().Store
+                .Dispatch(SceneActions.SET_ACTIVE_PROBE_UUID, newActiveProbeManager.UUID);
             ProbeManager.ActiveProbeManager.SetActive(true);
             
             // Change the UI manager visibility and set transparency of probes
@@ -873,16 +887,16 @@ namespace TrajectoryPlanner
 
         private void LoadSettingsFromEncodedString(string encodedSettingsStr)
         {
-            var bytes = System.Convert.FromBase64String(encodedSettingsStr);
-            string settingsStr = System.Text.Encoding.UTF8.GetString(bytes);
+            var bytes = Convert.FromBase64String(encodedSettingsStr);
+            string settingsStr = Encoding.UTF8.GetString(bytes);
 
             Settings.Load(settingsStr);
         }
 
         private void LoadSavedProbesFromEncodedString(string encodedProbesStr)
         {
-            var bytes = System.Convert.FromBase64String(encodedProbesStr);
-            string probeArrayStr = System.Text.Encoding.UTF8.GetString(bytes);
+            var bytes = Convert.FromBase64String(encodedProbesStr);
+            string probeArrayStr = Encoding.UTF8.GetString(bytes);
 
             string[] savedProbesArray = probeArrayStr.Split(';');
 
