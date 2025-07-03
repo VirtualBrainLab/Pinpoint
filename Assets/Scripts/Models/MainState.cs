@@ -7,13 +7,17 @@ namespace Models
     [Serializable]
     public record MainState
     {
-        [SerializeField]
         public MainMode MainMode;
 
-        [SerializeField]
         public bool IsLeftSidePanelOpen = true;
 
-        [SerializeField]
         public bool IsRightSidePanelOpen = true;
+    }
+
+    public enum MainMode
+    {
+        Planning,
+        Visualization,
+        Automation,
     }
 }

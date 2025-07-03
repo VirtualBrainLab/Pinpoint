@@ -59,12 +59,16 @@ namespace Services
                         .AddCase(SceneActions.ADD_PROBE, SceneReducers.AddProbeReducer)
                         .AddCase(SceneActions.REMOVE_PROBE, SceneReducers.RemoveProbeReducer)
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_INDEX,
-                            SceneReducers.SetActiveProbeIndexReducer
+                            SceneActions.REMOVE_ALL_PROBES,
+                            SceneReducers.RemoveAllProbesReducer
                         )
                         .AddCase(
-                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_STATE,
-                            SceneReducers.SetSelectedTargetInsertionReducer
+                            SceneActions.SET_ACTIVE_PROBE_UUID,
+                            SceneReducers.SetActiveProbeUUIDReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_UUID,
+                            SceneReducers.SetSelectedTargetInsertionProbeUUIDReducer
                         );
                 }
             );

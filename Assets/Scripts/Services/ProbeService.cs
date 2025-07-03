@@ -17,7 +17,6 @@ namespace Services
         public event Action OnPropertyChanged;
         public Color ActiveProbeColor { get; private set; } = Color.gray;
         public string ActiveProbeName { get; private set; } = "No Active Probe";
-        public int ActiveProbeAutomationStateIndex { get; private set; } = -1;
         public Vector3 ActiveProbeAngles { get; private set; }
         public Vector4 ActiveProbeReferenceCoordinate { get; private set; }
         public IEnumerable<ProbeManager> TargetableInsertionProbeManagers { get; private set; }
@@ -73,20 +72,8 @@ namespace Services
 
             switch (activeProbeManager.IsEphysLinkControlled)
             {
-                case false when ActiveProbeAutomationStateIndex != -1:
-                    ActiveProbeAutomationStateIndex = -1;
-                    hasChanged = true;
-                    break;
                 case false when ActiveProbeReferenceCoordinate != Vector4.zero:
                     ActiveProbeReferenceCoordinate = Vector4.zero;
-                    hasChanged = true;
-                    break;
-                case true
-                    when activeProbeManager.ManipulatorBehaviorController.ProbeAutomationStateIndex
-                        != ActiveProbeAutomationStateIndex:
-                    ActiveProbeAutomationStateIndex = activeProbeManager
-                        .ManipulatorBehaviorController
-                        .ProbeAutomationStateIndex;
                     hasChanged = true;
                     break;
                 case true
@@ -135,19 +122,6 @@ namespace Services
         public void Dispose()
         {
             _timer?.Dispose();
-        }
-
-        public void SetActiveProbeAutomationStateIndex(int index)
-        {
-            var activeProbeManager = ProbeManager.ActiveProbeManager;
-
-            // Exit if there is no active probe manager.
-            if (!activeProbeManager || !activeProbeManager.IsEphysLinkControlled)
-            {
-                return;
-            }
-
-            activeProbeManager.ManipulatorBehaviorController.ProbeAutomationStateIndex = index;
         }
 
         public async Task<bool> ResetActiveProbeReferenceCoordinate()
