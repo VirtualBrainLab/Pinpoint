@@ -2,7 +2,7 @@ using Models;
 using Models.Scene;
 using Unity.AppUI.Redux;
 
-namespace Services
+namespace Services.Storage
 {
     /// <summary>
     /// Provides access to the application's Redux store implementation.

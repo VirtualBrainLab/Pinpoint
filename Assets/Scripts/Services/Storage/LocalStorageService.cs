@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Services
+namespace Services.Storage
 {
     /// <summary>
     /// Provides methods to store and retrieve data in local storage using Unity's PlayerPrefs.
