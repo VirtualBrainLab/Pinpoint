@@ -29,14 +29,13 @@ namespace UI.ViewModels
         [ObservableProperty]
         private Vector4 _referenceCoordinate;
 
-        // TODO: This should be a list of probe data models when that is implemented.
         /// <summary>
         /// Filtered list of targetable insertion probes for the active manipulator probe.
         ///
         /// For insertions that are co-terminal and have not been selected yet. Does not include the "None" option.
         /// </summary>
         [ObservableProperty]
-        private List<ProbeState> _targetInsertionProbeStates;
+        private List<ProbeState> _targetInsertionProbeStates = new();
 
         /// <summary>
         /// Selected target insertion probe manager dropdown index (including the none option).

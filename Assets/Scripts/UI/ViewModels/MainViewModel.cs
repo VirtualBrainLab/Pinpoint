@@ -52,13 +52,19 @@ namespace UI.ViewModels
             // Initialize properties from the store.
             var initialMainState = _storeService.Store.GetState<MainState>(SliceNames.MAIN_SLICE);
             OnMainStateChanged(initialMainState);
-            var initialSceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var initialSceneState = _storeService.Store.GetState<SceneState>(
+                SliceNames.SCENE_SLICE
+            );
             OnSceneStateChanged(initialSceneState);
 
             // Subscribe to state changes.
             _mainStateSubscription = _storeService.Store.Subscribe(
                 state => state.Get<MainState>(SliceNames.MAIN_SLICE),
                 OnMainStateChanged
+            );
+            _sceneStateSubscription = storeService.Store.Subscribe(
+                state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
+                OnSceneStateChanged
             );
             PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
