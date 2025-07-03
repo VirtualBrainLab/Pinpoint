@@ -53,7 +53,7 @@
             <engine:Label text="Choose a Target" parse-escape-sequences="true" display-tooltip-when-elided="true" />
             <engine:DropdownField choices="None" index="0">
                 <Bindings>
-                    <engine:DataBinding property="choices" data-source-path="TargetInsertionProbeManagers" binding-mode="ToTarget" source-to-ui-converters="TargetableProbeManagersToTargetInsertionOptions" />
+                    <engine:DataBinding property="choices" data-source-path="TargetInsertionProbeStates" binding-mode="ToTarget" source-to-ui-converters="TargetableProbeStatesToTargetInsertionOptions" />
                     <engine:DataBinding property="index" data-source-path="SelectedTargetInsertionProbeManagerIndex" binding-mode="TwoWay" />
                 </Bindings>
             </engine:DropdownField>

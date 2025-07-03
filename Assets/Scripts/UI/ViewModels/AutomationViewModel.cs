@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -15,10 +16,9 @@ namespace UI.ViewModels
     {
         #region Services
 
-        private readonly IStoreService _storeService;
-        private readonly IDisposableSubscription _automationStateSubscription;
-        private readonly IDisposableSubscription _probeAutomationStateSubscription;
-        private readonly IProbeService _probeService;
+        private readonly StoreService _storeService;
+        private readonly IDisposableSubscription _sceneStateSubscription;
+        private readonly ProbeService _probeService;
 
         #endregion
         #region Properties
@@ -29,24 +29,23 @@ namespace UI.ViewModels
         [ObservableProperty]
         private Vector4 _referenceCoordinate;
 
-        // TODO: This should be a list of probe data models when that is implemented.
         /// <summary>
         /// Filtered list of targetable insertion probes for the active manipulator probe.
         ///
-        /// For insertions that are co-terminal and have not been selected yet.
+        /// For insertions that are co-terminal and have not been selected yet. Does not include the "None" option.
         /// </summary>
         [ObservableProperty]
-        private List<ProbeManager> _targetInsertionProbeManagers;
+        private List<ProbeState> _targetInsertionProbeStates = new();
 
         /// <summary>
-        /// Selected target insertion probe manager dropdown index.
+        /// Selected target insertion probe manager dropdown index (including the none option).
         /// </summary>
         [ObservableProperty]
-        private int _selectedTargetInsertionProbeManagerIndex;
+        private int _selectedTargetInsertionProbeIndex;
 
         #endregion
 
-        public AutomationViewModel(IStoreService storeService, IProbeService probeService)
+        public AutomationViewModel(StoreService storeService, ProbeService probeService)
         {
             // Register services.
             _storeService = storeService;
@@ -56,23 +55,22 @@ namespace UI.ViewModels
             var initialAutomationState = _storeService.Store.GetState<SceneState>(
                 SliceNames.SCENE_SLICE
             );
-            OnAutomationStateChanged(initialAutomationState);
-            OnExternalPropertiesChanged();
+            OnSceneStateChanged(initialAutomationState);
 
             // Subscribe to state changes.
-            _automationStateSubscription = _storeService.Store.Subscribe(
+            _sceneStateSubscription = _storeService.Store.Subscribe(
                 state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
-                OnAutomationStateChanged
+                OnSceneStateChanged
             );
-            probeService.OnPropertyChanged += OnExternalPropertiesChanged;
+            PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
         }
 
-        private void OnAutomationStateChanged(SceneState state)
+        private void OnSceneStateChanged(SceneState state)
         {
             // Check if an active manipulator probe is selected.
             // TODO: Re-enable when actually using automation.
-            IsAutomationEnabled = state.ActiveProbeIndex > -1;
+            IsAutomationEnabled = state.ActiveProbeState is { IsEphysLinkControlled: true };
 
             // Exit if not enabled.
             if (!IsAutomationEnabled)
@@ -80,43 +78,63 @@ namespace UI.ViewModels
                 return;
             }
 
-            // Get this probe's automation state.
-            var probeAutomationState = state.Probes[state.ActiveProbeIndex];
-
-            // Check for the index of the selected target insertion probe manager.
-            var selectedTargetInsertionProbeManagerIndex = TargetInsertionProbeManagers.IndexOf(
-                probeAutomationState.SelectedTargetInsertionProbeState
-            );
-
-            // Reset the selected target insertion probe manager index if it is not valid.
-            if (selectedTargetInsertionProbeManagerIndex < 0)
-            {
-                // TODO: dispatch an action to reset the selected target insertion probe manager.
-            }
-
-            // Set the selected target insertion probe manager index to the resolved index.
-            SelectedTargetInsertionProbeManagerIndex = selectedTargetInsertionProbeManagerIndex;
-        }
-
-        private void OnExternalPropertiesChanged()
-        {
-            // Keep the active probe in sync with the store.
-            _storeService.Store.Dispatch(
-                SceneActions.SET_ACTIVE_PROBE_INDEX,
-                _probeService.ActiveProbeAutomationStateIndex
-            );
-
-            ReferenceCoordinate = _probeService.ActiveProbeReferenceCoordinate;
+            // Get the active manipulator's reference coordinate.
+            ReferenceCoordinate = state.ActiveProbeState.ReferenceCoordinateOffset;
 
             // If there are no options, return an empty list.
-            TargetInsertionProbeManagers = _probeService
-                .TargetableInsertionProbeManagers?.Where(manager =>
-                    IsCoterminal(
-                        manager.ProbeController.Insertion.APMLDV,
-                        _probeService.ActiveProbeAngles
-                    )
+            // TargetInsertionProbeStates =
+            //     _probeService
+            //         .TargetableInsertionProbeManagers?.Where(manager =>
+            //             IsCoterminal(
+            //                 manager.ProbeController.Insertion.APMLDV,
+            //                 _probeService.ActiveProbeAngles
+            //             )
+            //         )
+            //         .ToList() ?? new List<ProbeManager>();
+
+            // Get the list of targetable insertion probes for the active manipulator probe.
+            TargetInsertionProbeStates = state
+                .Probes
+                // 1. Not manipulator controlled.
+                .Where(probeState => !probeState.IsEphysLinkControlled)
+                // 2. Co-terminal with the active probe angles.
+                .Where(probeState => IsCoterminal(probeState.Angles, state.ActiveProbeState.Angles))
+                // TODO: 3. Is in the brain (non-NaN entry coordinate).
+                // 4. Is not already selected by other manipulator probes (unless it was selected by this active probe).
+                .Where(probeState =>
+                    !state
+                        .Probes.Where(searchProbeState =>
+                            searchProbeState != state.ActiveProbeState
+                        )
+                        .Where(searchProbeState => searchProbeState.IsEphysLinkControlled)
+                        .Select(otherManipulatorProbes =>
+                            otherManipulatorProbes.SelectedTargetInsertionProbeUUID
+                        )
+                        .Contains(probeState.UUID)
                 )
-                .ToList() ?? new List<ProbeManager>();
+                .ToList();
+
+            // Get the index of the selected target insertion probe.
+            var selectedTargetInsertionProbeUUID = state
+                .ActiveProbeState
+                .SelectedTargetInsertionProbeUUID;
+            var selectedTargetInsertionProbeState = state.Probes.FirstOrDefault(probeState =>
+                probeState.UUID == selectedTargetInsertionProbeUUID
+            );
+            if (
+                selectedTargetInsertionProbeState == null
+                || !TargetInsertionProbeStates.Contains(selectedTargetInsertionProbeState)
+            )
+            {
+                SelectedTargetInsertionProbeIndex = 0;
+            }
+            else
+            {
+                SelectedTargetInsertionProbeIndex = TargetInsertionProbeStates.IndexOf(
+                    selectedTargetInsertionProbeState
+                );
+            }
+
             return;
 
             bool IsCoterminal(Vector3 first, Vector3 second)
@@ -131,24 +149,34 @@ namespace UI.ViewModels
         {
             switch (e.PropertyName)
             {
-                case nameof(SelectedTargetInsertionProbeManagerIndex):
-                    var selectedTargetInsertionProbeManager = TargetInsertionProbeManagers[
-                        SelectedTargetInsertionProbeManagerIndex
-                    ];
-                    _storeService.Store.Dispatch(
-                        SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_STATE,
-                        selectedTargetInsertionProbeManager
-                    );
+                case nameof(SelectedTargetInsertionProbeIndex):
+                    // Reset the selected target insertion probe if the index is 0 (None).
+                    if (SelectedTargetInsertionProbeIndex == 0)
+                    {
+                        _storeService.Store.Dispatch(
+                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_UUID,
+                            string.Empty
+                        );
+                    }
+                    // Otherwise, subtract the None option and set the selected target insertion probe UUID.
+                    else
+                    {
+                        var selectedTargetInsertionProbeState = TargetInsertionProbeStates[
+                            SelectedTargetInsertionProbeIndex - 1
+                        ];
+                        _storeService.Store.Dispatch(
+                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_UUID,
+                            selectedTargetInsertionProbeState.UUID
+                        );
+                    }
                     break;
             }
         }
 
         private void OnShuttingDown()
         {
-            _probeService.OnPropertyChanged -= OnExternalPropertiesChanged;
             App.shuttingDown -= OnShuttingDown;
-            _automationStateSubscription.Dispose();
-            _probeService.Dispose();
+            _sceneStateSubscription.Dispose();
         }
 
         #region Commands

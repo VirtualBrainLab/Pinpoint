@@ -8,9 +8,9 @@ namespace Services
     /// Provides access to the application's Redux store implementation.
     /// Handles initialization and persistence of application state using local storage.
     /// </summary>
-    public class StoreService : IStoreService
+    public class StoreService
     {
-        private readonly ILocalStorageService _localStorageService;
+        private readonly LocalStorageService _localStorageService;
 
         /// <summary>
         /// Gets the Redux store instance for partitioned application state.
@@ -22,7 +22,7 @@ namespace Services
         /// Loads initial state from local storage and configures the Redux store.
         /// </summary>
         /// <param name="localStorageService">The local storage service for state persistence.</param>
-        public StoreService(ILocalStorageService localStorageService)
+        public StoreService(LocalStorageService localStorageService)
         {
             _localStorageService = localStorageService;
 
@@ -30,6 +30,10 @@ namespace Services
             var initialMainState = _localStorageService.GetValue(
                 SliceNames.MAIN_SLICE,
                 new MainState()
+            );
+            var initialSceneState = _localStorageService.GetValue(
+                SliceNames.SCENE_SLICE,
+                new SceneState()
             );
 
             // Initialize the Redux store.
@@ -52,19 +56,23 @@ namespace Services
             );
             var automationSlice = StoreFactory.CreateSlice(
                 SliceNames.SCENE_SLICE,
-                new SceneState(),
+                initialSceneState,
                 builder =>
                 {
                     builder
                         .AddCase(SceneActions.ADD_PROBE, SceneReducers.AddProbeReducer)
                         .AddCase(SceneActions.REMOVE_PROBE, SceneReducers.RemoveProbeReducer)
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_INDEX,
-                            SceneReducers.SetActiveProbeIndexReducer
+                            SceneActions.REMOVE_ALL_PROBES,
+                            SceneReducers.RemoveAllProbesReducer
                         )
                         .AddCase(
-                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_STATE,
-                            SceneReducers.SetSelectedTargetInsertionReducer
+                            SceneActions.SET_ACTIVE_PROBE_UUID,
+                            SceneReducers.SetActiveProbeUUIDReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_UUID,
+                            SceneReducers.SetSelectedTargetInsertionProbeUUIDReducer
                         );
                 }
             );
@@ -82,6 +90,12 @@ namespace Services
             _localStorageService.SetValue(
                 SliceNames.MAIN_SLICE,
                 Store.GetState<MainState>(SliceNames.MAIN_SLICE)
+            );
+
+            // Scene state.
+            _localStorageService.SetValue(
+                SliceNames.SCENE_SLICE,
+                Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
             );
         }
     }

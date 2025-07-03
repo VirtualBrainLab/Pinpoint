@@ -5,7 +5,7 @@ namespace Services
     /// <summary>
     /// Provides methods to store and retrieve data in local storage using Unity's PlayerPrefs.
     /// </summary>
-    public class LocalStorageService : ILocalStorageService
+    public class LocalStorageService
     {
         /// <summary>
         /// Retrieves a value of type <typeparamref name="T"/> from local storage by key.
