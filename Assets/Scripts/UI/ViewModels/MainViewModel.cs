@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using Models;
+using Models.Scene;
 using Services;
-using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
@@ -14,8 +14,8 @@ namespace UI.ViewModels
         #region Services
 
         private readonly StoreService _storeService;
-        private readonly IDisposableSubscription _subscription;
-        private readonly ProbeService _probeService;
+        private readonly IDisposableSubscription _mainStateSubscription;
+        private readonly IDisposableSubscription _sceneStateSubscription;
 
         #endregion
 
@@ -44,38 +44,37 @@ namespace UI.ViewModels
         /// </summary>
         /// <param name="storeService">The store service for state management.</param>
         /// <param name="probeService">The probe service for getting probe info.</param>
-        public MainViewModel(StoreService storeService, ProbeService probeService)
+        public MainViewModel(StoreService storeService)
         {
             // Register services.
             _storeService = storeService;
-            _probeService = probeService;
 
             // Initialize properties from the store.
-            var initialState = _storeService.Store.GetState<MainState>(SliceNames.MAIN_SLICE);
-            OnStateChanged(initialState);
-            OnExternalPropertiesChanged();
+            var initialMainState = _storeService.Store.GetState<MainState>(SliceNames.MAIN_SLICE);
+            OnMainStateChanged(initialMainState);
+            var initialSceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            OnSceneStateChanged(initialSceneState);
 
             // Subscribe to state changes.
-            _subscription = _storeService.Store.Subscribe(
+            _mainStateSubscription = _storeService.Store.Subscribe(
                 state => state.Get<MainState>(SliceNames.MAIN_SLICE),
-                OnStateChanged
+                OnMainStateChanged
             );
-            probeService.OnPropertyChanged += OnExternalPropertiesChanged;
             PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
         }
 
-        private void OnStateChanged(MainState state)
+        private void OnMainStateChanged(MainState state)
         {
             MainMode = state.MainMode;
             IsLeftSidePanelOpen = state.IsLeftSidePanelOpen;
             IsRightSidePanelOpen = state.IsRightSidePanelOpen;
         }
 
-        private void OnExternalPropertiesChanged()
+        private void OnSceneStateChanged(SceneState state)
         {
-            ActiveProbeColor = _probeService.ActiveProbeColor;
-            ActiveProbeName = _probeService.ActiveProbeName;
+            ActiveProbeName = state.ActiveProbeState.Name;
+            ActiveProbeColor = state.ActiveProbeState.Color;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -91,10 +90,9 @@ namespace UI.ViewModels
         private void OnShuttingDown()
         {
             _storeService.Save();
-            _probeService.OnPropertyChanged -= OnExternalPropertiesChanged;
             App.shuttingDown -= OnShuttingDown;
-            _subscription.Dispose();
-            _probeService.Dispose();
+            _mainStateSubscription.Dispose();
+            _sceneStateSubscription.Dispose();
         }
 
         #region Commands

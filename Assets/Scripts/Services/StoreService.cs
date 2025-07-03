@@ -31,6 +31,10 @@ namespace Services
                 SliceNames.MAIN_SLICE,
                 new MainState()
             );
+            var initialSceneState = _localStorageService.GetValue(
+                SliceNames.SCENE_SLICE,
+                new SceneState()
+            );
 
             // Initialize the Redux store.
             var mainSlice = StoreFactory.CreateSlice(
@@ -52,7 +56,7 @@ namespace Services
             );
             var automationSlice = StoreFactory.CreateSlice(
                 SliceNames.SCENE_SLICE,
-                new SceneState(),
+                initialSceneState,
                 builder =>
                 {
                     builder
@@ -86,6 +90,12 @@ namespace Services
             _localStorageService.SetValue(
                 SliceNames.MAIN_SLICE,
                 Store.GetState<MainState>(SliceNames.MAIN_SLICE)
+            );
+
+            // Scene state.
+            _localStorageService.SetValue(
+                SliceNames.SCENE_SLICE,
+                Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
             );
         }
     }

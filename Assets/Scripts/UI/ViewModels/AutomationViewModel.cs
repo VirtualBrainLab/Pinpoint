@@ -57,14 +57,12 @@ namespace UI.ViewModels
                 SliceNames.SCENE_SLICE
             );
             OnSceneStateChanged(initialAutomationState);
-            OnExternalPropertiesChanged();
 
             // Subscribe to state changes.
             _sceneStateSubscription = _storeService.Store.Subscribe(
                 state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
                 OnSceneStateChanged
             );
-            probeService.OnPropertyChanged += OnExternalPropertiesChanged;
             PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
         }
@@ -80,6 +78,20 @@ namespace UI.ViewModels
             {
                 return;
             }
+
+            // Get the active manipulator's reference coordinate.
+            ReferenceCoordinate = state.ActiveProbeState.ReferenceCoordinateOffset;
+
+            // If there are no options, return an empty list.
+            // TargetInsertionProbeStates =
+            //     _probeService
+            //         .TargetableInsertionProbeManagers?.Where(manager =>
+            //             IsCoterminal(
+            //                 manager.ProbeController.Insertion.APMLDV,
+            //                 _probeService.ActiveProbeAngles
+            //             )
+            //         )
+            //         .ToList() ?? new List<ProbeManager>();
 
             // Get the list of targetable insertion probes for the active manipulator probe.
             TargetInsertionProbeStates = state
@@ -134,23 +146,6 @@ namespace UI.ViewModels
             }
         }
 
-        private void OnExternalPropertiesChanged()
-        {
-            ReferenceCoordinate = _probeService.ActiveProbeReferenceCoordinate;
-
-            // If there are no options, return an empty list.
-            // TargetInsertionProbeStates =
-            //     _probeService
-            //         .TargetableInsertionProbeManagers?.Where(manager =>
-            //             IsCoterminal(
-            //                 manager.ProbeController.Insertion.APMLDV,
-            //                 _probeService.ActiveProbeAngles
-            //             )
-            //         )
-            //         .ToList() ?? new List<ProbeManager>();
-            return;
-        }
-
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -181,10 +176,8 @@ namespace UI.ViewModels
 
         private void OnShuttingDown()
         {
-            _probeService.OnPropertyChanged -= OnExternalPropertiesChanged;
             App.shuttingDown -= OnShuttingDown;
             _sceneStateSubscription.Dispose();
-            _probeService.Dispose();
         }
 
         #region Commands
