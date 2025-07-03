@@ -31,8 +31,6 @@ namespace TrajectoryPlanner
 
     public class TrajectoryPlannerManager : MonoBehaviour
     {
-        public static TrajectoryPlannerManager Instance;
-
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern void Copy2Clipboard(string str);
@@ -140,9 +138,6 @@ namespace TrajectoryPlanner
 #if UNITY_WEBGL && !UNITY_EDITOR
         WebGLInput.captureAllKeyboardInput = true;
 #endif
-            if (Instance == null)
-                Instance = this;
-
             ProbeProperties.InitializeColors();
 
             Settings.ProbePrevNextEnabled = true;
