@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.AppUI.Redux;
+using UnityEngine;
 
 namespace Models.Scene
 {
@@ -230,6 +231,27 @@ namespace Models.Scene
                 Probes = probesCopy,
             };
         }
+        
+        public static SceneState SetActiveProbeReferenceCoordinateReducer(
+            SceneState state,
+            IAction<Vector4> action
+        )
+        {
+            // If no active probe, return the state unchanged.
+            if (state.ActiveProbeState == null)
+            {
+                return state;
+            }
+
+            // Set the active probe's reference coordinate.
+            var probesCopy = state.Probes.ToList();
+            probesCopy[state.ActiveProbeIndex].ReferenceCoordinateOffset = action.payload;
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
 
         #endregion
     }
@@ -266,6 +288,9 @@ namespace Models.Scene
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationProgressStateToNextExiting";
         public static readonly ActionCreator COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS =
             $"{SliceNames.SCENE_SLICE}/CompleteActiveProbeAutomationIntermediateProgress";
+        
+        public static readonly ActionCreator<Vector4> SET_ACTIVE_PROBE_REFERENCE_COORDINATE =
+            $"{SliceNames.SCENE_SLICE}/SetActiveProbeReferenceCoordinate";
 
         #endregion
     }

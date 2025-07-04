@@ -96,13 +96,7 @@ namespace Models.Scene
 
         public string ManipulatorID;
 
-        public Vector4 ZeroCoordOffset;
-
         public Vector3 Dimensions;
-
-        public float BrainSurfaceOffset;
-
-        public bool Drop2SurfaceWithDepth;
 
         public bool IsRightHanded;
 
@@ -111,8 +105,12 @@ namespace Models.Scene
         #region Automation
 
         public AutomationProgressState AutomationProgressState;
-
+        
         public Vector4 ReferenceCoordinateOffset;
+        
+        public float DuraOffset;
+        
+        public bool Drop2SurfaceWithDepth;
 
         public string SelectedTargetInsertionProbeUUID;
 
