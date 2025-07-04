@@ -101,6 +101,14 @@ namespace Services
                         .AddCase(
                             SceneActions.SET_ACTIVE_PROBE_DURA_OFFSET,
                             SceneReducers.SetActiveProbeDuraOffsetReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_INSERTION_BASE_SPEED,
+                            SceneReducers.SetActiveProbeTargetInsertionBaseSpeedReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE,
+                            SceneReducers.SetActiveProbeDrivePastDistanceReducer
                         );
                 }
             );

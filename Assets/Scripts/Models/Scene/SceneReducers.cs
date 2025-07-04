@@ -308,6 +308,48 @@ namespace Models.Scene
                 Probes = probesCopy,
             };
         }
+        
+        public static SceneState SetActiveProbeTargetInsertionBaseSpeedReducer(
+            SceneState state,
+            IAction<int> action
+        )
+        {
+            // If no active probe, return the state unchanged.
+            if (state.ActiveProbeState == null)
+            {
+                return state;
+            }
+
+            // Set the active probe's target insertion speed.
+            var probesCopy = state.Probes.ToList();
+            probesCopy[state.ActiveProbeIndex].InsertionBaseSpeed = action.payload;
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+        
+        public static SceneState SetActiveProbeDrivePastDistanceReducer(
+            SceneState state,
+            IAction<int> action
+        )
+        {
+            // If no active probe, return the state unchanged.
+            if (state.ActiveProbeState == null)
+            {
+                return state;
+            }
+
+            // Set the active probe's drive past distance.
+            var probesCopy = state.Probes.ToList();
+            probesCopy[state.ActiveProbeIndex].DrivePastDistance = action.payload;
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
 
         #endregion
     }
@@ -350,9 +392,14 @@ namespace Models.Scene
 
         public static readonly ActionCreator<Vector4> SET_ACTIVE_PROBE_REFERENCE_COORDINATE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeReferenceCoordinate";
-
+        
         public static readonly ActionCreator<float> SET_ACTIVE_PROBE_DURA_OFFSET =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeDuraOffset";
+        
+        public static readonly ActionCreator<int> SET_ACTIVE_PROBE_INSERTION_BASE_SPEED =
+            $"{SliceNames.SCENE_SLICE}/SetActiveProbeInsertionBaseSpeed";
+        public static readonly ActionCreator<int> SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE =
+            $"{SliceNames.SCENE_SLICE}/SetActiveProbeDrivePastDistance";
 
         #endregion
     }

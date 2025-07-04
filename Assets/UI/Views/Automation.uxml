@@ -82,7 +82,7 @@
             <engine:Label tabindex="-1" text="Drive to Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
             <engine:DropdownField label="Speed (µm/s)" index="1" choices="2,5,10,Test (500),Custom">
                 <Bindings>
-                    <engine:DataBinding property="index" data-source-path="SelectedInsertionSpeedIndex" binding-mode="TwoWay" />
+                    <engine:DataBinding property="index" data-source-path="SelectedInsertionBaseSpeedIndex" binding-mode="TwoWay" />
                 </Bindings>
             </engine:DropdownField>
             <engine:IntegerField label="Custom Speed (µm/s)" value="20">

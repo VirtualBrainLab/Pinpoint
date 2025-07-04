@@ -48,7 +48,7 @@ namespace UI.ViewModels
         private float _duraOffset;
 
         [ObservableProperty]
-        private int _selectedInsertionSpeedIndex;
+        private int _selectedInsertionBaseSpeedIndex;
 
         /// <summary>
         /// Custom base insertion drive speed (µm/s).
@@ -153,6 +153,21 @@ namespace UI.ViewModels
             // Update dura offset.
             DuraOffset = state.ActiveProbeState.DuraDepth;
 
+            // Update insertion base speed index.
+            SelectedInsertionBaseSpeedIndex = state.ActiveProbeState.InsertionBaseSpeed switch
+            {
+                2 => 0,
+                5 => 1,
+                10 => 2,
+                500 => 3,
+                _ => 4, // Custom speed
+            };
+
+            // Update custom insertion speed or use default if not set.
+            CustomInsertionSpeed = state.ActiveProbeState.InsertionBaseSpeed is 2 or 5 or 10 or 500
+                ? 20
+                : state.ActiveProbeState.InsertionBaseSpeed;
+
             return;
 
             bool IsCoterminal(Vector3 first, Vector3 second)
@@ -201,6 +216,27 @@ namespace UI.ViewModels
                     _storeService.Store.Dispatch(
                         SceneActions.SET_ACTIVE_PROBE_DURA_OFFSET,
                         DuraOffset
+                    );
+                    break;
+                case nameof(SelectedInsertionBaseSpeedIndex)
+                or nameof(CustomInsertionSpeed):
+                    var pickedInsertionBaseSpeed = SelectedInsertionBaseSpeedIndex switch
+                    {
+                        0 => 2,
+                        1 => 5,
+                        2 => 10,
+                        3 => 500,
+                        _ => CustomInsertionSpeed,
+                    };
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_ACTIVE_PROBE_INSERTION_BASE_SPEED,
+                        pickedInsertionBaseSpeed
+                    );
+                    break;
+                case nameof(DrivePastDistance):
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE,
+                        DrivePastDistance
                     );
                     break;
             }

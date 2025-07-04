@@ -115,6 +115,16 @@ namespace Models.Scene
         public Vector3 DuraCoordinate;
         
         public bool Drop2SurfaceWithDepth;
+        
+        /// <summary>
+        /// Base insertion speed (µm/s).
+        /// </summary>
+        public int InsertionBaseSpeed;
+
+        /// <summary>
+        /// Drive past target distance (µm).
+        /// </summary>
+        public int DrivePastDistance;
 
         #endregion
     }
