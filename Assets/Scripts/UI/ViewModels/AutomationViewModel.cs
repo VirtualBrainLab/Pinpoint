@@ -193,9 +193,10 @@ namespace UI.ViewModels
                         return;
                     }
 
-                    // If the reset was successful, set the active probe's automation state to calibrated.
+                    // If the reset was successful, set the active probe's automation progress state to calibrated.
                     _storeService.Store.Dispatch(
-                        SceneActions.SET_ACTIVE_PROBE_AUTOMATION_STATE_CALIBRATED
+                        SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
+                        AutomationProgressState.IsCalibrated
                     );
                 });
         }

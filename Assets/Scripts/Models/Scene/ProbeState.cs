@@ -110,7 +110,7 @@ namespace Models.Scene
 
         #region Automation
 
-        public AutomationState AutomationState;
+        public AutomationProgressState AutomationProgressState;
 
         public Vector4 ReferenceCoordinateOffset;
 
@@ -144,7 +144,7 @@ namespace Models.Scene
     /// <summary>
     /// Progress state in the automation process.
     /// </summary>
-    public enum AutomationState
+    public enum AutomationProgressState
     {
         /// <summary>
         ///     Initial, uncalibrated state.
@@ -164,7 +164,7 @@ namespace Models.Scene
         /// <summary>
         ///     At the target entry coordinate.
         /// </summary>
-        AtEntryCoordinate,
+        AtTargetEntryCoordinate,
 
         /// <summary>
         ///     Calibrated to the Dura; ready for insertion drive.

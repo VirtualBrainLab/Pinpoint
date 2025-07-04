@@ -75,8 +75,20 @@ namespace Services
                             SceneReducers.SetSelectedTargetInsertionProbeUUIDReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_STATE_CALIBRATED,
-                            SceneReducers.SetActiveProbeAutomationStateCalibratedReducer
+                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
+                            SceneReducers.SetActiveProbeAutomationProgressStateReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING,
+                            SceneReducers.SetActiveProbeAutomationProgressStateToNextDrivingReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_EXITING,
+                            SceneReducers.SetActiveProbeAutomationProgressStateToNextExitingReducer
+                        )
+                        .AddCase(
+                            SceneActions.COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS,
+                            SceneReducers.CompleteActiveProbeAutomationIntermediateProgressReducer
                         );
                 }
             );
