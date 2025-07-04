@@ -92,9 +92,8 @@ namespace UI.ViewModels
 
         private void OnSceneStateChanged(SceneState state)
         {
-            Debug.Log("Scene state changed");
             // Check if an active manipulator probe is selected.
-            IsAutomationEnabled = state.ActiveProbeState != null; //is { IsEphysLinkControlled: true };
+            IsAutomationEnabled = state.ActiveProbeState is { IsEphysLinkControlled: true };
 
             // Exit if not enabled.
             if (!IsAutomationEnabled)
@@ -153,7 +152,6 @@ namespace UI.ViewModels
 
             // Update dura offset.
             DuraOffset = state.ActiveProbeState.DuraDepth;
-            Debug.Log("Dura offset state changed");
 
             return;
 

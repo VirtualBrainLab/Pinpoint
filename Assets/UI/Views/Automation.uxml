@@ -88,6 +88,7 @@
             <engine:IntegerField label="Custom Speed (µm/s)" value="20">
                 <Bindings>
                     <engine:DataBinding property="value" data-source-path="CustomInsertionSpeed" binding-mode="TwoWay" />
+                    <engine:DataBinding property="style.display" data-source-path="SelectedInsertionSpeedIndex" binding-mode="ToTarget" source-to-ui-converters="SelectedInsertionSpeedIndexToCustomSpeedVisibility" />
                 </Bindings>
             </engine:IntegerField>
             <engine:IntegerField label="Drive Past by (µm)" value="50">
