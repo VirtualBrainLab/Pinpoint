@@ -102,21 +102,20 @@
                     <engine:DataBinding property="style.display" data-source-path="Eta" binding-mode="ToTarget" source-to-ui-converters="ETASecondsToETAVisibility" />
                 </Bindings>
             </engine:Label>
-            <engine:Button text="Drive" parse-escape-sequences="true" display-tooltip-when-elided="true" name="insertion__drive-button" style="flex-grow: 1;">
+            <engine:Button text="Drive" name="insertion__drive-button" style="flex-grow: 1;">
                 <Bindings>
                     <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetInsertionButtonEnabled" binding-mode="ToTarget" />
-                    <engine:DataBinding property="style.display" data-source-path="DriveToTargetInsertionButtonDisplayStyle" binding-mode="ToTarget" />
-                    <engine:DataBinding property="text" data-source-path="DriveToTargetInsertionButtonText" binding-mode="ToTarget" />
+                    <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToInsertionDriveButtonVisibility" />
                 </Bindings>
             </engine:Button>
-            <engine:Button text="Stop" parse-escape-sequences="true" display-tooltip-when-elided="true" name="insertion__stop-button" style="flex-grow: 1;">
+            <engine:Button text="Exit" name="insertion__exit-button" style="flex-grow: 1;">
                 <Bindings>
-                    <engine:DataBinding property="style.display" data-source-path="StopButtonDisplayStyle" binding-mode="ToTarget" />
+                    <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToInsertionExitButtonVisibility" />
                 </Bindings>
             </engine:Button>
-            <engine:Button text="Exit" parse-escape-sequences="true" display-tooltip-when-elided="true" name="insertion__exit-button" style="flex-grow: 1;">
+            <engine:Button text="Stop" name="insertion__stop-button" style="flex-grow: 1;">
                 <Bindings>
-                    <engine:DataBinding property="style.display" data-source-path="ExitButtonDisplayStyle" binding-mode="ToTarget" />
+                    <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToInsertionStopButtonVisibility" />
                 </Bindings>
             </engine:Button>
         </engine:VisualElement>

@@ -91,6 +91,10 @@ namespace Services
                             SceneReducers.CompleteActiveProbeAutomationIntermediateProgressReducer
                         )
                         .AddCase(
+                            SceneActions.CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS,
+                            SceneReducers.CancelActiveProbeAutomationIntermediateProgressReducer
+                        )
+                        .AddCase(
                             SceneActions.SET_ACTIVE_PROBE_REFERENCE_COORDINATE,
                             SceneReducers.SetActiveProbeReferenceCoordinateReducer
                         )

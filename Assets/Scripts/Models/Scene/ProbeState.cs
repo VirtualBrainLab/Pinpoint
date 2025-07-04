@@ -108,13 +108,13 @@ namespace Models.Scene
         
         public Vector4 ReferenceCoordinateOffset;
         
+        public string SelectedTargetInsertionProbeUUID;
+        
         public float DuraDepth;
         
         public Vector3 DuraCoordinate;
         
         public bool Drop2SurfaceWithDepth;
-
-        public string SelectedTargetInsertionProbeUUID;
 
         #endregion
     }

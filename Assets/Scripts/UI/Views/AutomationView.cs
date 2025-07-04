@@ -114,6 +114,55 @@ namespace UI.Views
                 (ref int selectedTargetInsertionSpeedIndex) =>
                     selectedTargetInsertionSpeedIndex == 4 ? DisplayStyle.Flex : DisplayStyle.None
             );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                AutomationProgressState,
+                StyleEnum<DisplayStyle>
+            >(
+                "AutomationProgressStateToInsertionDriveButtonVisibility",
+                (ref AutomationProgressState automationProgressState) =>
+                    automationProgressState
+                        is AutomationProgressState.AtDuraInsert
+                            or AutomationProgressState.AtNearTargetInsert
+                            or AutomationProgressState.AtPastTarget
+                            or AutomationProgressState.AtTarget
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                AutomationProgressState,
+                StyleEnum<DisplayStyle>
+            >(
+                "AutomationProgressStateToInsertionExitButtonVisibility",
+                (ref AutomationProgressState automationProgressState) =>
+                    automationProgressState
+                        is AutomationProgressState.AtDuraInsert
+                            or AutomationProgressState.AtNearTargetInsert
+                            or AutomationProgressState.AtPastTarget
+                            or AutomationProgressState.AtTarget
+                            or AutomationProgressState.AtDuraExit
+                            or AutomationProgressState.AtExitMargin
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                AutomationProgressState,
+                StyleEnum<DisplayStyle>
+            >(
+                "AutomationProgressStateToInsertionStopButtonVisibility",
+                (ref AutomationProgressState automationProgressState) =>
+                    automationProgressState
+                        is AutomationProgressState.DrivingToNearTarget
+                            or AutomationProgressState.DrivingToPastTarget
+                            or AutomationProgressState.ReturningToTarget
+                            or AutomationProgressState.ExitingToDura
+                            or AutomationProgressState.ExitingToMargin
+                            or AutomationProgressState.ExitingToTargetEntryCoordinate
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
         }
     }
 }

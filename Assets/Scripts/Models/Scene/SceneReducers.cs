@@ -145,8 +145,7 @@ namespace Models.Scene
                 AutomationProgressState.AtNearTargetInsert =>
                     AutomationProgressState.DrivingToPastTarget,
                 AutomationProgressState.AtPastTarget => AutomationProgressState.ReturningToTarget,
-                AutomationProgressState.ExitingToDura =>
-                    AutomationProgressState.DrivingToNearTarget,
+                AutomationProgressState.AtTarget => AutomationProgressState.DrivingToNearTarget,
                 _ => state.ActiveProbeState.AutomationProgressState,
             };
 
@@ -174,10 +173,9 @@ namespace Models.Scene
             // Move to next exiting state if possible. If not, return the state unchanged.
             var newProgressState = state.ActiveProbeState.AutomationProgressState switch
             {
-                AutomationProgressState.DrivingToNearTarget
+                AutomationProgressState.AtDuraInsert
                 or AutomationProgressState.AtNearTargetInsert
-                or AutomationProgressState.DrivingToPastTarget
-                or AutomationProgressState.ReturningToTarget
+                or AutomationProgressState.AtPastTarget
                 or AutomationProgressState.AtTarget => AutomationProgressState.ExitingToDura,
                 AutomationProgressState.AtDuraExit => AutomationProgressState.ExitingToMargin,
                 AutomationProgressState.AtExitMargin =>
@@ -206,7 +204,7 @@ namespace Models.Scene
                 return state;
             }
 
-            // move to next complete progress state if possible. If not, return the state unchanged.
+            // Move to next landmark progress state if possible. If not, return the state unchanged.
             var newProgressState = state.ActiveProbeState.AutomationProgressState switch
             {
                 AutomationProgressState.DrivingToTargetEntryCoordinate =>
@@ -223,6 +221,43 @@ namespace Models.Scene
             };
 
             // Complete the intermediate progress for the active probe.
+            var probesCopy = state.Probes.ToList();
+            probesCopy[state.ActiveProbeIndex].AutomationProgressState = newProgressState;
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
+        public static SceneState CancelActiveProbeAutomationIntermediateProgressReducer(
+            SceneState state,
+            IAction action
+        )
+        {
+            // If no active probe, return the state unchanged.
+            if (state.ActiveProbeState == null)
+            {
+                return state;
+            }
+
+            // Revert to the previous landmark progress state if possible. If not, return the state unchanged.
+            var newProgressState = state.ActiveProbeState.AutomationProgressState switch
+            {
+                AutomationProgressState.DrivingToTargetEntryCoordinate =>
+                    AutomationProgressState.IsCalibrated,
+                AutomationProgressState.DrivingToNearTarget => AutomationProgressState.AtDuraInsert,
+                AutomationProgressState.DrivingToPastTarget =>
+                    AutomationProgressState.AtNearTargetInsert,
+                AutomationProgressState.ReturningToTarget => AutomationProgressState.AtPastTarget,
+                AutomationProgressState.ExitingToDura => AutomationProgressState.AtTarget,
+                AutomationProgressState.ExitingToMargin => AutomationProgressState.AtDuraExit,
+                AutomationProgressState.ExitingToTargetEntryCoordinate =>
+                    AutomationProgressState.AtExitMargin,
+                _ => state.ActiveProbeState.AutomationProgressState,
+            };
+
+            // Cancel the intermediate progress for the active probe.
             var probesCopy = state.Probes.ToList();
             probesCopy[state.ActiveProbeIndex].AutomationProgressState = newProgressState;
 
@@ -310,6 +345,8 @@ namespace Models.Scene
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationProgressStateToNextExiting";
         public static readonly ActionCreator COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS =
             $"{SliceNames.SCENE_SLICE}/CompleteActiveProbeAutomationIntermediateProgress";
+        public static readonly ActionCreator CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS =
+            $"{SliceNames.SCENE_SLICE}/CancelActiveProbeAutomationIntermediateProgress";
 
         public static readonly ActionCreator<Vector4> SET_ACTIVE_PROBE_REFERENCE_COORDINATE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeReferenceCoordinate";
