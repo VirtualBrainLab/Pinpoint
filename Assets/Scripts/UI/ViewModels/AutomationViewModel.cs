@@ -36,9 +36,6 @@ namespace UI.ViewModels
         [ObservableProperty]
         private int _selectedTargetInsertionProbeIndex;
 
-        [ObservableProperty]
-        private float _duraOffset;
-
         /// <summary>
         /// Filtered list of targetable insertion probes for the active manipulator probe.
         ///
@@ -46,6 +43,30 @@ namespace UI.ViewModels
         /// </summary>
         [ObservableProperty]
         private List<ProbeState> _targetInsertionProbeStates = new();
+
+        [ObservableProperty]
+        private float _duraOffset;
+
+        [ObservableProperty]
+        private int _selectedInsertionSpeedIndex;
+
+        /// <summary>
+        /// Custom base insertion drive speed (µm/s).
+        /// </summary>
+        [ObservableProperty]
+        private int _customInsertionSpeed;
+
+        /// <summary>
+        /// Distance to drive past the target entry coordinate (µm).
+        /// </summary>
+        [ObservableProperty]
+        private int _drivePastDistance;
+
+        /// <summary>
+        /// ETA to reach the target or to exit (seconds).
+        /// </summary>
+        [ObservableProperty]
+        private int _eta;
 
         #endregion
 
@@ -71,9 +92,9 @@ namespace UI.ViewModels
 
         private void OnSceneStateChanged(SceneState state)
         {
+            Debug.Log("Scene state changed");
             // Check if an active manipulator probe is selected.
-            // TODO: Re-enable when actually using automation.
-            IsAutomationEnabled = state.ActiveProbeState is { IsEphysLinkControlled: true };
+            IsAutomationEnabled = state.ActiveProbeState != null; //is { IsEphysLinkControlled: true };
 
             // Exit if not enabled.
             if (!IsAutomationEnabled)
@@ -86,17 +107,6 @@ namespace UI.ViewModels
 
             // Get the active manipulator's reference coordinate.
             ReferenceCoordinate = state.ActiveProbeState.ReferenceCoordinateOffset;
-
-            // If there are no options, return an empty list.
-            // TargetInsertionProbeStates =
-            //     _probeService
-            //         .TargetableInsertionProbeManagers?.Where(manager =>
-            //             IsCoterminal(
-            //                 manager.ProbeController.Insertion.APMLDV,
-            //                 _probeService.ActiveProbeAngles
-            //             )
-            //         )
-            //         .ToList() ?? new List<ProbeManager>();
 
             // Get the list of targetable insertion probes for the active manipulator probe.
             TargetInsertionProbeStates = state
@@ -143,6 +153,7 @@ namespace UI.ViewModels
 
             // Update dura offset.
             DuraOffset = state.ActiveProbeState.DuraDepth;
+            Debug.Log("Dura offset state changed");
 
             return;
 
@@ -218,7 +229,7 @@ namespace UI.ViewModels
                         return;
                     }
 
-                    // If the reset was successful, set the active probe's automation progress state to calibrated.
+                    // If the reset was successful, set the active probe's automation progress state to be calibrated.
                     _storeService.Store.Dispatch(
                         SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
                         AutomationProgressState.IsCalibrated

@@ -80,16 +80,25 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <engine:Label tabindex="-1" text="Drive to Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:RadioButtonGroup label="Speed (µm/s)" choices="2,5,10,Test (500),Custom" value="1" />
-            <engine:FloatField label="Custom Speed" value="20" style="visibility: visible;" />
-            <engine:FloatField label="Drive Past by (µm)" value="50">
+            <engine:DropdownField label="Speed (µm/s)" index="1" choices="2,5,10,Test (500),Custom">
                 <Bindings>
-                    <engine:DataBinding property="enabledSelf" data-source-path="IsDrivePastTargetDistanceEnabled" binding-mode="ToTarget" />
+                    <engine:DataBinding property="index" data-source-path="SelectedInsertionSpeedIndex" binding-mode="TwoWay" />
                 </Bindings>
-            </engine:FloatField>
+            </engine:DropdownField>
+            <engine:IntegerField label="Custom Speed (µm/s)" value="20">
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="CustomInsertionSpeed" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:IntegerField>
+            <engine:IntegerField label="Drive Past by (µm)" value="50">
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="DrivePastDistance" binding-mode="TwoWay" />
+                </Bindings>
+            </engine:IntegerField>
             <engine:Label text="ETA: ">
                 <Bindings>
-                    <engine:DataBinding property="text" data-source-path="ETA" binding-mode="ToTarget" />
+                    <engine:DataBinding property="text" data-source-path="Eta" binding-mode="ToTarget" source-to-ui-converters="ETASecondsToETAText" />
+                    <engine:DataBinding property="style.display" data-source-path="Eta" binding-mode="ToTarget" source-to-ui-converters="ETASecondsToETAVisibility" />
                 </Bindings>
             </engine:Label>
             <engine:Button text="Drive" parse-escape-sequences="true" display-tooltip-when-elided="true" name="insertion__drive-button" style="flex-grow: 1;">

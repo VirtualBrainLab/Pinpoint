@@ -98,6 +98,15 @@ namespace UI.Views
                         ? DisplayStyle.Flex
                         : DisplayStyle.None
             );
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "ETASecondsToETAText",
+                (ref int etaSeconds) => $"ETA: {etaSeconds / 60}:{etaSeconds % 60:D2}"
+            );
+            
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<int, StyleEnum<DisplayStyle>>("ETASecondsToETAVisibility",
+                (ref int etaSeconds) =>
+                    etaSeconds > 0 ? DisplayStyle.Flex : DisplayStyle.None
+            );
         }
     }
 }
