@@ -17,13 +17,15 @@ namespace UI.ViewModels
 
         private readonly StoreService _storeService;
         private readonly IDisposableSubscription _sceneStateSubscription;
-        private readonly ProbeService _probeService;
 
         #endregion
         #region Properties
 
         [ObservableProperty]
         private bool _isAutomationEnabled = true;
+
+        [ObservableProperty]
+        private AutomationProgressState _automationProgressState;
 
         [ObservableProperty]
         private Vector4 _referenceCoordinate;
@@ -44,11 +46,10 @@ namespace UI.ViewModels
 
         #endregion
 
-        public AutomationViewModel(StoreService storeService, ProbeService probeService)
+        public AutomationViewModel(StoreService storeService)
         {
             // Register services.
             _storeService = storeService;
-            _probeService = probeService;
 
             // Initialize properties from the store.
             var initialAutomationState = _storeService.Store.GetState<SceneState>(
@@ -76,6 +77,9 @@ namespace UI.ViewModels
             {
                 return;
             }
+
+            // Set the automation progress state from the active probe state.
+            AutomationProgressState = state.ActiveProbeState.AutomationProgressState;
 
             // Get the active manipulator's reference coordinate.
             ReferenceCoordinate = state.ActiveProbeState.ReferenceCoordinateOffset;
@@ -167,6 +171,7 @@ namespace UI.ViewModels
                             SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_UUID,
                             selectedTargetInsertionProbeState.UUID
                         );
+                        // TODO: Call ComputeEntryCoordinateTrajectory once it has been converted.
                     }
                     break;
             }
@@ -183,7 +188,7 @@ namespace UI.ViewModels
         [ICommand]
         private void ResetReferenceCoordinate()
         {
-            _probeService
+            ProbeService
                 .ResetActiveProbeReferenceCoordinate()
                 .ContinueWith(task =>
                 {
@@ -194,6 +199,47 @@ namespace UI.ViewModels
                     }
 
                     // If the reset was successful, set the active probe's automation progress state to calibrated.
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
+                        AutomationProgressState.IsCalibrated
+                    );
+                });
+        }
+
+        [ICommand]
+        private void DriveToTargetEntryCoordinate()
+        {
+            ProbeService
+                .DriveActiveProbeToTargetEntryCoordinate()
+                .ContinueWith(task =>
+                {
+                    // Do not proceed if the drive failed.
+                    if (!task.Result)
+                    {
+                        return;
+                    }
+
+                    // Complete the drive state if successful.
+                    _storeService.Store.Dispatch(
+                        SceneActions.COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS
+                    );
+                });
+        }
+
+        [ICommand]
+        private void StopDriveToTargetEntryCoordinate()
+        {
+            ProbeService
+                .StopActiveProbeDriveToTargetEntryCoordinate()
+                .ContinueWith(task =>
+                {
+                    // Do not proceed if the drive failed.
+                    if (!task.Result)
+                    {
+                        return;
+                    }
+
+                    // Reset back to calibrated state.
                     _storeService.Store.Dispatch(
                         SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
                         AutomationProgressState.IsCalibrated

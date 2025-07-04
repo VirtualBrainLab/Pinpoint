@@ -57,8 +57,16 @@
                     <engine:DataBinding property="index" data-source-path="SelectedTargetInsertionProbeManagerIndex" binding-mode="TwoWay" />
                 </Bindings>
             </engine:DropdownField>
-            <engine:Button text="Drive to Target Entry Coordinate" name="target__drive-button" />
-            <engine:Button text="Stop" name="target__stop-button" />
+            <engine:Button text="Drive to Target Entry Coordinate" name="target__entry-drive-button">
+                <Bindings>
+                    <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToDriveToTargetEntryCoordinateButtonVisibility" />
+                </Bindings>
+            </engine:Button>
+            <engine:Button text="Stop" name="target__stop-button">
+                <Bindings>
+                    <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToStopDriveToTargetEntryCoordinateButtonVisibility" />
+                </Bindings>
+            </engine:Button>
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <engine:Label tabindex="-1" text="Calibrate Dura Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" />
