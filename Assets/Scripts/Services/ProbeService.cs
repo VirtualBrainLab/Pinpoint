@@ -26,7 +26,7 @@ namespace Services
         public static async Task<bool> DriveActiveProbeToTargetEntryCoordinate()
         {
             var activeProbeManager = ProbeManager.ActiveProbeManager;
-            
+
             // Exit if there is no active probe manager.
             if (!activeProbeManager || !activeProbeManager.IsEphysLinkControlled)
             {
@@ -35,7 +35,7 @@ namespace Services
 
             return await activeProbeManager.ManipulatorBehaviorController.DriveToTargetEntryCoordinate();
         }
-        
+
         public static async Task<bool> StopActiveProbeDriveToTargetEntryCoordinate()
         {
             var activeProbeManager = ProbeManager.ActiveProbeManager;
@@ -47,6 +47,19 @@ namespace Services
             }
 
             return await activeProbeManager.ManipulatorBehaviorController.StopDriveToTargetEntryCoordinate();
+        }
+
+        public static async Task<bool> ResetActiveProbeDuraOffset()
+        {
+            var activeProbeManager = ProbeManager.ActiveProbeManager;
+
+            // Exit if there is no active probe manager.
+            if (!activeProbeManager || !activeProbeManager.IsEphysLinkControlled)
+            {
+                return false;
+            }
+
+            return await activeProbeManager.ManipulatorBehaviorController.ResetDuraOffset();
         }
     }
 }

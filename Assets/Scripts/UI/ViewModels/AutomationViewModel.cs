@@ -36,6 +36,9 @@ namespace UI.ViewModels
         [ObservableProperty]
         private int _selectedTargetInsertionProbeIndex;
 
+        [ObservableProperty]
+        private float _duraOffset;
+
         /// <summary>
         /// Filtered list of targetable insertion probes for the active manipulator probe.
         ///
@@ -138,6 +141,9 @@ namespace UI.ViewModels
                 );
             }
 
+            // Update dura offset.
+            DuraOffset = state.ActiveProbeState.DuraDepth;
+
             return;
 
             bool IsCoterminal(Vector3 first, Vector3 second)
@@ -152,6 +158,13 @@ namespace UI.ViewModels
         {
             switch (e.PropertyName)
             {
+                case nameof(ReferenceCoordinate):
+                    // BUG: This won't update the probe's game object position.
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_ACTIVE_PROBE_REFERENCE_COORDINATE,
+                        ReferenceCoordinate
+                    );
+                    break;
                 case nameof(SelectedTargetInsertionProbeIndex):
                     // Reset the selected target insertion probe if the index is 0 (None).
                     if (SelectedTargetInsertionProbeIndex == 0)
@@ -173,6 +186,13 @@ namespace UI.ViewModels
                         );
                         // TODO: Call ComputeEntryCoordinateTrajectory once it has been converted.
                     }
+                    break;
+                case nameof(DuraOffset):
+                    // BUG: This won't update the probe's game object position.
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_ACTIVE_PROBE_DURA_OFFSET,
+                        DuraOffset
+                    );
                     break;
             }
         }
@@ -243,6 +263,27 @@ namespace UI.ViewModels
                     _storeService.Store.Dispatch(
                         SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
                         AutomationProgressState.IsCalibrated
+                    );
+                });
+        }
+
+        [ICommand]
+        private void ResetDuraOffset()
+        {
+            ProbeService
+                .ResetActiveProbeDuraOffset()
+                .ContinueWith(task =>
+                {
+                    // Do not proceed if the reset failed.
+                    if (!task.Result)
+                    {
+                        return;
+                    }
+
+                    // If the reset was successful, set calibrated to the Dura.
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
+                        AutomationProgressState.AtDuraInsert
                     );
                 });
         }

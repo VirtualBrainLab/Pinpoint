@@ -57,6 +57,7 @@ namespace UI.Views
             _targetStopButton.clicked += _automationViewModel
                 .StopDriveToTargetEntryCoordinateCommand
                 .Execute;
+            _duraResetButton.clicked += _automationViewModel.ResetDuraOffsetCommand.Execute;
         }
 
 #if UNITY_EDITOR

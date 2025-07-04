@@ -252,6 +252,27 @@ namespace Models.Scene
                 Probes = probesCopy,
             };
         }
+        
+        public static SceneState SetActiveProbeDuraOffsetReducer(
+            SceneState state,
+            IAction<float> action
+        )
+        {
+            // If no active probe, return the state unchanged.
+            if (state.ActiveProbeState == null)
+            {
+                return state;
+            }
+
+            // Set the active probe's Dura offset.
+            var probesCopy = state.Probes.ToList();
+            probesCopy[state.ActiveProbeIndex].DuraDepth = action.payload;
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
 
         #endregion
     }
@@ -291,6 +312,9 @@ namespace Models.Scene
         
         public static readonly ActionCreator<Vector4> SET_ACTIVE_PROBE_REFERENCE_COORDINATE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeReferenceCoordinate";
+        
+        public static readonly ActionCreator<float> SET_ACTIVE_PROBE_DURA_OFFSET =
+            $"{SliceNames.SCENE_SLICE}/SetActiveProbeDuraOffset";
 
         #endregion
     }

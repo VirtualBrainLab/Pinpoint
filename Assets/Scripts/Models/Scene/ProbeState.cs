@@ -108,7 +108,9 @@ namespace Models.Scene
         
         public Vector4 ReferenceCoordinateOffset;
         
-        public float DuraOffset;
+        public float DuraDepth;
+        
+        public Vector3 DuraCoordinate;
         
         public bool Drop2SurfaceWithDepth;
 

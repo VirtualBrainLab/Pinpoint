@@ -89,6 +89,14 @@ namespace Services
                         .AddCase(
                             SceneActions.COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS,
                             SceneReducers.CompleteActiveProbeAutomationIntermediateProgressReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_REFERENCE_COORDINATE,
+                            SceneReducers.SetActiveProbeReferenceCoordinateReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_DURA_OFFSET,
+                            SceneReducers.SetActiveProbeDuraOffsetReducer
                         );
                 }
             );

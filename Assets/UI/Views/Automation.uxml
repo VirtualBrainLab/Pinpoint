@@ -60,6 +60,7 @@
             <engine:Button text="Drive to Target Entry Coordinate" name="target__entry-drive-button">
                 <Bindings>
                     <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToDriveToTargetEntryCoordinateButtonVisibility" />
+                    <engine:DataBinding property="enabledSelf" data-source-path="SelectedTargetInsertionProbeIndex" binding-mode="ToTarget" />
                 </Bindings>
             </engine:Button>
             <engine:Button text="Stop" name="target__stop-button">
@@ -72,7 +73,7 @@
             <engine:Label tabindex="-1" text="Calibrate Dura Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" />
             <engine:FloatField label="Offset (mm)">
                 <Bindings>
-                    <engine:DataBinding property="value" data-source-path="DuraCalibrationOffset" binding-mode="TwoWay" />
+                    <engine:DataBinding property="value" data-source-path="DuraOffset" binding-mode="TwoWay" />
                 </Bindings>
             </engine:FloatField>
             <engine:Button text="Reset Dura Calibration" name="dura__reset-button" />
