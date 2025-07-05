@@ -18,6 +18,9 @@ namespace UI.ViewModels
         private readonly StoreService _storeService;
         private readonly IDisposableSubscription _sceneStateSubscription;
 
+        [Service]
+        private ProbeService _probeService;
+
         #endregion
         #region Properties
 
@@ -331,6 +334,25 @@ namespace UI.ViewModels
                         AutomationProgressState.AtDuraInsert
                     );
                 });
+        }
+
+        [ICommand]
+        private void InsertionDrive()
+        {
+            // Will 
+            _probeService.InsertionDriveActiveProbe();
+        }
+
+        [ICommand]
+        private void InsertionExit()
+        {
+            _ = _probeService.InsertionExitActiveProbe();
+        }
+
+        [ICommand]
+        private void StopInsertionDrive()
+        {
+            _ = ProbeService.StopInsertionDriveActiveProbe();
         }
 
         #endregion

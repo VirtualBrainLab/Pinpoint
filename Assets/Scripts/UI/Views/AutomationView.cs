@@ -21,8 +21,8 @@ namespace UI.Views
         private readonly Button _targetStopButton;
         private readonly Button _duraResetButton;
         private readonly Button _insertionDriveButton;
+        private readonly Button _insertionExitButton;
         private readonly Button _insertionStopButton;
-        private readonly Button _insertionResetButton;
 
         #endregion
 
@@ -40,8 +40,8 @@ namespace UI.Views
             _targetStopButton = _root.Q<Button>("target__stop-button");
             _duraResetButton = _root.Q<Button>("dura__reset-button");
             _insertionDriveButton = _root.Q<Button>("insertion__drive-button");
+            _insertionExitButton = _root.Q<Button>("insertion__exit-button");
             _insertionStopButton = _root.Q<Button>("insertion__stop-button");
-            _insertionResetButton = _root.Q<Button>("insertion__reset-button");
 
             // Edit default components.
             var referenceCoordinateDepthLabel = _root.Q<FloatField>("unity-w-input").Q<Label>();
@@ -58,6 +58,9 @@ namespace UI.Views
                 .StopDriveToTargetEntryCoordinateCommand
                 .Execute;
             _duraResetButton.clicked += _automationViewModel.ResetDuraOffsetCommand.Execute;
+            _insertionDriveButton.clicked += _automationViewModel.InsertionDriveCommand.Execute;
+            _insertionExitButton.clicked += _automationViewModel.InsertionExitCommand.Execute;
+            _insertionStopButton.clicked += _automationViewModel.StopInsertionDriveCommand.Execute;
         }
 
 #if UNITY_EDITOR
