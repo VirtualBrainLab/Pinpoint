@@ -96,13 +96,7 @@ namespace Models.Scene
 
         public string ManipulatorID;
 
-        public Vector4 ZeroCoordOffset;
-
         public Vector3 Dimensions;
-
-        public float BrainSurfaceOffset;
-
-        public bool Drop2SurfaceWithDepth;
 
         public bool IsRightHanded;
 
@@ -110,11 +104,27 @@ namespace Models.Scene
 
         #region Automation
 
-        public AutomationState AutomationState;
-
+        public AutomationProgressState AutomationProgressState;
+        
         public Vector4 ReferenceCoordinateOffset;
-
+        
         public string SelectedTargetInsertionProbeUUID;
+        
+        public float DuraDepth;
+        
+        public Vector3 DuraCoordinate;
+        
+        public bool Drop2SurfaceWithDepth;
+        
+        /// <summary>
+        /// Base insertion speed (µm/s).
+        /// </summary>
+        public int InsertionBaseSpeed;
+
+        /// <summary>
+        /// Drive past target distance (µm).
+        /// </summary>
+        public int DrivePastDistance;
 
         #endregion
     }
@@ -144,7 +154,7 @@ namespace Models.Scene
     /// <summary>
     /// Progress state in the automation process.
     /// </summary>
-    public enum AutomationState
+    public enum AutomationProgressState
     {
         /// <summary>
         ///     Initial, uncalibrated state.
@@ -164,7 +174,7 @@ namespace Models.Scene
         /// <summary>
         ///     At the target entry coordinate.
         /// </summary>
-        AtEntryCoordinate,
+        AtTargetEntryCoordinate,
 
         /// <summary>
         ///     Calibrated to the Dura; ready for insertion drive.

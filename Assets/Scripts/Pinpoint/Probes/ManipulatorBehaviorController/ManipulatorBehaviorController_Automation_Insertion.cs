@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading.Tasks;
 using BrainAtlas;
 using EphysLink;
 using UnityEngine;
@@ -62,7 +63,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <param name="drivePastDistance">Distance to drive past target in mm.</param>
         /// <exception cref="InvalidOperationException">Probe is not in a drivable state.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Unhandled probe drive state.</exception>
-        public async void Drive(
+        public async Awaitable Drive(
             ProbeManager targetInsertionProbeManager,
             float baseSpeed,
             float drivePastDistance
@@ -180,7 +181,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// <summary>
         ///     Stop the probe's insertion.
         /// </summary>
-        public async void StopInsertion()
+        public async Awaitable<bool> StopInsertion()
         {
             var stopResponse = await CommunicationManager.Instance.Stop(ManipulatorID);
 
@@ -188,7 +189,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             if (!string.IsNullOrEmpty(stopResponse))
             {
                 Debug.LogError(stopResponse);
-                return;
+                return false;
             }
 
             // Set probe to be not moving.
@@ -205,6 +206,8 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
                     "Stop",
                 }
             );
+
+            return true;
         }
 
         /// <summary>

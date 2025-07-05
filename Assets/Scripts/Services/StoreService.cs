@@ -75,8 +75,40 @@ namespace Services
                             SceneReducers.SetSelectedTargetInsertionProbeUUIDReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_STATE_CALIBRATED,
-                            SceneReducers.SetActiveProbeAutomationStateCalibratedReducer
+                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
+                            SceneReducers.SetActiveProbeAutomationProgressStateReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING,
+                            SceneReducers.SetActiveProbeAutomationProgressStateToNextDrivingReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_EXITING,
+                            SceneReducers.SetActiveProbeAutomationProgressStateToNextExitingReducer
+                        )
+                        .AddCase(
+                            SceneActions.COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS,
+                            SceneReducers.CompleteActiveProbeAutomationIntermediateProgressReducer
+                        )
+                        .AddCase(
+                            SceneActions.CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS,
+                            SceneReducers.CancelActiveProbeAutomationIntermediateProgressReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_REFERENCE_COORDINATE,
+                            SceneReducers.SetActiveProbeReferenceCoordinateReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_DURA_OFFSET,
+                            SceneReducers.SetActiveProbeDuraOffsetReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_INSERTION_BASE_SPEED,
+                            SceneReducers.SetActiveProbeTargetInsertionBaseSpeedReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE,
+                            SceneReducers.SetActiveProbeDrivePastDistanceReducer
                         );
                 }
             );

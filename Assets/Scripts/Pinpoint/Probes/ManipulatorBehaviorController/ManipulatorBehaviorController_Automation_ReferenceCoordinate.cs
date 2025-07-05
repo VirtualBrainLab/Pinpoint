@@ -1,6 +1,11 @@
 using System;
 using System.Globalization;
 using EphysLink;
+using Models.Scene;
+using Services;
+using UI;
+using Unity.AppUI.MVVM;
+using Unity.AppUI.Redux;
 using UnityEngine;
 
 namespace Pinpoint.Probes.ManipulatorBehaviorController
@@ -71,6 +76,12 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
 
             // Complete reset.
             ReferenceCoordinateOffset = positionalResponse.Position;
+            PinpointApp
+                .Current.services.GetRequiredService<StoreService>()
+                .Store.Dispatch(
+                    SceneActions.SET_ACTIVE_PROBE_REFERENCE_COORDINATE,
+                    positionalResponse.Position
+                );
             BrainSurfaceOffset = 0;
 
             // Log event.
