@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Models.Scene;
 using NUnit.Framework;
@@ -17,6 +18,7 @@ namespace UI.Views
         private readonly VisualElement _root;
 
         private readonly Button _resetReferenceCoordinateButton;
+        private readonly RadioButtonGroup _targetChoicesGroup;
         private readonly Button _targetEntryDriveButton;
         private readonly Button _targetStopButton;
         private readonly Button _duraResetButton;
@@ -33,9 +35,11 @@ namespace UI.Views
             _root = root;
             _automationViewModel = automationViewModel;
             _root.dataSource = _automationViewModel;
+            _automationViewModel.PropertyChanged += OnPropertyChanged;
 
             // Register component references.
             _resetReferenceCoordinateButton = _root.Q<Button>("reference-coordinate__reset-button");
+            _targetChoicesGroup = _root.Q<RadioButtonGroup>("target__choices-group");
             _targetEntryDriveButton = _root.Q<Button>("target__entry-drive-button");
             _targetStopButton = _root.Q<Button>("target__stop-button");
             _duraResetButton = _root.Q<Button>("dura__reset-button");
@@ -61,6 +65,41 @@ namespace UI.Views
             _insertionDriveButton.clicked += _automationViewModel.InsertionDriveCommand.Execute;
             _insertionExitButton.clicked += _automationViewModel.InsertionExitCommand.Execute;
             _insertionStopButton.clicked += _automationViewModel.StopInsertionDriveCommand.Execute;
+
+            // Initialize view from view model state.
+            ApplyProbeColorsToTargetChoices();
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(_automationViewModel.TargetInsertionProbeStates):
+                    ApplyProbeColorsToTargetChoices();
+                    break;
+            }
+        }
+
+        private void ApplyProbeColorsToTargetChoices()
+        {
+            _targetChoicesGroup
+                .Query<Label>()
+                .ForEach(label =>
+                {
+                    // Skip the "None" option.
+                    if (label.text == "None")
+                    {
+                        return;
+                    }
+
+                    var checkMarkVisualElement = label.parent.Children().First();
+                    var probeColor = _automationViewModel
+                        .TargetInsertionProbeStates.First(state =>
+                            state.UUID[..8] == label.text[..8]
+                        )
+                        .Color;
+                    checkMarkVisualElement.style.backgroundColor = probeColor;
+                });
         }
 
 #if UNITY_EDITOR
@@ -71,11 +110,10 @@ namespace UI.Views
         {
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
                 "TargetableProbeStatesToTargetInsertionOptions",
-                (ref List<ProbeState> targetableProbeManagers) =>
-                    targetableProbeManagers
-                        .Select(probeState => $"{probeState.Name}: {probeState.APMLDV}")
+                (ref IEnumerable<ProbeState> targetableProbeStates) =>
+                    targetableProbeStates
+                        .Select(probeState => $"{probeState.UUID[..8]}: {probeState.APMLDV}")
                         .Prepend("None")
-                        .ToList()
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup<

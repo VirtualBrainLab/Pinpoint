@@ -45,7 +45,7 @@ namespace UI.ViewModels
         /// For insertions that are co-terminal and have not been selected yet. Does not include the "None" option.
         /// </summary>
         [ObservableProperty]
-        private List<ProbeState> _targetInsertionProbeStates = new();
+        private IEnumerable<ProbeState> _targetInsertionProbeStates;
 
         [ObservableProperty]
         private float _duraOffset;
@@ -148,7 +148,7 @@ namespace UI.ViewModels
             }
             else
             {
-                SelectedTargetInsertionProbeIndex = TargetInsertionProbeStates.IndexOf(
+                SelectedTargetInsertionProbeIndex = TargetInsertionProbeStates.ToList().IndexOf(
                     selectedTargetInsertionProbeState
                 );
             }
@@ -204,9 +204,10 @@ namespace UI.ViewModels
                     // Otherwise, subtract the None option and set the selected target insertion probe UUID.
                     else
                     {
-                        var selectedTargetInsertionProbeState = TargetInsertionProbeStates[
-                            SelectedTargetInsertionProbeIndex - 1
-                        ];
+                        var selectedTargetInsertionProbeState =
+                            TargetInsertionProbeStates.ElementAt(
+                                SelectedTargetInsertionProbeIndex - 1
+                            );
                         _storeService.Store.Dispatch(
                             SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_UUID,
                             selectedTargetInsertionProbeState.UUID
@@ -354,19 +355,21 @@ namespace UI.ViewModels
         private void StopInsertionDrive()
         {
             // State is updated externally by the ProbeService.
-            ProbeService.StopInsertionDriveActiveProbe().ContinueWith(task =>
-            {
-                // Do not proceed if the stop failed.
-                if (!task.Result)
+            ProbeService
+                .StopInsertionDriveActiveProbe()
+                .ContinueWith(task =>
                 {
-                    return;
-                }
+                    // Do not proceed if the stop failed.
+                    if (!task.Result)
+                    {
+                        return;
+                    }
 
-                // If the stop was successful, cancel the intermediate progress state.
-                _storeService.Store.Dispatch(
-                    SceneActions.CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS
-                );
-            });
+                    // If the stop was successful, cancel the intermediate progress state.
+                    _storeService.Store.Dispatch(
+                        SceneActions.CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS
+                    );
+                });
         }
 
         #endregion

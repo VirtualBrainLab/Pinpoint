@@ -51,12 +51,12 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <engine:Label text="Choose a Target" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-            <engine:DropdownField choices="None" index="0">
+            <engine:RadioButtonGroup choices="None" value="0" name="target__choices-group">
                 <Bindings>
                     <engine:DataBinding property="choices" data-source-path="TargetInsertionProbeStates" binding-mode="ToTarget" source-to-ui-converters="TargetableProbeStatesToTargetInsertionOptions" />
-                    <engine:DataBinding property="index" data-source-path="SelectedTargetInsertionProbeManagerIndex" binding-mode="TwoWay" />
+                    <engine:DataBinding property="value" data-source-path="SelectedTargetInsertionProbeIndex" binding-mode="TwoWay" />
                 </Bindings>
-            </engine:DropdownField>
+            </engine:RadioButtonGroup>
             <engine:Button text="Drive to Target Entry Coordinate" name="target__entry-drive-button">
                 <Bindings>
                     <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToDriveToTargetEntryCoordinateButtonVisibility" />
