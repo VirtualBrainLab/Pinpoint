@@ -96,7 +96,7 @@ namespace UI.ViewModels
         private void OnSceneStateChanged(SceneState state)
         {
             // Check if an active manipulator probe is selected.
-            IsAutomationEnabled = state.ActiveProbeState is { IsEphysLinkControlled: true };
+            IsAutomationEnabled = state.ActiveProbeState != null; //is { IsEphysLinkControlled: true };
 
             // Exit if not enabled.
             if (!IsAutomationEnabled)
@@ -339,20 +339,34 @@ namespace UI.ViewModels
         [ICommand]
         private void InsertionDrive()
         {
-            // Will 
+            // State is updated externally by the ProbeService.
             _probeService.InsertionDriveActiveProbe();
         }
 
         [ICommand]
         private void InsertionExit()
         {
+            // State is updated externally by the ProbeService.
             _ = _probeService.InsertionExitActiveProbe();
         }
 
         [ICommand]
         private void StopInsertionDrive()
         {
-            _ = ProbeService.StopInsertionDriveActiveProbe();
+            // State is updated externally by the ProbeService.
+            ProbeService.StopInsertionDriveActiveProbe().ContinueWith(task =>
+            {
+                // Do not proceed if the stop failed.
+                if (!task.Result)
+                {
+                    return;
+                }
+
+                // If the stop was successful, cancel the intermediate progress state.
+                _storeService.Store.Dispatch(
+                    SceneActions.CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS
+                );
+            });
         }
 
         #endregion

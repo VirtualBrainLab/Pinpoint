@@ -11,6 +11,7 @@ namespace Models.Scene
     {
         public List<ProbeState> Probes = new();
 
+        [NonSerialized]
         public string ActiveProbeUUID;
 
         // Helper to get the active probe state based on the ActiveProbeUUID.
