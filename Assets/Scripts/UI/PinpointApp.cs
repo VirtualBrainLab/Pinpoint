@@ -21,8 +21,7 @@ namespace UI
         public override void InitializeComponent()
         {
             base.InitializeComponent();
-            rootVisualElement.Add(services.GetRequiredService<MainView>());
-            rootVisualElement.pickingMode = PickingMode.Ignore;
+            rootVisualElement = PinpointAppBuilder.Instance.uiDocument.rootVisualElement;
         }
     }
 }

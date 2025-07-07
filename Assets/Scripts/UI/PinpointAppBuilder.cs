@@ -13,11 +13,6 @@ namespace UI
     public class PinpointAppBuilder : UIToolkitAppBuilder<PinpointApp>
     {
         /// <summary>
-        /// The main UI document asset for the application.
-        /// </summary>
-        public VisualTreeAsset MainUIDocument;
-
-        /// <summary>
         /// Gets the singleton instance of the <see cref="PinpointAppBuilder"/>.
         /// </summary>
         internal static PinpointAppBuilder Instance { get; private set; }
