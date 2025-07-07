@@ -51,6 +51,10 @@ namespace Services
                         .AddCase(
                             MainActions.TOGGLE_RIGHT_SIDE_PANEL,
                             MainReducers.ToggleRightSidePanelReducer
+                        )
+                        .AddCase(
+                            MainActions.SET_INPUT_FOCUSED,
+                            MainReducers.SetInputFocusedReducer
                         );
                 }
             );
