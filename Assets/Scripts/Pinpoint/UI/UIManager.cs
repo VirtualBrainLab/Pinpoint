@@ -1,6 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
+using Models;
+using Services;
 using TMPro;
+using UI;
+using Unity.AppUI.MVVM;
+using Unity.AppUI.Redux;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
@@ -11,15 +15,23 @@ public class UIManager : MonoBehaviour
 
     #region Components
 
-    [SerializeField] private List<TMP_InputField> _editorFocusableInputs;
-    
-    [SerializeField] private List<GameObject> _editorFocusableGOs;
+    [SerializeField]
+    private List<TMP_InputField> _editorFocusableInputs;
 
-    [SerializeField] private List<TMP_Text> _whiteUIText;
+    [SerializeField]
+    private List<GameObject> _editorFocusableGOs;
 
-    [SerializeField] private GameObject _ephysCopilotPanelGameObject;
-    [SerializeField] private GameObject _copilotDemoPanelGameObject;
-    [SerializeField] private GameObject _settingsPanel;
+    [SerializeField]
+    private List<TMP_Text> _whiteUIText;
+
+    [SerializeField]
+    private GameObject _ephysCopilotPanelGameObject;
+
+    [SerializeField]
+    private GameObject _copilotDemoPanelGameObject;
+
+    [SerializeField]
+    private GameObject _settingsPanel;
 
     #endregion
 
@@ -42,19 +54,17 @@ public class UIManager : MonoBehaviour
     /// <summary>
     /// Return whether any inputs are currently focused or if any of the gameobjects are currently active
     /// </summary>
-    public static bool InputsFocused
-    {
-        get {
-            return FocusableInputs.Any(x => x != null && x.isFocused) ||
-                   FocusableGOs.Any(x => x != null && x.activeSelf);
-        }
-    }
+    public static bool InputsFocused =>
+        PinpointApp
+            .Current.services.GetRequiredService<StoreService>()
+            .Store.GetState<MainState>(SliceNames.MAIN_SLICE)
+            .IsInputFocused;
 
     public void EnableEphysCopilotPanel(bool enable = true)
     {
         // Always set the panel to active once started using, but set the scale to zero if we're disabling it
         _ephysCopilotPanelGameObject.SetActive(true);
-        
+
         // Set the scale to zero if we're disabling it
         _ephysCopilotPanelGameObject.transform.localScale = enable ? Vector3.one : Vector3.zero;
     }

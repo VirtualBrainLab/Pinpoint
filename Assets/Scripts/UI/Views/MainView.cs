@@ -31,13 +31,15 @@ namespace UI.Views
         /// Sets up UI document, component references, and event bindings.
         /// </summary>
         /// <param name="mainViewModel">The view model to bind to.</param>
-        /// <param name="automationViewModel">Automation view model to pass to the view.</param>
+        /// <param name="automationViewModel">Automation view model to pass to the automation view.</param>
+        /// <param name="atlasViewModel">Atlas view model to pass to the atlas view</param>
         public MainView(MainViewModel mainViewModel, AutomationViewModel automationViewModel, AtlasViewModel atlasViewModel)
         {
             // Instantiate the UI document.
             var document = PinpointAppBuilder.Instance.MainUIDocument;
             document.CloneTree(this);
 
+            // Let user input to pass through to the 3D scene.
             pickingMode = PickingMode.Ignore;
 
             // Get view model and register property changes and bindings.
