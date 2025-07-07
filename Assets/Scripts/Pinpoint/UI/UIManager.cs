@@ -13,7 +13,9 @@ using UnityEngine.UIElements;
 public class UIManager : MonoBehaviour
 {
     #region Static
+
     public static UIManager Instance;
+
     #endregion
 
     #region Components
@@ -62,6 +64,8 @@ public class UIManager : MonoBehaviour
             is TextField
                 or FloatField
                 or IntegerField
+                or Vector3Field
+                or Vector4Field
         || FocusableGOs.Any(x => x != null && x.activeSelf);
 
     public void EnableEphysCopilotPanel(bool enable = true)
