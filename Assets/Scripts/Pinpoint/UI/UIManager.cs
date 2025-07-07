@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Models;
 using Services;
 using TMPro;
@@ -60,7 +61,8 @@ public class UIManager : MonoBehaviour
         PinpointApp.Current.services.GetRequiredService<MainView>().focusController.focusedElement
             is TextField
                 or FloatField
-                or IntegerField;
+                or IntegerField
+        || FocusableGOs.Any(x => x != null && x.activeSelf);
 
     public void EnableEphysCopilotPanel(bool enable = true)
     {
