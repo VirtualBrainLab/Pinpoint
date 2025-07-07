@@ -42,7 +42,7 @@ namespace UI.Views
         )
         {
             // Get root element.
-            Root = PinpointAppBuilder.Instance.uiDocument.rootVisualElement;
+            Root = PinpointApp.Current.rootVisualElement;
 
             // Get view model and register property changes and bindings.
             _viewModel = mainViewModel;
@@ -68,6 +68,7 @@ namespace UI.Views
             {
                 _leftSidePanel.AddToClassList("side-panel--close");
             }
+
             if (!_viewModel.IsRightSidePanelOpen)
             {
                 _rightSidePanel.AddToClassList("side-panel--close");

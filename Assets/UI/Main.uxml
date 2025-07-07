@@ -2,11 +2,11 @@
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
     <Unity.AppUI.UI.Panel picking-mode="Ignore" style="background-color: rgba(29, 29, 29, 0);">
-        <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+        <ui:VisualElement picking-mode="Ignore" style="flex-grow: 1; flex-direction: row;">
             <ui:VisualElement class="side-panel">
                 <Unity.AppUI.UI.Heading text="Left side panel" />
             </ui:VisualElement>
-            <ui:VisualElement style="flex-grow: 1;" />
+            <ui:VisualElement picking-mode="Ignore" style="flex-grow: 1;" />
             <ui:VisualElement class="side-panel" />
         </ui:VisualElement>
     </Unity.AppUI.UI.Panel>
