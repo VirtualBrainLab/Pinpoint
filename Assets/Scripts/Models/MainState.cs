@@ -12,8 +12,6 @@ namespace Models
         public bool IsLeftSidePanelOpen = true;
 
         public bool IsRightSidePanelOpen = true;
-
-        public bool IsInputFocused;
     }
 
     public enum MainMode

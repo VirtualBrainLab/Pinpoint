@@ -40,11 +40,6 @@ namespace Models
         {
             return state with { IsRightSidePanelOpen = !state.IsRightSidePanelOpen };
         }
-        
-        public static MainState SetInputFocusedReducer(MainState state, IAction<bool> action)
-        {
-            return state with { IsInputFocused = action.payload };
-        }
     }
 
     public static class MainActions
@@ -55,7 +50,5 @@ namespace Models
             $"{SliceNames.MAIN_SLICE}/ToggleLeftSidePanel";
         public static readonly ActionCreator TOGGLE_RIGHT_SIDE_PANEL =
             $"{SliceNames.MAIN_SLICE}/ToggleRightSidePanel";
-        public static readonly ActionCreator<bool> SET_INPUT_FOCUSED =
-            $"{SliceNames.MAIN_SLICE}/SetInputFocused";
     }
 }

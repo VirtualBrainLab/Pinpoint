@@ -3,9 +3,11 @@ using Models;
 using Services;
 using TMPro;
 using UI;
+using UI.Views;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class UIManager : MonoBehaviour
 {
@@ -55,10 +57,10 @@ public class UIManager : MonoBehaviour
     /// Return whether any inputs are currently focused or if any of the gameobjects are currently active
     /// </summary>
     public static bool InputsFocused =>
-        PinpointApp
-            .Current.services.GetRequiredService<StoreService>()
-            .Store.GetState<MainState>(SliceNames.MAIN_SLICE)
-            .IsInputFocused;
+        PinpointApp.Current.services.GetRequiredService<MainView>().focusController.focusedElement
+            is TextField
+                or FloatField
+                or IntegerField;
 
     public void EnableEphysCopilotPanel(bool enable = true)
     {

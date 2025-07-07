@@ -40,12 +40,12 @@ namespace UI
             builder.services.AddSingleton<AtlasService>();
 
             // ViewModels.
-            builder.services.AddTransient<MainViewModel>();
-            builder.services.AddTransient<AutomationViewModel>();
-            builder.services.AddTransient<AtlasViewModel>();
+            builder.services.AddSingleton<MainViewModel>();
+            builder.services.AddSingleton<AutomationViewModel>();
+            builder.services.AddSingleton<AtlasViewModel>();
 
             // Views.
-            builder.services.AddTransient<MainView>();
+            builder.services.AddSingleton<MainView>();
         }
     }
 }
