@@ -33,7 +33,11 @@ namespace UI.Views
         /// <param name="mainViewModel">The view model to bind to.</param>
         /// <param name="automationViewModel">Automation view model to pass to the automation view.</param>
         /// <param name="atlasViewModel">Atlas view model to pass to the atlas view</param>
-        public MainView(MainViewModel mainViewModel, AutomationViewModel automationViewModel, AtlasViewModel atlasViewModel)
+        public MainView(
+            MainViewModel mainViewModel,
+            AutomationViewModel automationViewModel,
+            AtlasViewModel atlasViewModel
+        )
         {
             // Instantiate the UI document.
             var document = PinpointAppBuilder.Instance.MainUIDocument;
@@ -119,7 +123,7 @@ namespace UI.Views
             >(
                 "MainModeToInspectorPanelDisplayStyle",
                 (ref MainMode mode) =>
-                    mode < MainMode.Automation ? DisplayStyle.Flex : DisplayStyle.None
+                    mode == MainMode.Planning ? DisplayStyle.Flex : DisplayStyle.None
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
@@ -128,7 +132,7 @@ namespace UI.Views
             >(
                 "MainModeToAutomationPanelDisplayStyle",
                 (ref MainMode mode) =>
-                    mode > MainMode.Visualization ? DisplayStyle.Flex : DisplayStyle.None
+                    mode == MainMode.Automation ? DisplayStyle.Flex : DisplayStyle.None
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
@@ -137,7 +141,7 @@ namespace UI.Views
             >(
                 "MainModeToManualControlPanelDisplayStyle",
                 (ref MainMode mode) =>
-                    mode > MainMode.Planning ? DisplayStyle.Flex : DisplayStyle.None
+                    mode == MainMode.Automation ? DisplayStyle.Flex : DisplayStyle.None
             );
         }
     }

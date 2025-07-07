@@ -17,7 +17,6 @@ namespace Models
     public enum MainMode
     {
         Planning,
-        Visualization,
         Automation,
     }
 }
