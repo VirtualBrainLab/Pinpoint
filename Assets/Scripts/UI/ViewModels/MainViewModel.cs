@@ -31,6 +31,9 @@ namespace UI.ViewModels
         private bool _isRightSidePanelOpen;
 
         [ObservableProperty]
+        private int _leftSidePanelTabIndex;
+
+        [ObservableProperty]
         private Color _activeProbeColor;
 
         [ObservableProperty]
@@ -75,6 +78,7 @@ namespace UI.ViewModels
             MainMode = state.MainMode;
             IsLeftSidePanelOpen = state.IsLeftSidePanelOpen;
             IsRightSidePanelOpen = state.IsRightSidePanelOpen;
+            LeftSidePanelTabIndex = state.LeftSidePanelTabIndex;
         }
 
         private void OnSceneStateChanged(SceneState state)
@@ -106,6 +110,7 @@ namespace UI.ViewModels
         [ICommand]
         private void ToggleLeftSidePanel()
         {
+            Debug.Log("Toggling left side panel");
             _storeService.Store.Dispatch(MainActions.TOGGLE_LEFT_SIDE_PANEL);
         }
 
@@ -113,6 +118,12 @@ namespace UI.ViewModels
         private void ToggleRightSidePanel()
         {
             _storeService.Store.Dispatch(MainActions.TOGGLE_RIGHT_SIDE_PANEL);
+        }
+
+        [ICommand]
+        private void SetLeftSidePanelTabIndex(int index)
+        {
+            _storeService.Store.Dispatch(MainActions.SET_LEFT_SIDE_PANEL_TAB_INDEX, index);
         }
 
         #endregion

@@ -1,8 +1,0 @@
-:root {
-    /*Metrics*/
-    --unity-metrics-default-font_normal_size: 14px;
-    
-    /*Colors*/
-    --unity-colors-default-background: #A5A5A5;
-    --unity-colors-window-background: #C8C8C8;
-}

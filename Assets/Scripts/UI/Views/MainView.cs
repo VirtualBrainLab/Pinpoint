@@ -2,9 +2,11 @@ using System.ComponentModel;
 using Models;
 using UI.Utils;
 using UI.ViewModels;
+using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Button = Unity.AppUI.UI.Button;
 
 namespace UI.Views
 {
@@ -12,15 +14,19 @@ namespace UI.Views
     /// Represents the main view of the Pinpoint application UI.
     /// Binds to the <see cref="MainViewModel"/> for property changes.
     /// </summary>
-    public class MainView : VisualElement
+    public class MainView
     {
         #region Component References
+
+        public VisualElement Root { get; }
 
         private readonly VisualElement _leftSidePanel;
         private readonly VisualElement _rightSidePanel;
 
-        private readonly Button _sidePanelLeftToggle;
-        private readonly Button _sidePanelRightToggle;
+        private readonly Button _leftSidePanelToggle;
+        private readonly Button _rightSidePanelToggle;
+
+        private readonly Tabs _leftSidePanelTabs;
 
         #endregion
 
@@ -39,37 +45,40 @@ namespace UI.Views
             AtlasViewModel atlasViewModel
         )
         {
-            // Instantiate the UI document.
-            var document = PinpointAppBuilder.Instance.MainUIDocument;
-            document.CloneTree(this);
-
-            // Let user input to pass through to the 3D scene.
-            pickingMode = PickingMode.Ignore;
+            // Get root element.
+            Root = PinpointApp.Current.rootVisualElement;
 
             // Get view model and register property changes and bindings.
             _viewModel = mainViewModel;
             _viewModel.PropertyChanged += OnPropertyChanged;
-            dataSource = _viewModel;
+            Root.dataSource = _viewModel;
 
             // Register component references.
-            _leftSidePanel = this.Q<VisualElement>("left-side-panel");
-            _rightSidePanel = this.Q<VisualElement>("right-side-panel");
-            _sidePanelLeftToggle = _leftSidePanel.Q<Button>("left-side-panel__toggle");
-            _sidePanelRightToggle = _rightSidePanel.Q<Button>("right-side-panel__toggle");
+            _leftSidePanel = Root.Q<VisualElement>("left-side-panel");
+            _rightSidePanel = Root.Q<VisualElement>("right-side-panel");
+            _leftSidePanelToggle = _leftSidePanel.Q<Button>("left-side-panel__toggle");
+            _rightSidePanelToggle = _rightSidePanel.Q<Button>("right-side-panel__toggle");
+            _leftSidePanelTabs = _leftSidePanel.Q<Tabs>("left-side-panel__tabs");
 
             // Initialize subviews.
-            _ = new AutomationView(this.Q<VisualElement>("automation-view"), automationViewModel);
-            _ = new AtlasView(this.Q<VisualElement>("atlas-view"), atlasViewModel);
+            _ = new AutomationView(Root.Q<VisualElement>("automation-view"), automationViewModel);
+            _ = new AtlasView(Root.Q<VisualElement>("atlas-view"), atlasViewModel);
 
             // Register callbacks.
-            _sidePanelLeftToggle.clicked += _viewModel.ToggleLeftSidePanelCommand.Execute;
-            _sidePanelRightToggle.clicked += _viewModel.ToggleRightSidePanelCommand.Execute;
+            _leftSidePanelToggle.clickable.clicked += _viewModel.ToggleLeftSidePanelCommand.Execute;
+            _rightSidePanelToggle.clickable.clicked += _viewModel
+                .ToggleRightSidePanelCommand
+                .Execute;
+            _leftSidePanelTabs.RegisterValueChangedCallback(evt =>
+                _viewModel.SetLeftSidePanelTabIndexCommand.Execute(evt.newValue)
+            );
 
             // Initialize view from view model state.
             if (!_viewModel.IsLeftSidePanelOpen)
             {
                 _leftSidePanel.AddToClassList("side-panel--close");
             }
+
             if (!_viewModel.IsRightSidePanelOpen)
             {
                 _rightSidePanel.AddToClassList("side-panel--close");
@@ -102,13 +111,8 @@ namespace UI.Views
         public static void RegisterMainViewConverters()
         {
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "BooleanToLeftSidePanelToggleText",
-                (ref bool isVisible) => isVisible ? "\u25C0" : "\u25B6"
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "BooleanToRightSidePanelToggleText",
-                (ref bool isVisible) => isVisible ? "\u25B6" : "\u25C0"
+                "BooleanToSidePanelToggleIcon",
+                (ref bool isVisible) => isVisible ? "minus" : "plus"
             );
 
             DataTypeConverters.RegisterBidirectionalConverterGroup(

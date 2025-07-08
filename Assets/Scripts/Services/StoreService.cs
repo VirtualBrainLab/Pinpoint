@@ -51,6 +51,10 @@ namespace Services
                         .AddCase(
                             MainActions.TOGGLE_RIGHT_SIDE_PANEL,
                             MainReducers.ToggleRightSidePanelReducer
+                        )
+                        .AddCase(
+                            MainActions.SET_LEFT_SIDE_PANEL_TAB_INDEX,
+                            MainReducers.SetLeftSidePanelTabIndex
                         );
                 }
             );
