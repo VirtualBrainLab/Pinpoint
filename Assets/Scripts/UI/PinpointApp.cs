@@ -1,6 +1,6 @@
+using System.Linq;
 using UI.Views;
 using Unity.AppUI.MVVM;
-using UnityEngine.UIElements;
 
 namespace UI
 {
@@ -8,7 +8,7 @@ namespace UI
     /// Represents the main application class for the Pinpoint UI.
     /// Inherits from <see cref="App"/> and is responsible for initializing the main view.
     /// </summary>
-    public class PinpointApp: App
+    public class PinpointApp : App
     {
         /// <summary>
         /// Gets the current instance of <see cref="PinpointApp"/>.
@@ -21,8 +21,14 @@ namespace UI
         public override void InitializeComponent()
         {
             base.InitializeComponent();
-            rootVisualElement.Add(services.GetRequiredService<MainView>());
-            rootVisualElement.pickingMode = PickingMode.Ignore;
+
+            // Set the root to the panel in the UI document to get the correct hierarchy.
+            rootVisualElement = PinpointAppBuilder
+                .Instance.uiDocument.rootVisualElement.Children()
+                .First();
+
+            // Instantiate the main view.
+            services.GetRequiredService<MainView>();
         }
     }
 }
