@@ -40,6 +40,11 @@ namespace Models
         {
             return state with { IsRightSidePanelOpen = !state.IsRightSidePanelOpen };
         }
+
+        public static MainState SetLeftSidePanelTabIndex(MainState state, IAction<int> action)
+        {
+            return state with { LeftSidePanelTabIndex = action.payload };
+        }
     }
 
     public static class MainActions
@@ -50,5 +55,7 @@ namespace Models
             $"{SliceNames.MAIN_SLICE}/ToggleLeftSidePanel";
         public static readonly ActionCreator TOGGLE_RIGHT_SIDE_PANEL =
             $"{SliceNames.MAIN_SLICE}/ToggleRightSidePanel";
+        public static readonly ActionCreator<int> SET_LEFT_SIDE_PANEL_TAB_INDEX =
+            $"{SliceNames.MAIN_SLICE}/SetLeftSidePanelTabIndex";
     }
 }

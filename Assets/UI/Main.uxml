@@ -3,10 +3,9 @@
     <ui:Template name="InspectorStack" src="project://database/Assets/UI/Views/InspectorStack.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#InspectorStack" />
     <ui:Template name="AutomationStack" src="project://database/Assets/UI/Views/Automation.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#Automation" />
     <ui:Template name="ManualControlStack" src="project://database/Assets/UI/Views/ManualControlPanel.uxml?fileID=9197481963319205126&amp;guid=ed795aeb41983854f9804fe26f1a7f44&amp;type=3#ManualControlPanel" />
-    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
     <Unity.AppUI.UI.Panel picking-mode="Ignore" style="background-color: rgba(29, 29, 29, 0);">
-        <ui:VisualElement picking-mode="Ignore" style="flex-grow: 1; flex-direction: row;">
+        <ui:VisualElement picking-mode="Ignore" data-source-type="UI.ViewModels.MainViewModel, Assembly-CSharp" style="flex-grow: 1; flex-direction: row;">
             <ui:VisualElement name="left-side-panel" class="side-panel">
                 <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
                     <ui:VisualElement class="side-panel__item--open" style="flex-direction: row; flex-grow: 1;">
@@ -22,28 +21,48 @@
                             <ui:DataBinding property="style.display" data-source-path="IsLeftSidePanelOpen" binding-mode="ToTarget" />
                         </Bindings>
                     </ui:VisualElement>
-                    <Unity.AppUI.UI.Button leading-icon="minus" name="left-side-panel__toggle" />
+                    <Unity.AppUI.UI.Button leading-icon="minus" name="left-side-panel__toggle">
+                        <Bindings>
+                            <ui:DataBinding property="leadingIcon" data-source-path="IsLeftSidePanelOpen" binding-mode="ToTarget" source-to-ui-converters="BooleanToSidePanelToggleIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
                 </ui:VisualElement>
-                <Unity.AppUI.UI.Tabs>
-                    <Unity.AppUI.UI.TabItem label="Scene" />
-                    <Unity.AppUI.UI.TabItem label="Atlas" />
-                    <Unity.AppUI.UI.TabItem label="Channel Maps &amp; Slices" />
-                </Unity.AppUI.UI.Tabs>
-                <Unity.AppUI.UI.SwipeView style="flex-grow: 1;">
-                    <Unity.AppUI.UI.SwipeViewItem>
-                        <Unity.AppUI.UI.Heading text="Scene" />
-                    </Unity.AppUI.UI.SwipeViewItem>
-                    <Unity.AppUI.UI.SwipeViewItem>
-                        <ui:Instance template="Atlas" />
-                    </Unity.AppUI.UI.SwipeViewItem>
-                    <Unity.AppUI.UI.SwipeViewItem />
-                </Unity.AppUI.UI.SwipeView>
+                <ui:VisualElement style="flex-grow: 1;">
+                    <Unity.AppUI.UI.Tabs value="0" name="left-side-panel__tabs">
+                        <Unity.AppUI.UI.TabItem label="Scene" />
+                        <Unity.AppUI.UI.TabItem label="Atlas" />
+                        <Unity.AppUI.UI.TabItem label="Channel Maps &amp; Slices" />
+                    </Unity.AppUI.UI.Tabs>
+                    <Unity.AppUI.UI.SwipeView swipeable="false" style="flex-grow: 1;">
+                        <Unity.AppUI.UI.SwipeViewItem>
+                            <Unity.AppUI.UI.Heading text="Scene" />
+                        </Unity.AppUI.UI.SwipeViewItem>
+                        <Unity.AppUI.UI.SwipeViewItem>
+                            <ui:Instance template="Atlas" name="atlas-view" />
+                        </Unity.AppUI.UI.SwipeViewItem>
+                        <Unity.AppUI.UI.SwipeViewItem />
+                        <Bindings>
+                            <ui:DataBinding property="value" data-source-path="LeftSidePanelTabIndex" binding-mode="ToTarget" />
+                        </Bindings>
+                    </Unity.AppUI.UI.SwipeView>
+                    <Bindings>
+                        <ui:DataBinding property="style.display" data-source-path="IsLeftSidePanelOpen" binding-mode="ToTarget" />
+                    </Bindings>
+                </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement picking-mode="Ignore" style="flex-grow: 1;" />
             <ui:VisualElement name="right-side-panel" class="side-panel">
                 <ui:VisualElement style="flex-direction: row;">
-                    <Unity.AppUI.UI.Button leading-icon="minus" name="right-side-panel__toggle" />
-                    <Unity.AppUI.UI.Heading text="Inspector" />
+                    <Unity.AppUI.UI.Button leading-icon="minus" name="right-side-panel__toggle">
+                        <Bindings>
+                            <ui:DataBinding property="leadingIcon" data-source-path="IsRightSidePanelOpen" binding-mode="ToTarget" source-to-ui-converters="BooleanToSidePanelToggleIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Heading text="Inspector">
+                        <Bindings>
+                            <ui:DataBinding property="style.display" data-source-path="IsRightSidePanelOpen" binding-mode="ToTarget" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Heading>
                 </ui:VisualElement>
                 <ui:VisualElement template="ProbeLabel" style="flex-direction: row; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
                     <ui:VisualElement style="flex-grow: 0; width: 40px; height: 40px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); background-color: rgb(52, 172, 224); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 10px;">
