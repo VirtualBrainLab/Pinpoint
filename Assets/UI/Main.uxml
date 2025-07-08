@@ -1,13 +1,82 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="Atlas" src="project://database/Assets/UI/Views/Atlas.uxml?fileID=9197481963319205126&amp;guid=9c87ec2a39db64e41ac639d9d458023a&amp;type=3#Atlas" />
+    <ui:Template name="InspectorStack" src="project://database/Assets/UI/Views/InspectorStack.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#InspectorStack" />
+    <ui:Template name="AutomationStack" src="project://database/Assets/UI/Views/Automation.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#Automation" />
+    <ui:Template name="ManualControlStack" src="project://database/Assets/UI/Views/ManualControlPanel.uxml?fileID=9197481963319205126&amp;guid=ed795aeb41983854f9804fe26f1a7f44&amp;type=3#ManualControlPanel" />
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
     <Unity.AppUI.UI.Panel picking-mode="Ignore" style="background-color: rgba(29, 29, 29, 0);">
         <ui:VisualElement picking-mode="Ignore" style="flex-grow: 1; flex-direction: row;">
-            <ui:VisualElement class="side-panel">
-                <Unity.AppUI.UI.Heading text="Left side panel" />
+            <ui:VisualElement name="left-side-panel" class="side-panel">
+                <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
+                    <ui:VisualElement class="side-panel__item--open" style="flex-direction: row; flex-grow: 1;">
+                        <Unity.AppUI.UI.MenuTrigger>
+                            <Unity.AppUI.UI.ActionButton label="File" />
+                            <Unity.AppUI.UI.Menu>
+                                <Unity.AppUI.UI.MenuItem label="Save" />
+                                <Unity.AppUI.UI.MenuItem label="Load" />
+                            </Unity.AppUI.UI.Menu>
+                        </Unity.AppUI.UI.MenuTrigger>
+                        <Unity.AppUI.UI.Toggle label="Automation" />
+                        <Bindings>
+                            <ui:DataBinding property="style.display" data-source-path="IsLeftSidePanelOpen" binding-mode="ToTarget" />
+                        </Bindings>
+                    </ui:VisualElement>
+                    <Unity.AppUI.UI.Button leading-icon="minus" name="left-side-panel__toggle" />
+                </ui:VisualElement>
+                <Unity.AppUI.UI.Tabs>
+                    <Unity.AppUI.UI.TabItem label="Scene" />
+                    <Unity.AppUI.UI.TabItem label="Atlas" />
+                    <Unity.AppUI.UI.TabItem label="Channel Maps &amp; Slices" />
+                </Unity.AppUI.UI.Tabs>
+                <Unity.AppUI.UI.SwipeView style="flex-grow: 1;">
+                    <Unity.AppUI.UI.SwipeViewItem>
+                        <Unity.AppUI.UI.Heading text="Scene" />
+                    </Unity.AppUI.UI.SwipeViewItem>
+                    <Unity.AppUI.UI.SwipeViewItem>
+                        <ui:Instance template="Atlas" />
+                    </Unity.AppUI.UI.SwipeViewItem>
+                    <Unity.AppUI.UI.SwipeViewItem />
+                </Unity.AppUI.UI.SwipeView>
             </ui:VisualElement>
             <ui:VisualElement picking-mode="Ignore" style="flex-grow: 1;" />
-            <ui:VisualElement class="side-panel" />
+            <ui:VisualElement name="right-side-panel" class="side-panel">
+                <ui:VisualElement style="flex-direction: row;">
+                    <Unity.AppUI.UI.Button leading-icon="minus" name="right-side-panel__toggle" />
+                    <Unity.AppUI.UI.Heading text="Inspector" />
+                </ui:VisualElement>
+                <ui:VisualElement template="ProbeLabel" style="flex-direction: row; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                    <ui:VisualElement style="flex-grow: 0; width: 40px; height: 40px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); background-color: rgb(52, 172, 224); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 10px;">
+                        <Bindings>
+                            <ui:DataBinding property="style.backgroundColor" data-source-path="ActiveProbeColor" binding-mode="ToTarget" />
+                        </Bindings>
+                    </ui:VisualElement>
+                    <Unity.AppUI.UI.Heading size="S" text="No Probe Selected" />
+                    <Bindings>
+                        <ui:DataBinding property="style.display" data-source-path="IsRightSidePanelOpen" binding-mode="ToTarget" />
+                    </Bindings>
+                </ui:VisualElement>
+                <ui:ScrollView style="flex-grow: 1;">
+                    <ui:Instance template="InspectorStack" name="inspector-stack-panel">
+                        <Bindings>
+                            <ui:DataBinding property="style.display" data-source-path="MainMode" binding-mode="ToTarget" source-to-ui-converters="MainModeToInspectorPanelDisplayStyle" />
+                        </Bindings>
+                    </ui:Instance>
+                    <ui:Instance template="AutomationStack" name="automation-view">
+                        <Bindings>
+                            <ui:DataBinding property="style.display" data-source-path="MainMode" binding-mode="ToTarget" source-to-ui-converters="MainModeToAutomationPanelDisplayStyle" />
+                        </Bindings>
+                    </ui:Instance>
+                    <ui:Instance template="ManualControlStack" name="manual-control-panel">
+                        <Bindings>
+                            <ui:DataBinding property="style.display" data-source-path="MainMode" binding-mode="ToTarget" source-to-ui-converters="MainModeToManualControlPanelDisplayStyle" />
+                        </Bindings>
+                    </ui:Instance>
+                    <Bindings>
+                        <ui:DataBinding property="style.display" data-source-path="IsRightSidePanelOpen" binding-mode="ToTarget" />
+                    </Bindings>
+                </ui:ScrollView>
+            </ui:VisualElement>
         </ui:VisualElement>
     </Unity.AppUI.UI.Panel>
 </ui:UXML>

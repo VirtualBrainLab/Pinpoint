@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1;">
+        <Unity.AppUI.UI.SearchBar tooltip="Search for a brain area to highlight" />
+        <ui:TreeView name="atlas-tree" />
+    </ui:VisualElement>
+</ui:UXML>
