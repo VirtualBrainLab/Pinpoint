@@ -38,10 +38,12 @@ namespace UI.Views
         /// </summary>
         /// <param name="mainViewModel">The view model to bind to.</param>
         /// <param name="automationViewModel">Automation view model to pass to the automation view.</param>
-        /// <param name="atlasViewModel">Atlas view model to pass to the atlas view</param>
+        /// <param name="ephysLinkViewModel">Ephys Link view model to pass to the automation view.</param>
+        /// <param name="atlasViewModel">Atlas view model to pass to the atlas view.</param>
         public MainView(
             MainViewModel mainViewModel,
             AutomationViewModel automationViewModel,
+            EphysLinkViewModel ephysLinkViewModel,
             AtlasViewModel atlasViewModel
         )
         {
@@ -61,7 +63,12 @@ namespace UI.Views
             _leftSidePanelTabs = _leftSidePanel.Q<Tabs>("left-side-panel__tabs");
 
             // Initialize subviews.
-            _ = new AutomationView(Root.Q<VisualElement>("automation-view"), automationViewModel);
+            // _ = new AutomationView(
+            //     Root.Q<VisualElement>("automation-view"),
+            //     // automationViewModel,
+            //     ephysLinkViewModel
+            // );
+            _ = new EphysLinkView(Root.Q<VisualElement>("ephys-link-view"), ephysLinkViewModel);
             _ = new AtlasView(Root.Q<VisualElement>("atlas-view"), atlasViewModel);
 
             // Register callbacks.

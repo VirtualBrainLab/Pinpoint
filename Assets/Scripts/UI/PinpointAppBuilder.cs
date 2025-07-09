@@ -38,6 +38,7 @@ namespace UI
             builder.services.AddSingleton<MainViewModel>();
             builder.services.AddSingleton<AutomationViewModel>();
             builder.services.AddSingleton<AtlasViewModel>();
+            builder.services.AddSingleton<EphysLinkViewModel>();
 
             // Views.
             builder.services.AddSingleton<MainView>();

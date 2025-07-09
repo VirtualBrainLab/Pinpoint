@@ -1,27 +1,29 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
-    <ui:VisualElement class="inspector-panel" style="flex-grow: 1;">
+    <ui:VisualElement data-source-type="UI.ViewModels.EphysLinkViewModel, Assembly-CSharp" class="inspector-panel" style="flex-grow: 1;">
         <ui:VisualElement>
             <Unity.AppUI.UI.Heading text="Select Platform" size="S" />
-            <Unity.AppUI.UI.RadioGroup value="0">
-                <Unity.AppUI.UI.Radio key="0" label="Sensapex uMp" value="true" />
-                <Unity.AppUI.UI.Radio key="1" label="New Scale Pathfinder MPM" />
-                <Unity.AppUI.UI.Radio key="2" label="Local Server (Custom)" />
-            </Unity.AppUI.UI.RadioGroup>
-            <Unity.AppUI.UI.Divider />
-        </ui:VisualElement>
-        <ui:VisualElement>
-            <Unity.AppUI.UI.Heading text="Local Server Connection" size="S" />
-            <Unity.AppUI.UI.TextField placeholder="Server IP Address..." tooltip="Enter the server&apos;s IP address" value="localhost" />
-            <Unity.AppUI.UI.IntField low-value="0" high-value="49151" value="3000" tooltip="Enter the server&apos;s TCP/IP port" />
+            <Unity.AppUI.UI.RadioGroup value="Sensapex uMp" />
             <Unity.AppUI.UI.Divider />
         </ui:VisualElement>
         <ui:VisualElement>
             <Unity.AppUI.UI.Heading text="Pathfinder MPM HTTP Server Connection" size="S" />
             <Unity.AppUI.UI.IntField low-value="0" high-value="49151" value="8080" tooltip="Enter the server&apos;s TCP/IP port" />
             <Unity.AppUI.UI.Divider />
+            <Bindings>
+                <ui:DataBinding property="style.display" data-source-path="SelectedPlatformType" binding-mode="ToTarget" source-to-ui-converters="PlatformTypeToPathfinderMPMHTTPServerConnectionVisibility" />
+            </Bindings>
         </ui:VisualElement>
-        <Unity.AppUI.UI.Button title="Connect" />
-        <Unity.AppUI.UI.Button title="Disconnect" />
+        <ui:VisualElement>
+            <Unity.AppUI.UI.Heading text="Custom Server Connection" size="S" />
+            <Unity.AppUI.UI.TextField placeholder="Server IP Address..." tooltip="Enter the server&apos;s IP address" value="localhost" />
+            <Unity.AppUI.UI.IntField low-value="0" high-value="49151" value="3000" tooltip="Enter the server&apos;s TCP/IP port" />
+            <Unity.AppUI.UI.Divider />
+            <Bindings>
+                <ui:DataBinding property="style.display" data-source-path="SelectedPlatformType" binding-mode="ToTarget" source-to-ui-converters="PlatformTypeToCustomServerConnectionVisibility" />
+            </Bindings>
+        </ui:VisualElement>
+        <Unity.AppUI.UI.Button title="Connect" name="ephys-link__connect-button" />
+        <Unity.AppUI.UI.Button title="Disconnect" name="ephys-link__disconnect-button" />
     </ui:VisualElement>
 </ui:UXML>
