@@ -115,37 +115,10 @@ namespace UI.Views
                 (ref bool isVisible) => isVisible ? "minus" : "plus"
             );
 
-            DataTypeConverters.RegisterBidirectionalConverterGroup(
-                "MainModeToInt",
-                (ref MainMode mode) => (int)mode,
-                (ref int modeIndex) => (MainMode)modeIndex
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToInspectorPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode == MainMode.Planning ? DisplayStyle.Flex : DisplayStyle.None
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToAutomationPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode == MainMode.Automation ? DisplayStyle.Flex : DisplayStyle.None
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToManualControlPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode == MainMode.Automation ? DisplayStyle.Flex : DisplayStyle.None
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<bool, StyleEnum<DisplayStyle>>(
+                "BooleanToInspectorVisibility",
+                (ref bool isAutomationActive) =>
+                    isAutomationActive ? DisplayStyle.None : DisplayStyle.Flex
             );
         }
     }

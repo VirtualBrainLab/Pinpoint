@@ -1,5 +1,5 @@
 .inspector-panel {
     background-color: var(--appui-backgrounds-200);
-    padding: var(--unity-metrics-default-font_normal_size);
-    margin-bottom: var(--unity-metrics-default-font_normal_size);
+    padding: var(--appui-spacing-100);
+    margin-bottom: var(--appui-alias-control-gap-md);
 }

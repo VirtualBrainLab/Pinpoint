@@ -43,7 +43,10 @@ namespace Services
                 builder =>
                 {
                     builder
-                        .AddCase(MainActions.SET_MODE, MainReducers.SetModeReducer)
+                        .AddCase(
+                            MainActions.SET_IS_AUTOMATION_MODE_ACTIVE,
+                            MainReducers.SetIsAutomationModeActiveReducer
+                        )
                         .AddCase(
                             MainActions.TOGGLE_LEFT_SIDE_PANEL,
                             MainReducers.ToggleLeftSidePanelReducer

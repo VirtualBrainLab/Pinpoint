@@ -8,15 +8,9 @@ namespace Models
     /// </summary>
     public static class MainReducers
     {
-        /// <summary>
-        /// Sets the mode of the application.
-        /// </summary>
-        /// <param name="state">The current main state.</param>
-        /// <param name="action">The action containing the new mode as an integer payload.</param>
-        /// <returns>A new <see cref="MainState"/> with the updated mode.</returns>
-        public static MainState SetModeReducer(MainState state, IAction<MainMode> action)
+        public static MainState SetIsAutomationModeActiveReducer(MainState state, IAction<bool> action)
         {
-            return state with { MainMode = action.payload };
+            return state with { IsAutomationModeActive = action.payload };
         }
 
         /// <summary>
@@ -49,8 +43,8 @@ namespace Models
 
     public static class MainActions
     {
-        public static readonly ActionCreator<MainMode> SET_MODE =
-            $"{SliceNames.MAIN_SLICE}/SetMode";
+        public static readonly ActionCreator<bool> SET_IS_AUTOMATION_MODE_ACTIVE =
+            $"{SliceNames.MAIN_SLICE}/SetIsAutomationModeActive";
         public static readonly ActionCreator TOGGLE_LEFT_SIDE_PANEL =
             $"{SliceNames.MAIN_SLICE}/ToggleLeftSidePanel";
         public static readonly ActionCreator TOGGLE_RIGHT_SIDE_PANEL =
