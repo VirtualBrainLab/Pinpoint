@@ -12,11 +12,53 @@ namespace Models.Automation
         {
             return state with { SelectedPlatformType = action.payload };
         }
+
+        public static EphysLinkState SetNewScalePathfinderMpmPortReducer(
+            EphysLinkState state,
+            IAction<int> action
+        )
+        {
+            return state with { NewScalePathfinderMpmPort = action.payload };
+        }
+
+        public static EphysLinkState SetCustomServerAddressReducer(
+            EphysLinkState state,
+            IAction<string> action
+        )
+        {
+            return state with { CustomServerAddress = action.payload };
+        }
+
+        public static EphysLinkState SetCustomServerPortReducer(
+            EphysLinkState state,
+            IAction<int> action
+        )
+        {
+            return state with { CustomServerPort = action.payload };
+        }
+
+        public static EphysLinkState SetIsConnectedReducer(
+            EphysLinkState state,
+            IAction<bool> action
+        )
+        {
+            return state with { IsConnected = action.payload };
+        }
     }
 
     public static class EphysLinkActions
     {
         public static readonly ActionCreator<PlatformType> SET_SELECTED_PLATFORM_TYPE =
             $"{SliceNames.EPHYS_LINK_SLICE}/SetSelectedPlatformType";
+
+        public static readonly ActionCreator<int> SET_NEW_SCALE_PATHFINDER_MPM_PORT =
+            $"{SliceNames.EPHYS_LINK_SLICE}/SetNewScalePathfinderMpmPort";
+
+        public static readonly ActionCreator<string> SET_CUSTOM_SERVER_ADDRESS =
+            $"{SliceNames.EPHYS_LINK_SLICE}/SetCustomServerAddress";
+        public static readonly ActionCreator<int> SET_CUSTOM_SERVER_PORT =
+            $"{SliceNames.EPHYS_LINK_SLICE}/SetCustomServerPort";
+        public static readonly ActionCreator<bool> SET_IS_CONNECTED =
+            $"{SliceNames.EPHYS_LINK_SLICE}/SetIsConnected";
     }
 }

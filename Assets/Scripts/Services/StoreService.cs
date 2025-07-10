@@ -75,6 +75,22 @@ namespace Services
                         EphysLinkActions.SET_SELECTED_PLATFORM_TYPE,
                         EphysLinkReducers.SetSelectedPlatformTypeReducer
                     );
+                    builder.AddCase(
+                        EphysLinkActions.SET_NEW_SCALE_PATHFINDER_MPM_PORT,
+                        EphysLinkReducers.SetNewScalePathfinderMpmPortReducer
+                    );
+                    builder.AddCase(
+                        EphysLinkActions.SET_CUSTOM_SERVER_ADDRESS,
+                        EphysLinkReducers.SetCustomServerAddressReducer
+                    );
+                    builder.AddCase(
+                        EphysLinkActions.SET_CUSTOM_SERVER_PORT,
+                        EphysLinkReducers.SetCustomServerPortReducer
+                    );
+                    builder.AddCase(
+                        EphysLinkActions.SET_IS_CONNECTED,
+                        EphysLinkReducers.SetIsConnectedReducer
+                    );
                 }
             );
             var automationSlice = StoreFactory.CreateSlice(

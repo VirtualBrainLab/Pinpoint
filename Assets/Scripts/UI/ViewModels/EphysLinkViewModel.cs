@@ -22,6 +22,18 @@ namespace UI.ViewModels
         [ObservableProperty]
         private PlatformType _selectedPlatformType;
 
+        [ObservableProperty]
+        private int _newScalePathfinderMpmPort;
+
+        [ObservableProperty]
+        private string _customServerAddress;
+
+        [ObservableProperty]
+        private int _customServerPort;
+
+        [ObservableProperty]
+        private bool _isConnected;
+
         #endregion
 
         public EphysLinkViewModel(StoreService storeService)
@@ -47,11 +59,35 @@ namespace UI.ViewModels
         private void OnEphysLinkStateChanged(EphysLinkState ephysLinkState)
         {
             SelectedPlatformType = ephysLinkState.SelectedPlatformType;
+            NewScalePathfinderMpmPort = ephysLinkState.NewScalePathfinderMpmPort;
+            CustomServerAddress = ephysLinkState.CustomServerAddress;
+            CustomServerPort = ephysLinkState.CustomServerPort;
+            IsConnected = ephysLinkState.IsConnected;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            switch (e.PropertyName) { }
+            switch (e.PropertyName)
+            {
+                case nameof(NewScalePathfinderMpmPort):
+                    _storeService.Store.Dispatch(
+                        EphysLinkActions.SET_NEW_SCALE_PATHFINDER_MPM_PORT,
+                        NewScalePathfinderMpmPort
+                    );
+                    break;
+                case nameof(CustomServerAddress):
+                    _storeService.Store.Dispatch(
+                        EphysLinkActions.SET_CUSTOM_SERVER_ADDRESS,
+                        CustomServerAddress
+                    );
+                    break;
+                case nameof(CustomServerPort):
+                    _storeService.Store.Dispatch(
+                        EphysLinkActions.SET_CUSTOM_SERVER_PORT,
+                        CustomServerPort
+                    );
+                    break;
+            }
         }
 
         private void OnShuttingDown()

@@ -85,6 +85,11 @@ namespace UI.Views
                 (ref PlatformType platformType) =>
                     platformType == PlatformType.Custom ? DisplayStyle.Flex : DisplayStyle.None
             );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "BooleanToConnectButtonVisibility",
+                (ref bool isConnected) => isConnected ? DisplayStyle.None : DisplayStyle.Flex
+            );
         }
     }
 }
