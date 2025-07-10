@@ -37,12 +37,12 @@ namespace Models.Automation
             return state with { CustomServerPort = action.payload };
         }
 
-        public static EphysLinkState SetIsConnectedReducer(
+        public static EphysLinkState SetConnectionStateReducer(
             EphysLinkState state,
-            IAction<bool> action
+            IAction<ConnectionState> action
         )
         {
-            return state with { IsConnected = action.payload };
+            return state with { ConnectionState = action.payload };
         }
     }
 
@@ -58,7 +58,7 @@ namespace Models.Automation
             $"{SliceNames.EPHYS_LINK_SLICE}/SetCustomServerIpAddress";
         public static readonly ActionCreator<int> SET_CUSTOM_SERVER_PORT =
             $"{SliceNames.EPHYS_LINK_SLICE}/SetCustomServerPort";
-        public static readonly ActionCreator<bool> SET_IS_CONNECTED =
-            $"{SliceNames.EPHYS_LINK_SLICE}/SetIsConnected";
+        public static readonly ActionCreator<ConnectionState> SET_CONNECTION_STATE =
+            $"{SliceNames.EPHYS_LINK_SLICE}/SetConnectionState";
     }
 }

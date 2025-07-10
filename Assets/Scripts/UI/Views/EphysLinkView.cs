@@ -86,9 +86,37 @@ namespace UI.Views
                     platformType == PlatformType.Custom ? DisplayStyle.Flex : DisplayStyle.None
             );
 
-            DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "BooleanToConnectButtonVisibility",
-                (ref bool isConnected) => isConnected ? DisplayStyle.None : DisplayStyle.Flex
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                ConnectionState,
+                StyleEnum<DisplayStyle>
+            >(
+                "ConnectionStateToConnectButtonVisibility",
+                (ref ConnectionState connectionState) =>
+                    connectionState == ConnectionState.Disconnected
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                ConnectionState,
+                StyleEnum<DisplayStyle>
+            >(
+                "ConnectionStateToDisconnectButtonVisibility",
+                (ref ConnectionState connectionState) =>
+                    connectionState == ConnectionState.Connected
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                ConnectionState,
+                StyleEnum<DisplayStyle>
+            >(
+                "ConnectionStateToConnectingProgressVisibility",
+                (ref ConnectionState connectionState) =>
+                    connectionState == ConnectionState.Connecting
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
             );
         }
     }

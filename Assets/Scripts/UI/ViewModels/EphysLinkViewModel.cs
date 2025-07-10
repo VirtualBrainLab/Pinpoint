@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using Models;
 using Models.Automation;
@@ -32,7 +33,7 @@ namespace UI.ViewModels
         private int _customServerPort;
 
         [ObservableProperty]
-        private bool _isConnected;
+        private ConnectionState _connectionState;
 
         #endregion
 
@@ -62,7 +63,7 @@ namespace UI.ViewModels
             NewScalePathfinderMpmPort = ephysLinkState.NewScalePathfinderMpmPort;
             CustomServerIpAddress = ephysLinkState.CustomServerIpAddress;
             CustomServerPort = ephysLinkState.CustomServerPort;
-            IsConnected = ephysLinkState.IsConnected;
+            ConnectionState = ephysLinkState.ConnectionState;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -76,6 +77,11 @@ namespace UI.ViewModels
                     );
                     break;
                 case nameof(CustomServerIpAddress):
+                    // Reset to default if the IP address is empty.
+                    if (string.IsNullOrWhiteSpace(CustomServerIpAddress))
+                    {
+                        CustomServerIpAddress = "localhost";
+                    }
                     _storeService.Store.Dispatch(
                         EphysLinkActions.SET_CUSTOM_SERVER_IP_ADDRESS,
                         CustomServerIpAddress
@@ -102,6 +108,23 @@ namespace UI.ViewModels
         private void SetSelectedPlatformType(PlatformType platformType)
         {
             _storeService.Store.Dispatch(EphysLinkActions.SET_SELECTED_PLATFORM_TYPE, platformType);
+        }
+
+        [ICommand]
+        private void Connect()
+        {
+            switch (SelectedPlatformType)
+            {
+                case PlatformType.SensapexUmp:
+                    break;
+                case PlatformType.NewScalePathfinderMpm:
+                    break;
+                case PlatformType.Custom:
+                    
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         #endregion

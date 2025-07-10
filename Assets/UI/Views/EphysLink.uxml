@@ -3,7 +3,7 @@
     <ui:VisualElement data-source-type="UI.ViewModels.EphysLinkViewModel, Assembly-CSharp" class="inspector-panel" style="flex-grow: 1;">
         <ui:VisualElement>
             <Unity.AppUI.UI.Heading text="Select Platform" size="S" />
-            <Unity.AppUI.UI.Dropdown default-message="Select a platform..." name="ephys-link__platform-type-dropdown" />
+            <Unity.AppUI.UI.Dropdown name="ephys-link__platform-type-dropdown" default-message="Select a platform..." />
             <Unity.AppUI.UI.Divider />
         </ui:VisualElement>
         <ui:VisualElement>
@@ -25,7 +25,7 @@
                     <ui:DataBinding property="value" data-source-path="CustomServerAddress" binding-mode="TwoWay" />
                 </Bindings>
             </Unity.AppUI.UI.TextField>
-            <Unity.AppUI.UI.IntField low-value="0" high-value="49151" value="3000" tooltip="Enter the server&apos;s TCP/IP port">
+            <Unity.AppUI.UI.IntField low-value="0" high-value="65535" value="3000" tooltip="Enter the server&apos;s TCP/IP port">
                 <Bindings>
                     <ui:DataBinding property="value" data-source-path="CustomServerPort" binding-mode="ToTarget" />
                 </Bindings>
@@ -37,12 +37,17 @@
         </ui:VisualElement>
         <Unity.AppUI.UI.Button title="Connect" name="ephys-link__connect-button" variant="Default" quiet="false">
             <Bindings>
-                <ui:DataBinding property="style.display" data-source-path="IsConnected" binding-mode="ToTarget" source-to-ui-converters="BooleanToInspectorVisibility" />
+                <ui:DataBinding property="style.display" data-source-path="ConnectionState" binding-mode="ToTarget" source-to-ui-converters="ConnectionStateToConnectButtonVisibility" />
             </Bindings>
         </Unity.AppUI.UI.Button>
-        <Unity.AppUI.UI.Button title="Disconnect" name="ephys-link__disconnect-button" variant="Destructive">
+        <Unity.AppUI.UI.LinearProgress size="M" style="display: none;">
             <Bindings>
-                <ui:DataBinding property="style.display" data-source-path="IsConnected" binding-mode="ToTarget" />
+                <ui:DataBinding property="style.display" data-source-path="ConnectionState" binding-mode="ToTarget" source-to-ui-converters="ConnectionStateToConnectingProgressVisibility" />
+            </Bindings>
+        </Unity.AppUI.UI.LinearProgress>
+        <Unity.AppUI.UI.Button title="Disconnect" name="ephys-link__disconnect-button" variant="Destructive" style="display: none;">
+            <Bindings>
+                <ui:DataBinding property="style.display" data-source-path="ConnectionState" binding-mode="ToTarget" source-to-ui-converters="ConnectionStateToDisconnectButtonVisibility" />
             </Bindings>
         </Unity.AppUI.UI.Button>
     </ui:VisualElement>

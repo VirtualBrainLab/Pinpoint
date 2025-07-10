@@ -70,7 +70,7 @@ namespace Services
                     "connect",
                     () =>
                     {
-                        _storeService.Store.Dispatch(EphysLinkActions.SET_IS_CONNECTED, true);
+                        _storeService.Store.Dispatch(EphysLinkActions.SET_CONNECTION_STATE, ConnectionState.Connected);
                         onConnected?.Invoke();
                     }
                 );
@@ -106,7 +106,7 @@ namespace Services
         /// <param name="onDisconnected">Post disconnection behavior.</param>
         public void HandleDisconnect(Action onDisconnected = null)
         {
-            _storeService.Store.Dispatch(EphysLinkActions.SET_IS_CONNECTED, false);
+            _storeService.Store.Dispatch(EphysLinkActions.SET_CONNECTION_STATE, ConnectionState.Disconnected);
             _socketManager?.Close();
             _socketManager = null;
             _socket = null;

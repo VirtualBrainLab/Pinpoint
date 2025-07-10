@@ -15,7 +15,7 @@ namespace Models.Automation
 
         public int CustomServerPort = 3000;
 
-        public bool IsConnected;
+        public ConnectionState ConnectionState;
 
         // TODO: Consider moving into a separate constants file.
         #region Ephys Link Info
@@ -25,15 +25,14 @@ namespace Models.Automation
 
         [NonSerialized]
         public readonly int[] EphysLinkMinVersion = { 2, 1, 0 };
-        
+
         [NonSerialized]
         public readonly string EphysLinkExePath = Path.Combine(
             Application.streamingAssetsPath,
             Path.Combine(EPHYS_LINK_NAME, $"{EPHYS_LINK_NAME}.exe")
         );
 
-        public string EphysLinkMinVersionString =>
-            $"≥ v{string.Join(".", EphysLinkMinVersion)}";
+        public string EphysLinkMinVersionString => $"≥ v{string.Join(".", EphysLinkMinVersion)}";
 
         #endregion
     }
@@ -43,5 +42,12 @@ namespace Models.Automation
         SensapexUmp,
         NewScalePathfinderMpm,
         Custom,
+    }
+
+    public enum ConnectionState
+    {
+        Disconnected,
+        Connecting,
+        Connected,
     }
 }

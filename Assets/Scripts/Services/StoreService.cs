@@ -88,8 +88,8 @@ namespace Services
                         EphysLinkReducers.SetCustomServerPortReducer
                     );
                     builder.AddCase(
-                        EphysLinkActions.SET_IS_CONNECTED,
-                        EphysLinkReducers.SetIsConnectedReducer
+                        EphysLinkActions.SET_CONNECTION_STATE,
+                        EphysLinkReducers.SetConnectionStateReducer
                     );
                 }
             );
