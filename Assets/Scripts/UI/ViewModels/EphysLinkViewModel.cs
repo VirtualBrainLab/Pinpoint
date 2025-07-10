@@ -3,10 +3,10 @@ using System.ComponentModel;
 using Models;
 using Models.Automation;
 using Services;
+using UI.Views;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using Unity.AppUI.UI;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UI.ViewModels
@@ -21,7 +21,7 @@ namespace UI.ViewModels
 
         [Service]
         private readonly EphysLinkService _ephysLinkService;
-
+        
         #endregion
 
         #region Properties
@@ -117,7 +117,7 @@ namespace UI.ViewModels
         }
 
         [ICommand]
-        private void Connect(VisualElement alertAnchor)
+        private void Connect()
         {
             // Move to connecting state.
             _storeService.Store.Dispatch(
@@ -152,7 +152,7 @@ namespace UI.ViewModels
                                 variant = AlertSemantic.Error,
                             };
                             alertDialog.SetCancelAction(0, "OK");
-                            var presentationModal = Modal.Build(alertAnchor, alertDialog);
+                            var presentationModal = Modal.Build(PinpointApp.Current.rootVisualElement, alertDialog);
                             presentationModal.Show();
                         }
                     );
@@ -180,7 +180,7 @@ namespace UI.ViewModels
                                 variant = AlertSemantic.Error,
                             };
                             alertDialog.SetCancelAction(0, "OK");
-                            var presentationModal = Modal.Build(alertAnchor, alertDialog);
+                            var presentationModal = Modal.Build(PinpointApp.Current.rootVisualElement, alertDialog);
                             presentationModal.Show();
                         }
                         else
@@ -193,7 +193,7 @@ namespace UI.ViewModels
         }
 
         [ICommand]
-        private void Disconnect(VisualElement alertAnchor)
+        private void Disconnect()
         {
             var alertDialog = new AlertDialog
             {
@@ -203,7 +203,7 @@ namespace UI.ViewModels
             };
             alertDialog.SetPrimaryAction(1, "Disconnect", () => _ephysLinkService.Disconnect());
             alertDialog.SetCancelAction(0, "Cancel");
-            var presentationModal = Modal.Build(alertAnchor, alertDialog);
+            var presentationModal = Modal.Build(PinpointApp.Current.rootVisualElement, alertDialog);
             presentationModal.Show();
         }
 

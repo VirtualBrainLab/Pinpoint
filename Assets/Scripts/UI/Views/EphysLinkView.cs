@@ -3,6 +3,7 @@ using System.Linq;
 using Models.Automation;
 using UI.Utils;
 using UI.ViewModels;
+using Unity.AppUI.MVVM;
 using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -40,10 +41,8 @@ namespace UI.Views
             _platformTypeDropdown.value = new[] { (int)_ephysLinkViewModel.SelectedPlatformType };
 
             // Register event handlers.
-            _connectButton.clickable.clickedWithEventInfo += evt =>
-                _ephysLinkViewModel.ConnectCommand.Execute(evt.target as VisualElement);
-            _disconnectButton.clickable.clickedWithEventInfo += evt =>
-                _ephysLinkViewModel.ConnectCommand.Execute(evt.target as VisualElement);
+            _connectButton.clickable.clicked += _ephysLinkViewModel.ConnectCommand.Execute;
+            _disconnectButton.clickable.clicked += _ephysLinkViewModel.DisconnectCommand.Execute;
         }
 
         private void BuildPlatformTypeDropdown()
@@ -127,9 +126,9 @@ namespace UI.Views
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "ConnectionStateToBoolean",
+                "ConnectionStateToSettingsEnabled",
                 (ref ConnectionState connectionState) =>
-                    connectionState == ConnectionState.Connected
+                    connectionState == ConnectionState.Disconnected
             );
         }
     }

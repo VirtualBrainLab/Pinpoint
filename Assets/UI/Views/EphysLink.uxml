@@ -37,7 +37,7 @@
                 </Bindings>
             </ui:VisualElement>
             <Bindings>
-                <ui:DataBinding property="enabledSelf" data-source-path="ConnectionState" binding-mode="ToTarget" source-to-ui-converters="ConnectionStateToBoolean" />
+                <ui:DataBinding property="enabledSelf" data-source-path="ConnectionState" binding-mode="ToTarget" source-to-ui-converters="ConnectionStateToSettingsEnabled" />
             </Bindings>
         </ui:VisualElement>
         <Unity.AppUI.UI.Button title="Connect" name="ephys-link__connect-button" variant="Default" quiet="false">

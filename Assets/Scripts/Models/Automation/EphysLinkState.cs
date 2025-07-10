@@ -15,6 +15,7 @@ namespace Models.Automation
 
         public int CustomServerPort = 3000;
 
+        [NonSerialized]
         public ConnectionState ConnectionState;
 
         // TODO: Consider moving into a separate constants file.
