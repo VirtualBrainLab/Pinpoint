@@ -21,21 +21,19 @@ namespace Models.Automation
         #region Ephys Link Info
 
         [NonSerialized]
-        private const string EPHYS_LINK_NAME = "EphysLink-v2.1.0b1";
+        public const string EPHYS_LINK_NAME = "EphysLink-v2.1.0";
 
         [NonSerialized]
-        private static string EphysLinkExePath =
-            Path.Combine(
-                Application.streamingAssetsPath,
-                Path.Combine(EPHYS_LINK_NAME, $"{EPHYS_LINK_NAME}.exe")
-            );
+        public readonly int[] EphysLinkMinVersion = { 2, 1, 0 };
         
         [NonSerialized]
-        private static readonly int[] EPHYS_LINK_MIN_VERSION = { 2, 1, 0 };
+        public readonly string EphysLinkExePath = Path.Combine(
+            Application.streamingAssetsPath,
+            Path.Combine(EPHYS_LINK_NAME, $"{EPHYS_LINK_NAME}.exe")
+        );
 
-        [NonSerialized]
-        public static readonly string EPHYS_LINK_MIN_VERSION_STRING =
-            $"≥ v{string.Join(".", EPHYS_LINK_MIN_VERSION)}";
+        public string EphysLinkMinVersionString =>
+            $"≥ v{string.Join(".", EphysLinkMinVersion)}";
 
         #endregion
     }
