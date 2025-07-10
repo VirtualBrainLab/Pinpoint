@@ -20,7 +20,7 @@ namespace UI.Views
 
         private readonly EphysLinkViewModel _ephysLinkViewModel;
 
-        public EphysLinkView(VisualElement root, EphysLinkViewModel ephysLinkViewModel)
+        public EphysLinkView(TemplateContainer root, EphysLinkViewModel ephysLinkViewModel)
         {
             _ephysLinkViewModel = ephysLinkViewModel;
             root.dataSource = _ephysLinkViewModel;

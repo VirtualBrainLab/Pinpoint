@@ -63,12 +63,11 @@ namespace UI.Views
             _leftSidePanelTabs = _leftSidePanel.Q<Tabs>("left-side-panel__tabs");
 
             // Initialize subviews.
-            // _ = new AutomationView(
-            //     Root.Q<VisualElement>("automation-view"),
-            //     // automationViewModel,
-            //     ephysLinkViewModel
-            // );
-            _ = new EphysLinkView(Root.Q<VisualElement>("ephys-link-view"), ephysLinkViewModel);
+            _ = new AutomationView(
+                Root.Q<TemplateContainer>("automation-view"),
+                automationViewModel,
+                ephysLinkViewModel
+            );
             _ = new AtlasView(Root.Q<VisualElement>("atlas-view"), atlasViewModel);
 
             // Register callbacks.
