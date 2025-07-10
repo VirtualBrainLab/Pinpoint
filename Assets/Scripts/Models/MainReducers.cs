@@ -35,7 +35,7 @@ namespace Models
             return state with { IsRightSidePanelOpen = !state.IsRightSidePanelOpen };
         }
 
-        public static MainState SetLeftSidePanelTabIndex(MainState state, IAction<int> action)
+        public static MainState SetLeftSidePanelTabIndexReducer(MainState state, IAction<int> action)
         {
             return state with { LeftSidePanelTabIndex = action.payload };
         }

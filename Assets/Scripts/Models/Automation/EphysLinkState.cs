@@ -1,6 +1,9 @@
+using System;
+
 namespace Models.Automation
 {
-    public class EphysLinkState
+    [Serializable]
+    public record EphysLinkState
     {
         public PlatformType SelectedPlatformType;
 
@@ -9,5 +12,14 @@ namespace Models.Automation
         public string CustomServerAddress = "localhost";
 
         public int CustomServerPort = 3000;
+
+        public bool IsConnected;
+    }
+
+    public enum PlatformType
+    {
+        SensapexUmp,
+        NewScalePathfinderMpm,
+        Custom,
     }
 }

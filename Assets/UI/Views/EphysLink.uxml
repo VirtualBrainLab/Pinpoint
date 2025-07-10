@@ -7,7 +7,7 @@
             <Unity.AppUI.UI.Divider />
         </ui:VisualElement>
         <ui:VisualElement>
-            <Unity.AppUI.UI.Heading text="Pathfinder MPM HTTP Server Connection" size="S" />
+            <Unity.AppUI.UI.Heading text="HTTP Server Port" size="S" />
             <Unity.AppUI.UI.IntField low-value="0" high-value="49151" value="8080" tooltip="Enter the server&apos;s TCP/IP port" />
             <Unity.AppUI.UI.Divider />
             <Bindings>
@@ -15,7 +15,7 @@
             </Bindings>
         </ui:VisualElement>
         <ui:VisualElement>
-            <Unity.AppUI.UI.Heading text="Custom Server Connection" size="S" />
+            <Unity.AppUI.UI.Heading text="Connection Details" size="S" />
             <Unity.AppUI.UI.TextField placeholder="Server IP Address..." tooltip="Enter the server&apos;s IP address" value="localhost" />
             <Unity.AppUI.UI.IntField low-value="0" high-value="49151" value="3000" tooltip="Enter the server&apos;s TCP/IP port" />
             <Unity.AppUI.UI.Divider />

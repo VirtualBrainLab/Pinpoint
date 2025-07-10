@@ -1,4 +1,5 @@
 using Models;
+using Models.Automation;
 using Models.Scene;
 using Unity.AppUI.Redux;
 
@@ -35,6 +36,10 @@ namespace Services
                 SliceNames.SCENE_SLICE,
                 new SceneState()
             );
+            var initialEphysLinkState = _localStorageService.GetValue(
+                SliceNames.EPHYS_LINK_SLICE,
+                new EphysLinkState()
+            );
 
             // Initialize the Redux store.
             var mainSlice = StoreFactory.CreateSlice(
@@ -57,8 +62,19 @@ namespace Services
                         )
                         .AddCase(
                             MainActions.SET_LEFT_SIDE_PANEL_TAB_INDEX,
-                            MainReducers.SetLeftSidePanelTabIndex
+                            MainReducers.SetLeftSidePanelTabIndexReducer
                         );
+                }
+            );
+            var ephysLinkSlice = StoreFactory.CreateSlice(
+                SliceNames.EPHYS_LINK_SLICE,
+                initialEphysLinkState,
+                builder =>
+                {
+                    builder.AddCase(
+                        EphysLinkActions.SET_SELECTED_PLATFORM_TYPE,
+                        EphysLinkReducers.SetSelectedPlatformTypeReducer
+                    );
                 }
             );
             var automationSlice = StoreFactory.CreateSlice(
@@ -120,7 +136,7 @@ namespace Services
                 }
             );
             Store = StoreFactory.CreateStore(
-                new ISlice<PartitionedState>[] { mainSlice, automationSlice }
+                new ISlice<PartitionedState>[] { mainSlice, ephysLinkSlice, automationSlice }
             );
         }
 
@@ -139,6 +155,12 @@ namespace Services
             _localStorageService.SetValue(
                 SliceNames.SCENE_SLICE,
                 Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
+            );
+            
+            // Ephys link state.
+            _localStorageService.SetValue(
+                SliceNames.EPHYS_LINK_SLICE,
+                Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE)
             );
         }
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Models.Automation;
 using UI.Utils;
 using UI.ViewModels;
@@ -33,7 +34,14 @@ namespace UI.Views
             _connectButton = root.Q<Button>("ephys-link__connect-button");
             _disconnectButton = root.Q<Button>("ephys-link__disconnect-button");
 
-            // Configure the platform dropdown.
+            BuildPlatformTypeDropdown();
+
+            // Initialize component state.
+            _platformTypeDropdown.value = new[] { (int)_ephysLinkViewModel.SelectedPlatformType };
+        }
+
+        private void BuildPlatformTypeDropdown()
+        {
             _platformTypeDropdown.bindItem = (item, index) =>
             {
                 item.label = Enum.GetValues(typeof(PlatformType)).GetValue(index) switch
@@ -41,9 +49,15 @@ namespace UI.Views
                     PlatformType.SensapexUmp => "Sensapex uMp",
                     PlatformType.NewScalePathfinderMpm => "New Scale Pathfinder MPM",
                     PlatformType.Custom => "Custom Server",
+                    _ => throw new ArgumentOutOfRangeException(),
                 };
             };
             _platformTypeDropdown.sourceItems = Enum.GetValues(typeof(PlatformType));
+            _platformTypeDropdown.RegisterValueChangedCallback(evt =>
+                _ephysLinkViewModel.SetSelectedPlatformTypeCommand.Execute(
+                    (PlatformType)evt.newValue.FirstOrDefault()
+                )
+            );
         }
 
 #if UNITY_EDITOR
