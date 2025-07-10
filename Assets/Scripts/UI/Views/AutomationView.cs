@@ -55,7 +55,7 @@ namespace UI.Views
             // var referenceCoordinateDepthLabel = root.Q<FloatField>("unity-w-input").Q<Label>();
             // referenceCoordinateDepthLabel.text = "Depth";
             //
-            // // Register callbacks.
+            // // Register event handlers.
             // _resetReferenceCoordinateButton.clicked += _automationViewModel
             //     .ResetReferenceCoordinateCommand
             //     .Execute;

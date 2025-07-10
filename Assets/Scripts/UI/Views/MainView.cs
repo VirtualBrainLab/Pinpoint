@@ -70,7 +70,7 @@ namespace UI.Views
             );
             _ = new AtlasView(Root.Q<VisualElement>("atlas-view"), atlasViewModel);
 
-            // Register callbacks.
+            // Register event handlers.
             _leftSidePanelToggle.clickable.clicked += _viewModel.ToggleLeftSidePanelCommand.Execute;
             _rightSidePanelToggle.clickable.clicked += _viewModel
                 .ToggleRightSidePanelCommand

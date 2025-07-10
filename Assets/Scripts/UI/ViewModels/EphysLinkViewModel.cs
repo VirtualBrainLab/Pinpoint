@@ -5,7 +5,9 @@ using Models.Automation;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
+using Unity.AppUI.UI;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UI.ViewModels
 {
@@ -17,7 +19,11 @@ namespace UI.ViewModels
         private readonly StoreService _storeService;
         private readonly IDisposableSubscription _ephysLinkStateSubscription;
 
+        [Service]
+        private readonly EphysLinkService _ephysLinkService;
+
         #endregion
+
         #region Properties
 
         [ObservableProperty]
@@ -111,8 +117,20 @@ namespace UI.ViewModels
         }
 
         [ICommand]
-        private void Connect()
+        private void Connect(VisualElement anchor)
         {
+            // Move to connecting state.
+            _storeService.Store.Dispatch(
+                EphysLinkActions.SET_CONNECTION_STATE,
+                ConnectionState.Connecting
+            );
+
+            // Get the current state from the store.
+            var ephysLinkState = _storeService.Store.GetState<EphysLinkState>(
+                SliceNames.EPHYS_LINK_SLICE
+            );
+
+            // Connect based on the selected platform type.
             switch (SelectedPlatformType)
             {
                 case PlatformType.SensapexUmp:
@@ -120,7 +138,23 @@ namespace UI.ViewModels
                 case PlatformType.NewScalePathfinderMpm:
                     break;
                 case PlatformType.Custom:
-                    
+                    _ephysLinkService.ConnectToServer(
+                        ephysLinkState.CustomServerIpAddress,
+                        ephysLinkState.CustomServerPort,
+                        null,
+                        errorMessage =>
+                        {
+                            var alertDialog = new AlertDialog
+                            {
+                                title = "Failed to Connect to Custom Server",
+                                description = errorMessage,
+                                variant = AlertSemantic.Error,
+                            };
+                            alertDialog.SetCancelAction(1, "OK");
+                            var presentationModal = Modal.Build(anchor, alertDialog);
+                            presentationModal.Show();
+                        }
+                    );
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

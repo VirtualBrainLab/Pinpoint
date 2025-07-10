@@ -40,8 +40,8 @@ namespace Services
         /// <summary>
         ///     Create a connection to the server.
         /// </summary>
-        /// <param name="ip">IP address of the server</param>
-        /// <param name="port">Port of the server</param>
+        /// <param name="ip">IP address of the server.</param>
+        /// <param name="port">Port of the server.</param>
         /// <param name="onConnected">Post successful connection behavior.</param>
         /// <param name="onError">Post error behavior with message.</param>
         public void ConnectToServer(
@@ -51,34 +51,42 @@ namespace Services
             System.Action<string> onError = null
         )
         {
-            // Disconnect the old connection if needed
+            // Disconnect the old connection if needed.
             if (_socketManager != null && _socketManager.Socket.IsOpen)
                 _socketManager.Close();
 
-            // Create new connection
+            // Create new connection.
             var options = new SocketOptions { Timeout = new TimeSpan(0, 0, 2) };
 
-            // Try to open a connection
+            // Try to open a connection.
             try
             {
-                // Create a new socket
+                // Create a new socket.
                 _socketManager = new SocketManager(new Uri($"http://{ip}:{port}"), options);
                 _socket = _socketManager.Socket;
 
-                // On successful connection
+                // On successful connection.
                 _socket.Once(
                     "connect",
-                    () =>
+                    async () =>
                     {
-                        _storeService.Store.Dispatch(EphysLinkActions.SET_CONNECTION_STATE, ConnectionState.Connected);
-                        onConnected?.Invoke();
+                        // Check version compatibility.
+                        if (await IsVersionCompatible())
+                        {
+                            _storeService.Store.Dispatch(EphysLinkActions.SET_CONNECTION_STATE, ConnectionState.Connected);
+                            onConnected?.Invoke();
+                        }
+                        else
+                        {
+                            HandleError(GetOutdatedVersionErrorMessage());
+                        }
                     }
                 );
 
-                // On error
+                // On error.
                 _socket.Once("error", () => HandleError(GetErrorConnectingToServerMessage()));
 
-                // On timeout
+                // On timeout.
                 _socket.Once("connect_timeout", () => HandleError(GetConnectionTimeoutMessage()));
             }
             catch (Exception e)
@@ -92,6 +100,7 @@ namespace Services
                 $"Error connecting to server at {ip}:{port}. Check server for details.";
             string GetConnectionTimeoutMessage() =>
                 $"Connection to server at {ip}:{port} timed out.";
+            string GetOutdatedVersionErrorMessage() => $"Ephys Link is outdated. Please update to {_storeService.Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE).EphysLinkMinVersionString} or later.";
 
             void HandleError(string message)
             {

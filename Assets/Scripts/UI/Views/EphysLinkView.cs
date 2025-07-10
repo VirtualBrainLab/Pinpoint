@@ -38,6 +38,10 @@ namespace UI.Views
 
             // Initialize component state.
             _platformTypeDropdown.value = new[] { (int)_ephysLinkViewModel.SelectedPlatformType };
+
+            // Register event handlers.
+            _connectButton.clickable.clickedWithEventInfo += evt =>
+                _ephysLinkViewModel.ConnectCommand.Execute(evt.target as VisualElement);
         }
 
         private void BuildPlatformTypeDropdown()
