@@ -123,9 +123,17 @@ namespace Services
         /// <param name="onDisconnected">Post disconnection behavior.</param>
         public void Disconnect(Action onDisconnected = null)
         {
+            // Close socket connection.
             _socketManager?.Close();
             _socketManager = null;
             _socket = null;
+            
+            // Kill the Ephys Link process if it exists.
+            _ephysLinkProcess?.Kill(true);
+            _ephysLinkProcess?.Dispose();
+            _ephysLinkProcess = null;
+            
+            // Update the store state to disconnected.
             _storeService.Store.Dispatch(
                 EphysLinkActions.SET_CONNECTION_STATE,
                 ConnectionState.Disconnected
@@ -174,7 +182,7 @@ namespace Services
                     args += "ump";
                     break;
                 case PlatformType.NewScalePathfinderMpm:
-                    args += $"pathfinder_mpm --mpm-port {ephysLinkState.NewScalePathfinderMpmPort}";
+                    args += $"pathfinder-mpm --mpm-port {ephysLinkState.NewScalePathfinderMpmPort}";
                     break;
                 case PlatformType.Custom:
                 default:
@@ -194,7 +202,6 @@ namespace Services
                 },
             };
             _ephysLinkProcess.Start();
-
         }
 
         #endregion

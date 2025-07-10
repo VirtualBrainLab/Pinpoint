@@ -104,6 +104,10 @@ namespace UI.ViewModels
 
         private void OnShuttingDown()
         {
+            // Trigger a disconnect.
+            _ephysLinkService.Disconnect();
+            
+            // Unsubscribe from events and dispose of subscriptions.
             App.shuttingDown -= OnShuttingDown;
             _ephysLinkStateSubscription.Dispose();
         }
@@ -185,6 +189,12 @@ namespace UI.ViewModels
                         }
                         else
                         {
+                            // Move back to connecting state.
+                            _storeService.Store.Dispatch(
+                                EphysLinkActions.SET_CONNECTION_STATE,
+                                ConnectionState.Connecting
+                            );
+                            
                             ConnectAttempt(attempts + 1);
                         }
                     }
