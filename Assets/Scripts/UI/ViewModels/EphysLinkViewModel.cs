@@ -134,8 +134,9 @@ namespace UI.ViewModels
             switch (SelectedPlatformType)
             {
                 case PlatformType.SensapexUmp:
-                    break;
                 case PlatformType.NewScalePathfinderMpm:
+                    _ephysLinkService.Launch();
+                    ConnectAttempt();
                     break;
                 case PlatformType.Custom:
                     _ephysLinkService.ConnectToServer(
@@ -159,6 +160,36 @@ namespace UI.ViewModels
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            return;
+
+            void ConnectAttempt(int attempts = 0)
+            {
+                _ephysLinkService.ConnectToServer(
+                    "localhost",
+                    3000,
+                    null,
+                    errorMessage =>
+                    {
+                        if (attempts > 10)
+                        {
+                            var alertDialog = new AlertDialog
+                            {
+                                title = "Failed to Connect to Launched Server",
+                                description = errorMessage,
+                                variant = AlertSemantic.Error,
+                            };
+                            alertDialog.SetCancelAction(0, "OK");
+                            var presentationModal = Modal.Build(alertAnchor, alertDialog);
+                            presentationModal.Show();
+                        }
+                        else
+                        {
+                            ConnectAttempt(attempts + 1);
+                        }
+                    }
+                );
+            }
         }
 
         [ICommand]
@@ -170,11 +201,7 @@ namespace UI.ViewModels
                 description = "All incomplete movements will be canceled.",
                 variant = AlertSemantic.Destructive,
             };
-            alertDialog.SetPrimaryAction(
-                1,
-                "Disconnect",
-                () => _ephysLinkService.Disconnect()
-            );
+            alertDialog.SetPrimaryAction(1, "Disconnect", () => _ephysLinkService.Disconnect());
             alertDialog.SetCancelAction(0, "Cancel");
             var presentationModal = Modal.Build(alertAnchor, alertDialog);
             presentationModal.Show();

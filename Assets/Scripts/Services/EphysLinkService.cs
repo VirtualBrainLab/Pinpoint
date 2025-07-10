@@ -1,13 +1,16 @@
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using BestHTTP.SocketIO3;
+using KS.Diagnostics;
 using Models;
 using Models.Automation;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Action = System.Action;
 
 namespace Services
@@ -31,6 +34,7 @@ namespace Services
 
         private SocketManager _socketManager;
         private Socket _socket;
+        private Process _ephysLinkProcess;
 
         #endregion
 
@@ -73,7 +77,10 @@ namespace Services
                         // Check version compatibility.
                         if (await IsVersionCompatible())
                         {
-                            _storeService.Store.Dispatch(EphysLinkActions.SET_CONNECTION_STATE, ConnectionState.Connected);
+                            _storeService.Store.Dispatch(
+                                EphysLinkActions.SET_CONNECTION_STATE,
+                                ConnectionState.Connected
+                            );
                             onConnected?.Invoke();
                         }
                         else
@@ -100,7 +107,8 @@ namespace Services
                 $"Error connecting to server at {ip}:{port}. Check server for details.";
             string GetConnectionTimeoutMessage() =>
                 $"Connection to server at {ip}:{port} timed out.";
-            string GetOutdatedVersionErrorMessage() => $"Ephys Link is outdated. Please update to {_storeService.Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE).EphysLinkMinVersionString} or later.";
+            string GetOutdatedVersionErrorMessage() =>
+                $"Ephys Link is outdated. Please update to {_storeService.Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE).EphysLinkMinVersionString} or later.";
 
             void HandleError(string message)
             {
@@ -118,11 +126,14 @@ namespace Services
             _socketManager?.Close();
             _socketManager = null;
             _socket = null;
-            _storeService.Store.Dispatch(EphysLinkActions.SET_CONNECTION_STATE, ConnectionState.Disconnected);
+            _storeService.Store.Dispatch(
+                EphysLinkActions.SET_CONNECTION_STATE,
+                ConnectionState.Disconnected
+            );
             onDisconnected?.Invoke();
         }
 
-        public async Awaitable<bool> IsVersionCompatible()
+        private async Awaitable<bool> IsVersionCompatible()
         {
             // Get version string from the server.
             var versionResponse = await GetVersion();
@@ -147,6 +158,43 @@ namespace Services
                     versionNumbers[1] > ephysLinkMinVersion[1]
                     || versionNumbers[2] >= ephysLinkMinVersion[2]
                 );
+        }
+
+        public void Launch()
+        {
+            var ephysLinkState = _storeService.Store.GetState<EphysLinkState>(
+                SliceNames.EPHYS_LINK_SLICE
+            );
+
+            // Create launch arguments.
+            var args = "-i -t ";
+            switch (ephysLinkState.SelectedPlatformType)
+            {
+                case PlatformType.SensapexUmp:
+                    args += "ump";
+                    break;
+                case PlatformType.NewScalePathfinderMpm:
+                    args += $"pathfinder_mpm --mpm-port {ephysLinkState.NewScalePathfinderMpmPort}";
+                    break;
+                case PlatformType.Custom:
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            // Launch process.
+            _ephysLinkProcess = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = ephysLinkState.EphysLinkExePath,
+                    Arguments = args,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = false,
+                    CreateNoWindow = false,
+                },
+            };
+            _ephysLinkProcess.Start();
+
         }
 
         #endregion
