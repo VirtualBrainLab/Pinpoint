@@ -39,7 +39,7 @@
                     </Unity.AppUI.UI.Tabs>
                     <Unity.AppUI.UI.SwipeView swipeable="false" style="flex-grow: 1;">
                         <Unity.AppUI.UI.SwipeViewItem>
-                            <ui:Instance template="Scene" style="flex-grow: 1; width: 100%;" />
+                            <ui:Instance template="Scene" name="scene-view" style="flex-grow: 1; width: 100%;" />
                         </Unity.AppUI.UI.SwipeViewItem>
                         <Unity.AppUI.UI.SwipeViewItem>
                             <ui:Instance template="Atlas" name="atlas-view" style="flex-grow: 1; width: 100%;" />

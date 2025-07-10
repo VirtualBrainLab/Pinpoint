@@ -20,7 +20,7 @@ namespace Pinpoint.UI.EphysLinkSettings
     {
         #region Constants
 
-        private const string EPHYS_LINK_NAME = "EphysLink-v2.1.0b1";
+        private const string EPHYS_LINK_NAME = "EphysLink-v2.1.0";
 
         private static string EphysLinkExePath =>
             Path.Combine(

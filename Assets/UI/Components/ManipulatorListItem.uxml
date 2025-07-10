@@ -1,0 +1,7 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement>
+        <Unity.AppUI.UI.Heading text="Manipulator x" size="S" />
+        <Unity.AppUI.UI.Dropdown tooltip="Select visualization probe" default-message="Select visualization probe..." />
+        <Unity.AppUI.UI.Checkbox label="Left handed" />
+    </ui:VisualElement>
+</ui:UXML>
