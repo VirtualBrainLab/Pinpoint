@@ -104,7 +104,7 @@ namespace Services
 
             void HandleError(string message)
             {
-                HandleDisconnect();
+                Disconnect();
                 onError?.Invoke(message);
             }
         }
@@ -113,12 +113,12 @@ namespace Services
         /// Disconnect from the server and clean up resources.
         /// </summary>
         /// <param name="onDisconnected">Post disconnection behavior.</param>
-        public void HandleDisconnect(Action onDisconnected = null)
+        public void Disconnect(Action onDisconnected = null)
         {
-            _storeService.Store.Dispatch(EphysLinkActions.SET_CONNECTION_STATE, ConnectionState.Disconnected);
             _socketManager?.Close();
             _socketManager = null;
             _socket = null;
+            _storeService.Store.Dispatch(EphysLinkActions.SET_CONNECTION_STATE, ConnectionState.Disconnected);
             onDisconnected?.Invoke();
         }
 

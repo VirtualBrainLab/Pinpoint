@@ -117,7 +117,7 @@ namespace UI.ViewModels
         }
 
         [ICommand]
-        private void Connect(VisualElement anchor)
+        private void Connect(VisualElement alertAnchor)
         {
             // Move to connecting state.
             _storeService.Store.Dispatch(
@@ -150,8 +150,8 @@ namespace UI.ViewModels
                                 description = errorMessage,
                                 variant = AlertSemantic.Error,
                             };
-                            alertDialog.SetCancelAction(1, "OK");
-                            var presentationModal = Modal.Build(anchor, alertDialog);
+                            alertDialog.SetCancelAction(0, "OK");
+                            var presentationModal = Modal.Build(alertAnchor, alertDialog);
                             presentationModal.Show();
                         }
                     );
@@ -159,6 +159,25 @@ namespace UI.ViewModels
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        [ICommand]
+        private void Disconnect(VisualElement alertAnchor)
+        {
+            var alertDialog = new AlertDialog
+            {
+                title = "Disconnect from Ephys Link?",
+                description = "All incomplete movements will be canceled.",
+                variant = AlertSemantic.Destructive,
+            };
+            alertDialog.SetPrimaryAction(
+                1,
+                "Disconnect",
+                () => _ephysLinkService.Disconnect()
+            );
+            alertDialog.SetCancelAction(0, "Cancel");
+            var presentationModal = Modal.Build(alertAnchor, alertDialog);
+            presentationModal.Show();
         }
 
         #endregion

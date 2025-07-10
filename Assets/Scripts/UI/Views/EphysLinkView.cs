@@ -42,6 +42,8 @@ namespace UI.Views
             // Register event handlers.
             _connectButton.clickable.clickedWithEventInfo += evt =>
                 _ephysLinkViewModel.ConnectCommand.Execute(evt.target as VisualElement);
+            _disconnectButton.clickable.clickedWithEventInfo += evt =>
+                _ephysLinkViewModel.ConnectCommand.Execute(evt.target as VisualElement);
         }
 
         private void BuildPlatformTypeDropdown()
@@ -122,6 +124,12 @@ namespace UI.Views
                     connectionState == ConnectionState.Connecting
                         ? DisplayStyle.Flex
                         : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "ConnectionStateToBoolean",
+                (ref ConnectionState connectionState) =>
+                    connectionState == ConnectionState.Connected
             );
         }
     }
