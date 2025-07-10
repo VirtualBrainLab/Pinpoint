@@ -3,6 +3,7 @@
     <ui:VisualElement data-source-type="UI.ViewModels.EphysLinkViewModel, Assembly-CSharp" class="inspector-panel" style="flex-grow: 1;">
         <ui:VisualElement>
             <Unity.AppUI.UI.Heading text="Select Platform" size="S" />
+            <Unity.AppUI.UI.Dropdown default-message="Select a platform..." name="ephys-link__platform-type-dropdown" />
             <Unity.AppUI.UI.Divider />
         </ui:VisualElement>
         <ui:VisualElement>
