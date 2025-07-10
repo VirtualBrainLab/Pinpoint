@@ -80,8 +80,8 @@ namespace Services
                         EphysLinkReducers.SetNewScalePathfinderMpmPortReducer
                     );
                     builder.AddCase(
-                        EphysLinkActions.SET_CUSTOM_SERVER_ADDRESS,
-                        EphysLinkReducers.SetCustomServerAddressReducer
+                        EphysLinkActions.SET_CUSTOM_SERVER_IP_ADDRESS,
+                        EphysLinkReducers.SetCustomServerIpAddressReducer
                     );
                     builder.AddCase(
                         EphysLinkActions.SET_CUSTOM_SERVER_PORT,

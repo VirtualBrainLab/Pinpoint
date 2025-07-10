@@ -21,12 +21,12 @@ namespace Models.Automation
             return state with { NewScalePathfinderMpmPort = action.payload };
         }
 
-        public static EphysLinkState SetCustomServerAddressReducer(
+        public static EphysLinkState SetCustomServerIpAddressReducer(
             EphysLinkState state,
             IAction<string> action
         )
         {
-            return state with { CustomServerAddress = action.payload };
+            return state with { CustomServerIpAddress = action.payload };
         }
 
         public static EphysLinkState SetCustomServerPortReducer(
@@ -54,8 +54,8 @@ namespace Models.Automation
         public static readonly ActionCreator<int> SET_NEW_SCALE_PATHFINDER_MPM_PORT =
             $"{SliceNames.EPHYS_LINK_SLICE}/SetNewScalePathfinderMpmPort";
 
-        public static readonly ActionCreator<string> SET_CUSTOM_SERVER_ADDRESS =
-            $"{SliceNames.EPHYS_LINK_SLICE}/SetCustomServerAddress";
+        public static readonly ActionCreator<string> SET_CUSTOM_SERVER_IP_ADDRESS =
+            $"{SliceNames.EPHYS_LINK_SLICE}/SetCustomServerIpAddress";
         public static readonly ActionCreator<int> SET_CUSTOM_SERVER_PORT =
             $"{SliceNames.EPHYS_LINK_SLICE}/SetCustomServerPort";
         public static readonly ActionCreator<bool> SET_IS_CONNECTED =

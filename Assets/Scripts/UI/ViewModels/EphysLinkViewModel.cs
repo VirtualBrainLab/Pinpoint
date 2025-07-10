@@ -26,7 +26,7 @@ namespace UI.ViewModels
         private int _newScalePathfinderMpmPort;
 
         [ObservableProperty]
-        private string _customServerAddress;
+        private string _customServerIpAddress;
 
         [ObservableProperty]
         private int _customServerPort;
@@ -60,7 +60,7 @@ namespace UI.ViewModels
         {
             SelectedPlatformType = ephysLinkState.SelectedPlatformType;
             NewScalePathfinderMpmPort = ephysLinkState.NewScalePathfinderMpmPort;
-            CustomServerAddress = ephysLinkState.CustomServerAddress;
+            CustomServerIpAddress = ephysLinkState.CustomServerIpAddress;
             CustomServerPort = ephysLinkState.CustomServerPort;
             IsConnected = ephysLinkState.IsConnected;
         }
@@ -75,10 +75,10 @@ namespace UI.ViewModels
                         NewScalePathfinderMpmPort
                     );
                     break;
-                case nameof(CustomServerAddress):
+                case nameof(CustomServerIpAddress):
                     _storeService.Store.Dispatch(
-                        EphysLinkActions.SET_CUSTOM_SERVER_ADDRESS,
-                        CustomServerAddress
+                        EphysLinkActions.SET_CUSTOM_SERVER_IP_ADDRESS,
+                        CustomServerIpAddress
                     );
                     break;
                 case nameof(CustomServerPort):
