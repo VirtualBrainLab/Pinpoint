@@ -1,5 +1,6 @@
 using UI.Utils;
 using Unity.AppUI.Redux;
+using Unity.AppUI.UI;
 
 namespace Models
 {
@@ -13,26 +14,10 @@ namespace Models
             return state with { IsAutomationModeActive = action.payload };
         }
 
-        /// <summary>
-        /// Toggles the open/close state of the left side panel.
-        /// </summary>
-        /// <param name="state">The current main state.</param>
-        /// <param name="action">The action triggering the toggle.</param>
-        /// <returns>A new <see cref="MainState"/> with the left side panel state toggled.</returns>
-        public static MainState ToggleLeftSidePanelReducer(MainState state, IAction action)
-        {
-            return state with { IsLeftSidePanelOpen = !state.IsLeftSidePanelOpen };
-        }
 
-        /// <summary>
-        /// Toggles the open/close state of the right side panel.
-        /// </summary>
-        /// <param name="state">The current main state.</param>
-        /// <param name="action">The action triggering the toggle.</param>
-        /// <returns>A new <see cref="MainState"/> with the right side panel state toggled.</returns>
-        public static MainState ToggleRightSidePanelReducer(MainState state, IAction action)
+        public static MainState SetMainSplitViewStateReducer(MainState state, IAction<SplitView.State> action)
         {
-            return state with { IsRightSidePanelOpen = !state.IsRightSidePanelOpen };
+            return state with { MainSplitViewState = action.payload };
         }
 
         public static MainState SetLeftSidePanelTabIndexReducer(MainState state, IAction<int> action)
@@ -45,10 +30,8 @@ namespace Models
     {
         public static readonly ActionCreator<bool> SET_IS_AUTOMATION_MODE_ACTIVE =
             $"{SliceNames.MAIN_SLICE}/SetIsAutomationModeActive";
-        public static readonly ActionCreator TOGGLE_LEFT_SIDE_PANEL =
-            $"{SliceNames.MAIN_SLICE}/ToggleLeftSidePanel";
-        public static readonly ActionCreator TOGGLE_RIGHT_SIDE_PANEL =
-            $"{SliceNames.MAIN_SLICE}/ToggleRightSidePanel";
+        public static readonly ActionCreator<SplitView.State> SET_MAIN_SPLIT_VIEW_STATE =
+            $"{SliceNames.MAIN_SLICE}/SetMainSplitViewState";
         public static readonly ActionCreator<int> SET_LEFT_SIDE_PANEL_TAB_INDEX =
             $"{SliceNames.MAIN_SLICE}/SetLeftSidePanelTabIndex";
     }

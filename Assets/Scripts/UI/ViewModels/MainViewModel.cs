@@ -4,6 +4,7 @@ using Models.Scene;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
+using Unity.AppUI.UI;
 using UnityEngine;
 
 namespace UI.ViewModels
@@ -25,10 +26,7 @@ namespace UI.ViewModels
         private bool _isAutomationModeActive;
 
         [ObservableProperty]
-        private bool _isLeftSidePanelOpen;
-
-        [ObservableProperty]
-        private bool _isRightSidePanelOpen;
+        private SplitView.State _mainSplitViewState;
 
         [ObservableProperty]
         private int _leftSidePanelTabIndex;
@@ -76,8 +74,7 @@ namespace UI.ViewModels
         private void OnMainStateChanged(MainState state)
         {
             IsAutomationModeActive = state.IsAutomationModeActive;
-            IsLeftSidePanelOpen = state.IsLeftSidePanelOpen;
-            IsRightSidePanelOpen = state.IsRightSidePanelOpen;
+            MainSplitViewState = state.MainSplitViewState;
             LeftSidePanelTabIndex = state.LeftSidePanelTabIndex;
         }
 
@@ -111,16 +108,9 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
-        private void ToggleLeftSidePanel()
+        private void SetMainSplitViewState(SplitView.State state)
         {
-            Debug.Log("Toggling left side panel");
-            _storeService.Store.Dispatch(MainActions.TOGGLE_LEFT_SIDE_PANEL);
-        }
-
-        [ICommand]
-        private void ToggleRightSidePanel()
-        {
-            _storeService.Store.Dispatch(MainActions.TOGGLE_RIGHT_SIDE_PANEL);
+            _storeService.Store.Dispatch(MainActions.SET_MAIN_SPLIT_VIEW_STATE, state);
         }
 
         [ICommand]

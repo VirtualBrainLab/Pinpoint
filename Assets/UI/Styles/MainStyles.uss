@@ -1,4 +1,5 @@
 .side-panel {
     background-color: var(--appui-backgrounds-100);
     min-width: 25%;
+    max-width: 40%;
 }

@@ -7,57 +7,48 @@
     <Unity.AppUI.UI.Panel picking-mode="Ignore" style="background-color: rgba(29, 29, 29, 0);">
         <Unity.AppUI.UI.SplitView show-expand-buttons="true" name="main-split-view" style="flex-grow: 1;">
             <Unity.AppUI.UI.Pane class="side-panel">
-                <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
-                    <ui:VisualElement class="side-panel__item--open" style="flex-direction: row; flex-grow: 1;">
-                        <Unity.AppUI.UI.MenuTrigger>
-                            <Unity.AppUI.UI.ActionButton label="File" />
-                            <Unity.AppUI.UI.Menu>
-                                <Unity.AppUI.UI.MenuItem label="Save" />
-                                <Unity.AppUI.UI.MenuItem label="Load" />
-                            </Unity.AppUI.UI.Menu>
-                        </Unity.AppUI.UI.MenuTrigger>
-                        <Unity.AppUI.UI.Toggle label="Automation Mode">
-                            <Bindings>
-                                <ui:DataBinding property="value" data-source-path="IsAutomationModeActive" binding-mode="TwoWay" />
-                            </Bindings>
-                        </Unity.AppUI.UI.Toggle>
+                <ui:VisualElement style="flex-direction: row;">
+                    <Unity.AppUI.UI.MenuTrigger>
+                        <Unity.AppUI.UI.ActionButton label="File" />
+                        <Unity.AppUI.UI.Menu>
+                            <Unity.AppUI.UI.MenuItem label="Save" />
+                            <Unity.AppUI.UI.MenuItem label="Load" />
+                        </Unity.AppUI.UI.Menu>
+                    </Unity.AppUI.UI.MenuTrigger>
+                    <Unity.AppUI.UI.Toggle label="Automation Mode">
                         <Bindings>
-                            <ui:DataBinding property="style.display" data-source-path="IsLeftSidePanelOpen" binding-mode="ToTarget" />
+                            <ui:DataBinding property="value" data-source-path="IsAutomationModeActive" binding-mode="TwoWay" />
                         </Bindings>
-                    </ui:VisualElement>
-                    <Unity.AppUI.UI.Button leading-icon="minus" name="left-side-panel__toggle">
+                    </Unity.AppUI.UI.Toggle>
+                    <Unity.AppUI.UI.Spacer spacing="Expand" />
+                    <Unity.AppUI.UI.Button leading-icon="minus" name="left-side-panel__collapse-button">
                         <Bindings>
                             <ui:DataBinding property="leadingIcon" data-source-path="IsLeftSidePanelOpen" binding-mode="ToTarget" source-to-ui-converters="BooleanToSidePanelToggleIcon" />
                         </Bindings>
                     </Unity.AppUI.UI.Button>
                 </ui:VisualElement>
-                <ui:VisualElement style="flex-grow: 1;">
-                    <Unity.AppUI.UI.Tabs value="0" name="left-side-panel__tabs">
-                        <Unity.AppUI.UI.TabItem label="Scene" />
-                        <Unity.AppUI.UI.TabItem label="Atlas" />
-                        <Unity.AppUI.UI.TabItem label="Channel Maps &amp; Slices" />
-                    </Unity.AppUI.UI.Tabs>
-                    <Unity.AppUI.UI.SwipeView swipeable="false" style="flex-grow: 1;">
-                        <Unity.AppUI.UI.SwipeViewItem>
-                            <ui:Instance template="Scene" name="scene-view" style="flex-grow: 1; width: 100%;" />
-                        </Unity.AppUI.UI.SwipeViewItem>
-                        <Unity.AppUI.UI.SwipeViewItem>
-                            <ui:Instance template="Atlas" name="atlas-view" style="flex-grow: 1; width: 100%;" />
-                        </Unity.AppUI.UI.SwipeViewItem>
-                        <Unity.AppUI.UI.SwipeViewItem />
-                        <Bindings>
-                            <ui:DataBinding property="value" data-source-path="LeftSidePanelTabIndex" binding-mode="ToTarget" />
-                        </Bindings>
-                    </Unity.AppUI.UI.SwipeView>
+                <Unity.AppUI.UI.Tabs value="0" name="left-side-panel__tabs">
+                    <Unity.AppUI.UI.TabItem label="Scene" />
+                    <Unity.AppUI.UI.TabItem label="Atlas" />
+                    <Unity.AppUI.UI.TabItem label="Channel Maps &amp; Slices" />
+                </Unity.AppUI.UI.Tabs>
+                <Unity.AppUI.UI.SwipeView swipeable="false" style="flex-grow: 1;">
+                    <Unity.AppUI.UI.SwipeViewItem>
+                        <ui:Instance template="Scene" name="scene-view" style="flex-grow: 1; width: 100%;" />
+                    </Unity.AppUI.UI.SwipeViewItem>
+                    <Unity.AppUI.UI.SwipeViewItem>
+                        <ui:Instance template="Atlas" name="atlas-view" style="flex-grow: 1; width: 100%;" />
+                    </Unity.AppUI.UI.SwipeViewItem>
+                    <Unity.AppUI.UI.SwipeViewItem />
                     <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="IsLeftSidePanelOpen" binding-mode="ToTarget" />
+                        <ui:DataBinding property="value" data-source-path="LeftSidePanelTabIndex" binding-mode="ToTarget" />
                     </Bindings>
-                </ui:VisualElement>
+                </Unity.AppUI.UI.SwipeView>
             </Unity.AppUI.UI.Pane>
             <Unity.AppUI.UI.Pane stretch-factor="1" />
             <Unity.AppUI.UI.Pane class="side-panel">
                 <ui:VisualElement style="flex-direction: row;">
-                    <Unity.AppUI.UI.Button leading-icon="minus" name="right-side-panel__toggle">
+                    <Unity.AppUI.UI.Button leading-icon="minus" name="right-side-panel__collapse-button">
                         <Bindings>
                             <ui:DataBinding property="leadingIcon" data-source-path="IsRightSidePanelOpen" binding-mode="ToTarget" source-to-ui-converters="BooleanToSidePanelToggleIcon" />
                         </Bindings>
@@ -75,25 +66,17 @@
                         </Bindings>
                     </ui:VisualElement>
                     <Unity.AppUI.UI.Heading size="S" text="No Probe Selected" />
-                    <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="IsRightSidePanelOpen" binding-mode="ToTarget" />
-                    </Bindings>
                 </ui:VisualElement>
-                <ui:VisualElement style="flex-grow: 1;">
-                    <ui:Instance template="Inspector" name="inspector-view" style="flex-grow: 1;">
-                        <Bindings>
-                            <ui:DataBinding property="style.display" data-source-path="IsAutomationModeActive" binding-mode="ToTarget" source-to-ui-converters="BooleanToInspectorVisibility" />
-                        </Bindings>
-                    </ui:Instance>
-                    <ui:Instance template="Automation" name="automation-view" style="flex-grow: 1; display: none;">
-                        <Bindings>
-                            <ui:DataBinding property="style.display" data-source-path="IsAutomationModeActive" binding-mode="ToTarget" />
-                        </Bindings>
-                    </ui:Instance>
+                <ui:Instance template="Inspector" name="inspector-view" style="flex-grow: 1;">
                     <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="IsRightSidePanelOpen" binding-mode="ToTarget" />
+                        <ui:DataBinding property="style.display" data-source-path="IsAutomationModeActive" binding-mode="ToTarget" source-to-ui-converters="BooleanToInspectorVisibility" />
                     </Bindings>
-                </ui:VisualElement>
+                </ui:Instance>
+                <ui:Instance template="Automation" name="automation-view" style="flex-grow: 1; display: none;">
+                    <Bindings>
+                        <ui:DataBinding property="style.display" data-source-path="IsAutomationModeActive" binding-mode="ToTarget" />
+                    </Bindings>
+                </ui:Instance>
             </Unity.AppUI.UI.Pane>
         </Unity.AppUI.UI.SplitView>
     </Unity.AppUI.UI.Panel>
