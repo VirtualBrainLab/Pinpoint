@@ -21,11 +21,7 @@
                         </Bindings>
                     </Unity.AppUI.UI.Toggle>
                     <Unity.AppUI.UI.Spacer spacing="Expand" />
-                    <Unity.AppUI.UI.Button leading-icon="minus" name="left-side-panel__collapse-button">
-                        <Bindings>
-                            <ui:DataBinding property="leadingIcon" data-source-path="IsLeftSidePanelOpen" binding-mode="ToTarget" source-to-ui-converters="BooleanToSidePanelToggleIcon" />
-                        </Bindings>
-                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button leading-icon="minus" name="left-side-panel__collapse-button" />
                 </ui:VisualElement>
                 <Unity.AppUI.UI.Tabs value="0" name="left-side-panel__tabs">
                     <Unity.AppUI.UI.TabItem label="Scene" />
@@ -48,11 +44,7 @@
             <Unity.AppUI.UI.Pane stretch-factor="1" />
             <Unity.AppUI.UI.Pane class="side-panel">
                 <ui:VisualElement style="flex-direction: row;">
-                    <Unity.AppUI.UI.Button leading-icon="minus" name="right-side-panel__collapse-button">
-                        <Bindings>
-                            <ui:DataBinding property="leadingIcon" data-source-path="IsRightSidePanelOpen" binding-mode="ToTarget" source-to-ui-converters="BooleanToSidePanelToggleIcon" />
-                        </Bindings>
-                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button leading-icon="minus" name="right-side-panel__collapse-button" />
                     <Unity.AppUI.UI.Heading text="Inspector">
                         <Bindings>
                             <ui:DataBinding property="style.display" data-source-path="IsRightSidePanelOpen" binding-mode="ToTarget" />

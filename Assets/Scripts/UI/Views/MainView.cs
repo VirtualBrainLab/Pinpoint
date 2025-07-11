@@ -13,6 +13,12 @@ namespace UI.Views
     /// </summary>
     public class MainView
     {
+        #region Constants
+
+        private const int LEFT_SIDE_PANEL_SPLITTER_INDEX = 0;
+        private const int RIGHT_SIDE_PANEL_SPLITTER_INDEX = 1;
+
+        #endregion
         #region Component References
 
         public VisualElement Root { get; }
@@ -60,12 +66,12 @@ namespace UI.Views
             // Register event handlers.
             leftSidePanelCollapseButton.clickable.clicked += () =>
             {
-                mainSplitView.CollapseSplitter(0, CollapseDirection.Backward);
+                mainSplitView.CollapseSplitter(LEFT_SIDE_PANEL_SPLITTER_INDEX, CollapseDirection.Backward);
                 mainViewModel.SetMainSplitViewStateCommand.Execute(mainSplitView.SaveState());
             };
             rightSidePanelCollapseButton.clickable.clicked += () =>
             {
-                mainSplitView.CollapseSplitter(1, CollapseDirection.Forward);
+                mainSplitView.CollapseSplitter(RIGHT_SIDE_PANEL_SPLITTER_INDEX, CollapseDirection.Forward);
                 mainViewModel.SetMainSplitViewStateCommand.Execute(mainSplitView.SaveState());
             };
             leftSidePanelTabs.RegisterValueChangedCallback(evt =>
