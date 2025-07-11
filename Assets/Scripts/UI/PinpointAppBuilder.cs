@@ -37,8 +37,9 @@ namespace UI
 
             // ViewModels.
             builder.services.AddSingleton<MainViewModel>();
-            builder.services.AddSingleton<AutomationViewModel>();
+            builder.services.AddSingleton<SceneViewModel>();
             builder.services.AddSingleton<AtlasViewModel>();
+            builder.services.AddSingleton<AutomationViewModel>();
             builder.services.AddSingleton<EphysLinkViewModel>();
 
             // Views.

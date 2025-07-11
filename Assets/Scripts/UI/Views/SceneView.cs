@@ -19,9 +19,12 @@ namespace UI.Views
             // Register component references.
             _manipulatorListView = root.Q<ListView>("scene__manipulators-list");
 
-            _manipulatorListView.itemsSource = sceneViewModel.ManipulatorListItems;
+            _manipulatorListView.itemsSource = sceneViewModel.ManipulatorListItemViewModels;
             _manipulatorListView.bindItem = (element, i) =>
-                _ = new ManipulatorListItem(element, sceneViewModel.ManipulatorListItems[i]);
+                _ = new ManipulatorListItem(
+                    element,
+                    sceneViewModel.ManipulatorListItemViewModels[i]
+                );
         }
     }
 }
