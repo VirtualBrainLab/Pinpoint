@@ -1,10 +1,7 @@
-using System.ComponentModel;
-using Models;
 using UI.Utils;
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using Button = Unity.AppUI.UI.Button;
 
@@ -16,21 +13,17 @@ namespace UI.Views
     /// </summary>
     public class MainView
     {
+        #region Constants
+
+        private const int LEFT_SIDE_PANEL_SPLITTER_INDEX = 0;
+        private const int RIGHT_SIDE_PANEL_SPLITTER_INDEX = 1;
+
+        #endregion
         #region Component References
 
         public VisualElement Root { get; }
 
-        private readonly VisualElement _leftSidePanel;
-        private readonly VisualElement _rightSidePanel;
-
-        private readonly Button _leftSidePanelToggle;
-        private readonly Button _rightSidePanelToggle;
-
-        private readonly Tabs _leftSidePanelTabs;
-
         #endregion
-
-        private readonly MainViewModel _viewModel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainView"/> class.
@@ -53,16 +46,13 @@ namespace UI.Views
             Root = PinpointApp.Current.rootVisualElement;
 
             // Get view model and register property changes and bindings.
-            _viewModel = mainViewModel;
-            _viewModel.PropertyChanged += OnPropertyChanged;
-            Root.dataSource = _viewModel;
+            Root.dataSource = mainViewModel;
 
             // Register component references.
-            _leftSidePanel = Root.Q<VisualElement>("left-side-panel");
-            _rightSidePanel = Root.Q<VisualElement>("right-side-panel");
-            _leftSidePanelToggle = _leftSidePanel.Q<Button>("left-side-panel__toggle");
-            _rightSidePanelToggle = _rightSidePanel.Q<Button>("right-side-panel__toggle");
-            _leftSidePanelTabs = _leftSidePanel.Q<Tabs>("left-side-panel__tabs");
+            var mainSplitView = Root.Q<SplitView>("main-split-view");
+            var leftSidePanelCollapseButton = Root.Q<Button>("left-side-panel__collapse-button");
+            var rightSidePanelCollapseButton = Root.Q<Button>("right-side-panel__collapse-button");
+            var leftSidePanelTabs = Root.Q<Tabs>("left-side-panel__tabs");
 
             // Initialize subviews.
             _ = new SceneView(Root.Q<TemplateContainer>("scene-view"), sceneViewModel);
@@ -74,44 +64,24 @@ namespace UI.Views
             _ = new AtlasView(Root.Q<VisualElement>("atlas-view"), atlasViewModel);
 
             // Register event handlers.
-            _leftSidePanelToggle.clickable.clicked += _viewModel.ToggleLeftSidePanelCommand.Execute;
-            _rightSidePanelToggle.clickable.clicked += _viewModel
-                .ToggleRightSidePanelCommand
-                .Execute;
-            _leftSidePanelTabs.RegisterValueChangedCallback(evt =>
-                _viewModel.SetLeftSidePanelTabIndexCommand.Execute(evt.newValue)
+            leftSidePanelCollapseButton.clickable.clicked += () =>
+            {
+                mainSplitView.CollapseSplitter(LEFT_SIDE_PANEL_SPLITTER_INDEX, CollapseDirection.Backward);
+                mainViewModel.SetMainSplitViewStateCommand.Execute(mainSplitView.SaveState());
+            };
+            rightSidePanelCollapseButton.clickable.clicked += () =>
+            {
+                mainSplitView.CollapseSplitter(RIGHT_SIDE_PANEL_SPLITTER_INDEX, CollapseDirection.Forward);
+                mainViewModel.SetMainSplitViewStateCommand.Execute(mainSplitView.SaveState());
+            };
+            leftSidePanelTabs.RegisterValueChangedCallback(evt =>
+                mainViewModel.SetLeftSidePanelTabIndexCommand.Execute(evt.newValue)
             );
 
             // Initialize view from view model state.
-            if (!_viewModel.IsLeftSidePanelOpen)
-            {
-                _leftSidePanel.AddToClassList("side-panel--close");
-            }
-
-            if (!_viewModel.IsRightSidePanelOpen)
-            {
-                _rightSidePanel.AddToClassList("side-panel--close");
-            }
+            mainSplitView.RestoreState(mainViewModel.MainSplitViewState);
         }
 
-        /// <summary>
-        /// Handles property change notifications from the view model.
-        /// Updates the UI based on which property changed.
-        /// </summary>
-        /// <param name="sender">The sender of the event.</param>
-        /// <param name="e">The property changed event arguments.</param>
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(MainViewModel.IsLeftSidePanelOpen):
-                    _leftSidePanel.ToggleInClassList("side-panel--close");
-                    break;
-                case nameof(MainViewModel.IsRightSidePanelOpen):
-                    _rightSidePanel.ToggleInClassList("side-panel--close");
-                    break;
-            }
-        }
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
@@ -120,11 +90,6 @@ namespace UI.Views
 #endif
         public static void RegisterMainViewConverters()
         {
-            DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "BooleanToSidePanelToggleIcon",
-                (ref bool isVisible) => isVisible ? "minus" : "plus"
-            );
-
             DataTypeConverters.RegisterUnidirectionalConverterGroup<bool, StyleEnum<DisplayStyle>>(
                 "BooleanToInspectorVisibility",
                 (ref bool isAutomationActive) =>

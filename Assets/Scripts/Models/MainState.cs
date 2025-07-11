@@ -1,5 +1,6 @@
 using System;
 using UI.Utils;
+using Unity.AppUI.UI;
 using UnityEngine;
 
 namespace Models
@@ -9,9 +10,7 @@ namespace Models
     {
         public bool IsAutomationModeActive;
 
-        public bool IsLeftSidePanelOpen = true;
-
-        public bool IsRightSidePanelOpen = true;
+        public SplitView.State MainSplitViewState;
 
         public int LeftSidePanelTabIndex;
     }

@@ -1,7 +1,7 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <engine:Template name="EphysLink" src="project://database/Assets/UI/Views/EphysLink.uxml?fileID=9197481963319205126&amp;guid=fb2d0eca83ae2094db77eeadefe18873&amp;type=3#EphysLink" />
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
-    <Unity.AppUI.UI.Panel>
+    <Unity.AppUI.UI.Panel data-source-type="UI.ViewModels.AutomationViewModel, Assembly-CSharp">
         <engine:ScrollView style="flex-grow: 1;">
             <Unity.AppUI.UI.Accordion>
                 <Unity.AppUI.UI.AccordionItem title="Ephys Link Configuration" tooltip="Configure connection to manipulators" value="true">
@@ -12,117 +12,47 @@
                 </Bindings>
             </Unity.AppUI.UI.Accordion>
             <engine:VisualElement class="inspector-panel">
-                <engine:Label text="Calibrate Reference Coordinate" />
-                <engine:Vector4Field>
+                <Unity.AppUI.UI.Heading text="Calibrate Reference Coordinate" size="S" />
+                <Unity.AppUI.UI.Vector4Field>
                     <Bindings>
                         <engine:DataBinding property="value" data-source-path="ReferenceCoordinate" binding-mode="TwoWay" />
                     </Bindings>
-                </engine:Vector4Field>
-                <engine:VisualElement style="flex-grow: 1; flex-direction: row; display: none;">
-                    <engine:VisualElement style="flex-grow: 1;">
-                        <engine:Label text="X" style="-unity-text-align: upper-center;" />
-                        <engine:FloatField>
-                            <Bindings>
-                                <engine:DataBinding property="value" data-source-path="ReferenceCoordinateCalibrationX" binding-mode="ToTarget" />
-                            </Bindings>
-                        </engine:FloatField>
-                    </engine:VisualElement>
-                    <engine:VisualElement style="flex-grow: 1;">
-                        <engine:Label text="Y" style="-unity-text-align: upper-center;" />
-                        <engine:FloatField>
-                            <Bindings>
-                                <engine:DataBinding property="value" data-source-path="ReferenceCoordinateCalibrationY" binding-mode="TwoWay" />
-                            </Bindings>
-                        </engine:FloatField>
-                    </engine:VisualElement>
-                    <engine:VisualElement style="flex-grow: 1;">
-                        <engine:Label text="Z" style="-unity-text-align: upper-center;" />
-                        <engine:FloatField>
-                            <Bindings>
-                                <engine:DataBinding property="value" data-source-path="ReferenceCoordinateCalibrationZ" binding-mode="TwoWay" />
-                            </Bindings>
-                        </engine:FloatField>
-                    </engine:VisualElement>
-                    <engine:VisualElement style="flex-grow: 1;">
-                        <engine:Label text="Depth" style="-unity-text-align: upper-center;" />
-                        <engine:FloatField>
-                            <Bindings>
-                                <engine:DataBinding property="value" data-source-path="ReferenceCoordinateCalibrationDepth" binding-mode="TwoWay" />
-                            </Bindings>
-                        </engine:FloatField>
-                    </engine:VisualElement>
-                </engine:VisualElement>
-                <engine:Button text="Reset Reference Coordinate" name="reference-coordinate__reset-button" />
+                </Unity.AppUI.UI.Vector4Field>
+                <Unity.AppUI.UI.Button title="Reset Reference Coordinate" name="reference-coordinate__reset-button" />
             </engine:VisualElement>
             <engine:VisualElement class="inspectorBox inspector-panel">
-                <engine:Label text="Choose a Target" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-                <engine:RadioButtonGroup choices="None" value="0" name="target__choices-group">
-                    <Bindings>
-                        <engine:DataBinding property="choices" data-source-path="TargetInsertionProbeStates" binding-mode="ToTarget" source-to-ui-converters="TargetableProbeStatesToTargetInsertionOptions" />
-                        <engine:DataBinding property="value" data-source-path="SelectedTargetInsertionProbeIndex" binding-mode="TwoWay" />
-                    </Bindings>
-                </engine:RadioButtonGroup>
-                <engine:Button text="Drive to Target Entry Coordinate" name="target__entry-drive-button">
-                    <Bindings>
-                        <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToDriveToTargetEntryCoordinateButtonVisibility" />
-                        <engine:DataBinding property="enabledSelf" data-source-path="SelectedTargetInsertionProbeIndex" binding-mode="ToTarget" />
-                    </Bindings>
-                </engine:Button>
-                <engine:Button text="Stop" name="target__stop-button">
-                    <Bindings>
-                        <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToStopDriveToTargetEntryCoordinateButtonVisibility" />
-                    </Bindings>
-                </engine:Button>
+                <Unity.AppUI.UI.Heading text="Choose a Target Insertion" size="S" />
+                <Unity.AppUI.UI.Dropdown name="target-dropdown" />
+                <Unity.AppUI.UI.Button title="Drive to Target Entry Coordinate" variant="Default" name="target__entry-drive-button" />
+                <Unity.AppUI.UI.Button title="Stop" variant="Destructive" size="L" name="target__stop-button" style="display: none;" />
             </engine:VisualElement>
             <engine:VisualElement class="inspectorBox inspector-panel">
-                <engine:Label tabindex="-1" text="Calibrate Dura Coordinate" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-                <engine:FloatField label="Offset (mm)">
+                <Unity.AppUI.UI.Heading text="Calibrate Dura Coordinate" size="S" />
+                <Unity.AppUI.UI.FloatField unit="Offset from atlas (mm)" tooltip="Offset from atlas">
                     <Bindings>
                         <engine:DataBinding property="value" data-source-path="DuraOffset" binding-mode="TwoWay" />
                     </Bindings>
-                </engine:FloatField>
-                <engine:Button text="Reset Dura Calibration" name="dura__reset-button" />
+                </Unity.AppUI.UI.FloatField>
+                <Unity.AppUI.UI.Button title="Reset Dura Calibration" name="dura__reset-button" />
             </engine:VisualElement>
             <engine:VisualElement class="inspectorBox inspector-panel">
-                <engine:Label tabindex="-1" text="Drive to Target Insertion" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-                <engine:DropdownField label="Speed (µm/s)" index="1" choices="2,5,10,Test (500),Custom">
-                    <Bindings>
-                        <engine:DataBinding property="index" data-source-path="SelectedInsertionBaseSpeedIndex" binding-mode="TwoWay" />
-                    </Bindings>
-                </engine:DropdownField>
-                <engine:IntegerField label="Custom Speed (µm/s)" value="20">
+                <Unity.AppUI.UI.Heading text="Drive to Target Insertion" size="S" />
+                <Unity.AppUI.UI.Dropdown default-message="Select insertion speed (µm/s)..." tooltip="Insertion speed (µm/s)" />
+                <Unity.AppUI.UI.IntField unit="Custom speed (µm/s)" value="20" style="display: none;">
                     <Bindings>
                         <engine:DataBinding property="value" data-source-path="CustomInsertionSpeed" binding-mode="TwoWay" />
-                        <engine:DataBinding property="style.display" data-source-path="SelectedInsertionSpeedIndex" binding-mode="ToTarget" source-to-ui-converters="SelectedInsertionSpeedIndexToCustomSpeedVisibility" />
                     </Bindings>
-                </engine:IntegerField>
-                <engine:IntegerField label="Drive Past by (µm)" value="50">
+                </Unity.AppUI.UI.IntField>
+                <Unity.AppUI.UI.IntField unit="Drive Past by (µm)" value="50">
                     <Bindings>
                         <engine:DataBinding property="value" data-source-path="DrivePastDistance" binding-mode="TwoWay" />
                     </Bindings>
-                </engine:IntegerField>
-                <engine:Label text="ETA: ">
-                    <Bindings>
-                        <engine:DataBinding property="text" data-source-path="Eta" binding-mode="ToTarget" source-to-ui-converters="ETASecondsToETAText" />
-                        <engine:DataBinding property="style.display" data-source-path="Eta" binding-mode="ToTarget" source-to-ui-converters="ETASecondsToETAVisibility" />
-                    </Bindings>
-                </engine:Label>
-                <engine:Button text="Drive" name="insertion__drive-button" style="flex-grow: 1;">
-                    <Bindings>
-                        <engine:DataBinding property="enabledSelf" data-source-path="IsDriveToTargetInsertionButtonEnabled" binding-mode="ToTarget" />
-                        <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToInsertionDriveButtonVisibility" />
-                    </Bindings>
-                </engine:Button>
-                <engine:Button text="Exit" name="insertion__exit-button" style="flex-grow: 1;">
-                    <Bindings>
-                        <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToInsertionExitButtonVisibility" />
-                    </Bindings>
-                </engine:Button>
-                <engine:Button text="Stop" name="insertion__stop-button" style="flex-grow: 1;">
-                    <Bindings>
-                        <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToInsertionStopButtonVisibility" />
-                    </Bindings>
-                </engine:Button>
+                </Unity.AppUI.UI.IntField>
+                <Unity.AppUI.UI.Text text="ETA: 00:00" />
+                <Unity.AppUI.UI.LinearProgress variant="Determinate" value="0" tooltip="ETA" />
+                <Unity.AppUI.UI.Button title="Drive" variant="Accent" size="M" name="insertion__drive-button" />
+                <Unity.AppUI.UI.Button name="insertion__exit-button" title="Exit" style="display: none;" />
+                <Unity.AppUI.UI.Button name="insertion__stop-button" title="Stop" size="L" variant="Destructive" style="display: none;" />
             </engine:VisualElement>
         </engine:ScrollView>
     </Unity.AppUI.UI.Panel>
