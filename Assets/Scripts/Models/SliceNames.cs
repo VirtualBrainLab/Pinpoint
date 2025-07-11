@@ -4,5 +4,6 @@ namespace Models
     {
         public const string MAIN_SLICE = "main";
         public const string SCENE_SLICE = "scene";
+        public const string EPHYS_LINK_SLICE = "ephysLink";
     }
 }

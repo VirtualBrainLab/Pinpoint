@@ -38,10 +38,14 @@ namespace UI.Views
         /// </summary>
         /// <param name="mainViewModel">The view model to bind to.</param>
         /// <param name="automationViewModel">Automation view model to pass to the automation view.</param>
-        /// <param name="atlasViewModel">Atlas view model to pass to the atlas view</param>
+        /// <param name="ephysLinkViewModel">Ephys Link view model to pass to the automation view.</param>
+        /// <param name="sceneViewModel">Scene view model to pass to the scene hierarchy view.</param>
+        /// <param name="atlasViewModel">Atlas view model to pass to the atlas view.</param>
         public MainView(
             MainViewModel mainViewModel,
             AutomationViewModel automationViewModel,
+            EphysLinkViewModel ephysLinkViewModel,
+            SceneViewModel sceneViewModel,
             AtlasViewModel atlasViewModel
         )
         {
@@ -61,10 +65,15 @@ namespace UI.Views
             _leftSidePanelTabs = _leftSidePanel.Q<Tabs>("left-side-panel__tabs");
 
             // Initialize subviews.
-            _ = new AutomationView(Root.Q<VisualElement>("automation-view"), automationViewModel);
+            _ = new SceneView(Root.Q<TemplateContainer>("scene-view"), sceneViewModel);
+            _ = new AutomationView(
+                Root.Q<TemplateContainer>("automation-view"),
+                automationViewModel,
+                ephysLinkViewModel
+            );
             _ = new AtlasView(Root.Q<VisualElement>("atlas-view"), atlasViewModel);
 
-            // Register callbacks.
+            // Register event handlers.
             _leftSidePanelToggle.clickable.clicked += _viewModel.ToggleLeftSidePanelCommand.Execute;
             _rightSidePanelToggle.clickable.clicked += _viewModel
                 .ToggleRightSidePanelCommand
@@ -106,8 +115,9 @@ namespace UI.Views
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
-#endif
+#else
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
         public static void RegisterMainViewConverters()
         {
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
@@ -115,37 +125,10 @@ namespace UI.Views
                 (ref bool isVisible) => isVisible ? "minus" : "plus"
             );
 
-            DataTypeConverters.RegisterBidirectionalConverterGroup(
-                "MainModeToInt",
-                (ref MainMode mode) => (int)mode,
-                (ref int modeIndex) => (MainMode)modeIndex
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToInspectorPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode < MainMode.Automation ? DisplayStyle.Flex : DisplayStyle.None
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToAutomationPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode > MainMode.Visualization ? DisplayStyle.Flex : DisplayStyle.None
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                MainMode,
-                StyleEnum<DisplayStyle>
-            >(
-                "MainModeToManualControlPanelDisplayStyle",
-                (ref MainMode mode) =>
-                    mode > MainMode.Planning ? DisplayStyle.Flex : DisplayStyle.None
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<bool, StyleEnum<DisplayStyle>>(
+                "BooleanToInspectorVisibility",
+                (ref bool isAutomationActive) =>
+                    isAutomationActive ? DisplayStyle.None : DisplayStyle.Flex
             );
         }
     }

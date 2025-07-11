@@ -1,0 +1,10 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Unity.AppUI.UI.Panel data-source-type="UI.ViewModels.SceneViewModel, Assembly-CSharp">
+        <ui:ListView style="flex-grow: 1;" />
+        <Unity.AppUI.UI.Accordion>
+            <Unity.AppUI.UI.AccordionItem title="Manipulators" value="true">
+                <ui:ListView item-template="project://database/Assets/UI/Components/ManipulatorListItem.uxml?fileID=9197481963319205126&amp;guid=2e954e0e106ba1445bb698ca7b772ad8&amp;type=3#ManipulatorListItem" name="scene__manipulators-list" virtualization-method="DynamicHeight" style="flex-grow: 1;" />
+            </Unity.AppUI.UI.AccordionItem>
+        </Unity.AppUI.UI.Accordion>
+    </Unity.AppUI.UI.Panel>
+</ui:UXML>

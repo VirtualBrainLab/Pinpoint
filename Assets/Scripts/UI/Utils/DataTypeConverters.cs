@@ -12,8 +12,9 @@ namespace UI.Utils
     {
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
-#endif
+#else
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
         private static void RegisterConverters()
         {
             // Boolean -> StyleEnum<DisplayStyle>

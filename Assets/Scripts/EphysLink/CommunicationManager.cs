@@ -60,6 +60,7 @@ namespace EphysLink
 
         public void ServerSettingsLoaded()
         {
+            return;
             // Automatically connect if the server credentials are possible
             if (
                 !IsConnected

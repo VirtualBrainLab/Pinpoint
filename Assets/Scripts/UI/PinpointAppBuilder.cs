@@ -33,11 +33,14 @@ namespace UI
             builder.services.AddSingleton<StoreService>();
             builder.services.AddSingleton<ProbeService>();
             builder.services.AddSingleton<AtlasService>();
+            builder.services.AddSingleton<EphysLinkService>();
 
             // ViewModels.
             builder.services.AddSingleton<MainViewModel>();
-            builder.services.AddSingleton<AutomationViewModel>();
+            builder.services.AddSingleton<SceneViewModel>();
             builder.services.AddSingleton<AtlasViewModel>();
+            builder.services.AddSingleton<AutomationViewModel>();
+            builder.services.AddSingleton<EphysLinkViewModel>();
 
             // Views.
             builder.services.AddSingleton<MainView>();

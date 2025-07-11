@@ -22,7 +22,7 @@ namespace UI.ViewModels
         #region Properties
 
         [ObservableProperty]
-        private MainMode _mainMode;
+        private bool _isAutomationModeActive;
 
         [ObservableProperty]
         private bool _isLeftSidePanelOpen;
@@ -75,7 +75,7 @@ namespace UI.ViewModels
 
         private void OnMainStateChanged(MainState state)
         {
-            MainMode = state.MainMode;
+            IsAutomationModeActive = state.IsAutomationModeActive;
             IsLeftSidePanelOpen = state.IsLeftSidePanelOpen;
             IsRightSidePanelOpen = state.IsRightSidePanelOpen;
             LeftSidePanelTabIndex = state.LeftSidePanelTabIndex;
@@ -91,8 +91,11 @@ namespace UI.ViewModels
         {
             switch (e.PropertyName)
             {
-                case nameof(MainMode):
-                    _storeService.Store.Dispatch(MainActions.SET_MODE, MainMode);
+                case nameof(IsAutomationModeActive):
+                    _storeService.Store.Dispatch(
+                        MainActions.SET_IS_AUTOMATION_MODE_ACTIVE,
+                        IsAutomationModeActive
+                    );
                     break;
             }
         }

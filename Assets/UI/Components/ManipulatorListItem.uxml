@@ -1,0 +1,15 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement data-source-type="UI.ViewModels.ManipulatorListItemViewModel, Assembly-CSharp">
+        <Unity.AppUI.UI.Heading text="Manipulator x" size="S">
+            <Bindings>
+                <ui:DataBinding property="text" data-source-path="Name" binding-mode="ToTarget" />
+            </Bindings>
+        </Unity.AppUI.UI.Heading>
+        <Unity.AppUI.UI.Dropdown tooltip="Select visualization probe" default-message="Select visualization probe..." name="manipulator-list-item__visualization-probe-dropdown" />
+        <Unity.AppUI.UI.Checkbox label="Left handed">
+            <Bindings>
+                <ui:DataBinding property="value" data-source-path="IsLeftHanded" binding-mode="ToTarget" source-to-ui-converters="BooleanToCheckboxState" />
+            </Bindings>
+        </Unity.AppUI.UI.Checkbox>
+    </ui:VisualElement>
+</ui:UXML>

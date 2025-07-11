@@ -15,8 +15,6 @@ namespace UI.Views
     {
         #region Component References
 
-        private readonly VisualElement _root;
-
         private readonly Button _resetReferenceCoordinateButton;
         private readonly RadioButtonGroup _targetChoicesGroup;
         private readonly Button _targetEntryDriveButton;
@@ -30,44 +28,50 @@ namespace UI.Views
 
         private readonly AutomationViewModel _automationViewModel;
 
-        public AutomationView(VisualElement root, AutomationViewModel automationViewModel)
+        public AutomationView(
+            TemplateContainer root,
+            AutomationViewModel automationViewModel,
+            EphysLinkViewModel ephysLinkViewModel
+        )
         {
-            _root = root;
-            _automationViewModel = automationViewModel;
-            _root.dataSource = _automationViewModel;
-            _automationViewModel.PropertyChanged += OnPropertyChanged;
+            // _automationViewModel = automationViewModel;
+            // root.dataSource = _automationViewModel;
+            // _automationViewModel.PropertyChanged += OnPropertyChanged;
+            //
+            // // Register component references.
+            // _resetReferenceCoordinateButton = root.Q<Button>("reference-coordinate__reset-button");
+            // _targetChoicesGroup = root.Q<RadioButtonGroup>("target__choices-group");
+            // _targetEntryDriveButton = root.Q<Button>("target__entry-drive-button");
+            // _targetStopButton = root.Q<Button>("target__stop-button");
+            // _duraResetButton = root.Q<Button>("dura__reset-button");
+            // _insertionDriveButton = root.Q<Button>("insertion__drive-button");
+            // _insertionExitButton = root.Q<Button>("insertion__exit-button");
+            // _insertionStopButton = root.Q<Button>("insertion__stop-button");
 
-            // Register component references.
-            _resetReferenceCoordinateButton = _root.Q<Button>("reference-coordinate__reset-button");
-            _targetChoicesGroup = _root.Q<RadioButtonGroup>("target__choices-group");
-            _targetEntryDriveButton = _root.Q<Button>("target__entry-drive-button");
-            _targetStopButton = _root.Q<Button>("target__stop-button");
-            _duraResetButton = _root.Q<Button>("dura__reset-button");
-            _insertionDriveButton = _root.Q<Button>("insertion__drive-button");
-            _insertionExitButton = _root.Q<Button>("insertion__exit-button");
-            _insertionStopButton = _root.Q<Button>("insertion__stop-button");
+            // Initialize subviews.
+            _ = new EphysLinkView(root.Q<TemplateContainer>("ephys-link-view"), ephysLinkViewModel);
 
-            // Edit default components.
-            var referenceCoordinateDepthLabel = _root.Q<FloatField>("unity-w-input").Q<Label>();
-            referenceCoordinateDepthLabel.text = "Depth";
-
-            // Register callbacks.
-            _resetReferenceCoordinateButton.clicked += _automationViewModel
-                .ResetReferenceCoordinateCommand
-                .Execute;
-            _targetEntryDriveButton.clicked += _automationViewModel
-                .DriveToTargetEntryCoordinateCommand
-                .Execute;
-            _targetStopButton.clicked += _automationViewModel
-                .StopDriveToTargetEntryCoordinateCommand
-                .Execute;
-            _duraResetButton.clicked += _automationViewModel.ResetDuraOffsetCommand.Execute;
-            _insertionDriveButton.clicked += _automationViewModel.InsertionDriveCommand.Execute;
-            _insertionExitButton.clicked += _automationViewModel.InsertionExitCommand.Execute;
-            _insertionStopButton.clicked += _automationViewModel.StopInsertionDriveCommand.Execute;
-
-            // Initialize view from view model state.
-            ApplyProbeColorsToTargetChoices();
+            // // Edit default components.
+            // var referenceCoordinateDepthLabel = root.Q<FloatField>("unity-w-input").Q<Label>();
+            // referenceCoordinateDepthLabel.text = "Depth";
+            //
+            // // Register event handlers.
+            // _resetReferenceCoordinateButton.clicked += _automationViewModel
+            //     .ResetReferenceCoordinateCommand
+            //     .Execute;
+            // _targetEntryDriveButton.clicked += _automationViewModel
+            //     .DriveToTargetEntryCoordinateCommand
+            //     .Execute;
+            // _targetStopButton.clicked += _automationViewModel
+            //     .StopDriveToTargetEntryCoordinateCommand
+            //     .Execute;
+            // _duraResetButton.clicked += _automationViewModel.ResetDuraOffsetCommand.Execute;
+            // _insertionDriveButton.clicked += _automationViewModel.InsertionDriveCommand.Execute;
+            // _insertionExitButton.clicked += _automationViewModel.InsertionExitCommand.Execute;
+            // _insertionStopButton.clicked += _automationViewModel.StopInsertionDriveCommand.Execute;
+            //
+            // // Initialize view from view model state.
+            // ApplyProbeColorsToTargetChoices();
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -104,8 +108,9 @@ namespace UI.Views
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
-#endif
+#else
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
         public static void RegisterAutomationViewConverters()
         {
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
