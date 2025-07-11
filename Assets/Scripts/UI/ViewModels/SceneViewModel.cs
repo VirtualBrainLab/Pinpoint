@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Models;
@@ -49,22 +50,34 @@ namespace UI.ViewModels
 
         private async void OnEphysLinkStateChanged(EphysLinkState state)
         {
-            if (state.ConnectionState == ConnectionState.Connected)
+            switch (state.ConnectionState)
             {
-                // Get manipulators from server.
-                var manipulatorsResponse = await _ephysLinkService.GetManipulators();
-
-                // Cancel if there was an error.
-                if (!string.IsNullOrEmpty(manipulatorsResponse.Error))
+                case ConnectionState.Connected:
                 {
-                    return;
-                }
+                    // Get manipulators from server.
+                    var manipulatorsResponse = await _ephysLinkService.GetManipulators();
 
-                // Map manipulators to view models.
-                var manipulatorsIds = manipulatorsResponse.Manipulators;
-                ManipulatorListItemViewModels = manipulatorsIds
-                    .Select(manipulatorId => new ManipulatorListItemViewModel(manipulatorId))
-                    .ToList();
+                    // Cancel if there was an error.
+                    if (!string.IsNullOrEmpty(manipulatorsResponse.Error))
+                    {
+                        return;
+                    }
+
+                    // Map manipulators to view models.
+                    ManipulatorListItemViewModels = manipulatorsResponse
+                        .Manipulators.Select(manipulatorId => new ManipulatorListItemViewModel(
+                            manipulatorId
+                        ))
+                        .ToList();
+                    break;
+                }
+                case ConnectionState.Disconnected:
+                    ManipulatorListItemViewModels = new List<ManipulatorListItemViewModel>();
+                    break;
+                case ConnectionState.Connecting:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }
