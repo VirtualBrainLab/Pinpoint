@@ -3,11 +3,8 @@ using System.Linq;
 using Models.Automation;
 using UI.Utils;
 using UI.ViewModels;
-using Unity.AppUI.MVVM;
 using Unity.AppUI.UI;
 using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 using Button = Unity.AppUI.UI.Button;
 
@@ -18,8 +15,6 @@ namespace UI.Views
         #region Component References
 
         private readonly Dropdown _platformTypeDropdown;
-        private readonly Button _connectButton;
-        private readonly Button _disconnectButton;
 
         #endregion
 
@@ -32,8 +27,8 @@ namespace UI.Views
 
             // Register component references.
             _platformTypeDropdown = root.Q<Dropdown>("ephys-link__platform-type-dropdown");
-            _connectButton = root.Q<Button>("ephys-link__connect-button");
-            _disconnectButton = root.Q<Button>("ephys-link__disconnect-button");
+            var connectButton = root.Q<Button>("ephys-link__connect-button");
+            var disconnectButton = root.Q<Button>("ephys-link__disconnect-button");
 
             BuildPlatformTypeDropdown();
 
@@ -41,8 +36,8 @@ namespace UI.Views
             _platformTypeDropdown.value = new[] { (int)_ephysLinkViewModel.SelectedPlatformType };
 
             // Register event handlers.
-            _connectButton.clickable.clicked += _ephysLinkViewModel.ConnectCommand.Execute;
-            _disconnectButton.clickable.clicked += _ephysLinkViewModel.DisconnectCommand.Execute;
+            connectButton.clickable.clicked += _ephysLinkViewModel.ConnectCommand.Execute;
+            disconnectButton.clickable.clicked += _ephysLinkViewModel.DisconnectCommand.Execute;
         }
 
         private void BuildPlatformTypeDropdown()

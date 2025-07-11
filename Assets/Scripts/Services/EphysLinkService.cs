@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -10,7 +9,6 @@ using Models.Automation;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Action = System.Action;
 
 namespace Services
@@ -19,7 +17,7 @@ namespace Services
     {
         #region Constants
 
-        private const string UNKOWN_EVENT_RESPONSE = "{\"error\": \"Unknown event.\"}";
+        private const string UNKNOWN_EVENT_RESPONSE = "{\"error\": \"Unknown event.\"}";
 
         #endregion
 
@@ -127,12 +125,12 @@ namespace Services
             _socketManager?.Close();
             _socketManager = null;
             _socket = null;
-            
+
             // Kill the Ephys Link process if it exists.
             _ephysLinkProcess?.Kill(true);
             _ephysLinkProcess?.Dispose();
             _ephysLinkProcess = null;
-            
+
             // Update the store state to disconnected.
             _storeService.Store.Dispatch(
                 EphysLinkActions.SET_CONNECTION_STATE,
@@ -429,7 +427,7 @@ namespace Services
         /// <returns>True if data is not empty and not the "unkown event" error, false otherwise.</returns>
         private static bool DataKnownAndNotEmpty(string data)
         {
-            return !string.IsNullOrEmpty(data) && !data.Equals(UNKOWN_EVENT_RESPONSE);
+            return !string.IsNullOrEmpty(data) && !data.Equals(UNKNOWN_EVENT_RESPONSE);
         }
 
         /// <summary>
