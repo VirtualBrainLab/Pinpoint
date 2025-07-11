@@ -1,9 +1,4 @@
 .side-panel {
     background-color: var(--appui-backgrounds-100);
-    width: 25%;
-}
-
-.side-panel--close {
-    background-color: transparent;
-    width: auto;
+    min-width: 25%;
 }

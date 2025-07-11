@@ -4,6 +4,7 @@ using UI.Utils;
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
+using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Button = Unity.AppUI.UI.Button;
@@ -20,6 +21,7 @@ namespace UI.Views
 
         public VisualElement Root { get; }
 
+        private readonly SplitView _splitView;
         private readonly VisualElement _leftSidePanel;
         private readonly VisualElement _rightSidePanel;
 
@@ -58,11 +60,11 @@ namespace UI.Views
             Root.dataSource = _viewModel;
 
             // Register component references.
-            _leftSidePanel = Root.Q<VisualElement>("left-side-panel");
-            _rightSidePanel = Root.Q<VisualElement>("right-side-panel");
-            _leftSidePanelToggle = _leftSidePanel.Q<Button>("left-side-panel__toggle");
-            _rightSidePanelToggle = _rightSidePanel.Q<Button>("right-side-panel__toggle");
-            _leftSidePanelTabs = _leftSidePanel.Q<Tabs>("left-side-panel__tabs");
+            _splitView = Root.Q<SplitView>("main-split-view");
+            
+            _leftSidePanelToggle = Root.Q<Button>("left-side-panel__toggle");
+            _rightSidePanelToggle = Root.Q<Button>("right-side-panel__toggle");
+            _leftSidePanelTabs = Root.Q<Tabs>("left-side-panel__tabs");
 
             // Initialize subviews.
             _ = new SceneView(Root.Q<TemplateContainer>("scene-view"), sceneViewModel);
@@ -74,10 +76,14 @@ namespace UI.Views
             _ = new AtlasView(Root.Q<VisualElement>("atlas-view"), atlasViewModel);
 
             // Register event handlers.
-            _leftSidePanelToggle.clickable.clicked += _viewModel.ToggleLeftSidePanelCommand.Execute;
-            _rightSidePanelToggle.clickable.clicked += _viewModel
-                .ToggleRightSidePanelCommand
-                .Execute;
+            _leftSidePanelToggle.clickable.clicked += () =>
+            {
+                _splitView.CollapseSplitter(0, CollapseDirection.Backward);
+            };
+            _rightSidePanelToggle.clickable.clicked += () =>
+            {
+                _splitView.CollapseSplitter(1, CollapseDirection.Forward);
+            };
             _leftSidePanelTabs.RegisterValueChangedCallback(evt =>
                 _viewModel.SetLeftSidePanelTabIndexCommand.Execute(evt.newValue)
             );
