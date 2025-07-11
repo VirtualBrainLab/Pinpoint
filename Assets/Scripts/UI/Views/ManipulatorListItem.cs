@@ -18,6 +18,10 @@ namespace UI.Views
             ManipulatorListItemViewModel manipulatorListItemViewModel
         )
         {
+            // Attach view model and register property changes.
+            root.dataSource = manipulatorListItemViewModel;
+            
+            // Register component references.
             _visualizationProbeDropdown = root.Q<Dropdown>(
                 "manipulator-list-item__visualization-probe-dropdown"
             );
