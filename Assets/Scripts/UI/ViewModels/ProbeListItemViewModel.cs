@@ -22,9 +22,9 @@ namespace UI.ViewModels
 
         public ProbeListItemViewModel(PinpointColor color, string name, bool hidden)
         {
-            _color = color;
-            _name = name;
-            _hidden = hidden;
+            Color = color;
+            Name = name;
+            Hidden = hidden;
         }
     }
 }
