@@ -9,6 +9,7 @@ namespace UI.Views
     {
         #region Component References
 
+        private readonly ListView _probeListView;
         private readonly ListView _manipulatorListView;
 
         #endregion
@@ -23,7 +24,8 @@ namespace UI.Views
             root.dataSource = sceneViewModel;
 
             // Register component references.
-            _manipulatorListView = root.Q<ListView>("scene__manipulators-list");
+            _probeListView = root.Q<ListView>("scene__probe-list-view");
+            _manipulatorListView = root.Q<ListView>("scene__manipulators-list-view");
 
             // Build manipulator list view.
             _manipulatorListView.bindItem = (element, i) =>
