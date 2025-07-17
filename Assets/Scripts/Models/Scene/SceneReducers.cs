@@ -10,7 +10,14 @@ namespace Models.Scene
     {
         #region Probe List Reducers
 
-        public static SceneState AddProbeReducer(SceneState state, IAction<string> action)
+        public static SceneState AddProbeReducer(SceneState state, IAction action)
+        {
+            var newProbesList = state.Probes.ToList();
+            var uuid = Guid.NewGuid().ToString();
+            newProbesList.Add(new ProbeState { UUID = uuid });
+            return state with { Probes = newProbesList };
+        }
+        public static SceneState AddUUIDProbeReducer(SceneState state, IAction<string> action)
         {
             var newProbesList = state.Probes.ToList();
             newProbesList.Add(new ProbeState { UUID = action.payload });
@@ -308,7 +315,7 @@ namespace Models.Scene
                 Probes = probesCopy,
             };
         }
-        
+
         public static SceneState SetActiveProbeTargetInsertionBaseSpeedReducer(
             SceneState state,
             IAction<int> action
@@ -329,7 +336,7 @@ namespace Models.Scene
                 Probes = probesCopy,
             };
         }
-        
+
         public static SceneState SetActiveProbeDrivePastDistanceReducer(
             SceneState state,
             IAction<int> action
@@ -358,8 +365,9 @@ namespace Models.Scene
     {
         #region Probe List Actions
 
-        public static readonly ActionCreator<string> ADD_PROBE =
-            $"{SliceNames.SCENE_SLICE}/AddProbe";
+        public static readonly ActionCreator<string> ADD_UUID_PROBE =
+            $"{SliceNames.SCENE_SLICE}/AddUUIDProbe";
+        public static readonly ActionCreator ADD_PROBE = $"{SliceNames.SCENE_SLICE}/AddProbe";
         public static readonly ActionCreator<string> REMOVE_PROBE =
             $"{SliceNames.SCENE_SLICE}/RemoveProbe";
         public static readonly ActionCreator REMOVE_ALL_PROBES =
@@ -392,10 +400,10 @@ namespace Models.Scene
 
         public static readonly ActionCreator<Vector4> SET_ACTIVE_PROBE_REFERENCE_COORDINATE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeReferenceCoordinate";
-        
+
         public static readonly ActionCreator<float> SET_ACTIVE_PROBE_DURA_OFFSET =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeDuraOffset";
-        
+
         public static readonly ActionCreator<int> SET_ACTIVE_PROBE_INSERTION_BASE_SPEED =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeInsertionBaseSpeed";
         public static readonly ActionCreator<int> SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE =

@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using UI.ViewModels;
-using UnityEngine;
 using UnityEngine.UIElements;
+using Button = Unity.AppUI.UI.Button;
 
 namespace UI.Views
 {
@@ -9,6 +9,7 @@ namespace UI.Views
     {
         #region Component References
 
+        private readonly Button _addProbeButton;
         private readonly ListView _probeListView;
         private readonly ListView _manipulatorListView;
 
@@ -24,8 +25,12 @@ namespace UI.Views
             root.dataSource = sceneViewModel;
 
             // Register component references.
+            _addProbeButton = root.Q<Button>("scene__add-probe-button");
             _probeListView = root.Q<ListView>("scene__probe-list-view");
             _manipulatorListView = root.Q<ListView>("scene__manipulators-list-view");
+
+            // Add event listeners.
+            _addProbeButton.clickable.clicked += _sceneViewModel.AddProbeCommand.Execute;
 
             // Build list views.
             _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;

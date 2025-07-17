@@ -113,5 +113,15 @@ namespace UI.ViewModels
             _ephysLinkStateSubscription.Dispose();
             App.shuttingDown -= OnShuttingDown;
         }
+
+        #region Commands
+
+        [ICommand]
+        private void AddProbe()
+        {
+            _storeService.Store.Dispatch(SceneActions.ADD_PROBE);
+        }
+
+        #endregion
     }
 }
