@@ -66,22 +66,22 @@ namespace UI.Views
             // Register event handlers.
             leftSidePanelCollapseButton.clickable.clicked += () =>
             {
-                mainSplitView.CollapseSplitter(LEFT_SIDE_PANEL_SPLITTER_INDEX, CollapseDirection.Backward);
-                mainViewModel.SetMainSplitViewStateCommand.Execute(mainSplitView.SaveState());
+                mainSplitView.CollapseSplitter(
+                    LEFT_SIDE_PANEL_SPLITTER_INDEX,
+                    CollapseDirection.Backward
+                );
             };
             rightSidePanelCollapseButton.clickable.clicked += () =>
             {
-                mainSplitView.CollapseSplitter(RIGHT_SIDE_PANEL_SPLITTER_INDEX, CollapseDirection.Forward);
-                mainViewModel.SetMainSplitViewStateCommand.Execute(mainSplitView.SaveState());
+                mainSplitView.CollapseSplitter(
+                    RIGHT_SIDE_PANEL_SPLITTER_INDEX,
+                    CollapseDirection.Forward
+                );
             };
             leftSidePanelTabs.RegisterValueChangedCallback(evt =>
                 mainViewModel.SetLeftSidePanelTabIndexCommand.Execute(evt.newValue)
             );
-
-            // Initialize view from view model state.
-            mainSplitView.RestoreState(mainViewModel.MainSplitViewState);
         }
-
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]

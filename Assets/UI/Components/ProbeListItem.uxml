@@ -1,14 +1,12 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Unity.AppUI.UI.Panel>
-        <ui:VisualElement style="flex-grow: 1; flex-direction: row; align-items: center;">
-            <Unity.AppUI.UI.Icon size="L" icon-name="shovel" />
-            <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Heading text="ASDF-1234" />
-            <Unity.AppUI.UI.Spacer spacing="Expand" />
-            <Unity.AppUI.UI.ActionGroup style="flex-grow: 0;">
-                <Unity.AppUI.UI.ActionButton size="L" icon="eye-slash" />
-                <Unity.AppUI.UI.Button size="L" variant="Destructive" leading-icon="trash" />
-            </Unity.AppUI.UI.ActionGroup>
-        </ui:VisualElement>
-    </Unity.AppUI.UI.Panel>
+    <ui:VisualElement style="flex-grow: 1; flex-direction: row; align-items: center;">
+        <Unity.AppUI.UI.Icon size="L" icon-name="shovel" />
+        <Unity.AppUI.UI.Spacer />
+        <Unity.AppUI.UI.Heading text="ASDF-1234" />
+        <Unity.AppUI.UI.Spacer spacing="Expand" />
+        <Unity.AppUI.UI.ActionGroup style="flex-grow: 0;">
+            <Unity.AppUI.UI.ActionButton size="L" icon="eye-slash" />
+            <Unity.AppUI.UI.Button size="L" variant="Destructive" leading-icon="trash" />
+        </Unity.AppUI.UI.ActionGroup>
+    </ui:VisualElement>
 </ui:UXML>

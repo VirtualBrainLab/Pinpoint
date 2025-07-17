@@ -3,10 +3,12 @@
     <ui:Template name="Atlas" src="project://database/Assets/UI/Views/Atlas.uxml?fileID=9197481963319205126&amp;guid=9c87ec2a39db64e41ac639d9d458023a&amp;type=3#Atlas" />
     <ui:Template name="Inspector" src="project://database/Assets/UI/Views/Inspector.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#Inspector" />
     <ui:Template name="Automation" src="project://database/Assets/UI/Views/Automation.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#Automation" />
+    <ui:Template name="ProbeListItem" src="project://database/Assets/UI/Components/ProbeListItem.uxml?fileID=9197481963319205126&amp;guid=521cec15c97d85d4ca968d547323a790&amp;type=3#ProbeListItem" />
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
     <Unity.AppUI.UI.Panel picking-mode="Ignore" style="background-color: rgba(29, 29, 29, 0);">
         <Unity.AppUI.UI.SplitView show-expand-buttons="true" name="main-split-view" style="flex-grow: 1;">
             <Unity.AppUI.UI.Pane class="side-panel">
+                <ui:Instance template="ProbeListItem" />
                 <ui:VisualElement style="flex-direction: row;">
                     <Unity.AppUI.UI.MenuTrigger>
                         <Unity.AppUI.UI.ActionButton label="File" />

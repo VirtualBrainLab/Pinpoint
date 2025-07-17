@@ -53,10 +53,6 @@ namespace Services
                             MainReducers.SetIsAutomationModeActiveReducer
                         )
                         .AddCase(
-                            MainActions.SET_MAIN_SPLIT_VIEW_STATE,
-                            MainReducers.SetMainSplitViewStateReducer
-                        )
-                        .AddCase(
                             MainActions.SET_LEFT_SIDE_PANEL_TAB_INDEX,
                             MainReducers.SetLeftSidePanelTabIndexReducer
                         );
