@@ -27,7 +27,10 @@ namespace UI.Views
             _probeListView = root.Q<ListView>("scene__probe-list-view");
             _manipulatorListView = root.Q<ListView>("scene__manipulators-list-view");
 
-            // Build manipulator list view.
+            // Build list views.
+            _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;
+            _probeListView.bindItem = (element, i) =>
+                _ = new ProbeListItem(element, _sceneViewModel.ProbeListItemViewModels[i]);
             _manipulatorListView.bindItem = (element, i) =>
                 _ = new ManipulatorListItem(
                     element,
@@ -39,9 +42,13 @@ namespace UI.Views
         {
             switch (e.PropertyName)
             {
+                case nameof(_sceneViewModel.ProbeListItemViewModels):
+                    _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;
+                    _probeListView.Rebuild();
+                    break;
                 case nameof(_sceneViewModel.ManipulatorListItemViewModels):
-                    Debug.Log($"Rebuilding list: {_sceneViewModel.ManipulatorListItemViewModels.Count}");
-                    _manipulatorListView.itemsSource = _sceneViewModel.ManipulatorListItemViewModels;
+                    _manipulatorListView.itemsSource =
+                        _sceneViewModel.ManipulatorListItemViewModels;
                     _manipulatorListView.Rebuild();
                     break;
             }
