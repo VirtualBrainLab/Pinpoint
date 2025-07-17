@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BrainAtlas;
 using BrainAtlas.CoordinateSystems;
 using EphysLink;
+using Models;
 using Models.Scene;
 using Services;
 using TMPro;
@@ -132,6 +133,13 @@ namespace TrajectoryPlanner
 
         TaskCompletionSource<bool> _checkForSavedProbesTaskSource;
 
+        #region State-based stuff
+
+        private readonly StoreService _storeService = PinpointApp.Current.services.GetRequiredService<StoreService>();
+        private IDisposableSubscription _sceneStateSubscription;
+
+        #endregion
+
         #region Unity
         private void Awake()
         {
@@ -152,6 +160,12 @@ namespace TrajectoryPlanner
             inputActions.ProbeMetaControl.SwitchAxisMode.performed += x => Settings.ConvertAPML2Probe = !Settings.ConvertAPML2Probe;
 
             // _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
+
+            // Subscribe to scene state changes.
+            OnSceneStateChanged(_storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE));
+            _sceneStateSubscription =
+                _storeService.Store.Subscribe(state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
+                    OnSceneStateChanged);
         }
 
         public async void Startup()
@@ -309,6 +323,22 @@ namespace TrajectoryPlanner
         public void SetMovedThisFrame()
         {
             _movedThisFrame = true;
+        }
+
+        #endregion
+
+        #region State Handler
+
+        private void OnSceneStateChanged(SceneState state)
+        {
+            // Remove probes that don't exist anymore.
+            foreach (var probeManager in ProbeManager.Instances)
+            {
+                if (!state.Probes.Select(probeState => probeState.UUID).Contains(probeManager.UUID))
+                {
+                    DestroyProbe(probeManager);
+                }
+            }
         }
 
         #endregion
