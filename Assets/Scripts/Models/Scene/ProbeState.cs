@@ -23,7 +23,9 @@ namespace Models.Scene
 
         public ProbeType ProbeType = ProbeType.Neuropixels1;
 
-        public Color Color = Color.white;
+        public ProbeColor Color = ProbeColor.DarkBlue;
+
+        public Color ColorValue => ProbeProperties.ProbeColors[(int)Color];
 
         public ProbeDisplayType ProbeDisplayType = ProbeDisplayType.Opaque;
 
@@ -104,17 +106,17 @@ namespace Models.Scene
         #region Automation
 
         public AutomationProgressState AutomationProgressState;
-        
+
         public Vector4 ReferenceCoordinateOffset;
-        
+
         public string SelectedTargetInsertionProbeUUID;
-        
+
         public float DuraDepth;
-        
+
         public Vector3 DuraCoordinate;
-        
+
         public bool Drop2SurfaceWithDepth;
-        
+
         /// <summary>
         /// Base insertion speed (µm/s).
         /// </summary>

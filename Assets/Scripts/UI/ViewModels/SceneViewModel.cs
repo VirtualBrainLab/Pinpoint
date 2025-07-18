@@ -66,11 +66,7 @@ namespace UI.ViewModels
         {
             // Map probes to view models.
             ProbeListItemViewModels = state
-                .Probes.Select(probe => new ProbeListItemViewModel(
-                    PinpointColor.DarkBlue,
-                    probe.UUID[..8],
-                    false
-                ))
+                .Probes.Select(probeState => new ProbeListItemViewModel(probeState))
                 .ToList();
         }
 

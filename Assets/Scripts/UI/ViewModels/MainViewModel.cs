@@ -28,12 +28,6 @@ namespace UI.ViewModels
         [ObservableProperty]
         private int _leftSidePanelTabIndex;
 
-        [ObservableProperty]
-        private Color _activeProbeColor;
-
-        [ObservableProperty]
-        private string _activeProbeName;
-
         #endregion
 
         /// <summary>
@@ -76,8 +70,6 @@ namespace UI.ViewModels
 
         private void OnSceneStateChanged(SceneState state)
         {
-            ActiveProbeName = state.ActiveProbeState?.Name ?? "No Active Probe";
-            ActiveProbeColor = state.ActiveProbeState?.Color ?? Color.gray;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)

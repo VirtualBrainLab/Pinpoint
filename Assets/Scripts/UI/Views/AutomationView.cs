@@ -101,7 +101,7 @@ namespace UI.Views
                         .TargetInsertionProbeStates.First(state =>
                             state.UUID[..8] == label.text[..8]
                         )
-                        .Color;
+                        .ColorValue;
                     checkMarkVisualElement.style.backgroundColor = probeColor;
                 });
         }

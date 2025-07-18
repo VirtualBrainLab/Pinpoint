@@ -1,6 +1,6 @@
 namespace Utils.Types
 {
-    public enum PinpointColor
+    public enum ProbeColor
     {
         DarkBlue,
         LightBlue,
@@ -18,6 +18,7 @@ namespace Utils.Types
         LightPink,
         DarkGray,
         LightGray,
+        LivelyLaugh,
         DarkCyan,
         LightCyan
     }

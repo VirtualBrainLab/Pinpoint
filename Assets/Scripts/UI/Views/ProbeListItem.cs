@@ -37,6 +37,9 @@ namespace UI.Views
             _icon = root.Q<Icon>();
             _hideActionButton = root.Q<ActionButton>();
             _deleteButton = root.Q<Button>();
+            
+            // Register component events.
+            _deleteButton.clickable.clicked += _probeListItemViewModel.RemoveProbeCommand.Execute;
 
             // Initialize components.
             UpdateColor();
@@ -57,24 +60,25 @@ namespace UI.Views
             _icon.RemoveFromClassList(_lastAppliedClass);
             var newClass = _probeListItemViewModel.Color switch
             {
-                PinpointColor.DarkBlue => "icon--dark-blue",
-                PinpointColor.LightBlue => "icon--light-blue",
-                PinpointColor.DarkOrange => "icon--dark-orange",
-                PinpointColor.LightOrange => "icon--light-orange",
-                PinpointColor.DarkGreen => "icon--dark-green",
-                PinpointColor.LightGreen => "icon--light-green",
-                PinpointColor.DarkRed => "icon--dark-red",
-                PinpointColor.LightRed => "icon--light-red",
-                PinpointColor.DarkPurple => "icon--dark-purple",
-                PinpointColor.LightPurple => "icon--light-purple",
-                PinpointColor.DarkBrown => "icon--dark-brown",
-                PinpointColor.LightBrown => "icon--light-brown",
-                PinpointColor.DarkPink => "icon--dark-pink",
-                PinpointColor.LightPink => "icon--light-pink",
-                PinpointColor.DarkGray => "icon--dark-gray",
-                PinpointColor.LightGray => "icon--light-gray",
-                PinpointColor.DarkCyan => "icon--dark-cyan",
-                PinpointColor.LightCyan => "icon--light-cyan",
+                ProbeColor.DarkBlue => "probe-icon--dark-blue",
+                ProbeColor.LightBlue => "probe-icon--light-blue",
+                ProbeColor.DarkOrange => "probe-icon--dark-orange",
+                ProbeColor.LightOrange => "probe-icon--light-orange",
+                ProbeColor.DarkGreen => "probe-icon--dark-green",
+                ProbeColor.LightGreen => "probe-icon--light-green",
+                ProbeColor.DarkRed => "probe-icon--dark-red",
+                ProbeColor.LightRed => "probe-icon--light-red",
+                ProbeColor.DarkPurple => "probe-icon--dark-purple",
+                ProbeColor.LightPurple => "probe-icon--light-purple",
+                ProbeColor.DarkBrown => "probe-icon--dark-brown",
+                ProbeColor.LightBrown => "probe-icon--light-brown",
+                ProbeColor.DarkPink => "probe-icon--dark-pink",
+                ProbeColor.LightPink => "probe-icon--light-pink",
+                ProbeColor.DarkGray => "probe-icon--dark-gray",
+                ProbeColor.LightGray => "probe-icon--light-gray",
+                ProbeColor.LivelyLaugh => "probe-icon--lively-laugh",
+                ProbeColor.DarkCyan => "probe-icon--dark-cyan",
+                ProbeColor.LightCyan => "probe-icon--light-cyan",
                 _ => null
             };
             if (string.IsNullOrEmpty(newClass)) return;

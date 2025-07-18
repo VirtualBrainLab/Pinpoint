@@ -1,4 +1,7 @@
+using Models.Scene;
+using Services;
 using Unity.AppUI.MVVM;
+using Unity.AppUI.Redux;
 using Utils.Types;
 
 namespace UI.ViewModels
@@ -6,10 +9,15 @@ namespace UI.ViewModels
     [ObservableObject]
     public partial class ProbeListItemViewModel
     {
+        [Service]
+        private readonly StoreService _storeService;
+
         #region Properties
 
+        private readonly ProbeState _probeState;
+
         [ObservableProperty]
-        private PinpointColor _color;
+        private ProbeColor _color;
 
         [ObservableProperty]
         private string _name;
@@ -19,11 +27,23 @@ namespace UI.ViewModels
 
         #endregion
 
-        public ProbeListItemViewModel(PinpointColor color, string name, bool hidden)
+        public ProbeListItemViewModel(ProbeState probeState)
         {
-            Color = color;
-            Name = name;
-            Hidden = hidden;
+            _probeState = probeState;
+
+            Color = _probeState.Color;
+            Name = _probeState.UUID[..8];
+            Hidden = _probeState.ProbeDisplayType == ProbeDisplayType.Line;
         }
+
+        #region Commands
+
+        [ICommand]
+        private void RemoveProbe()
+        {
+            _storeService.Store.Dispatch(SceneActions.REMOVE_PROBE, _probeState.UUID);
+        }
+
+        #endregion
     }
 }

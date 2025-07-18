@@ -329,7 +329,7 @@ namespace TrajectoryPlanner
 
         #endregion
 
-        #region State Handler
+        #region State Handlers
 
         private void OnSceneStateChanged(SceneState state)
         {
@@ -338,6 +338,13 @@ namespace TrajectoryPlanner
             {
                 DestroyProbe(probeManager);
             }
+            
+            // Add probes that are in the state but not in the scene.
+            // foreach (var probeState in state.Probes.Where(probeState => !ProbeManager.Instances.Select(manager => manager.UUID).Contains(probeState.UUID)))
+            // {
+            //     // Add the probe to the scene
+            //     AddNewProbe(probeState.ProbeType, probeState.UUID);
+            // }
         }
 
         #endregion
