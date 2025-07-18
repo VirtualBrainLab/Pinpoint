@@ -1,8 +1,8 @@
-using UI.Utils;
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEngine.UIElements;
+using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
 
 namespace UI.Views

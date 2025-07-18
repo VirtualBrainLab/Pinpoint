@@ -1,4 +1,4 @@
-namespace UI.Utils
+namespace Utils.Types
 {
     public enum PinpointColor
     {

@@ -19,6 +19,8 @@ using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Urchin.Managers;
 using Urchin.Utils;
+using Utils.Types;
+using UrchinUtils = Urchin.Utils.Utils;
 using static UnityEngine.InputSystem.InputAction;
 
 
@@ -135,7 +137,7 @@ namespace TrajectoryPlanner
 
         #region State-based stuff
 
-        private readonly StoreService _storeService = PinpointApp.Current.services.GetRequiredService<StoreService>();
+        private static StoreService StoreService => PinpointApp.Current.services.GetRequiredService<StoreService>();
         private IDisposableSubscription _sceneStateSubscription;
 
         #endregion
@@ -162,9 +164,9 @@ namespace TrajectoryPlanner
             // _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
 
             // Subscribe to scene state changes.
-            OnSceneStateChanged(_storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE));
+            OnSceneStateChanged(StoreService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE));
             _sceneStateSubscription =
-                _storeService.Store.Subscribe(state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
+                StoreService.Store.Subscribe(state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
                     OnSceneStateChanged);
         }
 
@@ -193,8 +195,8 @@ namespace TrajectoryPlanner
             // if this is the first time, load bregma
             if (_firstTime || _atlasReset)
             {
-                if (Utils.BregmaDefaults.ContainsKey(Settings.AtlasName))
-                    referenceAtlas.AtlasSpace.ReferenceCoord = Utils.BregmaDefaults[Settings.AtlasName];
+                if (UrchinUtils.BregmaDefaults.ContainsKey(Settings.AtlasName))
+                    referenceAtlas.AtlasSpace.ReferenceCoord = UrchinUtils.BregmaDefaults[Settings.AtlasName];
             }
             else
             {
@@ -332,12 +334,9 @@ namespace TrajectoryPlanner
         private void OnSceneStateChanged(SceneState state)
         {
             // Remove probes that don't exist anymore.
-            foreach (var probeManager in ProbeManager.Instances)
+            foreach (var probeManager in ProbeManager.Instances.Where(probeManager => !state.Probes.Select(probeState => probeState.UUID).Contains(probeManager.UUID)))
             {
-                if (!state.Probes.Select(probeState => probeState.UUID).Contains(probeManager.UUID))
-                {
-                    DestroyProbe(probeManager);
-                }
+                DestroyProbe(probeManager);
             }
         }
 
@@ -374,7 +373,7 @@ namespace TrajectoryPlanner
             // Cannot restore a ghost probe, so we set restored to true
             _restoredProbe = false;
 
-            var remainingProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeProperties.ProbeType.Placeholder && x != probeManager);
+            var remainingProbes = ProbeManager.Instances.Where(x => x.ProbeType != ProbeType.Placeholder && x != probeManager);
 
             // Destroy probe
             probeManager.Cleanup();
@@ -441,7 +440,7 @@ namespace TrajectoryPlanner
                 var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
                     BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name);
 
-                ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
+                ProbeManager newProbeManager = AddNewProbe((ProbeType)probeData.Type, probeInsertion,
                     probeData.NumAxes, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
                     probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
@@ -462,7 +461,7 @@ namespace TrajectoryPlanner
         /// <param name="probeType">Probe type parameter (e.g. 0/21/24 for neuropixels)</param>
         public void AddNewProbeVoid(int probeType)
         {
-            AddNewProbe((ProbeProperties.ProbeType) probeType);
+            AddNewProbe((ProbeType) probeType);
         }
 
         /// <summary>
@@ -472,7 +471,7 @@ namespace TrajectoryPlanner
         /// </summary>
         /// <param name="probeType"></param>
         /// <returns></returns>
-        public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, string UUID = null)
+        public ProbeManager AddNewProbe(ProbeType probeType, string UUID = null)
         {
             _probePanelManager.CountProbePanels();
 
@@ -501,7 +500,7 @@ namespace TrajectoryPlanner
             return newProbe.GetComponent<ProbeManager>();
         }
 
-        public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, ProbeInsertion insertion, string UUID = null)
+        public ProbeManager AddNewProbe(ProbeType probeType, ProbeInsertion insertion, string UUID = null)
         {
             ProbeManager probeManager = AddNewProbe(probeType, UUID);
 
@@ -511,7 +510,7 @@ namespace TrajectoryPlanner
             return probeManager;
         }
         
-        public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, ProbeInsertion insertion,
+        public ProbeManager AddNewProbe(ProbeType probeType, ProbeInsertion insertion,
             int numAxes, string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isRightHanded, string UUID = null)
         {
             var probeManager = AddNewProbe(probeType, UUID);
@@ -974,7 +973,7 @@ namespace TrajectoryPlanner
                     }
 
 
-                    ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)probeData.Type, probeInsertion,
+                    ProbeManager newProbeManager = AddNewProbe((ProbeType)probeData.Type, probeInsertion,
                         probeData.NumAxes, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
                         probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
@@ -1069,7 +1068,7 @@ namespace TrajectoryPlanner
 
         private void AccountsNewProbeHelper((Vector3 apmldv, Vector3 angles, int type, string spaceName, string transformName, string UUID, string overrideName, Color color) data)
         {
-            ProbeManager newProbeManager = AddNewProbe((ProbeProperties.ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name), data.UUID);
+            ProbeManager newProbeManager = AddNewProbe((ProbeType)data.type, new ProbeInsertion(data.apmldv, data.angles, BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name), data.UUID);
             if (data.overrideName != null)
                 newProbeManager.OverrideName = data.overrideName;
             if (data.color != null)
@@ -1085,8 +1084,8 @@ namespace TrajectoryPlanner
             string atlasName = BrainAtlasManager.ActiveReferenceAtlas.Name;
 
             float defaultBLDistance;
-            if (Utils.BregmaDefaults.ContainsKey(atlasName))
-                defaultBLDistance = Utils.LambdaDefaults[atlasName].x - Utils.BregmaDefaults[atlasName].x;
+            if (UrchinUtils.BregmaDefaults.ContainsKey(atlasName))
+                defaultBLDistance = UrchinUtils.LambdaDefaults[atlasName].x - UrchinUtils.BregmaDefaults[atlasName].x;
             else
                 defaultBLDistance = 1f;
 
@@ -1164,7 +1163,7 @@ namespace TrajectoryPlanner
         {
             if (float.IsNaN(Settings.ReferenceCoord.x))
             {
-                Settings.ReferenceCoord = Utils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
+                Settings.ReferenceCoord = UrchinUtils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
             }
         }
 

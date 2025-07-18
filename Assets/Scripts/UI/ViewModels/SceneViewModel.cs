@@ -5,10 +5,10 @@ using Models;
 using Models.Automation;
 using Models.Scene;
 using Services;
-using UI.Utils;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
+using Utils.Types;
 
 namespace UI.ViewModels
 {
@@ -76,9 +76,9 @@ namespace UI.ViewModels
 
         private async void OnEphysLinkStateChanged(EphysLinkState state)
         {
-            switch (state.ConnectionState)
+            switch (state.EphysLinkConnectionState)
             {
-                case ConnectionState.Connected:
+                case EphysLinkConnectionState.Connected:
                 {
                     // Get manipulators from server.
                     var manipulatorsResponse = await _ephysLinkService.GetManipulators();
@@ -97,10 +97,10 @@ namespace UI.ViewModels
                         .ToList();
                     break;
                 }
-                case ConnectionState.Disconnected:
+                case EphysLinkConnectionState.Disconnected:
                     ManipulatorListItemViewModels = new List<ManipulatorListItemViewModel>();
                     break;
-                case ConnectionState.Connecting:
+                case EphysLinkConnectionState.Connecting:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.AppUI.Redux;
 using UnityEngine;
+using Utils.Types;
 
 namespace Models.Scene
 {

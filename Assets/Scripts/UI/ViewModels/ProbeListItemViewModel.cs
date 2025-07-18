@@ -1,6 +1,5 @@
-using UI.Utils;
 using Unity.AppUI.MVVM;
-using UnityEngine;
+using Utils.Types;
 
 namespace UI.ViewModels
 {
