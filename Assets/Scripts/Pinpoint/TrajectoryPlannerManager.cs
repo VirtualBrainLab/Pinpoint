@@ -164,7 +164,6 @@ namespace TrajectoryPlanner
             // _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
 
             // Subscribe to scene state changes.
-            OnSceneStateChanged(StoreService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE));
             _sceneStateSubscription =
                 StoreService.Store.Subscribe(state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
                     OnSceneStateChanged);
@@ -250,10 +249,13 @@ namespace TrajectoryPlanner
             // Complete
             PlayerPrefs.SetInt("scene-atlas-reset", 0);
             StartupEvent_Complete.Invoke();
+            
+            // Load scene from state.
+            OnSceneStateChanged(StoreService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE));
 
             // After annotation loads, check if the user wants to load previously used probes
-            CheckForSavedProbes();
-            await _checkForSavedProbesTaskSource.Task;
+            // CheckForSavedProbes();
+            // await _checkForSavedProbesTaskSource.Task;
             // Finally, load accounts if we didn't load a query string or a saved set of probes
             // if (!_checkForSavedProbesTaskSource.Task.Result)
             //     _accountsManager.DelayedStart();
@@ -340,11 +342,11 @@ namespace TrajectoryPlanner
             }
             
             // Add probes that are in the state but not in the scene.
-            // foreach (var probeState in state.Probes.Where(probeState => !ProbeManager.Instances.Select(manager => manager.UUID).Contains(probeState.UUID)))
-            // {
-            //     // Add the probe to the scene
-            //     AddNewProbe(probeState.ProbeType, probeState.UUID);
-            // }
+            foreach (var probeState in state.Probes.Where(probeState => !ProbeManager.Instances.Select(manager => manager.UUID).Contains(probeState.UUID)))
+            {
+                // Add the probe to the scene
+                // AddNewProbe(probeState.ProbeType, probeState.UUID);
+            }
         }
 
         #endregion
