@@ -419,8 +419,7 @@ namespace TrajectoryPlanner
                 {
                     // TODO: Remove old probe manager behavior.
                     ProbeManager.ActiveProbeManager = null;
-                    PinpointApp.Current.services.GetRequiredService<StoreService>().Store
-                        .Dispatch(SceneActions.SET_ACTIVE_PROBE_UUID, string.Empty);
+                    StoreService.Store.Dispatch(SceneActions.SET_ACTIVE_PROBE_UUID, string.Empty);
                     _activeProbeChangedEvent.Invoke();
                 }
                 SetSurfaceDebugActive(false);
@@ -431,11 +430,8 @@ namespace TrajectoryPlanner
 
         private void DestroyActiveProbeManager()
         {
-            // Remove the probe's insertion from the list of insertions (does nothing if not found)
-            // ProbeManager.ActiveProbeManager.ProbeController.Insertion.Targetable = false;
-
-            // Remove Probe
-            DestroyProbe(ProbeManager.ActiveProbeManager);
+            var activeProbeUUID = StoreService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE).ActiveProbeUUID;
+            StoreService.Store.Dispatch(SceneActions.REMOVE_PROBE, activeProbeUUID);
         }
 
         private void RecoverActiveProbeController()
