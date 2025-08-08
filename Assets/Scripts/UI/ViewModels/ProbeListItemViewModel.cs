@@ -9,7 +9,6 @@ namespace UI.ViewModels
     [ObservableObject]
     public partial class ProbeListItemViewModel
     {
-        [Service]
         private readonly StoreService _storeService;
 
         #region Properties
@@ -27,8 +26,9 @@ namespace UI.ViewModels
 
         #endregion
 
-        public ProbeListItemViewModel(ProbeState probeState)
+        public ProbeListItemViewModel(ProbeState probeState, StoreService storeService)
         {
+            _storeService = storeService;
             _probeState = probeState;
 
             Color = _probeState.Color;

@@ -66,7 +66,7 @@ namespace UI.ViewModels
         {
             // Map probes to view models.
             ProbeListItemViewModels = state
-                .Probes.Select(probeState => new ProbeListItemViewModel(probeState))
+                .Probes.Select(probeState => new ProbeListItemViewModel(probeState, _storeService))
                 .ToList();
         }
 
