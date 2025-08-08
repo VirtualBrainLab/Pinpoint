@@ -7,7 +7,6 @@ using Models.Scene;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
-using UnityEngine;
 using Utils.Types;
 
 namespace UI.ViewModels
@@ -24,13 +23,12 @@ namespace UI.ViewModels
         private readonly EphysLinkService _ephysLinkService;
 
         #endregion
+
         #region Properties
 
-        [ObservableProperty]
-        private List<ProbeListItemViewModel> _probeListItemViewModels = new();
+        [ObservableProperty] private List<ProbeListItemViewModel> _probeListItemViewModels = new();
 
-        [ObservableProperty]
-        private List<ManipulatorListItemViewModel> _manipulatorListItemViewModels = new();
+        [ObservableProperty] private List<ManipulatorListItemViewModel> _manipulatorListItemViewModels = new();
 
         #endregion
 
@@ -80,10 +78,7 @@ namespace UI.ViewModels
                     var manipulatorsResponse = await _ephysLinkService.GetManipulators();
 
                     // Cancel if there was an error.
-                    if (!string.IsNullOrEmpty(manipulatorsResponse.Error))
-                    {
-                        return;
-                    }
+                    if (!string.IsNullOrEmpty(manipulatorsResponse.Error)) return;
 
                     // Map manipulators to view models.
                     ManipulatorListItemViewModels = manipulatorsResponse
@@ -113,9 +108,9 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
-        private void AddProbe()
+        private void AddProbe(ProbeType probeType)
         {
-            _storeService.Store.Dispatch(SceneActions.ADD_PROBE);
+            _storeService.Store.Dispatch(SceneActions.ADD_PROBE, probeType);
         }
 
         #endregion
