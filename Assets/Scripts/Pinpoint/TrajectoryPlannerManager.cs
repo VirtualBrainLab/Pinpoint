@@ -335,6 +335,7 @@ namespace TrajectoryPlanner
 
         private void OnSceneStateChanged(SceneState state)
         {
+            print("Scene state changed");
             // Remove probes that don't exist anymore.
             foreach (var probeManager in ProbeManager.Instances.Where(probeManager => !state.Probes.Select(probeState => probeState.UUID).Contains(probeManager.UUID)))
             {

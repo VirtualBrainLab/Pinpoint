@@ -36,7 +36,7 @@ public class ChannelMapManager : MonoBehaviour
     #region Public
     public async static Task<ChannelMap> GetChannelMap(ProbeType probeType)
     {
-        var handle = Addressables.LoadAssetAsync<ChannelMapData>(Instance._channelMapAssetRefs[Instance._channelMapProbeTypes.FindIndex(x => x.Equals(probeType))]);
+        var handle = Addressables.LoadAssetAsync<ChannelMapData>(Instance._channelMapAssetRefs[Instance._channelMapProbeTypes.IndexOf(probeType)]);
         await handle.Task;
 
         return new ChannelMap(handle.Result);
