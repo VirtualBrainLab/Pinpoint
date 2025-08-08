@@ -135,7 +135,7 @@ namespace TrajectoryPlanner
 
         TaskCompletionSource<bool> _checkForSavedProbesTaskSource;
 
-        #region State-based stuff
+        #region App State
 
         private static StoreService StoreService => PinpointApp.Current.services.GetRequiredService<StoreService>();
         private IDisposableSubscription _sceneStateSubscription;
@@ -162,11 +162,6 @@ namespace TrajectoryPlanner
             inputActions.ProbeMetaControl.SwitchAxisMode.performed += x => Settings.ConvertAPML2Probe = !Settings.ConvertAPML2Probe;
 
             // _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
-
-            // Subscribe to scene state changes.
-            _sceneStateSubscription =
-                StoreService.Store.Subscribe(state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
-                    OnSceneStateChanged);
         }
 
         public async void Startup()
@@ -252,6 +247,11 @@ namespace TrajectoryPlanner
             
             // Load scene from state.
             OnSceneStateChanged(StoreService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE));
+
+            // Subscribe to scene state changes after initialization.
+            _sceneStateSubscription =
+                StoreService.Store.Subscribe(state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
+                    OnSceneStateChanged);
 
             // After annotation loads, check if the user wants to load previously used probes
             // CheckForSavedProbes();
@@ -340,12 +340,12 @@ namespace TrajectoryPlanner
             {
                 DestroyProbe(probeManager);
             }
-            
+
             // Add probes that are in the state but not in the scene.
             foreach (var probeState in state.Probes.Where(probeState => !ProbeManager.Instances.Select(manager => manager.UUID).Contains(probeState.UUID)))
             {
                 // Add the probe to the scene
-                // AddNewProbe(probeState.ProbeType, probeState.UUID);
+                AddNewProbe(probeState.ProbeType, probeState.UUID);
             }
         }
 
