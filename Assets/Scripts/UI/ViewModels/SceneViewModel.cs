@@ -7,6 +7,7 @@ using Models.Scene;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
+using UnityEngine;
 using Utils.Types;
 
 namespace UI.ViewModels
@@ -26,9 +27,14 @@ namespace UI.ViewModels
 
         #region Properties
 
-        [ObservableProperty] private List<ProbeListItemViewModel> _probeListItemViewModels = new();
+        [ObservableProperty]
+        private int _selectedProbeIndex = -1;
 
-        [ObservableProperty] private List<ManipulatorListItemViewModel> _manipulatorListItemViewModels = new();
+        [ObservableProperty]
+        private List<ProbeListItemViewModel> _probeListItemViewModels = new();
+
+        [ObservableProperty]
+        private List<ManipulatorListItemViewModel> _manipulatorListItemViewModels = new();
 
         #endregion
 
@@ -66,6 +72,11 @@ namespace UI.ViewModels
             ProbeListItemViewModels = state
                 .Probes.Select(probeState => new ProbeListItemViewModel(probeState, _storeService))
                 .ToList();
+
+            // Update panel selection based on active probe.
+            SelectedProbeIndex = state.Probes.FindIndex(probeState =>
+                probeState.UUID == state.ActiveProbeUUID
+            );
         }
 
         private async void OnEphysLinkStateChanged(EphysLinkState state)
@@ -78,7 +89,8 @@ namespace UI.ViewModels
                     var manipulatorsResponse = await _ephysLinkService.GetManipulators();
 
                     // Cancel if there was an error.
-                    if (!string.IsNullOrEmpty(manipulatorsResponse.Error)) return;
+                    if (!string.IsNullOrEmpty(manipulatorsResponse.Error))
+                        return;
 
                     // Map manipulators to view models.
                     ManipulatorListItemViewModels = manipulatorsResponse
@@ -111,6 +123,20 @@ namespace UI.ViewModels
         private void AddProbe(ProbeType probeType)
         {
             _storeService.Store.Dispatch(SceneActions.ADD_PROBE, probeType);
+        }
+
+        [ICommand]
+        private void SetActiveProbe(int index)
+        {
+            Debug.Log($"Set active probe to index {index}");
+            var selectedProbeUUID =
+                index < 0
+                    ? ""
+                    : _storeService
+                        .Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
+                        .Probes[index]
+                        .UUID;
+            _storeService.Store.Dispatch(SceneActions.SET_ACTIVE_PROBE_UUID, selectedProbeUUID);
         }
 
         #endregion

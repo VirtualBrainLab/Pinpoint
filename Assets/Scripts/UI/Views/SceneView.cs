@@ -1,9 +1,10 @@
 using System.ComponentModel;
+using System.Linq;
 using UI.ViewModels;
 using Unity.AppUI.UI;
+using UnityEngine;
 using UnityEngine.UIElements;
 using Utils.Types;
-using Button = Unity.AppUI.UI.Button;
 
 namespace UI.Views
 {
@@ -28,7 +29,9 @@ namespace UI.Views
             // Register component references.
             var addNeuropixels10 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__1-0");
             var addNeuropixels20 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__2-0");
-            var addNeuropixels204Shank = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__2-0-4-shank");
+            var addNeuropixels204Shank = root.Q<MenuItem>(
+                "scene__add-probe-menu__neuropixels__2-0-4-shank"
+            );
             var addNeuropixels2X24 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__2x-2-4");
             var addPipette25Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__25um");
             var addPipette50Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__50um");
@@ -40,19 +43,33 @@ namespace UI.Views
             _manipulatorListView = root.Q<ListView>("scene__manipulators-list-view");
 
             // Add event listeners.
-            addNeuropixels10.clickable.clicked += () => _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels1);
-            addNeuropixels20.clickable.clicked +=
-                () => _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels21);
-            addNeuropixels204Shank.clickable.clicked +=
-                () => _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels24);
-            addNeuropixels2X24.clickable.clicked +=
-                () => _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels24x2);
-            addPipette25Um.clickable.clicked += () => _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette25);
-            addPipette50Um.clickable.clicked += () => _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette50);
-            addPipette100Um.clickable.clicked += () => _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette100);
-            addPipette200Um.clickable.clicked += () => _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette200);
-            addUcla128K.clickable.clicked += () => _sceneViewModel.AddProbeCommand.Execute(ProbeType.UCLA128K);
-            addUcla256F.clickable.clicked += () => _sceneViewModel.AddProbeCommand.Execute(ProbeType.UCLA256F);
+            addNeuropixels10.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels1);
+            addNeuropixels20.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels21);
+            addNeuropixels204Shank.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels24);
+            addNeuropixels2X24.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels24x2);
+            addPipette25Um.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette25);
+            addPipette50Um.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette50);
+            addPipette100Um.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette100);
+            addPipette200Um.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette200);
+            addUcla128K.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.UCLA128K);
+            addUcla256F.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.UCLA256F);
+            _probeListView.selectedIndicesChanged += indices =>
+            {
+                var indicesList = indices.ToList();
+                sceneViewModel.SetActiveProbeCommand.Execute(
+                    indicesList.Any() ? indicesList[0] : -1
+                );
+            };
 
             // Build list views.
             _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;
@@ -69,6 +86,9 @@ namespace UI.Views
         {
             switch (e.PropertyName)
             {
+                case nameof(_sceneViewModel.SelectedProbeIndex):
+                    _probeListView.selectedIndex = _sceneViewModel.SelectedProbeIndex;
+                    break;
                 case nameof(_sceneViewModel.ProbeListItemViewModels):
                     _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;
                     _probeListView.Rebuild();
