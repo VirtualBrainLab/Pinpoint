@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Models;
 using Models.Scene;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
+using Utils.Types;
 
 namespace UI.ViewModels
 {
@@ -259,7 +261,7 @@ namespace UI.ViewModels
         {
             ProbeService
                 .ResetActiveProbeReferenceCoordinate()
-                .ContinueWith(task =>
+                .ContinueWith((Task<bool> task) =>
                 {
                     // Do not proceed if the reset failed.
                     if (!task.Result)
@@ -300,7 +302,7 @@ namespace UI.ViewModels
         {
             ProbeService
                 .StopActiveProbeDriveToTargetEntryCoordinate()
-                .ContinueWith(task =>
+                .ContinueWith((Task<bool> task) =>
                 {
                     // Do not proceed if the drive failed.
                     if (!task.Result)
@@ -321,7 +323,7 @@ namespace UI.ViewModels
         {
             ProbeService
                 .ResetActiveProbeDuraOffset()
-                .ContinueWith(task =>
+                .ContinueWith((Task<bool> task) =>
                 {
                     // Do not proceed if the reset failed.
                     if (!task.Result)

@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
+using Utils.Types;
 
 public class ChannelMapManager : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class ChannelMapManager : MonoBehaviour
     // scriptable objects?
 
     [SerializeField] private AssetReference[] _channelMapAssetRefs;
-    [SerializeField] private List<ProbeProperties.ProbeType> _channelMapProbeTypes;
+    [SerializeField] private List<ProbeType> _channelMapProbeTypes;
 
     [SerializeField] private TMP_Dropdown _selectionOptionDropdown;
 
@@ -33,9 +34,9 @@ public class ChannelMapManager : MonoBehaviour
     #endregion
 
     #region Public
-    public async static Task<ChannelMap> GetChannelMap(ProbeProperties.ProbeType probeType)
+    public async static Task<ChannelMap> GetChannelMap(ProbeType probeType)
     {
-        var handle = Addressables.LoadAssetAsync<ChannelMapData>(Instance._channelMapAssetRefs[Instance._channelMapProbeTypes.FindIndex(x => x.Equals(probeType))]);
+        var handle = Addressables.LoadAssetAsync<ChannelMapData>(Instance._channelMapAssetRefs[Instance._channelMapProbeTypes.IndexOf(probeType)]);
         await handle.Task;
 
         return new ChannelMap(handle.Result);

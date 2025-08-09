@@ -1,7 +1,6 @@
 using System;
-using UI.Utils;
 using UnityEngine;
-using UnityEngine.Serialization;
+using Utils.Types;
 
 namespace Models.Scene
 {
@@ -22,11 +21,13 @@ namespace Models.Scene
 
         #region Probe Configuration
 
-        public ProbeTypeState ProbeType = ProbeTypeState.Neuropixels1;
+        public ProbeType ProbeType = ProbeType.Neuropixels1;
 
-        public Color Color = Color.white;
+        public ProbeColor Color = ProbeColor.DarkBlue;
 
-        public ProbeDisplayTypeState ProbeDisplayType = ProbeDisplayTypeState.Opaque;
+        public Color ColorValue => ProbeProperties.ProbeColors[(int)Color];
+
+        public ProbeDisplayType ProbeDisplayType = ProbeDisplayType.Opaque;
 
         public bool Locked = false;
 
@@ -105,17 +106,17 @@ namespace Models.Scene
         #region Automation
 
         public AutomationProgressState AutomationProgressState;
-        
+
         public Vector4 ReferenceCoordinateOffset;
-        
+
         public string SelectedTargetInsertionProbeUUID;
-        
+
         public float DuraDepth;
-        
+
         public Vector3 DuraCoordinate;
-        
+
         public bool Drop2SurfaceWithDepth;
-        
+
         /// <summary>
         /// Base insertion speed (µm/s).
         /// </summary>
@@ -127,113 +128,5 @@ namespace Models.Scene
         public int DrivePastDistance;
 
         #endregion
-    }
-
-    public enum ProbeTypeState
-    {
-        Placeholder = -1,
-        Neuropixels1 = 0,
-        Neuropixels21 = 21,
-        Neuropixels24 = 24,
-        Neuropixels24x2 = 28,
-        UCLA128K = 128,
-        UCLA256F = 256,
-        Pipette25 = 25,
-        Pipette50 = 50,
-        Pipette100 = 100,
-        Pipette200 = 200,
-    }
-
-    public enum ProbeDisplayTypeState
-    {
-        Opaque,
-        Transparent,
-        Line,
-    }
-
-    /// <summary>
-    /// Progress state in the automation process.
-    /// </summary>
-    public enum AutomationProgressState
-    {
-        /// <summary>
-        ///     Initial, uncalibrated state.
-        /// </summary>
-        IsUncalibrated,
-
-        /// <summary>
-        ///     Is calibrated to the reference coordinate. Could be positioned anywhere.
-        /// </summary>
-        IsCalibrated,
-
-        /// <summary>
-        ///     Moving to the target entry coordinate.
-        /// </summary>
-        DrivingToTargetEntryCoordinate,
-
-        /// <summary>
-        ///     At the target entry coordinate.
-        /// </summary>
-        AtTargetEntryCoordinate,
-
-        /// <summary>
-        ///     Calibrated to the Dura; ready for insertion drive.
-        /// </summary>
-        AtDuraInsert,
-
-        /// <summary>
-        ///     Driving to near target depth (insertion drive).
-        /// </summary>
-        DrivingToNearTarget,
-
-        /// <summary>
-        ///     At near target depth (insertion drive). Need to switch to 2/3 speed.
-        /// </summary>
-        AtNearTargetInsert,
-
-        /// <summary>
-        ///     Driving to past target depth (insertion drive).
-        /// </summary>
-        DrivingToPastTarget,
-
-        /// <summary>
-        ///     At past target depth (insertion drive).
-        /// </summary>
-        AtPastTarget,
-
-        /// <summary>
-        ///     Driving back up to target depth (insertion drive).
-        /// </summary>
-        ReturningToTarget,
-
-        /// <summary>
-        ///     At target depth (insertion drive).
-        /// </summary>
-        AtTarget,
-
-        /// <summary>
-        ///     Driving back up to the Dura (exit drive).
-        /// </summary>
-        ExitingToDura,
-
-        /// <summary>
-        ///     At the Dura (exit drive). Should not re-insert.
-        /// </summary>
-        AtDuraExit,
-
-        /// <summary>
-        ///     Driving above the Dura by a safe margin (exit drive).
-        /// </summary>
-        ExitingToMargin,
-
-        /// <summary>
-        ///     At the safe margin above the Dura (exit drive).
-        /// </summary>
-        AtExitMargin,
-
-        /// <summary>
-        ///     Driving back up to the target entry coordinate (exit drive).
-        /// </summary>
-        ExitingToTargetEntryCoordinate,
     }
 }

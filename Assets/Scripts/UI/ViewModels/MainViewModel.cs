@@ -26,16 +26,7 @@ namespace UI.ViewModels
         private bool _isAutomationModeActive;
 
         [ObservableProperty]
-        private SplitView.State _mainSplitViewState;
-
-        [ObservableProperty]
         private int _leftSidePanelTabIndex;
-
-        [ObservableProperty]
-        private Color _activeProbeColor;
-
-        [ObservableProperty]
-        private string _activeProbeName;
 
         #endregion
 
@@ -74,14 +65,11 @@ namespace UI.ViewModels
         private void OnMainStateChanged(MainState state)
         {
             IsAutomationModeActive = state.IsAutomationModeActive;
-            MainSplitViewState = state.MainSplitViewState;
             LeftSidePanelTabIndex = state.LeftSidePanelTabIndex;
         }
 
         private void OnSceneStateChanged(SceneState state)
         {
-            ActiveProbeName = state.ActiveProbeState?.Name ?? "No Active Probe";
-            ActiveProbeColor = state.ActiveProbeState?.Color ?? Color.gray;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -106,12 +94,6 @@ namespace UI.ViewModels
         }
 
         #region Commands
-
-        [ICommand]
-        private void SetMainSplitViewState(SplitView.State state)
-        {
-            _storeService.Store.Dispatch(MainActions.SET_MAIN_SPLIT_VIEW_STATE, state);
-        }
 
         [ICommand]
         private void SetLeftSidePanelTabIndex(int index)

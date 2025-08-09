@@ -13,7 +13,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
-using Urchin.Utils;
+using Utils.Types;
+using UrchinUtils = Urchin.Utils.Utils;
 using Action = System.Action;
 #if UNITY_WEBGL && !UNITY_EDITOR
 using System.Runtime.InteropServices;
@@ -85,7 +86,7 @@ public class ProbeManager : MonoBehaviour
     private RecordingRegion _recRegion;
 
     private AxisControl _axisControl;
-    public ProbeProperties.ProbeType ProbeType;
+    public ProbeType ProbeType;
 
     [FormerlySerializedAs("probeController")]
     [SerializeField]
@@ -336,7 +337,6 @@ public class ProbeManager : MonoBehaviour
     private void OnEnable()
     {
         Instances.Add(this);
-        PinpointApp.Current.services.GetRequiredService<StoreService>().Store.Dispatch(SceneActions.ADD_PROBE, UUID);
     }
 
     #endregion
@@ -640,7 +640,7 @@ public class ProbeManager : MonoBehaviour
                     string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID);
                     Color color = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID);
 
-                    channelAnnotationData.Add((elecIdx, ID, acronym, Utils.Color2Hex(color)));
+                    channelAnnotationData.Add((elecIdx, ID, acronym, UrchinUtils.Color2Hex(color)));
                 }
             }
         }
@@ -675,7 +675,7 @@ public class ProbeManager : MonoBehaviour
                 string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID);
                 Color color = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID);
 
-                channelAnnotationData.Add((i, ID, acronym, Utils.Color2Hex(color)));
+                channelAnnotationData.Add((i, ID, acronym, UrchinUtils.Color2Hex(color)));
             }
         }
 
@@ -793,7 +793,7 @@ public class ProbeManager : MonoBehaviour
             + $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), "
             + $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), "
             + $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), "
-            + $"Angles ({round2(Utils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(Utils.CircDeg(angles.z, minRoll, maxRoll))}), "
+            + $"Angles ({round2(UrchinUtils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(Urchin.Utils.Utils.CircDeg(angles.z, minRoll, maxRoll))}), "
             + $"Depth {round0(depthTransformed * mult)}, "
             + $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), "
             + $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), "

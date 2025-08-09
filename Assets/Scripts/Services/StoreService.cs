@@ -2,6 +2,7 @@ using Models;
 using Models.Automation;
 using Models.Scene;
 using Unity.AppUI.Redux;
+using Utils.Types;
 
 namespace Services
 {
@@ -53,10 +54,6 @@ namespace Services
                             MainReducers.SetIsAutomationModeActiveReducer
                         )
                         .AddCase(
-                            MainActions.SET_MAIN_SPLIT_VIEW_STATE,
-                            MainReducers.SetMainSplitViewStateReducer
-                        )
-                        .AddCase(
                             MainActions.SET_LEFT_SIDE_PANEL_TAB_INDEX,
                             MainReducers.SetLeftSidePanelTabIndexReducer
                         );
@@ -89,13 +86,14 @@ namespace Services
                     );
                 }
             );
-            var automationSlice = StoreFactory.CreateSlice(
+            var sceneSlice = StoreFactory.CreateSlice(
                 SliceNames.SCENE_SLICE,
                 initialSceneState,
                 builder =>
                 {
                     builder
                         .AddCase(SceneActions.ADD_PROBE, SceneReducers.AddProbeReducer)
+                        .AddCase(SceneActions.ADD_UUID_PROBE, SceneReducers.AddUUIDProbeReducer)
                         .AddCase(SceneActions.REMOVE_PROBE, SceneReducers.RemoveProbeReducer)
                         .AddCase(
                             SceneActions.REMOVE_ALL_PROBES,
@@ -148,7 +146,7 @@ namespace Services
                 }
             );
             Store = StoreFactory.CreateStore(
-                new ISlice<PartitionedState>[] { mainSlice, ephysLinkSlice, automationSlice }
+                new ISlice<PartitionedState>[] { mainSlice, ephysLinkSlice, sceneSlice }
             );
         }
 

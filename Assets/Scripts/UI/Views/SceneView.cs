@@ -1,7 +1,10 @@
 using System.ComponentModel;
+using System.Linq;
 using UI.ViewModels;
+using Unity.AppUI.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils.Types;
 
 namespace UI.Views
 {
@@ -9,6 +12,7 @@ namespace UI.Views
     {
         #region Component References
 
+        private readonly ListView _probeListView;
         private readonly ListView _manipulatorListView;
 
         #endregion
@@ -23,9 +27,54 @@ namespace UI.Views
             root.dataSource = sceneViewModel;
 
             // Register component references.
-            _manipulatorListView = root.Q<ListView>("scene__manipulators-list");
+            var addNeuropixels10 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__1-0");
+            var addNeuropixels20 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__2-0");
+            var addNeuropixels204Shank = root.Q<MenuItem>(
+                "scene__add-probe-menu__neuropixels__2-0-4-shank"
+            );
+            var addNeuropixels2X24 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__2x-2-4");
+            var addPipette25Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__25um");
+            var addPipette50Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__50um");
+            var addPipette100Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__100um");
+            var addPipette200Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__200um");
+            var addUcla128K = root.Q<MenuItem>("scene__add-probe-menu__ucla__128k");
+            var addUcla256F = root.Q<MenuItem>("scene__add-probe-menu__ucla__256f");
+            _probeListView = root.Q<ListView>("scene__probe-list-view");
+            _manipulatorListView = root.Q<ListView>("scene__manipulators-list-view");
 
-            // Build manipulator list view.
+            // Add event listeners.
+            addNeuropixels10.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels1);
+            addNeuropixels20.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels21);
+            addNeuropixels204Shank.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels24);
+            addNeuropixels2X24.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels24x2);
+            addPipette25Um.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette25);
+            addPipette50Um.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette50);
+            addPipette100Um.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette100);
+            addPipette200Um.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.Pipette200);
+            addUcla128K.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.UCLA128K);
+            addUcla256F.clickable.clicked += () =>
+                _sceneViewModel.AddProbeCommand.Execute(ProbeType.UCLA256F);
+            _probeListView.selectedIndicesChanged += indices =>
+            {
+                var indicesList = indices.ToList();
+                sceneViewModel.SetActiveProbeCommand.Execute(
+                    indicesList.Any() ? indicesList[0] : -1
+                );
+            };
+
+            // Build list views.
+            _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;
+            _probeListView.bindItem = (element, i) =>
+                _ = new ProbeListItem(element, _sceneViewModel.ProbeListItemViewModels[i]);
             _manipulatorListView.bindItem = (element, i) =>
                 _ = new ManipulatorListItem(
                     element,
@@ -37,9 +86,16 @@ namespace UI.Views
         {
             switch (e.PropertyName)
             {
+                case nameof(_sceneViewModel.SelectedProbeIndex):
+                    _probeListView.selectedIndex = _sceneViewModel.SelectedProbeIndex;
+                    break;
+                case nameof(_sceneViewModel.ProbeListItemViewModels):
+                    _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;
+                    _probeListView.Rebuild();
+                    break;
                 case nameof(_sceneViewModel.ManipulatorListItemViewModels):
-                    Debug.Log($"Rebuilding list: {_sceneViewModel.ManipulatorListItemViewModels.Count}");
-                    _manipulatorListView.itemsSource = _sceneViewModel.ManipulatorListItemViewModels;
+                    _manipulatorListView.itemsSource =
+                        _sceneViewModel.ManipulatorListItemViewModels;
                     _manipulatorListView.Rebuild();
                     break;
             }
