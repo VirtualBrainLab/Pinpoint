@@ -7,6 +7,7 @@ using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
+using Utils.Types;
 
 namespace UI.ViewModels
 {

@@ -68,8 +68,8 @@ namespace Services
                 builder =>
                 {
                     builder.AddCase(
-                        EphysLinkActions.SET_SELECTED_PLATFORM_TYPE,
-                        EphysLinkReducers.SetSelectedPlatformTypeReducer
+                        EphysLinkActions.SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE,
+                        EphysLinkReducers.SetSelectedEphysLinkPlatformTypeReducer
                     );
                     builder.AddCase(
                         EphysLinkActions.SET_NEW_SCALE_PATHFINDER_MPM_PORT,

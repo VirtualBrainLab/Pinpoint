@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
+using Utils.Types;
 
 namespace UI.Views
 {
