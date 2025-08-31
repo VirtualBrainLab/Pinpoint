@@ -1,21 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/Styles/PinpointColors.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#PinpointColors" />
-    <ui:VisualElement data-source-type="UI.ViewModels.ProbeListItemViewModel, Assembly-CSharp" style="flex-grow: 1; flex-direction: row; align-items: center;">
-        <Unity.AppUI.UI.Icon size="L" icon-name="shovel" />
-        <Unity.AppUI.UI.Spacer />
-        <Unity.AppUI.UI.Heading text="ASDF-1234">
-            <Bindings>
-                <ui:DataBinding property="text" data-source-path="Name" binding-mode="ToTarget" />
-            </Bindings>
-        </Unity.AppUI.UI.Heading>
-        <Unity.AppUI.UI.Spacer spacing="Expand" />
-        <Unity.AppUI.UI.ActionGroup style="flex-grow: 0;">
-            <Unity.AppUI.UI.ActionButton size="L" icon="eye-slash">
-                <Bindings>
-                    <ui:DataBinding property="selected" data-source-path="Hidden" binding-mode="ToTarget" />
-                </Bindings>
-            </Unity.AppUI.UI.ActionButton>
-            <Unity.AppUI.UI.Button size="L" variant="Destructive" leading-icon="trash" />
-        </Unity.AppUI.UI.ActionGroup>
+    <ui:Template name="ProbeLabel" src="project://database/Assets/UI/Components/ProbeLabel.uxml?fileID=9197481963319205126&amp;guid=d08fc1e610cf8e94a8a8a5caf97fbcff&amp;type=3#ProbeLabel" />
+    <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+        <ui:Instance template="ProbeLabel" name="ProbeLabel" />
+        <ui:VisualElement style="flex-grow: 1;" />
+        <ui:Button text="Line" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LineOrFullButton" />
+        <ui:Button text="Hide" parse-escape-sequences="true" display-tooltip-when-elided="true" name="HideOrShowButton" />
     </ui:VisualElement>
 </ui:UXML>

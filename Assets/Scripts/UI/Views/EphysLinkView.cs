@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
+using Models.Automation;
+using UI.Utils;
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEngine.UIElements;
-using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
 
 namespace UI.Views
@@ -32,7 +33,7 @@ namespace UI.Views
             BuildPlatformTypeDropdown();
 
             // Initialize component state.
-            _platformTypeDropdown.value = new[] { (int)_ephysLinkViewModel.SelectedServerConnectionType };
+            _platformTypeDropdown.value = new[] { (int)_ephysLinkViewModel.SelectedPlatformType };
 
             // Register event handlers.
             connectButton.clickable.clicked += _ephysLinkViewModel.ConnectCommand.Execute;
@@ -43,18 +44,18 @@ namespace UI.Views
         {
             _platformTypeDropdown.bindItem = (item, index) =>
             {
-                item.label = Enum.GetValues(typeof(ServerConnectionType)).GetValue(index) switch
+                item.label = Enum.GetValues(typeof(PlatformType)).GetValue(index) switch
                 {
-                    ServerConnectionType.SensapexUmp => "Sensapex uMp",
-                    ServerConnectionType.NewScalePathfinderMpm => "New Scale Pathfinder MPM",
-                    ServerConnectionType.Custom => "Custom Server",
+                    PlatformType.SensapexUmp => "Sensapex uMp",
+                    PlatformType.NewScalePathfinderMpm => "New Scale Pathfinder MPM",
+                    PlatformType.Custom => "Custom Server",
                     _ => throw new ArgumentOutOfRangeException(),
                 };
             };
-            _platformTypeDropdown.sourceItems = Enum.GetValues(typeof(ServerConnectionType));
+            _platformTypeDropdown.sourceItems = Enum.GetValues(typeof(PlatformType));
             _platformTypeDropdown.RegisterValueChangedCallback(evt =>
                 _ephysLinkViewModel.SetSelectedPlatformTypeCommand.Execute(
-                    (ServerConnectionType)evt.newValue.FirstOrDefault()
+                    (PlatformType)evt.newValue.FirstOrDefault()
                 )
             );
         }
@@ -67,62 +68,62 @@ namespace UI.Views
         public static void RegisterAutomationViewConverters()
         {
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                ServerConnectionType,
+                PlatformType,
                 StyleEnum<DisplayStyle>
             >(
                 "PlatformTypeToPathfinderMPMHTTPServerConnectionVisibility",
-                (ref ServerConnectionType serverConnectionType) =>
-                    serverConnectionType == ServerConnectionType.NewScalePathfinderMpm
+                (ref PlatformType platformType) =>
+                    platformType == PlatformType.NewScalePathfinderMpm
                         ? DisplayStyle.Flex
                         : DisplayStyle.None
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                ServerConnectionType,
+                PlatformType,
                 StyleEnum<DisplayStyle>
             >(
                 "PlatformTypeToCustomServerConnectionVisibility",
-                (ref ServerConnectionType serverConnectionType) =>
-                    serverConnectionType == ServerConnectionType.Custom ? DisplayStyle.Flex : DisplayStyle.None
+                (ref PlatformType platformType) =>
+                    platformType == PlatformType.Custom ? DisplayStyle.Flex : DisplayStyle.None
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                EphysLinkConnectionState,
+                ConnectionState,
                 StyleEnum<DisplayStyle>
             >(
                 "ConnectionStateToConnectButtonVisibility",
-                (ref EphysLinkConnectionState connectionState) =>
-                    connectionState == EphysLinkConnectionState.Disconnected
+                (ref ConnectionState connectionState) =>
+                    connectionState == ConnectionState.Disconnected
                         ? DisplayStyle.Flex
                         : DisplayStyle.None
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                EphysLinkConnectionState,
+                ConnectionState,
                 StyleEnum<DisplayStyle>
             >(
                 "ConnectionStateToDisconnectButtonVisibility",
-                (ref EphysLinkConnectionState connectionState) =>
-                    connectionState == EphysLinkConnectionState.Connected
+                (ref ConnectionState connectionState) =>
+                    connectionState == ConnectionState.Connected
                         ? DisplayStyle.Flex
                         : DisplayStyle.None
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
-                EphysLinkConnectionState,
+                ConnectionState,
                 StyleEnum<DisplayStyle>
             >(
                 "ConnectionStateToConnectingProgressVisibility",
-                (ref EphysLinkConnectionState connectionState) =>
-                    connectionState == EphysLinkConnectionState.Connecting
+                (ref ConnectionState connectionState) =>
+                    connectionState == ConnectionState.Connecting
                         ? DisplayStyle.Flex
                         : DisplayStyle.None
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
                 "ConnectionStateToSettingsEnabled",
-                (ref EphysLinkConnectionState connectionState) =>
-                    connectionState == EphysLinkConnectionState.Disconnected
+                (ref ConnectionState connectionState) =>
+                    connectionState == ConnectionState.Disconnected
             );
         }
     }

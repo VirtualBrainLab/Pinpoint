@@ -1,36 +1,9 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Unity.AppUI.UI.Panel data-source-type="UI.ViewModels.SceneViewModel, Assembly-CSharp">
-        <Unity.AppUI.UI.MenuTrigger>
-            <Unity.AppUI.UI.ActionButton label="Add Probe" icon="plus" accent="true" icon-variant="Regular" />
-            <Unity.AppUI.UI.Menu>
-                <Unity.AppUI.UI.MenuItem label="Neuropixel" icon="shovel">
-                    <Unity.AppUI.UI.Menu>
-                        <Unity.AppUI.UI.MenuItem label="1.0" name="scene__add-probe-menu__neuropixels__1-0" />
-                        <Unity.AppUI.UI.MenuItem label="2.0" name="scene__add-probe-menu__neuropixels__2-0" />
-                        <Unity.AppUI.UI.MenuItem label="2.0 4-shank" name="scene__add-probe-menu__neuropixels__2-0-4-shank" />
-                        <Unity.AppUI.UI.MenuItem label="2x 2.4" name="scene__add-probe-menu__neuropixels__2x-2-4" />
-                    </Unity.AppUI.UI.Menu>
-                </Unity.AppUI.UI.MenuItem>
-                <Unity.AppUI.UI.MenuItem label="Pipette" icon="line-vertical">
-                    <Unity.AppUI.UI.Menu>
-                        <Unity.AppUI.UI.MenuItem label="25μm" name="scene__add-probe-menu__pipette__25um" />
-                        <Unity.AppUI.UI.MenuItem label="50μm" name="scene__add-probe-menu__pipette__50um" />
-                        <Unity.AppUI.UI.MenuItem label="100μm" name="scene__add-probe-menu__pipette__100um" />
-                        <Unity.AppUI.UI.MenuItem label="200μm" name="scene__add-probe-menu__pipette__200um" />
-                    </Unity.AppUI.UI.Menu>
-                </Unity.AppUI.UI.MenuItem>
-                <Unity.AppUI.UI.MenuItem label="UCLA" icon="square">
-                    <Unity.AppUI.UI.Menu>
-                        <Unity.AppUI.UI.MenuItem label="128K" name="scene__add-probe-menu__ucla__128k" />
-                        <Unity.AppUI.UI.MenuItem label="256F" name="scene__add-probe-menu__ucla__256f" />
-                    </Unity.AppUI.UI.Menu>
-                </Unity.AppUI.UI.MenuItem>
-            </Unity.AppUI.UI.Menu>
-        </Unity.AppUI.UI.MenuTrigger>
-        <ui:ListView item-template="project://database/Assets/UI/Components/ProbeListItem.uxml?fileID=9197481963319205126&amp;guid=521cec15c97d85d4ca968d547323a790&amp;type=3#ProbeListItem" name="scene__probe-list-view" virtualization-method="DynamicHeight" style="flex-grow: 1;" />
+        <ui:ListView style="flex-grow: 1;" />
         <Unity.AppUI.UI.Accordion>
             <Unity.AppUI.UI.AccordionItem title="Manipulators" value="true">
-                <ui:ListView item-template="project://database/Assets/UI/Components/ManipulatorListItem.uxml?fileID=9197481963319205126&amp;guid=2e954e0e106ba1445bb698ca7b772ad8&amp;type=3#ManipulatorListItem" name="scene__manipulators-list-view" virtualization-method="DynamicHeight" style="flex-grow: 1;" />
+                <ui:ListView item-template="project://database/Assets/UI/Components/ManipulatorListItem.uxml?fileID=9197481963319205126&amp;guid=2e954e0e106ba1445bb698ca7b772ad8&amp;type=3#ManipulatorListItem" name="scene__manipulators-list" virtualization-method="DynamicHeight" style="flex-grow: 1;" />
             </Unity.AppUI.UI.AccordionItem>
         </Unity.AppUI.UI.Accordion>
     </Unity.AppUI.UI.Panel>

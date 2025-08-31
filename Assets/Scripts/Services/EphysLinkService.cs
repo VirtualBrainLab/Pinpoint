@@ -9,7 +9,6 @@ using Models.Automation;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
-using Utils.Types;
 using Action = System.Action;
 
 namespace Services
@@ -78,7 +77,7 @@ namespace Services
                         {
                             _storeService.Store.Dispatch(
                                 EphysLinkActions.SET_CONNECTION_STATE,
-                                EphysLinkConnectionState.Connected
+                                ConnectionState.Connected
                             );
                             onConnected?.Invoke();
                         }
@@ -135,7 +134,7 @@ namespace Services
             // Update the store state to disconnected.
             _storeService.Store.Dispatch(
                 EphysLinkActions.SET_CONNECTION_STATE,
-                EphysLinkConnectionState.Disconnected
+                ConnectionState.Disconnected
             );
             onDisconnected?.Invoke();
         }
@@ -175,15 +174,15 @@ namespace Services
 
             // Create launch arguments.
             var args = "-i -t ";
-            switch (ephysLinkState.SelectedServerConnectionType)
+            switch (ephysLinkState.SelectedPlatformType)
             {
-                case ServerConnectionType.SensapexUmp:
+                case PlatformType.SensapexUmp:
                     args += "ump";
                     break;
-                case ServerConnectionType.NewScalePathfinderMpm:
+                case PlatformType.NewScalePathfinderMpm:
                     args += $"pathfinder-mpm --mpm-port {ephysLinkState.NewScalePathfinderMpmPort}";
                     break;
-                case ServerConnectionType.Custom:
+                case PlatformType.Custom:
                 default:
                     throw new ArgumentOutOfRangeException();
             }

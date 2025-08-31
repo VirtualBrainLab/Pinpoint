@@ -3,10 +3,11 @@ using System.ComponentModel;
 using Models;
 using Models.Automation;
 using Services;
+using UI.Views;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using Unity.AppUI.UI;
-using Utils.Types;
+using UnityEngine.UIElements;
 
 namespace UI.ViewModels
 {
@@ -26,7 +27,7 @@ namespace UI.ViewModels
         #region Properties
 
         [ObservableProperty]
-        private ServerConnectionType _selectedServerConnectionType;
+        private PlatformType _selectedPlatformType;
 
         [ObservableProperty]
         private int _newScalePathfinderMpmPort;
@@ -38,7 +39,7 @@ namespace UI.ViewModels
         private int _customServerPort;
 
         [ObservableProperty]
-        private EphysLinkConnectionState _ephysLinkConnectionState;
+        private ConnectionState _connectionState;
 
         #endregion
 
@@ -64,11 +65,11 @@ namespace UI.ViewModels
 
         private void OnEphysLinkStateChanged(EphysLinkState ephysLinkState)
         {
-            SelectedServerConnectionType = ephysLinkState.SelectedServerConnectionType;
+            SelectedPlatformType = ephysLinkState.SelectedPlatformType;
             NewScalePathfinderMpmPort = ephysLinkState.NewScalePathfinderMpmPort;
             CustomServerIpAddress = ephysLinkState.CustomServerIpAddress;
             CustomServerPort = ephysLinkState.CustomServerPort;
-            EphysLinkConnectionState = ephysLinkState.EphysLinkConnectionState;
+            ConnectionState = ephysLinkState.ConnectionState;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -114,9 +115,9 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
-        private void SetSelectedPlatformType(ServerConnectionType serverConnectionType)
+        private void SetSelectedPlatformType(PlatformType platformType)
         {
-            _storeService.Store.Dispatch(EphysLinkActions.SET_SELECTED_PLATFORM_TYPE, serverConnectionType);
+            _storeService.Store.Dispatch(EphysLinkActions.SET_SELECTED_PLATFORM_TYPE, platformType);
         }
 
         [ICommand]
@@ -125,7 +126,7 @@ namespace UI.ViewModels
             // Move to connecting state.
             _storeService.Store.Dispatch(
                 EphysLinkActions.SET_CONNECTION_STATE,
-                EphysLinkConnectionState.Connecting
+                ConnectionState.Connecting
             );
 
             // Get the current state from the store.
@@ -134,14 +135,14 @@ namespace UI.ViewModels
             );
 
             // Connect based on the selected platform type.
-            switch (SelectedServerConnectionType)
+            switch (SelectedPlatformType)
             {
-                case ServerConnectionType.SensapexUmp:
-                case ServerConnectionType.NewScalePathfinderMpm:
+                case PlatformType.SensapexUmp:
+                case PlatformType.NewScalePathfinderMpm:
                     _ephysLinkService.Launch();
                     ConnectAttempt();
                     break;
-                case ServerConnectionType.Custom:
+                case PlatformType.Custom:
                     _ephysLinkService.ConnectToServer(
                         ephysLinkState.CustomServerIpAddress,
                         ephysLinkState.CustomServerPort,
@@ -191,7 +192,7 @@ namespace UI.ViewModels
                             // Move back to connecting state.
                             _storeService.Store.Dispatch(
                                 EphysLinkActions.SET_CONNECTION_STATE,
-                                EphysLinkConnectionState.Connecting
+                                ConnectionState.Connecting
                             );
                             
                             ConnectAttempt(attempts + 1);

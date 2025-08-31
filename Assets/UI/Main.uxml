@@ -51,6 +51,14 @@
                         </Bindings>
                     </Unity.AppUI.UI.Heading>
                 </ui:VisualElement>
+                <ui:VisualElement template="ProbeLabel" style="flex-direction: row; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                    <ui:VisualElement style="flex-grow: 0; width: 40px; height: 40px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); background-color: rgb(52, 172, 224); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 10px;">
+                        <Bindings>
+                            <ui:DataBinding property="style.backgroundColor" data-source-path="ActiveProbeColor" binding-mode="ToTarget" />
+                        </Bindings>
+                    </ui:VisualElement>
+                    <Unity.AppUI.UI.Heading size="S" text="No Probe Selected" />
+                </ui:VisualElement>
                 <ui:Instance template="Inspector" name="inspector-view" style="flex-grow: 1;">
                     <Bindings>
                         <ui:DataBinding property="style.display" data-source-path="IsAutomationModeActive" binding-mode="ToTarget" source-to-ui-converters="BooleanToInspectorVisibility" />

@@ -3,8 +3,6 @@ using TMPro;
 using UnityEngine;
 using TrajectoryPlanner;
 using BrainAtlas;
-using Models.Scene;
-using Utils.Types;
 
 public class TP_InPlaneSlice : MonoBehaviour
 {
@@ -99,25 +97,25 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         switch (ProbeManager.ActiveProbeManager.ProbeType)
         {
-            case ProbeType.Neuropixels24:
+            case ProbeProperties.ProbeType.Neuropixels24:
                 shankSpacing = -0.25f;
                 centerOffset = 1.5f;
                 fourShank = true;
                 break;
 
-            case ProbeType.Neuropixels24x2:
+            case ProbeProperties.ProbeType.Neuropixels24x2:
                 shankSpacing = 0.25f;
                 centerOffset = 1.5f;
                 fourShank = true;
                 break;
 
-            case ProbeType.UCLA128K:
+            case ProbeProperties.ProbeType.UCLA128K:
                 shankSpacing = -0.2f;
                 centerOffset = 1.5f;
                 fourShank = true;
                 break;
 
-            case ProbeType.UCLA256F:
+            case ProbeProperties.ProbeType.UCLA256F:
                 shankSpacing = -0.5f;
                 centerOffset = 0.5f;
                 twoShank = true;

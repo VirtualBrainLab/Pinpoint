@@ -3,11 +3,11 @@ using System.ComponentModel;
 using System.Linq;
 using Models.Scene;
 using NUnit.Framework;
+using UI.Utils;
 using UI.ViewModels;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Utils.Types;
 
 namespace UI.Views
 {
@@ -101,7 +101,7 @@ namespace UI.Views
                         .TargetInsertionProbeStates.First(state =>
                             state.UUID[..8] == label.text[..8]
                         )
-                        .ColorValue;
+                        .Color;
                     checkMarkVisualElement.style.backgroundColor = probeColor;
                 });
         }

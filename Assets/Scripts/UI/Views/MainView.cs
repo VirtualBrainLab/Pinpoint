@@ -1,8 +1,8 @@
+using UI.Utils;
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEngine.UIElements;
-using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
 
 namespace UI.Views
@@ -66,22 +66,22 @@ namespace UI.Views
             // Register event handlers.
             leftSidePanelCollapseButton.clickable.clicked += () =>
             {
-                mainSplitView.CollapseSplitter(
-                    LEFT_SIDE_PANEL_SPLITTER_INDEX,
-                    CollapseDirection.Backward
-                );
+                mainSplitView.CollapseSplitter(LEFT_SIDE_PANEL_SPLITTER_INDEX, CollapseDirection.Backward);
+                mainViewModel.SetMainSplitViewStateCommand.Execute(mainSplitView.SaveState());
             };
             rightSidePanelCollapseButton.clickable.clicked += () =>
             {
-                mainSplitView.CollapseSplitter(
-                    RIGHT_SIDE_PANEL_SPLITTER_INDEX,
-                    CollapseDirection.Forward
-                );
+                mainSplitView.CollapseSplitter(RIGHT_SIDE_PANEL_SPLITTER_INDEX, CollapseDirection.Forward);
+                mainViewModel.SetMainSplitViewStateCommand.Execute(mainSplitView.SaveState());
             };
             leftSidePanelTabs.RegisterValueChangedCallback(evt =>
                 mainViewModel.SetLeftSidePanelTabIndexCommand.Execute(evt.newValue)
             );
+
+            // Initialize view from view model state.
+            mainSplitView.RestoreState(mainViewModel.MainSplitViewState);
         }
+
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]

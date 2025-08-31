@@ -7,7 +7,6 @@ using EphysLink;
 using Pinpoint.CoordinateSystems;
 using UnityEngine;
 using UnityEngine.Events;
-using Utils.Types;
 
 namespace Pinpoint.Probes.ManipulatorBehaviorController
 {
@@ -84,7 +83,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         public readonly ProbeAutomationStateManager ProbeAutomationStateManager = new();
 
         // Helper functions to create and destroy a probe
-        public Action<ProbeType> CreatePathfinderProbe { private get; set; }
+        public Action<ProbeProperties.ProbeType> CreatePathfinderProbe { private get; set; }
         public Action DestroyThisProbe { private get; set; }
 
         #region Private internal fields

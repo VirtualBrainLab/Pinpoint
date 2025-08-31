@@ -1,8 +1,9 @@
 using Unity.Properties;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Utils.Types
+namespace UI.Utils
 {
     /// <summary>
     /// Globally used data type converters and converter makers.

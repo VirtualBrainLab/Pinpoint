@@ -1,4 +1,7 @@
 using System;
+using UI.Utils;
+using Unity.AppUI.UI;
+using UnityEngine;
 
 namespace Models
 {
@@ -6,6 +9,8 @@ namespace Models
     public record MainState
     {
         public bool IsAutomationModeActive;
+
+        public SplitView.State MainSplitViewState;
 
         public int LeftSidePanelTabIndex;
     }
