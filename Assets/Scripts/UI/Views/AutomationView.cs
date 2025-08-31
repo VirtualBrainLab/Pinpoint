@@ -3,11 +3,11 @@ using System.ComponentModel;
 using System.Linq;
 using Models.Scene;
 using NUnit.Framework;
-using UI.Utils;
 using UI.ViewModels;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils;
 
 namespace UI.Views
 {

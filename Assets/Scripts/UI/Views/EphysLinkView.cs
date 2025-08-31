@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
 using Models.Automation;
-using UI.Utils;
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEngine.UIElements;
+using Utils;
 using Button = Unity.AppUI.UI.Button;
 
 namespace UI.Views

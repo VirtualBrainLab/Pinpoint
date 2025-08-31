@@ -17,7 +17,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Urchin.Managers;
-using Urchin.Utils;
+using UrchinUtilsUtils = Urchin.Utils.Utils;
 using static UnityEngine.InputSystem.InputAction;
 
 
@@ -179,8 +179,8 @@ namespace TrajectoryPlanner
             // if this is the first time, load bregma
             if (_firstTime || _atlasReset)
             {
-                if (Utils.BregmaDefaults.ContainsKey(Settings.AtlasName))
-                    referenceAtlas.AtlasSpace.ReferenceCoord = Utils.BregmaDefaults[Settings.AtlasName];
+                if (UrchinUtilsUtils.BregmaDefaults.ContainsKey(Settings.AtlasName))
+                    referenceAtlas.AtlasSpace.ReferenceCoord = UrchinUtilsUtils.BregmaDefaults[Settings.AtlasName];
             }
             else
             {
@@ -1055,8 +1055,8 @@ namespace TrajectoryPlanner
             string atlasName = BrainAtlasManager.ActiveReferenceAtlas.Name;
 
             float defaultBLDistance;
-            if (Utils.BregmaDefaults.ContainsKey(atlasName))
-                defaultBLDistance = Utils.LambdaDefaults[atlasName].x - Utils.BregmaDefaults[atlasName].x;
+            if (UrchinUtilsUtils.BregmaDefaults.ContainsKey(atlasName))
+                defaultBLDistance = UrchinUtilsUtils.LambdaDefaults[atlasName].x - UrchinUtilsUtils.BregmaDefaults[atlasName].x;
             else
                 defaultBLDistance = 1f;
 
@@ -1134,7 +1134,7 @@ namespace TrajectoryPlanner
         {
             if (float.IsNaN(Settings.ReferenceCoord.x))
             {
-                Settings.ReferenceCoord = Utils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
+                Settings.ReferenceCoord = UrchinUtilsUtils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
             }
         }
 
