@@ -31,6 +31,8 @@ namespace Models.Scene
 
         public Vector3 APMLDV;
 
+        public float DepthT => Vector3.Distance(APMLDV, BrainSurfaceCoordT);
+
         public Vector3 Angles;
 
         public Vector3 RecRegionBaseCoordWorldU;

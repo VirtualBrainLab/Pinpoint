@@ -354,7 +354,7 @@ public class ProbeManager : MonoBehaviour
 
     #endregion
 
-    private void OnProbeStateChanged(ProbeState probeState)
+    private async void OnProbeStateChanged(ProbeState probeState)
     {
         // Only process state changes if we are in editor.
 #if UNITY_EDITOR
@@ -382,6 +382,10 @@ public class ProbeManager : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        // Channel Maps.
+        await _channelMapLoadedSource.Task;
+        _channelMap.SetSelectionLayer(probeState.SelectionLayerName);
 #endif
     }
 
