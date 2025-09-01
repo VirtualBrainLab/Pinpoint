@@ -6,7 +6,6 @@ using Models.Automation;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
-using UnityEngine;
 using Utils.Types;
 
 namespace UI.ViewModels
@@ -22,6 +21,7 @@ namespace UI.ViewModels
         private readonly EphysLinkService _ephysLinkService;
 
         #endregion
+
         #region Properties
 
         [ObservableProperty]
@@ -34,16 +34,11 @@ namespace UI.ViewModels
             _storeService = storeService;
             _ephysLinkService = ephysLinkService;
 
-            // Initialize properties.
-            var initialEphysLinkState = _storeService.Store.GetState<EphysLinkState>(
-                SliceNames.EPHYS_LINK_SLICE
-            );
-            OnEphysLinkStateChanged(initialEphysLinkState);
-
-            // Subscribe to state changes.
+            // Subscribe to state cha and initialize properties.
             _ephysLinkStateSubscription = storeService.Store.Subscribe(
                 state => state.Get<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE),
-                OnEphysLinkStateChanged
+                OnEphysLinkStateChanged,
+                new SubscribeOptions<EphysLinkState> { fireImmediately = true }
             );
 
             _storeService.Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE);
@@ -60,9 +55,7 @@ namespace UI.ViewModels
 
                     // Cancel if there was an error.
                     if (!string.IsNullOrEmpty(manipulatorsResponse.Error))
-                    {
                         return;
-                    }
 
                     // Map manipulators to view models.
                     ManipulatorListItemViewModels = manipulatorsResponse

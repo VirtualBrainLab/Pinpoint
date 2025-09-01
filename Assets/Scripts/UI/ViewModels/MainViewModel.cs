@@ -50,22 +50,16 @@ namespace UI.ViewModels
             // Register services.
             _storeService = storeService;
 
-            // Initialize properties from the store.
-            var initialMainState = _storeService.Store.GetState<MainState>(SliceNames.MAIN_SLICE);
-            OnMainStateChanged(initialMainState);
-            var initialSceneState = _storeService.Store.GetState<SceneState>(
-                SliceNames.SCENE_SLICE
-            );
-            OnSceneStateChanged(initialSceneState);
-
-            // Subscribe to state changes.
+            // Subscribe to state changes and initialize properties.
             _mainStateSubscription = _storeService.Store.Subscribe(
                 state => state.Get<MainState>(SliceNames.MAIN_SLICE),
-                OnMainStateChanged
+                OnMainStateChanged,
+                new SubscribeOptions<MainState> { fireImmediately = true }
             );
             _sceneStateSubscription = storeService.Store.Subscribe(
                 state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
-                OnSceneStateChanged
+                OnSceneStateChanged,
+                new SubscribeOptions<SceneState> { fireImmediately = true }
             );
             PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
