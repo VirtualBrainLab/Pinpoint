@@ -14,43 +14,49 @@ namespace Models.Scene
         public static SceneState AddProbeReducer(SceneState state, IAction<string> action)
         {
             var newProbesList = state.Probes.ToList();
-            newProbesList.Add(new ProbeState { UUID = action.payload });
+            newProbesList.Add(new ProbeState { Name = action.payload });
             return state with { Probes = newProbesList };
         }
 
+        /// <summary>
+        /// Remove all probes with the specified name.
+        /// </summary>
+        /// <param name="state">Current state.</param>
+        /// <param name="action">Target probe's name in payload.</param>
+        /// <returns></returns>
         public static SceneState RemoveProbeReducer(SceneState state, IAction<string> action)
         {
             // Remove all probes with the specified UUID.
             var newProbesList = state.Probes.ToList();
 
             // If no probes were removed, return the state unchanged.
-            if (newProbesList.RemoveAll(probeState => probeState.UUID == action.payload) == 0)
+            if (newProbesList.RemoveAll(probeState => probeState.Name == action.payload) == 0)
             {
                 return state;
             }
 
-            // Update the state with the new probes list, and update the active probe UUID if it was removed.
+            // Update the state with the new probes list, and update the active probe name if it was removed.
             return state with
             {
                 Probes = newProbesList,
-                ActiveProbeUUID =
-                    state.ActiveProbeUUID == action.payload ? string.Empty : state.ActiveProbeUUID,
+                ActiveProbeName =
+                    state.ActiveProbeName == action.payload ? string.Empty : state.ActiveProbeName,
             };
         }
 
         public static SceneState RemoveAllProbesReducer(SceneState state, IAction action)
         {
-            return state with { Probes = new List<ProbeState>(), ActiveProbeUUID = string.Empty };
+            return state with { Probes = new List<ProbeState>(), ActiveProbeName = string.Empty };
         }
 
         #endregion
 
         #region Active Probe Reducers
 
-        public static SceneState SetActiveProbeUUIDReducer(SceneState state, IAction<string> action)
+        public static SceneState SetActiveProbeNameReducer(SceneState state, IAction<string> action)
         {
             // If not found, return the state unchanged.
-            if (!state.Probes.Exists(probe => probe.UUID == action.payload))
+            if (!state.Probes.Exists(probe => probe.Name == action.payload))
             {
                 return state;
             }
@@ -58,7 +64,7 @@ namespace Models.Scene
             // Update the active probe UUID.
             return state with
             {
-                ActiveProbeUUID = action.payload,
+                ActiveProbeName = action.payload,
             };
         }
 
@@ -70,9 +76,9 @@ namespace Models.Scene
         /// Set the selected target insertion probe for the active probe.
         /// </summary>
         /// <param name="state">Current state.</param>
-        /// <param name="action">Chosen probe UUID in the payload.</param>
+        /// <param name="action">Chosen probe name in the payload.</param>
         /// <returns>State with chosen target updated on the active probe.</returns>
-        public static SceneState SetSelectedTargetInsertionProbeUUIDReducer(
+        public static SceneState SetSelectedTargetInsertionProbeNameReducer(
             SceneState state,
             IAction<string> action
         )
@@ -81,7 +87,7 @@ namespace Models.Scene
             {
                 // Verify selected target exists and is targetable.
                 var selectedTarget = state.Probes.First(probeState =>
-                    probeState.UUID == action.payload
+                    probeState.Name == action.payload
                 );
                 if (selectedTarget.IsEphysLinkControlled)
                 {
@@ -90,7 +96,7 @@ namespace Models.Scene
 
                 // Update the selected target insertion probe for the active probe.
                 var probesCopy = state.Probes.ToList();
-                probesCopy[state.ActiveProbeIndex].SelectedTargetInsertionProbeUUID =
+                probesCopy[state.ActiveProbeIndex].SelectedTargetInsertionProbeName =
                     action.payload;
 
                 return state with
@@ -370,15 +376,15 @@ namespace Models.Scene
 
         #region Active Probe Actions
 
-        public static readonly ActionCreator<string> SET_ACTIVE_PROBE_UUID =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeUUID";
+        public static readonly ActionCreator<string> SET_ACTIVE_PROBE_NAME =
+            $"{SliceNames.SCENE_SLICE}/SetActiveProbeName";
 
         #endregion
 
         #region Automation Actions
 
-        public static readonly ActionCreator<string> SET_SELECTED_TARGET_INSERTION_PROBE_UUID =
-            $"{SliceNames.SCENE_SLICE}/SetSelectedTargetInsertionProbeUUID";
+        public static readonly ActionCreator<string> SET_SELECTED_TARGET_INSERTION_PROBE_NAME =
+            $"{SliceNames.SCENE_SLICE}/SetSelectedTargetInsertionProbeName";
 
         public static readonly ActionCreator<AutomationProgressState> SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationProgressState";

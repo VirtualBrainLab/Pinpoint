@@ -102,12 +102,12 @@ namespace Services
                             SceneReducers.RemoveAllProbesReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_UUID,
-                            SceneReducers.SetActiveProbeUUIDReducer
+                            SceneActions.SET_ACTIVE_PROBE_NAME,
+                            SceneReducers.SetActiveProbeNameReducer
                         )
                         .AddCase(
-                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_UUID,
-                            SceneReducers.SetSelectedTargetInsertionProbeUUIDReducer
+                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,
+                            SceneReducers.SetSelectedTargetInsertionProbeNameReducer
                         )
                         .AddCase(
                             SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,

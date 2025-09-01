@@ -10,19 +10,14 @@ namespace Models.Scene
     {
         #region Core Identity
 
-        public string UUID;
+        public string Name = Guid.NewGuid().ToString();
 
-        public string OverrideName;
-
-        public string Name;
-
-        public bool Saved = true;
+        public ProbeType ProbeType;
 
         #endregion
 
         #region Probe Configuration
 
-        public ProbeType ProbeType = ProbeType.Neuropixels1;
 
         public Color Color = Color.white;
 
@@ -105,17 +100,17 @@ namespace Models.Scene
         #region Automation
 
         public AutomationProgressState AutomationProgressState;
-        
+
         public Vector4 ReferenceCoordinateOffset;
-        
-        public string SelectedTargetInsertionProbeUUID;
-        
+
+        public string SelectedTargetInsertionProbeName;
+
         public float DuraDepth;
-        
+
         public Vector3 DuraCoordinate;
-        
+
         public bool Drop2SurfaceWithDepth;
-        
+
         /// <summary>
         /// Base insertion speed (µm/s).
         /// </summary>

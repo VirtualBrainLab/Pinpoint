@@ -127,18 +127,18 @@ namespace UI.ViewModels
                         )
                         .Where(searchProbeState => searchProbeState.IsEphysLinkControlled)
                         .Select(otherManipulatorProbes =>
-                            otherManipulatorProbes.SelectedTargetInsertionProbeUUID
+                            otherManipulatorProbes.SelectedTargetInsertionProbeName
                         )
-                        .Contains(probeState.UUID)
+                        .Contains(probeState.Name)
                 )
                 .ToList();
 
             // Get the index of the selected target insertion probe.
             var selectedTargetInsertionProbeUUID = state
                 .ActiveProbeState
-                .SelectedTargetInsertionProbeUUID;
+                .SelectedTargetInsertionProbeName;
             var selectedTargetInsertionProbeState = state.Probes.FirstOrDefault(probeState =>
-                probeState.UUID == selectedTargetInsertionProbeUUID
+                probeState.Name == selectedTargetInsertionProbeUUID
             );
             if (
                 selectedTargetInsertionProbeState == null
@@ -198,7 +198,7 @@ namespace UI.ViewModels
                     if (SelectedTargetInsertionProbeIndex == 0)
                     {
                         _storeService.Store.Dispatch(
-                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_UUID,
+                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,
                             string.Empty
                         );
                     }
@@ -210,8 +210,8 @@ namespace UI.ViewModels
                                 SelectedTargetInsertionProbeIndex - 1
                             );
                         _storeService.Store.Dispatch(
-                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_UUID,
-                            selectedTargetInsertionProbeState.UUID
+                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,
+                            selectedTargetInsertionProbeState.Name
                         );
                         // TODO: Call ComputeEntryCoordinateTrajectory once it has been converted.
                     }

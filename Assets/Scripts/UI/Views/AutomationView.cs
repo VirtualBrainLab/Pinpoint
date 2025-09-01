@@ -100,7 +100,7 @@ namespace UI.Views
                     var checkMarkVisualElement = label.parent.Children().First();
                     var probeColor = _automationViewModel
                         .TargetInsertionProbeStates.First(state =>
-                            state.UUID[..8] == label.text[..8]
+                            state.Name[..8] == label.text[..8]
                         )
                         .Color;
                     checkMarkVisualElement.style.backgroundColor = probeColor;
@@ -118,7 +118,7 @@ namespace UI.Views
                 "TargetableProbeStatesToTargetInsertionOptions",
                 (ref IEnumerable<ProbeState> targetableProbeStates) =>
                     targetableProbeStates
-                        .Select(probeState => $"{probeState.UUID[..8]}: {probeState.APMLDV}")
+                        .Select(probeState => $"{probeState.Name[..8]}: {probeState.APMLDV}")
                         .Prepend("None")
             );
 
