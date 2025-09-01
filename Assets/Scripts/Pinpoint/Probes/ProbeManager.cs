@@ -354,21 +354,23 @@ public class ProbeManager : MonoBehaviour
 
     #endregion
 
-    private async void OnProbeStateChanged(ProbeState probeState)
+    #region State Callbacks
+
+    private async void OnProbeStateChanged(ProbeState state)
     {
         // Only process state changes if we are in editor.
 #if UNITY_EDITOR
         // Exit if there is no state (probably being deleted).
-        if (probeState == null)
+        if (state == null)
             return;
 
         // Core Identity.
-        name = probeState.Name;
+        name = state.Name;
 
         // Probe Configuration.
-        _probeRenderer.material.color = probeState.ColorValue;
+        _probeRenderer.material.color = state.ColorValue;
 
-        switch (probeState.ProbeDisplayType)
+        switch (state.ProbeDisplayType)
         {
             case ProbeDisplayType.Opaque:
                 SetMaterialsDefault();
@@ -385,9 +387,11 @@ public class ProbeManager : MonoBehaviour
 
         // Channel Maps.
         await _channelMapLoadedSource.Task;
-        _channelMap.SetSelectionLayer(probeState.SelectionLayerName);
+        _channelMap.SetSelectionLayer(state.SelectionLayerName);
 #endif
     }
+
+    #endregion
 
     /// <summary>
     /// Called by the TPManager when this Probe becomes the active probe

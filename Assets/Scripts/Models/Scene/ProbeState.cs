@@ -1,4 +1,5 @@
 using System;
+using BrainAtlas;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Utils.Types;
@@ -31,8 +32,22 @@ namespace Models.Scene
 
         public Vector3 APMLDV;
 
+        public float Depth;
+
+        #region Helper Accessors
+
         public float DepthT => Vector3.Distance(APMLDV, BrainSurfaceCoordT);
 
+        public Vector3 PositionWorldT =>
+            BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(APMLDV)
+            );
+
+        #endregion
+
+        /// <summary>
+        /// In degrees: (Yaw, Pitch, Roll).
+        /// </summary>
         public Vector3 Angles;
 
         public Vector3 RecRegionBaseCoordWorldU;

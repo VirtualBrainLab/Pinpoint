@@ -1,11 +1,18 @@
 using BrainAtlas;
-using System;
 using System.Collections.Generic;
+using Models.Scene;
+using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class CartesianProbeController : ProbeController
 {
+    #region State
+
+    private IDisposableSubscription _probeStateSubscription;
+
+    #endregion
+
     #region Movement constants
     private const float MOVE_INCREMENT_TAP = 0.010f; // move 1 um per tap
     private const float MOVE_INCREMENT_TAP_ULTRA = 1.000f;
@@ -212,7 +219,7 @@ public class CartesianProbeController : ProbeController
     }
 
     #region Awake helpers
-    private void ActionHandler(int idx, Vector4 dir, Action<Vector4> callback)
+    private void ActionHandler(int idx, Vector4 dir, System.Action<Vector4> callback)
     {
         if (!_clickDict[idx])
         {
@@ -220,7 +227,7 @@ public class CartesianProbeController : ProbeController
             callback(dir);
         }
     }
-    private void ActionHandler(int idx, Vector3 dir, Action<Vector3> callback)
+    private void ActionHandler(int idx, Vector3 dir, System.Action<Vector3> callback)
     {
         if (!_clickDict[idx])
         {
@@ -229,7 +236,7 @@ public class CartesianProbeController : ProbeController
         }
     }
 
-    private void CancelHandler(int idx, Vector4 dir, Action<Vector4> callback)
+    private void CancelHandler(int idx, Vector4 dir, System.Action<Vector4> callback)
     {
         if (_clickDict[idx])
         {
@@ -237,7 +244,7 @@ public class CartesianProbeController : ProbeController
             callback(dir);
         }
     }
-    private void CancelHandler(int idx, Vector3 dir, Action<Vector3> callback)
+    private void CancelHandler(int idx, Vector3 dir, System.Action<Vector3> callback)
     {
         if (_clickDict[idx])
         {
@@ -282,6 +289,28 @@ public class CartesianProbeController : ProbeController
     private void OnDisable()
     {
         inputActions.ProbeControl.Disable();
+    }
+
+    #endregion
+
+    #region State Callbacks
+
+    private void OnProbeStateChanged(ProbeState state)
+    {
+        // Skip if no state.
+        if (state == null)
+        {
+            return;
+        }
+
+        // Update position.
+        transform.position = state.PositionWorldT;
+
+        // Update orientation.
+        transform.rotation = _initialRotation;
+        transform.RotateAround(_probeTipT.position, transform.up, state.Angles.x);
+        transform.RotateAround(_probeTipT.position, transform.right, state.Angles.y);
+        transform.RotateAround(_probeTipT.position, transform.forward, -state.Angles.z);
     }
 
     #endregion
