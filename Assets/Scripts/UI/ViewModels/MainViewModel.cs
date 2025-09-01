@@ -75,7 +75,7 @@ namespace UI.ViewModels
         private void OnSceneStateChanged(SceneState state)
         {
             ActiveProbeName = state.ActiveProbeState?.Name ?? "No Active Probe";
-            ActiveProbeColor = state.ActiveProbeState?.Color ?? Color.gray;
+            ActiveProbeColor = state.ActiveProbeState?.ColorValue ?? Color.gray;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrainAtlas;
+using Models;
 using Models.Scene;
 using Pinpoint.Probes.ManipulatorBehaviorController;
 using Services;
@@ -29,6 +30,12 @@ public class ProbeManager : MonoBehaviour
     [DllImport("__Internal")]
     private static extern void Copy2Clipboard(string str);
 #endif
+    #endregion
+
+    #region State
+
+    private IDisposableSubscription _probeStateSubscription;
+
     #endregion
 
     #region Static fields
@@ -293,6 +300,13 @@ public class ProbeManager : MonoBehaviour
             _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
+
+        // Subscribe to state and initialize properties.
+        _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
+            state => state.Get<SceneState>(SliceNames.SCENE_SLICE).Probes.FirstOrDefault(probeState => probeState.Name == name),
+            OnProbeStateChanged,
+            new SubscribeOptions<ProbeState> { fireImmediately = true }
+        );
     }
 
     /// <summary>
@@ -336,10 +350,18 @@ public class ProbeManager : MonoBehaviour
     private void OnEnable()
     {
         Instances.Add(this);
-        PinpointApp.StoreServiceStore.Dispatch(SceneActions.ADD_PROBE, UUID);
     }
 
     #endregion
+
+    private void OnProbeStateChanged(ProbeState probeState)
+    {
+        // Exit if there is no state (probably being deleted).
+        if (probeState == null)
+            return;
+
+        name = probeState.Name;
+    }
 
     /// <summary>
     /// Called by the TPManager when this Probe becomes the active probe

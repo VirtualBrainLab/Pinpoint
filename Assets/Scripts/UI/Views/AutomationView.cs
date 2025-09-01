@@ -102,7 +102,7 @@ namespace UI.Views
                         .TargetInsertionProbeStates.First(state =>
                             state.Name[..8] == label.text[..8]
                         )
-                        .Color;
+                        .ColorValue;
                     checkMarkVisualElement.style.backgroundColor = probeColor;
                 });
         }

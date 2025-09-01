@@ -18,8 +18,8 @@ namespace Models.Scene
 
         #region Probe Configuration
 
-
-        public Color Color = Color.white;
+        public ProbeColor Color = ProbeColor.LightBlue;
+        public Color ColorValue => ProbeProperties.ProbeColors[(int)Color];
 
         public ProbeDisplayType ProbeDisplayType = ProbeDisplayType.Opaque;
 
