@@ -2,12 +2,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Models.Scene;
-using NUnit.Framework;
 using UI.Utils;
 using UI.ViewModels;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
 
 namespace UI.Views
 {
@@ -92,9 +93,7 @@ namespace UI.Views
                 {
                     // Skip the "None" option.
                     if (label.text == "None")
-                    {
                         return;
-                    }
 
                     var checkMarkVisualElement = label.parent.Children().First();
                     var probeColor = _automationViewModel

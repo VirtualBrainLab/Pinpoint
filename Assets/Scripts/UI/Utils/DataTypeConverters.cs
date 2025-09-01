@@ -1,12 +1,14 @@
 using Unity.Properties;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
 
 namespace UI.Utils
 {
     /// <summary>
-    /// Globally used data type converters and converter makers.
+    ///     Globally used data type converters and converter makers.
     /// </summary>
     public class DataTypeConverters
     {
@@ -18,18 +20,18 @@ namespace UI.Utils
         private static void RegisterConverters()
         {
             // Boolean -> StyleEnum<DisplayStyle>
-            ConverterGroups.RegisterGlobalConverter<bool, StyleEnum<DisplayStyle>>(
-                (ref bool isVisible) => isVisible ? DisplayStyle.Flex : DisplayStyle.None
+            ConverterGroups.RegisterGlobalConverter<bool, StyleEnum<DisplayStyle>>((ref bool isVisible) =>
+                isVisible ? DisplayStyle.Flex : DisplayStyle.None
             );
 
             // Boolean -> PickingMode
-            ConverterGroups.RegisterGlobalConverter(
-                (ref bool isVisible) => isVisible ? PickingMode.Position : PickingMode.Ignore
+            ConverterGroups.RegisterGlobalConverter((ref bool isVisible) =>
+                isVisible ? PickingMode.Position : PickingMode.Ignore
             );
         }
 
         /// <summary>
-        /// Create a unidirectional converter group for a specific type.
+        ///     Create a unidirectional converter group for a specific type.
         /// </summary>
         /// <param name="groupName">Name of the converter group.</param>
         /// <param name="converter">Converter to define.</param>
@@ -46,7 +48,7 @@ namespace UI.Utils
         }
 
         /// <summary>
-        /// Create a bidirectional converter group for a specific type.
+        ///     Create a bidirectional converter group for a specific type.
         /// </summary>
         /// <param name="groupName">Name of the converter group.</param>
         /// <param name="forwardConverter">Converter from the original source type to the converted type.</param>

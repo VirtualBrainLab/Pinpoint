@@ -5,6 +5,10 @@ using UnityEditor;
 using UnityEngine.UIElements;
 using Button = Unity.AppUI.UI.Button;
 
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
+
 namespace UI.Views
 {
     /// <summary>
