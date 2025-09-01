@@ -336,7 +336,7 @@ public class ProbeManager : MonoBehaviour
     private void OnEnable()
     {
         Instances.Add(this);
-        PinpointApp.Current.services.GetRequiredService<StoreService>().Store.Dispatch(SceneActions.ADD_PROBE, UUID);
+        PinpointApp.StoreServiceStore.Dispatch(SceneActions.ADD_PROBE, UUID);
     }
 
     #endregion

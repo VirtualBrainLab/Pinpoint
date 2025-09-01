@@ -60,7 +60,7 @@ public class UIManager : MonoBehaviour
     /// Return whether any inputs are currently focused or if any of the gameobjects are currently active
     /// </summary>
     public static bool InputsFocused =>
-        PinpointApp.Current.services.GetRequiredService<MainView>().Root.focusController.focusedElement
+        PinpointApp.MainView.Root.focusController.focusedElement
             is TextField
                 or FloatField
                 or IntegerField
