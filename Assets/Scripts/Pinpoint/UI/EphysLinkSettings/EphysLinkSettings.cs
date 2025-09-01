@@ -66,8 +66,6 @@ namespace Pinpoint.UI.EphysLinkSettings
 
         private UIManager _uiManager;
 
-        [SerializeField] private GameObject _newUI;
-
         #endregion
 
         #region Properties
@@ -377,11 +375,6 @@ namespace Pinpoint.UI.EphysLinkSettings
         public void InvokeShouldUpdateProbesListEvent()
         {
             ShouldUpdateProbesListEvent.Invoke();
-        }
-
-        public void ToggleNewUI(bool isEnabled)
-        {
-            _newUI.SetActive(isEnabled);
         }
 
         #endregion
