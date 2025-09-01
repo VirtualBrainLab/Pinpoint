@@ -5,10 +5,12 @@ using Models.Scene;
 using NUnit.Framework;
 using UI.ViewModels;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Utils.Types;
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
 
 namespace UI.Views
 {

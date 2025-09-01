@@ -5,6 +5,10 @@ using UnityEngine.UIElements;
 using Utils;
 using Button = Unity.AppUI.UI.Button;
 
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
+
 namespace UI.Views
 {
     /// <summary>
@@ -80,6 +84,11 @@ namespace UI.Views
 
             // Initialize view from view model state.
             mainSplitView.RestoreState(mainViewModel.MainSplitViewState);
+
+#if !UNITY_EDITOR
+            // In builds, hide the new UI.
+            Root.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
+#endif
         }
 
 

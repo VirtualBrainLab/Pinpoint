@@ -9,6 +9,10 @@ using Utils;
 using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
 
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
+
 namespace UI.Views
 {
     public class EphysLinkView

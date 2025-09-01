@@ -4,6 +4,10 @@ using UnityEditor;
 using UnityEngine.UIElements;
 using Utils;
 
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
+
 namespace UI.Views
 {
     public class ManipulatorListItem
