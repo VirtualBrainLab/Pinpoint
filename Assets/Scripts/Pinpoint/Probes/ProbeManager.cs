@@ -356,11 +356,33 @@ public class ProbeManager : MonoBehaviour
 
     private void OnProbeStateChanged(ProbeState probeState)
     {
+        // Only process state changes if we are in editor.
+#if UNITY_EDITOR
         // Exit if there is no state (probably being deleted).
         if (probeState == null)
             return;
 
+        // Core Identity.
         name = probeState.Name;
+
+        // Probe Configuration.
+        _probeRenderer.material.color = probeState.ColorValue;
+
+        switch (probeState.ProbeDisplayType)
+        {
+            case ProbeDisplayType.Opaque:
+                SetMaterialsDefault();
+                break;
+            case ProbeDisplayType.Transparent:
+                SetMaterialsTransparent();
+                break;
+            case ProbeDisplayType.Line:
+                SetMaterialsLine();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+#endif
     }
 
     /// <summary>
