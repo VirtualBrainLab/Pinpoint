@@ -19,7 +19,7 @@ namespace Models.Scene
         }
 
         /// <summary>
-        /// Remove all probes with the specified name.
+        ///     Remove all probes with the specified name.
         /// </summary>
         /// <param name="state">Current state.</param>
         /// <param name="action">Target probe's name in payload.</param>
@@ -31,9 +31,7 @@ namespace Models.Scene
 
             // If no probes were removed, return the state unchanged.
             if (newProbesList.RemoveAll(probeState => probeState.Name == action.payload) == 0)
-            {
                 return state;
-            }
 
             // Update the state with the new probes list, and update the active probe name if it was removed.
             return state with
@@ -57,9 +55,7 @@ namespace Models.Scene
         {
             // If not found, return the state unchanged.
             if (!state.Probes.Exists(probe => probe.Name == action.payload))
-            {
                 return state;
-            }
 
             // Update the active probe UUID.
             return state with
@@ -82,9 +78,7 @@ namespace Models.Scene
 
             // Exit if the probe is not found.
             if (index == -1)
-            {
                 return state;
-            }
 
             // Create a copy of the probes list
             var probesCopy = state.Probes.ToList();
@@ -104,12 +98,46 @@ namespace Models.Scene
             };
         }
 
+        public static SceneState ChangeProbeAnglesByReducer(
+            SceneState state,
+            IAction<(string Name, Vector3 Angles, Vector2 PitchRange)> action
+        )
+        {
+            // Find the index of the target probe.
+            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+
+            // Exit if the probe is not found.
+            if (index == -1)
+                return state;
+
+            // Create a copy of the probes list
+            var probesCopy = state.Probes.ToList();
+
+            var pitchClampedAngles = action.payload.Angles;
+            pitchClampedAngles.y = Mathf.Clamp(
+                action.payload.Angles.y,
+                action.payload.PitchRange.x,
+                action.payload.PitchRange.y
+            );
+
+            // Update the probe immutably using the `with` expression
+            probesCopy[index] = probesCopy[index] with
+            {
+                Angles = probesCopy[index].Angles + pitchClampedAngles,
+            };
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
         #endregion
 
         #region Automation Reducers
 
         /// <summary>
-        /// Set the selected target insertion probe for the active probe.
+        ///     Set the selected target insertion probe for the active probe.
         /// </summary>
         /// <param name="state">Current state.</param>
         /// <param name="action">Chosen probe name in the payload.</param>
@@ -126,9 +154,7 @@ namespace Models.Scene
                     probeState.Name == action.payload
                 );
                 if (selectedTarget.IsEphysLinkControlled)
-                {
                     throw new ArgumentException("Selected target is not targetable.");
-                }
 
                 // Update the selected target insertion probe for the active probe.
                 var probesCopy = state.Probes.ToList();
@@ -154,9 +180,7 @@ namespace Models.Scene
         {
             // If no active probe, return the state unchanged.
             if (state.ActiveProbeState == null)
-            {
                 return state;
-            }
 
             // Set the active probe's automation progress state.
             var probesCopy = state.Probes.ToList();
@@ -175,9 +199,7 @@ namespace Models.Scene
         {
             // If no active probe, return the state unchanged.
             if (state.ActiveProbeState == null)
-            {
                 return state;
-            }
 
             // Move to next driving state if possible. If not, return the state unchanged.
             var newProgressState = state.ActiveProbeState.AutomationProgressState switch
@@ -209,9 +231,7 @@ namespace Models.Scene
         {
             // If no active probe, return the state unchanged.
             if (state.ActiveProbeState == null)
-            {
                 return state;
-            }
 
             // Move to next exiting state if possible. If not, return the state unchanged.
             var newProgressState = state.ActiveProbeState.AutomationProgressState switch
@@ -243,9 +263,7 @@ namespace Models.Scene
         {
             // If no active probe, return the state unchanged.
             if (state.ActiveProbeState == null)
-            {
                 return state;
-            }
 
             // Move to next landmark progress state if possible. If not, return the state unchanged.
             var newProgressState = state.ActiveProbeState.AutomationProgressState switch
@@ -280,9 +298,7 @@ namespace Models.Scene
         {
             // If no active probe, return the state unchanged.
             if (state.ActiveProbeState == null)
-            {
                 return state;
-            }
 
             // Revert to the previous landmark progress state if possible. If not, return the state unchanged.
             var newProgressState = state.ActiveProbeState.AutomationProgressState switch
@@ -317,9 +333,7 @@ namespace Models.Scene
         {
             // If no active probe, return the state unchanged.
             if (state.ActiveProbeState == null)
-            {
                 return state;
-            }
 
             // Set the active probe's reference coordinate.
             var probesCopy = state.Probes.ToList();
@@ -338,9 +352,7 @@ namespace Models.Scene
         {
             // If no active probe, return the state unchanged.
             if (state.ActiveProbeState == null)
-            {
                 return state;
-            }
 
             // Set the active probe's Dura offset.
             var probesCopy = state.Probes.ToList();
@@ -359,9 +371,7 @@ namespace Models.Scene
         {
             // If no active probe, return the state unchanged.
             if (state.ActiveProbeState == null)
-            {
                 return state;
-            }
 
             // Set the active probe's target insertion speed.
             var probesCopy = state.Probes.ToList();
@@ -380,9 +390,7 @@ namespace Models.Scene
         {
             // If no active probe, return the state unchanged.
             if (state.ActiveProbeState == null)
-            {
                 return state;
-            }
 
             // Set the active probe's drive past distance.
             var probesCopy = state.Probes.ToList();
@@ -403,8 +411,10 @@ namespace Models.Scene
 
         public static readonly ActionCreator<string> ADD_PROBE =
             $"{SliceNames.SCENE_SLICE}/AddProbe";
+
         public static readonly ActionCreator<string> REMOVE_PROBE =
             $"{SliceNames.SCENE_SLICE}/RemoveProbe";
+
         public static readonly ActionCreator REMOVE_ALL_PROBES =
             $"{SliceNames.SCENE_SLICE}/RemoveAllProbes";
 
@@ -419,8 +429,18 @@ namespace Models.Scene
 
         #region Probe Actions
 
-        public static readonly ActionCreator<(string Name, Vector3 APMLDV, float Depth, Vector3 ForwardT)> CHANGE_PROBE_POSITION_BY =
-            $"{SliceNames.SCENE_SLICE}/ChangeProbePositionBy";
+        public static readonly ActionCreator<(
+            string Name,
+            Vector3 APMLDV,
+            float Depth,
+            Vector3 ForwardT
+        )> CHANGE_PROBE_POSITION_BY = $"{SliceNames.SCENE_SLICE}/ChangeProbePositionBy";
+
+        public static readonly ActionCreator<(
+            string Name,
+            Vector3 Angles,
+            Vector2 PitchRange
+        )> CHANGE_PROBE_ANGLES_BY = $"{SliceNames.SCENE_SLICE}/ChangeProbeAnglesBy";
 
         #endregion
 
@@ -431,12 +451,16 @@ namespace Models.Scene
 
         public static readonly ActionCreator<AutomationProgressState> SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationProgressState";
+
         public static readonly ActionCreator SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationProgressStateToNextDriving";
+
         public static readonly ActionCreator SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_EXITING =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationProgressStateToNextExiting";
+
         public static readonly ActionCreator COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS =
             $"{SliceNames.SCENE_SLICE}/CompleteActiveProbeAutomationIntermediateProgress";
+
         public static readonly ActionCreator CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS =
             $"{SliceNames.SCENE_SLICE}/CancelActiveProbeAutomationIntermediateProgress";
 
@@ -448,6 +472,7 @@ namespace Models.Scene
 
         public static readonly ActionCreator<int> SET_ACTIVE_PROBE_INSERTION_BASE_SPEED =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeInsertionBaseSpeed";
+
         public static readonly ActionCreator<int> SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeDrivePastDistance";
 

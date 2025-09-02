@@ -561,8 +561,13 @@ public class CartesianProbeController : ProbeController
         Insertion.Pitch = Mathf.Clamp(Insertion.Pitch + angleDelta.y, _minPitch, _maxPitch);
         Insertion.Roll += angleDelta.z;
 
+#if UNITY_EDITOR
+        PinpointApp.StoreServiceStore.Dispatch(SceneActions.CHANGE_PROBE_ANGLES_BY,
+            (name, angleDelta, new Vector2(_minPitch, _maxPitch)));
+#else
         // Set probe position and update UI
         _dirty = true;
+#endif
     }
 
     #endregion
