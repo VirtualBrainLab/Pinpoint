@@ -1,7 +1,6 @@
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Button = Unity.AppUI.UI.Button;
@@ -86,7 +85,7 @@ namespace UI.Views
             // Initialize view from view model state.
             mainSplitView.RestoreState(mainViewModel.MainSplitViewState);
 
-#if !APP_UI
+#if APP_UI
             // In builds, hide the new UI.
             Root.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
 #endif

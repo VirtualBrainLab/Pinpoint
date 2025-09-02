@@ -8,6 +8,10 @@ using Utils;
 using UnityEngine;
 #endif
 
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
+
 namespace UI.Views
 {
     public class ManipulatorListItem
