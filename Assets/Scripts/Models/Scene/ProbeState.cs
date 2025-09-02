@@ -32,8 +32,6 @@ namespace Models.Scene
 
         public Vector3 APMLDV;
 
-        public float Depth;
-
         #region Helper Accessors
 
         public float DepthT => Vector3.Distance(APMLDV, BrainSurfaceCoordT);
@@ -56,6 +54,18 @@ namespace Models.Scene
 
         #endregion
 
+        #region Brain Surface
+
+        public bool ProbeInBrain = false;
+
+        public Vector3 BrainSurfaceCoordT;
+
+        public Vector3 BrainSurfaceWorldU;
+
+        public Vector3 BrainSurfaceWorldT;
+
+        #endregion
+
         #region Coordinate Space and Transform
 
         public string AtlasSpaceName;
@@ -71,18 +81,6 @@ namespace Models.Scene
         public float MinChannelHeight;
 
         public float MaxChannelHeight;
-
-        #endregion
-
-        #region Brain Surface
-
-        public bool ProbeInBrain = false;
-
-        public Vector3 BrainSurfaceCoordT;
-
-        public Vector3 BrainSurfaceWorldU;
-
-        public Vector3 BrainSurfaceWorldT;
 
         #endregion
 

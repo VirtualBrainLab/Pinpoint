@@ -455,8 +455,12 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
+#if !UNITY_EDITOR
+
             // Check if this probe is in the brain
             name = _probeInBrain ? $"{_probeUIManagers[0].MaxArea}-{UUID[..8]}" : UUID[..8];
+
+#endif
         }
     }
 

@@ -1,6 +1,7 @@
-using BrainAtlas;
 using System.Collections.Generic;
+using BrainAtlas;
 using Models.Scene;
+using UI;
 using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -526,13 +527,24 @@ public class CartesianProbeController : ProbeController
         }
         else
         {
+            var apmldvDelta =
+                BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
+                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(posDelta));
+            var forwardT =
+                BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
+                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(transform.forward));
             // Rotate the position delta (unity world space) into the insertion's transformed space
             // Note that we don't apply the transform beacuse we want 1um steps to = 1um steps in transformed space
-            Insertion.APMLDV += Insertion.World2T_Vector(posDelta);
+            Insertion.APMLDV += apmldvDelta;
             _depth += posDelta.w;
 
+#if UNITY_EDITOR
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.CHANGE_PROBE_POSITION_BY,
+                (name, apmldvDelta, posDelta.w, forwardT));
+#else
             // Set probe position and update UI
             _dirty = true;
+#endif
         }
     }
 

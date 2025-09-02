@@ -95,16 +95,24 @@ namespace Services
                 builder =>
                 {
                     builder
+                        // Probe list.
                         .AddCase(SceneActions.ADD_PROBE, SceneReducers.AddProbeReducer)
                         .AddCase(SceneActions.REMOVE_PROBE, SceneReducers.RemoveProbeReducer)
                         .AddCase(
                             SceneActions.REMOVE_ALL_PROBES,
                             SceneReducers.RemoveAllProbesReducer
                         )
+                        // Active Probe.
                         .AddCase(
                             SceneActions.SET_ACTIVE_PROBE_NAME,
                             SceneReducers.SetActiveProbeNameReducer
                         )
+                        // Probe.
+                        .AddCase(
+                            SceneActions.CHANGE_PROBE_POSITION_BY,
+                            SceneReducers.ChangeProbePositionByReducer
+                        )
+                        // Automation.
                         .AddCase(
                             SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,
                             SceneReducers.SetSelectedTargetInsertionProbeNameReducer
@@ -168,7 +176,7 @@ namespace Services
                 SliceNames.SCENE_SLICE,
                 Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
             );
-            
+
             // Ephys link state.
             _localStorageService.SetValue(
                 SliceNames.EPHYS_LINK_SLICE,

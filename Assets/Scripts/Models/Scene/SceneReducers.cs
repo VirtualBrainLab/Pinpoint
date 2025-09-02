@@ -70,6 +70,42 @@ namespace Models.Scene
 
         #endregion
 
+        #region Probe Reducers
+
+        public static SceneState ChangeProbePositionByReducer(
+            SceneState state,
+            IAction<(string Name, Vector3 APMLDV, float Depth, Vector3 ForwardT)> action
+        )
+        {
+            // Find the index of the target probe.
+            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+
+            // Exit if the probe is not found.
+            if (index == -1)
+            {
+                return state;
+            }
+
+            // Create a copy of the probes list
+            var probesCopy = state.Probes.ToList();
+
+            // Update the probe immutably using the `with` expression
+            probesCopy[index] = probesCopy[index] with
+            {
+                APMLDV =
+                    probesCopy[index].APMLDV
+                    + action.payload.APMLDV
+                    + action.payload.ForwardT * action.payload.Depth,
+            };
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
+        #endregion
+
         #region Automation Reducers
 
         /// <summary>
@@ -315,7 +351,7 @@ namespace Models.Scene
                 Probes = probesCopy,
             };
         }
-        
+
         public static SceneState SetActiveProbeTargetInsertionBaseSpeedReducer(
             SceneState state,
             IAction<int> action
@@ -336,7 +372,7 @@ namespace Models.Scene
                 Probes = probesCopy,
             };
         }
-        
+
         public static SceneState SetActiveProbeDrivePastDistanceReducer(
             SceneState state,
             IAction<int> action
@@ -381,6 +417,13 @@ namespace Models.Scene
 
         #endregion
 
+        #region Probe Actions
+
+        public static readonly ActionCreator<(string Name, Vector3 APMLDV, float Depth, Vector3 ForwardT)> CHANGE_PROBE_POSITION_BY =
+            $"{SliceNames.SCENE_SLICE}/ChangeProbePositionBy";
+
+        #endregion
+
         #region Automation Actions
 
         public static readonly ActionCreator<string> SET_SELECTED_TARGET_INSERTION_PROBE_NAME =
@@ -399,10 +442,10 @@ namespace Models.Scene
 
         public static readonly ActionCreator<Vector4> SET_ACTIVE_PROBE_REFERENCE_COORDINATE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeReferenceCoordinate";
-        
+
         public static readonly ActionCreator<float> SET_ACTIVE_PROBE_DURA_OFFSET =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeDuraOffset";
-        
+
         public static readonly ActionCreator<int> SET_ACTIVE_PROBE_INSERTION_BASE_SPEED =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeInsertionBaseSpeed";
         public static readonly ActionCreator<int> SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE =
