@@ -108,9 +108,16 @@ namespace Services
                             SceneReducers.SetActiveProbeNameReducer
                         )
                         // Probe.
+                        .AddCase(SceneActions.SET_PROBE_POSITION, SceneReducers.SetProbePositionReducer)
+                        .AddCase(SceneActions.SET_PROBE_ANGLES, SceneReducers.SetProbeAnglesReducer)
+                        .AddCase(SceneActions.SET_PROBE_POSITION_AND_ANGLES, SceneReducers.SetProbePositionAndAnglesReducer)
                         .AddCase(
                             SceneActions.CHANGE_PROBE_POSITION_BY,
                             SceneReducers.ChangeProbePositionByReducer
+                        )
+                        .AddCase(
+                            SceneActions.CHANGE_PROBE_ANGLES_BY,
+                            SceneReducers.ChangeProbeAnglesByReducer
                         )
                         // Automation.
                         .AddCase(

@@ -358,8 +358,7 @@ public class ProbeManager : MonoBehaviour
 
     private async void OnProbeStateChanged(ProbeState state)
     {
-        // Only process state changes if we are in editor.
-#if UNITY_EDITOR
+#if APP_UI
         // Exit if there is no state (probably being deleted).
         if (state == null)
             return;
@@ -455,7 +454,7 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
-#if !UNITY_EDITOR
+#if !APP_UI
 
             // Check if this probe is in the brain
             name = _probeInBrain ? $"{_probeUIManagers[0].MaxArea}-{UUID[..8]}" : UUID[..8];

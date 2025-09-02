@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using BrainAtlas;
+using Models;
 using Models.Scene;
 using UI;
 using Unity.AppUI.Redux;
@@ -538,7 +540,7 @@ public class CartesianProbeController : ProbeController
             Insertion.APMLDV += apmldvDelta;
             _depth += posDelta.w;
 
-#if UNITY_EDITOR
+#if APP_UI
             PinpointApp.StoreServiceStore.Dispatch(SceneActions.CHANGE_PROBE_POSITION_BY,
                 (name, apmldvDelta, posDelta.w, forwardT));
 #else
@@ -561,7 +563,7 @@ public class CartesianProbeController : ProbeController
         Insertion.Pitch = Mathf.Clamp(Insertion.Pitch + angleDelta.y, _minPitch, _maxPitch);
         Insertion.Roll += angleDelta.z;
 
-#if UNITY_EDITOR
+#if APP_UI
         PinpointApp.StoreServiceStore.Dispatch(SceneActions.CHANGE_PROBE_ANGLES_BY,
             (name, angleDelta, new Vector2(_minPitch, _maxPitch)));
 #else
@@ -599,8 +601,18 @@ public class CartesianProbeController : ProbeController
     {
         // ignore mouse clicks if we're over a UI element
         // Cancel movement if being controlled by EphysLink
+#if APP_UI
+        // Get the starting state of this probe.
+        var startingProbeState = PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE).Probes
+            .FirstOrDefault(state => state.Name == name);
+
+        if (EventSystem.current.IsPointerOverGameObject() || startingProbeState == null ||
+            startingProbeState.IsEphysLinkControlled ||
+            startingProbeState.Locked) return;
+#else
         if (EventSystem.current.IsPointerOverGameObject() || ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)
             return;
+#endif
 
         // Clear all keyboard movements
         ClearClickRotate();
@@ -614,9 +626,15 @@ public class CartesianProbeController : ProbeController
         axisLockPitch = false;
         axisLockYaw = false;
 
+#if APP_UI
+        origAPMLDV = startingProbeState.APMLDV;
+        origYaw = startingProbeState.Angles.x;
+        origPitch = startingProbeState.Angles.y;
+#else
         origAPMLDV = Insertion.APMLDV;
         origYaw = Insertion.Yaw;
         origPitch = Insertion.Pitch;
+#endif
         // Note: depth is special since it gets absorbed into the probe position on each frame
 
         // Track the screenPoint that was initially clicked
@@ -644,8 +662,17 @@ public class CartesianProbeController : ProbeController
     public void DragMovementDrag()
     {
         // Cancel movement if being controlled by EphysLink
+#if APP_UI
+        // Get the current state of this probe.
+        var currentProbeState = PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE).Probes
+            .FirstOrDefault(state => state.Name == name);
+
+        // Exit if there is no state.
+        if (currentProbeState == null || currentProbeState.IsEphysLinkControlled || currentProbeState.Locked) return;
+#else
         if (ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)
             return;
+#endif
 
         Vector3 curScreenPointWorld = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cameraDistance));
         Vector3 worldOffset = curScreenPointWorld - originalClickPositionWorld;
@@ -737,9 +764,19 @@ public class CartesianProbeController : ProbeController
             moved = true;
         }
 
+#if APP_UI
+
+        // Get the current state of this probe.
+        Vector4 targetPosition = currentProbeState.APMLDV;
+        var targetAngles = currentProbeState.Angles;
+#endif
+
         if (moved)
         {
             Insertion.APMLDV = origAPMLDV + Insertion.World2T_Vector(newXYZ);
+#if APP_UI
+            targetPosition = origAPMLDV + Insertion.World2T_Vector(newXYZ);
+#endif
         }
 
         if (axisLockDepth)
@@ -747,24 +784,40 @@ public class CartesianProbeController : ProbeController
             worldOffset = curScreenPointWorld - lastClickPositionWorld;
             lastClickPositionWorld = curScreenPointWorld;
             _depth = -1.5f * worldOffset.y;
+#if APP_UI
+            targetPosition.w = -1.5f * worldOffset.y;
+#endif
             moved = true;
         }
 
         if (axisLockPitch)
         {
             Insertion.Pitch = Mathf.Clamp(origPitch + 3f * worldOffset.y, _minPitch, _maxPitch);
+#if APP_UI
+            targetAngles.y = Mathf.Clamp(origPitch + 3f * worldOffset.y, _minPitch, _maxPitch);
+#endif
             moved = true;
         }
         if (axisLockYaw)
         {
             Insertion.Yaw = origYaw - 3f * worldOffset.x;
+#if APP_UI
+            targetAngles.x = origYaw - 3f * worldOffset.x;
+#endif
             moved = true;
         }
 
 
         if (moved)
         {
+#if APP_UI
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_PROBE_POSITION_AND_ANGLES, (name, targetPosition,
+                targetPosition.w, BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
+                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(transform.forward)), targetAngles,
+                new Vector2(_minPitch, _maxPitch)));
+#else
             SetProbePosition();
+#endif
 
             ProbeManager.SetAxisTransform(ProbeTipT);
 

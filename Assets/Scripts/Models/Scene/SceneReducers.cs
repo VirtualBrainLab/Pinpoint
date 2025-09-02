@@ -68,6 +68,109 @@ namespace Models.Scene
 
         #region Probe Reducers
 
+        public static SceneState SetProbePositionReducer(
+            SceneState state,
+            IAction<(string Name, Vector3 APMLDV, float Depth, Vector3 ForwardT)> action
+        )
+        {
+            // Find the index of the target probe.
+            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+
+            // Exit if the probe is not found.
+            if (index == -1)
+                return state;
+
+            // Create a copy of the probes list
+            var probesCopy = state.Probes.ToList();
+
+            // Update the probe immutably using the `with` expression
+            probesCopy[index] = probesCopy[index] with
+            {
+                APMLDV = action.payload.APMLDV + action.payload.ForwardT * action.payload.Depth,
+            };
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
+        public static SceneState SetProbeAnglesReducer(
+            SceneState state,
+            IAction<(string Name, Vector3 Angles, Vector2 PitchRange)> action
+        )
+        {
+            // Find the index of the target probe.
+            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+
+            // Exit if the probe is not found.
+            if (index == -1)
+                return state;
+
+            // Create a copy of the probes list
+            var probesCopy = state.Probes.ToList();
+
+            var pitchClampedAngles = action.payload.Angles;
+            pitchClampedAngles.y = Mathf.Clamp(
+                action.payload.Angles.y,
+                action.payload.PitchRange.x,
+                action.payload.PitchRange.y
+            );
+
+            // Update the probe immutably using the `with` expression
+            probesCopy[index] = probesCopy[index] with
+            {
+                Angles = pitchClampedAngles,
+            };
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
+        public static SceneState SetProbePositionAndAnglesReducer(
+            SceneState state,
+            IAction<(
+                string Name,
+                Vector3 APMLDV,
+                float Depth,
+                Vector3 ForwardT,
+                Vector3 Angles,
+                Vector2 PitchRange
+            )> action
+        )
+        {
+            // Find the index of the target probe.
+            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+
+            // Exit if the probe is not found.
+            if (index == -1)
+                return state;
+
+            // Create a copy of the probes list
+            var probesCopy = state.Probes.ToList();
+
+            var pitchClampedAngles = action.payload.Angles;
+            pitchClampedAngles.y = Mathf.Clamp(
+                action.payload.Angles.y,
+                action.payload.PitchRange.x,
+                action.payload.PitchRange.y
+            );
+
+            // Update the probe immutably using the `with` expression
+            probesCopy[index] = probesCopy[index] with
+            {
+                APMLDV = action.payload.APMLDV + action.payload.ForwardT * action.payload.Depth,
+                Angles = pitchClampedAngles,
+            };
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
         public static SceneState ChangeProbePositionByReducer(
             SceneState state,
             IAction<(string Name, Vector3 APMLDV, float Depth, Vector3 ForwardT)> action
@@ -428,6 +531,28 @@ namespace Models.Scene
         #endregion
 
         #region Probe Actions
+
+        public static readonly ActionCreator<(
+            string Name,
+            Vector3 APMLDV,
+            float Depth,
+            Vector3 ForwardT
+        )> SET_PROBE_POSITION = $"{SliceNames.SCENE_SLICE}/SetProbePosition";
+
+        public static readonly ActionCreator<(
+            string Name,
+            Vector3 Angles,
+            Vector2 PitchRange
+        )> SET_PROBE_ANGLES = $"{SliceNames.SCENE_SLICE}/SetProbeAngles";
+
+        public static readonly ActionCreator<(
+            string Name,
+            Vector3 APMLDV,
+            float Depth,
+            Vector3 ForwardT,
+            Vector3 Angles,
+            Vector2 PitchRange
+        )> SET_PROBE_POSITION_AND_ANGLES = $"{SliceNames.SCENE_SLICE}/SetProbePositionAndAngles";
 
         public static readonly ActionCreator<(
             string Name,
