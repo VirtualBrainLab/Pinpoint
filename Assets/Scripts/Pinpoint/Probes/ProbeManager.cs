@@ -6,9 +6,7 @@ using BrainAtlas;
 using Models;
 using Models.Scene;
 using Pinpoint.Probes.ManipulatorBehaviorController;
-using Services;
 using UI;
-using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.Events;
@@ -93,7 +91,7 @@ public class ProbeManager : MonoBehaviour
     private RecordingRegion _recRegion;
 
     private AxisControl _axisControl;
-    public ProbeProperties.ProbeType ProbeType;
+    public ProbeType ProbeType;
 
     [FormerlySerializedAs("probeController")]
     [SerializeField]
@@ -140,10 +138,8 @@ public class ProbeManager : MonoBehaviour
     private Vector3 _recRegionBaseCoordWorldU;
     private Vector3 _recRegionTopCoordWorldU;
 
-    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU
-    {
-        get { return (_recRegionBaseCoordWorldU, _recRegionTopCoordWorldU); }
-    }
+    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU =>
+        (_recRegionBaseCoordWorldU, _recRegionTopCoordWorldU);
 
     // Text
     private const float minYaw = -180;
@@ -301,6 +297,9 @@ public class ProbeManager : MonoBehaviour
             _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
+        
+        // Add this instance to the static list of Probe objects.
+        Instances.Add(this);
 
         // Subscribe to state and initialize properties.
         _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
@@ -349,11 +348,9 @@ public class ProbeManager : MonoBehaviour
             Instances.Clear();
         else
             Instances.Remove(this);
-    }
-
-    private void OnEnable()
-    {
-        Instances.Add(this);
+        
+        // Unsubscribe from state.
+        _probeStateSubscription.Dispose();
     }
 
     #endregion
@@ -391,19 +388,6 @@ public class ProbeManager : MonoBehaviour
         // Channel Maps.
         await _channelMapLoadedSource.Task;
         _channelMap.SetSelectionLayer(state.SelectionLayerName);
-
-        // Update the world coordinates for the tip position
-        var startCoordWorldT =
-            _probeController.ProbeTipT.position
-            + -_probeController.ProbeTipT.forward * _channelMap.MinChannelHeight;
-        var endCoordWorldT =
-            _probeController.ProbeTipT.position
-            + -_probeController.ProbeTipT.forward * _channelMap.MaxChannelHeight;
-        _recRegionBaseCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT, true);
-        _recRegionTopCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT, true);
-        
-        // Update surface coordinates.
-        UpdateSurfacePosition();
 #endif
     }
 
@@ -465,24 +449,28 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateName()
     {
+#if !APP_UI
         if (OverrideName != null)
         {
             name = OverrideName;
         }
         else
         {
-#if !APP_UI
 
             // Check if this probe is in the brain
             name = _probeInBrain ? $"{_probeUIManagers[0].MaxArea}-{UUID[..8]}" : UUID[..8];
 
-#endif
         }
+#endif
     }
 
     public void ProbeMoved()
     {
-        ProbeInsertion insertion = _probeController.Insertion;
+        // Skip update if channel map not loaded.
+        if (_channelMap == null)
+        {
+            return;
+        }
         var channelCoords = GetChannelRangemm();
 
         // Update the world coordinates for the tip position
@@ -1126,8 +1114,7 @@ public class ProbeManager : MonoBehaviour
         bool register,
         string manipulatorId = null,
         bool calibrated = true,
-        Action onSuccess = null,
-        System.Action<string> onError = null
+        Action onSuccess = null, System.Action<string> onError = null
     )
     {
         // Exit early if this was an invalid call

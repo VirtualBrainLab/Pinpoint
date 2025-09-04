@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Models;
 using Models.Automation;
+using Models.Scene;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
@@ -16,6 +17,7 @@ namespace UI.ViewModels
         #region Services
 
         private readonly StoreService _storeService;
+        private readonly IDisposableSubscription _sceneStateSubscription;
         private readonly IDisposableSubscription _ephysLinkStateSubscription;
 
         private readonly EphysLinkService _ephysLinkService;
@@ -23,6 +25,12 @@ namespace UI.ViewModels
         #endregion
 
         #region Properties
+
+        [ObservableProperty]
+        private int _selectedProbeIndex = -1;
+
+        [ObservableProperty]
+        private List<ProbeListItemViewModel> _probeListItemViewModels = new();
 
         [ObservableProperty]
         private List<ManipulatorListItemViewModel> _manipulatorListItemViewModels = new();
@@ -35,13 +43,29 @@ namespace UI.ViewModels
             _ephysLinkService = ephysLinkService;
 
             // Subscribe to state changes and initialize properties.
+            _sceneStateSubscription = storeService.Store.Subscribe(
+                state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
+                OnSceneStateChanged,
+                new SubscribeOptions<SceneState> { fireImmediately = true }
+            );
             _ephysLinkStateSubscription = storeService.Store.Subscribe(
                 state => state.Get<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE),
                 OnEphysLinkStateChanged,
                 new SubscribeOptions<EphysLinkState> { fireImmediately = true }
             );
 
-            _storeService.Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE);
+            App.shuttingDown += OnShuttingDown;
+        }
+
+        private void OnSceneStateChanged(SceneState state)
+        {
+            // Map probes to view models.
+            ProbeListItemViewModels = state
+                .Probes.Select(probeState => new ProbeListItemViewModel(probeState, _storeService))
+                .ToList();
+
+            // Update panel selection based on active probe.
+            SelectedProbeIndex = state.ActiveProbeIndex;
         }
 
         private async void OnEphysLinkStateChanged(EphysLinkState state)
@@ -74,5 +98,34 @@ namespace UI.ViewModels
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        private void OnShuttingDown()
+        {
+            _sceneStateSubscription.Dispose();
+            _ephysLinkStateSubscription.Dispose();
+            App.shuttingDown -= OnShuttingDown;
+        }
+
+        #region Commands
+
+        [ICommand]
+        private void AddProbe(ProbeType probeType)
+        {
+            _storeService.Store.Dispatch(SceneActions.ADD_PROBE, probeType);
+        }
+
+        [ICommand]
+        private void SetActiveProbe(int index)
+        {
+            var selectedProbeName =
+                index < 0
+                    ? ""
+                    : _storeService
+                        .Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
+                        .Probes[index]
+                        .Name;
+            _storeService.Store.Dispatch(SceneActions.SET_ACTIVE_PROBE, selectedProbeName);
+        }
+        #endregion
     }
 }

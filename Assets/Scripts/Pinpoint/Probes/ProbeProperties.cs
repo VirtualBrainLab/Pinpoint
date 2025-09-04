@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Utils.Types;
 
 public class ProbeProperties
 {
@@ -61,21 +62,6 @@ public class ProbeProperties
 
     public static readonly int FONT_SIZE_ACRONYM = 24;
     public static readonly int FONT_SIZE_AREA = 18;
-
-    public enum ProbeType : int
-    {
-        Placeholder = -1,
-        Neuropixels1 = 0,
-        Neuropixels21 = 21,
-        Neuropixels24 = 24,
-        Neuropixels24x2 = 28,
-        UCLA128K = 128,
-        UCLA256F = 256,
-        Pipette25 = 25,
-        Pipette50 = 50,
-        Pipette100 = 100,
-        Pipette200 = 200
-    }
 
     public static bool FourShank(ProbeType probeType)
     {

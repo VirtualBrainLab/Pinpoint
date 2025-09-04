@@ -1,0 +1,97 @@
+:root {
+    --pinpoint-probe-color-dark-blue: rgb(31, 119, 180);
+    --pinpoint-probe-color-light-blue: rgb(174, 199, 232);
+    --pinpoint-probe-color-dark-orange: rgb(255, 127, 14);
+    --pinpoint-probe-color-light-orange: rgb(255, 187, 120);
+    --pinpoint-probe-color-dark-green: rgb(44, 160, 44);
+    --pinpoint-probe-color-light-green: rgb(152, 223, 138);
+    --pinpoint-probe-color-dark-red: rgb(214, 39, 40);
+    --pinpoint-probe-color-light-red: rgb(255, 152, 150);
+    --pinpoint-probe-color-dark-purple: rgb(148, 103, 189);
+    --pinpoint-probe-color-light-purple: rgb(197, 176, 213);
+    --pinpoint-probe-color-dark-brown: rgb(140, 86, 75);
+    --pinpoint-probe-color-light-brown: rgb(196, 156, 148);
+    --pinpoint-probe-color-dark-pink: rgb(227, 119, 194);
+    --pinpoint-probe-color-light-pink: rgb(247, 182, 210);
+    --pinpoint-probe-color-dark-gray: rgb(127, 127, 127);
+    --pinpoint-probe-color-light-gray: rgb(199, 199, 199);
+    --pinpoint-probe-color-lively-laugh: rgb(220, 220, 142);
+    --pinpoint-probe-color-dark-cyan: rgb(23, 190, 207);
+    --pinpoint-probe-color-light-cyan: rgb(158, 218, 229);
+}
+
+.probe-icon--dark-blue {
+    --unity-image-tint-color: var(--pinpoint-probe-color-dark-blue);
+}
+
+.probe-icon--light-blue {
+    --unity-image-tint-color: var(--pinpoint-probe-color-light-blue);
+}
+
+.probe-icon--dark-orange {
+    --unity-image-tint-color: var(--pinpoint-probe-color-dark-orange);
+}
+
+.probe-icon--light-orange {
+    --unity-image-tint-color: var(--pinpoint-probe-color-light-orange);
+}
+
+.probe-icon--dark-green {
+    --unity-image-tint-color: var(--pinpoint-probe-color-dark-green);
+}
+
+.probe-icon--light-green {
+    --unity-image-tint-color: var(--pinpoint-probe-color-light-green);
+}
+
+.probe-icon--dark-red {
+    --unity-image-tint-color: var(--pinpoint-probe-color-dark-red);
+}
+
+.probe-icon--light-red {
+    --unity-image-tint-color: var(--pinpoint-probe-color-light-red);
+}
+
+.probe-icon--dark-purple {
+    --unity-image-tint-color: var(--pinpoint-probe-color-dark-purple);
+}
+
+.probe-icon--light-purple {
+    --unity-image-tint-color: var(--pinpoint-probe-color-light-purple);
+}
+
+.probe-icon--dark-brown {
+    --unity-image-tint-color: var(--pinpoint-probe-color-dark-brown);
+}
+
+.probe-icon--light-brown {
+    --unity-image-tint-color: var(--pinpoint-probe-color-light-brown);
+}
+
+.probe-icon--dark-pink {
+    --unity-image-tint-color: var(--pinpoint-probe-color-dark-pink);
+}
+
+.probe-icon--light-pink {
+    --unity-image-tint-color: var(--pinpoint-probe-color-light-pink);
+}
+
+.probe-icon--dark-gray {
+    --unity-image-tint-color: var(--pinpoint-probe-color-dark-gray);
+}
+
+.probe-icon--light-gray {
+    --unity-image-tint-color: var(--pinpoint-probe-color-light-gray);
+}
+
+.probe-icon--lively-laugh {
+    --unity-image-tint-color: var(--pinpoint-probe-color-lively-laugh);
+}
+
+.probe-icon--dark-cyan {
+    --unity-image-tint-color: var(--pinpoint-probe-color-dark-cyan);
+}
+
+.probe-icon--light-cyan {
+    --unity-image-tint-color: var(--pinpoint-probe-color-light-cyan);
+}

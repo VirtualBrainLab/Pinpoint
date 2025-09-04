@@ -35,8 +35,9 @@ namespace Models.Scene
         /// <summary>
         /// In degrees: (Yaw, Pitch, Roll).
         /// </summary>
-        public Vector3 Angles;
-        
+        /// <remarks>Defaults to pointing straight down.</remarks>
+        public Vector3 Angles = 90 * Vector3.up;
+
         #region Helper Accessors
 
         public Vector3 PositionWorldT =>

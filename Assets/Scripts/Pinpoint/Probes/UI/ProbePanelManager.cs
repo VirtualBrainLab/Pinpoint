@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Utils.Types;
 
 /// <summary>
 /// Manager class to handle UI functionality related to the probe channel map and area panels
@@ -121,7 +122,7 @@ public class ProbePanelManager : MonoBehaviour
         List<ProbeManager> np24Probes = new List<ProbeManager>();
         List<ProbeManager> otherProbes = new List<ProbeManager>();
         foreach (ProbeManager pcontroller in ProbeManager.Instances)
-            if (pcontroller.ProbeType == ProbeProperties.ProbeType.Neuropixels24)
+            if (pcontroller.ProbeType == ProbeType.Neuropixels24)
                 np24Probes.Add(pcontroller);
             else
                 otherProbes.Add(pcontroller);
