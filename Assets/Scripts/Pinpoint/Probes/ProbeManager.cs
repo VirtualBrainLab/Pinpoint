@@ -364,15 +364,12 @@ public class ProbeManager : MonoBehaviour
     private async void OnProbeStateChanged(ProbeState state)
     {
 #if APP_UI
-        Debug.Log("State updated");
         // Exit if there is no state (probably being deleted).
         if (state == null)
             return;
 
         // Core Identity.
-        Debug.Log($"Setting name: {state.Name}");
         name = state.Name;
-        Debug.Log($"Probe name: {name}");
 
         // Probe Configuration.
         _probeRenderer.material.color = state.ColorValue;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrainAtlas;
@@ -260,6 +261,12 @@ public class CartesianProbeController : ProbeController
     private void Start()
     {
         SetProbePosition();
+
+        // Subscribe to probe state changes.
+        _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
+            state => state.Get<SceneState>(SliceNames.SCENE_SLICE).Probes
+                .FirstOrDefault(probeState => probeState.Name == name),
+            OnProbeStateChanged, new SubscribeOptions<ProbeState> { fireImmediately = true });
     }
 
     private void Update()
@@ -292,6 +299,11 @@ public class CartesianProbeController : ProbeController
     private void OnDisable()
     {
         inputActions.ProbeControl.Disable();
+    }
+
+    private void OnDestroy()
+    {
+        _probeStateSubscription.Dispose();
     }
 
     #endregion
