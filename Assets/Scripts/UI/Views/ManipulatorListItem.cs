@@ -1,8 +1,12 @@
-using UI.Utils;
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEngine.UIElements;
+using Utils;
+
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
 
 #if !UNITY_EDITOR
 using UnityEngine;

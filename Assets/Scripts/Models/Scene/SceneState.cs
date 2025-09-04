@@ -11,16 +11,19 @@ namespace Models.Scene
     {
         public List<ProbeState> Probes = new();
 
-        [NonSerialized]
-        public string ActiveProbeUUID;
+        #region Active Probe
 
-        // Helper to get the active probe state based on the ActiveProbeUUID.
+        public string ActiveProbeName;
+
+        // Helper to get the active probe state based on the ActiveProbeName.
         public ProbeState ActiveProbeState =>
-            Probes.FirstOrDefault(state => state.UUID == ActiveProbeUUID);
-        
+            Probes.FirstOrDefault(state => state.Name == ActiveProbeName);
+
         // Helper to get the active probe index.
         public int ActiveProbeIndex => Probes.IndexOf(ActiveProbeState);
 
+        #endregion
+        [NonSerialized]
         public int TotalProbeCount = 0;
 
         public bool ShowAllProbePanels = true;

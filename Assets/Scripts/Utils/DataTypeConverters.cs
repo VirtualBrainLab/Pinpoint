@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 using UnityEngine;
 #endif
 
-namespace UI.Utils
+namespace Utils
 {
     /// <summary>
     ///     Globally used data type converters and converter makers.

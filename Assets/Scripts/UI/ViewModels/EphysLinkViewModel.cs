@@ -3,11 +3,10 @@ using System.ComponentModel;
 using Models;
 using Models.Automation;
 using Services;
-using UI.Views;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using Unity.AppUI.UI;
-using UnityEngine.UIElements;
+using Utils.Types;
 
 namespace UI.ViewModels
 {
@@ -21,13 +20,13 @@ namespace UI.ViewModels
 
         [Service]
         private readonly EphysLinkService _ephysLinkService;
-        
+
         #endregion
 
         #region Properties
 
         [ObservableProperty]
-        private PlatformType _selectedPlatformType;
+        private EphysLinkPlatformType _selectedPlatformType;
 
         [ObservableProperty]
         private int _newScalePathfinderMpmPort;
@@ -39,7 +38,7 @@ namespace UI.ViewModels
         private int _customServerPort;
 
         [ObservableProperty]
-        private ConnectionState _connectionState;
+        private EphysLinkConnectionState _ephysLinkConnectionState;
 
         #endregion
 
@@ -48,16 +47,11 @@ namespace UI.ViewModels
             // Register services.
             _storeService = storeService;
 
-            // Initialize properties from the store.
-            var initialEphysLinkState = _storeService.Store.GetState<EphysLinkState>(
-                SliceNames.EPHYS_LINK_SLICE
-            );
-            OnEphysLinkStateChanged(initialEphysLinkState);
-
-            // Subscribe to state changes.
+            // Subscribe to state changes and initialize properties.
             _ephysLinkStateSubscription = storeService.Store.Subscribe(
                 state => state.Get<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE),
-                OnEphysLinkStateChanged
+                OnEphysLinkStateChanged,
+                new SubscribeOptions<EphysLinkState> { fireImmediately = true }
             );
             PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
@@ -65,11 +59,11 @@ namespace UI.ViewModels
 
         private void OnEphysLinkStateChanged(EphysLinkState ephysLinkState)
         {
-            SelectedPlatformType = ephysLinkState.SelectedPlatformType;
+            SelectedPlatformType = ephysLinkState.SelectedEphysLinkPlatformType;
             NewScalePathfinderMpmPort = ephysLinkState.NewScalePathfinderMpmPort;
             CustomServerIpAddress = ephysLinkState.CustomServerIpAddress;
             CustomServerPort = ephysLinkState.CustomServerPort;
-            ConnectionState = ephysLinkState.ConnectionState;
+            EphysLinkConnectionState = ephysLinkState.ConnectionState;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -85,9 +79,7 @@ namespace UI.ViewModels
                 case nameof(CustomServerIpAddress):
                     // Reset to default if the IP address is empty.
                     if (string.IsNullOrWhiteSpace(CustomServerIpAddress))
-                    {
                         CustomServerIpAddress = "localhost";
-                    }
                     _storeService.Store.Dispatch(
                         EphysLinkActions.SET_CUSTOM_SERVER_IP_ADDRESS,
                         CustomServerIpAddress
@@ -106,7 +98,7 @@ namespace UI.ViewModels
         {
             // Trigger a disconnect.
             _ephysLinkService.Disconnect();
-            
+
             // Unsubscribe from events and dispose of subscriptions.
             App.shuttingDown -= OnShuttingDown;
             _ephysLinkStateSubscription.Dispose();
@@ -115,9 +107,12 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
-        private void SetSelectedPlatformType(PlatformType platformType)
+        private void SetSelectedPlatformType(EphysLinkPlatformType platformType)
         {
-            _storeService.Store.Dispatch(EphysLinkActions.SET_SELECTED_PLATFORM_TYPE, platformType);
+            _storeService.Store.Dispatch(
+                EphysLinkActions.SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE,
+                platformType
+            );
         }
 
         [ICommand]
@@ -126,7 +121,7 @@ namespace UI.ViewModels
             // Move to connecting state.
             _storeService.Store.Dispatch(
                 EphysLinkActions.SET_CONNECTION_STATE,
-                ConnectionState.Connecting
+                EphysLinkConnectionState.Connecting
             );
 
             // Get the current state from the store.
@@ -137,12 +132,12 @@ namespace UI.ViewModels
             // Connect based on the selected platform type.
             switch (SelectedPlatformType)
             {
-                case PlatformType.SensapexUmp:
-                case PlatformType.NewScalePathfinderMpm:
+                case EphysLinkPlatformType.SensapexUmp:
+                case EphysLinkPlatformType.NewScalePathfinderMpm:
                     _ephysLinkService.Launch();
                     ConnectAttempt();
                     break;
-                case PlatformType.Custom:
+                case EphysLinkPlatformType.Custom:
                     _ephysLinkService.ConnectToServer(
                         ephysLinkState.CustomServerIpAddress,
                         ephysLinkState.CustomServerPort,
@@ -156,7 +151,10 @@ namespace UI.ViewModels
                                 variant = AlertSemantic.Error,
                             };
                             alertDialog.SetCancelAction(0, "OK");
-                            var presentationModal = Modal.Build(PinpointApp.Current.rootVisualElement, alertDialog);
+                            var presentationModal = Modal.Build(
+                                PinpointApp.Current.rootVisualElement,
+                                alertDialog
+                            );
                             presentationModal.Show();
                         }
                     );
@@ -184,7 +182,10 @@ namespace UI.ViewModels
                                 variant = AlertSemantic.Error,
                             };
                             alertDialog.SetCancelAction(0, "OK");
-                            var presentationModal = Modal.Build(PinpointApp.Current.rootVisualElement, alertDialog);
+                            var presentationModal = Modal.Build(
+                                PinpointApp.Current.rootVisualElement,
+                                alertDialog
+                            );
                             presentationModal.Show();
                         }
                         else
@@ -192,9 +193,9 @@ namespace UI.ViewModels
                             // Move back to connecting state.
                             _storeService.Store.Dispatch(
                                 EphysLinkActions.SET_CONNECTION_STATE,
-                                ConnectionState.Connecting
+                                EphysLinkConnectionState.Connecting
                             );
-                            
+
                             ConnectAttempt(attempts + 1);
                         }
                     }

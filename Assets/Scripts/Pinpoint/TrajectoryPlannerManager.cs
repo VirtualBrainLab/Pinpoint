@@ -17,7 +17,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Urchin.Managers;
-using Urchin.Utils;
+using Utils.Types;
+using UrchinUtilsUtils = Urchin.Utils.Utils;
 using static UnityEngine.InputSystem.InputAction;
 
 
@@ -179,8 +180,8 @@ namespace TrajectoryPlanner
             // if this is the first time, load bregma
             if (_firstTime || _atlasReset)
             {
-                if (Utils.BregmaDefaults.ContainsKey(Settings.AtlasName))
-                    referenceAtlas.AtlasSpace.ReferenceCoord = Utils.BregmaDefaults[Settings.AtlasName];
+                if (UrchinUtilsUtils.BregmaDefaults.ContainsKey(Settings.AtlasName))
+                    referenceAtlas.AtlasSpace.ReferenceCoord = UrchinUtilsUtils.BregmaDefaults[Settings.AtlasName];
             }
             else
             {
@@ -214,7 +215,7 @@ namespace TrajectoryPlanner
 
             StartupEvent_RefAtlasLoaded.Invoke();
             // Trigger atlas service to populate the ontology.
-            PinpointApp.Current.services.GetRequiredService<AtlasService>().LoadActiveReferenceAtlas();
+            PinpointApp.AtlasService.LoadActiveReferenceAtlas();
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
 
             _checkForSavedProbesTaskSource = new TaskCompletionSource<bool>();
@@ -380,8 +381,7 @@ namespace TrajectoryPlanner
                 {
                     // TODO: Remove old probe manager behavior.
                     ProbeManager.ActiveProbeManager = null;
-                    PinpointApp.Current.services.GetRequiredService<StoreService>().Store
-                        .Dispatch(SceneActions.SET_ACTIVE_PROBE_UUID, string.Empty);
+                    PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE_NAME, string.Empty);
                     _activeProbeChangedEvent.Invoke();
                 }
                 SetSurfaceDebugActive(false);
@@ -437,7 +437,7 @@ namespace TrajectoryPlanner
 
         /// <summary>
         /// Main function for adding new probes (other functions are just overloads)
-        /// 
+        ///
         /// Creates the new probe and then sets it to be active
         /// </summary>
         /// <param name="probeType"></param>
@@ -480,7 +480,7 @@ namespace TrajectoryPlanner
 
             return probeManager;
         }
-        
+
         public ProbeManager AddNewProbe(ProbeProperties.ProbeType probeType, ProbeInsertion insertion,
             int numAxes, string manipulatorId, Vector4 zeroCoordinateOffset, float brainSurfaceOffset, bool dropToSurfaceWithDepth, bool isRightHanded, string UUID = null)
         {
@@ -491,7 +491,7 @@ namespace TrajectoryPlanner
 
             // Return data if there is no current Ephys Link data
             if (Settings.IsEphysLinkDataExpired()) return probeManager;
-            
+
             // Repopulate Ephys Link information
             probeManager.ManipulatorBehaviorController.NumAxes = numAxes;
             probeManager.ManipulatorBehaviorController.ReferenceCoordinateOffset = zeroCoordinateOffset;
@@ -500,7 +500,7 @@ namespace TrajectoryPlanner
             // probeManager.ManipulatorBehaviorController.IsSetToDropToSurfaceWithDepth = dropToSurfaceWithDepth;
             probeManager.ManipulatorBehaviorController.IsRightHanded = isRightHanded;
             var communicationManager = GameObject.Find("EphysLink").GetComponent<CommunicationManager>();
-                
+
             if (communicationManager.IsConnected && !string.IsNullOrEmpty(manipulatorId))
                 probeManager.SetIsEphysLinkControlled(true, manipulatorId,
                     onError: _ => probeManager.SetIsEphysLinkControlled(false));
@@ -529,8 +529,7 @@ namespace TrajectoryPlanner
             Debug.LogWarning($"Probe {UUID} doesn't exist in the scene");
             // TODO: Remove old probe manager behavior.
             ProbeManager.ActiveProbeManager = null;
-            PinpointApp.Current.services.GetRequiredService<StoreService>().Store
-                .Dispatch(SceneActions.SET_ACTIVE_PROBE_UUID, string.Empty);
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE_NAME, string.Empty);
             _activeProbeChangedEvent.Invoke();
         }
 
@@ -552,8 +551,7 @@ namespace TrajectoryPlanner
             // Replace the probe object and set to active
             // TODO: Remove old probe manager behavior.
             ProbeManager.ActiveProbeManager = newActiveProbeManager;
-            PinpointApp.Current.services.GetRequiredService<StoreService>().Store
-                .Dispatch(SceneActions.SET_ACTIVE_PROBE_UUID, newActiveProbeManager.UUID);
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE_NAME, newActiveProbeManager.UUID);
             ProbeManager.ActiveProbeManager.SetActive(true);
             
             // Change the UI manager visibility and set transparency of probes
@@ -1055,8 +1053,8 @@ namespace TrajectoryPlanner
             string atlasName = BrainAtlasManager.ActiveReferenceAtlas.Name;
 
             float defaultBLDistance;
-            if (Utils.BregmaDefaults.ContainsKey(atlasName))
-                defaultBLDistance = Utils.LambdaDefaults[atlasName].x - Utils.BregmaDefaults[atlasName].x;
+            if (UrchinUtilsUtils.BregmaDefaults.ContainsKey(atlasName))
+                defaultBLDistance = UrchinUtilsUtils.LambdaDefaults[atlasName].x - UrchinUtilsUtils.BregmaDefaults[atlasName].x;
             else
                 defaultBLDistance = 1f;
 
@@ -1134,7 +1132,7 @@ namespace TrajectoryPlanner
         {
             if (float.IsNaN(Settings.ReferenceCoord.x))
             {
-                Settings.ReferenceCoord = Utils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
+                Settings.ReferenceCoord = UrchinUtilsUtils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
             }
         }
 

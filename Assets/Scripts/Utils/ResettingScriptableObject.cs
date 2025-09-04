@@ -1,9 +1,7 @@
-using UnityEngine;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
+using UnityEngine;
 
-namespace Core.Util
+namespace Utils
 {
     public abstract class ResettingScriptableObject : ScriptableObject
     {

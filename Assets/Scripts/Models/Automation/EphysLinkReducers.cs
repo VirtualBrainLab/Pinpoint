@@ -1,16 +1,17 @@
 using System.ComponentModel;
 using Unity.AppUI.Redux;
+using Utils.Types;
 
 namespace Models.Automation
 {
     public static class EphysLinkReducers
     {
-        public static EphysLinkState SetSelectedPlatformTypeReducer(
+        public static EphysLinkState SetSelectedEphysLinkPlatformTypeReducer(
             EphysLinkState state,
-            IAction<PlatformType> action
+            IAction<EphysLinkPlatformType> action
         )
         {
-            return state with { SelectedPlatformType = action.payload };
+            return state with { SelectedEphysLinkPlatformType = action.payload };
         }
 
         public static EphysLinkState SetNewScalePathfinderMpmPortReducer(
@@ -39,7 +40,7 @@ namespace Models.Automation
 
         public static EphysLinkState SetConnectionStateReducer(
             EphysLinkState state,
-            IAction<ConnectionState> action
+            IAction<EphysLinkConnectionState> action
         )
         {
             return state with { ConnectionState = action.payload };
@@ -48,8 +49,8 @@ namespace Models.Automation
 
     public static class EphysLinkActions
     {
-        public static readonly ActionCreator<PlatformType> SET_SELECTED_PLATFORM_TYPE =
-            $"{SliceNames.EPHYS_LINK_SLICE}/SetSelectedPlatformType";
+        public static readonly ActionCreator<EphysLinkPlatformType> SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE =
+            $"{SliceNames.EPHYS_LINK_SLICE}/SetSelectedEphysLinkPlatformType";
 
         public static readonly ActionCreator<int> SET_NEW_SCALE_PATHFINDER_MPM_PORT =
             $"{SliceNames.EPHYS_LINK_SLICE}/SetNewScalePathfinderMpmPort";
@@ -58,7 +59,7 @@ namespace Models.Automation
             $"{SliceNames.EPHYS_LINK_SLICE}/SetCustomServerIpAddress";
         public static readonly ActionCreator<int> SET_CUSTOM_SERVER_PORT =
             $"{SliceNames.EPHYS_LINK_SLICE}/SetCustomServerPort";
-        public static readonly ActionCreator<ConnectionState> SET_CONNECTION_STATE =
+        public static readonly ActionCreator<EphysLinkConnectionState> SET_CONNECTION_STATE =
             $"{SliceNames.EPHYS_LINK_SLICE}/SetConnectionState";
     }
 }

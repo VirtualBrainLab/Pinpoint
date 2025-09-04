@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using TrajectoryPlanner;
-using Urchin.Utils;
+using UrchinUtilsUtils = Urchin.Utils.Utils;
 using BrainAtlas;
 
 public class RelativeCoordinatePanel : MonoBehaviour
@@ -44,16 +44,16 @@ public class RelativeCoordinatePanel : MonoBehaviour
 
     public void Set2Bregma()
     {
-        if (Utils.BregmaDefaults.ContainsKey(BrainAtlasManager.ActiveReferenceAtlas.Name))
-            Settings.ReferenceCoord = Utils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
+        if (UrchinUtilsUtils.BregmaDefaults.ContainsKey(BrainAtlasManager.ActiveReferenceAtlas.Name))
+            Settings.ReferenceCoord = UrchinUtilsUtils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
         else
             Settings.ReferenceCoord = Vector3.zero;
     }
 
     public void Set2Lambda()
     {
-        if (Utils.LambdaDefaults.ContainsKey(BrainAtlasManager.ActiveReferenceAtlas.Name))
-            Settings.ReferenceCoord = Utils.LambdaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
+        if (UrchinUtilsUtils.LambdaDefaults.ContainsKey(BrainAtlasManager.ActiveReferenceAtlas.Name))
+            Settings.ReferenceCoord = UrchinUtilsUtils.LambdaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
         else
             Settings.ReferenceCoord = Vector3.zero;
     }

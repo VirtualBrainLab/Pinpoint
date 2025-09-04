@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrainAtlas;
+using Models;
 using Models.Scene;
 using Pinpoint.Probes.ManipulatorBehaviorController;
 using Services;
@@ -13,8 +14,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
-using Urchin.Utils;
+using Utils.Types;
 using Action = System.Action;
+using UrchinUtilsUtils = Urchin.Utils.Utils;
 #if UNITY_WEBGL && !UNITY_EDITOR
 using System.Runtime.InteropServices;
 #endif
@@ -29,6 +31,12 @@ public class ProbeManager : MonoBehaviour
     [DllImport("__Internal")]
     private static extern void Copy2Clipboard(string str);
 #endif
+    #endregion
+
+    #region State
+
+    private IDisposableSubscription _probeStateSubscription;
+
     #endregion
 
     #region Static fields
@@ -234,7 +242,7 @@ public class ProbeManager : MonoBehaviour
     /// When true, this Probe will be saved and re-loaded in the scene the next time Pinpoint loads
     /// </summary>
     public bool Saved { get; set; }
-    
+
     #endregion
 
     #region Unity
@@ -293,6 +301,16 @@ public class ProbeManager : MonoBehaviour
             _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
+
+        // Subscribe to state and initialize properties.
+        _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
+            state =>
+                state
+                    .Get<SceneState>(SliceNames.SCENE_SLICE)
+                    .Probes.FirstOrDefault(probeState => probeState.Name == name),
+            OnProbeStateChanged,
+            new SubscribeOptions<ProbeState> { fireImmediately = true }
+        );
     }
 
     /// <summary>
@@ -336,7 +354,57 @@ public class ProbeManager : MonoBehaviour
     private void OnEnable()
     {
         Instances.Add(this);
-        PinpointApp.Current.services.GetRequiredService<StoreService>().Store.Dispatch(SceneActions.ADD_PROBE, UUID);
+    }
+
+    #endregion
+
+    #region State Callbacks
+
+    private async void OnProbeStateChanged(ProbeState state)
+    {
+#if APP_UI
+        // Exit if there is no state (probably being deleted).
+        if (state == null)
+            return;
+
+        // Core Identity.
+        name = state.Name;
+
+        // Probe Configuration.
+        _probeRenderer.material.color = state.ColorValue;
+
+        switch (state.ProbeDisplayType)
+        {
+            case ProbeDisplayType.Opaque:
+                SetMaterialsDefault();
+                break;
+            case ProbeDisplayType.Transparent:
+                SetMaterialsTransparent();
+                break;
+            case ProbeDisplayType.Line:
+                SetMaterialsLine();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        // Channel Maps.
+        await _channelMapLoadedSource.Task;
+        _channelMap.SetSelectionLayer(state.SelectionLayerName);
+
+        // Update the world coordinates for the tip position
+        var startCoordWorldT =
+            _probeController.ProbeTipT.position
+            + -_probeController.ProbeTipT.forward * _channelMap.MinChannelHeight;
+        var endCoordWorldT =
+            _probeController.ProbeTipT.position
+            + -_probeController.ProbeTipT.forward * _channelMap.MaxChannelHeight;
+        _recRegionBaseCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT, true);
+        _recRegionTopCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT, true);
+        
+        // Update surface coordinates.
+        UpdateSurfacePosition();
+#endif
     }
 
     #endregion
@@ -403,8 +471,12 @@ public class ProbeManager : MonoBehaviour
         }
         else
         {
+#if !APP_UI
+
             // Check if this probe is in the brain
             name = _probeInBrain ? $"{_probeUIManagers[0].MaxArea}-{UUID[..8]}" : UUID[..8];
+
+#endif
         }
     }
 
@@ -430,7 +502,7 @@ public class ProbeManager : MonoBehaviour
         float endPosmm,
         float recordingSizemm,
         float fullHeight
-        ) GetChannelRangemm()
+    ) GetChannelRangemm()
     {
         (float startPosmm, float endPosmm) = ChannelMinMaxYCoord;
         float recordingSizemm = endPosmm - startPosmm;
@@ -640,7 +712,9 @@ public class ProbeManager : MonoBehaviour
                     string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID);
                     Color color = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID);
 
-                    channelAnnotationData.Add((elecIdx, ID, acronym, Utils.Color2Hex(color)));
+                    channelAnnotationData.Add(
+                        (elecIdx, ID, acronym, UrchinUtilsUtils.Color2Hex(color))
+                    );
                 }
             }
         }
@@ -675,7 +749,7 @@ public class ProbeManager : MonoBehaviour
                 string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID);
                 Color color = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID);
 
-                channelAnnotationData.Add((i, ID, acronym, Utils.Color2Hex(color)));
+                channelAnnotationData.Add((i, ID, acronym, UrchinUtilsUtils.Color2Hex(color)));
             }
         }
 
@@ -789,15 +863,15 @@ public class ProbeManager : MonoBehaviour
 
         string dataStr = string.Format(
             $"{name}: ReferenceAtlas {BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name}, "
-            + $"AtlasTransform {BrainAtlasManager.ActiveAtlasTransform.Name}, "
-            + $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), "
-            + $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), "
-            + $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), "
-            + $"Angles ({round2(Utils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(Utils.CircDeg(angles.z, minRoll, maxRoll))}), "
-            + $"Depth {round0(depthTransformed * mult)}, "
-            + $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), "
-            + $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), "
-            + $"CCF Depth {round0(Vector3.Distance(entryAtlasU, tipAtlasU))}"
+                + $"AtlasTransform {BrainAtlasManager.ActiveAtlasTransform.Name}, "
+                + $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), "
+                + $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), "
+                + $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), "
+                + $"Angles ({round2(UrchinUtilsUtils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(UrchinUtilsUtils.CircDeg(angles.z, minRoll, maxRoll))}), "
+                + $"Depth {round0(depthTransformed * mult)}, "
+                + $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), "
+                + $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), "
+                + $"CCF Depth {round0(Vector3.Distance(entryAtlasU, tipAtlasU))}"
         );
 
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -1052,7 +1126,8 @@ public class ProbeManager : MonoBehaviour
         bool register,
         string manipulatorId = null,
         bool calibrated = true,
-        Action onSuccess = null, System.Action<string> onError = null
+        Action onSuccess = null,
+        System.Action<string> onError = null
     )
     {
         // Exit early if this was an invalid call
@@ -1290,11 +1365,4 @@ public struct ProbeManagerData
 
         return data;
     }
-}
-
-public enum ProbeDisplayType
-{
-    Opaque,
-    Transparent,
-    Line
 }
