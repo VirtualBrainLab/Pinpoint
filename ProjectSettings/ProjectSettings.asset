@@ -272,6 +272,9 @@ PlayerSettings:
   AndroidBuildApkPerCpuArchitecture: 0
   AndroidTVCompatibility: 0
   AndroidIsGame: 1
+  androidAppCategory: 3
+  useAndroidAppCategory: 1
+  androidAppCategoryOther: 
   AndroidEnableTango: 0
   androidEnableBanner: 1
   androidUseLowAccuracyLocation: 0
@@ -424,6 +427,7 @@ PlayerSettings:
   - serializedVersion: 2
     m_BuildTarget: WebGL
     m_EncodingQuality: 1
+  m_BuildTargetGroupHDRCubemapEncodingQuality: []
   m_BuildTargetGroupLightmapSettings: []
   m_BuildTargetGroupLoadStoreDebugModeSettings: []
   m_BuildTargetNormalMapEncoding: []
@@ -704,7 +708,7 @@ PlayerSettings:
     PS4: 
     QNX: 
     Server: 
-    Standalone: ENABLE_HYBRID_RENDERER_V2
+    Standalone: ENABLE_HYBRID_RENDERER_V2;APP_UI
     WebGL: UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP
     Windows Store Apps: 
     XboxOne: 
