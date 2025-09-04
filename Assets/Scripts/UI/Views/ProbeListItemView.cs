@@ -40,7 +40,7 @@ namespace UI.Views
             deleteButton.clickable.clicked += _probeListItemViewModel.RemoveProbeCommand.Execute;
 
             // Initialize components.
-            // UpdateColor();
+            UpdateColor();
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -59,6 +59,7 @@ namespace UI.Views
             foreach (
                 var className in _icon
                     .GetClasses()
+                    .ToList()
                     .Where(className => className.StartsWith("probe-icon--"))
             )
                 _icon.RemoveFromClassList(className);
