@@ -340,12 +340,13 @@ namespace TrajectoryPlanner
                          !state.Probes.Select(probeState => probeState.Name).Contains(manager.name)))
                 DestroyProbe(removedProbeManagers);
 
-            // Add new probes that don't exist in the scene yet.
+            // Add new probes that don't exist in the scene yet and give them the state name.
             foreach (var newProbe in state.Probes.Where(probeState =>
                          !ProbeManager.Instances.Select(manager => manager.name).Contains(probeState.Name)))
                 Instantiate(
                     _probePrefabs.Find(prefab =>
-                        prefab.GetComponent<ProbeManager>().ProbeType == newProbe.ProbeType), _probeParentT);
+                        prefab.GetComponent<ProbeManager>().ProbeType == newProbe.ProbeType), _probeParentT).name =
+                    newProbe.Name;
         }
 
         #endregion

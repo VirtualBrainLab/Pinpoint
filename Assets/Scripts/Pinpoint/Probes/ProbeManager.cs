@@ -364,12 +364,15 @@ public class ProbeManager : MonoBehaviour
     private async void OnProbeStateChanged(ProbeState state)
     {
 #if APP_UI
+        Debug.Log("State updated");
         // Exit if there is no state (probably being deleted).
         if (state == null)
             return;
 
         // Core Identity.
+        Debug.Log($"Setting name: {state.Name}");
         name = state.Name;
+        Debug.Log($"Probe name: {name}");
 
         // Probe Configuration.
         _probeRenderer.material.color = state.ColorValue;
@@ -466,19 +469,19 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void UpdateName()
     {
+#if !APP_UI
         if (OverrideName != null)
         {
             name = OverrideName;
         }
         else
         {
-#if !APP_UI
 
             // Check if this probe is in the brain
             name = _probeInBrain ? $"{_probeUIManagers[0].MaxArea}-{UUID[..8]}" : UUID[..8];
 
-#endif
         }
+#endif
     }
 
     public void ProbeMoved()
