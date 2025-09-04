@@ -303,7 +303,7 @@ public class CartesianProbeController : ProbeController
 
     private void OnDestroy()
     {
-        _probeStateSubscription.Dispose();
+        _probeStateSubscription?.Dispose();
     }
 
     #endregion
@@ -329,6 +329,12 @@ public class CartesianProbeController : ProbeController
         
         // Update tip coords.
         SetTipWorldU();
+        
+        // Update recording region info.
+        ProbeManager.ProbeMoved();
+        
+        // Update surface coordinates.
+        ProbeManager.UpdateSurfacePosition();
     }
 
     #endregion

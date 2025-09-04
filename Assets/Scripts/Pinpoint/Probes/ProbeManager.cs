@@ -6,9 +6,7 @@ using BrainAtlas;
 using Models;
 using Models.Scene;
 using Pinpoint.Probes.ManipulatorBehaviorController;
-using Services;
 using UI;
-using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.Events;
@@ -140,10 +138,8 @@ public class ProbeManager : MonoBehaviour
     private Vector3 _recRegionBaseCoordWorldU;
     private Vector3 _recRegionTopCoordWorldU;
 
-    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU
-    {
-        get { return (_recRegionBaseCoordWorldU, _recRegionTopCoordWorldU); }
-    }
+    public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU =>
+        (_recRegionBaseCoordWorldU, _recRegionTopCoordWorldU);
 
     // Text
     private const float minYaw = -180;
@@ -392,19 +388,6 @@ public class ProbeManager : MonoBehaviour
         // Channel Maps.
         await _channelMapLoadedSource.Task;
         _channelMap.SetSelectionLayer(state.SelectionLayerName);
-
-        // Update the world coordinates for the tip position
-        var startCoordWorldT =
-            _probeController.ProbeTipT.position
-            + -_probeController.ProbeTipT.forward * _channelMap.MinChannelHeight;
-        var endCoordWorldT =
-            _probeController.ProbeTipT.position
-            + -_probeController.ProbeTipT.forward * _channelMap.MaxChannelHeight;
-        _recRegionBaseCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT, true);
-        _recRegionTopCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT, true);
-        
-        // Update surface coordinates.
-        UpdateSurfacePosition();
 #endif
     }
 
@@ -483,7 +466,11 @@ public class ProbeManager : MonoBehaviour
 
     public void ProbeMoved()
     {
-        ProbeInsertion insertion = _probeController.Insertion;
+        // Skip update if channel map not loaded.
+        if (_channelMap == null)
+        {
+            return;
+        }
         var channelCoords = GetChannelRangemm();
 
         // Update the world coordinates for the tip position
@@ -1127,8 +1114,7 @@ public class ProbeManager : MonoBehaviour
         bool register,
         string manipulatorId = null,
         bool calibrated = true,
-        Action onSuccess = null,
-        System.Action<string> onError = null
+        Action onSuccess = null, System.Action<string> onError = null
     )
     {
         // Exit early if this was an invalid call
