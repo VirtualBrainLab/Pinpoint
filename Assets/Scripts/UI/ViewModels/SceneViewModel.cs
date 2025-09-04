@@ -34,7 +34,7 @@ namespace UI.ViewModels
             _storeService = storeService;
             _ephysLinkService = ephysLinkService;
 
-            // Subscribe to state cha and initialize properties.
+            // Subscribe to state changes and initialize properties.
             _ephysLinkStateSubscription = storeService.Store.Subscribe(
                 state => state.Get<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE),
                 OnEphysLinkStateChanged,
