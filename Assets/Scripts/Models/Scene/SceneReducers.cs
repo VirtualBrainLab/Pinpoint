@@ -194,7 +194,6 @@ namespace Models.Scene
                     + action.payload.APMLDV
                     + action.payload.ForwardT * action.payload.Depth,
             };
-            Debug.Log("Changed probe position by " + action.payload.APMLDV);
 
             return state with
             {

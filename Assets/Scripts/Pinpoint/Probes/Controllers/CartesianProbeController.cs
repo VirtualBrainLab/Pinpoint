@@ -562,7 +562,6 @@ public class CartesianProbeController : ProbeController
             _depth += posDelta.w;
 
 #if APP_UI
-            print("Move probe " + name + " by " + apmldvDelta + " (depth " + posDelta.w + ")");
             PinpointApp.StoreServiceStore.Dispatch(SceneActions.CHANGE_PROBE_POSITION_BY,
                 (name, apmldvDelta, posDelta.w, forwardT));
 #else

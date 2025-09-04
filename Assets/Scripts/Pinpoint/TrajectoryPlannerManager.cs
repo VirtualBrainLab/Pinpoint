@@ -325,7 +325,7 @@ namespace TrajectoryPlanner
         private void OnDestroy()
         {
             // Unsubscribe from state changes.
-            _sceneStateSubscription.Dispose();
+            _sceneStateSubscription?.Dispose();
         }
 
         #endregion
