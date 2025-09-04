@@ -93,7 +93,7 @@ public class ProbeManager : MonoBehaviour
     private RecordingRegion _recRegion;
 
     private AxisControl _axisControl;
-    public ProbeProperties.ProbeType ProbeType;
+    public ProbeType ProbeType;
 
     [FormerlySerializedAs("probeController")]
     [SerializeField]
@@ -301,6 +301,9 @@ public class ProbeManager : MonoBehaviour
             _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
+        
+        // Add this instance to the static list of Probe objects.
+        Instances.Add(this);
 
         // Subscribe to state and initialize properties.
         _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
@@ -349,11 +352,9 @@ public class ProbeManager : MonoBehaviour
             Instances.Clear();
         else
             Instances.Remove(this);
-    }
-
-    private void OnEnable()
-    {
-        Instances.Add(this);
+        
+        // Unsubscribe from state.
+        _probeStateSubscription.Dispose();
     }
 
     #endregion
