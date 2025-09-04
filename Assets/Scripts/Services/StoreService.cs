@@ -104,8 +104,8 @@ namespace Services
                         )
                         // Active Probe.
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_NAME,
-                            SceneReducers.SetActiveProbeNameReducer
+                            SceneActions.SET_ACTIVE_PROBE,
+                            SceneReducers.SetActiveProbeReducer
                         )
                         // Probe.
                         .AddCase(SceneActions.SET_PROBE_POSITION, SceneReducers.SetProbePositionReducer)

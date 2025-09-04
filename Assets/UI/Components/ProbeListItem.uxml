@@ -1,8 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement style="flex-grow: 1; flex-direction: row; align-items: center;">
+    <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3#ProbeColors" />
+    <ui:VisualElement data-source-type="UI.ViewModels.ProbeListItemViewModel, Assembly-CSharp" style="flex-grow: 1; flex-direction: row; align-items: center;">
         <Unity.AppUI.UI.Icon icon-name="shovel" />
         <Unity.AppUI.UI.Spacer />
-        <Unity.AppUI.UI.Heading text="ABCD-1234" />
+        <Unity.AppUI.UI.Heading text="ABCD-1234">
+            <Bindings>
+                <ui:DataBinding property="text" data-source-path="Name" binding-mode="ToTarget" />
+            </Bindings>
+        </Unity.AppUI.UI.Heading>
         <Unity.AppUI.UI.Spacer spacing="Expand" />
         <Unity.AppUI.UI.ActionButton size="L" icon="eye" />
         <Unity.AppUI.UI.Spacer />

@@ -11,10 +11,10 @@ namespace Models.Scene
     {
         #region Probe List Reducers
 
-        public static SceneState AddProbeReducer(SceneState state, IAction<string> action)
+        public static SceneState AddProbeReducer(SceneState state, IAction<ProbeType> action)
         {
             var newProbesList = state.Probes.ToList();
-            newProbesList.Add(new ProbeState { Name = action.payload });
+            newProbesList.Add(new ProbeState { ProbeType = action.payload });
             return state with { Probes = newProbesList };
         }
 
@@ -51,7 +51,7 @@ namespace Models.Scene
 
         #region Active Probe Reducers
 
-        public static SceneState SetActiveProbeNameReducer(SceneState state, IAction<string> action)
+        public static SceneState SetActiveProbeReducer(SceneState state, IAction<string> action)
         {
             // If not found, return the state unchanged.
             if (!state.Probes.Exists(probe => probe.Name == action.payload))
@@ -512,7 +512,7 @@ namespace Models.Scene
     {
         #region Probe List Actions
 
-        public static readonly ActionCreator<string> ADD_PROBE =
+        public static readonly ActionCreator<ProbeType> ADD_PROBE =
             $"{SliceNames.SCENE_SLICE}/AddProbe";
 
         public static readonly ActionCreator<string> REMOVE_PROBE =
@@ -525,8 +525,8 @@ namespace Models.Scene
 
         #region Active Probe Actions
 
-        public static readonly ActionCreator<string> SET_ACTIVE_PROBE_NAME =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeName";
+        public static readonly ActionCreator<string> SET_ACTIVE_PROBE =
+            $"{SliceNames.SCENE_SLICE}/SetActiveProbe";
 
         #endregion
 

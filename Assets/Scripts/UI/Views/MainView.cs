@@ -85,8 +85,8 @@ namespace UI.Views
             // Initialize view from view model state.
             mainSplitView.RestoreState(mainViewModel.MainSplitViewState);
 
-#if APP_UI
-            // In builds, hide the new UI.
+#if !APP_UI
+            // Hide the new UI if the directive is not enabled.
             Root.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
 #endif
         }

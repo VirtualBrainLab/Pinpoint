@@ -381,7 +381,7 @@ namespace TrajectoryPlanner
                 {
                     // TODO: Remove old probe manager behavior.
                     ProbeManager.ActiveProbeManager = null;
-                    PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE_NAME, string.Empty);
+                    PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE, string.Empty);
                     _activeProbeChangedEvent.Invoke();
                 }
                 SetSurfaceDebugActive(false);
@@ -529,7 +529,7 @@ namespace TrajectoryPlanner
             Debug.LogWarning($"Probe {UUID} doesn't exist in the scene");
             // TODO: Remove old probe manager behavior.
             ProbeManager.ActiveProbeManager = null;
-            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE_NAME, string.Empty);
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE, string.Empty);
             _activeProbeChangedEvent.Invoke();
         }
 
@@ -551,7 +551,7 @@ namespace TrajectoryPlanner
             // Replace the probe object and set to active
             // TODO: Remove old probe manager behavior.
             ProbeManager.ActiveProbeManager = newActiveProbeManager;
-            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE_NAME, newActiveProbeManager.UUID);
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE, newActiveProbeManager.UUID);
             ProbeManager.ActiveProbeManager.SetActive(true);
             
             // Change the UI manager visibility and set transparency of probes
