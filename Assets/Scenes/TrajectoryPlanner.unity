@@ -1112,17 +1112,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Version: 3
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_RenderingLayers: 1
   m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_ShadowRenderingLayers: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &784687378 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7136927735706924112, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -1288,17 +1294,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ab32a6a2fb171734b98b3e6f38959707, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1020089447 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1111053594748486506, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-  m_PrefabInstance: {fileID: 341190943874437988}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b743370ac3e4ec2a1668f5455a8ef8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1044063713 stripped
@@ -2393,11 +2388,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb50476a2f404ef4bb87f6de9dd43a57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _accountsManager: {fileID: 809984607}
-  _optionList: {fileID: 1020089447}
-  _insertionPrefabParentT: {fileID: 1289697145}
-  _insertionPrefabGO: {fileID: 2594497399418726603, guid: 15d8c14afd6b3764886833a616bc6c2e, type: 3}
-  _currentExperiment: 
 --- !u!114 &1572420109 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6854367561162462583, guid: 3d86af372ed9f2e41b42b525846d962f, type: 3}

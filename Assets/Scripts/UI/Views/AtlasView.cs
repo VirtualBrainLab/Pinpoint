@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Collections.Generic;
 using UI.ViewModels;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -27,22 +29,58 @@ namespace UI.Views
             _atlasTree.selectionType = SelectionType.Multiple;
             _atlasTree.Rebuild();
 
+            _atlasViewModel.PropertyChanged += OnPropertyChanged;
+
             // Callback invoked when the user double clicks an item
-            _atlasTree.itemsChosen += (selectedItems) =>
-            {
-                Debug.Log("Items chosen: " + string.Join(", ", selectedItems));
-            };
+            _atlasTree.itemsChosen += OnItemsChosen;
 
             // Callback invoked when the user changes the selection inside the TreeView
-            _atlasTree.selectedIndicesChanged += (selectedIndices) =>
+            _atlasTree.selectedIndicesChanged += OnSelectedIndicesChanged;
+        }
+
+        public void Dispose()
+        {
+            _atlasViewModel.PropertyChanged -= OnPropertyChanged;
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
             {
-                var log = "IDs selected: ";
-                foreach (var index in selectedIndices)
-                {
-                    log += $"{_atlasTree.GetIdForIndex(index)}, ";
-                }
-                Debug.Log(log.TrimEnd(',', ' '));
-            };
+                case nameof(_atlasViewModel.AtlasTreeData):
+                    _atlasTree.SetRootItems(_atlasViewModel.AtlasTreeData);
+                    _atlasTree.Rebuild();
+                    break;
+            }
+        }
+
+        private void OnItemsChosen(IEnumerable<object> selectedItems)
+        {
+            Debug.Log("Items chosen: " + string.Join(", ", selectedItems));
+            
+            // Get the selected indices to correlate with IDs and data
+            var selectedIndices = _atlasTree.selectedIndices;
+            
+            foreach (var index in selectedIndices)
+            {
+                var id = _atlasTree.GetIdForIndex(index);
+                var data = _atlasTree.GetItemDataForIndex<(string, string)>(index);
+                
+                Debug.Log($"Chosen item - ID: {id}, Data: ({data.Item1}, {data.Item2})");
+                
+                // Use the ID for your command execution
+                _atlasViewModel.SelectAreaCommand.Execute(id);
+            }
+        }
+
+        private void OnSelectedIndicesChanged(IEnumerable<int> selectedIndices)
+        {
+            var log = "IDs selected: ";
+            foreach (var index in selectedIndices)
+            {
+                log += $"{_atlasTree.GetIdForIndex(index)}, ";
+            }
+            Debug.Log(log.TrimEnd(',', ' '));
         }
 
         private VisualElement makeItem()
@@ -52,9 +90,9 @@ namespace UI.Views
 
         private void bindItem(VisualElement e, int i)
         {
-            var item = _atlasTree.GetItemDataForIndex<string>(i);
+            var item = _atlasTree.GetItemDataForIndex<(string, string)>(i);
             var id = _atlasTree.GetIdForIndex(i);
-            ((Label)e).text = $"ID {id} - {item}";
+            ((Label)e).text = $"ID {id} - {item.Item1}";
         }
     }
 }

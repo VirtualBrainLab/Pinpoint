@@ -209,13 +209,12 @@ namespace TrajectoryPlanner
 
             await Task.WhenAll(new Task[] { referenceAtlas.AnnotationsTask, referenceAtlas.AnnotationTextureTask});
 
-
             // Now that the areas are loaded we can also set the BLDistance values
             SetBLUI();
 
             StartupEvent_RefAtlasLoaded.Invoke();
-            // Trigger atlas service to populate the ontology.
-            PinpointApp.AtlasService.LoadActiveReferenceAtlas();
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ATLAS_LOADED, true);
+
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
 
             _checkForSavedProbesTaskSource = new TaskCompletionSource<bool>();
