@@ -314,6 +314,9 @@ public class CartesianProbeController : ProbeController
         transform.RotateAround(_probeTipT.position, transform.up, state.Angles.x);
         transform.RotateAround(_probeTipT.position, transform.right, state.Angles.y);
         transform.RotateAround(_probeTipT.position, transform.forward, -state.Angles.z);
+        
+        // Update tip coords.
+        SetTipWorldU();
     }
 
     #endregion

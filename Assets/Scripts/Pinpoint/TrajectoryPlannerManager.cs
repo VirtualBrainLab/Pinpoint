@@ -17,6 +17,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Urchin.Managers;
+using Utils.Types;
 using UrchinUtilsUtils = Urchin.Utils.Utils;
 using static UnityEngine.InputSystem.InputAction;
 

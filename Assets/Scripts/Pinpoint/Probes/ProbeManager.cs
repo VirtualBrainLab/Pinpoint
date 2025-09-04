@@ -14,6 +14,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
+using Utils.Types;
 using Action = System.Action;
 using UrchinUtilsUtils = Urchin.Utils.Utils;
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -241,7 +242,7 @@ public class ProbeManager : MonoBehaviour
     /// When true, this Probe will be saved and re-loaded in the scene the next time Pinpoint loads
     /// </summary>
     public bool Saved { get; set; }
-    
+
     #endregion
 
     #region Unity
@@ -303,7 +304,10 @@ public class ProbeManager : MonoBehaviour
 
         // Subscribe to state and initialize properties.
         _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
-            state => state.Get<SceneState>(SliceNames.SCENE_SLICE).Probes.FirstOrDefault(probeState => probeState.Name == name),
+            state =>
+                state
+                    .Get<SceneState>(SliceNames.SCENE_SLICE)
+                    .Probes.FirstOrDefault(probeState => probeState.Name == name),
             OnProbeStateChanged,
             new SubscribeOptions<ProbeState> { fireImmediately = true }
         );
@@ -387,6 +391,19 @@ public class ProbeManager : MonoBehaviour
         // Channel Maps.
         await _channelMapLoadedSource.Task;
         _channelMap.SetSelectionLayer(state.SelectionLayerName);
+
+        // Update the world coordinates for the tip position
+        var startCoordWorldT =
+            _probeController.ProbeTipT.position
+            + -_probeController.ProbeTipT.forward * _channelMap.MinChannelHeight;
+        var endCoordWorldT =
+            _probeController.ProbeTipT.position
+            + -_probeController.ProbeTipT.forward * _channelMap.MaxChannelHeight;
+        _recRegionBaseCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT, true);
+        _recRegionTopCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT, true);
+        
+        // Update surface coordinates.
+        UpdateSurfacePosition();
 #endif
     }
 
@@ -485,7 +502,7 @@ public class ProbeManager : MonoBehaviour
         float endPosmm,
         float recordingSizemm,
         float fullHeight
-        ) GetChannelRangemm()
+    ) GetChannelRangemm()
     {
         (float startPosmm, float endPosmm) = ChannelMinMaxYCoord;
         float recordingSizemm = endPosmm - startPosmm;
@@ -695,7 +712,9 @@ public class ProbeManager : MonoBehaviour
                     string acronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID);
                     Color color = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(ID);
 
-                    channelAnnotationData.Add((elecIdx, ID, acronym, UrchinUtilsUtils.Color2Hex(color)));
+                    channelAnnotationData.Add(
+                        (elecIdx, ID, acronym, UrchinUtilsUtils.Color2Hex(color))
+                    );
                 }
             }
         }
@@ -844,15 +863,15 @@ public class ProbeManager : MonoBehaviour
 
         string dataStr = string.Format(
             $"{name}: ReferenceAtlas {BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name}, "
-            + $"AtlasTransform {BrainAtlasManager.ActiveAtlasTransform.Name}, "
-            + $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), "
-            + $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), "
-            + $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), "
-            + $"Angles ({round2(UrchinUtilsUtils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(UrchinUtilsUtils.CircDeg(angles.z, minRoll, maxRoll))}), "
-            + $"Depth {round0(depthTransformed * mult)}, "
-            + $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), "
-            + $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), "
-            + $"CCF Depth {round0(Vector3.Distance(entryAtlasU, tipAtlasU))}"
+                + $"AtlasTransform {BrainAtlasManager.ActiveAtlasTransform.Name}, "
+                + $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), "
+                + $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), "
+                + $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), "
+                + $"Angles ({round2(UrchinUtilsUtils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(UrchinUtilsUtils.CircDeg(angles.z, minRoll, maxRoll))}), "
+                + $"Depth {round0(depthTransformed * mult)}, "
+                + $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), "
+                + $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), "
+                + $"CCF Depth {round0(Vector3.Distance(entryAtlasU, tipAtlasU))}"
         );
 
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -1107,7 +1126,8 @@ public class ProbeManager : MonoBehaviour
         bool register,
         string manipulatorId = null,
         bool calibrated = true,
-        Action onSuccess = null, System.Action<string> onError = null
+        Action onSuccess = null,
+        System.Action<string> onError = null
     )
     {
         // Exit early if this was an invalid call
@@ -1345,11 +1365,4 @@ public struct ProbeManagerData
 
         return data;
     }
-}
-
-public enum ProbeDisplayType
-{
-    Opaque,
-    Transparent,
-    Line
 }
