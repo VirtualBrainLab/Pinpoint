@@ -24,7 +24,7 @@ namespace Models.Scene
 
         public ProbeDisplayType ProbeDisplayType = ProbeDisplayType.Opaque;
 
-        public bool Locked = false;
+        public bool Locked;
 
         #endregion
 
@@ -32,9 +32,12 @@ namespace Models.Scene
 
         public Vector3 APMLDV;
 
+        /// <summary>
+        /// In degrees: (Yaw, Pitch, Roll).
+        /// </summary>
+        public Vector3 Angles;
+        
         #region Helper Accessors
-
-        public float DepthT => Vector3.Distance(APMLDV, BrainSurfaceCoordT);
 
         public Vector3 PositionWorldT =>
             BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
@@ -42,27 +45,6 @@ namespace Models.Scene
             );
 
         #endregion
-
-        /// <summary>
-        /// In degrees: (Yaw, Pitch, Roll).
-        /// </summary>
-        public Vector3 Angles;
-
-        public Vector3 RecRegionBaseCoordWorldU;
-
-        public Vector3 RecRegionTopCoordWorldU;
-
-        #endregion
-
-        #region Brain Surface
-
-        public bool ProbeInBrain = false;
-
-        public Vector3 BrainSurfaceCoordT;
-
-        public Vector3 BrainSurfaceWorldU;
-
-        public Vector3 BrainSurfaceWorldT;
 
         #endregion
 
@@ -77,10 +59,6 @@ namespace Models.Scene
         #region Channel Map
 
         public string SelectionLayerName = "default";
-
-        public float MinChannelHeight;
-
-        public float MaxChannelHeight;
 
         #endregion
 
