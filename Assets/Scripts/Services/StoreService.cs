@@ -159,6 +159,14 @@ namespace Services
                         .AddCase(
                             SceneActions.SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE,
                             SceneReducers.SetActiveProbeDrivePastDistanceReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_ATLAS_LOADED,
+                            SceneReducers.SetAtlasLoadedReducer
+                        )
+                        .AddCase(
+                            SceneActions.ROTATE_AREA_VISIBILITY,
+                            SceneReducers.RotateAreaVisibilityReducer
                         );
                 }
             );

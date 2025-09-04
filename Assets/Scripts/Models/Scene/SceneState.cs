@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
+using Utils.Types;
 
 namespace Models.Scene
 {
@@ -29,5 +30,15 @@ namespace Models.Scene
         public bool ShowAllProbePanels = true;
 
         public float ProbePanelHeight = 1440f;
+
+        #region Brain areas
+
+        public bool AtlasLoaded = false;
+
+        public string AtlasName;
+
+        public List<AreaDisplayType> BrainAreaVisibility = new();
+
+        #endregion
     }
 }

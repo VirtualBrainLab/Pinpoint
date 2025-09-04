@@ -22,8 +22,6 @@ namespace UI
         public static IStore<PartitionedState> StoreServiceStore =>
             Current.services.GetRequiredService<StoreService>().Store;
 
-        public static AtlasService AtlasService =>
-            Current.services.GetRequiredService<AtlasService>();
         public static MainView MainView => Current.services.GetRequiredService<MainView>();
 
         #endregion
