@@ -53,7 +53,6 @@ namespace UI.ViewModels
 
         #region Commands
 
-
         [ICommand]
         private void SelectArea(int areaID)
         {
