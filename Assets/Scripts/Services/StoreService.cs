@@ -161,10 +161,6 @@ namespace Services
                             SceneReducers.SetActiveProbeDrivePastDistanceReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ATLAS_LOADED,
-                            SceneReducers.SetAtlasLoadedReducer
-                        )
-                        .AddCase(
                             SceneActions.ROTATE_AREA_VISIBILITY,
                             SceneReducers.RotateAreaVisibilityReducer
                         );

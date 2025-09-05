@@ -509,14 +509,6 @@ namespace Models.Scene
 
         #region Brain Area
 
-        public static SceneState SetAtlasLoadedReducer(SceneState state, IAction<bool> action)
-        {
-            return state with
-            {
-                AtlasLoaded = action.payload,
-            };
-        }
-
         public static SceneState RotateAreaVisibilityReducer(SceneState state, IAction<int> action)
         {
             if (state.BrainAreaVisibility.Count == 0)
@@ -632,9 +624,6 @@ namespace Models.Scene
         #endregion
 
         #region Brain Atlas
-
-        public static readonly ActionCreator<bool> SET_ATLAS_LOADED =
-            $"{SliceNames.SCENE_SLICE}/SetAtlasLoaded";
 
         public static readonly ActionCreator<int> ROTATE_AREA_VISIBILITY =
             $"{SliceNames.SCENE_SLICE}/RotateAreaVisibility";

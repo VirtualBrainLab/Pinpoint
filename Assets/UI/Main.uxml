@@ -4,7 +4,7 @@
     <ui:Template name="Inspector" src="project://database/Assets/UI/Views/Inspector.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#Inspector" />
     <ui:Template name="Automation" src="project://database/Assets/UI/Views/Automation.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#Automation" />
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
-    <Unity.AppUI.UI.Panel picking-mode="Ignore" style="background-color: rgba(29, 29, 29, 0);">
+    <Unity.AppUI.UI.Panel picking-mode="Ignore" data-source-type="Models.MainState, Assembly-CSharp" style="background-color: rgba(29, 29, 29, 0);">
         <Unity.AppUI.UI.SplitView show-expand-buttons="true" name="main-split-view" style="flex-grow: 1;">
             <Unity.AppUI.UI.Pane class="side-panel">
                 <ui:VisualElement style="flex-direction: row;">
@@ -23,12 +23,15 @@
                     <Unity.AppUI.UI.Spacer spacing="Expand" />
                     <Unity.AppUI.UI.Button leading-icon="minus" name="left-side-panel__collapse-button" />
                 </ui:VisualElement>
-                <Unity.AppUI.UI.Tabs value="0" name="left-side-panel__tabs">
+                <Unity.AppUI.UI.Tabs name="left-side-panel__tabs" value="0">
                     <Unity.AppUI.UI.TabItem label="Scene" />
                     <Unity.AppUI.UI.TabItem label="Atlas" />
                     <Unity.AppUI.UI.TabItem label="Channel Maps &amp; Slices" />
+                    <Bindings>
+                        <ui:DataBinding property="value" data-source-path="LeftSidePanelTabIndex" binding-mode="TwoWay" />
+                    </Bindings>
                 </Unity.AppUI.UI.Tabs>
-                <Unity.AppUI.UI.SwipeView swipeable="false" style="flex-grow: 1;">
+                <Unity.AppUI.UI.SwipeView swipeable="false" style="flex-grow: 1;" value="0">
                     <Unity.AppUI.UI.SwipeViewItem>
                         <ui:Instance template="Scene" name="scene-view" style="flex-grow: 1; width: 100%;" />
                     </Unity.AppUI.UI.SwipeViewItem>
