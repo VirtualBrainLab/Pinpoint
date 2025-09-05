@@ -10,7 +10,9 @@ using Models;
 using Models.Scene;
 using TMPro;
 using UI;
+using UI.ViewModels;
 using UITabs;
+using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.Events;
@@ -219,6 +221,7 @@ namespace TrajectoryPlanner
             SetBLUI();
 
             StartupEvent_RefAtlasLoaded.Invoke();
+            PinpointApp.Current.services.GetRequiredService<AtlasViewModel>().LoadAtlasDataCommand.Execute();
 
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
 

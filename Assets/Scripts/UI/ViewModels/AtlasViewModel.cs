@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using BrainAtlas;
+using Models;
+using Models.Scene;
 using Services;
+using TrajectoryPlanner;
 using Unity.AppUI.MVVM;
+using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.UIElements;
-using BrainAtlas;
-using Models.Scene;
-using Models;
-using Unity.AppUI.Redux;
-using TrajectoryPlanner;
 
 namespace UI.ViewModels
 {
@@ -46,51 +47,57 @@ namespace UI.ViewModels
             _atlasName = state.AtlasName;
         }
 
-        private void LoadAtlasData()
-        {
-            var rootID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.Acronym2ID("root");
-
-            _atlasTreeData = RecursiveParse(rootID);
-            Debug.Log($"(AVM) Found {_atlasTreeData.Count} nodes");
-        }
-
-        private List<TreeViewItemData<(string, string)>> RecursiveParse(int rootID)
-        {
-            var childrenIDs = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Children(rootID);
-
-            if (childrenIDs.Count == 0)
-                return null;
-
-            List<TreeViewItemData<(string, string)>> childrenData = new();
-
-            foreach (var childID in childrenIDs)
-            {
-                var childData = RecursiveParse(childID);
-                var childName = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(childID);
-                var childAcronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(childID);
-                childrenData.Add(new TreeViewItemData<(string, string)>(childID, (childAcronym, childName), childData));
-            }
-
-            return childrenData;
-        }
-
         private void OnShuttingDown()
         {
             _sceneStateSubscription.Dispose();
             App.shuttingDown -= OnShuttingDown;
         }
 
+        #region Commands
+
+
         [ICommand]
         private void SelectArea(int areaID)
         {
             _storeService.Store.Dispatch(SceneActions.ROTATE_AREA_VISIBILITY, areaID);
 
-            
-
             Debug.Log($"(AVM) Toggled visibility for area ID {areaID}");
         }
-    }
-    
-    
 
+        [ICommand]
+        private void LoadAtlasData()
+        {
+            var rootId = BrainAtlasManager.ActiveReferenceAtlas.Ontology.Acronym2ID("root");
+
+            AtlasTreeData = RecursiveParse(rootId);
+            return;
+
+            List<TreeViewItemData<(string, string)>> RecursiveParse(int nodeId)
+            {
+                var childrenIds = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Children(
+                    nodeId
+                );
+
+                return childrenIds.Count == 0
+                    ? null
+                    : (
+                        from childId in childrenIds
+                        let childData = RecursiveParse(childId)
+                        let childName = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(
+                            childId
+                        )
+                        let childAcronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(
+                            childId
+                        )
+                        select new TreeViewItemData<(string, string)>(
+                            childId,
+                            (childAcronym, childName),
+                            childData
+                        )
+                    ).ToList();
+            }
+        }
+
+        #endregion
+    }
 }
