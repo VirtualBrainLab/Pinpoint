@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrainAtlas;
@@ -262,11 +261,13 @@ public class CartesianProbeController : ProbeController
     {
         SetProbePosition();
 
+#if APP_UI
         // Subscribe to probe state changes.
         _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
             state => state.Get<SceneState>(SliceNames.SCENE_SLICE).Probes
                 .FirstOrDefault(probeState => probeState.Name == name),
             OnProbeStateChanged, new SubscribeOptions<ProbeState> { fireImmediately = true });
+#endif
     }
 
     private void Update()
@@ -562,8 +563,9 @@ public class CartesianProbeController : ProbeController
             _depth += posDelta.w;
 
 #if APP_UI
-            PinpointApp.StoreServiceStore.Dispatch(SceneActions.CHANGE_PROBE_POSITION_BY,
-                (name, apmldvDelta, posDelta.w, forwardT));
+            if (PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE).ActiveProbeName == name)
+                PinpointApp.StoreServiceStore.Dispatch(SceneActions.CHANGE_PROBE_POSITION_BY,
+                    (name, apmldvDelta, posDelta.w, forwardT));
 #else
             // Set probe position and update UI
             _dirty = true;
@@ -585,8 +587,9 @@ public class CartesianProbeController : ProbeController
         Insertion.Roll += angleDelta.z;
 
 #if APP_UI
-        PinpointApp.StoreServiceStore.Dispatch(SceneActions.CHANGE_PROBE_ANGLES_BY,
-            (name, angleDelta, new Vector2(_minPitch, _maxPitch)));
+        if (PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE).ActiveProbeName == name)
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.CHANGE_PROBE_ANGLES_BY,
+                (name, angleDelta, new Vector2(_minPitch, _maxPitch)));
 #else
         // Set probe position and update UI
         _dirty = true;
@@ -832,10 +835,13 @@ public class CartesianProbeController : ProbeController
         if (moved)
         {
 #if APP_UI
-            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_PROBE_POSITION_AND_ANGLES, (name, targetPosition,
-                targetPosition.w, BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
-                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(transform.forward)), targetAngles,
-                new Vector2(_minPitch, _maxPitch)));
+
+            if (PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE).ActiveProbeName == name)
+                PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_PROBE_POSITION_AND_ANGLES, (name,
+                    targetPosition, targetPosition.w,
+                    BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
+                        BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(transform.forward)), targetAngles,
+                    new Vector2(_minPitch, _maxPitch)));
 #else
             SetProbePosition();
 #endif

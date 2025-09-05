@@ -301,6 +301,7 @@ public class ProbeManager : MonoBehaviour
         // Add this instance to the static list of Probe objects.
         Instances.Add(this);
 
+#if APP_UI
         // Subscribe to state and initialize properties.
         _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
             state =>
@@ -310,6 +311,7 @@ public class ProbeManager : MonoBehaviour
             OnProbeStateChanged,
             new SubscribeOptions<ProbeState> { fireImmediately = true }
         );
+#endif
     }
 
     /// <summary>
@@ -350,7 +352,7 @@ public class ProbeManager : MonoBehaviour
             Instances.Remove(this);
         
         // Unsubscribe from state.
-        _probeStateSubscription.Dispose();
+        _probeStateSubscription?.Dispose();
     }
 
     #endregion
@@ -359,7 +361,6 @@ public class ProbeManager : MonoBehaviour
 
     private async void OnProbeStateChanged(ProbeState state)
     {
-#if APP_UI
         // Exit if there is no state (probably being deleted).
         if (state == null)
             return;
@@ -388,7 +389,6 @@ public class ProbeManager : MonoBehaviour
         // Channel Maps.
         await _channelMapLoadedSource.Task;
         _channelMap.SetSelectionLayer(state.SelectionLayerName);
-#endif
     }
 
     #endregion
