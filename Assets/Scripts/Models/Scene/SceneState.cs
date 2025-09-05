@@ -33,8 +33,6 @@ namespace Models.Scene
 
         #region Brain areas
 
-        public bool AtlasLoaded = false;
-
         public string AtlasName;
 
         public List<AreaDisplayType> BrainAreaVisibility = new();

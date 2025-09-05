@@ -169,7 +169,6 @@ namespace TrajectoryPlanner
             // Otherwise, load all the previous settings
             bool _firstTime = !PlayerPrefs.HasKey("scene-atlas-reset");
             bool _atlasReset = PlayerPrefs.GetInt("scene-atlas-reset", 0) == 1;
-            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ATLAS_LOADED, false);
 
             // STARTUP SEQUENCE
             StartupEvent_MetaLoaded.Invoke();
@@ -220,11 +219,6 @@ namespace TrajectoryPlanner
             SetBLUI();
 
             StartupEvent_RefAtlasLoaded.Invoke();
-
-
-            Debug.Log($"(TPM) Current atlas {BrainAtlasManager.ActiveReferenceAtlas.Name}");
-            Debug.Log($"(TPM) Current ontology root ID {BrainAtlasManager.ActiveReferenceAtlas.Ontology.Acronym2ID("root")}");
-            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ATLAS_LOADED, true);
 
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
 

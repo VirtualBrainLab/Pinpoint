@@ -44,14 +44,6 @@ namespace UI.ViewModels
         private void OnSceneStateChanged(SceneState state)
         {
             _atlasName = state.AtlasName;
-
-            Debug.Log($"(AVM) Detected atlas loading state: {state.AtlasLoaded}");
-
-            if (state.AtlasLoaded && _atlasTreeData == null)
-            {
-                Debug.Log($"(AVM) Loading atlas {_atlasName}");
-                LoadAtlasData();
-            }
         }
 
         private void LoadAtlasData()
@@ -98,5 +90,7 @@ namespace UI.ViewModels
             Debug.Log($"(AVM) Toggled visibility for area ID {areaID}");
         }
     }
+    
+    
 
 }
