@@ -5,17 +5,17 @@
         <engine:ScrollView>
             <engine:VisualElement class="inspectorBox inspector-panel">
                 <Unity.AppUI.UI.Heading text="Position &amp; Orientation" size="S" />
-                <Unity.AppUI.UI.Vector4Field tooltip="Probe position" />
+                <Unity.AppUI.UI.Vector4Field tooltip="Probe position" name="inspector--position-input" size="L" />
                 <Unity.AppUI.UI.Divider />
-                <Unity.AppUI.UI.Vector3Field tooltip="Probe orientation" />
+                <Unity.AppUI.UI.Vector3Field tooltip="Probe orientation" name="inspector--angle-input" size="L" />
             </engine:VisualElement>
             <engine:VisualElement class="inspectorBox inspector-panel" style="flex-direction: column; flex-wrap: nowrap;">
                 <Unity.AppUI.UI.Heading text="Probe Controls" size="S" />
                 <Unity.AppUI.UI.ActionGroup compact="true" direction="Vertical">
-                    <Unity.AppUI.UI.ActionButton label="Lock" icon="lock" />
-                    <Unity.AppUI.UI.ActionButton label="Duplicate" icon="copy" />
-                    <Unity.AppUI.UI.ActionButton label="Move to Reference Coordinate" icon="waypoint-home" />
-                    <Unity.AppUI.UI.ActionButton label="Move to Dura" icon="align-bottom-simple" />
+                    <Unity.AppUI.UI.ActionButton label="Lock" icon="lock" name="inspector--lock-button" style="justify-content: flex-start;" />
+                    <Unity.AppUI.UI.ActionButton label="Duplicate" icon="copy" name="inspector--duplicate-button" style="justify-content: flex-start;" />
+                    <Unity.AppUI.UI.ActionButton label="Move to Reference Coordinate" icon="waypoint-home" name="inspector--move-to-reference-coordinate-button" style="justify-content: flex-start;" />
+                    <Unity.AppUI.UI.ActionButton label="Move to Dura" icon="align-bottom-simple" name="inspector-move-to-dura-button" style="justify-content: flex-start;" />
                 </Unity.AppUI.UI.ActionGroup>
             </engine:VisualElement>
             <engine:VisualElement class="inspectorBox inspector-panel">
