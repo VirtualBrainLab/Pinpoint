@@ -162,12 +162,14 @@ namespace TrajectoryPlanner
 
         public async void Startup()
         {
+
             // Determine startup flags, we check two things:
             // (1) Are the PlayerPrefs cleared? If they are, we will load the null transform and bregma reference coordinate
             // (2) If set, check if this is an atlas reset, if it is, load the null transform and bregma reference coordinate
             // Otherwise, load all the previous settings
             bool _firstTime = !PlayerPrefs.HasKey("scene-atlas-reset");
             bool _atlasReset = PlayerPrefs.GetInt("scene-atlas-reset", 0) == 1;
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ATLAS_LOADED, false);
 
             // STARTUP SEQUENCE
             StartupEvent_MetaLoaded.Invoke();
@@ -218,6 +220,10 @@ namespace TrajectoryPlanner
             SetBLUI();
 
             StartupEvent_RefAtlasLoaded.Invoke();
+
+
+            Debug.Log($"(TPM) Current atlas {BrainAtlasManager.ActiveReferenceAtlas.Name}");
+            Debug.Log($"(TPM) Current ontology root ID {BrainAtlasManager.ActiveReferenceAtlas.Ontology.Acronym2ID("root")}");
             PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ATLAS_LOADED, true);
 
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);

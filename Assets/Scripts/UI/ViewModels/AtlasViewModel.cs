@@ -8,6 +8,7 @@ using BrainAtlas;
 using Models.Scene;
 using Models;
 using Unity.AppUI.Redux;
+using TrajectoryPlanner;
 
 namespace UI.ViewModels
 {
@@ -44,6 +45,8 @@ namespace UI.ViewModels
         {
             _atlasName = state.AtlasName;
 
+            Debug.Log($"(AVM) Detected atlas loading state: {state.AtlasLoaded}");
+
             if (state.AtlasLoaded && _atlasTreeData == null)
             {
                 Debug.Log($"(AVM) Loading atlas {_atlasName}");
@@ -57,8 +60,6 @@ namespace UI.ViewModels
 
             _atlasTreeData = RecursiveParse(rootID);
             Debug.Log($"(AVM) Found {_atlasTreeData.Count} nodes");
-
-
         }
 
         private List<TreeViewItemData<(string, string)>> RecursiveParse(int rootID)
