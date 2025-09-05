@@ -8,7 +8,6 @@ using BrainAtlas;
 using Models.Scene;
 using Models;
 using Unity.AppUI.Redux;
-using TrajectoryPlanner;
 
 namespace UI.ViewModels
 {
