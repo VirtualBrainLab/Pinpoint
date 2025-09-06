@@ -8,6 +8,7 @@ using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils.Types;
 
 namespace UI.ViewModels
 {
@@ -23,7 +24,7 @@ namespace UI.ViewModels
         private string _atlasName;
 
         [ObservableProperty]
-        private List<TreeViewItemData<(string, string)>> _atlasTreeData;
+        private List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> _atlasTreeData;
 
         #endregion
 
@@ -56,6 +57,7 @@ namespace UI.ViewModels
         [ICommand]
         private void SelectArea(int areaID)
         {
+            // Dispatch the action to rotate the area visibility
             _storeService.Store.Dispatch(SceneActions.ROTATE_AREA_VISIBILITY, areaID);
 
             Debug.Log($"(AVM) Toggled visibility for area ID {areaID}");
@@ -69,7 +71,7 @@ namespace UI.ViewModels
             AtlasTreeData = RecursiveParse(rootId);
             return;
 
-            List<TreeViewItemData<(string, string)>> RecursiveParse(int nodeId)
+            List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> RecursiveParse(int nodeId)
             {
                 var childrenIds = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Children(
                     nodeId
@@ -86,9 +88,9 @@ namespace UI.ViewModels
                         let childAcronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(
                             childId
                         )
-                        select new TreeViewItemData<(string, string)>(
+                        select new TreeViewItemData<(string, string, Color, AreaDisplayType)>(
                             childId,
-                            (childAcronym, childName),
+                            (childAcronym, childName, BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(childId), AreaDisplayType.Opaque),
                             childData
                         )
                     ).ToList();
