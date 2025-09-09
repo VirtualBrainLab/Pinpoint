@@ -1,6 +1,8 @@
 using System;
 using UI.ViewModels;
+using Unity.AppUI.UI;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Utils.Types;
@@ -25,14 +27,32 @@ namespace UI.Views
             var positionField = root.Q<Vector4Field>("probe-inspector__position-field");
             var angleField = root.Q<Vector3Field>("probe-inspector__angle-field");
 
-            var lockButton = root.Q<Button>("probe-inspector__lock-button");
-            var duplicateButton = root.Q<Button>("probe-inspector__duplicate-button");
-            var moveToReferenceCoordinateButton = root.Q<Button>(
+            var lockButton = root.Q<ActionButton>("probe-inspector__lock-button");
+            var duplicateButton = root.Q<ActionButton>("probe-inspector__duplicate-button");
+            var moveToReferenceCoordinateButton = root.Q<ActionButton>(
                 "probe-inspector__move-to-reference-coordinate-button"
             );
-            var moveToDuraButton = root.Q<Button>("probe-inspector__move-to-dura-button");
+            var moveToDuraButton = root.Q<ActionButton>("probe-inspector__move-to-dura-button");
+
+            var probeColorButtons = root.Q<VisualElement>("probe-inspector__probe-color-buttons");
 
             // Register event handlers.
+            lockButton.clickable.clicked += probeInspectorViewModel.LockProbeCommand.Execute;
+            duplicateButton.clickable.clicked += probeInspectorViewModel
+                .DuplicateProbeCommand
+                .Execute;
+            moveToReferenceCoordinateButton.clickable.clicked += probeInspectorViewModel
+                .MoveProbeToReferenceCoordinateCommand
+                .Execute;
+            moveToDuraButton.clickable.clicked += probeInspectorViewModel
+                .MoveProbeToDuraCommand
+                .Execute;
+            for (var i = 0; i < probeColorButtons.childCount; i++)
+            {
+                var indexToProbeColor = (ProbeColor)i;
+                probeColorButtons.Query<Button>().AtIndex(i).clickable.clicked += () =>
+                probeInspectorViewModel.SetProbeColorCommand.Execute(indexToProbeColor);
+            }
 
             // Apply view customizations.
             positionField.Q<FloatField>("appui-vector4field__x-field").unit = "AP";

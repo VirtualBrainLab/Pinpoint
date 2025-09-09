@@ -2,7 +2,7 @@
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3" />
     <Style src="project://database/Assets/UI/Styles/ProbeInspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3" />
     <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3" />
-    <Unity.AppUI.UI.Panel data-source-type="UI.ViewModels.ProbeInspectorViewModel, Assembly-CSharp">
+    <Unity.AppUI.UI.Panel data-source-type="UI.ViewModels.ProbeInspectorViewModel, Assembly-CSharp" enabled="true">
         <engine:ScrollView>
             <engine:VisualElement class="inspectorBox inspector-panel">
                 <Unity.AppUI.UI.Heading text="Position &amp; Orientation" size="S" />
@@ -21,7 +21,11 @@
             <engine:VisualElement class="inspectorBox inspector-panel" style="flex-direction: column; flex-wrap: nowrap;">
                 <Unity.AppUI.UI.Heading text="Probe Controls" size="S" />
                 <Unity.AppUI.UI.ActionGroup compact="true" direction="Vertical" style="align-items: center;">
-                    <Unity.AppUI.UI.ActionButton label="Lock" icon="lock" name="probe-inspector__lock-button" style="justify-content: flex-start;" />
+                    <Unity.AppUI.UI.ActionButton label="Lock" icon="lock" name="probe-inspector__lock-button" style="justify-content: flex-start;">
+                        <Bindings>
+                            <engine:DataBinding property="selected" data-source-path="Locked" binding-mode="ToTarget" />
+                        </Bindings>
+                    </Unity.AppUI.UI.ActionButton>
                     <Unity.AppUI.UI.ActionButton label="Duplicate" icon="copy" name="probe-inspector__duplicate-button" style="justify-content: flex-start;" />
                     <Unity.AppUI.UI.ActionButton label="Move to Reference Coordinate" icon="waypoint-home" name="probe-inspector__move-to-reference-coordinate-button" style="justify-content: flex-start;" />
                     <Unity.AppUI.UI.ActionButton label="Move to Dura" icon="align-bottom-simple" name="probe-inspector__move-to-dura-button" style="justify-content: flex-start;" />
@@ -128,5 +132,8 @@
                 </engine:VisualElement>
             </engine:VisualElement>
         </engine:ScrollView>
+        <Bindings>
+            <engine:DataBinding property="enabledSelf" data-source-path="Enabled" binding-mode="ToTarget" />
+        </Bindings>
     </Unity.AppUI.UI.Panel>
 </engine:UXML>
