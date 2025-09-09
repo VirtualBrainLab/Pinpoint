@@ -18,6 +18,33 @@ namespace Models.Scene
             return state with { Probes = newProbesList };
         }
 
+        public static SceneState DuplicateProbeReducer(SceneState state, IAction<string> action)
+        {
+            // Find the probe to duplicate.
+            var probeToDuplicate = state.Probes.FirstOrDefault(probe =>
+                probe.Name == action.payload
+            );
+            if (probeToDuplicate == null)
+                return state; // If not found, return the state unchanged.
+
+            // Create a copy of the probes list
+            var newProbesList = state.Probes.ToList();
+
+            // Create a new probe with a new UUID but same properties as the original.
+            var duplicatedProbe = probeToDuplicate with
+            {
+                Name = Guid.NewGuid().ToString(),
+            };
+
+            // Add the duplicated probe to the list.
+            newProbesList.Add(duplicatedProbe);
+
+            return state with
+            {
+                Probes = newProbesList,
+            };
+        }
+
         /// <summary>
         ///     Remove all probes with the specified name.
         /// </summary>
@@ -227,6 +254,60 @@ namespace Models.Scene
             probesCopy[index] = probesCopy[index] with
             {
                 Angles = probesCopy[index].Angles + pitchClampedAngles,
+            };
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
+        public static SceneState SetProbeColorReducer(
+            SceneState state,
+            IAction<(string Name, ProbeColor Color)> action
+        )
+        {
+            // Find the index of the target probe.
+            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+
+            // Exit if the probe is not found.
+            if (index == -1)
+                return state;
+
+            // Create a copy of the probes list
+            var probesCopy = state.Probes.ToList();
+
+            // Update the probe immutably using the `with` expression
+            probesCopy[index] = probesCopy[index] with
+            {
+                Color = action.payload.Color,
+            };
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
+        public static SceneState SetProbeLockedReducer(
+            SceneState state,
+            IAction<(string Name, bool Locked)> action
+        )
+        {
+            // Find the index of the target probe.
+            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+
+            // Exit if the probe is not found.
+            if (index == -1)
+                return state;
+
+            // Create a copy of the probes list
+            var probesCopy = state.Probes.ToList();
+
+            // Update the probe immutably using the `with` expression
+            probesCopy[index] = probesCopy[index] with
+            {
+                Locked = action.payload.Locked,
             };
 
             return state with
@@ -511,26 +592,25 @@ namespace Models.Scene
 
         public static SceneState RotateAreaVisibilityReducer(SceneState state, IAction<int> action)
         {
-            var newBrainAreaVisibility = new Dictionary<int, AreaDisplayType>(state.BrainAreaVisibility);
-            
+            var newBrainAreaVisibility = new Dictionary<int, AreaDisplayType>(
+                state.BrainAreaVisibility
+            );
+
             // Get the area ID from the action payload
-            int areaID = action.payload;
-            
+            var areaID = action.payload;
+
             // If the area doesn't exist in the dictionary, add it with default value (Opaque)
-            if (!newBrainAreaVisibility.ContainsKey(areaID))
-            {
-                newBrainAreaVisibility[areaID] = AreaDisplayType.Opaque;
-            }
-            else
+            if (!newBrainAreaVisibility.TryAdd(areaID, AreaDisplayType.Opaque))
             {
                 // Rotate the visibility state for this specific area
                 var currentValue = (int)newBrainAreaVisibility[areaID];
-                var rotatedValue = (currentValue + 1) % Enum.GetValues(typeof(AreaDisplayType)).Length;
+                var rotatedValue =
+                    (currentValue + 1) % Enum.GetValues(typeof(AreaDisplayType)).Length;
                 newBrainAreaVisibility[areaID] = (AreaDisplayType)rotatedValue;
             }
 
             Debug.Log($"Updated area visibility for {areaID} to {newBrainAreaVisibility[areaID]}");
-            
+
             return state with
             {
                 BrainAreaVisibility = newBrainAreaVisibility,
@@ -546,6 +626,9 @@ namespace Models.Scene
 
         public static readonly ActionCreator<ProbeType> ADD_PROBE =
             $"{SliceNames.SCENE_SLICE}/AddProbe";
+
+        public static readonly ActionCreator<string> DUPLICATE_PROBE =
+            $"{SliceNames.SCENE_SLICE}/DuplicateProbe";
 
         public static readonly ActionCreator<string> REMOVE_PROBE =
             $"{SliceNames.SCENE_SLICE}/RemoveProbe";
@@ -598,6 +681,12 @@ namespace Models.Scene
             Vector3 Angles,
             Vector2 PitchRange
         )> CHANGE_PROBE_ANGLES_BY = $"{SliceNames.SCENE_SLICE}/ChangeProbeAnglesBy";
+
+        public static readonly ActionCreator<(string, ProbeColor)> SET_PROBE_COLOR =
+            $"{SliceNames.SCENE_SLICE}/SetProbeColor";
+
+        public static readonly ActionCreator<(string, bool)> SET_PROBE_LOCKED =
+            $"{SliceNames.SCENE_SLICE}/SetProbeLocked";
 
         #endregion
 

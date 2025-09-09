@@ -17,6 +17,9 @@ namespace UI.ViewModels
         private readonly StoreService _storeService;
         private readonly IDisposableSubscription _sceneStateSubscription;
 
+        private string ActiveProbeName =>
+            _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE).ActiveProbeName;
+
         #endregion
 
         #region Properties
@@ -83,10 +86,16 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
-        private void LockProbe() { }
+        private void LockProbe()
+        {
+            _storeService.Store.Dispatch(SceneActions.SET_PROBE_LOCKED, (ActiveProbeName, !Locked));
+        }
 
         [ICommand]
-        private void DuplicateProbe() { }
+        private void DuplicateProbe()
+        {
+            _storeService.Store.Dispatch(SceneActions.DUPLICATE_PROBE, ActiveProbeName);
+        }
 
         [ICommand]
         private void MoveProbeToReferenceCoordinate() { }
@@ -97,7 +106,7 @@ namespace UI.ViewModels
         [ICommand]
         private void SetProbeColor(ProbeColor color)
         {
-            ProbeColor = color;
+            _storeService.Store.Dispatch(SceneActions.SET_PROBE_COLOR, (ActiveProbeName, color));
         }
 
         #endregion
