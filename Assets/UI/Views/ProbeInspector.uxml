@@ -1,6 +1,7 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
     <Style src="project://database/Assets/UI/Styles/ProbeInspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#ProbeInspectorStyle" />
+    <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3#ProbeColors" />
     <Unity.AppUI.UI.Panel>
         <engine:ScrollView>
             <engine:VisualElement class="inspectorBox inspector-panel">
@@ -20,7 +21,7 @@
             </engine:VisualElement>
             <engine:VisualElement class="inspectorBox inspector-panel">
                 <Unity.AppUI.UI.Heading text="Probe Color" size="S" />
-                <Unity.AppUI.UI.RadioGroup name="probe-inspector__probe-color-radio-group" style="flex-direction: row; flex-wrap: wrap;" value="0">
+                <Unity.AppUI.UI.RadioGroup name="probe-inspector__probe-color-radio-group" value="0" style="flex-direction: row; flex-wrap: wrap;">
                     <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-blue" key="0" size="L" value="true" />
                     <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-blue" key="1" size="L" />
                     <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-orange" key="2" size="L" />
