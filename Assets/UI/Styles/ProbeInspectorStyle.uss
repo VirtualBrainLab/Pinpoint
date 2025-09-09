@@ -1,0 +1,8 @@
+#appui-radio__button {
+    width: 36px;
+    height: 36px;
+}
+
+Radio {
+    margin-bottom: 5px;
+}

@@ -1,46 +1,46 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/Styles/InspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#InspectorStyle" />
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
+    <Style src="project://database/Assets/UI/Styles/ProbeInspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#ProbeInspectorStyle" />
     <Unity.AppUI.UI.Panel>
         <engine:ScrollView>
             <engine:VisualElement class="inspectorBox inspector-panel">
                 <Unity.AppUI.UI.Heading text="Position &amp; Orientation" size="S" />
-                <Unity.AppUI.UI.Vector4Field tooltip="Probe position" name="inspector--position-input" size="L" />
+                <Unity.AppUI.UI.Vector4Field tooltip="Probe position" name="probe-inspector__position-field" size="L" />
                 <Unity.AppUI.UI.Divider />
-                <Unity.AppUI.UI.Vector3Field tooltip="Probe orientation" name="inspector--angle-input" size="L" />
+                <Unity.AppUI.UI.Vector3Field tooltip="Probe orientation" name="probe-inspector__angle-field" size="L" />
             </engine:VisualElement>
             <engine:VisualElement class="inspectorBox inspector-panel" style="flex-direction: column; flex-wrap: nowrap;">
                 <Unity.AppUI.UI.Heading text="Probe Controls" size="S" />
-                <Unity.AppUI.UI.ActionGroup compact="true" direction="Vertical">
-                    <Unity.AppUI.UI.ActionButton label="Lock" icon="lock" name="inspector--lock-button" style="justify-content: flex-start;" />
-                    <Unity.AppUI.UI.ActionButton label="Duplicate" icon="copy" name="inspector--duplicate-button" style="justify-content: flex-start;" />
-                    <Unity.AppUI.UI.ActionButton label="Move to Reference Coordinate" icon="waypoint-home" name="inspector--move-to-reference-coordinate-button" style="justify-content: flex-start;" />
-                    <Unity.AppUI.UI.ActionButton label="Move to Dura" icon="align-bottom-simple" name="inspector-move-to-dura-button" style="justify-content: flex-start;" />
+                <Unity.AppUI.UI.ActionGroup compact="true" direction="Vertical" style="align-items: center;">
+                    <Unity.AppUI.UI.ActionButton label="Lock" icon="lock" name="probe-inspector__lock-button" style="justify-content: flex-start;" />
+                    <Unity.AppUI.UI.ActionButton label="Duplicate" icon="copy" name="probe-inspector__duplicate-button" style="justify-content: flex-start;" />
+                    <Unity.AppUI.UI.ActionButton label="Move to Reference Coordinate" icon="waypoint-home" name="probe-inspector__move-to-reference-coordinate-button" style="justify-content: flex-start;" />
+                    <Unity.AppUI.UI.ActionButton label="Move to Dura" icon="align-bottom-simple" name="probe-inspector__move-to-dura-button" style="justify-content: flex-start;" />
                 </Unity.AppUI.UI.ActionGroup>
             </engine:VisualElement>
             <engine:VisualElement class="inspectorBox inspector-panel">
                 <Unity.AppUI.UI.Heading text="Probe Color" size="S" />
-                <engine:VisualElement name="ProbeColorPicker" style="flex-grow: 1; flex-wrap: wrap; flex-direction: row;">
-                    <engine:RadioButton name="1F77B4" />
-                    <engine:RadioButton name="AEC7E8" />
-                    <engine:RadioButton name="FF7F0E" />
-                    <engine:RadioButton name="FFBB78" />
-                    <engine:RadioButton name="2CA02C" />
-                    <engine:RadioButton name="98DF8A" />
-                    <engine:RadioButton name="D62728" />
-                    <engine:RadioButton name="FF9896" />
-                    <engine:RadioButton name="9467BD" />
-                    <engine:RadioButton name="C5B0D5" />
-                    <engine:RadioButton name="8C564B" />
-                    <engine:RadioButton name="C49C94" />
-                    <engine:RadioButton name="E377C2" />
-                    <engine:RadioButton name="F7B6D2" />
-                    <engine:RadioButton name="7F7F7F" />
-                    <engine:RadioButton name="C7C7C7" />
-                    <engine:RadioButton name="DBDB8D" />
-                    <engine:RadioButton name="17BECF" />
-                    <engine:RadioButton name="9EDAE5" />
-                </engine:VisualElement>
+                <Unity.AppUI.UI.RadioGroup name="probe-inspector__probe-color-radio-group" style="flex-direction: row; flex-wrap: wrap;" value="0">
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-blue" key="0" size="L" value="true" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-blue" key="1" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-orange" key="2" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-orange" key="3" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-green" key="4" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-green" key="5" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-red" key="6" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-red" key="7" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-purple" key="8" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-purple" key="9" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-brown" key="10" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-brown" key="11" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-pink" key="12" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-pink" key="13" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-gray" key="14" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-gray" key="15" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--lively-laugh" key="16" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-cyan" key="17" size="L" />
+                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-cyan" key="18" size="L" />
+                </Unity.AppUI.UI.RadioGroup>
             </engine:VisualElement>
         </engine:ScrollView>
     </Unity.AppUI.UI.Panel>
