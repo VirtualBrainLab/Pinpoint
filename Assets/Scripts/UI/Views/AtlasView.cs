@@ -15,7 +15,7 @@ namespace UI.Views
 
         private readonly AtlasViewModel _atlasViewModel;
 
-        public AtlasView(VisualElement root, AtlasViewModel atlasViewModel)
+        public AtlasView(TemplateContainer root, AtlasViewModel atlasViewModel)
         {
             _root = root;
 

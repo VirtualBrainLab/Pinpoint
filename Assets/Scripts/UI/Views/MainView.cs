@@ -1,10 +1,10 @@
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Button = Unity.AppUI.UI.Button;
-
 #if !UNITY_EDITOR
 using UnityEngine;
 #endif
@@ -34,16 +34,18 @@ namespace UI.Views
         /// Sets up UI document, component references, and event bindings.
         /// </summary>
         /// <param name="mainViewModel">The view model to bind to.</param>
-        /// <param name="automationViewModel">Automation view model to pass to the automation view.</param>
         /// <param name="ephysLinkViewModel">Ephys Link view model to pass to the automation view.</param>
         /// <param name="sceneViewModel">Scene view model to pass to the scene hierarchy view.</param>
         /// <param name="atlasViewModel">Atlas view model to pass to the atlas view.</param>
+        /// <param name="probeInspectorViewModel">Probe inspector view model to pass to the probe inspector view.</param>
+        /// <param name="automationViewModel">Automation view model to pass to the automation view.</param>
         public MainView(
             MainViewModel mainViewModel,
-            AutomationViewModel automationViewModel,
             EphysLinkViewModel ephysLinkViewModel,
             SceneViewModel sceneViewModel,
-            AtlasViewModel atlasViewModel
+            AtlasViewModel atlasViewModel,
+            ProbeInspectorViewModel probeInspectorViewModel,
+            AutomationViewModel automationViewModel
         )
         {
             // Get root element.
@@ -60,22 +62,32 @@ namespace UI.Views
 
             // Initialize subviews.
             _ = new SceneView(Root.Q<TemplateContainer>("scene-view"), sceneViewModel);
+            _ = new AtlasView(Root.Q<TemplateContainer>("atlas-view"), atlasViewModel);
+            _ = new ProbeInspectorView(
+                Root.Q<TemplateContainer>("probe-inspector-view"),
+                probeInspectorViewModel
+            );
             _ = new AutomationView(
                 Root.Q<TemplateContainer>("automation-view"),
                 automationViewModel,
                 ephysLinkViewModel
             );
-            _ = new AtlasView(Root.Q<VisualElement>("atlas-view"), atlasViewModel);
 
             // Register event handlers.
             leftSidePanelCollapseButton.clickable.clicked += () =>
             {
-                mainSplitView.CollapseSplitter(LEFT_SIDE_PANEL_SPLITTER_INDEX, CollapseDirection.Backward);
+                mainSplitView.CollapseSplitter(
+                    LEFT_SIDE_PANEL_SPLITTER_INDEX,
+                    CollapseDirection.Backward
+                );
                 mainViewModel.SetMainSplitViewStateCommand.Execute(mainSplitView.SaveState());
             };
             rightSidePanelCollapseButton.clickable.clicked += () =>
             {
-                mainSplitView.CollapseSplitter(RIGHT_SIDE_PANEL_SPLITTER_INDEX, CollapseDirection.Forward);
+                mainSplitView.CollapseSplitter(
+                    RIGHT_SIDE_PANEL_SPLITTER_INDEX,
+                    CollapseDirection.Forward
+                );
                 mainViewModel.SetMainSplitViewStateCommand.Execute(mainSplitView.SaveState());
             };
             leftSidePanelTabs.RegisterValueChangedCallback(evt =>
@@ -90,7 +102,6 @@ namespace UI.Views
             Root.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
 #endif
         }
-
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]

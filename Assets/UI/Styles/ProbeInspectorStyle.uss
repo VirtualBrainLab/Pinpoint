@@ -10,57 +10,79 @@ Radio {
 #probe-inspector__probe-color-radio--dark-blue > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-dark-blue);
 }
+
 #probe-inspector__probe-color-radio--light-blue > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-light-blue);
 }
+
 #probe-inspector__probe-color-radio--dark-orange > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-dark-orange);
 }
+
 #probe-inspector__probe-color-radio--light-orange > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-light-orange);
 }
+
 #probe-inspector__probe-color-radio--dark-green > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-dark-green);
 }
+
 #probe-inspector__probe-color-radio--light-green > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-light-green);
 }
+
 #probe-inspector__probe-color-radio--dark-red > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-dark-red);
 }
+
 #probe-inspector__probe-color-radio--light-red > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-light-red);
 }
+
 #probe-inspector__probe-color-radio--dark-purple > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-dark-purple);
 }
+
 #probe-inspector__probe-color-radio--light-purple > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-light-purple);
 }
+
 #probe-inspector__probe-color-radio--dark-brown > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-dark-brown);
 }
+
 #probe-inspector__probe-color-radio--light-brown > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-light-brown);
 }
+
 #probe-inspector__probe-color-radio--dark-pink > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-dark-pink);
 }
+
 #probe-inspector__probe-color-radio--light-pink > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-light-pink);
 }
+
 #probe-inspector__probe-color-radio--dark-gray > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-dark-gray);
 }
+
 #probe-inspector__probe-color-radio--light-gray > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-light-gray);
 }
+
 #probe-inspector__probe-color-radio--lively-laugh > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-lively-laugh);
 }
+
 #probe-inspector__probe-color-radio--dark-cyan > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-dark-cyan);
 }
+
 #probe-inspector__probe-color-radio--light-cyan > #appui-radio__button {
     background-color: var(--pinpoint-probe-color-light-cyan);
+}
+
+#appui-radio__checkmark {
+    background-color: rgb(0, 0, 0);
 }
