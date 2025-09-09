@@ -1,14 +1,22 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
-    <Style src="project://database/Assets/UI/Styles/ProbeInspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#ProbeInspectorStyle" />
-    <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3#ProbeColors" />
-    <Unity.AppUI.UI.Panel>
+    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3" />
+    <Style src="project://database/Assets/UI/Styles/ProbeInspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3" />
+    <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3" />
+    <Unity.AppUI.UI.Panel data-source-type="UI.ViewModels.ProbeInspectorViewModel, Assembly-CSharp">
         <engine:ScrollView>
             <engine:VisualElement class="inspectorBox inspector-panel">
                 <Unity.AppUI.UI.Heading text="Position &amp; Orientation" size="S" />
-                <Unity.AppUI.UI.Vector4Field tooltip="Probe position" name="probe-inspector__position-field" size="L" />
+                <Unity.AppUI.UI.Vector4Field tooltip="Probe position" name="probe-inspector__position-field" size="L">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="Position" binding-mode="TwoWay" />
+                    </Bindings>
+                </Unity.AppUI.UI.Vector4Field>
                 <Unity.AppUI.UI.Divider />
-                <Unity.AppUI.UI.Vector3Field tooltip="Probe orientation" name="probe-inspector__angle-field" size="L" />
+                <Unity.AppUI.UI.Vector3Field tooltip="Probe orientation" name="probe-inspector__angle-field" size="L">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="Angles" binding-mode="TwoWay" />
+                    </Bindings>
+                </Unity.AppUI.UI.Vector3Field>
             </engine:VisualElement>
             <engine:VisualElement class="inspectorBox inspector-panel" style="flex-direction: column; flex-wrap: nowrap;">
                 <Unity.AppUI.UI.Heading text="Probe Controls" size="S" />
@@ -21,27 +29,103 @@
             </engine:VisualElement>
             <engine:VisualElement class="inspectorBox inspector-panel">
                 <Unity.AppUI.UI.Heading text="Probe Color" size="S" />
-                <Unity.AppUI.UI.RadioGroup name="probe-inspector__probe-color-radio-group" style="flex-direction: row; flex-wrap: wrap;">
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-blue" key="0" size="L" value="true" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-blue" key="1" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-orange" key="2" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-orange" key="3" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-green" key="4" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-green" key="5" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-red" key="6" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-red" key="7" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-purple" key="8" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-purple" key="9" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-brown" key="10" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-brown" key="11" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-pink" key="12" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-pink" key="13" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-gray" key="14" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-gray" key="15" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--lively-laugh" key="16" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--dark-cyan" key="17" size="L" />
-                    <Unity.AppUI.UI.Radio name="probe-inspector__probe-color-radio--light-cyan" key="18" size="L" />
-                </Unity.AppUI.UI.RadioGroup>
+                <engine:VisualElement name="probe-inspector__probe-color-buttons" style="flex-grow: 1; flex-wrap: wrap; flex-direction: row;">
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--dark-blue" size="L" leading-icon="check">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToDarkBlueButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--light-blue" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToLightBlueButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--dark-orange" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToDarkOrangeButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--light-orange" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToLightOrangeButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--dark-green" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToDarkGreenButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--light-green" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToLightGreenButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--dark-red" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToDarkRedButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--light-red" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToLightRedButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--dark-purple" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToDarkPurpleButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--light-purple" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToLightPurpleButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--dark-brown" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToDarkBrownButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--light-brown" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToLightBrownButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--dark-pink" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToDarkPinkButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--light-pink" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToLightPinkButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--dark-gray" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToDarkGrayButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--light-gray" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToLightGrayButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--lively-laugh" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToLivelyLaughButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--dark-cyan" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToDarkCyanButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button name="probe-inspector__probe-color-button--light-cyan" size="L">
+                        <Bindings>
+                            <engine:DataBinding property="leadingIcon" data-source-path="ProbeColor" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToLightCyanButtonIcon" />
+                        </Bindings>
+                    </Unity.AppUI.UI.Button>
+                </engine:VisualElement>
             </engine:VisualElement>
         </engine:ScrollView>
     </Unity.AppUI.UI.Panel>

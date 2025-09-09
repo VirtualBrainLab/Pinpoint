@@ -1,9 +1,13 @@
+using System;
 using UI.ViewModels;
+using UnityEditor;
 using UnityEngine.UIElements;
+using Utils;
+using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
-using Vector4Field = Unity.AppUI.UI.Vector4Field;
-using Vector3Field = Unity.AppUI.UI.Vector3Field;
 using FloatField = Unity.AppUI.UI.FloatField;
+using Vector3Field = Unity.AppUI.UI.Vector3Field;
+using Vector4Field = Unity.AppUI.UI.Vector4Field;
 
 namespace UI.Views
 {
@@ -35,10 +39,27 @@ namespace UI.Views
             positionField.Q<FloatField>("appui-vector4field__y-field").unit = "ML";
             positionField.Q<FloatField>("appui-vector4field__z-field").unit = "DV";
             positionField.Q<FloatField>("appui-vector4field__w-field").unit = "Depth";
-            
+
             angleField.Q<FloatField>("appui-vector3field__x-field").unit = "Yaw";
             angleField.Q<FloatField>("appui-vector3field__y-field").unit = "Pitch";
             angleField.Q<FloatField>("appui-vector3field__z-field").unit = "Roll";
+        }
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
+        public static void RegisterProbeInspectorViewConverters()
+        {
+            foreach (ProbeColor color in Enum.GetValues(typeof(ProbeColor)))
+            {
+                var converterName = $"ProbeColorTo{color}ButtonIcon";
+                DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                    converterName,
+                    (ref ProbeColor probeColor) => probeColor == color ? "check" : ""
+                );
+            }
         }
     }
 }

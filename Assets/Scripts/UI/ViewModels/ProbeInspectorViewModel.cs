@@ -1,6 +1,8 @@
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
+using UnityEngine;
+using Utils.Types;
 
 namespace UI.ViewModels
 {
@@ -16,7 +18,14 @@ namespace UI.ViewModels
 
         #region Properties
 
-        
+        [ObservableProperty]
+        private Vector4 _position;
+
+        [ObservableProperty]
+        private Vector3 _angles;
+
+        [ObservableProperty]
+        private ProbeColor _probeColor;
 
         #endregion
 
