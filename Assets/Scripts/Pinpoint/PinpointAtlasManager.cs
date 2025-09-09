@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.AppUI.Redux;
+using Utils.Types;
 
 public class PinpointAtlasManager : MonoBehaviour
 {
@@ -37,8 +39,68 @@ public class PinpointAtlasManager : MonoBehaviour
             _allowedOnWebGLMapping.Add(_atlasNames[i], _allowedOnWebGL[i]);
         }
 
+        UI.PinpointApp.StoreServiceStore.Subscribe(
+            state => state.Get<Models.Scene.SceneState>(Models.SliceNames.SCENE_SLICE),
+            sceneState =>
+            {
+                UpdateBrainAreaVisibility(sceneState.BrainAreaVisibility);
+            },
+            new SubscribeOptions<Models.Scene.SceneState> { fireImmediately = true }
+        );
 
         Settings.AtlasTransformChangedEvent += SetNewTransform;
+    }
+
+    /// <summary>
+    /// Updates brain area visibility based on the state of AreaDisplayType enums
+    /// </summary>
+    /// <param name="brainAreaVisibility">List of AreaDisplayType values representing visibility states</param>
+    private async void UpdateBrainAreaVisibility(Dictionary<int, AreaDisplayType> brainAreaVisibility)
+    {
+        if (brainAreaVisibility == null)
+            return;
+
+#if UNITY_EDITOR
+        Debug.Log($"(PAM) BrainAreaVisibility changed. Count: {brainAreaVisibility.Count}");
+#endif
+
+        foreach (var kVP in brainAreaVisibility) {
+            var areaID = kVP.Key;
+            var displayType = kVP.Value;
+
+            var opaqueMaterial = BrainAtlasManager.BrainRegionMaterials["opaque-lit"];
+            var transparentMaterial = BrainAtlasManager.BrainRegionMaterials["transparent-unlit"];
+
+            var node = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID);
+            if (!BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).FullLoaded.IsCompleted)
+            {
+                await node.LoadMesh(OntologyNode.OntologyNodeSide.All);
+                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
+                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.Left);
+                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.Right);
+            }
+
+            switch (displayType)
+            {
+                case AreaDisplayType.Opaque:
+                    // Set brain area at index i to opaque
+                    Debug.Log($"(PAM) Setting area {areaID} to Opaque");
+                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetMaterial(opaqueMaterial, OntologyNode.OntologyNodeSide.All);
+                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.All);
+                    break;
+                case AreaDisplayType.Transparent:
+                    // Set brain area at index i to transparent
+                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.All);
+                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetMaterial(transparentMaterial, OntologyNode.OntologyNodeSide.All);
+                    Debug.Log($"(PAM) Setting area {areaID} to Transparent");
+                    break;
+                case AreaDisplayType.Hidden:
+                    // Hide brain area at index i
+                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(false, OntologyNode.OntologyNodeSide.All);
+                    Debug.Log($"(PAM) Setting area {areaID} to Hidden");
+                    break;
+            }
+        }
     }
 
     public void Startup()

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UI.ViewModels;
 using UnityEngine;
 using UnityEngine.UIElements;
-using TreeView = UnityEngine.UIElements.TreeView;
+using Utils.Types;
 
 namespace UI.Views
 {
@@ -24,7 +24,6 @@ namespace UI.Views
             _atlasTree = _root.Q<TreeView>("atlas-tree");
 
             _atlasTree.SetRootItems(atlasViewModel.AtlasTreeData);
-            _atlasTree.makeItem = makeItem;
             _atlasTree.bindItem = bindItem;
             _atlasTree.selectionType = SelectionType.Multiple;
             _atlasTree.Rebuild();
@@ -64,7 +63,7 @@ namespace UI.Views
             foreach (var index in selectedIndices)
             {
                 var id = _atlasTree.GetIdForIndex(index);
-                var data = _atlasTree.GetItemDataForIndex<(string, string)>(index);
+                var data = _atlasTree.GetItemDataForIndex<(string, string, Color, AreaDisplayType)>(index);
                 
                 Debug.Log($"Chosen item - ID: {id}, Data: ({data.Item1}, {data.Item2})");
                 
@@ -83,16 +82,10 @@ namespace UI.Views
             Debug.Log(log.TrimEnd(',', ' '));
         }
 
-        private VisualElement makeItem()
-        {
-            return new Label();
-        }
-
         private void bindItem(VisualElement e, int i)
         {
-            var item = _atlasTree.GetItemDataForIndex<(string, string)>(i);
-            var id = _atlasTree.GetIdForIndex(i);
-            ((Label)e).text = $"ID {id} - {item.Item1}";
+            var itemData = _atlasTree.GetItemDataForIndex<(string, string, Color, AreaDisplayType)>(i);
+            e.dataSource = new AtlasTreeItemViewModel(itemData);
         }
     }
 }

@@ -1,0 +1,30 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3#ProbeColors" />
+    <ui:VisualElement data-source-type="UI.ViewModels.AtlasTreeItemViewModel, Assembly-CSharp" style="flex-grow: 1; flex-direction: row; align-items: center;">
+        <ui:VisualElement style="flex-grow: 0; width: 24px; height: 24px; flex-basis: auto; background-color: rgb(255, 0, 0); border-top-left-radius: 16px; border-top-right-radius: 16px; border-bottom-right-radius: 16px; border-bottom-left-radius: 16px;">
+            <Bindings>
+                <ui:DataBinding property="style.backgroundColor" data-source-path="Color" binding-mode="ToTarget" />
+            </Bindings>
+        </ui:VisualElement>
+        <Unity.AppUI.UI.Spacer spacing="XL" />
+        <Unity.AppUI.UI.Heading text="ACR" style="color: rgb(255, 0, 0);">
+            <Bindings>
+                <ui:DataBinding property="style.color" data-source-path="Color" binding-mode="ToTarget" />
+                <ui:DataBinding property="text" data-source-path="Acronym" binding-mode="ToTarget" />
+            </Bindings>
+        </Unity.AppUI.UI.Heading>
+        <Unity.AppUI.UI.Spacer spacing="M" />
+        <Unity.AppUI.UI.Heading text="Name">
+            <Bindings>
+                <ui:DataBinding property="text" data-source-path="Name" binding-mode="ToTarget" />
+            </Bindings>
+        </Unity.AppUI.UI.Heading>
+        <Unity.AppUI.UI.Spacer spacing="Expand" />
+        <Unity.AppUI.UI.Icon icon-name="eye" size="L">
+            <Bindings>
+                <ui:DataBinding property="iconName" data-source-path="Icon" binding-mode="ToTarget" />
+                <ui:DataBinding property="style.opacity" data-source-path="Transparency" binding-mode="ToTarget" />
+            </Bindings>
+        </Unity.AppUI.UI.Icon>
+    </ui:VisualElement>
+</ui:UXML>

@@ -35,7 +35,7 @@ namespace Models.Scene
 
         public string AtlasName;
 
-        public List<AreaDisplayType> BrainAreaVisibility = new();
+        public Dictionary<int, AreaDisplayType> BrainAreaVisibility = new();
 
         #endregion
     }

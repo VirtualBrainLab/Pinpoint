@@ -511,14 +511,26 @@ namespace Models.Scene
 
         public static SceneState RotateAreaVisibilityReducer(SceneState state, IAction<int> action)
         {
-            if (state.BrainAreaVisibility.Count == 0)
-                return state;
-            // Rotate the visibility states of all brain areas.
-            var newBrainAreaVisibility = state.BrainAreaVisibility
-                .Select(areaDisplayType => (int)areaDisplayType)
-                .Select(value => (value + action.payload) % Enum.GetValues(typeof(AreaDisplayType)).Length)
-                .Select(value => (AreaDisplayType)value)
-                .ToList();
+            var newBrainAreaVisibility = new Dictionary<int, AreaDisplayType>(state.BrainAreaVisibility);
+            
+            // Get the area ID from the action payload
+            int areaID = action.payload;
+            
+            // If the area doesn't exist in the dictionary, add it with default value (Opaque)
+            if (!newBrainAreaVisibility.ContainsKey(areaID))
+            {
+                newBrainAreaVisibility[areaID] = AreaDisplayType.Opaque;
+            }
+            else
+            {
+                // Rotate the visibility state for this specific area
+                var currentValue = (int)newBrainAreaVisibility[areaID];
+                var rotatedValue = (currentValue + 1) % Enum.GetValues(typeof(AreaDisplayType)).Length;
+                newBrainAreaVisibility[areaID] = (AreaDisplayType)rotatedValue;
+            }
+
+            Debug.Log($"Updated area visibility for {areaID} to {newBrainAreaVisibility[areaID]}");
+            
             return state with
             {
                 BrainAreaVisibility = newBrainAreaVisibility,

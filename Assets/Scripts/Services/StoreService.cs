@@ -89,7 +89,7 @@ namespace Services
                     );
                 }
             );
-            var automationSlice = StoreFactory.CreateSlice(
+            var sceneSlice = StoreFactory.CreateSlice(
                 SliceNames.SCENE_SLICE,
                 initialSceneState,
                 builder =>
@@ -167,7 +167,7 @@ namespace Services
                 }
             );
             Store = StoreFactory.CreateStore(
-                new ISlice<PartitionedState>[] { mainSlice, ephysLinkSlice, automationSlice }
+                new ISlice<PartitionedState>[] { mainSlice, ephysLinkSlice, sceneSlice }
             );
         }
 
