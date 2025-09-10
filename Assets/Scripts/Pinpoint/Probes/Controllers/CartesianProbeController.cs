@@ -837,7 +837,7 @@ public class CartesianProbeController : ProbeController
 #if APP_UI
 
             if (PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE).ActiveProbeName == name)
-                PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_PROBE_POSITION_AND_ANGLES, (name,
+                PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_PROBE_POSITION_AND_ANGLES_BY, (name,
                     targetPosition, targetPosition.w,
                     BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
                         BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(transform.forward)), targetAngles,

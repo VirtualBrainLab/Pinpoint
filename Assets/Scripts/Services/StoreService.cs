@@ -107,13 +107,13 @@ namespace Services
                         .AddCase(SceneActions.SET_ACTIVE_PROBE, SceneReducers.SetActiveProbeReducer)
                         // Probe.
                         .AddCase(
-                            SceneActions.SET_PROBE_POSITION,
-                            SceneReducers.SetProbePositionReducer
+                            SceneActions.SET_PROBE_POSITION_BY,
+                            SceneReducers.SetProbePositionByReducer
                         )
                         .AddCase(SceneActions.SET_PROBE_ANGLES, SceneReducers.SetProbeAnglesReducer)
                         .AddCase(
-                            SceneActions.SET_PROBE_POSITION_AND_ANGLES,
-                            SceneReducers.SetProbePositionAndAnglesReducer
+                            SceneActions.SET_PROBE_POSITION_AND_ANGLES_BY,
+                            SceneReducers.SetProbePositionAndAnglesByReducer
                         )
                         .AddCase(
                             SceneActions.CHANGE_PROBE_POSITION_BY,

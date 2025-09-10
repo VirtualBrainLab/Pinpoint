@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Linq;
 using Models;
 using Models.Scene;
@@ -28,7 +29,10 @@ namespace UI.ViewModels
         private bool _enabled;
 
         [ObservableProperty]
-        private Vector4 _position;
+        private Vector3 _surfaceCoordinate;
+
+        [ObservableProperty]
+        private float _depth;
 
         [ObservableProperty]
         private Vector3 _angles;
@@ -52,6 +56,8 @@ namespace UI.ViewModels
                 OnSceneStateChanged,
                 new SubscribeOptions<SceneState> { fireImmediately = true }
             );
+            PropertyChanged += OnPropertyChanged;
+            App.shuttingDown += OnShuttingDown;
         }
 
         private void OnSceneStateChanged(SceneState sceneState)
@@ -59,28 +65,45 @@ namespace UI.ViewModels
             // Early exit if no active probe.
             if (string.IsNullOrEmpty(sceneState.ActiveProbeName))
             {
-                Enabled = false;
+                Enabled = true;
                 return;
             }
 
             Enabled = true;
 
             // Get depth from probe manager.
-            var (_, depthT) = ProbeManager
+            var (surfaceCoordinateT, depthT) = ProbeManager
                 .Instances.First(manager => manager.name == sceneState.ActiveProbeName)
                 .GetSurfaceCoordinateT();
-            Position = new Vector4(
-                sceneState.ActiveProbeState.APMLDV.x,
-                sceneState.ActiveProbeState.APMLDV.y,
-                sceneState.ActiveProbeState.APMLDV.z,
-                depthT
-            );
+
+            // If the probe is outside the brain (i.e., no valid surface coordinate), use the APMLDV position.
+            if (float.IsNaN(surfaceCoordinateT.x))
+            {
+                SurfaceCoordinate = sceneState.ActiveProbeState.APMLDV;
+            }
+            // Otherwise, use the surface coordinate with depth.
+            else
+            {
+                SurfaceCoordinate = surfaceCoordinateT;
+                Depth = depthT;
+            }
 
             Angles = sceneState.ActiveProbeState.Angles;
 
             Locked = sceneState.ActiveProbeState.Locked;
 
             ProbeColor = sceneState.ActiveProbeState.Color;
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+        }
+
+        private void OnShuttingDown()
+        {
+            _sceneStateSubscription.Dispose();
+            PropertyChanged -= OnPropertyChanged;
+            App.shuttingDown -= OnShuttingDown;
         }
 
         #region Commands

@@ -95,9 +95,9 @@ namespace Models.Scene
 
         #region Probe Reducers
 
-        public static SceneState SetProbePositionReducer(
+        public static SceneState SetProbePositionByReducer(
             SceneState state,
-            IAction<(string Name, Vector3 APMLDV, float Depth, Vector3 ForwardT)> action
+            IAction<(string Name, Vector3 SurfaceAPMLDV, float Depth, Vector3 ForwardT)> action
         )
         {
             // Find the index of the target probe.
@@ -113,7 +113,8 @@ namespace Models.Scene
             // Update the probe immutably using the `with` expression
             probesCopy[index] = probesCopy[index] with
             {
-                APMLDV = action.payload.APMLDV + action.payload.ForwardT * action.payload.Depth,
+                APMLDV =
+                    action.payload.SurfaceAPMLDV + action.payload.ForwardT * action.payload.Depth,
             };
 
             return state with
@@ -156,11 +157,11 @@ namespace Models.Scene
             };
         }
 
-        public static SceneState SetProbePositionAndAnglesReducer(
+        public static SceneState SetProbePositionAndAnglesByReducer(
             SceneState state,
             IAction<(
                 string Name,
-                Vector3 APMLDV,
+                Vector3 SurfaceAPMLDV,
                 float Depth,
                 Vector3 ForwardT,
                 Vector3 Angles,
@@ -188,7 +189,8 @@ namespace Models.Scene
             // Update the probe immutably using the `with` expression
             probesCopy[index] = probesCopy[index] with
             {
-                APMLDV = action.payload.APMLDV + action.payload.ForwardT * action.payload.Depth,
+                APMLDV =
+                    action.payload.SurfaceAPMLDV + action.payload.ForwardT * action.payload.Depth,
                 Angles = pitchClampedAngles,
             };
 
@@ -649,10 +651,10 @@ namespace Models.Scene
 
         public static readonly ActionCreator<(
             string Name,
-            Vector3 APMLDV,
+            Vector3 SurfaceAPMLDV,
             float Depth,
             Vector3 ForwardT
-        )> SET_PROBE_POSITION = $"{SliceNames.SCENE_SLICE}/SetProbePosition";
+        )> SET_PROBE_POSITION_BY = $"{SliceNames.SCENE_SLICE}/SetProbePositionBy";
 
         public static readonly ActionCreator<(
             string Name,
@@ -662,12 +664,13 @@ namespace Models.Scene
 
         public static readonly ActionCreator<(
             string Name,
-            Vector3 APMLDV,
+            Vector3 SurfaceAPMLDV,
             float Depth,
             Vector3 ForwardT,
             Vector3 Angles,
             Vector2 PitchRange
-        )> SET_PROBE_POSITION_AND_ANGLES = $"{SliceNames.SCENE_SLICE}/SetProbePositionAndAngles";
+        )> SET_PROBE_POSITION_AND_ANGLES_BY =
+            $"{SliceNames.SCENE_SLICE}/SetProbePositionAndAnglesBy";
 
         public static readonly ActionCreator<(
             string Name,

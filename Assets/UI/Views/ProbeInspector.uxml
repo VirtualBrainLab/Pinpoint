@@ -6,15 +6,22 @@
         <engine:ScrollView>
             <engine:VisualElement class="inspectorBox inspector-panel">
                 <Unity.AppUI.UI.Heading text="Position &amp; Orientation" size="S" />
-                <Unity.AppUI.UI.Vector4Field tooltip="Probe position" name="probe-inspector__position-field" size="L">
+                <Unity.AppUI.UI.Heading text="Surface Coordinate (µm)" size="XS" />
+                <Unity.AppUI.UI.Vector3Field size="L" tooltip="Surface coordinate (µm)" name="probe-inspector__surface-coordinate-field">
                     <Bindings>
-                        <engine:DataBinding property="value" data-source-path="Position" binding-mode="TwoWay" />
+                        <engine:DataBinding property="value" data-source-path="SurfaceCoordinate" binding-mode="ToTarget" />
                     </Bindings>
-                </Unity.AppUI.UI.Vector4Field>
-                <Unity.AppUI.UI.Divider />
-                <Unity.AppUI.UI.Vector3Field tooltip="Probe orientation" name="probe-inspector__angle-field" size="L">
+                </Unity.AppUI.UI.Vector3Field>
+                <Unity.AppUI.UI.Heading size="XS" text="Depth inside the brain" />
+                <Unity.AppUI.UI.FloatField tooltip="Depth inside the brain" size="L" unit="µm" name="probe-inspector__depth-field">
                     <Bindings>
-                        <engine:DataBinding property="value" data-source-path="Angles" binding-mode="TwoWay" />
+                        <engine:DataBinding property="value" data-source-path="Depth" binding-mode="ToTarget" />
+                    </Bindings>
+                </Unity.AppUI.UI.FloatField>
+                <Unity.AppUI.UI.Heading size="XS" text="Orientation (degrees)" />
+                <Unity.AppUI.UI.Vector3Field tooltip="Orientation (degrees)" name="probe-inspector__angle-field" size="L">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="Angles" binding-mode="ToTarget" />
                     </Bindings>
                 </Unity.AppUI.UI.Vector3Field>
             </engine:VisualElement>

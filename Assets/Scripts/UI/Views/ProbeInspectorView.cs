@@ -2,14 +2,12 @@ using System;
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
 using FloatField = Unity.AppUI.UI.FloatField;
 using Vector3Field = Unity.AppUI.UI.Vector3Field;
-using Vector4Field = Unity.AppUI.UI.Vector4Field;
 
 namespace UI.Views
 {
@@ -24,7 +22,8 @@ namespace UI.Views
             root.dataSource = probeInspectorViewModel;
 
             // Register component references.
-            var positionField = root.Q<Vector4Field>("probe-inspector__position-field");
+            var surfaceCoordinateField = root.Q<Vector3Field>("probe-inspector__surface-coordinate-field");
+            var depthField = root.Q<FloatField>("probe-inspector__depth-field");
             var angleField = root.Q<Vector3Field>("probe-inspector__angle-field");
 
             var lockButton = root.Q<ActionButton>("probe-inspector__lock-button");
@@ -55,10 +54,9 @@ namespace UI.Views
             }
 
             // Apply view customizations.
-            positionField.Q<FloatField>("appui-vector4field__x-field").unit = "AP";
-            positionField.Q<FloatField>("appui-vector4field__y-field").unit = "ML";
-            positionField.Q<FloatField>("appui-vector4field__z-field").unit = "DV";
-            positionField.Q<FloatField>("appui-vector4field__w-field").unit = "Depth";
+            surfaceCoordinateField.Q<FloatField>("appui-vector3field__x-field").unit = "AP";
+            surfaceCoordinateField.Q<FloatField>("appui-vector3field__y-field").unit = "ML";
+            surfaceCoordinateField.Q<FloatField>("appui-vector3field__z-field").unit = "DV";
 
             angleField.Q<FloatField>("appui-vector3field__x-field").unit = "Yaw";
             angleField.Q<FloatField>("appui-vector3field__y-field").unit = "Pitch";
