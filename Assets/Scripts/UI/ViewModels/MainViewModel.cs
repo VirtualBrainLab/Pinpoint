@@ -31,12 +31,6 @@ namespace UI.ViewModels
         [ObservableProperty]
         private int _leftSidePanelTabIndex;
 
-        [ObservableProperty]
-        private Color _activeProbeColor;
-
-        [ObservableProperty]
-        private string _activeProbeName;
-
         #endregion
 
         /// <summary>
@@ -56,11 +50,6 @@ namespace UI.ViewModels
                 OnMainStateChanged,
                 new SubscribeOptions<MainState> { fireImmediately = true }
             );
-            _sceneStateSubscription = storeService.Store.Subscribe(
-                state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
-                OnSceneStateChanged,
-                new SubscribeOptions<SceneState> { fireImmediately = true }
-            );
             PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
         }
@@ -70,12 +59,6 @@ namespace UI.ViewModels
             IsAutomationModeActive = state.IsAutomationModeActive;
             MainSplitViewState = state.MainSplitViewState;
             LeftSidePanelTabIndex = state.LeftSidePanelTabIndex;
-        }
-
-        private void OnSceneStateChanged(SceneState state)
-        {
-            ActiveProbeName = state.ActiveProbeState?.Name[..8] ?? "No Active Probe";
-            ActiveProbeColor = state.ActiveProbeState?.ColorValue ?? Color.gray;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
