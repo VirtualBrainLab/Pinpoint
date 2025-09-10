@@ -87,6 +87,7 @@ namespace UI.ViewModels
             if (float.IsNaN(surfaceCoordinateT.x))
             {
                 SurfaceCoordinate = sceneState.ActiveProbeState.APMLDV;
+                Depth = 0f;
             }
             // Otherwise, use the surface coordinate with depth.
             else
@@ -153,7 +154,10 @@ namespace UI.ViewModels
         }
 
         [ICommand]
-        private void MoveProbeToReferenceCoordinate() { }
+        private void MoveProbeToReferenceCoordinate()
+        {
+            _storeService.Store.Dispatch(SceneActions.SET_PROBE_POSITION, (ActiveProbeName, Vector3.zero));
+        }
 
         [ICommand]
         private void MoveProbeToDura() { }

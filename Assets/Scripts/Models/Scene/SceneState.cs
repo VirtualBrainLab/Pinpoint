@@ -14,6 +14,7 @@ namespace Models.Scene
 
         #region Active Probe
 
+        [NonSerialized]
         public string ActiveProbeName;
 
         // Helper to get the active probe state based on the ActiveProbeName.

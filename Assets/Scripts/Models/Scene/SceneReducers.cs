@@ -94,6 +94,33 @@ namespace Models.Scene
         #endregion
 
         #region Probe Reducers
+        
+        public static SceneState SetProbePositionReducer(
+            SceneState state,
+            IAction<(string Name, Vector3 APMLDV)> action
+        )
+        {
+            // Find the index of the target probe.
+            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+
+            // Exit if the probe is not found.
+            if (index == -1)
+                return state;
+
+            // Create a copy of the probes list
+            var probesCopy = state.Probes.ToList();
+
+            // Update the probe immutably using the `with` expression
+            probesCopy[index] = probesCopy[index] with
+            {
+                APMLDV = action.payload.APMLDV,
+            };
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
 
         public static SceneState SetProbePositionByReducer(
             SceneState state,
@@ -649,6 +676,8 @@ namespace Models.Scene
 
         #region Probe Actions
 
+        public static readonly ActionCreator<(string Name, Vector3 APMLDV)> SET_PROBE_POSITION =
+            $"{SliceNames.SCENE_SLICE}/SetProbePosition";
         public static readonly ActionCreator<(
             string Name,
             Vector3 SurfaceAPMLDV,
