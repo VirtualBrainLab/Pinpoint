@@ -22,11 +22,8 @@ namespace UI.Views
             root.dataSource = probeInspectorViewModel;
 
             // Register component references.
-            var surfaceCoordinateField = root.Q<Vector3Field>(
-                "probe-inspector__surface-coordinate-field"
-            );
-            var depthField = root.Q<FloatField>("probe-inspector__depth-field");
-            var angleField = root.Q<Vector3Field>("probe-inspector__angle-field");
+            var positionField = root.Q<Vector3Field>("probe-inspector__position-field");
+            var anglesField = root.Q<Vector3Field>("probe-inspector__angles-field");
 
             var lockButton = root.Q<ActionButton>("probe-inspector__lock-button");
             var duplicateButton = root.Q<ActionButton>("probe-inspector__duplicate-button");
@@ -38,21 +35,13 @@ namespace UI.Views
             var probeColorButtons = root.Q<VisualElement>("probe-inspector__probe-color-buttons");
 
             // Register event handlers.
-            surfaceCoordinateField.RegisterValueChangedCallback(evt =>
+            positionField.RegisterValueChangedCallback(evt =>
             {
-                probeInspectorViewModel.SetPositionCommand.Execute(
-                    (evt.newValue, probeInspectorViewModel.Depth)
-                );
+                probeInspectorViewModel.SetPositionCommand.Execute(evt.newValue);
             });
-            depthField.RegisterValueChangedCallback(evt =>
+            anglesField.RegisterValueChangedCallback(evt =>
             {
-                probeInspectorViewModel.SetPositionCommand.Execute(
-                    (probeInspectorViewModel.SurfaceCoordinate, evt.newValue)
-                );
-            });
-            angleField.RegisterValueChangedCallback(evt =>
-            {
-                probeInspectorViewModel.SetAnglesCommand.Execute((evt.newValue));
+                probeInspectorViewModel.SetAnglesCommand.Execute(evt.newValue);
             });
             lockButton.clickable.clicked += probeInspectorViewModel.LockProbeCommand.Execute;
             duplicateButton.clickable.clicked += probeInspectorViewModel
@@ -72,13 +61,13 @@ namespace UI.Views
             }
 
             // Apply view customizations.
-            surfaceCoordinateField.Q<FloatField>("appui-vector3field__x-field").unit = "AP";
-            surfaceCoordinateField.Q<FloatField>("appui-vector3field__y-field").unit = "ML";
-            surfaceCoordinateField.Q<FloatField>("appui-vector3field__z-field").unit = "DV";
+            positionField.Q<FloatField>("appui-vector3field__x-field").unit = "AP";
+            positionField.Q<FloatField>("appui-vector3field__y-field").unit = "ML";
+            positionField.Q<FloatField>("appui-vector3field__z-field").unit = "DV";
 
-            angleField.Q<FloatField>("appui-vector3field__x-field").unit = "Yaw";
-            angleField.Q<FloatField>("appui-vector3field__y-field").unit = "Pitch";
-            angleField.Q<FloatField>("appui-vector3field__z-field").unit = "Roll";
+            anglesField.Q<FloatField>("appui-vector3field__x-field").unit = "Yaw";
+            anglesField.Q<FloatField>("appui-vector3field__y-field").unit = "Pitch";
+            anglesField.Q<FloatField>("appui-vector3field__z-field").unit = "Roll";
         }
 
 #if UNITY_EDITOR

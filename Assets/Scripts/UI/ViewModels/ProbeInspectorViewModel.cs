@@ -35,11 +35,9 @@ namespace UI.ViewModels
         [ObservableProperty]
         private bool _enabled;
 
+        // Can be either the tip or surface, depending on settings.
         [ObservableProperty]
-        private Vector3 _surfaceCoordinate;
-
-        [ObservableProperty]
-        private float _depth;
+        private Vector3 _position;
 
         [ObservableProperty]
         private Vector3 _angles;
@@ -78,23 +76,7 @@ namespace UI.ViewModels
 
             Enabled = true;
 
-            // Get depth from probe manager.
-            var (surfaceCoordinateT, depthT) = ProbeManager
-                .Instances.First(manager => manager.name == sceneState.ActiveProbeName)
-                .GetSurfaceCoordinateT();
-
-            // If the probe is outside the brain (i.e., no valid surface coordinate), use the APMLDV position.
-            if (float.IsNaN(surfaceCoordinateT.x))
-            {
-                SurfaceCoordinate = sceneState.ActiveProbeState.APMLDV;
-                Depth = 0f;
-            }
-            // Otherwise, use the surface coordinate with depth.
-            else
-            {
-                SurfaceCoordinate = surfaceCoordinateT;
-                Depth = depthT;
-            }
+            Position = sceneState.ActiveProbeState.APMLDV;
 
             Angles = sceneState.ActiveProbeState.Angles;
 
@@ -115,20 +97,11 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
-        private void SetPosition((Vector3 surfaceCoordinate, float depth) position)
+        private void SetPosition(Vector3 position)
         {
-            // Get the forward vector of the probe.
-            var forwardT = BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
-                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
-                    ProbeManager
-                        .Instances.First(manager => manager.name == ActiveProbeName)
-                        .transform.forward
-                )
-            );
-
             _storeService.Store.Dispatch(
-                SceneActions.SET_PROBE_POSITION_BY,
-                (ActiveProbeName, position.surfaceCoordinate, position.depth, forwardT)
+                SceneActions.SET_PROBE_POSITION,
+                (ActiveProbeName, position)
             );
         }
 
@@ -156,7 +129,10 @@ namespace UI.ViewModels
         [ICommand]
         private void MoveProbeToReferenceCoordinate()
         {
-            _storeService.Store.Dispatch(SceneActions.SET_PROBE_POSITION, (ActiveProbeName, Vector3.zero));
+            _storeService.Store.Dispatch(
+                SceneActions.SET_PROBE_POSITION,
+                (ActiveProbeName, Vector3.zero)
+            );
         }
 
         [ICommand]
