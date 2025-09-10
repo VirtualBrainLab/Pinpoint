@@ -921,7 +921,11 @@ public class ProbeManager : MonoBehaviour
     {
         if (_probeInBrain)
         {
+#if APP_UI
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_PROBE_POSITION, (name, _brainSurfaceCoordT));
+#else
             _probeController.SetProbePosition(_brainSurfaceCoordT);
+#endif
         }
         else
         {
@@ -942,7 +946,11 @@ public class ProbeManager : MonoBehaviour
                 )
             );
 
+#if APP_UI
+            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_PROBE_POSITION, (name, entryCoordAtlasT));
+#else
             _probeController.SetProbePosition(entryCoordAtlasT);
+#endif
         }
     }
 

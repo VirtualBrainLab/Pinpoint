@@ -136,7 +136,10 @@ namespace UI.ViewModels
         }
 
         [ICommand]
-        private void MoveProbeToDura() { }
+        private void MoveProbeToDura()
+        {
+            ProbeManager.Instances.First(manager => manager.name == ActiveProbeName).DropProbeToBrainSurface();
+        }
 
         [ICommand]
         private void SetProbeColor(ProbeColor color)
