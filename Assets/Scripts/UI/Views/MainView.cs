@@ -1,7 +1,6 @@
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Button = Unity.AppUI.UI.Button;
@@ -96,8 +95,6 @@ namespace UI.Views
 
             // Initialize view from view model state.
             mainSplitView.RestoreState(mainViewModel.MainSplitViewState);
-            var modal = Modal.Build(Root, new Label("Hello World!"));
-            modal.Show();
 
 #if !APP_UI
             // Hide the new UI if the directive is not enabled.

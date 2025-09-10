@@ -1,4 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="Settings" src="project://database/Assets/UI/Views/Settings.uxml?fileID=9197481963319205126&amp;guid=f54ae45c39b925246b2d8d6f574b23bf&amp;type=3#Settings" />
     <ui:Template name="Scene" src="project://database/Assets/UI/Views/Scene.uxml?fileID=9197481963319205126&amp;guid=335b879c4b992f24bbb0951447e39262&amp;type=3#Scene" />
     <ui:Template name="Atlas" src="project://database/Assets/UI/Views/Atlas.uxml?fileID=9197481963319205126&amp;guid=9c87ec2a39db64e41ac639d9d458023a&amp;type=3#Atlas" />
     <ui:Template name="Inspector" src="project://database/Assets/UI/Views/ProbeInspector.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#ProbeInspector" />
@@ -9,13 +10,21 @@
             <Unity.AppUI.UI.Pane class="side-panel">
                 <ui:VisualElement style="flex-direction: row;">
                     <Unity.AppUI.UI.MenuTrigger>
-                        <Unity.AppUI.UI.ActionButton label="File" />
+                        <Unity.AppUI.UI.ActionButton label="File" icon="file" />
                         <Unity.AppUI.UI.Menu>
                             <Unity.AppUI.UI.MenuItem label="Save" />
                             <Unity.AppUI.UI.MenuItem label="Load" />
                         </Unity.AppUI.UI.Menu>
                     </Unity.AppUI.UI.MenuTrigger>
-                    <Unity.AppUI.UI.Toggle label="Automation Mode">
+                    <Unity.AppUI.UI.Spacer />
+                    <Unity.AppUI.UI.DialogTrigger>
+                        <Unity.AppUI.UI.ActionButton label="Settings" icon="gear" />
+                        <Unity.AppUI.UI.Dialog title="Settings" size="L" dismissable="true">
+                            <ui:Instance template="Settings" name="settings-view" style="flex-grow: 1; height: 500px;" />
+                        </Unity.AppUI.UI.Dialog>
+                    </Unity.AppUI.UI.DialogTrigger>
+                    <Unity.AppUI.UI.Spacer />
+                    <Unity.AppUI.UI.Toggle label="Automation">
                         <Bindings>
                             <ui:DataBinding property="value" data-source-path="IsAutomationModeActive" binding-mode="TwoWay" />
                         </Bindings>
