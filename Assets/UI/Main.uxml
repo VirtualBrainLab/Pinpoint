@@ -1,10 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="Scene" src="project://database/Assets/UI/Views/Scene.uxml?fileID=9197481963319205126&amp;guid=335b879c4b992f24bbb0951447e39262&amp;type=3#Scene" />
     <ui:Template name="Atlas" src="project://database/Assets/UI/Views/Atlas.uxml?fileID=9197481963319205126&amp;guid=9c87ec2a39db64e41ac639d9d458023a&amp;type=3#Atlas" />
-    <ui:Template name="Inspector" src="project://database/Assets/UI/Views/Inspector.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#Inspector" />
+    <ui:Template name="Inspector" src="project://database/Assets/UI/Views/ProbeInspector.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#ProbeInspector" />
     <ui:Template name="Automation" src="project://database/Assets/UI/Views/Automation.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#Automation" />
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
-    <Unity.AppUI.UI.Panel picking-mode="Ignore" data-source-type="Models.MainState, Assembly-CSharp" style="background-color: rgba(29, 29, 29, 0);">
+    <Unity.AppUI.UI.Panel picking-mode="Ignore" data-source-type="UI.ViewModels.MainViewModel, Assembly-CSharp" style="background-color: rgba(29, 29, 29, 0);">
         <Unity.AppUI.UI.SplitView show-expand-buttons="true" name="main-split-view" style="flex-grow: 1;">
             <Unity.AppUI.UI.Pane class="side-panel">
                 <ui:VisualElement style="flex-direction: row;">
@@ -31,7 +31,7 @@
                         <ui:DataBinding property="value" data-source-path="LeftSidePanelTabIndex" binding-mode="TwoWay" />
                     </Bindings>
                 </Unity.AppUI.UI.Tabs>
-                <Unity.AppUI.UI.SwipeView swipeable="false" style="flex-grow: 1;" value="0">
+                <Unity.AppUI.UI.SwipeView swipeable="false" value="0" style="flex-grow: 1;">
                     <Unity.AppUI.UI.SwipeViewItem>
                         <ui:Instance template="Scene" name="scene-view" style="flex-grow: 1; width: 100%;" />
                     </Unity.AppUI.UI.SwipeViewItem>
@@ -54,15 +54,7 @@
                         </Bindings>
                     </Unity.AppUI.UI.Heading>
                 </ui:VisualElement>
-                <ui:VisualElement template="ProbeLabel" style="flex-direction: row; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
-                    <ui:VisualElement style="flex-grow: 0; width: 40px; height: 40px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); background-color: rgb(52, 172, 224); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 10px;">
-                        <Bindings>
-                            <ui:DataBinding property="style.backgroundColor" data-source-path="ActiveProbeColor" binding-mode="ToTarget" />
-                        </Bindings>
-                    </ui:VisualElement>
-                    <Unity.AppUI.UI.Heading size="S" text="No Probe Selected" />
-                </ui:VisualElement>
-                <ui:Instance template="Inspector" name="inspector-view" style="flex-grow: 1;">
+                <ui:Instance template="Inspector" name="probe-inspector-view" style="flex-grow: 1;">
                     <Bindings>
                         <ui:DataBinding property="style.display" data-source-path="IsAutomationModeActive" binding-mode="ToTarget" source-to-ui-converters="BooleanToInspectorVisibility" />
                     </Bindings>

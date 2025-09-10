@@ -2,7 +2,6 @@ using Services;
 using UI.ViewModels;
 using UI.Views;
 using Unity.AppUI.MVVM;
-using UnityEngine.UIElements;
 
 namespace UI
 {
@@ -39,8 +38,9 @@ namespace UI
             builder.services.AddSingleton<MainViewModel>();
             builder.services.AddSingleton<SceneViewModel>();
             builder.services.AddSingleton<AtlasViewModel>();
-            builder.services.AddSingleton<AutomationViewModel>();
+            builder.services.AddSingleton<ProbeInspectorViewModel>();
             builder.services.AddSingleton<EphysLinkViewModel>();
+            builder.services.AddSingleton<AutomationViewModel>();
 
             // Views.
             builder.services.AddSingleton<MainView>();

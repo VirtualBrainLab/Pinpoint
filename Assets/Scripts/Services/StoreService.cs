@@ -6,21 +6,21 @@ using Unity.AppUI.Redux;
 namespace Services
 {
     /// <summary>
-    /// Provides access to the application's Redux store implementation.
-    /// Handles initialization and persistence of application state using local storage.
+    ///     Provides access to the application's Redux store implementation.
+    ///     Handles initialization and persistence of application state using local storage.
     /// </summary>
     public class StoreService
     {
         private readonly LocalStorageService _localStorageService;
 
         /// <summary>
-        /// Gets the Redux store instance for partitioned application state.
+        ///     Gets the Redux store instance for partitioned application state.
         /// </summary>
         public IStore<PartitionedState> Store { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StoreService"/> class.
-        /// Loads initial state from local storage and configures the Redux store.
+        ///     Initializes a new instance of the <see cref="StoreService" /> class.
+        ///     Loads initial state from local storage and configures the Redux store.
         /// </summary>
         /// <param name="localStorageService">The local storage service for state persistence.</param>
         public StoreService(LocalStorageService localStorageService)
@@ -97,20 +97,28 @@ namespace Services
                     builder
                         // Probe list.
                         .AddCase(SceneActions.ADD_PROBE, SceneReducers.AddProbeReducer)
+                        .AddCase(SceneActions.DUPLICATE_PROBE, SceneReducers.DuplicateProbeReducer)
                         .AddCase(SceneActions.REMOVE_PROBE, SceneReducers.RemoveProbeReducer)
                         .AddCase(
                             SceneActions.REMOVE_ALL_PROBES,
                             SceneReducers.RemoveAllProbesReducer
                         )
                         // Active Probe.
-                        .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE,
-                            SceneReducers.SetActiveProbeReducer
-                        )
+                        .AddCase(SceneActions.SET_ACTIVE_PROBE, SceneReducers.SetActiveProbeReducer)
                         // Probe.
-                        .AddCase(SceneActions.SET_PROBE_POSITION, SceneReducers.SetProbePositionReducer)
+                        .AddCase(
+                            SceneActions.SET_PROBE_POSITION,
+                            SceneReducers.SetProbePositionReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_PROBE_POSITION_BY,
+                            SceneReducers.SetProbePositionByReducer
+                        )
                         .AddCase(SceneActions.SET_PROBE_ANGLES, SceneReducers.SetProbeAnglesReducer)
-                        .AddCase(SceneActions.SET_PROBE_POSITION_AND_ANGLES, SceneReducers.SetProbePositionAndAnglesReducer)
+                        .AddCase(
+                            SceneActions.SET_PROBE_POSITION_AND_ANGLES_BY,
+                            SceneReducers.SetProbePositionAndAnglesByReducer
+                        )
                         .AddCase(
                             SceneActions.CHANGE_PROBE_POSITION_BY,
                             SceneReducers.ChangeProbePositionByReducer
@@ -119,6 +127,8 @@ namespace Services
                             SceneActions.CHANGE_PROBE_ANGLES_BY,
                             SceneReducers.ChangeProbeAnglesByReducer
                         )
+                        .AddCase(SceneActions.SET_PROBE_COLOR, SceneReducers.SetProbeColorReducer)
+                        .AddCase(SceneActions.SET_PROBE_LOCKED, SceneReducers.SetProbeLockedReducer)
                         // Automation.
                         .AddCase(
                             SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,
@@ -172,7 +182,7 @@ namespace Services
         }
 
         /// <summary>
-        /// Saves the chosen slices to local storage.
+        ///     Saves the chosen slices to local storage.
         /// </summary>
         public void Save()
         {

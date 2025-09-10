@@ -1,0 +1,83 @@
+#probe-inspector__probe-color-buttons Icon {
+    --unity-image-tint-color: black;
+}
+
+#probe-inspector__probe-color-button--dark-blue {
+    background-color: var(--pinpoint-probe-color-dark-blue);
+}
+
+#probe-inspector__probe-color-button--light-blue {
+    background-color: var(--pinpoint-probe-color-light-blue);
+}
+
+#probe-inspector__probe-color-button--dark-orange {
+    background-color: var(--pinpoint-probe-color-dark-orange);
+}
+
+#probe-inspector__probe-color-button--light-orange {
+    background-color: var(--pinpoint-probe-color-light-orange);
+}
+
+#probe-inspector__probe-color-button--dark-green {
+    background-color: var(--pinpoint-probe-color-dark-green);
+}
+
+#probe-inspector__probe-color-button--light-green {
+    background-color: var(--pinpoint-probe-color-light-green);
+}
+
+#probe-inspector__probe-color-button--dark-red {
+    background-color: var(--pinpoint-probe-color-dark-red);
+}
+
+#probe-inspector__probe-color-button--light-red {
+    background-color: var(--pinpoint-probe-color-light-red);
+}
+
+#probe-inspector__probe-color-button--dark-purple {
+    background-color: var(--pinpoint-probe-color-dark-purple);
+}
+
+#probe-inspector__probe-color-button--light-purple {
+    background-color: var(--pinpoint-probe-color-light-purple);
+}
+
+#probe-inspector__probe-color-button--dark-brown {
+    background-color: var(--pinpoint-probe-color-dark-brown);
+}
+
+#probe-inspector__probe-color-button--light-brown {
+    background-color: var(--pinpoint-probe-color-light-brown);
+}
+
+#probe-inspector__probe-color-button--dark-pink {
+    background-color: var(--pinpoint-probe-color-dark-pink);
+}
+
+#probe-inspector__probe-color-button--light-pink {
+    background-color: var(--pinpoint-probe-color-light-pink);
+}
+
+#probe-inspector__probe-color-button--dark-gray {
+    background-color: var(--pinpoint-probe-color-dark-gray);
+}
+
+#probe-inspector__probe-color-button--light-gray {
+    background-color: var(--pinpoint-probe-color-light-gray);
+}
+
+#probe-inspector__probe-color-button--lively-laugh {
+    background-color: var(--pinpoint-probe-color-lively-laugh);
+}
+
+#probe-inspector__probe-color-button--dark-cyan {
+    background-color: var(--pinpoint-probe-color-dark-cyan);
+}
+
+#probe-inspector__probe-color-button--light-cyan {
+    background-color: var(--pinpoint-probe-color-light-cyan);
+}
+
+#appui-radio__checkmark {
+    background-color: rgb(0, 0, 0);
+}
