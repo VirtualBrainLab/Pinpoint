@@ -85,6 +85,11 @@ namespace UI.Views
                     (ref ProbeColor probeColor) => probeColor == color ? "check" : ""
                 );
             }
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "LockStateToEnabled",
+                (ref bool locked) => !locked
+            );
         }
     }
 }

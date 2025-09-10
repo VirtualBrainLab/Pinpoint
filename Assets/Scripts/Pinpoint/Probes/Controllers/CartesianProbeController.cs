@@ -336,6 +336,9 @@ public class CartesianProbeController : ProbeController
         
         // Update surface coordinates.
         ProbeManager.UpdateSurfacePosition();
+        
+        // Update lock state.
+        SetControllerLock(state.Locked);
     }
 
     #endregion
