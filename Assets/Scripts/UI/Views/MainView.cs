@@ -1,7 +1,6 @@
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Button = Unity.AppUI.UI.Button;

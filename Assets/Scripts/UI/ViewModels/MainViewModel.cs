@@ -16,7 +16,6 @@ namespace UI.ViewModels
 
         private readonly StoreService _storeService;
         private readonly IDisposableSubscription _mainStateSubscription;
-        private readonly IDisposableSubscription _sceneStateSubscription;
 
         #endregion
 
@@ -78,7 +77,6 @@ namespace UI.ViewModels
         {
             _storeService.Save();
             _mainStateSubscription.Dispose();
-            _sceneStateSubscription.Dispose();
             App.shuttingDown -= OnShuttingDown;
         }
 
