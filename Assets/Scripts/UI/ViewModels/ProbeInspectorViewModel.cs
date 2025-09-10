@@ -1,5 +1,7 @@
 using System.ComponentModel;
 using System.Linq;
+using System.Xml;
+using BrainAtlas;
 using Models;
 using Models.Scene;
 using Services;
@@ -13,6 +15,11 @@ namespace UI.ViewModels
     [ObservableObject]
     public partial class ProbeInspectorViewModel
     {
+        #region Constants
+
+        private readonly Vector2 _pitchRange = new Vector2(0, 90);
+
+        #endregion
         #region Services
 
         private readonly StoreService _storeService;
@@ -65,7 +72,7 @@ namespace UI.ViewModels
             // Early exit if no active probe.
             if (string.IsNullOrEmpty(sceneState.ActiveProbeName))
             {
-                Enabled = true;
+                Enabled = false;
                 return;
             }
 
@@ -95,9 +102,7 @@ namespace UI.ViewModels
             ProbeColor = sceneState.ActiveProbeState.Color;
         }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-        }
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) { }
 
         private void OnShuttingDown()
         {
@@ -107,6 +112,33 @@ namespace UI.ViewModels
         }
 
         #region Commands
+
+        [ICommand]
+        private void SetPosition((Vector3 surfaceCoordinate, float depth) position)
+        {
+            // Get the forward vector of the probe.
+            var forwardT = BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
+                    ProbeManager
+                        .Instances.First(manager => manager.name == ActiveProbeName)
+                        .transform.forward
+                )
+            );
+
+            _storeService.Store.Dispatch(
+                SceneActions.SET_PROBE_POSITION_BY,
+                (ActiveProbeName, position.surfaceCoordinate, position.depth, forwardT)
+            );
+        }
+
+        [ICommand]
+        private void SetAngles(Vector3 angles)
+        {
+            _storeService.Store.Dispatch(
+                SceneActions.SET_PROBE_ANGLES,
+                (ActiveProbeName, angles, _pitchRange)
+            );
+        }
 
         [ICommand]
         private void LockProbe()

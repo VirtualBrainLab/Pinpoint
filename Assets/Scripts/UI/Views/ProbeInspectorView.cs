@@ -22,7 +22,9 @@ namespace UI.Views
             root.dataSource = probeInspectorViewModel;
 
             // Register component references.
-            var surfaceCoordinateField = root.Q<Vector3Field>("probe-inspector__surface-coordinate-field");
+            var surfaceCoordinateField = root.Q<Vector3Field>(
+                "probe-inspector__surface-coordinate-field"
+            );
             var depthField = root.Q<FloatField>("probe-inspector__depth-field");
             var angleField = root.Q<Vector3Field>("probe-inspector__angle-field");
 
@@ -36,6 +38,22 @@ namespace UI.Views
             var probeColorButtons = root.Q<VisualElement>("probe-inspector__probe-color-buttons");
 
             // Register event handlers.
+            surfaceCoordinateField.RegisterValueChangedCallback(evt =>
+            {
+                probeInspectorViewModel.SetPositionCommand.Execute(
+                    (evt.newValue, probeInspectorViewModel.Depth)
+                );
+            });
+            depthField.RegisterValueChangedCallback(evt =>
+            {
+                probeInspectorViewModel.SetPositionCommand.Execute(
+                    (probeInspectorViewModel.SurfaceCoordinate, evt.newValue)
+                );
+            });
+            angleField.RegisterValueChangedCallback(evt =>
+            {
+                probeInspectorViewModel.SetAnglesCommand.Execute((evt.newValue));
+            });
             lockButton.clickable.clicked += probeInspectorViewModel.LockProbeCommand.Execute;
             duplicateButton.clickable.clicked += probeInspectorViewModel
                 .DuplicateProbeCommand
@@ -50,7 +68,7 @@ namespace UI.Views
             {
                 var indexToProbeColor = (ProbeColor)i;
                 probeColorButtons.Query<Button>().AtIndex(i).clickable.clicked += () =>
-                probeInspectorViewModel.SetProbeColorCommand.Execute(indexToProbeColor);
+                    probeInspectorViewModel.SetProbeColorCommand.Execute(indexToProbeColor);
             }
 
             // Apply view customizations.
