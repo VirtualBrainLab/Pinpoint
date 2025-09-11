@@ -6,6 +6,9 @@ namespace Models.Settings
     {
         public static SettingsState SetTabIndexReducer(SettingsState state, IAction<int> action)
         {
+            // Ignore if the payload is negative (invalid tab index).
+            if (action.payload < 0)
+                return state;
             return state with { TabIndex = action.payload };
         }
     }
