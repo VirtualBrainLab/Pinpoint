@@ -1,5 +1,4 @@
 using Models;
-using Models.Automation;
 using Models.Scene;
 using Models.Settings;
 using Unity.AppUI.Redux;
@@ -41,10 +40,6 @@ namespace Services
                 SliceNames.SETTINGS_SLICE,
                 new SettingsState()
             );
-            var initialEphysLinkState = _localStorageService.GetValue(
-                SliceNames.EPHYS_LINK_SLICE,
-                new EphysLinkState()
-            );
 
             // Initialize the Redux store.
             var mainSlice = StoreFactory.CreateSlice(
@@ -65,33 +60,6 @@ namespace Services
                             MainActions.SET_LEFT_SIDE_PANEL_TAB_INDEX,
                             MainReducers.SetLeftSidePanelTabIndexReducer
                         );
-                }
-            );
-            var ephysLinkSlice = StoreFactory.CreateSlice(
-                SliceNames.EPHYS_LINK_SLICE,
-                initialEphysLinkState,
-                builder =>
-                {
-                    builder.AddCase(
-                        EphysLinkActions.SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE,
-                        EphysLinkReducers.SetSelectedEphysLinkPlatformTypeReducer
-                    );
-                    builder.AddCase(
-                        EphysLinkActions.SET_NEW_SCALE_PATHFINDER_MPM_PORT,
-                        EphysLinkReducers.SetNewScalePathfinderMpmPortReducer
-                    );
-                    builder.AddCase(
-                        EphysLinkActions.SET_CUSTOM_SERVER_IP_ADDRESS,
-                        EphysLinkReducers.SetCustomServerIpAddressReducer
-                    );
-                    builder.AddCase(
-                        EphysLinkActions.SET_CUSTOM_SERVER_PORT,
-                        EphysLinkReducers.SetCustomServerPortReducer
-                    );
-                    builder.AddCase(
-                        EphysLinkActions.SET_CONNECTION_STATE,
-                        EphysLinkReducers.SetConnectionStateReducer
-                    );
                 }
             );
             var sceneSlice = StoreFactory.CreateSlice(
@@ -186,20 +154,33 @@ namespace Services
                 initialSettingsState,
                 builder =>
                 {
-                    builder.AddCase(
-                        SettingsActions.SET_TAB_INDEX,
-                        SettingsReducers.SetTabIndexReducer
-                    );
+                    builder
+                        .AddCase(SettingsActions.SET_TAB_INDEX, SettingsReducers.SetTabIndexReducer)
+                        // Ephys Link.
+                        .AddCase(
+                            SettingsActions.SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE,
+                            SettingsReducers.SetSelectedEphysLinkPlatformTypeReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_NEW_SCALE_PATHFINDER_MPM_PORT,
+                            SettingsReducers.SetNewScalePathfinderMpmPortReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_CUSTOM_SERVER_IP_ADDRESS,
+                            SettingsReducers.SetCustomServerIpAddressReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_CUSTOM_SERVER_PORT,
+                            SettingsReducers.SetCustomServerPortReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_CONNECTION_STATE,
+                            SettingsReducers.SetConnectionStateReducer
+                        );
                 }
             );
             Store = StoreFactory.CreateStore(
-                new ISlice<PartitionedState>[]
-                {
-                    mainSlice,
-                    ephysLinkSlice,
-                    sceneSlice,
-                    settingsSlice
-                }
+                new ISlice<PartitionedState>[] { mainSlice, sceneSlice, settingsSlice }
             );
         }
 
@@ -220,10 +201,10 @@ namespace Services
                 Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
             );
 
-            // Ephys link state.
+            // Settings state.
             _localStorageService.SetValue(
-                SliceNames.EPHYS_LINK_SLICE,
-                Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE)
+                SliceNames.SETTINGS_SLICE,
+                Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE)
             );
         }
     }
