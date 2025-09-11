@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using UnityEngine;
+using Utils.Types;
 
 namespace Models.Settings
 {
@@ -67,19 +69,18 @@ namespace Models.Settings
 
         #endregion
 
-        #region Ephys Link Settings
+        #region Ephys Link
 
-        public int EphysLinkManipulatorType = 0;
+        public EphysLinkPlatformType SelectedEphysLinkPlatformType;
 
-        public int EphysLinkPathfinderPort = 8080;
+        public int NewScalePathfinderMpmPort = 8080;
 
-        public string EphysLinkServerIp = "";
+        public string CustomServerIpAddress = "localhost";
 
-        public int EphysLinkServerPort = 8081;
+        public int CustomServerPort = 3000;
 
-        public string EphysLinkProxyAddress = "";
-
-        public string EphysLinkRightHandedManipulators = "";
+        [NonSerialized]
+        public EphysLinkConnectionState ConnectionState;
 
         #endregion
 
