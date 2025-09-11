@@ -46,6 +46,10 @@ namespace UI
 
             // Views.
             builder.services.AddSingleton<MainView>();
+            builder.services.AddSingleton<SceneView>();
+            builder.services.AddSingleton<AtlasView>();
+            builder.services.AddSingleton<SettingsView>();
+            builder.services.AddSingleton<ProbeInspectorView>();
         }
     }
 }

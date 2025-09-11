@@ -19,8 +19,11 @@ namespace UI.Views
 
         private readonly SceneViewModel _sceneViewModel;
 
-        public SceneView(TemplateContainer root, SceneViewModel sceneViewModel)
+        public SceneView(SceneViewModel sceneViewModel)
         {
+            // Get root visual element.
+            var root = PinpointApp.RootVisualElement.Q<TemplateContainer>("scene-view");
+            
             // Register view model and property changes.
             _sceneViewModel = sceneViewModel;
             _sceneViewModel.PropertyChanged += OnPropertyChanged;

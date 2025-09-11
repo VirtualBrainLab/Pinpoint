@@ -32,8 +32,7 @@ namespace UI.Views
 
         public AutomationView(
             TemplateContainer root,
-            AutomationViewModel automationViewModel,
-            EphysLinkViewModel ephysLinkViewModel
+            AutomationViewModel automationViewModel
         )
         {
             // _automationViewModel = automationViewModel;
@@ -51,7 +50,7 @@ namespace UI.Views
             // _insertionStopButton = root.Q<Button>("insertion__stop-button");
 
             // Initialize subviews.
-            _ = new EphysLinkView(root.Q<TemplateContainer>("ephys-link-view"), ephysLinkViewModel);
+            // _ = new EphysLinkView(root.Q<TemplateContainer>("ephys-link-view"), ephysLinkViewModel);
 
             // // Edit default components.
             // var referenceCoordinateDepthLabel = root.Q<FloatField>("unity-w-input").Q<Label>();

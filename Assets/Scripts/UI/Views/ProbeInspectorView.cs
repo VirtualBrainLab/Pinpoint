@@ -13,11 +13,10 @@ namespace UI.Views
 {
     public class ProbeInspectorView
     {
-        public ProbeInspectorView(
-            TemplateContainer root,
-            ProbeInspectorViewModel probeInspectorViewModel
-        )
+        public ProbeInspectorView(ProbeInspectorViewModel probeInspectorViewModel)
         {
+            var root = PinpointApp.RootVisualElement.Q<TemplateContainer>("probe-inspector-view");
+
             // Register view model and property changes.
             root.dataSource = probeInspectorViewModel;
 

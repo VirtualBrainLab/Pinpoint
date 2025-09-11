@@ -152,7 +152,7 @@ namespace UI.ViewModels
                             };
                             alertDialog.SetCancelAction(0, "OK");
                             var presentationModal = Modal.Build(
-                                PinpointApp.Current.rootVisualElement,
+                                PinpointApp.RootVisualElement,
                                 alertDialog
                             );
                             presentationModal.Show();
@@ -183,7 +183,7 @@ namespace UI.ViewModels
                             };
                             alertDialog.SetCancelAction(0, "OK");
                             var presentationModal = Modal.Build(
-                                PinpointApp.Current.rootVisualElement,
+                                PinpointApp.RootVisualElement,
                                 alertDialog
                             );
                             presentationModal.Show();
@@ -214,7 +214,7 @@ namespace UI.ViewModels
             };
             alertDialog.SetPrimaryAction(1, "Disconnect", () => _ephysLinkService.Disconnect());
             alertDialog.SetCancelAction(0, "Cancel");
-            var presentationModal = Modal.Build(PinpointApp.Current.rootVisualElement, alertDialog);
+            var presentationModal = Modal.Build(PinpointApp.RootVisualElement, alertDialog);
             presentationModal.Show();
         }
 

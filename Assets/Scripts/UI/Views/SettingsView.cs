@@ -5,9 +5,10 @@ namespace UI.Views
 {
     public class SettingsView
     {
-        public SettingsView(TemplateContainer root, SettingsViewModel settingsViewModel)
+        public SettingsView(SettingsViewModel settingsViewModel)
         {
-            root.dataSource = settingsViewModel;
+            PinpointApp.RootVisualElement.Q<TemplateContainer>("settings-view").dataSource =
+                settingsViewModel;
         }
     }
 }

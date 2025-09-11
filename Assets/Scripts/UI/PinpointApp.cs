@@ -1,8 +1,10 @@
+using System;
 using System.Linq;
 using Services;
 using UI.Views;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
+using UnityEngine.UIElements;
 
 namespace UI
 {
@@ -12,17 +14,14 @@ namespace UI
     /// </summary>
     public class PinpointApp : App
     {
-        /// <summary>
-        /// Gets the current instance of <see cref="PinpointApp"/>.
-        /// </summary>
-        public static PinpointApp Current => (PinpointApp)current;
+        #region Static Accessors
 
-        #region Static Service Accessors
+        public static IServiceProvider Services => current.services;
+
+        public static VisualElement RootVisualElement => current.rootVisualElement;
 
         public static IStore<PartitionedState> StoreServiceStore =>
-            Current.services.GetRequiredService<StoreService>().Store;
-
-        public static MainView MainView => Current.services.GetRequiredService<MainView>();
+            Services.GetRequiredService<StoreService>().Store;
 
         #endregion
 
@@ -39,7 +38,7 @@ namespace UI
                 .First();
 
             // Instantiate the main view.
-            services.GetRequiredService<MainView>();
+            _ = services.GetRequiredService<MainView>();
         }
     }
 }

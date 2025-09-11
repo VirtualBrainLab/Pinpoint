@@ -1,4 +1,5 @@
 using UI.ViewModels;
+using Unity.AppUI.MVVM;
 using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEngine.UIElements;
@@ -33,24 +34,10 @@ namespace UI.Views
         /// Sets up UI document, component references, and event bindings.
         /// </summary>
         /// <param name="mainViewModel">The view model to bind to.</param>
-        /// <param name="ephysLinkViewModel">Ephys Link view model to pass to the automation view.</param>
-        /// <param name="sceneViewModel">Scene view model to pass to the scene hierarchy view.</param>
-        /// <param name="atlasViewModel">Atlas view model to pass to the atlas view.</param>
-        /// <param name="settingsViewModel">Settings view model to pass to the settings view.</param>
-        /// <param name="probeInspectorViewModel">Probe inspector view model to pass to the probe inspector view.</param>
-        /// <param name="automationViewModel">Automation view model to pass to the automation view.</param>
-        public MainView(
-            MainViewModel mainViewModel,
-            EphysLinkViewModel ephysLinkViewModel,
-            SceneViewModel sceneViewModel,
-            AtlasViewModel atlasViewModel,
-            SettingsViewModel settingsViewModel,
-            ProbeInspectorViewModel probeInspectorViewModel,
-            AutomationViewModel automationViewModel
-        )
+        public MainView(MainViewModel mainViewModel)
         {
             // Get root element.
-            Root = PinpointApp.Current.rootVisualElement;
+            Root = PinpointApp.RootVisualElement;
 
             // Get view model and register property changes and bindings.
             Root.dataSource = mainViewModel;
@@ -62,18 +49,10 @@ namespace UI.Views
             var leftSidePanelTabs = Root.Q<Tabs>("left-side-panel__tabs");
 
             // Initialize subviews.
-            _ = new SceneView(Root.Q<TemplateContainer>("scene-view"), sceneViewModel);
-            _ = new AtlasView(Root.Q<TemplateContainer>("atlas-view"), atlasViewModel);
-            _ = new SettingsView(Root.Q<TemplateContainer>("settings-view"), settingsViewModel);
-            _ = new ProbeInspectorView(
-                Root.Q<TemplateContainer>("probe-inspector-view"),
-                probeInspectorViewModel
-            );
-            _ = new AutomationView(
-                Root.Q<TemplateContainer>("automation-view"),
-                automationViewModel,
-                ephysLinkViewModel
-            );
+            _ = PinpointApp.Services.GetRequiredService<SceneView>();
+            _ = PinpointApp.Services.GetRequiredService<AtlasView>();
+            _ = PinpointApp.Services.GetRequiredService<SettingsView>();
+            _ = PinpointApp.Services.GetRequiredService<ProbeInspectorView>();
 
             // Register event handlers.
             leftSidePanelCollapseButton.clickable.clicked += () =>

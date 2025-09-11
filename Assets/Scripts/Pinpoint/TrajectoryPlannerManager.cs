@@ -221,7 +221,7 @@ namespace TrajectoryPlanner
             SetBLUI();
 
             StartupEvent_RefAtlasLoaded.Invoke();
-            PinpointApp.Current.services.GetRequiredService<AtlasViewModel>().LoadAtlasDataCommand.Execute();
+            PinpointApp.Services.GetRequiredService<AtlasViewModel>().LoadAtlasDataCommand.Execute();
 
             StartupEvent_AnnotationTextureLoaded.Invoke(BrainAtlasManager.ActiveReferenceAtlas.AnnotationTexture);
 
