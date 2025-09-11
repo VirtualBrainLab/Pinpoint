@@ -15,7 +15,7 @@
             </Unity.AppUI.UI.IntField>
             <Unity.AppUI.UI.Divider />
             <Bindings>
-                <ui:DataBinding property="style.display" data-source-path="SelectedPlatformType" binding-mode="ToTarget" source-to-ui-converters="PlatformTypeToPathfinderMPMHTTPServerConnectionVisibility" />
+                <ui:DataBinding property="style.display" data-source-path="SelectedPlatformType" binding-mode="ToTarget" source-to-ui-converters="EphysLinkPlatformTypeToPathfinderMPMHTTPServerConnectionVisibility" />
             </Bindings>
         </ui:VisualElement>
         <ui:VisualElement>
@@ -33,22 +33,22 @@
             </Unity.AppUI.UI.IntField>
             <Unity.AppUI.UI.Divider />
             <Bindings>
-                <ui:DataBinding property="style.display" data-source-path="SelectedPlatformType" binding-mode="ToTarget" source-to-ui-converters="PlatformTypeToCustomServerConnectionVisibility" />
+                <ui:DataBinding property="style.display" data-source-path="SelectedPlatformType" binding-mode="ToTarget" source-to-ui-converters="EphysLinkPlatformTypeToCustomServerConnectionVisibility" />
             </Bindings>
         </ui:VisualElement>
         <Unity.AppUI.UI.Button title="Connect" name="ephys-link__connect-button" variant="Default" quiet="false">
             <Bindings>
-                <ui:DataBinding property="style.display" data-source-path="ConnectionState" binding-mode="ToTarget" source-to-ui-converters="ConnectionStateToConnectButtonVisibility" />
+                <ui:DataBinding property="style.display" data-source-path="EphysLinkConnectionState" binding-mode="ToTarget" source-to-ui-converters="EphysLinkConnectionStateToConnectButtonVisibility" />
             </Bindings>
         </Unity.AppUI.UI.Button>
         <Unity.AppUI.UI.LinearProgress size="M" style="display: none;">
             <Bindings>
-                <ui:DataBinding property="style.display" data-source-path="ConnectionState" binding-mode="ToTarget" source-to-ui-converters="ConnectionStateToConnectingProgressVisibility" />
+                <ui:DataBinding property="style.display" data-source-path="EphysLinkConnectionState" binding-mode="ToTarget" source-to-ui-converters="EphysLinkConnectionStateToConnectingProgressVisibility" />
             </Bindings>
         </Unity.AppUI.UI.LinearProgress>
         <Unity.AppUI.UI.Button title="Disconnect" name="ephys-link__disconnect-button" variant="Destructive" style="display: none;">
             <Bindings>
-                <ui:DataBinding property="style.display" data-source-path="ConnectionState" binding-mode="ToTarget" source-to-ui-converters="ConnectionStateToDisconnectButtonVisibility" />
+                <ui:DataBinding property="style.display" data-source-path="EphysLinkConnectionState" binding-mode="ToTarget" source-to-ui-converters="EphysLinkConnectionStateToDisconnectButtonVisibility" />
             </Bindings>
         </Unity.AppUI.UI.Button>
     </ui:VisualElement>

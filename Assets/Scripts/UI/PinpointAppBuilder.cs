@@ -48,7 +48,10 @@ namespace UI
             builder.services.AddSingleton<MainView>();
             builder.services.AddSingleton<SceneView>();
             builder.services.AddSingleton<AtlasView>();
+            
             builder.services.AddSingleton<SettingsView>();
+            builder.services.AddSingleton<EphysLinkView>();
+            
             builder.services.AddSingleton<ProbeInspectorView>();
         }
     }
