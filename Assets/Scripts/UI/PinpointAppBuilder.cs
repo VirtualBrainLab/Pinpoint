@@ -38,8 +38,11 @@ namespace UI
             builder.services.AddSingleton<MainViewModel>();
             builder.services.AddSingleton<SceneViewModel>();
             builder.services.AddSingleton<AtlasViewModel>();
-            builder.services.AddSingleton<ProbeInspectorViewModel>();
+            
+            builder.services.AddSingleton<SettingsViewModel>();
             builder.services.AddSingleton<EphysLinkViewModel>();
+            
+            builder.services.AddSingleton<ProbeInspectorViewModel>();
             builder.services.AddSingleton<AutomationViewModel>();
 
             // Views.

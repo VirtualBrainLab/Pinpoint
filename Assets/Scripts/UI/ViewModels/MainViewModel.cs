@@ -1,11 +1,9 @@
 using System.ComponentModel;
 using Models;
-using Models.Scene;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using Unity.AppUI.UI;
-using UnityEngine;
 
 namespace UI.ViewModels
 {
@@ -33,8 +31,8 @@ namespace UI.ViewModels
         #endregion
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MainViewModel"/> class.
-        /// Registers state, initializes properties from the store, and subscribes to state changes.
+        ///     Initializes a new instance of the <see cref="MainViewModel" /> class.
+        ///     Registers state, initializes properties from the store, and subscribes to state changes.
         /// </summary>
         /// <param name="storeService">The store service for state management.</param>
         /// <param name="probeService">The probe service for getting probe info.</param>
