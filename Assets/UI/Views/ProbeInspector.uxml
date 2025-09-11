@@ -13,6 +13,8 @@
                         <engine:DataBinding property="enabledSelf" data-source-path="Locked" binding-mode="ToTarget" source-to-ui-converters="LockStateToEnabled" />
                     </Bindings>
                 </Unity.AppUI.UI.Vector3Field>
+                <Unity.AppUI.UI.Heading size="XS" text="Depth in brain" style="display: none;" />
+                <Unity.AppUI.UI.FloatField name="probe-inspector__depth-field" unit="mm" tooltip="Depth in brain" style="display: none;" />
                 <Unity.AppUI.UI.Heading size="XS" text="Orientation (degrees)" />
                 <Unity.AppUI.UI.Vector3Field tooltip="Orientation (degrees)" name="probe-inspector__angles-field" size="L">
                     <Bindings>
