@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Models;
-using Models.Automation;
 using Models.Scene;
+using Models.Settings;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
@@ -18,7 +18,7 @@ namespace UI.ViewModels
 
         private readonly StoreService _storeService;
         private readonly IDisposableSubscription _sceneStateSubscription;
-        private readonly IDisposableSubscription _ephysLinkStateSubscription;
+        private readonly IDisposableSubscription _settingsStateSubscription;
 
         private readonly EphysLinkService _ephysLinkService;
 
@@ -48,10 +48,10 @@ namespace UI.ViewModels
                 OnSceneStateChanged,
                 new SubscribeOptions<SceneState> { fireImmediately = true }
             );
-            _ephysLinkStateSubscription = storeService.Store.Subscribe(
-                state => state.Get<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE),
-                OnEphysLinkStateChanged,
-                new SubscribeOptions<EphysLinkState> { fireImmediately = true }
+            _settingsStateSubscription = storeService.Store.Subscribe(
+                state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE),
+                OnSettingsStateChanged,
+                new SubscribeOptions<SettingsState> { fireImmediately = true }
             );
 
             App.shuttingDown += OnShuttingDown;
@@ -68,7 +68,7 @@ namespace UI.ViewModels
             SelectedProbeIndex = state.ActiveProbeIndex;
         }
 
-        private async void OnEphysLinkStateChanged(EphysLinkState state)
+        private async void OnSettingsStateChanged(SettingsState state)
         {
             switch (state.ConnectionState)
             {
@@ -102,7 +102,7 @@ namespace UI.ViewModels
         private void OnShuttingDown()
         {
             _sceneStateSubscription.Dispose();
-            _ephysLinkStateSubscription.Dispose();
+            _settingsStateSubscription.Dispose();
             App.shuttingDown -= OnShuttingDown;
         }
 

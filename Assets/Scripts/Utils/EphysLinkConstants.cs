@@ -5,17 +5,18 @@ namespace Utils
 {
     public static class EphysLinkConstants
     {
-        public static readonly int[] EphysLinkMinVersion = { 2, 1, 2 };
+        public const int EPHYS_LINK_MIN_VERSION_MAJOR = 2;
+        public const int EPHYS_LINK_MIN_VERSION_MINOR = 1;
+        public const int EPHYS_LINK_MIN_VERSION_PATCH = 2;
 
-        public static readonly string EphysLinkName =
-            $"EphysLink-v{string.Join(".", EphysLinkMinVersion)}";
+        public static readonly string EphysLinkMinVersion =
+            $"{EPHYS_LINK_MIN_VERSION_MAJOR}.{EPHYS_LINK_MIN_VERSION_MINOR}.{EPHYS_LINK_MIN_VERSION_PATCH}";
+
+        public static readonly string EphysLinkName = $"EphysLink-v{EphysLinkMinVersion}";
 
         public static readonly string EphysLinkExePath = Path.Combine(
             Application.streamingAssetsPath,
             Path.Combine(EphysLinkName, $"{EphysLinkName}.exe")
         );
-
-        public static readonly string EphysLinkMinVersionString =
-            $"≥ v{string.Join(".", EphysLinkMinVersion)}";
     }
 }

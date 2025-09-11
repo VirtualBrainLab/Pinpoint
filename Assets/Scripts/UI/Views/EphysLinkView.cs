@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Models.Automation;
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;

@@ -5,10 +5,11 @@ using System.Linq;
 using BestHTTP.SocketIO3;
 using KS.Diagnostics;
 using Models;
-using Models.Automation;
+using Models.Settings;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
+using Utils;
 using Utils.Types;
 using Action = System.Action;
 
@@ -77,7 +78,7 @@ namespace Services
                         if (await IsVersionCompatible())
                         {
                             _storeService.Store.Dispatch(
-                                EphysLinkActions.SET_CONNECTION_STATE,
+                                SettingsActions.SET_CONNECTION_STATE,
                                 EphysLinkConnectionState.Connected
                             );
                             onConnected?.Invoke();
@@ -107,7 +108,7 @@ namespace Services
             string GetConnectionTimeoutMessage() =>
                 $"Connection to server at {ip}:{port} timed out.";
             string GetOutdatedVersionErrorMessage() =>
-                $"Ephys Link is outdated. Please update to {_storeService.Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE).EphysLinkMinVersionString} or later.";
+                $"Ephys Link is outdated. Please update to ≥{EphysLinkConstants.EphysLinkMinVersion} or later.";
 
             void HandleError(string message)
             {
@@ -134,7 +135,7 @@ namespace Services
 
             // Update the store state to disconnected.
             _storeService.Store.Dispatch(
-                EphysLinkActions.SET_CONNECTION_STATE,
+                SettingsActions.SET_CONNECTION_STATE,
                 EphysLinkConnectionState.Disconnected
             );
             onDisconnected?.Invoke();
@@ -153,35 +154,30 @@ namespace Services
                 .Select(nonEmpty => int.Parse(new string(nonEmpty)))
                 .ToArray();
 
-            // Read the minimum version from the store.
-            var ephysLinkMinVersion = _storeService
-                .Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE)
-                .EphysLinkMinVersion;
-
             // Check semantic version compatibility.
-            return versionNumbers[0] == ephysLinkMinVersion[0]
-                && versionNumbers[1] >= ephysLinkMinVersion[1]
+            return versionNumbers[0] == EphysLinkConstants.EPHYS_LINK_MIN_VERSION_MAJOR
+                && versionNumbers[1] >= EphysLinkConstants.EPHYS_LINK_MIN_VERSION_MINOR
                 && (
-                    versionNumbers[1] > ephysLinkMinVersion[1]
-                    || versionNumbers[2] >= ephysLinkMinVersion[2]
+                    versionNumbers[1] > EphysLinkConstants.EPHYS_LINK_MIN_VERSION_MINOR
+                    || versionNumbers[2] >= EphysLinkConstants.EPHYS_LINK_MIN_VERSION_PATCH
                 );
         }
 
         public void Launch()
         {
-            var ephysLinkState = _storeService.Store.GetState<EphysLinkState>(
-                SliceNames.EPHYS_LINK_SLICE
+            var settingsState = _storeService.Store.GetState<SettingsState>(
+                SliceNames.SETTINGS_SLICE
             );
 
             // Create launch arguments.
             var args = "-i -t ";
-            switch (ephysLinkState.SelectedEphysLinkPlatformType)
+            switch (settingsState.SelectedEphysLinkPlatformType)
             {
                 case EphysLinkPlatformType.SensapexUmp:
                     args += "ump";
                     break;
                 case EphysLinkPlatformType.NewScalePathfinderMpm:
-                    args += $"pathfinder-mpm --mpm-port {ephysLinkState.NewScalePathfinderMpmPort}";
+                    args += $"pathfinder-mpm --mpm-port {settingsState.NewScalePathfinderMpmPort}";
                     break;
                 case EphysLinkPlatformType.Custom:
                 default:
@@ -193,7 +189,7 @@ namespace Services
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = ephysLinkState.EphysLinkExePath,
+                    FileName = EphysLinkConstants.EphysLinkExePath,
                     Arguments = args,
                     UseShellExecute = false,
                     RedirectStandardOutput = false,

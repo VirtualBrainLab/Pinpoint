@@ -31,7 +31,6 @@ namespace UI
             builder.services.AddSingleton<LocalStorageService>();
             builder.services.AddSingleton<StoreService>();
             builder.services.AddSingleton<ProbeService>();
-            builder.services.AddSingleton<AtlasService>();
             builder.services.AddSingleton<EphysLinkService>();
 
             // ViewModels.
