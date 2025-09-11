@@ -36,6 +36,7 @@ namespace UI.Views
         /// <param name="ephysLinkViewModel">Ephys Link view model to pass to the automation view.</param>
         /// <param name="sceneViewModel">Scene view model to pass to the scene hierarchy view.</param>
         /// <param name="atlasViewModel">Atlas view model to pass to the atlas view.</param>
+        /// <param name="settingsViewModel">Settings view model to pass to the settings view.</param>
         /// <param name="probeInspectorViewModel">Probe inspector view model to pass to the probe inspector view.</param>
         /// <param name="automationViewModel">Automation view model to pass to the automation view.</param>
         public MainView(
@@ -43,6 +44,7 @@ namespace UI.Views
             EphysLinkViewModel ephysLinkViewModel,
             SceneViewModel sceneViewModel,
             AtlasViewModel atlasViewModel,
+            SettingsViewModel settingsViewModel,
             ProbeInspectorViewModel probeInspectorViewModel,
             AutomationViewModel automationViewModel
         )
@@ -62,6 +64,7 @@ namespace UI.Views
             // Initialize subviews.
             _ = new SceneView(Root.Q<TemplateContainer>("scene-view"), sceneViewModel);
             _ = new AtlasView(Root.Q<TemplateContainer>("atlas-view"), atlasViewModel);
+            _ = new SettingsView(Root.Q<TemplateContainer>("settings-view"), settingsViewModel);
             _ = new ProbeInspectorView(
                 Root.Q<TemplateContainer>("probe-inspector-view"),
                 probeInspectorViewModel

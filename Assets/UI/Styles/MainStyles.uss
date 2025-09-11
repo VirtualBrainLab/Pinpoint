@@ -2,4 +2,5 @@
     background-color: var(--appui-backgrounds-100);
     min-width: 25%;
     max-width: 40%;
+    padding: var(--appui-alias-control-gap-md);
 }
