@@ -57,6 +57,7 @@
             <Unity.AppUI.UI.Pane class="side-panel">
                 <ui:VisualElement style="flex-direction: row;">
                     <Unity.AppUI.UI.Button leading-icon="minus" name="right-side-panel__collapse-button" />
+                    <Unity.AppUI.UI.Spacer />
                     <Unity.AppUI.UI.Heading text="Inspector">
                         <Bindings>
                             <ui:DataBinding property="style.display" data-source-path="IsRightSidePanelOpen" binding-mode="ToTarget" />
