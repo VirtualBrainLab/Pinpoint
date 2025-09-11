@@ -1,6 +1,7 @@
 using Models;
 using Models.Automation;
 using Models.Scene;
+using Models.Settings;
 using Unity.AppUI.Redux;
 
 namespace Services
@@ -35,6 +36,10 @@ namespace Services
             var initialSceneState = _localStorageService.GetValue(
                 SliceNames.SCENE_SLICE,
                 new SceneState()
+            );
+            var initialSettingsState = _localStorageService.GetValue(
+                SliceNames.SETTINGS_SLICE,
+                new SettingsState()
             );
             var initialEphysLinkState = _localStorageService.GetValue(
                 SliceNames.EPHYS_LINK_SLICE,
@@ -176,8 +181,25 @@ namespace Services
                         );
                 }
             );
+            var settingsSlice = StoreFactory.CreateSlice(
+                SliceNames.SETTINGS_SLICE,
+                initialSettingsState,
+                builder =>
+                {
+                    builder.AddCase(
+                        SettingsActions.SET_TAB_INDEX,
+                        SettingsReducers.SetTabIndexReducer
+                    );
+                }
+            );
             Store = StoreFactory.CreateStore(
-                new ISlice<PartitionedState>[] { mainSlice, ephysLinkSlice, sceneSlice }
+                new ISlice<PartitionedState>[]
+                {
+                    mainSlice,
+                    ephysLinkSlice,
+                    sceneSlice,
+                    settingsSlice
+                }
             );
         }
 

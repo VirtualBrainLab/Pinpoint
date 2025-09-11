@@ -6,6 +6,9 @@ namespace Models.Settings
     [Serializable]
     public record SettingsState
     {
+        [NonSerialized]
+        public int TabIndex;
+
         #region Probe Settings
 
         public bool DetectCollisions = true;
