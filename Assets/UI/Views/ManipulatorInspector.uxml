@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
-    <ui:VisualElement style="flex-grow: 1;">
+    <ui:VisualElement data-source-type="UI.ViewModels.ManipulatorInspectorViewModel, Assembly-CSharp" style="flex-grow: 1;">
         <ui:VisualElement class="inspector-panel">
             <Unity.AppUI.UI.Heading text="Visualization Probe" size="S" />
             <Unity.AppUI.UI.MenuTrigger>
