@@ -8,24 +8,24 @@
                 <Unity.AppUI.UI.Menu>
                     <Unity.AppUI.UI.MenuItem label="Neuropixel">
                         <Unity.AppUI.UI.Menu>
-                            <Unity.AppUI.UI.MenuItem label="1.0" name="scene__add-probe-menu__neuropixels__1-0" />
-                            <Unity.AppUI.UI.MenuItem label="2.0" name="scene__add-probe-menu__neuropixels__2-0" />
-                            <Unity.AppUI.UI.MenuItem label="2.0 4-shank" name="scene__add-probe-menu__neuropixels__2-0-4-shank" />
-                            <Unity.AppUI.UI.MenuItem label="2x 2.4" name="scene__add-probe-menu__neuropixels__2x-2-4" />
+                            <Unity.AppUI.UI.MenuItem label="1.0" name="manipulator-inspector__add-visualization-probe-menu__neuropixels__1-0" />
+                            <Unity.AppUI.UI.MenuItem label="2.0" name="manipulator-inspector__add-visualization-probe-menu__neuropixels__2-0" />
+                            <Unity.AppUI.UI.MenuItem label="2.0 4-shank" name="manipulator-inspector__add-visualization-probe-menu__neuropixels__2-0-4-shank" />
+                            <Unity.AppUI.UI.MenuItem label="2x 2.4" name="manipulator-inspector__add-visualization-probe-menu__neuropixels__2x-2-4" />
                         </Unity.AppUI.UI.Menu>
                     </Unity.AppUI.UI.MenuItem>
                     <Unity.AppUI.UI.MenuItem label="Pipette">
                         <Unity.AppUI.UI.Menu>
-                            <Unity.AppUI.UI.MenuItem label="25μm" name="scene__add-probe-menu__pipette__25um" />
-                            <Unity.AppUI.UI.MenuItem label="50μm" name="scene__add-probe-menu__pipette__50um" />
-                            <Unity.AppUI.UI.MenuItem label="100μm" name="scene__add-probe-menu__pipette__100um" />
-                            <Unity.AppUI.UI.MenuItem label="200μm" name="scene__add-probe-menu__pipette__200um" />
+                            <Unity.AppUI.UI.MenuItem label="25μm" name="manipulator-inspector__add-visualization-probe-menu__pipette__25um" />
+                            <Unity.AppUI.UI.MenuItem label="50μm" name="manipulator-inspector__add-visualization-probe-menu__pipette__50um" />
+                            <Unity.AppUI.UI.MenuItem label="100μm" name="manipulator-inspector__add-visualization-probe-menu__pipette__100um" />
+                            <Unity.AppUI.UI.MenuItem label="200μm" name="manipulator-inspector__add-visualization-probe-menu__pipette__200um" />
                         </Unity.AppUI.UI.Menu>
                     </Unity.AppUI.UI.MenuItem>
                     <Unity.AppUI.UI.MenuItem label="UCLA">
                         <Unity.AppUI.UI.Menu>
-                            <Unity.AppUI.UI.MenuItem label="128K" name="scene__add-probe-menu__ucla__128k" />
-                            <Unity.AppUI.UI.MenuItem label="256F" name="scene__add-probe-menu__ucla__256f" />
+                            <Unity.AppUI.UI.MenuItem label="128K" name="manipulator-inspector__add-visualization-probe-menu__ucla__128k" />
+                            <Unity.AppUI.UI.MenuItem label="256F" name="manipulator-inspector__add-visualization-probe-menu__ucla__256f" />
                         </Unity.AppUI.UI.Menu>
                     </Unity.AppUI.UI.MenuItem>
                 </Unity.AppUI.UI.Menu>

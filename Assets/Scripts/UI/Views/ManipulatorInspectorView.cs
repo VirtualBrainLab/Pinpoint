@@ -6,6 +6,7 @@ using Utils;
 using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
 using FloatField = Unity.AppUI.UI.FloatField;
+using MenuItem = Unity.AppUI.UI.MenuItem;
 using Toggle = Unity.AppUI.UI.Toggle;
 using Vector3Field = Unity.AppUI.UI.Vector3Field;
 using Vector4Field = Unity.AppUI.UI.Vector4Field;
@@ -26,7 +27,19 @@ namespace UI.Views
             root.dataSource = manipulatorInspectorViewModel;
 
             // Register component references.
-            var inspectButton = root.Q<Button>(
+            var addNeuropixels10 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__1-0");
+            var addNeuropixels20 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__2-0");
+            var addNeuropixels204Shank = root.Q<MenuItem>(
+                "scene__add-probe-menu__neuropixels__2-0-4-shank"
+            );
+            var addNeuropixels2X24 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__2x-2-4");
+            var addPipette25Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__25um");
+            var addPipette50Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__50um");
+            var addPipette100Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__100um");
+            var addPipette200Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__200um");
+            var addUcla128K = root.Q<MenuItem>("scene__add-probe-menu__ucla__128k");
+            var addUcla256F = root.Q<MenuItem>("scene__add-probe-menu__ucla__256f");
+            var visualizationProbeInspectButton = root.Q<Button>(
                 "manipulator-inspector__visualization-probe-inspect-button"
             );
             var anglesField = root.Q<Vector3Field>("manipulator-inspector__angles-field");
@@ -51,6 +64,49 @@ namespace UI.Views
             );
 
             // Register event handlers.
+            addNeuropixels10.clickable.clicked += () =>
+                manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
+                    ProbeType.Neuropixels1
+                );
+            addNeuropixels20.clickable.clicked += () =>
+                manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
+                    ProbeType.Neuropixels21
+                );
+            addNeuropixels204Shank.clickable.clicked += () =>
+                manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
+                    ProbeType.Neuropixels24
+                );
+            addNeuropixels2X24.clickable.clicked += () =>
+                manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
+                    ProbeType.Neuropixels24x2
+                );
+            addPipette25Um.clickable.clicked += () =>
+                manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
+                    ProbeType.Pipette25
+                );
+            addPipette50Um.clickable.clicked += () =>
+                manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
+                    ProbeType.Pipette50
+                );
+            addPipette100Um.clickable.clicked += () =>
+                manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
+                    ProbeType.Pipette100
+                );
+            addPipette200Um.clickable.clicked += () =>
+                manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
+                    ProbeType.Pipette200
+                );
+            addUcla128K.clickable.clicked += () =>
+                manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
+                    ProbeType.UCLA128K
+                );
+            addUcla256F.clickable.clicked += () =>
+                manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
+                    ProbeType.UCLA256F
+                );
+            visualizationProbeInspectButton.clickable.clicked += manipulatorInspectorViewModel
+                .InspectVisualizationProbeCommand
+                .Execute;
             anglesField.RegisterValueChangedCallback(evt =>
             {
                 manipulatorInspectorViewModel.SetAnglesCommand.Execute(evt.newValue);

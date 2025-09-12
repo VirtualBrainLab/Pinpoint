@@ -91,6 +91,15 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
+        private void AddVisualizationProbe(ProbeType probeType) { }
+
+        [ICommand]
+        private void InspectVisualizationProbe()
+        {
+            _storeService.Store.Dispatch(SceneActions.SET_ACTIVE_PROBE, VisualizationProbeName);
+        }
+
+        [ICommand]
         private void SetAngles(Vector3 angles)
         {
             _storeService.Store.Dispatch(
