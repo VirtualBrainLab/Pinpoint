@@ -8,7 +8,6 @@ using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
 using FloatField = Unity.AppUI.UI.FloatField;
 using Vector3Field = Unity.AppUI.UI.Vector3Field;
-
 #if !UNITY_EDITOR
 using UnityEngine;
 #endif
@@ -90,7 +89,7 @@ namespace UI.Views
             }
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "LockStateToEnabled",
+                "LockedToEnabled",
                 (ref bool locked) => !locked
             );
         }

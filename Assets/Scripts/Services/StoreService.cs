@@ -49,10 +49,6 @@ namespace Services
                 {
                     builder
                         .AddCase(
-                            MainActions.SET_IS_AUTOMATION_MODE_ACTIVE,
-                            MainReducers.SetIsAutomationModeActiveReducer
-                        )
-                        .AddCase(
                             MainActions.SET_MAIN_SPLIT_VIEW_STATE,
                             MainReducers.SetMainSplitViewStateReducer
                         )

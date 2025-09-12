@@ -4,6 +4,7 @@ using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEngine.UIElements;
 using Utils;
+using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
 #if !UNITY_EDITOR
 using UnityEngine;
@@ -12,8 +13,8 @@ using UnityEngine;
 namespace UI.Views
 {
     /// <summary>
-    /// Represents the main view of the Pinpoint application UI.
-    /// Binds to the <see cref="MainViewModel"/> for property changes.
+    ///     Represents the main view of the Pinpoint application UI.
+    ///     Binds to the <see cref="MainViewModel" /> for property changes.
     /// </summary>
     public class MainView
     {
@@ -23,30 +24,25 @@ namespace UI.Views
         private const int RIGHT_SIDE_PANEL_SPLITTER_INDEX = 1;
 
         #endregion
-        #region Component References
-
-        public VisualElement Root { get; }
-
-        #endregion
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MainView"/> class.
-        /// Sets up UI document, component references, and event bindings.
+        ///     Initializes a new instance of the <see cref="MainView" /> class.
+        ///     Sets up UI document, component references, and event bindings.
         /// </summary>
         /// <param name="mainViewModel">The view model to bind to.</param>
         public MainView(MainViewModel mainViewModel)
         {
             // Get root element.
-            Root = PinpointApp.RootVisualElement;
+            var root = PinpointApp.RootVisualElement;
 
             // Get view model and register property changes and bindings.
-            Root.dataSource = mainViewModel;
+            root.dataSource = mainViewModel;
 
             // Register component references.
-            var mainSplitView = Root.Q<SplitView>("main-split-view");
-            var leftSidePanelCollapseButton = Root.Q<Button>("left-side-panel__collapse-button");
-            var rightSidePanelCollapseButton = Root.Q<Button>("right-side-panel__collapse-button");
-            var leftSidePanelTabs = Root.Q<Tabs>("left-side-panel__tabs");
+            var mainSplitView = root.Q<SplitView>("main-split-view");
+            var leftSidePanelCollapseButton = root.Q<Button>("left-side-panel__collapse-button");
+            var rightSidePanelCollapseButton = root.Q<Button>("right-side-panel__collapse-button");
+            var leftSidePanelTabs = root.Q<Tabs>("left-side-panel__tabs");
 
             // Initialize subviews.
             _ = PinpointApp.Services.GetRequiredService<SceneView>();
@@ -91,10 +87,64 @@ namespace UI.Views
 #endif
         public static void RegisterMainViewConverters()
         {
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<bool, StyleEnum<DisplayStyle>>(
-                "BooleanToInspectorVisibility",
-                (ref bool isAutomationActive) =>
-                    isAutomationActive ? DisplayStyle.None : DisplayStyle.Flex
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                InspectorDisplayType,
+                StyleEnum<DisplayStyle>
+            >(
+                "InspectorDisplayTypeToProbeInspectorVisibility",
+                (ref InspectorDisplayType displayType) =>
+                    displayType == InspectorDisplayType.Probe
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                InspectorDisplayType,
+                StyleEnum<DisplayStyle>
+            >(
+                "InspectorDisplayTypeToManipulatorInspectorVisibility",
+                (ref InspectorDisplayType displayType) =>
+                    displayType == InspectorDisplayType.Manipulator
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                InspectorDisplayType,
+                StyleEnum<DisplayStyle>
+            >(
+                "InspectorDisplayTypeToAutomationInspectorVisibility",
+                (ref InspectorDisplayType displayType) =>
+                    displayType == InspectorDisplayType.Automation
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                InspectorDisplayType,
+                StyleEnum<DisplayStyle>
+            >(
+                "InspectorDisplayTypeToNothingSelectedVisibility",
+                (ref InspectorDisplayType displayType) =>
+                    displayType == InspectorDisplayType.Nothing
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                InspectorDisplayType,
+                StyleEnum<DisplayStyle>
+            >(
+                "InspectorDisplayTypeToInspectorScrollViewVisibility",
+                (ref InspectorDisplayType displayType) =>
+                    displayType == InspectorDisplayType.Nothing
+                        ? DisplayStyle.None
+                        : DisplayStyle.Flex
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "IsAutomationActiveToProbeInspectorEnabled",
+                (ref bool isAutomationActive) => !isAutomationActive
             );
         }
     }

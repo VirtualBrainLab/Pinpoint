@@ -34,5 +34,11 @@ namespace Models.Scene
         public float DuraOffset;
 
         #endregion
+
+        #region Controls
+
+        public bool ManualControlEnabled;
+
+        #endregion
     }
 }

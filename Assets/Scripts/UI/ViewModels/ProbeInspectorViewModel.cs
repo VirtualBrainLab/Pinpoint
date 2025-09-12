@@ -32,9 +32,6 @@ namespace UI.ViewModels
 
         #region Properties
 
-        [ObservableProperty]
-        private bool _enabled;
-
         // Can be either the tip or surface, depending on settings.
         [ObservableProperty]
         private Vector3 _position;
@@ -61,21 +58,16 @@ namespace UI.ViewModels
                 OnSceneStateChanged,
                 new SubscribeOptions<SceneState> { fireImmediately = true }
             );
-            PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
         }
 
         private void OnSceneStateChanged(SceneState sceneState)
         {
-            Debug.Log($"Active probe {sceneState.ActiveProbeName}");
             // Early exit if no active probe.
             if (string.IsNullOrEmpty(sceneState.ActiveProbeName))
             {
-                Enabled = false;
                 return;
             }
-
-            Enabled = true;
 
             Position = sceneState.ActiveProbeState.APMLDV;
 
@@ -86,12 +78,9 @@ namespace UI.ViewModels
             ProbeColor = sceneState.ActiveProbeState.Color;
         }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) { }
-
         private void OnShuttingDown()
         {
             _sceneStateSubscription.Dispose();
-            PropertyChanged -= OnPropertyChanged;
             App.shuttingDown -= OnShuttingDown;
         }
 

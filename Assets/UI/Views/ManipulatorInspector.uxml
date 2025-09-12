@@ -51,11 +51,15 @@
             <Unity.AppUI.UI.Heading text="Calibration" size="S" />
             <Unity.AppUI.UI.Heading text="Reference Coordinate Offset (mm)" size="XS" />
             <Unity.AppUI.UI.Vector4Field tooltip="Manipulator&apos;s coordinates when its probe is at the reference coordinate" format-string="0.###" />
-            <Unity.AppUI.UI.Button title="Set to Current" leading-icon="waypoint-home" />
+            <Unity.AppUI.UI.Button title="Use Current Position" leading-icon="waypoint-home" />
             <Unity.AppUI.UI.Heading text="Dura Offset (mm)" size="XS" />
             <Unity.AppUI.UI.FloatField tooltip="The difference between the atlas&apos;s dura and the real dura" />
             <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.Button title="Recalculate" leading-icon="align-bottom-simple" />
+        </ui:VisualElement>
+        <ui:VisualElement class="inspector-panel">
+            <Unity.AppUI.UI.Heading text="Controls" size="S" />
+            <Unity.AppUI.UI.Toggle label="Manual Control" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
