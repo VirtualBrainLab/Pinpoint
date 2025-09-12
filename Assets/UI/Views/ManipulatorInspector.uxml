@@ -50,8 +50,16 @@
             <ui:VisualElement style="flex-grow: 1;">
                 <Unity.AppUI.UI.Heading size="XS" text="Handedness" />
                 <Unity.AppUI.UI.ActionGroup compact="true" justified="true">
-                    <Unity.AppUI.UI.ActionButton label="Left" selected="true" size="L" name="manipulator-inspector__handedness-button--left" />
-                    <Unity.AppUI.UI.ActionButton label="Right" size="L" name="manipulator-inspector__handedness-button--right" />
+                    <Unity.AppUI.UI.ActionButton label="Left" size="L" name="manipulator-inspector__handedness-button--left">
+                        <Bindings>
+                            <ui:DataBinding property="selected" data-source-path="Handedness" binding-mode="ToTarget" source-to-ui-converters="ManipulatorHandednessToLeftButtonSelected" />
+                        </Bindings>
+                    </Unity.AppUI.UI.ActionButton>
+                    <Unity.AppUI.UI.ActionButton label="Right" size="L" name="manipulator-inspector__handedness-button--right">
+                        <Bindings>
+                            <ui:DataBinding property="selected" data-source-path="Handedness" binding-mode="ToTarget" source-to-ui-converters="ManipulatorHandednessToRightButtonSelected" />
+                        </Bindings>
+                    </Unity.AppUI.UI.ActionButton>
                 </Unity.AppUI.UI.ActionGroup>
                 <Bindings>
                     <ui:DataBinding property="style.display" data-source-path="AxesCount" binding-mode="ToTarget" source-to-ui-converters="ManipulatorAxesCountToHandednessVisibility" />

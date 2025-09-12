@@ -123,6 +123,15 @@ namespace UI.Views
                 "ManipulatorAxesCountToHandednessVisibility",
                 (ref int axesCount) => axesCount == 4 ? DisplayStyle.Flex : DisplayStyle.None
             );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "ManipulatorHandednessToLeftButtonSelected",
+                (ref ManipulatorHandedness handedness) => handedness == ManipulatorHandedness.Left
+            );
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "ManipulatorHandednessToRightButtonSelected",
+                (ref ManipulatorHandedness handedness) => handedness == ManipulatorHandedness.Right
+            );
         }
     }
 }

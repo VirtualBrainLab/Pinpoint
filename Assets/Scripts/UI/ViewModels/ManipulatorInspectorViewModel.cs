@@ -75,7 +75,7 @@ namespace UI.ViewModels
 
             VisualizationProbeName = sceneState.ActiveManipulatorState.ProbeName;
             Angles = sceneState.ActiveManipulatorState.Angles;
-            _axesCount = sceneState.NumberOfAxesOnManipulator;
+            AxesCount = sceneState.NumberOfAxesOnManipulator;
             Handedness = sceneState.ActiveManipulatorState.Handedness;
             ReferenceCoordinateOffset = sceneState.ActiveManipulatorState.ReferenceCoordinateOffset;
             DuraOffset = sceneState.ActiveManipulatorState.DuraOffset;
