@@ -25,7 +25,7 @@
                         </Unity.AppUI.UI.Dialog>
                     </Unity.AppUI.UI.DialogTrigger>
                     <Unity.AppUI.UI.Spacer />
-                    <Unity.AppUI.UI.Toggle label="Automation">
+                    <Unity.AppUI.UI.Toggle label="Automation" name="automation-toggle">
                         <Bindings>
                             <ui:DataBinding property="value" data-source-path="IsAutomationModeActive" binding-mode="TwoWay" />
                         </Bindings>
