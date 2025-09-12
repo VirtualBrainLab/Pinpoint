@@ -8,7 +8,7 @@
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
     <Unity.AppUI.UI.Panel picking-mode="Ignore" data-source-type="UI.ViewModels.MainViewModel, Assembly-CSharp" style="background-color: rgba(29, 29, 29, 0);">
         <Unity.AppUI.UI.SplitView show-expand-buttons="true" name="main-split-view" style="flex-grow: 1;">
-            <Unity.AppUI.UI.Pane class="side-panel">
+            <Unity.AppUI.UI.Pane class="side-panel" style="width: 27%;">
                 <ui:VisualElement style="flex-direction: row;">
                     <Unity.AppUI.UI.MenuTrigger>
                         <Unity.AppUI.UI.ActionButton label="File" icon="file" />
@@ -55,7 +55,7 @@
                 </Unity.AppUI.UI.SwipeView>
             </Unity.AppUI.UI.Pane>
             <Unity.AppUI.UI.Pane stretch-factor="1" />
-            <Unity.AppUI.UI.Pane class="side-panel">
+            <Unity.AppUI.UI.Pane class="side-panel" style="width: 27%;">
                 <ui:VisualElement style="flex-direction: row;">
                     <Unity.AppUI.UI.Button leading-icon="minus" name="right-side-panel__collapse-button" />
                     <Unity.AppUI.UI.Spacer />

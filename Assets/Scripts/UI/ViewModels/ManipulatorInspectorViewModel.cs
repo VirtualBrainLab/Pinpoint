@@ -73,7 +73,7 @@ namespace UI.ViewModels
             if (string.IsNullOrEmpty(ActiveManipulatorId))
                 return;
 
-            VisualizationProbeName = sceneState.ActiveManipulatorState.ProbeName;
+            VisualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
             Angles = sceneState.ActiveManipulatorState.Angles;
             AxesCount = sceneState.NumberOfAxesOnManipulator;
             Handedness = sceneState.ActiveManipulatorState.Handedness;

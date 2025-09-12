@@ -381,7 +381,7 @@ namespace Models.Scene
 
         public static SceneState SetManipulatorVisualizationProbeReducer(
             SceneState state,
-            IAction<(string Id, string ProbeName)> action
+            IAction<(string Id, string VisualizationProbeName)> action
         )
         {
             var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
@@ -390,7 +390,7 @@ namespace Models.Scene
             var manipulatorsCopy = state.Manipulators.ToList();
             manipulatorsCopy[index] = manipulatorsCopy[index] with
             {
-                ProbeName = action.payload.ProbeName,
+                VisualizationProbeName = action.payload.VisualizationProbeName,
             };
             return state with { Manipulators = manipulatorsCopy };
         }
@@ -899,7 +899,7 @@ namespace Models.Scene
 
         public static readonly ActionCreator<(
             string Id,
-            string ProbeName
+            string VisualizationProbeName
         )> SET_MANIPULATOR_VISUALIZATION_PROBE =
             $"{SliceNames.SCENE_SLICE}/SetManipulatorVisualizationProbe";
 

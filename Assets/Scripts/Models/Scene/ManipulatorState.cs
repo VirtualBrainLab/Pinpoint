@@ -15,7 +15,7 @@ namespace Models.Scene
 
         #region Visualization Probe
 
-        public string ProbeName;
+        public string VisualizationProbeName;
 
         #endregion
 
