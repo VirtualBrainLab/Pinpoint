@@ -47,8 +47,11 @@ namespace UI.Views
             // Initialize subviews.
             _ = PinpointApp.Services.GetRequiredService<SceneView>();
             _ = PinpointApp.Services.GetRequiredService<AtlasView>();
+
             _ = PinpointApp.Services.GetRequiredService<SettingsView>();
+
             _ = PinpointApp.Services.GetRequiredService<ProbeInspectorView>();
+            _ = PinpointApp.Services.GetRequiredService<ManipulatorInspectorView>();
 
             // Register event handlers.
             leftSidePanelCollapseButton.clickable.clicked += () =>

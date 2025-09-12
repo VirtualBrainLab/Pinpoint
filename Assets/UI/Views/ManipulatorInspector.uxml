@@ -30,36 +30,47 @@
                     </Unity.AppUI.UI.MenuItem>
                 </Unity.AppUI.UI.Menu>
             </Unity.AppUI.UI.MenuTrigger>
-            <Unity.AppUI.UI.Button title="Delete" variant="Destructive" leading-icon="trash" />
+            <Unity.AppUI.UI.Button title="Inspect ABC123" leading-icon="magnifying-glass" name="manipulator-inspector__visualization-probe-inspect-button" />
         </ui:VisualElement>
         <ui:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Orientation (degrees)" size="S" />
             <Unity.AppUI.UI.Heading size="XS" text="Orientation (degrees)" />
-            <Unity.AppUI.UI.Vector3Field tooltip="Orientation (degrees)" name="probe-inspector__angles-field" size="L" format-string="0.###">
+            <Unity.AppUI.UI.Vector3Field tooltip="Orientation (degrees)" name="manipulator-inspector__angles-field" size="L" format-string="0.###">
                 <Bindings>
                     <ui:DataBinding property="value" data-source-path="Angles" binding-mode="ToTarget" />
-                    <ui:DataBinding property="enabledSelf" data-source-path="Locked" binding-mode="ToTarget" source-to-ui-converters="LockStateToEnabled" />
                 </Bindings>
             </Unity.AppUI.UI.Vector3Field>
             <Unity.AppUI.UI.Heading size="XS" text="Handedness" />
             <Unity.AppUI.UI.ActionGroup compact="true" justified="true">
-                <Unity.AppUI.UI.ActionButton label="Left" selected="true" size="L" />
-                <Unity.AppUI.UI.ActionButton label="Right" size="L" />
+                <Unity.AppUI.UI.ActionButton label="Left" selected="true" size="L" name="manipulator-inspector__handedness-button--left" />
+                <Unity.AppUI.UI.ActionButton label="Right" size="L" name="manipulator-inspector__handedness-button--right" />
             </Unity.AppUI.UI.ActionGroup>
         </ui:VisualElement>
         <ui:VisualElement class="inspector-panel">
             <Unity.AppUI.UI.Heading text="Calibration" size="S" />
             <Unity.AppUI.UI.Heading text="Reference Coordinate Offset (mm)" size="XS" />
-            <Unity.AppUI.UI.Vector4Field tooltip="Manipulator&apos;s coordinates when its probe is at the reference coordinate" format-string="0.###" />
-            <Unity.AppUI.UI.Button title="Use Current Position" leading-icon="waypoint-home" />
-            <Unity.AppUI.UI.Heading text="Dura Offset (mm)" size="XS" />
-            <Unity.AppUI.UI.FloatField tooltip="The difference between the atlas&apos;s dura and the real dura" />
+            <Unity.AppUI.UI.Vector4Field tooltip="Manipulator&apos;s coordinates when its probe is at the reference coordinate" format-string="0.###" name="manipulator-inspector__reference-coordinate-offset-field">
+                <Bindings>
+                    <ui:DataBinding property="value" data-source-path="ReferenceCoordinateOffset" binding-mode="ToTarget" />
+                </Bindings>
+            </Unity.AppUI.UI.Vector4Field>
+            <Unity.AppUI.UI.Button title="Use Current Position" leading-icon="waypoint-home" name="manipulator-inspector__set-reference-coordinate-offset-button" />
+            <Unity.AppUI.UI.Heading text="Dura Offset" size="XS" />
+            <Unity.AppUI.UI.FloatField tooltip="The difference between the atlas&apos;s dura and the real dura" name="manipulator-inspector__dura-offset-field" format-string="0.###" unit="mm">
+                <Bindings>
+                    <ui:DataBinding property="value" data-source-path="DuraOffset" binding-mode="ToTarget" />
+                </Bindings>
+            </Unity.AppUI.UI.FloatField>
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Button title="Recalculate" leading-icon="align-bottom-simple" />
+            <Unity.AppUI.UI.Button title="Recalculate" leading-icon="align-bottom-simple" name="manipulator-inspector__recalculate-dura-offset-button" />
         </ui:VisualElement>
         <ui:VisualElement class="inspector-panel">
             <Unity.AppUI.UI.Heading text="Controls" size="S" />
-            <Unity.AppUI.UI.Toggle label="Manual Control" />
+            <Unity.AppUI.UI.Toggle label="Manual Control" name="manipulator-inspector__manual-control-toggle">
+                <Bindings>
+                    <ui:DataBinding property="value" data-source-path="IsManualControlEnabled" binding-mode="TwoWay" />
+                </Bindings>
+            </Unity.AppUI.UI.Toggle>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

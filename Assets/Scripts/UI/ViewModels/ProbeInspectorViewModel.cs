@@ -66,11 +66,8 @@ namespace UI.ViewModels
                 return;
 
             Position = sceneState.ActiveProbeState.APMLDV;
-
             Angles = sceneState.ActiveProbeState.Angles;
-
             Locked = sceneState.ActiveProbeState.Locked;
-
             ProbeColor = sceneState.ActiveProbeState.Color;
         }
 

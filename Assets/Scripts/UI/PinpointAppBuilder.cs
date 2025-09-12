@@ -37,22 +37,24 @@ namespace UI
             builder.services.AddSingleton<MainViewModel>();
             builder.services.AddSingleton<SceneViewModel>();
             builder.services.AddSingleton<AtlasViewModel>();
-            
+
             builder.services.AddSingleton<SettingsViewModel>();
             builder.services.AddSingleton<EphysLinkViewModel>();
-            
+
             builder.services.AddSingleton<ProbeInspectorViewModel>();
+            builder.services.AddSingleton<ManipulatorInspectorViewModel>();
             builder.services.AddSingleton<AutomationViewModel>();
 
             // Views.
             builder.services.AddSingleton<MainView>();
             builder.services.AddSingleton<SceneView>();
             builder.services.AddSingleton<AtlasView>();
-            
+
             builder.services.AddSingleton<SettingsView>();
             builder.services.AddSingleton<EphysLinkView>();
-            
+
             builder.services.AddSingleton<ProbeInspectorView>();
+            builder.services.AddSingleton<ManipulatorInspectorView>();
         }
     }
 }
