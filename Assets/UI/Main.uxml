@@ -79,11 +79,12 @@
                             <ui:DataBinding property="style.display" data-source-path="InspectorDisplayType" binding-mode="ToTarget" source-to-ui-converters="InspectorDisplayTypeToProbeInspectorVisibility" />
                         </Bindings>
                     </ui:VisualElement>
-                    <ui:Instance template="ManipulatorInspector" name="manipulator-inspector-view">
+                    <ui:VisualElement>
+                        <ui:Instance template="ManipulatorInspector" name="manipulator-inspector-view" />
                         <Bindings>
                             <ui:DataBinding property="style.display" data-source-path="InspectorDisplayType" binding-mode="ToTarget" source-to-ui-converters="InspectorDisplayTypeToManipulatorInspectorVisibility" />
                         </Bindings>
-                    </ui:Instance>
+                    </ui:VisualElement>
                     <ui:Instance template="Automation" name="automation-view" style="flex-grow: 1; display: none;">
                         <Bindings>
                             <ui:DataBinding property="style.display" data-source-path="InspectorDisplayType" binding-mode="ToTarget" source-to-ui-converters="InspectorDisplayTypeToAutomationInspectorVisibility" />
