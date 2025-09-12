@@ -107,6 +107,35 @@ namespace Services
                         )
                         .AddCase(SceneActions.SET_PROBE_COLOR, SceneReducers.SetProbeColorReducer)
                         .AddCase(SceneActions.SET_PROBE_LOCKED, SceneReducers.SetProbeLockedReducer)
+                        // Manipulator.
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_VISUALIZATION_PROBE,
+                            SceneReducers.SetManipulatorVisualizationProbeReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_ANGLES,
+                            SceneReducers.SetManipulatorAnglesReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_HANDEDNESS,
+                            SceneReducers.SetManipulatorHandednessReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET,
+                            SceneReducers.SetManipulatorReferenceCoordinateOffsetReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_DURA_OFFSET,
+                            SceneReducers.SetManipulatorDuraOffsetReducer
+                        )
+                        .AddCase(
+                            SceneActions.CHANGE_MANIPULATOR_DURA_OFFSET_BY,
+                            SceneReducers.ChangeManipulatorDuraOffsetByReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_MANUAL_CONTROL_ENABLED,
+                            SceneReducers.SetManipulatorManualControlEnabledReducer
+                        )
                         // Automation.
                         .AddCase(
                             SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,

@@ -377,6 +377,122 @@ namespace Models.Scene
 
         #endregion
 
+        #region Manipulator Reducers
+
+        public static SceneState SetManipulatorVisualizationProbeReducer(
+            SceneState state,
+            IAction<(string Id, string ProbeName)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                ProbeName = action.payload.ProbeName,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorAnglesReducer(
+            SceneState state,
+            IAction<(string Id, Vector3 Angles)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                Angles = action.payload.Angles,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorHandednessReducer(
+            SceneState state,
+            IAction<(string Id, ManipulatorHandedness Handedness)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                Handedness = action.payload.Handedness,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorReferenceCoordinateOffsetReducer(
+            SceneState state,
+            IAction<(string Id, Vector4 ReferenceCoordinateOffset)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                ReferenceCoordinateOffset = action.payload.ReferenceCoordinateOffset,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorDuraOffsetReducer(
+            SceneState state,
+            IAction<(string Id, float DuraOffset)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                DuraOffset = action.payload.DuraOffset,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState ChangeManipulatorDuraOffsetByReducer(
+            SceneState state,
+            IAction<(string Id, float DuraOffsetDelta)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                DuraOffset = manipulatorsCopy[index].DuraOffset + action.payload.DuraOffsetDelta,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorManualControlEnabledReducer(
+            SceneState state,
+            IAction<(string Id, bool ManualControlEnabled)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                ManualControlEnabled = action.payload.ManualControlEnabled,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        #endregion
+
         #region Automation Reducers
 
         /// <summary>
@@ -776,6 +892,47 @@ namespace Models.Scene
 
         public static readonly ActionCreator<(string, bool)> SET_PROBE_LOCKED =
             $"{SliceNames.SCENE_SLICE}/SetProbeLocked";
+
+        #endregion
+
+        #region Manipulator Actions
+
+        public static readonly ActionCreator<(
+            string Id,
+            string ProbeName
+        )> SET_MANIPULATOR_VISUALIZATION_PROBE =
+            $"{SliceNames.SCENE_SLICE}/SetManipulatorVisualizationProbe";
+
+        public static readonly ActionCreator<(string Id, Vector3 Angles)> SET_MANIPULATOR_ANGLES =
+            $"{SliceNames.SCENE_SLICE}/SetManipulatorAngles";
+
+        public static readonly ActionCreator<(
+            string Id,
+            ManipulatorHandedness Handedness
+        )> SET_MANIPULATOR_HANDEDNESS = $"{SliceNames.SCENE_SLICE}/SetManipulatorHandedness";
+
+        public static readonly ActionCreator<(
+            string Id,
+            Vector4 ReferenceCoordinateOffset
+        )> SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET =
+            $"{SliceNames.SCENE_SLICE}/SetManipulatorReferenceCoordinateOffset";
+
+        public static readonly ActionCreator<(
+            string Id,
+            float DuraOffset
+        )> SET_MANIPULATOR_DURA_OFFSET = $"{SliceNames.SCENE_SLICE}/SetManipulatorDuraOffset";
+
+        public static readonly ActionCreator<(
+            string Id,
+            float DuraOffsetDelta
+        )> CHANGE_MANIPULATOR_DURA_OFFSET_BY =
+            $"{SliceNames.SCENE_SLICE}/ChangeManipulatorDuraOffsetBy";
+
+        public static readonly ActionCreator<(
+            string Id,
+            bool ManualControlEnabled
+        )> SET_MANIPULATOR_MANUAL_CONTROL_ENABLED =
+            $"{SliceNames.SCENE_SLICE}/SetManipulatorManualControlEnabled";
 
         #endregion
 

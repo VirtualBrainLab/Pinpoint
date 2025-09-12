@@ -114,6 +114,10 @@ namespace UI.Views
                 (ref string probeName) =>
                     string.IsNullOrEmpty(probeName) ? DisplayStyle.None : DisplayStyle.Flex
             );
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "VisualizationProbeNameToCalibrationControlsEnabled",
+                (ref string probeName) => !string.IsNullOrEmpty(probeName)
+            );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup<int, StyleEnum<DisplayStyle>>(
                 "ManipulatorAxesCountToHandednessVisibility",

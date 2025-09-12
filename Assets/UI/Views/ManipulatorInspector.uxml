@@ -75,6 +75,9 @@
             </Unity.AppUI.UI.FloatField>
             <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.Button title="Recalculate" leading-icon="align-bottom-simple" name="manipulator-inspector__recalculate-dura-offset-button" />
+            <Bindings>
+                <ui:DataBinding property="enabledSelf" data-source-path="VisualizationProbeName" binding-mode="ToTarget" source-to-ui-converters="VisualizationProbeNameToCalibrationControlsEnabled" />
+            </Bindings>
         </ui:VisualElement>
         <ui:VisualElement class="inspector-panel">
             <Unity.AppUI.UI.Heading text="Controls" size="S" />
