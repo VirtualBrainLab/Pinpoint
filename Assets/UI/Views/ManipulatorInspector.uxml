@@ -40,7 +40,7 @@
             </Unity.AppUI.UI.Button>
         </ui:VisualElement>
         <ui:VisualElement class="inspectorBox inspector-panel">
-            <Unity.AppUI.UI.Heading text="Orientation (degrees)" size="S" />
+            <Unity.AppUI.UI.Heading text="Orientation" size="S" />
             <Unity.AppUI.UI.Heading size="XS" text="Orientation (degrees)" />
             <Unity.AppUI.UI.Vector3Field tooltip="Orientation (degrees)" name="manipulator-inspector__angles-field" size="L" format-string="0.###">
                 <Bindings>

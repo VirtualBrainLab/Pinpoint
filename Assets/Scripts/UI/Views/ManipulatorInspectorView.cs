@@ -89,6 +89,13 @@ namespace UI.Views
             {
                 manipulatorInspectorViewModel.SetManualControlEnabledCommand.Execute(evt.newValue);
             });
+
+            // Customize field units.
+            anglesField.Q<FloatField>("appui-vector3field__x-field").unit = "Yaw";
+            anglesField.Q<FloatField>("appui-vector3field__y-field").unit = "Pitch";
+            anglesField.Q<FloatField>("appui-vector3field__z-field").unit = "Roll";
+
+            referenceCoordinateOffsetField.Q<FloatField>("appui-vector4field__w-field").unit = "D";
         }
 
 #if UNITY_EDITOR
