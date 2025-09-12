@@ -70,10 +70,6 @@ namespace UI.Views
             _probeListView.selectedIndicesChanged += indices =>
             {
                 var indicesList = indices.ToList();
-                foreach (var index in indices)
-                    Debug.Log(
-                        $"Probe selected: {sceneViewModel.ProbeListItemViewModels[index].Name}"
-                    );
                 sceneViewModel.SetActiveProbeCommand.Execute(
                     indicesList.Any() ? indicesList[0] : -1
                 );
@@ -84,8 +80,6 @@ namespace UI.Views
             _manipulatorListView.selectedIndicesChanged += indices =>
             {
                 var indicesList = indices.ToList();
-                foreach (var index in indices)
-                    Debug.Log($"Manipulator selected: {sceneViewModel.ManipulatorIds[index]}");
                 sceneViewModel.SetActiveManipulatorCommand.Execute(
                     indicesList.Any() ? indicesList[0] : -1
                 );
