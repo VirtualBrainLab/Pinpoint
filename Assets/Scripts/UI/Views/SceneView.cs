@@ -71,13 +71,13 @@ namespace UI.Views
             {
                 var indicesList = indices.ToList();
                 foreach (var index in indices)
-                {
-                    Debug.Log($"Probe selected: {sceneViewModel.ProbeListItemViewModels[index].Name}");
-                }
+                    Debug.Log(
+                        $"Probe selected: {sceneViewModel.ProbeListItemViewModels[index].Name}"
+                    );
                 sceneViewModel.SetActiveProbeCommand.Execute(
                     indicesList.Any() ? indicesList[0] : -1
                 );
-                
+
                 // Clear the manipulator selection when a probe is selected.
                 _manipulatorListView.selectedIndex = -1;
             };
@@ -85,13 +85,11 @@ namespace UI.Views
             {
                 var indicesList = indices.ToList();
                 foreach (var index in indices)
-                {
                     Debug.Log($"Manipulator selected: {sceneViewModel.ManipulatorIds[index]}");
-                }
                 sceneViewModel.SetActiveManipulatorCommand.Execute(
                     indicesList.Any() ? indicesList[0] : -1
                 );
-                
+
                 // Clear the probe selection when a manipulator is selected.
                 _probeListView.selectedIndex = -1;
             };
@@ -103,7 +101,7 @@ namespace UI.Views
 
             // Build manipulator list view.
             _manipulatorListView.itemsSource = _sceneViewModel.ManipulatorIds;
-            _manipulatorListView.makeItem = () => new Heading();
+            _manipulatorListView.makeItem = () => new Heading { size = HeadingSize.S };
             _manipulatorListView.bindItem = (element, i) =>
                 ((Heading)element).text = sceneViewModel.ManipulatorIds[i];
         }

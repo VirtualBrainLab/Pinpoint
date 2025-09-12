@@ -4,6 +4,7 @@
     <ui:Template name="Atlas" src="project://database/Assets/UI/Views/Atlas.uxml?fileID=9197481963319205126&amp;guid=9c87ec2a39db64e41ac639d9d458023a&amp;type=3#Atlas" />
     <ui:Template name="Inspector" src="project://database/Assets/UI/Views/ProbeInspector.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#ProbeInspector" />
     <ui:Template name="Automation" src="project://database/Assets/UI/Views/Automation.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#Automation" />
+    <ui:Template name="ManipulatorInspector" src="project://database/Assets/UI/Views/ManipulatorInspector.uxml?fileID=9197481963319205126&amp;guid=548563d6332996b48876c7469ab9a17c&amp;type=3#ManipulatorInspector" />
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
     <Unity.AppUI.UI.Panel picking-mode="Ignore" data-source-type="UI.ViewModels.MainViewModel, Assembly-CSharp" style="background-color: rgba(29, 29, 29, 0);">
         <Unity.AppUI.UI.SplitView show-expand-buttons="true" name="main-split-view" style="flex-grow: 1;">
@@ -64,16 +65,19 @@
                         </Bindings>
                     </Unity.AppUI.UI.Heading>
                 </ui:VisualElement>
-                <ui:Instance template="Inspector" name="probe-inspector-view" style="flex-grow: 1;">
-                    <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="IsAutomationModeActive" binding-mode="ToTarget" source-to-ui-converters="BooleanToInspectorVisibility" />
-                    </Bindings>
-                </ui:Instance>
-                <ui:Instance template="Automation" name="automation-view" style="flex-grow: 1; display: none;">
-                    <Bindings>
-                        <ui:DataBinding property="style.display" data-source-path="IsAutomationModeActive" binding-mode="ToTarget" />
-                    </Bindings>
-                </ui:Instance>
+                <ui:ScrollView>
+                    <ui:Instance template="Inspector" name="probe-inspector-view" style="flex-grow: 1;">
+                        <Bindings>
+                            <ui:DataBinding property="style.display" data-source-path="IsAutomationModeActive" binding-mode="ToTarget" source-to-ui-converters="BooleanToInspectorVisibility" />
+                        </Bindings>
+                    </ui:Instance>
+                    <ui:Instance template="ManipulatorInspector" name="manipulator-inspector-view" />
+                    <ui:Instance template="Automation" name="automation-view" style="flex-grow: 1; display: none;">
+                        <Bindings>
+                            <ui:DataBinding property="style.display" data-source-path="IsAutomationModeActive" binding-mode="ToTarget" />
+                        </Bindings>
+                    </ui:Instance>
+                </ui:ScrollView>
             </Unity.AppUI.UI.Pane>
         </Unity.AppUI.UI.SplitView>
     </Unity.AppUI.UI.Panel>
