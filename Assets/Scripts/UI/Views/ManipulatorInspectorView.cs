@@ -1,7 +1,14 @@
 using UI.ViewModels;
+using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEngine.UIElements;
 using Utils;
+using Utils.Types;
+using Button = Unity.AppUI.UI.Button;
+using FloatField = Unity.AppUI.UI.FloatField;
+using Toggle = Unity.AppUI.UI.Toggle;
+using Vector3Field = Unity.AppUI.UI.Vector3Field;
+using Vector4Field = Unity.AppUI.UI.Vector4Field;
 #if !UNITY_EDITOR
 using UnityEngine;
 #endif
@@ -17,6 +24,71 @@ namespace UI.Views
                 "manipulator-inspector-view"
             );
             root.dataSource = manipulatorInspectorViewModel;
+
+            // Register component references.
+            var inspectButton = root.Q<Button>(
+                "manipulator-inspector__visualization-probe-inspect-button"
+            );
+            var anglesField = root.Q<Vector3Field>("manipulator-inspector__angles-field");
+            var handednessButtonLeft = root.Q<ActionButton>(
+                "manipulator-inspector__handedness-button--left"
+            );
+            var handednessButtonRight = root.Q<ActionButton>(
+                "manipulator-inspector__handedness-button--right"
+            );
+            var referenceCoordinateOffsetField = root.Q<Vector4Field>(
+                "manipulator-inspector__reference-coordinate-offset-field"
+            );
+            var setReferenceCoordinateOffsetButton = root.Q<Button>(
+                "manipulator-inspector__set-reference-coordinate-offset-button"
+            );
+            var duraOffsetField = root.Q<FloatField>("manipulator-inspector__dura-offset-field");
+            var recalculateDuraOffsetButton = root.Q<Button>(
+                "manipulator-inspector__recalculate-dura-offset-button"
+            );
+            var manualControlToggle = root.Q<Toggle>(
+                "manipulator-inspector__manual-control-toggle"
+            );
+
+            // Register event handlers.
+            anglesField.RegisterValueChangedCallback(evt =>
+            {
+                manipulatorInspectorViewModel.SetAnglesCommand.Execute(evt.newValue);
+            });
+            handednessButtonLeft.clickable.clicked += () =>
+            {
+                manipulatorInspectorViewModel.SetHandednessCommand.Execute(
+                    ManipulatorHandedness.Left
+                );
+            };
+            handednessButtonRight.clickable.clicked += () =>
+            {
+                manipulatorInspectorViewModel.SetHandednessCommand.Execute(
+                    ManipulatorHandedness.Right
+                );
+            };
+            referenceCoordinateOffsetField.RegisterValueChangedCallback(evt =>
+            {
+                manipulatorInspectorViewModel.SetReferenceCoordinateOffsetCommand.Execute(
+                    evt.newValue
+                );
+            });
+            setReferenceCoordinateOffsetButton.clickable.clicked += () =>
+            {
+                manipulatorInspectorViewModel.UseCurrentPositionForReferenceCoordinateOffsetCommand.Execute();
+            };
+            duraOffsetField.RegisterValueChangedCallback(evt =>
+            {
+                manipulatorInspectorViewModel.SetDuraOffsetCommand.Execute(evt.newValue);
+            });
+            recalculateDuraOffsetButton.clickable.clicked += () =>
+            {
+                manipulatorInspectorViewModel.RecalculateDuraOffsetCommand.Execute();
+            };
+            manualControlToggle.RegisterValueChangedCallback(evt =>
+            {
+                manipulatorInspectorViewModel.SetManualControlEnabledCommand.Execute(evt.newValue);
+            });
         }
 
 #if UNITY_EDITOR

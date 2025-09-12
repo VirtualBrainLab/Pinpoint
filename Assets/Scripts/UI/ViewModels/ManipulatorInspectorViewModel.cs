@@ -80,5 +80,30 @@ namespace UI.ViewModels
             _sceneStateSubscription.Dispose();
             App.shuttingDown -= OnShuttingDown;
         }
+
+        #region Commands
+
+        [ICommand]
+        private void SetAngles(Vector3 angles) { }
+
+        [ICommand]
+        private void SetHandedness(ManipulatorHandedness handedness) { }
+
+        [ICommand]
+        private void SetReferenceCoordinateOffset(Vector4 referenceCoordinateOffset) { }
+
+        [ICommand]
+        private void UseCurrentPositionForReferenceCoordinateOffset() { }
+
+        [ICommand]
+        private void SetDuraOffset(float duraOffset) { }
+
+        [ICommand]
+        private void RecalculateDuraOffset() { }
+
+        [ICommand]
+        private void SetManualControlEnabled(bool isEnabled) { }
+
+        #endregion
     }
 }
