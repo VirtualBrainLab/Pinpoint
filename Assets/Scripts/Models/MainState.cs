@@ -1,6 +1,5 @@
 using System;
 using Unity.AppUI.UI;
-using UnityEngine;
 
 namespace Models
 {

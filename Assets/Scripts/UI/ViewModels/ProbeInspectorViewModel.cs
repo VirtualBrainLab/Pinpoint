@@ -1,7 +1,4 @@
-using System.ComponentModel;
 using System.Linq;
-using System.Xml;
-using BrainAtlas;
 using Models;
 using Models.Scene;
 using Services;
@@ -17,9 +14,10 @@ namespace UI.ViewModels
     {
         #region Constants
 
-        private readonly Vector2 _pitchRange = new Vector2(0, 90);
+        private readonly Vector2 _pitchRange = new(0, 90);
 
         #endregion
+
         #region Services
 
         private readonly StoreService _storeService;
@@ -65,9 +63,7 @@ namespace UI.ViewModels
         {
             // Early exit if no active probe.
             if (string.IsNullOrEmpty(sceneState.ActiveProbeName))
-            {
                 return;
-            }
 
             Position = sceneState.ActiveProbeState.APMLDV;
 
@@ -128,7 +124,9 @@ namespace UI.ViewModels
         [ICommand]
         private void MoveProbeToDura()
         {
-            ProbeManager.Instances.First(manager => manager.name == ActiveProbeName).DropProbeToBrainSurface();
+            ProbeManager
+                .Instances.First(manager => manager.name == ActiveProbeName)
+                .DropProbeToBrainSurface();
         }
 
         [ICommand]

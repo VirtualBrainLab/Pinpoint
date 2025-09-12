@@ -57,7 +57,7 @@ namespace UI.ViewModels
             _sceneStateSubscription = storeService.Store.Subscribe(
                 state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
                 OnSceneStateChanged,
-                new SubscribeOptions<SceneState>() { fireImmediately = true }
+                new SubscribeOptions<SceneState> { fireImmediately = true }
             );
             PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
@@ -72,20 +72,14 @@ namespace UI.ViewModels
         private void OnSceneStateChanged(SceneState state)
         {
             if (!string.IsNullOrEmpty(state.ActiveProbeName))
-            {
                 InspectorDisplayType = InspectorDisplayType.Probe;
-            }
             else if (!string.IsNullOrEmpty(state.ActiveManipulatorId))
-            {
                 // Use automation inspector if automation mode is active.
                 InspectorDisplayType = IsAutomationModeActive
                     ? InspectorDisplayType.Automation
                     : InspectorDisplayType.Manipulator;
-            }
             else
-            {
                 InspectorDisplayType = InspectorDisplayType.Nothing;
-            }
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
