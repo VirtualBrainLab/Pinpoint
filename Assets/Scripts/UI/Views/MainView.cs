@@ -6,7 +6,6 @@ using UnityEngine.UIElements;
 using Utils;
 using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
-using Toggle = Unity.AppUI.UI.Toggle;
 #if !UNITY_EDITOR
 using UnityEngine;
 #endif
@@ -41,7 +40,6 @@ namespace UI.Views
 
             // Register component references.
             var mainSplitView = root.Q<SplitView>("main-split-view");
-            var automationToggle = root.Q<Toggle>("automation-toggle");
             var leftSidePanelCollapseButton = root.Q<Button>("left-side-panel__collapse-button");
             var rightSidePanelCollapseButton = root.Q<Button>("right-side-panel__collapse-button");
             var leftSidePanelTabs = root.Q<Tabs>("left-side-panel__tabs");
@@ -56,9 +54,6 @@ namespace UI.Views
             _ = PinpointApp.Services.GetRequiredService<ManipulatorInspectorView>();
 
             // Register event handlers.
-            automationToggle.RegisterValueChangedCallback(_ =>
-                mainViewModel.ToggleAutomationModeCommand.Execute()
-            );
             leftSidePanelCollapseButton.clickable.clicked += () =>
             {
                 mainSplitView.CollapseSplitter(

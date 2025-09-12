@@ -59,6 +59,7 @@ namespace UI.ViewModels
                 OnSceneStateChanged,
                 new SubscribeOptions<SceneState> { fireImmediately = true }
             );
+            PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
         }
 
@@ -81,6 +82,20 @@ namespace UI.ViewModels
                 InspectorDisplayType = InspectorDisplayType.Nothing;
         }
 
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(IsAutomationModeActive):
+                    Debug.Log("Automation mode changed: " + IsAutomationModeActive);
+                    // Re-evaluate inspector display type when automation mode changes.
+                    OnSceneStateChanged(
+                        _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
+                    );
+                    break;
+            }
+        }
+
         private void OnShuttingDown()
         {
             _storeService.Save();
@@ -90,13 +105,6 @@ namespace UI.ViewModels
         }
 
         #region Commands
-
-        [ICommand]
-        private void ToggleAutomationMode()
-        {
-            // Re-evaluate inspector display type when automation mode changes.
-            OnSceneStateChanged(_storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE));
-        }
 
         [ICommand]
         private void SetMainSplitViewState(SplitView.State state)
