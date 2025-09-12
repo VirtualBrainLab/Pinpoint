@@ -1,11 +1,15 @@
-using System;
 using System.ComponentModel;
 using System.Linq;
 using UI.ViewModels;
 using Unity.AppUI.UI;
+using UnityEditor;
 using UnityEngine.UIElements;
+using Utils;
 using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
 
 namespace UI.Views
 {
@@ -86,13 +90,26 @@ namespace UI.Views
                 ProbeColor.LivelyLaugh => "probe-icon--lively-laugh",
                 ProbeColor.DarkCyan => "probe-icon--dark-cyan",
                 ProbeColor.LightCyan => "probe-icon--light-cyan",
-                _ => null,
+                _ => null
             };
             if (string.IsNullOrEmpty(newClass))
                 return;
 
             // Apply.
             _icon.AddToClassList(newClass);
+        }
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
+        public static void RegisterMainViewConverters()
+        {
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "FullNameToDisplayName",
+                (ref string fullName) => fullName[..8]
+            );
         }
     }
 }

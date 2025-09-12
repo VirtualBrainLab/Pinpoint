@@ -67,6 +67,7 @@ namespace UI.ViewModels
 
         private void OnSceneStateChanged(SceneState sceneState)
         {
+            Debug.Log($"Active probe {sceneState.ActiveProbeName}");
             // Early exit if no active probe.
             if (string.IsNullOrEmpty(sceneState.ActiveProbeName))
             {

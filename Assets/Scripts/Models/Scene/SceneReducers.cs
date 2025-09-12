@@ -76,7 +76,19 @@ namespace Models.Scene
 
         #endregion
 
-        #region Active Probe Reducers
+        #region Manipulator List Reducers
+
+        public static SceneState SetManipulatorsReducer(
+            SceneState state,
+            IAction<List<ManipulatorState>> action
+        )
+        {
+            return state with { Manipulators = action.payload, ActiveManipulatorId = "" };
+        }
+
+        #endregion
+
+        #region Active Item Reducers
 
         public static SceneState SetActiveProbeReducer(SceneState state, IAction<string> action)
         {
@@ -88,13 +100,31 @@ namespace Models.Scene
             return state with
             {
                 ActiveProbeName = action.payload,
+                ActiveManipulatorId = "",
+            };
+        }
+
+        public static SceneState SetActiveManipulatorReducer(
+            SceneState state,
+            IAction<string> action
+        )
+        {
+            // If not found, return the state unchanged.
+            if (!state.Manipulators.Exists(manipulator => manipulator.Id == action.payload))
+                return state;
+
+            // Update the active manipulator ID.
+            return state with
+            {
+                ActiveProbeName = "",
+                ActiveManipulatorId = action.payload,
             };
         }
 
         #endregion
 
         #region Probe Reducers
-        
+
         public static SceneState SetProbePositionReducer(
             SceneState state,
             IAction<(string Name, Vector3 APMLDV)> action
@@ -667,10 +697,20 @@ namespace Models.Scene
 
         #endregion
 
-        #region Active Probe Actions
+        #region Manipulator List Actions
+
+        public static readonly ActionCreator<List<ManipulatorState>> SET_MANIPULATORS =
+            $"{SliceNames.SCENE_SLICE}/SetManipulators";
+
+        #endregion
+
+        #region Active Item Actions
 
         public static readonly ActionCreator<string> SET_ACTIVE_PROBE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbe";
+
+        public static readonly ActionCreator<string> SET_ACTIVE_MANIPULATOR =
+            $"{SliceNames.SCENE_SLICE}/SetActiveManipulator";
 
         #endregion
 
@@ -678,6 +718,7 @@ namespace Models.Scene
 
         public static readonly ActionCreator<(string Name, Vector3 APMLDV)> SET_PROBE_POSITION =
             $"{SliceNames.SCENE_SLICE}/SetProbePosition";
+
         public static readonly ActionCreator<(
             string Name,
             Vector3 SurfaceAPMLDV,

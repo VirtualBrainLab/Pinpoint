@@ -73,6 +73,8 @@ namespace Models.Settings
 
         public EphysLinkPlatformType SelectedEphysLinkPlatformType;
 
+        public string ConnectionSocketId;
+
         public int NewScalePathfinderMpmPort = 8080;
 
         public string CustomServerIpAddress = "localhost";

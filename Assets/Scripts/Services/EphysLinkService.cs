@@ -36,6 +36,8 @@ namespace Services
         private Socket _socket;
         private Process _ephysLinkProcess;
 
+        public string SocketId => _socket.Id;
+
         #endregion
 
         #region Connection Handling
@@ -79,7 +81,7 @@ namespace Services
                         {
                             _storeService.Store.Dispatch(
                                 SettingsActions.SET_CONNECTION_STATE,
-                                EphysLinkConnectionState.Connected
+                                (EphysLinkConnectionState.Connected, _socket.Id)
                             );
                             onConnected?.Invoke();
                         }
@@ -136,7 +138,7 @@ namespace Services
             // Update the store state to disconnected.
             _storeService.Store.Dispatch(
                 SettingsActions.SET_CONNECTION_STATE,
-                EphysLinkConnectionState.Disconnected
+                (EphysLinkConnectionState.Disconnected, "")
             );
             onDisconnected?.Invoke();
         }
@@ -328,7 +330,6 @@ namespace Services
         }
 
         #endregion
-
 
         #region Helper Functions
 

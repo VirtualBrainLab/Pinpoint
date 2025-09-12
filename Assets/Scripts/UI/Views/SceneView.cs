@@ -70,9 +70,30 @@ namespace UI.Views
             _probeListView.selectedIndicesChanged += indices =>
             {
                 var indicesList = indices.ToList();
+                foreach (var index in indices)
+                {
+                    Debug.Log($"Probe selected: {sceneViewModel.ProbeListItemViewModels[index].Name}");
+                }
                 sceneViewModel.SetActiveProbeCommand.Execute(
                     indicesList.Any() ? indicesList[0] : -1
                 );
+                
+                // Clear the manipulator selection when a probe is selected.
+                _manipulatorListView.selectedIndex = -1;
+            };
+            _manipulatorListView.selectedIndicesChanged += indices =>
+            {
+                var indicesList = indices.ToList();
+                foreach (var index in indices)
+                {
+                    Debug.Log($"Manipulator selected: {sceneViewModel.ManipulatorIds[index]}");
+                }
+                sceneViewModel.SetActiveManipulatorCommand.Execute(
+                    indicesList.Any() ? indicesList[0] : -1
+                );
+                
+                // Clear the probe selection when a manipulator is selected.
+                _probeListView.selectedIndex = -1;
             };
 
             // Build probe list view.

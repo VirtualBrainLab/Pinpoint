@@ -76,8 +76,17 @@ namespace Services
                             SceneActions.REMOVE_ALL_PROBES,
                             SceneReducers.RemoveAllProbesReducer
                         )
-                        // Active Probe.
+                        // Manipulator list.
+                        .AddCase(
+                            SceneActions.SET_MANIPULATORS,
+                            SceneReducers.SetManipulatorsReducer
+                        )
+                        // Active Item.
                         .AddCase(SceneActions.SET_ACTIVE_PROBE, SceneReducers.SetActiveProbeReducer)
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_MANIPULATOR,
+                            SceneReducers.SetActiveManipulatorReducer
+                        )
                         // Probe.
                         .AddCase(
                             SceneActions.SET_PROBE_POSITION,

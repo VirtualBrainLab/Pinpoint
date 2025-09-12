@@ -121,7 +121,7 @@ namespace UI.ViewModels
             // Move to connecting state.
             _storeService.Store.Dispatch(
                 SettingsActions.SET_CONNECTION_STATE,
-                EphysLinkConnectionState.Connecting
+                (EphysLinkConnectionState.Connecting, "")
             );
 
             // Get the current state from the store.
@@ -193,7 +193,7 @@ namespace UI.ViewModels
                             // Move back to connecting state.
                             _storeService.Store.Dispatch(
                                 SettingsActions.SET_CONNECTION_STATE,
-                                EphysLinkConnectionState.Connecting
+                                (EphysLinkConnectionState.Connecting, "")
                             );
 
                             ConnectAttempt(attempts + 1);

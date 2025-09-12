@@ -33,6 +33,9 @@ namespace UI.ViewModels
         private List<ProbeListItemViewModel> _probeListItemViewModels = new();
 
         [ObservableProperty]
+        private int _selectedManipulatorIndex = -1;
+
+        [ObservableProperty]
         private List<string> _manipulatorIds = new();
 
         #endregion
@@ -59,13 +62,21 @@ namespace UI.ViewModels
 
         private void OnSceneStateChanged(SceneState state)
         {
+            // Update probe selection.
+            SelectedProbeIndex = state.ActiveProbeIndex;
+
             // Map probes to view models.
             ProbeListItemViewModels = state
                 .Probes.Select(probeState => new ProbeListItemViewModel(probeState, _storeService))
                 .ToList();
 
-            // Update panel selection based on active probe.
-            SelectedProbeIndex = state.ActiveProbeIndex;
+            // Update manipulator selection.
+            SelectedManipulatorIndex = state.ActiveManipulatorIndex;
+
+            // Map manipulators to IDs.
+            ManipulatorIds = state
+                .Manipulators.Select(manipulatorState => manipulatorState.Id)
+                .ToList();
         }
 
         private async void OnSettingsStateChanged(SettingsState state)
@@ -81,12 +92,33 @@ namespace UI.ViewModels
                     if (!string.IsNullOrEmpty(manipulatorsResponse.Error))
                         return;
 
-                    // Populate manipulator IDs.
-                    ManipulatorIds = manipulatorsResponse.Manipulators.ToList();
+                    // If there is a mismatch in the IDs in the scene state and the server, update the state.
+                    if (
+                        !_storeService
+                            .Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
+                            .Manipulators.Select(manipulatorState => manipulatorState.Id)
+                            .SequenceEqual(manipulatorsResponse.Manipulators)
+                    )
+                    {
+                        var newManipulators = manipulatorsResponse
+                            .Manipulators.Select(manipulatorId => new ManipulatorState()
+                            {
+                                Id = manipulatorId,
+                            })
+                            .ToList();
+                        _storeService.Store.Dispatch(
+                            SceneActions.SET_MANIPULATORS,
+                            newManipulators
+                        );
+                    }
                     break;
                 }
                 case EphysLinkConnectionState.Disconnected:
-                    ManipulatorIds = new List<string>();
+                    // Clear manipulators from state.
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_MANIPULATORS,
+                        new List<ManipulatorState>()
+                    );
                     break;
                 case EphysLinkConnectionState.Connecting:
                     break;
@@ -113,14 +145,18 @@ namespace UI.ViewModels
         [ICommand]
         private void SetActiveProbe(int index)
         {
-            var selectedProbeName =
-                index < 0
-                    ? ""
-                    : _storeService
-                        .Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
-                        .Probes[index]
-                        .Name;
+            var selectedProbeName = index < 0 ? "" : ProbeListItemViewModels[index].Name;
             _storeService.Store.Dispatch(SceneActions.SET_ACTIVE_PROBE, selectedProbeName);
+        }
+
+        [ICommand]
+        private void SetActiveManipulator(int index)
+        {
+            var selectedManipulatorId = index < 0 ? "" : ManipulatorIds[index];
+            _storeService.Store.Dispatch(
+                SceneActions.SET_ACTIVE_MANIPULATOR,
+                selectedManipulatorId
+            );
         }
         #endregion
     }

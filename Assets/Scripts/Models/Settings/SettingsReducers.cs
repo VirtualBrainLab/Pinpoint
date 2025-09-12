@@ -49,10 +49,14 @@ namespace Models.Settings
 
         public static SettingsState SetConnectionStateReducer(
             SettingsState state,
-            IAction<EphysLinkConnectionState> action
+            IAction<(EphysLinkConnectionState ConnectionState, string ConnectionSocketId)> action
         )
         {
-            return state with { ConnectionState = action.payload };
+            return state with
+            {
+                ConnectionState = action.payload.ConnectionState,
+                ConnectionSocketId = action.payload.ConnectionSocketId,
+            };
         }
 
         #endregion
@@ -77,8 +81,10 @@ namespace Models.Settings
         public static readonly ActionCreator<int> SET_CUSTOM_SERVER_PORT =
             $"{SliceNames.SETTINGS_SLICE}/SetCustomServerPort";
 
-        public static readonly ActionCreator<EphysLinkConnectionState> SET_CONNECTION_STATE =
-            $"{SliceNames.SETTINGS_SLICE}/SetConnectionState";
+        public static readonly ActionCreator<(
+            EphysLinkConnectionState ConnectionState,
+            string ConnectionSocketId
+        )> SET_CONNECTION_STATE = $"{SliceNames.SETTINGS_SLICE}/SetConnectionState";
 
         #endregion
     }

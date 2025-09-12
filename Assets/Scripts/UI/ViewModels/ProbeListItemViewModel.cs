@@ -32,7 +32,7 @@ namespace UI.ViewModels
             _probeState = probeState;
 
             Color = _probeState.Color;
-            Name = _probeState.Name[..8];
+            Name = _probeState.Name;
             Hidden = _probeState.ProbeDisplayType == ProbeDisplayType.Line;
         }
 

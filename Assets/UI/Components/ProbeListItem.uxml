@@ -5,7 +5,7 @@
         <Unity.AppUI.UI.Spacer />
         <Unity.AppUI.UI.Heading text="ABCD-1234">
             <Bindings>
-                <ui:DataBinding property="text" data-source-path="Name" binding-mode="ToTarget" />
+                <ui:DataBinding property="text" data-source-path="Name" binding-mode="ToTarget" source-to-ui-converters="FullNameToDisplayName" />
             </Bindings>
         </Unity.AppUI.UI.Heading>
         <Unity.AppUI.UI.Spacer spacing="Expand" />
