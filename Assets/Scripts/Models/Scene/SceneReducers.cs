@@ -647,6 +647,22 @@ namespace Models.Scene
 
         #endregion
 
+        #region Platform Info
+
+        public static SceneState SetPlatformInfoReducer(
+            SceneState state,
+            IAction<(int ManipulatorAxesCount, Vector4 ManipulatorDimensions)> action
+        )
+        {
+            return state with
+            {
+                NumberOfAxesOnManipulator = action.payload.ManipulatorAxesCount,
+                ManipulatorDimensions = action.payload.ManipulatorDimensions,
+            };
+        }
+
+        #endregion
+
         #region Brain Area
 
         public static SceneState RotateAreaVisibilityReducer(SceneState state, IAction<int> action)
@@ -794,6 +810,15 @@ namespace Models.Scene
 
         public static readonly ActionCreator<int> SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeDrivePastDistance";
+
+        #endregion
+
+        #region Platform Info Actions
+
+        public static readonly ActionCreator<(
+            int ManipulatorAxesCount,
+            Vector4 ManipulatorDimensions
+        )> SET_PLATFORM_INFO = $"{SliceNames.SCENE_SLICE}/SetPlatformInfo";
 
         #endregion
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using Utils.Types;
 
 namespace Models.Scene
@@ -36,6 +37,13 @@ namespace Models.Scene
 
         // Helper to get the active probe index.
         public int ActiveManipulatorIndex => Manipulators.IndexOf(ActiveManipulatorState);
+
+        #endregion
+
+        #region Manipulator Platform Info
+
+        public int NumberOfAxesOnManipulator;
+        public Vector4 ManipulatorDimensions;
 
         #endregion
 

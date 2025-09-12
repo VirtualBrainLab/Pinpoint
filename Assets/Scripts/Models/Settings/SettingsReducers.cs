@@ -52,11 +52,7 @@ namespace Models.Settings
             IAction<(EphysLinkConnectionState ConnectionState, string ConnectionSocketId)> action
         )
         {
-            return state with
-            {
-                ConnectionState = action.payload.ConnectionState,
-                ConnectionSocketId = action.payload.ConnectionSocketId,
-            };
+            return state with { ConnectionState = action.payload.ConnectionState };
         }
 
         #endregion

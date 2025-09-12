@@ -151,6 +151,11 @@ namespace Services
                         .AddCase(
                             SceneActions.ROTATE_AREA_VISIBILITY,
                             SceneReducers.RotateAreaVisibilityReducer
+                        )
+                        // Platform Info.
+                        .AddCase(
+                            SceneActions.SET_PLATFORM_INFO,
+                            SceneReducers.SetPlatformInfoReducer
                         );
                 }
             );

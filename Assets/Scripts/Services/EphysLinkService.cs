@@ -5,6 +5,7 @@ using System.Linq;
 using BestHTTP.SocketIO3;
 using KS.Diagnostics;
 using Models;
+using Models.Scene;
 using Models.Settings;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
@@ -79,6 +80,11 @@ namespace Services
                         // Check version compatibility.
                         if (await IsVersionCompatible())
                         {
+                            var platformInfoResponse = await GetPlatformInfo();
+                            _storeService.Store.Dispatch(
+                                SceneActions.SET_PLATFORM_INFO,
+                                (platformInfoResponse.AxesCount, platformInfoResponse.Dimensions)
+                            );
                             _storeService.Store.Dispatch(
                                 SettingsActions.SET_CONNECTION_STATE,
                                 (EphysLinkConnectionState.Connected, _socket.Id)

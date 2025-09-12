@@ -30,6 +30,9 @@ namespace UI.ViewModels
         private Vector3 _angles;
 
         [ObservableProperty]
+        private int _axesCount;
+
+        [ObservableProperty]
         private ManipulatorHandedness _handedness;
 
         [ObservableProperty]
@@ -65,6 +68,7 @@ namespace UI.ViewModels
 
             VisualizationProbeName = sceneState.ActiveManipulatorState.ProbeName;
             Angles = sceneState.ActiveManipulatorState.Angles;
+            _axesCount = sceneState.NumberOfAxesOnManipulator;
             Handedness = sceneState.ActiveManipulatorState.Handedness;
             ReferenceCoordinateOffset = sceneState.ActiveManipulatorState.ReferenceCoordinateOffset;
             DuraOffset = sceneState.ActiveManipulatorState.DuraOffset;
