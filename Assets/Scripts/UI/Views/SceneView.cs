@@ -23,7 +23,7 @@ namespace UI.Views
         {
             // Get root visual element.
             var root = PinpointApp.RootVisualElement.Q<TemplateContainer>("scene-view");
-            
+
             // Register view model and property changes.
             _sceneViewModel = sceneViewModel;
             _sceneViewModel.PropertyChanged += OnPropertyChanged;
@@ -45,7 +45,7 @@ namespace UI.Views
 
             _probeListView = root.Q<ListView>("scene__probe-list-view");
             _manipulatorListView = root.Q<ListView>("scene__manipulators-list");
-            
+
             // Add event listeners.
             addNeuropixels10.clickable.clicked += () =>
                 _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels1);
@@ -74,18 +74,17 @@ namespace UI.Views
                     indicesList.Any() ? indicesList[0] : -1
                 );
             };
-            
+
             // Build probe list view.
             _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;
             _probeListView.bindItem = (element, i) =>
                 _ = new ProbeListItem(element, _sceneViewModel.ProbeListItemViewModels[i]);
 
             // Build manipulator list view.
+            _manipulatorListView.itemsSource = _sceneViewModel.ManipulatorIds;
+            _manipulatorListView.makeItem = () => new Heading();
             _manipulatorListView.bindItem = (element, i) =>
-                _ = new ManipulatorListItem(
-                    element,
-                    _sceneViewModel.ManipulatorListItemViewModels[i]
-                );
+                ((Heading)element).text = sceneViewModel.ManipulatorIds[i];
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -99,12 +98,8 @@ namespace UI.Views
                     _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;
                     _probeListView.Rebuild();
                     break;
-                case nameof(_sceneViewModel.ManipulatorListItemViewModels):
-                    Debug.Log(
-                        $"Rebuilding list: {_sceneViewModel.ManipulatorListItemViewModels.Count}"
-                    );
-                    _manipulatorListView.itemsSource =
-                        _sceneViewModel.ManipulatorListItemViewModels;
+                case nameof(_sceneViewModel.ManipulatorIds):
+                    _manipulatorListView.itemsSource = _sceneViewModel.ManipulatorIds;
                     _manipulatorListView.Rebuild();
                     break;
             }

@@ -30,7 +30,7 @@
         <ui:ListView item-template="project://database/Assets/UI/Components/ProbeListItem.uxml?fileID=9197481963319205126&amp;guid=521cec15c97d85d4ca968d547323a790&amp;type=3#ProbeListItem" virtualization-method="DynamicHeight" name="scene__probe-list-view" style="flex-grow: 1;" />
         <Unity.AppUI.UI.Accordion>
             <Unity.AppUI.UI.AccordionItem title="Manipulators" value="true">
-                <ui:ListView item-template="project://database/Assets/UI/Components/ManipulatorListItem.uxml?fileID=9197481963319205126&amp;guid=2e954e0e106ba1445bb698ca7b772ad8&amp;type=3#ManipulatorListItem" name="scene__manipulators-list" virtualization-method="DynamicHeight" style="flex-grow: 1;" />
+                <ui:ListView name="scene__manipulators-list" virtualization-method="DynamicHeight" style="flex-grow: 1;" />
             </Unity.AppUI.UI.AccordionItem>
         </Unity.AppUI.UI.Accordion>
     </Unity.AppUI.UI.Panel>

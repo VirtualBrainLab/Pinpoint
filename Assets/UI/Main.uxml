@@ -40,7 +40,7 @@
                         <ui:DataBinding property="value" data-source-path="LeftSidePanelTabIndex" binding-mode="TwoWay" />
                     </Bindings>
                 </Unity.AppUI.UI.Tabs>
-                <Unity.AppUI.UI.SwipeView swipeable="false" value="0" snap-animation-speed="0.2" style="flex-grow: 1;">
+                <Unity.AppUI.UI.SwipeView swipeable="false" value="0" snap-animation-speed="0.2" style="flex-grow: 1; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;">
                     <Unity.AppUI.UI.SwipeViewItem>
                         <ui:Instance template="Scene" name="scene-view" style="flex-grow: 1; width: 100%;" />
                     </Unity.AppUI.UI.SwipeViewItem>

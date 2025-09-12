@@ -33,7 +33,7 @@ namespace UI.ViewModels
         private List<ProbeListItemViewModel> _probeListItemViewModels = new();
 
         [ObservableProperty]
-        private List<ManipulatorListItemViewModel> _manipulatorListItemViewModels = new();
+        private List<string> _manipulatorIds = new();
 
         #endregion
 
@@ -81,16 +81,12 @@ namespace UI.ViewModels
                     if (!string.IsNullOrEmpty(manipulatorsResponse.Error))
                         return;
 
-                    // Map manipulators to view models.
-                    ManipulatorListItemViewModels = manipulatorsResponse
-                        .Manipulators.Select(manipulatorId => new ManipulatorListItemViewModel(
-                            manipulatorId
-                        ))
-                        .ToList();
+                    // Populate manipulator IDs.
+                    ManipulatorIds = manipulatorsResponse.Manipulators.ToList();
                     break;
                 }
                 case EphysLinkConnectionState.Disconnected:
-                    ManipulatorListItemViewModels = new List<ManipulatorListItemViewModel>();
+                    ManipulatorIds = new List<string>();
                     break;
                 case EphysLinkConnectionState.Connecting:
                     break;
