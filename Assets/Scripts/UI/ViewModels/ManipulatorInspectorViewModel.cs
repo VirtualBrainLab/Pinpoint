@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using BrainAtlas;
 using Models;
@@ -91,7 +92,13 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
-        private void AddVisualizationProbe(ProbeType probeType) { }
+        private void AddVisualizationProbe(ProbeType probeType)
+        {
+            _storeService.Store.Dispatch(
+                SceneActions.ADD_VISUALIZATION_PROBE,
+                (ActiveManipulatorId, Guid.NewGuid().ToString(), probeType)
+            );
+        }
 
         [ICommand]
         private void InspectVisualizationProbe()

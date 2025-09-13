@@ -66,6 +66,10 @@ namespace Services
                     builder
                         // Probe list.
                         .AddCase(SceneActions.ADD_PROBE, SceneReducers.AddProbeReducer)
+                        .AddCase(
+                            SceneActions.ADD_VISUALIZATION_PROBE,
+                            SceneReducers.AddVisualizationProbeReducer
+                        )
                         .AddCase(SceneActions.DUPLICATE_PROBE, SceneReducers.DuplicateProbeReducer)
                         .AddCase(SceneActions.REMOVE_PROBE, SceneReducers.RemoveProbeReducer)
                         .AddCase(
@@ -108,10 +112,6 @@ namespace Services
                         .AddCase(SceneActions.SET_PROBE_COLOR, SceneReducers.SetProbeColorReducer)
                         .AddCase(SceneActions.SET_PROBE_LOCKED, SceneReducers.SetProbeLockedReducer)
                         // Manipulator.
-                        .AddCase(
-                            SceneActions.SET_MANIPULATOR_VISUALIZATION_PROBE,
-                            SceneReducers.SetManipulatorVisualizationProbeReducer
-                        )
                         .AddCase(
                             SceneActions.SET_MANIPULATOR_ANGLES,
                             SceneReducers.SetManipulatorAnglesReducer

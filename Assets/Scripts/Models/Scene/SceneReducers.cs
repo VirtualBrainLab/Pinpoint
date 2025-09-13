@@ -18,6 +18,36 @@ namespace Models.Scene
             return state with { Probes = newProbesList };
         }
 
+        public static SceneState AddVisualizationProbeReducer(
+            SceneState state,
+            IAction<(string ManipulatorId, string ProbeName, ProbeType ProbeType)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.ManipulatorId);
+            if (index == -1)
+                return state;
+            var newManipulatorsList = state.Manipulators.ToList();
+            newManipulatorsList[index] = newManipulatorsList[index] with
+            {
+                VisualizationProbeName = action.payload.ProbeName,
+            };
+
+            var newProbesList = state.Probes.ToList();
+            newProbesList.Add(
+                new ProbeState
+                {
+                    Name = action.payload.ProbeName,
+                    ProbeType = action.payload.ProbeType,
+                }
+            );
+
+            return state with
+            {
+                Probes = newProbesList,
+                Manipulators = newManipulatorsList,
+            };
+        }
+
         public static SceneState DuplicateProbeReducer(SceneState state, IAction<string> action)
         {
             // Find the probe to duplicate.
@@ -378,22 +408,6 @@ namespace Models.Scene
         #endregion
 
         #region Manipulator Reducers
-
-        public static SceneState SetManipulatorVisualizationProbeReducer(
-            SceneState state,
-            IAction<(string Id, string VisualizationProbeName)> action
-        )
-        {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
-            if (index == -1)
-                return state;
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
-            {
-                VisualizationProbeName = action.payload.VisualizationProbeName,
-            };
-            return state with { Manipulators = manipulatorsCopy };
-        }
 
         public static SceneState SetManipulatorAnglesReducer(
             SceneState state,
@@ -818,6 +832,12 @@ namespace Models.Scene
         public static readonly ActionCreator<ProbeType> ADD_PROBE =
             $"{SliceNames.SCENE_SLICE}/AddProbe";
 
+        public static readonly ActionCreator<(
+            string ManipulatorId,
+            string ProbeName,
+            ProbeType ProbeType
+        )> ADD_VISUALIZATION_PROBE = $"{SliceNames.SCENE_SLICE}/AddVisualizationProbe";
+
         public static readonly ActionCreator<string> DUPLICATE_PROBE =
             $"{SliceNames.SCENE_SLICE}/DuplicateProbe";
 
@@ -896,12 +916,6 @@ namespace Models.Scene
         #endregion
 
         #region Manipulator Actions
-
-        public static readonly ActionCreator<(
-            string Id,
-            string VisualizationProbeName
-        )> SET_MANIPULATOR_VISUALIZATION_PROBE =
-            $"{SliceNames.SCENE_SLICE}/SetManipulatorVisualizationProbe";
 
         public static readonly ActionCreator<(string Id, Vector3 Angles)> SET_MANIPULATOR_ANGLES =
             $"{SliceNames.SCENE_SLICE}/SetManipulatorAngles";
