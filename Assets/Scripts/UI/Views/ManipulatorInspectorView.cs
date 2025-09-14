@@ -27,18 +27,36 @@ namespace UI.Views
             root.dataSource = manipulatorInspectorViewModel;
 
             // Register component references.
-            var addNeuropixels10 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__1-0");
-            var addNeuropixels20 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__2-0");
-            var addNeuropixels204Shank = root.Q<MenuItem>(
-                "scene__add-probe-menu__neuropixels__2-0-4-shank"
+            var addNeuropixels10 = root.Q<MenuItem>(
+                "manipulator-inspector__add-visualization-probe-menu__neuropixels__1-0"
             );
-            var addNeuropixels2X24 = root.Q<MenuItem>("scene__add-probe-menu__neuropixels__2x-2-4");
-            var addPipette25Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__25um");
-            var addPipette50Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__50um");
-            var addPipette100Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__100um");
-            var addPipette200Um = root.Q<MenuItem>("scene__add-probe-menu__pipette__200um");
-            var addUcla128K = root.Q<MenuItem>("scene__add-probe-menu__ucla__128k");
-            var addUcla256F = root.Q<MenuItem>("scene__add-probe-menu__ucla__256f");
+            var addNeuropixels20 = root.Q<MenuItem>(
+                "manipulator-inspector__add-visualization-probe-menu__neuropixels__2-0"
+            );
+            var addNeuropixels204Shank = root.Q<MenuItem>(
+                "manipulator-inspector__add-visualization-probe-menu__neuropixels__2-0-4-shank"
+            );
+            var addNeuropixels2X24 = root.Q<MenuItem>(
+                "manipulator-inspector__add-visualization-probe-menu__neuropixels__2x-2-4"
+            );
+            var addPipette25Um = root.Q<MenuItem>(
+                "manipulator-inspector__add-visualization-probe-menu__pipette__25um"
+            );
+            var addPipette50Um = root.Q<MenuItem>(
+                "manipulator-inspector__add-visualization-probe-menu__pipette__50um"
+            );
+            var addPipette100Um = root.Q<MenuItem>(
+                "manipulator-inspector__add-visualization-probe-menu__pipette__100um"
+            );
+            var addPipette200Um = root.Q<MenuItem>(
+                "manipulator-inspector__add-visualization-probe-menu__pipette__200um"
+            );
+            var addUcla128K = root.Q<MenuItem>(
+                "manipulator-inspector__add-visualization-probe-menu__ucla__128k"
+            );
+            var addUcla256F = root.Q<MenuItem>(
+                "manipulator-inspector__add-visualization-probe-menu__ucla__256f"
+            );
             var visualizationProbeInspectButton = root.Q<Button>(
                 "manipulator-inspector__visualization-probe-inspect-button"
             );
