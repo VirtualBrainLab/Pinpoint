@@ -320,7 +320,11 @@ public class CartesianProbeController : ProbeController
         }
 
         // Update position.
-        transform.position = state.PositionWorldT;
+        transform.position =
+            BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(state.APMLDV)
+            );
+
 
         // Update orientation.
         transform.rotation = _initialRotation;

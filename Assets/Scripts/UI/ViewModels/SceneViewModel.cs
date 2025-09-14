@@ -110,15 +110,15 @@ namespace UI.ViewModels
                     )
                     {
                         var newManipulators = manipulatorsResponse
-                            .Manipulators.Select(manipulatorId => new ManipulatorState()
+                            .Manipulators.Select(manipulatorId => new ManipulatorState
                             {
                                 Id = manipulatorId,
-                                CoordinateTransform = sceneState.NumberOfAxesOnManipulator switch
-                                {
-                                    4 => new FourAxisLeftHandedManipulatorTransform(0),
-                                    3 => new ThreeAxisLeftHandedTransform(0, 90),
-                                    _ => throw new ArgumentOutOfRangeException(),
-                                },
+                                // CoordinateTransform = sceneState.NumberOfAxesOnManipulator switch
+                                // {
+                                //     4 => new FourAxisLeftHandedManipulatorTransform(0),
+                                //     3 => new ThreeAxisLeftHandedTransform(0, 90),
+                                //     _ => throw new ArgumentOutOfRangeException(),
+                                // },
                             })
                             .ToList();
                         _storeService.Store.Dispatch(
@@ -169,6 +169,7 @@ namespace UI.ViewModels
                 selectedManipulatorId
             );
         }
+
         #endregion
     }
 }

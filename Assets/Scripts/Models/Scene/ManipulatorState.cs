@@ -23,7 +23,7 @@ namespace Models.Scene
 
         #region Orientation
 
-        public Vector3 Angles;
+        public Vector3 Angles = new(0, 90, 0);
 
         public ManipulatorHandedness Handedness;
 
@@ -40,12 +40,6 @@ namespace Models.Scene
         #region Controls
 
         public bool ManualControlEnabled;
-
-        #endregion
-
-        #region Space and Transform
-
-        public CoordinateTransform CoordinateTransform;
 
         #endregion
     }

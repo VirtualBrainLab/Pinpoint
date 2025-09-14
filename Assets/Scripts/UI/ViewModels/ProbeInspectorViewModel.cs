@@ -14,6 +14,7 @@ namespace UI.ViewModels
     {
         #region Constants
 
+        // FIXME: This should go into some common constants file (along with copy in probe inspector view model).
         private readonly Vector2 _pitchRange = new(0, 90);
 
         #endregion

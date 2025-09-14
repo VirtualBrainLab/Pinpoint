@@ -1,5 +1,4 @@
 using System;
-using BrainAtlas;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Utils.Types;
@@ -36,16 +35,7 @@ namespace Models.Scene
         /// In degrees: (Yaw, Pitch, Roll).
         /// </summary>
         /// <remarks>Defaults to pointing straight down.</remarks>
-        public Vector3 Angles = 90 * Vector3.up;
-
-        #region Helper Accessors
-
-        public Vector3 PositionWorldT =>
-            BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
-                BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(APMLDV)
-            );
-
-        #endregion
+        public Vector3 Angles = new(0, 90, 0);
 
         #endregion
 

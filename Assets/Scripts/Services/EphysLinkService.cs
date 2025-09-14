@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using BestHTTP.SocketIO3;
+using BrainAtlas;
 using BrainAtlas.CoordinateSystems;
 using KS.Diagnostics;
 using Models;
@@ -11,6 +14,7 @@ using Models.Settings;
 using Pinpoint.CoordinateSystems;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
+using Unity.AppUI.UI;
 using UnityEngine;
 using Utils;
 using Utils.Types;
@@ -23,6 +27,9 @@ namespace Services
         #region Constants
 
         private const string UNKNOWN_EVENT_RESPONSE = "{\"error\": \"Unknown event.\"}";
+
+        // FIXME: This should go into some common constants file (along with copy in probe inspector view model).
+        private readonly Vector2 _pitchRange = new(0, 90);
 
         #endregion
 
@@ -45,7 +52,7 @@ namespace Services
 
         #region Properties
 
-        private CoordinateSpace _manipulatorCoordinateSpace;
+        private Dictionary<string, CoordinateTransform> _manipulatorCoordinateTransforms = new();
 
         #endregion
 
@@ -63,13 +70,24 @@ namespace Services
             App.shuttingDown += OnShuttingDown;
         }
 
-        private void OnSceneStateChanged(SceneState sceneState)
+        private async void OnSceneStateChanged(SceneState sceneState)
         {
-            if (_manipulatorCoordinateSpace?.Dimensions != sceneState.ManipulatorDimensions)
+            // Ensure coordinate transforms are up to date.
+            // foreach (var manipulator in sceneState.Manipulators)
+            // {
+            //     if (_manipulatorCoordinateTransforms.ContainsKey(manipulator.Id))
+            //     {
+            //     }
+            // }
+            // Update the position of visualization probes.
+            // WARNING: this will create an infinite loop of state updates on purpose.
+            foreach (
+                var visualizationProbeName in sceneState.Manipulators.Select(state =>
+                    state.VisualizationProbeName
+                )
+            )
             {
-                _manipulatorCoordinateSpace = new ManipulatorSpace(
-                    sceneState.ManipulatorDimensions
-                );
+                await UpdateVisualizationProbePosition(visualizationProbeName, sceneState);
             }
         }
 
@@ -498,6 +516,97 @@ namespace Services
 
         #region Visualization control
 
+        private async Task UpdateVisualizationProbePosition(string probeName, SceneState sceneState)
+        {
+            // Early exit if there is no probe name, probe is not found, and probe is not visualizing a manipulator.
+            var manipulatorState = sceneState.Manipulators.FirstOrDefault(state =>
+                state.VisualizationProbeName == probeName
+            );
+            var visualizationProbeManager = ProbeManager.Instances.FirstOrDefault(manager =>
+                manager.name == probeName
+            );
+            if (
+                string.IsNullOrEmpty(probeName)
+                || sceneState.Probes.FirstOrDefault(state => state.Name == probeName) == null
+                || manipulatorState == null
+                || visualizationProbeManager == null
+            )
+                return;
+
+            // Get the current position of the manipulator.
+            var positionResponse = await GetPosition(manipulatorState.Id);
+            if (HasError(positionResponse.Error))
+                return;
+
+            // Apply reference coordinate offset.
+            var referenceCoordinateAdjustedManipulatorPosition =
+                positionResponse.Position - manipulatorState.ReferenceCoordinateOffset;
+
+            // Convert to coordinate space.
+            var manipulatorSpacePosition = new FourAxisLeftHandedManipulatorTransform(0).T2U(
+                referenceCoordinateAdjustedManipulatorPosition
+            );
+
+            // Dura offset adjustment.
+            var duraOffsetAdjustment = float.IsNaN(manipulatorState.DuraOffset)
+                ? 0
+                : manipulatorState.DuraOffset;
+
+            // Apply depth adjustment to manipulator position for non-3 axis manipulators.
+            if (sceneState.NumberOfAxesOnManipulator == 4)
+            {
+                referenceCoordinateAdjustedManipulatorPosition.w += duraOffsetAdjustment;
+            }
+
+            // Convert to world space.
+            var referenceCoordinateAdjustedWorldPosition =
+                sceneState.ManipulatorCoordinateSpace.Space2World(manipulatorSpacePosition);
+
+            // Change axes to match probe.
+            var transformedAPMLDV = BrainAtlasManager.World2T_Vector(
+                referenceCoordinateAdjustedWorldPosition
+            );
+
+            // Get the current forward vector of the probe.
+            var forwardT = BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
+                    visualizationProbeManager.transform.forward
+                )
+            );
+
+            switch (sceneState.NumberOfAxesOnManipulator)
+            {
+                // Set the probe position in the store.
+                case 3:
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_PROBE_POSITION_AND_ANGLES_BY,
+                        (
+                            probeName,
+                            transformedAPMLDV,
+                            duraOffsetAdjustment,
+                            forwardT,
+                            manipulatorState.Angles,
+                            _pitchRange
+                        )
+                    );
+                    break;
+                case 4:
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_PROBE_POSITION_AND_ANGLES_BY,
+                        (
+                            probeName,
+                            transformedAPMLDV,
+                            referenceCoordinateAdjustedManipulatorPosition.w,
+                            forwardT,
+                            manipulatorState.Angles,
+                            _pitchRange
+                        )
+                    );
+                    break;
+                default:
+                    throw new ValueOutOfRangeException("Number of axes on manipulator is invalid.");
+            }
+        }
 
         #endregion
     }

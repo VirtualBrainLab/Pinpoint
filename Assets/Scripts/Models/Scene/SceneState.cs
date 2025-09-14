@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrainAtlas.CoordinateSystems;
+using Pinpoint.CoordinateSystems;
 using UnityEngine;
 using Utils.Types;
 
@@ -44,6 +46,7 @@ namespace Models.Scene
 
         public int NumberOfAxesOnManipulator;
         public Vector4 ManipulatorDimensions;
+        public CoordinateSpace ManipulatorCoordinateSpace;
 
         #endregion
 
