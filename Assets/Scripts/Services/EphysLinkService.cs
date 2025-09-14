@@ -79,12 +79,16 @@ namespace Services
             //     {
             //     }
             // }
+
+            // Apply small delay to prevent overrunning updates (delay for roughly 60 FPS).
+            await Task.Delay(10);
+
             // Update the position of visualization probes.
             // WARNING: this will create an infinite loop of state updates on purpose.
             foreach (
-                var visualizationProbeName in sceneState.Manipulators.Select(state =>
-                    state.VisualizationProbeName
-                )
+                var visualizationProbeName in sceneState
+                    .Manipulators.Select(state => state.VisualizationProbeName)
+                    .Where(s => !string.IsNullOrEmpty(s))
             )
             {
                 await UpdateVisualizationProbePosition(visualizationProbeName, sceneState);
