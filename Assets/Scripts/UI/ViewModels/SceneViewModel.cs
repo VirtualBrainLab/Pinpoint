@@ -4,6 +4,7 @@ using System.Linq;
 using Models;
 using Models.Scene;
 using Models.Settings;
+using Pinpoint.CoordinateSystems;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
@@ -96,10 +97,14 @@ namespace UI.ViewModels
                     if (!string.IsNullOrEmpty(manipulatorsResponse.Error))
                         return;
 
-                    // If there is a mismatch in the IDs in the scene state and the server, update the state.
+                    // Get current scene state.
+                    var sceneState = _storeService.Store.GetState<SceneState>(
+                        SliceNames.SCENE_SLICE
+                    );
+
+                    // If there is a mismatch in the IDs in the scene state and the server, create a fresh list of manipulators with default values.
                     if (
-                        !_storeService
-                            .Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
+                        !sceneState
                             .Manipulators.Select(manipulatorState => manipulatorState.Id)
                             .SequenceEqual(manipulatorsResponse.Manipulators)
                     )
@@ -108,6 +113,12 @@ namespace UI.ViewModels
                             .Manipulators.Select(manipulatorId => new ManipulatorState()
                             {
                                 Id = manipulatorId,
+                                CoordinateTransform = sceneState.NumberOfAxesOnManipulator switch
+                                {
+                                    4 => new FourAxisLeftHandedManipulatorTransform(0),
+                                    3 => new ThreeAxisLeftHandedTransform(0, 90),
+                                    _ => throw new ArgumentOutOfRangeException(),
+                                },
                             })
                             .ToList();
                         _storeService.Store.Dispatch(

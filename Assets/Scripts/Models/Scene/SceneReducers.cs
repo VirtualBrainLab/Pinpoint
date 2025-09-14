@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Pinpoint.CoordinateSystems;
 using Unity.AppUI.Redux;
 using UnityEngine;
 using Utils.Types;
@@ -459,6 +460,24 @@ namespace Models.Scene
             manipulatorsCopy[index] = manipulatorsCopy[index] with
             {
                 Angles = action.payload.Angles,
+                CoordinateTransform = state.NumberOfAxesOnManipulator switch
+                {
+                    4 => manipulatorsCopy[index].Handedness switch
+                    {
+                        ManipulatorHandedness.Left => new FourAxisLeftHandedManipulatorTransform(
+                            action.payload.Angles.x
+                        ),
+                        ManipulatorHandedness.Right => new FourAxisRightHandedManipulatorTransform(
+                            action.payload.Angles.x
+                        ),
+                        _ => throw new ArgumentOutOfRangeException(),
+                    },
+                    3 => new ThreeAxisLeftHandedTransform(
+                        action.payload.Angles.x,
+                        action.payload.Angles.y
+                    ),
+                    _ => throw new ArgumentOutOfRangeException(),
+                },
             };
             return state with { Manipulators = manipulatorsCopy };
         }
@@ -475,6 +494,24 @@ namespace Models.Scene
             manipulatorsCopy[index] = manipulatorsCopy[index] with
             {
                 Handedness = action.payload.Handedness,
+                CoordinateTransform = state.NumberOfAxesOnManipulator switch
+                {
+                    4 => action.payload.Handedness switch
+                    {
+                        ManipulatorHandedness.Left => new FourAxisLeftHandedManipulatorTransform(
+                            manipulatorsCopy[index].Angles.x
+                        ),
+                        ManipulatorHandedness.Right => new FourAxisRightHandedManipulatorTransform(
+                            manipulatorsCopy[index].Angles.x
+                        ),
+                        _ => throw new ArgumentOutOfRangeException(),
+                    },
+                    3 => new ThreeAxisLeftHandedTransform(
+                        manipulatorsCopy[index].Angles.x,
+                        manipulatorsCopy[index].Angles.y
+                    ),
+                    _ => throw new ArgumentOutOfRangeException(),
+                },
             };
             return state with { Manipulators = manipulatorsCopy };
         }

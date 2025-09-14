@@ -1,6 +1,8 @@
 using System;
+using BrainAtlas.CoordinateSystems;
 using UnityEngine;
 using Utils.Types;
+using CoordinateSpace = System.Drawing.Drawing2D.CoordinateSpace;
 
 namespace Models.Scene
 {
@@ -38,6 +40,12 @@ namespace Models.Scene
         #region Controls
 
         public bool ManualControlEnabled;
+
+        #endregion
+
+        #region Space and Transform
+
+        public CoordinateTransform CoordinateTransform;
 
         #endregion
     }

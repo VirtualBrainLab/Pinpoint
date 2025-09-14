@@ -3,10 +3,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using BestHTTP.SocketIO3;
+using BrainAtlas.CoordinateSystems;
 using KS.Diagnostics;
 using Models;
 using Models.Scene;
 using Models.Settings;
+using Pinpoint.CoordinateSystems;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
@@ -26,8 +28,8 @@ namespace Services
 
         #region Services
 
-        [Service]
         private StoreService _storeService;
+        private IDisposableSubscription _sceneStateSubscription;
 
         #endregion
 
@@ -40,6 +42,42 @@ namespace Services
         public string SocketId => _socket.Id;
 
         #endregion
+
+        #region Properties
+
+        private CoordinateSpace _manipulatorCoordinateSpace;
+
+        #endregion
+
+        public EphysLinkService(StoreService storeService)
+        {
+            // Register services.
+            _storeService = storeService;
+
+            // Subscribe to scene state changes and initialize properties.
+            _sceneStateSubscription = _storeService.Store.Subscribe(
+                state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
+                OnSceneStateChanged,
+                new SubscribeOptions<SceneState> { fireImmediately = true }
+            );
+            App.shuttingDown += OnShuttingDown;
+        }
+
+        private void OnSceneStateChanged(SceneState sceneState)
+        {
+            if (_manipulatorCoordinateSpace?.Dimensions != sceneState.ManipulatorDimensions)
+            {
+                _manipulatorCoordinateSpace = new ManipulatorSpace(
+                    sceneState.ManipulatorDimensions
+                );
+            }
+        }
+
+        private void OnShuttingDown()
+        {
+            _sceneStateSubscription.Dispose();
+            App.shuttingDown -= OnShuttingDown;
+        }
 
         #region Connection Handling
 
@@ -455,6 +493,11 @@ namespace Services
         {
             return JsonUtility.ToJson(data);
         }
+
+        #endregion
+
+        #region Visualization control
+
 
         #endregion
     }
