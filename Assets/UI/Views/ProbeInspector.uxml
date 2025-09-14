@@ -3,24 +3,29 @@
     <Style src="project://database/Assets/UI/Styles/ProbeInspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#ProbeInspectorStyle" />
     <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3#ProbeColors" />
     <engine:VisualElement data-source-type="UI.ViewModels.ProbeInspectorViewModel, Assembly-CSharp">
-        <engine:VisualElement class="inspectorBox inspector-panel">
-            <Unity.AppUI.UI.Heading text="Position &amp; Orientation" size="S" />
-            <Unity.AppUI.UI.Heading text="Tip Coordinate (mm)" size="XS" />
-            <Unity.AppUI.UI.Vector3Field size="L" tooltip="Tip coordinate (mm)" name="probe-inspector__position-field" format-string="0.###" value="0,0,0">
+        <engine:VisualElement style="flex-grow: 1;">
+            <engine:VisualElement class="inspectorBox inspector-panel">
+                <Unity.AppUI.UI.Heading text="Position &amp; Orientation" size="S" />
+                <Unity.AppUI.UI.Heading text="Tip Coordinate (mm)" size="XS" />
+                <Unity.AppUI.UI.Vector3Field size="L" tooltip="Tip coordinate (mm)" name="probe-inspector__position-field" format-string="0.###" value="0,0,0">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="Position" binding-mode="ToTarget" />
+                    </Bindings>
+                </Unity.AppUI.UI.Vector3Field>
+                <Unity.AppUI.UI.Heading size="XS" text="Depth in brain" style="display: none;" />
+                <Unity.AppUI.UI.FloatField name="probe-inspector__depth-field" unit="mm" tooltip="Depth in brain" format-string="0.###" style="display: none;" />
+                <Unity.AppUI.UI.Heading size="XS" text="Orientation (degrees)" />
+                <Unity.AppUI.UI.Vector3Field tooltip="Orientation (degrees)" name="probe-inspector__angles-field" size="L" format-string="0.###">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="Angles" binding-mode="ToTarget" />
+                    </Bindings>
+                </Unity.AppUI.UI.Vector3Field>
                 <Bindings>
-                    <engine:DataBinding property="value" data-source-path="Position" binding-mode="ToTarget" />
+                    <engine:DataBinding property="enabledSelf" data-source-path="Locked" binding-mode="ToTarget" source-to-ui-converters="LockedToEnabled" />
                 </Bindings>
-            </Unity.AppUI.UI.Vector3Field>
-            <Unity.AppUI.UI.Heading size="XS" text="Depth in brain" style="display: none;" />
-            <Unity.AppUI.UI.FloatField name="probe-inspector__depth-field" unit="mm" tooltip="Depth in brain" format-string="0.###" style="display: none;" />
-            <Unity.AppUI.UI.Heading size="XS" text="Orientation (degrees)" />
-            <Unity.AppUI.UI.Vector3Field tooltip="Orientation (degrees)" name="probe-inspector__angles-field" size="L" format-string="0.###">
-                <Bindings>
-                    <engine:DataBinding property="value" data-source-path="Angles" binding-mode="ToTarget" />
-                </Bindings>
-            </Unity.AppUI.UI.Vector3Field>
+            </engine:VisualElement>
             <Bindings>
-                <engine:DataBinding property="enabledSelf" data-source-path="Locked" binding-mode="ToTarget" source-to-ui-converters="LockedToEnabled" />
+                <engine:DataBinding property="enabledSelf" data-source-path="VisualizingManipulatorId" binding-mode="ToTarget" source-to-ui-converters="VisualizingManipulatorIdToPositionOrientationEnabled" />
             </Bindings>
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel" style="flex-direction: column; flex-wrap: nowrap;">
@@ -42,7 +47,15 @@
                         <engine:DataBinding property="enabledSelf" data-source-path="Locked" binding-mode="ToTarget" source-to-ui-converters="LockedToEnabled" />
                     </Bindings>
                 </Unity.AppUI.UI.ActionButton>
+                <Bindings>
+                    <engine:DataBinding property="style.display" data-source-path="VisualizingManipulatorId" binding-mode="ToTarget" source-to-ui-converters="VisualizingManipulatorIdToProbeControlsVisibility" />
+                </Bindings>
             </Unity.AppUI.UI.ActionGroup>
+            <Unity.AppUI.UI.Button title="Inspect Manipulator X" leading-icon="magnifying-glass">
+                <Bindings>
+                    <engine:DataBinding property="style.display" data-source-path="VisualizingManipulatorId" binding-mode="ToTarget" source-to-ui-converters="VisualizingManipulatorIdToInspectManipulatorButtonVisibility" />
+                </Bindings>
+            </Unity.AppUI.UI.Button>
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Probe Color" size="S" />

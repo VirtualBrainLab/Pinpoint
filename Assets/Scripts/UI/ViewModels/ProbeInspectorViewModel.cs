@@ -43,6 +43,9 @@ namespace UI.ViewModels
         [ObservableProperty]
         private ProbeColor _probeColor;
 
+        [ObservableProperty]
+        private string _visualizingManipulatorId;
+
         #endregion
 
         public ProbeInspectorViewModel(StoreService storeService)
@@ -69,6 +72,12 @@ namespace UI.ViewModels
             Angles = sceneState.ActiveProbeState.Angles;
             Locked = sceneState.ActiveProbeState.Locked;
             ProbeColor = sceneState.ActiveProbeState.Color;
+            VisualizingManipulatorId =
+                sceneState
+                    .Manipulators.FirstOrDefault(state =>
+                        state.VisualizationProbeName == sceneState.ActiveProbeName
+                    )
+                    ?.Id ?? string.Empty;
         }
 
         private void OnShuttingDown()

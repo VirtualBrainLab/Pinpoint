@@ -92,6 +92,32 @@ namespace UI.Views
                 "LockedToEnabled",
                 (ref bool locked) => !locked
             );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "VisualizingManipulatorIdToPositionOrientationEnabled",
+                (ref string visualizingManipulatorId) =>
+                    string.IsNullOrEmpty(visualizingManipulatorId)
+            );
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                string,
+                StyleEnum<DisplayStyle>
+            >(
+                "VisualizingManipulatorIdToProbeControlsVisibility",
+                (ref string visualizingManipulatorId) =>
+                    string.IsNullOrEmpty(visualizingManipulatorId)
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                string,
+                StyleEnum<DisplayStyle>
+            >(
+                "VisualizingManipulatorIdToInspectManipulatorButtonVisibility",
+                (ref string visualizingManipulatorId) =>
+                    string.IsNullOrEmpty(visualizingManipulatorId)
+                        ? DisplayStyle.None
+                        : DisplayStyle.Flex
+            );
         }
     }
 }

@@ -89,7 +89,7 @@ namespace Models.Scene
             // If no probes were removed, return the state unchanged.
             if (newProbesList.RemoveAll(probeState => probeState.Name == action.payload) == 0)
                 return state;
-            
+
             // Erase the visualization probe reference in manipulators if it points to the removed probe.
             var newManipulatorsList = state.Manipulators.ToList();
             for (var i = 0; i < newManipulatorsList.Count; i++)
@@ -126,9 +126,19 @@ namespace Models.Scene
                     .Contains(probeState.Name)
             );
 
+            var newManipulatorsList = state.Manipulators.ToList();
+            for (var i = 0; i < newManipulatorsList.Count; i++)
+            {
+                newManipulatorsList[i] = newManipulatorsList[i] with
+                {
+                    VisualizationProbeName = string.Empty,
+                };
+            }
+
             return state with
             {
                 Probes = nonVisualizationProbeList.ToList(),
+                Manipulators = newManipulatorsList,
             };
         }
 
