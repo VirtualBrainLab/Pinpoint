@@ -89,6 +89,19 @@ namespace Models.Scene
             // If no probes were removed, return the state unchanged.
             if (newProbesList.RemoveAll(probeState => probeState.Name == action.payload) == 0)
                 return state;
+            
+            // Erase the visualization probe reference in manipulators if it points to the removed probe.
+            var newManipulatorsList = state.Manipulators.ToList();
+            for (var i = 0; i < newManipulatorsList.Count; i++)
+            {
+                if (newManipulatorsList[i].VisualizationProbeName == action.payload)
+                {
+                    newManipulatorsList[i] = newManipulatorsList[i] with
+                    {
+                        VisualizationProbeName = string.Empty,
+                    };
+                }
+            }
 
             // Update the state with the new probes list, and update the active probe name if it was removed.
             return state with
@@ -99,9 +112,24 @@ namespace Models.Scene
             };
         }
 
-        public static SceneState RemoveAllProbesReducer(SceneState state, IAction action)
+        public static SceneState RemoveAllVisualizationProbesReducer(
+            SceneState state,
+            IAction action
+        )
         {
-            return state with { Probes = new List<ProbeState>(), ActiveProbeName = string.Empty };
+            var newProbesList = state.Probes.ToList();
+            var nonVisualizationProbeList = newProbesList.Where(probeState =>
+                !state
+                    .Manipulators.Select(manipulatorState =>
+                        manipulatorState.VisualizationProbeName
+                    )
+                    .Contains(probeState.Name)
+            );
+
+            return state with
+            {
+                Probes = nonVisualizationProbeList.ToList(),
+            };
         }
 
         #endregion
@@ -844,8 +872,8 @@ namespace Models.Scene
         public static readonly ActionCreator<string> REMOVE_PROBE =
             $"{SliceNames.SCENE_SLICE}/RemoveProbe";
 
-        public static readonly ActionCreator REMOVE_ALL_PROBES =
-            $"{SliceNames.SCENE_SLICE}/RemoveAllProbes";
+        public static readonly ActionCreator REMOVE_ALL_VISUALIZATION_PROBES =
+            $"{SliceNames.SCENE_SLICE}/RemoveAllVisualizationProbes";
 
         #endregion
 

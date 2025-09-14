@@ -86,7 +86,7 @@ namespace Services
                                 (platformInfoResponse.AxesCount, platformInfoResponse.Dimensions)
                             );
                             _storeService.Store.Dispatch(
-                                SettingsActions.SET_CONNECTION_STATE,
+                                SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
                                 (EphysLinkConnectionState.Connected, _socket.Id)
                             );
                             onConnected?.Invoke();
@@ -143,7 +143,7 @@ namespace Services
 
             // Update the store state to disconnected.
             _storeService.Store.Dispatch(
-                SettingsActions.SET_CONNECTION_STATE,
+                SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
                 (EphysLinkConnectionState.Disconnected, "")
             );
             onDisconnected?.Invoke();

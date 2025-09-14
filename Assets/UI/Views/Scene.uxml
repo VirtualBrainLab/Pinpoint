@@ -32,6 +32,9 @@
             <Unity.AppUI.UI.AccordionItem title="Manipulators" value="true">
                 <ui:ListView name="scene__manipulators-list" virtualization-method="DynamicHeight" style="flex-grow: 1;" />
             </Unity.AppUI.UI.AccordionItem>
+            <Bindings>
+                <ui:DataBinding property="style.display" data-source-path="EphysLinkConnectionState" binding-mode="ToTarget" source-to-ui-converters="EphysLinkConnectionStateToManipulatorsAccordionVisibility" />
+            </Bindings>
         </Unity.AppUI.UI.Accordion>
     </ui:VisualElement>
 </ui:UXML>

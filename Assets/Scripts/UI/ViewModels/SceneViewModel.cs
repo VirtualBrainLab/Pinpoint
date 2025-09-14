@@ -38,6 +38,9 @@ namespace UI.ViewModels
         [ObservableProperty]
         private List<string> _manipulatorIds = new();
 
+        [ObservableProperty]
+        private EphysLinkConnectionState _ephysLinkConnectionState;
+
         #endregion
 
         public SceneViewModel(StoreService storeService, EphysLinkService ephysLinkService)
@@ -81,7 +84,8 @@ namespace UI.ViewModels
 
         private async void OnSettingsStateChanged(SettingsState state)
         {
-            switch (state.ConnectionState)
+            EphysLinkConnectionState = state.EphysLinkConnectionState;
+            switch (state.EphysLinkConnectionState)
             {
                 case EphysLinkConnectionState.Connected:
                 {
@@ -114,11 +118,7 @@ namespace UI.ViewModels
                     break;
                 }
                 case EphysLinkConnectionState.Disconnected:
-                    // Clear manipulators from state.
-                    _storeService.Store.Dispatch(
-                        SceneActions.SET_MANIPULATORS,
-                        new List<ManipulatorState>()
-                    );
+                    _storeService.Store.Dispatch(SceneActions.REMOVE_ALL_VISUALIZATION_PROBES);
                     break;
                 case EphysLinkConnectionState.Connecting:
                     break;

@@ -63,7 +63,7 @@ namespace UI.ViewModels
             NewScalePathfinderMpmPort = settingsState.NewScalePathfinderMpmPort;
             CustomServerIpAddress = settingsState.CustomServerIpAddress;
             CustomServerPort = settingsState.CustomServerPort;
-            EphysLinkConnectionState = settingsState.ConnectionState;
+            EphysLinkConnectionState = settingsState.EphysLinkConnectionState;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -120,7 +120,7 @@ namespace UI.ViewModels
         {
             // Move to connecting state.
             _storeService.Store.Dispatch(
-                SettingsActions.SET_CONNECTION_STATE,
+                SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
                 (EphysLinkConnectionState.Connecting, "")
             );
 
@@ -192,7 +192,7 @@ namespace UI.ViewModels
                         {
                             // Move back to connecting state.
                             _storeService.Store.Dispatch(
-                                SettingsActions.SET_CONNECTION_STATE,
+                                SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
                                 (EphysLinkConnectionState.Connecting, "")
                             );
 

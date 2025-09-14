@@ -73,8 +73,8 @@ namespace Services
                         .AddCase(SceneActions.DUPLICATE_PROBE, SceneReducers.DuplicateProbeReducer)
                         .AddCase(SceneActions.REMOVE_PROBE, SceneReducers.RemoveProbeReducer)
                         .AddCase(
-                            SceneActions.REMOVE_ALL_PROBES,
-                            SceneReducers.RemoveAllProbesReducer
+                            SceneActions.REMOVE_ALL_VISUALIZATION_PROBES,
+                            SceneReducers.RemoveAllVisualizationProbesReducer
                         )
                         // Manipulator list.
                         .AddCase(
@@ -213,8 +213,8 @@ namespace Services
                             SettingsReducers.SetCustomServerPortReducer
                         )
                         .AddCase(
-                            SettingsActions.SET_CONNECTION_STATE,
-                            SettingsReducers.SetConnectionStateReducer
+                            SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
+                            SettingsReducers.SetEphysLinkConnectionStateReducer
                         );
                 }
             );

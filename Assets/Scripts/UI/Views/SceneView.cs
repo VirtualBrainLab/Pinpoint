@@ -2,9 +2,15 @@ using System.ComponentModel;
 using System.Linq;
 using UI.ViewModels;
 using Unity.AppUI.UI;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils;
 using Utils.Types;
+using MenuItem = Unity.AppUI.UI.MenuItem;
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
 
 namespace UI.Views
 {
@@ -116,6 +122,25 @@ namespace UI.Views
                     _manipulatorListView.Rebuild();
                     break;
             }
+        }
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
+        public static void RegisterMainViewConverters()
+        {
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                EphysLinkConnectionState,
+                StyleEnum<DisplayStyle>
+            >(
+                "EphysLinkConnectionStateToManipulatorsAccordionVisibility",
+                (ref EphysLinkConnectionState connectionState) =>
+                    connectionState == EphysLinkConnectionState.Connected
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
         }
     }
 }

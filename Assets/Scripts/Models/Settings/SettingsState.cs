@@ -79,7 +79,7 @@ namespace Models.Settings
         public int CustomServerPort = 3000;
 
         [NonSerialized]
-        public EphysLinkConnectionState ConnectionState;
+        public EphysLinkConnectionState EphysLinkConnectionState;
 
         #endregion
 
