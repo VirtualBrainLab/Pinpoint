@@ -50,12 +50,6 @@ namespace Services
 
         #endregion
 
-        #region Properties
-
-        private Dictionary<string, CoordinateTransform> _manipulatorCoordinateTransforms = new();
-
-        #endregion
-
         public EphysLinkService(StoreService storeService)
         {
             // Register services.
@@ -72,19 +66,11 @@ namespace Services
 
         private async void OnSceneStateChanged(SceneState sceneState)
         {
-            // Ensure coordinate transforms are up to date.
-            // foreach (var manipulator in sceneState.Manipulators)
-            // {
-            //     if (_manipulatorCoordinateTransforms.ContainsKey(manipulator.Id))
-            //     {
-            //     }
-            // }
-
             // Apply small delay to prevent overrunning updates (delay for roughly 60 FPS).
             await Task.Delay(10);
 
-            // Update the position of visualization probes.
             // WARNING: this will create an infinite loop of state updates on purpose.
+            // Update the position of visualization probes.
             foreach (
                 var visualizationProbeName in sceneState
                     .Manipulators.Select(state => state.VisualizationProbeName)
@@ -546,8 +532,28 @@ namespace Services
             var referenceCoordinateAdjustedManipulatorPosition =
                 positionResponse.Position - manipulatorState.ReferenceCoordinateOffset;
 
+            // Create the appropriate manipulator transform.
+            CoordinateTransform transform = sceneState.NumberOfAxesOnManipulator switch
+            {
+                3 => new ThreeAxisLeftHandedTransform(
+                    manipulatorState.Angles.x,
+                    manipulatorState.Angles.y
+                ),
+                4 => manipulatorState.Handedness switch
+                {
+                    ManipulatorHandedness.Left => new FourAxisLeftHandedManipulatorTransform(
+                        manipulatorState.Angles.x
+                    ),
+                    ManipulatorHandedness.Right => new FourAxisRightHandedManipulatorTransform(
+                        manipulatorState.Angles.x
+                    ),
+                    _ => throw new ArgumentOutOfRangeException(),
+                },
+                _ => throw new ArgumentOutOfRangeException(),
+            };
+
             // Convert to coordinate space.
-            var manipulatorSpacePosition = new FourAxisLeftHandedManipulatorTransform(0).T2U(
+            var manipulatorSpacePosition = transform.T2U(
                 referenceCoordinateAdjustedManipulatorPosition
             );
 

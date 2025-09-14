@@ -179,6 +179,13 @@ namespace UI.Views
 #endif
         public static void RegisterMainViewConverters()
         {
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "VisualizationProbeNameToInspectButtonTitle",
+                (ref string visualizationProbeName) =>
+                    !string.IsNullOrEmpty(visualizationProbeName)
+                        ? $"Inspect {visualizationProbeName[..8]}"
+                        : string.Empty
+            );
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
                 string,
                 StyleEnum<DisplayStyle>

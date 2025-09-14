@@ -36,6 +36,7 @@
             <Unity.AppUI.UI.Button title="Inspect ABC123" leading-icon="magnifying-glass" name="manipulator-inspector__visualization-probe-inspect-button">
                 <Bindings>
                     <ui:DataBinding property="style.display" data-source-path="VisualizationProbeName" binding-mode="ToTarget" source-to-ui-converters="VisualizationProbeNameToInspectButtonVisibility" />
+                    <ui:DataBinding property="title" data-source-path="VisualizationProbeName" binding-mode="ToTarget" source-to-ui-converters="VisualizationProbeNameToInspectButtonTitle" />
                 </Bindings>
             </Unity.AppUI.UI.Button>
         </ui:VisualElement>

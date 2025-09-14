@@ -196,18 +196,11 @@ namespace UI.ViewModels
                                 (EphysLinkConnectionState.Connecting, "")
                             );
 
-                            if (attempts % 2 == 0)
-                            {
-                                _ephysLinkService.Disconnect(() =>
-                                {
-                                    _ephysLinkService.Launch();
-                                    ConnectAttempt(attempts + 1);
-                                });
-                            }
-                            else
-                            {
-                                ConnectAttempt(attempts + 1);
-                            }
+                            // Relaunch every 5 attempts.
+                            if (attempts % 5 == 0)
+                                _ephysLinkService.Launch();
+
+                            ConnectAttempt(attempts + 1);
                         }
                     }
                 );
