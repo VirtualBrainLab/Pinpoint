@@ -33,6 +33,9 @@ namespace UI.Views
                 "probe-inspector__move-to-reference-coordinate-button"
             );
             var moveToDuraButton = root.Q<ActionButton>("probe-inspector__move-to-dura-button");
+            var inspectManipulatorButton = root.Q<Button>(
+                "probe-inspector__inspect-manipulator-button"
+            );
 
             var probeColorButtons = root.Q<VisualElement>("probe-inspector__probe-color-buttons");
 
@@ -54,6 +57,9 @@ namespace UI.Views
                 .Execute;
             moveToDuraButton.clickable.clicked += probeInspectorViewModel
                 .MoveProbeToDuraCommand
+                .Execute;
+            inspectManipulatorButton.clickable.clicked += probeInspectorViewModel
+                .InspectVisualizingManipulatorCommand
                 .Execute;
             for (var i = 0; i < probeColorButtons.childCount; i++)
             {

@@ -134,6 +134,15 @@ namespace UI.ViewModels
                 .Instances.First(manager => manager.name == ActiveProbeName)
                 .DropProbeToBrainSurface();
         }
+        
+        [ICommand]
+        private void InspectVisualizingManipulator()
+        {
+            _storeService.Store.Dispatch(
+                SceneActions.SET_ACTIVE_MANIPULATOR,
+                VisualizingManipulatorId
+            );
+        }
 
         [ICommand]
         private void SetProbeColor(ProbeColor color)
