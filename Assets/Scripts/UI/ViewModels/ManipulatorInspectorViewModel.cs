@@ -185,14 +185,12 @@ namespace UI.ViewModels
             else
             {
                 // Find the surface coordinate.
-                var (brainSurfaceCoordinateIndex, _) =
+                var (brainSurfaceCoordinateIndex, probeInBrain) =
                     visualizationProbeManager.CalculateEntryCoordinate();
 
-                // Exit if there's no surface.
-                if (float.IsNaN(brainSurfaceCoordinateIndex.x))
-                {
+                // Exit if not in brain.
+                if (!probeInBrain)
                     return;
-                }
 
                 var brainSurfaceToTransformed = BrainAtlasManager.ActiveAtlasTransform.U2T(
                     BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(

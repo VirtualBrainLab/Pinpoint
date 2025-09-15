@@ -147,18 +147,16 @@ namespace UI.Views
                     evt.newValue
                 );
             });
-            setReferenceCoordinateOffsetButton.clickable.clicked += () =>
-            {
-                manipulatorInspectorViewModel.UseCurrentPositionForReferenceCoordinateOffsetCommand.Execute();
-            };
+            setReferenceCoordinateOffsetButton.clickable.clicked += manipulatorInspectorViewModel
+                .UseCurrentPositionForReferenceCoordinateOffsetCommand
+                .Execute;
             duraOffsetField.RegisterValueChangedCallback(evt =>
             {
                 manipulatorInspectorViewModel.SetDuraOffsetCommand.Execute(evt.newValue);
             });
-            recalculateDuraOffsetButton.clickable.clicked += () =>
-            {
-                manipulatorInspectorViewModel.RecalculateDuraOffsetCommand.Execute();
-            };
+            recalculateDuraOffsetButton.clickable.clicked += manipulatorInspectorViewModel
+                .RecalculateDuraOffsetCommand
+                .Execute;
             manualControlToggle.RegisterValueChangedCallback(evt =>
             {
                 manipulatorInspectorViewModel.SetManualControlEnabledCommand.Execute(evt.newValue);

@@ -42,5 +42,11 @@ namespace Models.Scene
         public bool ManualControlEnabled;
 
         #endregion
+
+        #region Automation
+
+        public string TargetInsertionProbeName;
+
+        #endregion
     }
 }

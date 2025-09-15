@@ -1,11 +1,11 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Models.Scene;
 using UI.ViewModels;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.UI;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Utils.Types;
@@ -50,6 +50,7 @@ namespace UI.Views
             );
 
             _targetDropdown = root.Q<Dropdown>("automation-view__target-dropdown");
+            var targetResetButton = root.Q<Button>("automation-inspector__target--reset-button");
             var targetEntryDriveButton = root.Q<Button>(
                 "automation-inspector__target-entry--drive-button"
             );
@@ -88,6 +89,25 @@ namespace UI.Views
             );
 
             // Register event handlers.
+            referenceCoordinateOffsetField.RegisterValueChangedCallback(evt =>
+            {
+                _automationInspectorViewModel.SetReferenceCoordinateOffsetCommand.Execute(
+                    evt.newValue
+                );
+            });
+            setReferenceCoordinateOffsetButton.clickable.clicked += _automationInspectorViewModel
+                .UseCurrentPositionForReferenceCoordinateOffsetCommand
+                .Execute;
+
+            _targetDropdown.RegisterValueChangedCallback(evt =>
+            {
+                _automationInspectorViewModel.SelectTargetInsertionProbeCommand.Execute(
+                    _targetDropdown.selectedIndex
+                );
+            });
+            targetResetButton.clickable.clicked += _automationInspectorViewModel
+                .ResetTargetInsertionProbeSelectionCommand
+                .Execute;
 
             // Register property change handlers.
             _automationInspectorViewModel.PropertyChanged += OnPropertyChanged;
@@ -155,10 +175,7 @@ namespace UI.Views
             referenceCoordinateOffsetField.Q<FloatField>().unit = "D";
         }
 
-        private void OnPropertyChanged(
-            object sender,
-            System.ComponentModel.PropertyChangedEventArgs e
-        )
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
@@ -166,6 +183,10 @@ namespace UI.Views
                     _targetDropdown.sourceItems =
                         _automationInspectorViewModel.TargetInsertionProbeStates;
                     _targetDropdown.Refresh();
+                    break;
+                case nameof(_automationInspectorViewModel.SelectedTargetInsertionProbeIndex):
+                    _targetDropdown.selectedIndex =
+                        _automationInspectorViewModel.SelectedTargetInsertionProbeIndex;
                     break;
             }
         }

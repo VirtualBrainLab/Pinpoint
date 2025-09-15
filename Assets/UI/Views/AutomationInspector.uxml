@@ -13,7 +13,11 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Choose a Target Insertion" size="S" />
-            <Unity.AppUI.UI.Dropdown name="automation-inspector__target-dropdown" />
+            <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <Unity.AppUI.UI.Dropdown name="automation-inspector__target-dropdown" style="flex-grow: 1;" />
+                <Unity.AppUI.UI.Spacer />
+                <Unity.AppUI.UI.IconButton icon="x" name="automation-inspector__target--reset-button" />
+            </engine:VisualElement>
             <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.Button title="Drive to Target Entry Coordinate" variant="Default" name="automation-inspector__target-entry--drive-button" />
             <Unity.AppUI.UI.Button title="Stop" variant="Destructive" size="L" name="automation-inspector__target-entry--stop-button" />
@@ -50,7 +54,7 @@
             <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.LinearProgress variant="Determinate" value="0" tooltip="ETA" name="automation-inspector__target-insertion--progress-bar" />
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Button title="Drive" variant="Accent" size="M" name="automation-inspector__target-insertion--drive-button" />
+            <Unity.AppUI.UI.Button title="Drive" variant="Accent" name="automation-inspector__target-insertion--drive-button" />
             <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.Button name="automation-inspector__target-insertion__exit-button" title="Exit" />
             <Unity.AppUI.UI.Button name="automation-inspector__target-insertion__stop-button" title="Stop" size="L" variant="Destructive" />

@@ -17,10 +17,11 @@ namespace UI.ViewModels
         #region Services
 
         private readonly StoreService _storeService;
+        private readonly EphysLinkService _ephysLinkService;
         private readonly IDisposableSubscription _sceneStateSubscription;
 
-        [Service]
-        private ProbeService _probeService;
+        private string ActiveManipulatorId =>
+            _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE).ActiveManipulatorId;
 
         #endregion
 
@@ -71,10 +72,14 @@ namespace UI.ViewModels
 
         #endregion
 
-        public AutomationInspectorViewModel(StoreService storeService)
+        public AutomationInspectorViewModel(
+            StoreService storeService,
+            EphysLinkService ephysLinkService
+        )
         {
             // Register services.
             _storeService = storeService;
+            _ephysLinkService = ephysLinkService;
 
             // Subscribe to state changes and initialize properties.
             _sceneStateSubscription = _storeService.Store.Subscribe(
@@ -102,20 +107,33 @@ namespace UI.ViewModels
             TargetInsertionProbeStates = state
                 .Probes
                 // 1. Not manipulator controlled.
-                .Where(probeState => !probeState.IsEphysLinkControlled)
+                .Where(probeState =>
+                    !state
+                        .Manipulators.Select(manipulatorState =>
+                            manipulatorState.VisualizationProbeName
+                        )
+                        .Contains(probeState.Name)
+                )
                 // 2. Co-terminal with the active probe angles.
-                .Where(probeState => IsCoterminal(probeState.Angles, state.ActiveProbeState.Angles))
-                // TODO: 3. Is in the brain (non-NaN entry coordinate).
+                .Where(probeState =>
+                    IsCoterminal(probeState.Angles, state.ActiveManipulatorState.Angles)
+                )
+                // 3. Is in the brain.
+                .Where(probeState =>
+                {
+                    var probeManager = ProbeManager.Instances.FirstOrDefault(manager =>
+                        manager.name != probeState.Name
+                    );
+                    return probeManager != null
+                        && probeManager.CalculateEntryCoordinate().probeInBrain;
+                })
                 // 4. Is not already selected by other manipulator probes (unless it was selected by this active probe).
                 .Where(probeState =>
                     !state
-                        .Probes.Where(searchProbeState =>
-                            searchProbeState != state.ActiveProbeState
+                        .Manipulators.Where(searchManipulatorState =>
+                            searchManipulatorState.Id != state.ActiveManipulatorId
                         )
-                        .Where(searchProbeState => searchProbeState.IsEphysLinkControlled)
-                        .Select(otherManipulatorProbes =>
-                            otherManipulatorProbes.SelectedTargetInsertionProbeName
-                        )
+                        .Select(otherManipulator => otherManipulator.TargetInsertionProbeName)
                         .Contains(probeState.Name)
                 )
                 .ToList();
@@ -239,22 +257,36 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
-        private void ResetReferenceCoordinate()
+        private void SetReferenceCoordinateOffset(Vector4 referenceCoordinateOffset)
         {
-            ProbeService
-                .ResetActiveProbeReferenceCoordinate()
-                .ContinueWith(task =>
-                {
-                    // Do not proceed if the reset failed.
-                    if (!task.Result)
-                        return;
+            _storeService.Store.Dispatch(
+                SceneActions.SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET,
+                (ActiveManipulatorId, referenceCoordinateOffset)
+            );
+        }
 
-                    // If the reset was successful, set the active probe's automation progress state to be calibrated.
-                    _storeService.Store.Dispatch(
-                        SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
-                        AutomationProgressState.IsCalibrated
-                    );
-                });
+        [ICommand]
+        private async void UseCurrentPositionForReferenceCoordinateOffset()
+        {
+            var currentPositionResponse = await _ephysLinkService.GetPosition(ActiveManipulatorId);
+            if (!string.IsNullOrEmpty(currentPositionResponse.Error))
+                return;
+            _storeService.Store.Dispatch(
+                SceneActions.SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET,
+                (ActiveManipulatorId, currentPositionResponse.Position)
+            );
+        }
+
+        [ICommand]
+        private void SelectTargetInsertionProbe(int index)
+        {
+            Debug.Log($"Index: {index}");
+        }
+
+        [ICommand]
+        private void ResetTargetInsertionProbeSelection()
+        {
+            SelectedTargetInsertionProbeIndex = -1;
         }
 
         [ICommand]
@@ -317,14 +349,14 @@ namespace UI.ViewModels
         private void InsertionDrive()
         {
             // State is updated externally by the ProbeService.
-            _probeService.InsertionDriveActiveProbe();
+            // _probeService.InsertionDriveActiveProbe();
         }
 
         [ICommand]
         private void InsertionExit()
         {
             // State is updated externally by the ProbeService.
-            _ = _probeService.InsertionExitActiveProbe();
+            // _ = _probeService.InsertionExitActiveProbe();
         }
 
         [ICommand]
