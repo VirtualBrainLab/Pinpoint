@@ -3,10 +3,13 @@ using System.ComponentModel;
 using System.Linq;
 using Models.Scene;
 using UI.ViewModels;
+using Unity.AppUI.UI;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Utils.Types;
+using Button = UnityEngine.UIElements.Button;
 #if !UNITY_EDITOR
 using UnityEngine;
 #endif
@@ -15,94 +18,27 @@ namespace UI.Views
 {
     public class AutomationView
     {
-        #region Component References
-
-        private readonly Button _resetReferenceCoordinateButton;
-        private readonly RadioButtonGroup _targetChoicesGroup;
-        private readonly Button _targetEntryDriveButton;
-        private readonly Button _targetStopButton;
-        private readonly Button _duraResetButton;
-        private readonly Button _insertionDriveButton;
-        private readonly Button _insertionExitButton;
-        private readonly Button _insertionStopButton;
-
-        #endregion
+        #region Services
 
         private readonly AutomationViewModel _automationViewModel;
 
-        public AutomationView(
-            TemplateContainer root,
-            AutomationViewModel automationViewModel
-        )
+        #endregion
+
+        public AutomationView(AutomationViewModel automationViewModel)
         {
-            // _automationViewModel = automationViewModel;
-            // root.dataSource = _automationViewModel;
-            // _automationViewModel.PropertyChanged += OnPropertyChanged;
-            //
-            // // Register component references.
-            // _resetReferenceCoordinateButton = root.Q<Button>("reference-coordinate__reset-button");
-            // _targetChoicesGroup = root.Q<RadioButtonGroup>("target__choices-group");
-            // _targetEntryDriveButton = root.Q<Button>("target__entry-drive-button");
-            // _targetStopButton = root.Q<Button>("target__stop-button");
-            // _duraResetButton = root.Q<Button>("dura__reset-button");
-            // _insertionDriveButton = root.Q<Button>("insertion__drive-button");
-            // _insertionExitButton = root.Q<Button>("insertion__exit-button");
-            // _insertionStopButton = root.Q<Button>("insertion__stop-button");
+            // Get root and apply data source.
+            var root = PinpointApp.RootVisualElement.Q<TemplateContainer>("automation-view");
+            root.dataSource = automationViewModel;
 
-            // Initialize subviews.
-            // _ = new EphysLinkView(root.Q<TemplateContainer>("ephys-link-view"), ephysLinkViewModel);
-
-            // // Edit default components.
-            // var referenceCoordinateDepthLabel = root.Q<FloatField>("unity-w-input").Q<Label>();
-            // referenceCoordinateDepthLabel.text = "Depth";
-            //
-            // // Register event handlers.
-            // _resetReferenceCoordinateButton.clicked += _automationViewModel
-            //     .ResetReferenceCoordinateCommand
-            //     .Execute;
-            // _targetEntryDriveButton.clicked += _automationViewModel
-            //     .DriveToTargetEntryCoordinateCommand
-            //     .Execute;
-            // _targetStopButton.clicked += _automationViewModel
-            //     .StopDriveToTargetEntryCoordinateCommand
-            //     .Execute;
-            // _duraResetButton.clicked += _automationViewModel.ResetDuraOffsetCommand.Execute;
-            // _insertionDriveButton.clicked += _automationViewModel.InsertionDriveCommand.Execute;
-            // _insertionExitButton.clicked += _automationViewModel.InsertionExitCommand.Execute;
-            // _insertionStopButton.clicked += _automationViewModel.StopInsertionDriveCommand.Execute;
-            //
-            // // Initialize view from view model state.
-            // ApplyProbeColorsToTargetChoices();
-        }
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
+            // Register component references.
+            var targetDropdown = root.Q<Dropdown>("automation-view__target-dropdown");
+            targetDropdown.sourceItems = new[] { "Hello", "World" };
+            targetDropdown.bindItem = (element, i) =>
             {
-                case nameof(_automationViewModel.TargetInsertionProbeStates):
-                    ApplyProbeColorsToTargetChoices();
-                    break;
-            }
-        }
-
-        private void ApplyProbeColorsToTargetChoices()
-        {
-            _targetChoicesGroup
-                .Query<Label>()
-                .ForEach(label =>
-                {
-                    // Skip the "None" option.
-                    if (label.text == "None")
-                        return;
-
-                    var checkMarkVisualElement = label.parent.Children().First();
-                    var probeColor = _automationViewModel
-                        .TargetInsertionProbeStates.First(state =>
-                            state.Name[..8] == label.text[..8]
-                        )
-                        .ColorValue;
-                    checkMarkVisualElement.style.backgroundColor = probeColor;
-                });
+                element.label = (string)targetDropdown.sourceItems[i];
+                element.icon = "circle";
+                Debug.Log(element.Query<Icon>().AtIndex(1).iconName);
+            };
         }
 
 #if UNITY_EDITOR

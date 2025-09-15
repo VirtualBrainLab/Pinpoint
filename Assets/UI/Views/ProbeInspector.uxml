@@ -54,6 +54,7 @@
             <Unity.AppUI.UI.Button title="Inspect Manipulator X" leading-icon="magnifying-glass" name="probe-inspector__inspect-manipulator-button">
                 <Bindings>
                     <engine:DataBinding property="style.display" data-source-path="VisualizingManipulatorId" binding-mode="ToTarget" source-to-ui-converters="VisualizingManipulatorIdToInspectManipulatorButtonVisibility" />
+                    <engine:DataBinding property="title" data-source-path="VisualizingManipulatorId" binding-mode="ToTarget" source-to-ui-converters="VisualizingManipulatorIdToInspectManipulatorButtonTitle" />
                 </Bindings>
             </Unity.AppUI.UI.Button>
         </engine:VisualElement>

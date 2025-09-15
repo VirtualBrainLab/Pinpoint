@@ -60,7 +60,7 @@ public class PinpointAtlasManager : MonoBehaviour
         if (brainAreaVisibility == null)
             return;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !APP_UI
         Debug.Log($"(PAM) BrainAreaVisibility changed. Count: {brainAreaVisibility.Count}");
 #endif
 

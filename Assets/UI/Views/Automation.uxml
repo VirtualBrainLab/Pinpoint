@@ -1,47 +1,56 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
-    <engine:VisualElement style="flex-grow: 1;">
+    <engine:VisualElement data-source-type="UI.ViewModels.AutomationViewModel, Assembly-CSharp" style="flex-grow: 1;">
         <engine:VisualElement class="inspector-panel">
-            <Unity.AppUI.UI.Heading text="Calibrate Reference Coordinate" size="S" />
-            <Unity.AppUI.UI.Vector4Field>
+            <Unity.AppUI.UI.Heading text="Calibrate Reference Coordinate Offset (mm)" size="S" />
+            <Unity.AppUI.UI.Vector4Field tooltip="Manipulator&apos;s coordinates when its probe is at the reference coordinate" format-string="0.###" name="manipulator-inspector__reference-coordinate-offset-field">
                 <Bindings>
-                    <engine:DataBinding property="value" data-source-path="ReferenceCoordinate" binding-mode="TwoWay" />
+                    <engine:DataBinding property="value" data-source-path="ReferenceCoordinateOffset" binding-mode="ToTarget" />
                 </Bindings>
             </Unity.AppUI.UI.Vector4Field>
-            <Unity.AppUI.UI.Button title="Reset Reference Coordinate" name="reference-coordinate__reset-button" />
+            <Unity.AppUI.UI.Button title="Use Current Position" leading-icon="waypoint-home" name="manipulator-inspector__set-reference-coordinate-offset-button" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Choose a Target Insertion" size="S" />
-            <Unity.AppUI.UI.Dropdown name="target-dropdown" />
+            <Unity.AppUI.UI.Dropdown name="automation-view__target-dropdown" />
+            <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.Button title="Drive to Target Entry Coordinate" variant="Default" name="target__entry-drive-button" />
             <Unity.AppUI.UI.Button title="Stop" variant="Destructive" size="L" name="target__stop-button" style="display: none;" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
-            <Unity.AppUI.UI.Heading text="Calibrate Dura Coordinate" size="S" />
-            <Unity.AppUI.UI.FloatField unit="Offset from atlas (mm)" tooltip="Offset from atlas">
+            <Unity.AppUI.UI.Heading text="Calibrate Dura Offset" size="S" />
+            <Unity.AppUI.UI.FloatField tooltip="The difference between the atlas&apos;s dura and the real dura" name="manipulator-inspector__dura-offset-field" format-string="0.###" unit="mm">
                 <Bindings>
-                    <engine:DataBinding property="value" data-source-path="DuraOffset" binding-mode="TwoWay" />
+                    <engine:DataBinding property="value" data-source-path="DuraOffset" binding-mode="ToTarget" />
                 </Bindings>
             </Unity.AppUI.UI.FloatField>
-            <Unity.AppUI.UI.Button title="Reset Dura Calibration" name="dura__reset-button" />
+            <Unity.AppUI.UI.Spacer />
+            <Unity.AppUI.UI.Button title="Recalculate" leading-icon="align-bottom-simple" name="manipulator-inspector__recalculate-dura-offset-button" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Drive to Target Insertion" size="S" />
             <Unity.AppUI.UI.Dropdown default-message="Select insertion speed (µm/s)..." tooltip="Insertion speed (µm/s)" />
+            <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.IntField unit="Custom speed (µm/s)" value="20" style="display: none;">
                 <Bindings>
                     <engine:DataBinding property="value" data-source-path="CustomInsertionSpeed" binding-mode="TwoWay" />
                 </Bindings>
             </Unity.AppUI.UI.IntField>
+            <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.IntField unit="Drive Past by (µm)" value="50">
                 <Bindings>
                     <engine:DataBinding property="value" data-source-path="DrivePastDistance" binding-mode="TwoWay" />
                 </Bindings>
             </Unity.AppUI.UI.IntField>
+            <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.Text text="ETA: 00:00" />
+            <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.LinearProgress variant="Determinate" value="0" tooltip="ETA" />
+            <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.Button title="Drive" variant="Accent" size="M" name="insertion__drive-button" />
+            <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.Button name="insertion__exit-button" title="Exit" style="display: none;" />
+            <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.Button name="insertion__stop-button" title="Stop" size="L" variant="Destructive" style="display: none;" />
         </engine:VisualElement>
     </engine:VisualElement>

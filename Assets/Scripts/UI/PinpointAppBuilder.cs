@@ -55,6 +55,7 @@ namespace UI
 
             builder.services.AddSingleton<ProbeInspectorView>();
             builder.services.AddSingleton<ManipulatorInspectorView>();
+            builder.services.AddSingleton<AutomationView>();
         }
     }
 }

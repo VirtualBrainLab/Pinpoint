@@ -54,6 +54,7 @@ namespace UI.Views
 
             _ = PinpointApp.Services.GetRequiredService<ProbeInspectorView>();
             _ = PinpointApp.Services.GetRequiredService<ManipulatorInspectorView>();
+            _ = PinpointApp.Services.GetRequiredService<AutomationView>();
 
             // Register event handlers.
             automationToggle.RegisterValueChangedCallback(evt =>

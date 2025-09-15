@@ -1203,7 +1203,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     private void SetMaterialsTransparent()
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !APP_UI
         Debug.Log($"Setting materials for {name} to transparent");
 #endif
         if (_lineRenderer != null)
@@ -1225,7 +1225,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     private void SetMaterialsDefault()
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !APP_UI
         Debug.Log($"Setting materials for {name} to default");
 #endif
         if (_lineRenderer != null)
@@ -1242,7 +1242,7 @@ public class ProbeManager : MonoBehaviour
 
     private void SetMaterialsLine()
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !APP_UI
         Debug.Log($"Setting materials for {name} to line");
 #endif
         foreach (var childRenderer in _activeRenderers)
