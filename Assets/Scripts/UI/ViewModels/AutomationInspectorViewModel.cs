@@ -93,6 +93,7 @@ namespace UI.ViewModels
 
         private void OnSceneStateChanged(SceneState state)
         {
+            return;
             // Exit if not enabled.
             if (string.IsNullOrEmpty(state.ActiveManipulatorId))
                 return;
