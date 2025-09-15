@@ -114,6 +114,10 @@ namespace Services
                             SceneReducers.ChangeProbeAnglesByReducer
                         )
                         .AddCase(SceneActions.SET_PROBE_COLOR, SceneReducers.SetProbeColorReducer)
+                        .AddCase(
+                            SceneActions.SET_ALL_PROBES_TO_LINE,
+                            SceneReducers.SetAllProbesToLineReducer
+                        )
                         .AddCase(SceneActions.SET_PROBE_LOCKED, SceneReducers.SetProbeLockedReducer)
                         // Manipulator.
                         .AddCase(

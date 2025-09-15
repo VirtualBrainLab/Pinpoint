@@ -21,7 +21,7 @@ namespace Models.Scene
         public ProbeColor Color = ProbeColor.DarkBlue;
         public Color ColorValue => ProbeProperties.ProbeColors[(int)Color];
 
-        public ProbeDisplayType ProbeDisplayType = ProbeDisplayType.Opaque;
+        public ProbeDisplayType ProbeDisplayType = ProbeDisplayType.Transparent;
 
         public bool Locked;
 

@@ -94,15 +94,11 @@ namespace Models.Scene
             // Erase the visualization probe reference in manipulators if it points to the removed probe.
             var newManipulatorsList = state.Manipulators.ToList();
             for (var i = 0; i < newManipulatorsList.Count; i++)
-            {
                 if (newManipulatorsList[i].VisualizationProbeName == action.payload)
-                {
                     newManipulatorsList[i] = newManipulatorsList[i] with
                     {
                         VisualizationProbeName = string.Empty,
                     };
-                }
-            }
 
             // Update the state with the new probes list, and update the active probe name if it was removed.
             return state with
@@ -129,12 +125,10 @@ namespace Models.Scene
 
             var newManipulatorsList = state.Manipulators.ToList();
             for (var i = 0; i < newManipulatorsList.Count; i++)
-            {
                 newManipulatorsList[i] = newManipulatorsList[i] with
                 {
                     VisualizationProbeName = string.Empty,
                 };
-            }
 
             return state with
             {
@@ -165,9 +159,39 @@ namespace Models.Scene
             if (!state.Probes.Exists(probe => probe.Name == action.payload))
                 return state;
 
+            // Set opaque/transparent display for probes based on active probe.
+            var probesCopy = state.Probes.ToList();
+            for (var i = 0; i < state.Probes.Count; i++)
+            {
+                var probeState = state.Probes[i];
+
+                // Make visualization probe transparent.
+                if (
+                    state
+                        .Manipulators.Select(manipulatorState =>
+                            manipulatorState.VisualizationProbeName
+                        )
+                        .Contains(probeState.Name)
+                )
+                    probesCopy[i] = probeState with
+                    {
+                        ProbeDisplayType = ProbeDisplayType.Transparent,
+                    };
+                // Set active probe to opaque.
+                else
+                    probesCopy[i] = probeState with
+                    {
+                        ProbeDisplayType =
+                            probeState.Name == action.payload
+                                ? ProbeDisplayType.Opaque
+                                : ProbeDisplayType.Transparent,
+                    };
+            }
+
             // Update the active probe UUID.
             return state with
             {
+                Probes = probesCopy,
                 ActiveProbeName = action.payload,
                 ActiveManipulatorId = "",
             };
@@ -182,9 +206,41 @@ namespace Models.Scene
             if (!state.Manipulators.Exists(manipulator => manipulator.Id == action.payload))
                 return state;
 
+            // Set opaque/transparent display for probes based on active manipulator.
+            var probesCopy = state.Probes.ToList();
+            for (var i = 0; i < state.Probes.Count; i++)
+            {
+                var probeState = state.Probes[i];
+
+                // Make non-visualization probes transparent.
+                if (
+                    !state
+                        .Manipulators.Select(manipulatorState =>
+                            manipulatorState.VisualizationProbeName
+                        )
+                        .Contains(probeState.Name)
+                )
+                    probesCopy[i] = probeState with
+                    {
+                        ProbeDisplayType = ProbeDisplayType.Transparent,
+                    };
+                // Make visualization probe of the active manipulator opaque, others transparent.
+                else
+                    probesCopy[i] = probeState with
+                    {
+                        ProbeDisplayType =
+                            state
+                                .Manipulators.First(manipulator => manipulator.Id == action.payload)
+                                .VisualizationProbeName == probeState.Name
+                                ? ProbeDisplayType.Opaque
+                                : ProbeDisplayType.Transparent,
+                    };
+            }
+
             // Update the active manipulator ID.
             return state with
             {
+                Probes = probesCopy,
                 ActiveProbeName = "",
                 ActiveManipulatorId = action.payload,
             };
@@ -456,6 +512,45 @@ namespace Models.Scene
             {
                 Color = action.payload.Color,
             };
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
+        public static SceneState SetAllProbesToLineReducer(SceneState state, IAction<bool> action)
+        {
+            var probesCopy = state.Probes.ToList();
+
+            // Loop through every probe...
+            for (var i = 0; i < state.Probes.Count; i++)
+            {
+                var probeState = state.Probes[i];
+
+                // Ignore visualization probes.
+                if (
+                    state
+                        .Manipulators.Select(manipulatorState =>
+                            manipulatorState.VisualizationProbeName
+                        )
+                        .Contains(probeState.Name)
+                )
+                    continue;
+
+                // If setting to line...
+                if (action.payload)
+                    probesCopy[i] = probeState with { ProbeDisplayType = ProbeDisplayType.Line };
+                // Set to opaque for active probes and transparent otherwise.
+                else
+                    probesCopy[i] = probeState with
+                    {
+                        ProbeDisplayType =
+                            state.ActiveProbeName == probeState.Name
+                                ? ProbeDisplayType.Opaque
+                                : ProbeDisplayType.Transparent,
+                    };
+            }
 
             return state with
             {
@@ -1009,6 +1104,9 @@ namespace Models.Scene
 
         public static readonly ActionCreator<(string, ProbeColor)> SET_PROBE_COLOR =
             $"{SliceNames.SCENE_SLICE}/SetProbeColor";
+
+        public static readonly ActionCreator<bool> SET_ALL_PROBES_TO_LINE =
+            $"{SliceNames.SCENE_SLICE}/SetAllProbesToLine";
 
         public static readonly ActionCreator<(string, bool)> SET_PROBE_LOCKED =
             $"{SliceNames.SCENE_SLICE}/SetProbeLocked";

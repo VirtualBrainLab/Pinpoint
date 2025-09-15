@@ -107,6 +107,12 @@ namespace UI.ViewModels
         #region Commands
 
         [ICommand]
+        private void SetAutomationModeActive(bool isActive)
+        {
+            _storeService.Store.Dispatch(SceneActions.SET_ALL_PROBES_TO_LINE, isActive);
+        }
+
+        [ICommand]
         private void SetMainSplitViewState(SplitView.State state)
         {
             _storeService.Store.Dispatch(MainActions.SET_MAIN_SPLIT_VIEW_STATE, state);
