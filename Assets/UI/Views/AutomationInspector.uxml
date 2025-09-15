@@ -1,14 +1,15 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
-    <engine:VisualElement data-source-type="UI.ViewModels.AutomationViewModel, Assembly-CSharp" style="flex-grow: 1;">
+    <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3#ProbeColors" />
+    <engine:VisualElement data-source-type="UI.ViewModels.AutomationInspectorViewModel, Assembly-CSharp" style="flex-grow: 1;">
         <engine:VisualElement class="inspector-panel">
             <Unity.AppUI.UI.Heading text="Calibrate Reference Coordinate Offset (mm)" size="S" />
-            <Unity.AppUI.UI.Vector4Field tooltip="Manipulator&apos;s coordinates when its probe is at the reference coordinate" format-string="0.###" name="manipulator-inspector__reference-coordinate-offset-field">
+            <Unity.AppUI.UI.Vector4Field tooltip="Manipulator&apos;s coordinates when its probe is at the reference coordinate" format-string="0.###" name="automation-inspector__reference-coordinate-offset-field">
                 <Bindings>
                     <engine:DataBinding property="value" data-source-path="ReferenceCoordinateOffset" binding-mode="ToTarget" />
                 </Bindings>
             </Unity.AppUI.UI.Vector4Field>
-            <Unity.AppUI.UI.Button title="Use Current Position" leading-icon="waypoint-home" name="manipulator-inspector__set-reference-coordinate-offset-button" />
+            <Unity.AppUI.UI.Button title="Use Current Position" leading-icon="waypoint-home" name="automation-inspector__set-reference-coordinate-offset-button" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Choose a Target Insertion" size="S" />

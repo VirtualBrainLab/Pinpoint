@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Models.Scene;
 using UI.ViewModels;
@@ -9,34 +8,44 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Utils.Types;
-using Button = UnityEngine.UIElements.Button;
+using Button = Unity.AppUI.UI.Button;
+using Vector4Field = Unity.AppUI.UI.Vector4Field;
 #if !UNITY_EDITOR
 using UnityEngine;
 #endif
 
 namespace UI.Views
 {
-    public class AutomationView
+    public class AutomationInspectorView
     {
         #region Services
 
-        private readonly AutomationViewModel _automationViewModel;
+        private readonly AutomationInspectorViewModel _automationInspectorViewModel;
 
         #endregion
 
-        public AutomationView(AutomationViewModel automationViewModel)
+        public AutomationInspectorView(AutomationInspectorViewModel automationInspectorViewModel)
         {
             // Get root and apply data source.
-            var root = PinpointApp.RootVisualElement.Q<TemplateContainer>("automation-view");
-            root.dataSource = automationViewModel;
+            var root = PinpointApp.RootVisualElement.Q<TemplateContainer>(
+                "automation-inspector-view"
+            );
+            root.dataSource = automationInspectorViewModel;
 
             // Register component references.
+            var referenceCoordinateOffsetField = root.Q<Vector4Field>(
+                "automation-inspector__reference-coordinate-offset-field"
+            );
+            var setReferenceCoordinateOffsetButton = root.Q<Button>(
+                "automation-inspector__set-reference-coordinate-offset-button"
+            );
             var targetDropdown = root.Q<Dropdown>("automation-view__target-dropdown");
+
             targetDropdown.sourceItems = new[] { "Hello", "World" };
             targetDropdown.bindItem = (element, i) =>
             {
                 element.label = (string)targetDropdown.sourceItems[i];
-                element.icon = "circle";
+                element.icon = "target";
                 Debug.Log(element.Query<Icon>().AtIndex(1).iconName);
             };
         }

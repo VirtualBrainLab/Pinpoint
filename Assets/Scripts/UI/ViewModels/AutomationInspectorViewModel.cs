@@ -12,7 +12,7 @@ using Utils.Types;
 namespace UI.ViewModels
 {
     [ObservableObject]
-    public partial class AutomationViewModel
+    public partial class AutomationInspectorViewModel
     {
         #region Services
 
@@ -46,7 +46,7 @@ namespace UI.ViewModels
         ///     For insertions that are co-terminal and have not been selected yet. Does not include the "None" option.
         /// </summary>
         [ObservableProperty]
-        private IEnumerable<ProbeState> _targetInsertionProbeStates;
+        private List<ProbeState> _targetInsertionProbeStates;
 
         [ObservableProperty]
         private float _duraOffset;
@@ -74,7 +74,7 @@ namespace UI.ViewModels
 
         #endregion
 
-        public AutomationViewModel(StoreService storeService)
+        public AutomationInspectorViewModel(StoreService storeService)
         {
             // Register services.
             _storeService = storeService;
