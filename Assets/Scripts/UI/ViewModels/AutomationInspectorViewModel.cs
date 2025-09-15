@@ -27,9 +27,6 @@ namespace UI.ViewModels
         #region Properties
 
         [ObservableProperty]
-        private bool _isAutomationEnabled = true;
-
-        [ObservableProperty]
         private AutomationProgressState _automationProgressState;
 
         [ObservableProperty]
@@ -91,11 +88,8 @@ namespace UI.ViewModels
 
         private void OnSceneStateChanged(SceneState state)
         {
-            // Check if an active manipulator probe is selected.
-            IsAutomationEnabled = state.ActiveProbeState != null; //is { IsEphysLinkControlled: true };
-
             // Exit if not enabled.
-            if (!IsAutomationEnabled)
+            if (string.IsNullOrEmpty(state.ActiveManipulatorId))
                 return;
 
             // Set the automation progress state from the active probe state.

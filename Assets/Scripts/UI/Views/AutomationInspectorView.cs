@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Models.Scene;
 using UI.ViewModels;
+using Unity.AppUI.MVVM;
 using Unity.AppUI.UI;
 using UnityEditor;
 using UnityEngine;
@@ -9,6 +10,7 @@ using UnityEngine.UIElements;
 using Utils;
 using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
+using FloatField = Unity.AppUI.UI.FloatField;
 using Vector4Field = Unity.AppUI.UI.Vector4Field;
 #if !UNITY_EDITOR
 using UnityEngine;
@@ -24,13 +26,20 @@ namespace UI.Views
 
         #endregion
 
+        #region Component References
+
+        private readonly Dropdown _targetDropdown;
+
+        #endregion
+
         public AutomationInspectorView(AutomationInspectorViewModel automationInspectorViewModel)
         {
             // Get root and apply data source.
             var root = PinpointApp.RootVisualElement.Q<TemplateContainer>(
                 "automation-inspector-view"
             );
-            root.dataSource = automationInspectorViewModel;
+            _automationInspectorViewModel = automationInspectorViewModel;
+            root.dataSource = _automationInspectorViewModel;
 
             // Register component references.
             var referenceCoordinateOffsetField = root.Q<Vector4Field>(
@@ -39,15 +48,132 @@ namespace UI.Views
             var setReferenceCoordinateOffsetButton = root.Q<Button>(
                 "automation-inspector__set-reference-coordinate-offset-button"
             );
-            var targetDropdown = root.Q<Dropdown>("automation-view__target-dropdown");
 
-            targetDropdown.sourceItems = new[] { "Hello", "World" };
-            targetDropdown.bindItem = (element, i) =>
+            _targetDropdown = root.Q<Dropdown>("automation-view__target-dropdown");
+            var targetEntryDriveButton = root.Q<Button>(
+                "automation-inspector__target-entry--drive-button"
+            );
+            var targetEntryStopButton = root.Q<Button>(
+                "automation-inspector__target-entry--stop-button"
+            );
+
+            var duraOffsetField = root.Q<FloatField>("automation-inspector__dura-offset-field");
+            var recalculateDuraOffsetButton = root.Q<Button>(
+                "automation-inspector__recalculate-dura-offset-button"
+            );
+
+            var targetInsertionSpeedDropdown = root.Q<Dropdown>(
+                "automation-inspector__target-insertion--speed-dropdown"
+            );
+            var targetInsertionCustomSpeedField = root.Q<FloatField>(
+                "automation-inspector__target-insertion--custom-speed-field"
+            );
+            var targetInsertionDrivePastDistanceField = root.Q<FloatField>(
+                "automation-inspector__target-insertion--drive-past-distance-field"
+            );
+            var targetInsertionETAText = root.Q<Label>(
+                "automation-inspector__target-insertion--eta-text"
+            );
+            var targetInsertionProgressBar = root.Q<ProgressBar>(
+                "automation-inspector__target-insertion--progress-bar"
+            );
+            var targetInsertionDriveButton = root.Q<Button>(
+                "automation-inspector__target-insertion--drive-button"
+            );
+            var targetInsertionExitButton = root.Q<Button>(
+                "automation-inspector__target-insertion--exit-button"
+            );
+            var targetInsertionStopButton = root.Q<Button>(
+                "automation-inspector__target-insertion--stop-button"
+            );
+
+            // Register event handlers.
+
+            // Register property change handlers.
+            _automationInspectorViewModel.PropertyChanged += OnPropertyChanged;
+            App.shuttingDown += OnShuttingDown;
+
+            // Initialize dropdowns.
+            _targetDropdown.sourceItems = _automationInspectorViewModel.TargetInsertionProbeStates;
+            _targetDropdown.bindItem = (item, index) =>
             {
-                element.label = (string)targetDropdown.sourceItems[i];
-                element.icon = "target";
-                Debug.Log(element.Query<Icon>().AtIndex(1).iconName);
+                // Build from probe state.
+                var probeState = _automationInspectorViewModel.TargetInsertionProbeStates[index];
+                item.label = $"{probeState.Name[..8]}: {probeState.APMLDV}";
+                item.icon = "target";
+
+                // Set icon color.
+                var colorClass = probeState.Color switch
+                {
+                    ProbeColor.DarkBlue => "probe-icon--dark-blue",
+                    ProbeColor.LightBlue => "probe-icon--light-blue",
+                    ProbeColor.DarkOrange => "probe-icon--dark-orange",
+                    ProbeColor.LightOrange => "probe-icon--light-orange",
+                    ProbeColor.DarkGreen => "probe-icon--dark-green",
+                    ProbeColor.LightGreen => "probe-icon--light-green",
+                    ProbeColor.DarkRed => "probe-icon--dark-red",
+                    ProbeColor.LightRed => "probe-icon--light-red",
+                    ProbeColor.DarkPurple => "probe-icon--dark-purple",
+                    ProbeColor.LightPurple => "probe-icon--light-purple",
+                    ProbeColor.DarkBrown => "probe-icon--dark-brown",
+                    ProbeColor.LightBrown => "probe-icon--light-brown",
+                    ProbeColor.DarkPink => "probe-icon--dark-pink",
+                    ProbeColor.LightPink => "probe-icon--light-pink",
+                    ProbeColor.DarkGray => "probe-icon--dark-gray",
+                    ProbeColor.LightGray => "probe-icon--light-gray",
+                    ProbeColor.LivelyLaugh => "probe-icon--lively-laugh",
+                    ProbeColor.DarkCyan => "probe-icon--dark-cyan",
+                    ProbeColor.LightCyan => "probe-icon--light-cyan",
+                    _ => "",
+                };
+                item.Query<Icon>().AtIndex(1).AddToClassList(colorClass);
             };
+            targetInsertionSpeedDropdown.sourceItems = new[]
+            {
+                "1 μm/s",
+                "2 μm/s",
+                "5 μm/s",
+                "10 μm/s",
+                "20 μm/s",
+                "50 μm/s",
+                "Test (500 μm/s)",
+                "Custom",
+            };
+            targetInsertionSpeedDropdown.bindItem = (item, i) =>
+            {
+                item.label = (string)targetInsertionSpeedDropdown.sourceItems[i];
+                item.icon = i switch
+                {
+                    <= 2 => "tortoise",
+                    <= 5 => "hare",
+                    6 => "test-tube",
+                    _ => "pen",
+                };
+            };
+
+            // Customize field units.
+            referenceCoordinateOffsetField.Q<FloatField>().unit = "D";
+        }
+
+        private void OnPropertyChanged(
+            object sender,
+            System.ComponentModel.PropertyChangedEventArgs e
+        )
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(_automationInspectorViewModel.TargetInsertionProbeStates):
+                    _targetDropdown.sourceItems =
+                        _automationInspectorViewModel.TargetInsertionProbeStates;
+                    _targetDropdown.Refresh();
+                    break;
+            }
+        }
+
+        private void OnShuttingDown()
+        {
+            _automationInspectorViewModel.PropertyChanged -= OnPropertyChanged;
+            App.shuttingDown -= OnShuttingDown;
         }
 
 #if UNITY_EDITOR

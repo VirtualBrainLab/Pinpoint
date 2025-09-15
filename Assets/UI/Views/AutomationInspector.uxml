@@ -13,46 +13,47 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Choose a Target Insertion" size="S" />
-            <Unity.AppUI.UI.Dropdown name="automation-view__target-dropdown" />
+            <Unity.AppUI.UI.Dropdown name="automation-inspector__target-dropdown" />
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Button title="Drive to Target Entry Coordinate" variant="Default" name="target__entry-drive-button" />
-            <Unity.AppUI.UI.Button title="Stop" variant="Destructive" size="L" name="target__stop-button" style="display: none;" />
+            <Unity.AppUI.UI.Button title="Drive to Target Entry Coordinate" variant="Default" name="automation-inspector__target-entry--drive-button" />
+            <Unity.AppUI.UI.Button title="Stop" variant="Destructive" size="L" name="automation-inspector__target-entry--stop-button" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Calibrate Dura Offset" size="S" />
-            <Unity.AppUI.UI.FloatField tooltip="The difference between the atlas&apos;s dura and the real dura" name="manipulator-inspector__dura-offset-field" format-string="0.###" unit="mm">
+            <Unity.AppUI.UI.FloatField tooltip="The difference between the atlas&apos;s dura and the real dura" name="automation-inspector__dura-offset-field" format-string="0.###" unit="mm">
                 <Bindings>
                     <engine:DataBinding property="value" data-source-path="DuraOffset" binding-mode="ToTarget" />
                 </Bindings>
             </Unity.AppUI.UI.FloatField>
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Button title="Recalculate" leading-icon="align-bottom-simple" name="manipulator-inspector__recalculate-dura-offset-button" />
+            <Unity.AppUI.UI.Button title="Recalculate" leading-icon="align-bottom-simple" name="automation-inspector__recalculate-dura-offset-button" />
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Drive to Target Insertion" size="S" />
-            <Unity.AppUI.UI.Dropdown default-message="Select insertion speed (µm/s)..." tooltip="Insertion speed (µm/s)" />
+            <Unity.AppUI.UI.Dropdown default-message="Select insertion speed..." tooltip="Insertion speed (µm/s)" name="automation-inspector__target-insertion--speed-dropdown" />
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.IntField unit="Custom speed (µm/s)" value="20" style="display: none;">
-                <Bindings>
-                    <engine:DataBinding property="value" data-source-path="CustomInsertionSpeed" binding-mode="TwoWay" />
-                </Bindings>
-            </Unity.AppUI.UI.IntField>
-            <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.IntField unit="Drive Past by (µm)" value="50">
+            <engine:VisualElement style="flex-grow: 1;">
+                <Unity.AppUI.UI.IntField unit="Custom speed (µm/s)" value="20" name="automation-inspector__target-insertion--custom-speed-field">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="CustomInsertionSpeed" binding-mode="TwoWay" />
+                    </Bindings>
+                </Unity.AppUI.UI.IntField>
+                <Unity.AppUI.UI.Spacer />
+            </engine:VisualElement>
+            <Unity.AppUI.UI.IntField unit="Drive Past by (µm)" value="50" name="automation-inspector__target-insertion--drive-past-distance-field">
                 <Bindings>
                     <engine:DataBinding property="value" data-source-path="DrivePastDistance" binding-mode="TwoWay" />
                 </Bindings>
             </Unity.AppUI.UI.IntField>
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Text text="ETA: 00:00" />
+            <Unity.AppUI.UI.Text text="ETA: 00:00" name="automation-inspector__target-insertion--eta-text" />
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.LinearProgress variant="Determinate" value="0" tooltip="ETA" />
+            <Unity.AppUI.UI.LinearProgress variant="Determinate" value="0" tooltip="ETA" name="automation-inspector__target-insertion--progress-bar" />
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Button title="Drive" variant="Accent" size="M" name="insertion__drive-button" />
+            <Unity.AppUI.UI.Button title="Drive" variant="Accent" size="M" name="automation-inspector__target-insertion--drive-button" />
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Button name="insertion__exit-button" title="Exit" style="display: none;" />
-            <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Button name="insertion__stop-button" title="Stop" size="L" variant="Destructive" style="display: none;" />
+            <Unity.AppUI.UI.Button name="automation-inspector__target-insertion__exit-button" title="Exit" />
+            <Unity.AppUI.UI.Button name="automation-inspector__target-insertion__stop-button" title="Stop" size="L" variant="Destructive" />
         </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

@@ -95,7 +95,7 @@ namespace UI.Views
                 ProbeColor.LivelyLaugh => "probe-icon--lively-laugh",
                 ProbeColor.DarkCyan => "probe-icon--dark-cyan",
                 ProbeColor.LightCyan => "probe-icon--light-cyan",
-                _ => null
+                _ => "",
             };
             if (string.IsNullOrEmpty(newClass))
                 return;
