@@ -326,6 +326,52 @@ namespace Models.Scene
             };
         }
 
+        public static SceneState BulkSetProbePositionAndAnglesByReducer(
+            SceneState state,
+            IAction<
+                List<(
+                    string Name,
+                    Vector3 SurfaceAPMLDV,
+                    float Depth,
+                    Vector3 ForwardT,
+                    Vector3 Angles,
+                    Vector2 PitchRange
+                )>
+            > action
+        )
+        {
+            var probesCopy = state.Probes.ToList();
+
+            foreach (var request in action.payload)
+            {
+                // Find the index of the target probe.
+                var index = state.Probes.FindIndex(probe => probe.Name == request.Name);
+
+                // Exit if the probe is not found.
+                if (index == -1)
+                    return state;
+
+                var pitchClampedAngles = request.Angles;
+                pitchClampedAngles.y = Mathf.Clamp(
+                    request.Angles.y,
+                    request.PitchRange.x,
+                    request.PitchRange.y
+                );
+
+                // Update the probe immutably using the `with` expression
+                probesCopy[index] = probesCopy[index] with
+                {
+                    APMLDV = request.SurfaceAPMLDV + request.ForwardT * request.Depth,
+                    Angles = pitchClampedAngles,
+                };
+            }
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
         public static SceneState ChangeProbePositionByReducer(
             SceneState state,
             IAction<(string Name, Vector3 APMLDV, float Depth, Vector3 ForwardT)> action
@@ -935,6 +981,18 @@ namespace Models.Scene
             Vector2 PitchRange
         )> SET_PROBE_POSITION_AND_ANGLES_BY =
             $"{SliceNames.SCENE_SLICE}/SetProbePositionAndAnglesBy";
+
+        public static readonly ActionCreator<
+            List<(
+                string Name,
+                Vector3 SurfaceAPMLDV,
+                float Depth,
+                Vector3 ForwardT,
+                Vector3 Angles,
+                Vector2 PitchRange
+            )>
+        > BULK_SET_PROBE_POSITION_AND_ANGLES_BY =
+            $"{SliceNames.SCENE_SLICE}/BulkSetProbePositionAndAnglesBy";
 
         public static readonly ActionCreator<(
             string Name,

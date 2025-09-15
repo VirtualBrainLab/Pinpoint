@@ -102,6 +102,10 @@ namespace Services
                             SceneReducers.SetProbePositionAndAnglesByReducer
                         )
                         .AddCase(
+                            SceneActions.BULK_SET_PROBE_POSITION_AND_ANGLES_BY,
+                            SceneReducers.BulkSetProbePositionAndAnglesByReducer
+                        )
+                        .AddCase(
                             SceneActions.CHANGE_PROBE_POSITION_BY,
                             SceneReducers.ChangeProbePositionByReducer
                         )
