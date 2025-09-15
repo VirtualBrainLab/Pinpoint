@@ -86,11 +86,10 @@
                         </Bindings>
                     </ui:VisualElement>
                     <ui:VisualElement style="flex-grow: 1;">
-                        <ui:Instance template="Automation" name="automation-view" style="flex-grow: 1; display: none;">
-                            <Bindings>
-                                <ui:DataBinding property="style.display" data-source-path="InspectorDisplayType" binding-mode="ToTarget" source-to-ui-converters="InspectorDisplayTypeToAutomationInspectorVisibility" />
-                            </Bindings>
-                        </ui:Instance>
+                        <ui:Instance template="Automation" name="automation-view" style="flex-grow: 1;" />
+                        <Bindings>
+                            <ui:DataBinding property="style.display" data-source-path="InspectorDisplayType" binding-mode="ToTarget" source-to-ui-converters="InspectorDisplayTypeToAutomationInspectorVisibility" />
+                        </Bindings>
                     </ui:VisualElement>
                     <Bindings>
                         <ui:DataBinding property="style.display" data-source-path="InspectorDisplayType" binding-mode="ToTarget" source-to-ui-converters="InspectorDisplayTypeToInspectorScrollViewVisibility" />
