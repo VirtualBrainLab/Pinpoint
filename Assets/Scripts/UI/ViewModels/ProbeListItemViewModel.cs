@@ -1,3 +1,5 @@
+using System.Linq;
+using Models;
 using Models.Scene;
 using Services;
 using Unity.AppUI.MVVM;
@@ -16,6 +18,9 @@ namespace UI.ViewModels
         private readonly ProbeState _probeState;
 
         [ObservableProperty]
+        private bool _isVisualizationProbe;
+
+        [ObservableProperty]
         private ProbeColor _color;
 
         [ObservableProperty]
@@ -31,8 +36,12 @@ namespace UI.ViewModels
             _storeService = storeService;
             _probeState = probeState;
 
+            IsVisualizationProbe = storeService
+                .Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
+                .Manipulators.Select(state => state.VisualizationProbeName)
+                .Contains(_probeState.Name);
             Color = _probeState.Color;
-            Name = _probeState.Name[..8];
+            Name = _probeState.Name;
             Hidden = _probeState.ProbeDisplayType == ProbeDisplayType.Line;
         }
 

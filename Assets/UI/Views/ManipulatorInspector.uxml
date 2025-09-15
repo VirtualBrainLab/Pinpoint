@@ -1,0 +1,100 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
+    <ui:VisualElement data-source-type="UI.ViewModels.ManipulatorInspectorViewModel, Assembly-CSharp" style="flex-grow: 1;">
+        <ui:VisualElement class="inspector-panel">
+            <Unity.AppUI.UI.Heading text="Visualization Probe" size="S" />
+            <Unity.AppUI.UI.MenuTrigger>
+                <Unity.AppUI.UI.ActionButton label="Add" icon="plus" accent="true" icon-variant="Regular" />
+                <Unity.AppUI.UI.Menu>
+                    <Unity.AppUI.UI.MenuItem label="Neuropixel">
+                        <Unity.AppUI.UI.Menu>
+                            <Unity.AppUI.UI.MenuItem label="1.0" name="manipulator-inspector__add-visualization-probe-menu__neuropixels__1-0" />
+                            <Unity.AppUI.UI.MenuItem label="2.0" name="manipulator-inspector__add-visualization-probe-menu__neuropixels__2-0" />
+                            <Unity.AppUI.UI.MenuItem label="2.0 4-shank" name="manipulator-inspector__add-visualization-probe-menu__neuropixels__2-0-4-shank" />
+                            <Unity.AppUI.UI.MenuItem label="2x 2.4" name="manipulator-inspector__add-visualization-probe-menu__neuropixels__2x-2-4" />
+                        </Unity.AppUI.UI.Menu>
+                    </Unity.AppUI.UI.MenuItem>
+                    <Unity.AppUI.UI.MenuItem label="Pipette">
+                        <Unity.AppUI.UI.Menu>
+                            <Unity.AppUI.UI.MenuItem label="25μm" name="manipulator-inspector__add-visualization-probe-menu__pipette__25um" />
+                            <Unity.AppUI.UI.MenuItem label="50μm" name="manipulator-inspector__add-visualization-probe-menu__pipette__50um" />
+                            <Unity.AppUI.UI.MenuItem label="100μm" name="manipulator-inspector__add-visualization-probe-menu__pipette__100um" />
+                            <Unity.AppUI.UI.MenuItem label="200μm" name="manipulator-inspector__add-visualization-probe-menu__pipette__200um" />
+                        </Unity.AppUI.UI.Menu>
+                    </Unity.AppUI.UI.MenuItem>
+                    <Unity.AppUI.UI.MenuItem label="UCLA">
+                        <Unity.AppUI.UI.Menu>
+                            <Unity.AppUI.UI.MenuItem label="128K" name="manipulator-inspector__add-visualization-probe-menu__ucla__128k" />
+                            <Unity.AppUI.UI.MenuItem label="256F" name="manipulator-inspector__add-visualization-probe-menu__ucla__256f" />
+                        </Unity.AppUI.UI.Menu>
+                    </Unity.AppUI.UI.MenuItem>
+                </Unity.AppUI.UI.Menu>
+                <Bindings>
+                    <ui:DataBinding property="style.display" data-source-path="VisualizationProbeName" binding-mode="ToTarget" source-to-ui-converters="VisualizationProbeNameToAddButtonVisibility" />
+                </Bindings>
+            </Unity.AppUI.UI.MenuTrigger>
+            <Unity.AppUI.UI.Button title="Inspect ABC123" leading-icon="magnifying-glass" name="manipulator-inspector__visualization-probe-inspect-button">
+                <Bindings>
+                    <ui:DataBinding property="style.display" data-source-path="VisualizationProbeName" binding-mode="ToTarget" source-to-ui-converters="VisualizationProbeNameToInspectButtonVisibility" />
+                    <ui:DataBinding property="title" data-source-path="VisualizationProbeName" binding-mode="ToTarget" source-to-ui-converters="VisualizationProbeNameToInspectButtonTitle" />
+                </Bindings>
+            </Unity.AppUI.UI.Button>
+        </ui:VisualElement>
+        <ui:VisualElement class="inspectorBox inspector-panel">
+            <Unity.AppUI.UI.Heading text="Orientation" size="S" />
+            <Unity.AppUI.UI.Heading size="XS" text="Orientation (degrees)" />
+            <Unity.AppUI.UI.Vector3Field tooltip="Orientation (degrees)" name="manipulator-inspector__angles-field" size="L" format-string="0.###">
+                <Bindings>
+                    <ui:DataBinding property="value" data-source-path="Angles" binding-mode="ToTarget" />
+                </Bindings>
+            </Unity.AppUI.UI.Vector3Field>
+            <ui:VisualElement style="flex-grow: 1;">
+                <Unity.AppUI.UI.Heading size="XS" text="Handedness" />
+                <Unity.AppUI.UI.ActionGroup compact="true" justified="true">
+                    <Unity.AppUI.UI.ActionButton label="Left" size="L" name="manipulator-inspector__handedness-button--left">
+                        <Bindings>
+                            <ui:DataBinding property="selected" data-source-path="Handedness" binding-mode="ToTarget" source-to-ui-converters="ManipulatorHandednessToLeftButtonSelected" />
+                        </Bindings>
+                    </Unity.AppUI.UI.ActionButton>
+                    <Unity.AppUI.UI.ActionButton label="Right" size="L" name="manipulator-inspector__handedness-button--right">
+                        <Bindings>
+                            <ui:DataBinding property="selected" data-source-path="Handedness" binding-mode="ToTarget" source-to-ui-converters="ManipulatorHandednessToRightButtonSelected" />
+                        </Bindings>
+                    </Unity.AppUI.UI.ActionButton>
+                </Unity.AppUI.UI.ActionGroup>
+                <Bindings>
+                    <ui:DataBinding property="style.display" data-source-path="AxesCount" binding-mode="ToTarget" source-to-ui-converters="ManipulatorAxesCountToHandednessVisibility" />
+                </Bindings>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="inspector-panel">
+            <Unity.AppUI.UI.Heading text="Calibration" size="S" />
+            <Unity.AppUI.UI.Heading text="Reference Coordinate Offset (mm)" size="XS" />
+            <Unity.AppUI.UI.Vector4Field tooltip="Manipulator&apos;s coordinates when its probe is at the reference coordinate" format-string="0.###" name="manipulator-inspector__reference-coordinate-offset-field">
+                <Bindings>
+                    <ui:DataBinding property="value" data-source-path="ReferenceCoordinateOffset" binding-mode="ToTarget" />
+                </Bindings>
+            </Unity.AppUI.UI.Vector4Field>
+            <Unity.AppUI.UI.Button title="Use Current Position" leading-icon="waypoint-home" name="manipulator-inspector__set-reference-coordinate-offset-button" />
+            <Unity.AppUI.UI.Heading text="Dura Offset" size="XS" />
+            <Unity.AppUI.UI.FloatField tooltip="The difference between the atlas&apos;s dura and the real dura" name="manipulator-inspector__dura-offset-field" format-string="0.###" unit="mm">
+                <Bindings>
+                    <ui:DataBinding property="value" data-source-path="DuraOffset" binding-mode="ToTarget" />
+                </Bindings>
+            </Unity.AppUI.UI.FloatField>
+            <Unity.AppUI.UI.Spacer />
+            <Unity.AppUI.UI.Button title="Recalculate" leading-icon="align-bottom-simple" name="manipulator-inspector__recalculate-dura-offset-button" />
+            <Bindings>
+                <ui:DataBinding property="enabledSelf" data-source-path="VisualizationProbeName" binding-mode="ToTarget" source-to-ui-converters="VisualizationProbeNameToCalibrationControlsEnabled" />
+            </Bindings>
+        </ui:VisualElement>
+        <ui:VisualElement class="inspector-panel">
+            <Unity.AppUI.UI.Heading text="Controls" size="S" />
+            <Unity.AppUI.UI.Toggle label="Manual Control" name="manipulator-inspector__manual-control-toggle">
+                <Bindings>
+                    <ui:DataBinding property="value" data-source-path="IsManualControlEnabled" binding-mode="TwoWay" />
+                </Bindings>
+            </Unity.AppUI.UI.Toggle>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

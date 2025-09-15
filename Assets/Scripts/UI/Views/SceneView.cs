@@ -2,9 +2,15 @@ using System.ComponentModel;
 using System.Linq;
 using UI.ViewModels;
 using Unity.AppUI.UI;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utils;
 using Utils.Types;
+using MenuItem = Unity.AppUI.UI.MenuItem;
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
 
 namespace UI.Views
 {
@@ -19,8 +25,11 @@ namespace UI.Views
 
         private readonly SceneViewModel _sceneViewModel;
 
-        public SceneView(TemplateContainer root, SceneViewModel sceneViewModel)
+        public SceneView(SceneViewModel sceneViewModel)
         {
+            // Get root visual element.
+            var root = PinpointApp.RootVisualElement.Q<TemplateContainer>("scene-view");
+
             // Register view model and property changes.
             _sceneViewModel = sceneViewModel;
             _sceneViewModel.PropertyChanged += OnPropertyChanged;
@@ -42,7 +51,7 @@ namespace UI.Views
 
             _probeListView = root.Q<ListView>("scene__probe-list-view");
             _manipulatorListView = root.Q<ListView>("scene__manipulators-list");
-            
+
             // Add event listeners.
             addNeuropixels10.clickable.clicked += () =>
                 _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels1);
@@ -70,19 +79,31 @@ namespace UI.Views
                 sceneViewModel.SetActiveProbeCommand.Execute(
                     indicesList.Any() ? indicesList[0] : -1
                 );
+
+                // Clear the manipulator selection when a probe is selected.
+                _manipulatorListView.selectedIndex = -1;
             };
-            
+            _manipulatorListView.selectedIndicesChanged += indices =>
+            {
+                var indicesList = indices.ToList();
+                sceneViewModel.SetActiveManipulatorCommand.Execute(
+                    indicesList.Any() ? indicesList[0] : -1
+                );
+
+                // Clear the probe selection when a manipulator is selected.
+                _probeListView.selectedIndex = -1;
+            };
+
             // Build probe list view.
             _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;
             _probeListView.bindItem = (element, i) =>
                 _ = new ProbeListItem(element, _sceneViewModel.ProbeListItemViewModels[i]);
 
             // Build manipulator list view.
+            _manipulatorListView.itemsSource = _sceneViewModel.ManipulatorIds;
+            _manipulatorListView.makeItem = () => new Heading { size = HeadingSize.S };
             _manipulatorListView.bindItem = (element, i) =>
-                _ = new ManipulatorListItem(
-                    element,
-                    _sceneViewModel.ManipulatorListItemViewModels[i]
-                );
+                ((Heading)element).text = sceneViewModel.ManipulatorIds[i];
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -96,15 +117,30 @@ namespace UI.Views
                     _probeListView.itemsSource = _sceneViewModel.ProbeListItemViewModels;
                     _probeListView.Rebuild();
                     break;
-                case nameof(_sceneViewModel.ManipulatorListItemViewModels):
-                    Debug.Log(
-                        $"Rebuilding list: {_sceneViewModel.ManipulatorListItemViewModels.Count}"
-                    );
-                    _manipulatorListView.itemsSource =
-                        _sceneViewModel.ManipulatorListItemViewModels;
+                case nameof(_sceneViewModel.ManipulatorIds):
+                    _manipulatorListView.itemsSource = _sceneViewModel.ManipulatorIds;
                     _manipulatorListView.Rebuild();
                     break;
             }
+        }
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+#else
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#endif
+        public static void RegisterMainViewConverters()
+        {
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                EphysLinkConnectionState,
+                StyleEnum<DisplayStyle>
+            >(
+                "EphysLinkConnectionStateToManipulatorsAccordionVisibility",
+                (ref EphysLinkConnectionState connectionState) =>
+                    connectionState == EphysLinkConnectionState.Connected
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
         }
     }
 }

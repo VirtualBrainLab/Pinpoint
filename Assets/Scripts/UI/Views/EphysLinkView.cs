@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Models.Automation;
 using UI.ViewModels;
 using Unity.AppUI.UI;
 using UnityEditor;
@@ -8,7 +7,6 @@ using UnityEngine.UIElements;
 using Utils;
 using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
-
 #if !UNITY_EDITOR
 using UnityEngine;
 #endif
@@ -25,8 +23,9 @@ namespace UI.Views
 
         private readonly EphysLinkViewModel _ephysLinkViewModel;
 
-        public EphysLinkView(TemplateContainer root, EphysLinkViewModel ephysLinkViewModel)
+        public EphysLinkView(EphysLinkViewModel ephysLinkViewModel)
         {
+            var root = PinpointApp.RootVisualElement.Q<TemplateContainer>("ephys-link-view");
             _ephysLinkViewModel = ephysLinkViewModel;
             root.dataSource = _ephysLinkViewModel;
 
@@ -76,7 +75,7 @@ namespace UI.Views
                 EphysLinkPlatformType,
                 StyleEnum<DisplayStyle>
             >(
-                "PlatformTypeToPathfinderMPMHTTPServerConnectionVisibility",
+                "EphysLinkPlatformTypeToPathfinderMPMHTTPServerConnectionVisibility",
                 (ref EphysLinkPlatformType platformType) =>
                     platformType == EphysLinkPlatformType.NewScalePathfinderMpm
                         ? DisplayStyle.Flex
@@ -87,16 +86,18 @@ namespace UI.Views
                 EphysLinkPlatformType,
                 StyleEnum<DisplayStyle>
             >(
-                "PlatformTypeToCustomServerConnectionVisibility",
+                "EphysLinkPlatformTypeToCustomServerConnectionVisibility",
                 (ref EphysLinkPlatformType platformType) =>
-                    platformType == EphysLinkPlatformType.Custom ? DisplayStyle.Flex : DisplayStyle.None
+                    platformType == EphysLinkPlatformType.Custom
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
                 EphysLinkConnectionState,
                 StyleEnum<DisplayStyle>
             >(
-                "ConnectionStateToConnectButtonVisibility",
+                "EphysLinkConnectionStateToConnectButtonVisibility",
                 (ref EphysLinkConnectionState connectionState) =>
                     connectionState == EphysLinkConnectionState.Disconnected
                         ? DisplayStyle.Flex
@@ -107,7 +108,7 @@ namespace UI.Views
                 EphysLinkConnectionState,
                 StyleEnum<DisplayStyle>
             >(
-                "ConnectionStateToDisconnectButtonVisibility",
+                "EphysLinkConnectionStateToDisconnectButtonVisibility",
                 (ref EphysLinkConnectionState connectionState) =>
                     connectionState == EphysLinkConnectionState.Connected
                         ? DisplayStyle.Flex
@@ -118,7 +119,7 @@ namespace UI.Views
                 EphysLinkConnectionState,
                 StyleEnum<DisplayStyle>
             >(
-                "ConnectionStateToConnectingProgressVisibility",
+                "EphysLinkConnectionStateToConnectingProgressVisibility",
                 (ref EphysLinkConnectionState connectionState) =>
                     connectionState == EphysLinkConnectionState.Connecting
                         ? DisplayStyle.Flex
@@ -126,7 +127,7 @@ namespace UI.Views
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "ConnectionStateToSettingsEnabled",
+                "EphysLinkConnectionStateToSettingsEnabled",
                 (ref EphysLinkConnectionState connectionState) =>
                     connectionState == EphysLinkConnectionState.Disconnected
             );

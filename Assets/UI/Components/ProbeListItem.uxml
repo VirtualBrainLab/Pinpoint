@@ -1,16 +1,26 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3#ProbeColors" />
     <ui:VisualElement data-source-type="UI.ViewModels.ProbeListItemViewModel, Assembly-CSharp" style="flex-grow: 1; flex-direction: row; align-items: center;">
-        <Unity.AppUI.UI.Icon icon-name="shovel" />
-        <Unity.AppUI.UI.Spacer />
-        <Unity.AppUI.UI.Heading text="ABCD-1234">
+        <Unity.AppUI.UI.Icon icon-name="shovel">
             <Bindings>
-                <ui:DataBinding property="text" data-source-path="Name" binding-mode="ToTarget" />
+                <ui:DataBinding property="style.display" data-source-path="IsVisualizationProbe" binding-mode="ToTarget" />
+            </Bindings>
+        </Unity.AppUI.UI.Icon>
+        <ui:VisualElement style="width: 24px; height: 24px; background-color: rgb(34, 112, 147); border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-bottom-left-radius: 12px;">
+            <Bindings>
+                <ui:DataBinding property="style.backgroundColor" data-source-path="Color" binding-mode="ToTarget" source-to-ui-converters="ProbeColorToStyleColor" />
+                <ui:DataBinding property="style.display" data-source-path="IsVisualizationProbe" binding-mode="ToTarget" source-to-ui-converters="IsVisualizationProbeToProbeColorVisibility" />
+            </Bindings>
+        </ui:VisualElement>
+        <Unity.AppUI.UI.Spacer />
+        <Unity.AppUI.UI.Heading text="ABCD-1234" size="S">
+            <Bindings>
+                <ui:DataBinding property="text" data-source-path="Name" binding-mode="ToTarget" source-to-ui-converters="FullNameToDisplayName" />
             </Bindings>
         </Unity.AppUI.UI.Heading>
         <Unity.AppUI.UI.Spacer spacing="Expand" />
-        <Unity.AppUI.UI.ActionButton size="L" icon="eye" />
+        <Unity.AppUI.UI.ActionButton size="M" icon="eye" />
         <Unity.AppUI.UI.Spacer />
-        <Unity.AppUI.UI.Button variant="Destructive" size="L" leading-icon="trash" />
+        <Unity.AppUI.UI.Button variant="Destructive" size="M" leading-icon="trash" />
     </ui:VisualElement>
 </ui:UXML>

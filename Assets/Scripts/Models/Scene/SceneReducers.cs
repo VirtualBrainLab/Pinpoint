@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Pinpoint.CoordinateSystems;
 using Unity.AppUI.Redux;
 using UnityEngine;
 using Utils.Types;
@@ -16,6 +17,36 @@ namespace Models.Scene
             var newProbesList = state.Probes.ToList();
             newProbesList.Add(new ProbeState { ProbeType = action.payload });
             return state with { Probes = newProbesList };
+        }
+
+        public static SceneState AddVisualizationProbeReducer(
+            SceneState state,
+            IAction<(string ManipulatorId, string ProbeName, ProbeType ProbeType)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.ManipulatorId);
+            if (index == -1)
+                return state;
+            var newManipulatorsList = state.Manipulators.ToList();
+            newManipulatorsList[index] = newManipulatorsList[index] with
+            {
+                VisualizationProbeName = action.payload.ProbeName,
+            };
+
+            var newProbesList = state.Probes.ToList();
+            newProbesList.Add(
+                new ProbeState
+                {
+                    Name = action.payload.ProbeName,
+                    ProbeType = action.payload.ProbeType,
+                }
+            );
+
+            return state with
+            {
+                Probes = newProbesList,
+                Manipulators = newManipulatorsList,
+            };
         }
 
         public static SceneState DuplicateProbeReducer(SceneState state, IAction<string> action)
@@ -60,6 +91,19 @@ namespace Models.Scene
             if (newProbesList.RemoveAll(probeState => probeState.Name == action.payload) == 0)
                 return state;
 
+            // Erase the visualization probe reference in manipulators if it points to the removed probe.
+            var newManipulatorsList = state.Manipulators.ToList();
+            for (var i = 0; i < newManipulatorsList.Count; i++)
+            {
+                if (newManipulatorsList[i].VisualizationProbeName == action.payload)
+                {
+                    newManipulatorsList[i] = newManipulatorsList[i] with
+                    {
+                        VisualizationProbeName = string.Empty,
+                    };
+                }
+            }
+
             // Update the state with the new probes list, and update the active probe name if it was removed.
             return state with
             {
@@ -69,14 +113,51 @@ namespace Models.Scene
             };
         }
 
-        public static SceneState RemoveAllProbesReducer(SceneState state, IAction action)
+        public static SceneState RemoveAllVisualizationProbesReducer(
+            SceneState state,
+            IAction action
+        )
         {
-            return state with { Probes = new List<ProbeState>(), ActiveProbeName = string.Empty };
+            var newProbesList = state.Probes.ToList();
+            var nonVisualizationProbeList = newProbesList.Where(probeState =>
+                !state
+                    .Manipulators.Select(manipulatorState =>
+                        manipulatorState.VisualizationProbeName
+                    )
+                    .Contains(probeState.Name)
+            );
+
+            var newManipulatorsList = state.Manipulators.ToList();
+            for (var i = 0; i < newManipulatorsList.Count; i++)
+            {
+                newManipulatorsList[i] = newManipulatorsList[i] with
+                {
+                    VisualizationProbeName = string.Empty,
+                };
+            }
+
+            return state with
+            {
+                Probes = nonVisualizationProbeList.ToList(),
+                Manipulators = newManipulatorsList,
+            };
         }
 
         #endregion
 
-        #region Active Probe Reducers
+        #region Manipulator List Reducers
+
+        public static SceneState SetManipulatorsReducer(
+            SceneState state,
+            IAction<List<ManipulatorState>> action
+        )
+        {
+            return state with { Manipulators = action.payload, ActiveManipulatorId = "" };
+        }
+
+        #endregion
+
+        #region Active Item Reducers
 
         public static SceneState SetActiveProbeReducer(SceneState state, IAction<string> action)
         {
@@ -88,13 +169,31 @@ namespace Models.Scene
             return state with
             {
                 ActiveProbeName = action.payload,
+                ActiveManipulatorId = "",
+            };
+        }
+
+        public static SceneState SetActiveManipulatorReducer(
+            SceneState state,
+            IAction<string> action
+        )
+        {
+            // If not found, return the state unchanged.
+            if (!state.Manipulators.Exists(manipulator => manipulator.Id == action.payload))
+                return state;
+
+            // Update the active manipulator ID.
+            return state with
+            {
+                ActiveProbeName = "",
+                ActiveManipulatorId = action.payload,
             };
         }
 
         #endregion
 
         #region Probe Reducers
-        
+
         public static SceneState SetProbePositionReducer(
             SceneState state,
             IAction<(string Name, Vector3 APMLDV)> action
@@ -227,6 +326,52 @@ namespace Models.Scene
             };
         }
 
+        public static SceneState BulkSetProbePositionAndAnglesByReducer(
+            SceneState state,
+            IAction<
+                List<(
+                    string Name,
+                    Vector3 SurfaceAPMLDV,
+                    float Depth,
+                    Vector3 ForwardT,
+                    Vector3 Angles,
+                    Vector2 PitchRange
+                )>
+            > action
+        )
+        {
+            var probesCopy = state.Probes.ToList();
+
+            foreach (var request in action.payload)
+            {
+                // Find the index of the target probe.
+                var index = state.Probes.FindIndex(probe => probe.Name == request.Name);
+
+                // Exit if the probe is not found.
+                if (index == -1)
+                    return state;
+
+                var pitchClampedAngles = request.Angles;
+                pitchClampedAngles.y = Mathf.Clamp(
+                    request.Angles.y,
+                    request.PitchRange.x,
+                    request.PitchRange.y
+                );
+
+                // Update the probe immutably using the `with` expression
+                probesCopy[index] = probesCopy[index] with
+                {
+                    APMLDV = request.SurfaceAPMLDV + request.ForwardT * request.Depth,
+                    Angles = pitchClampedAngles,
+                };
+            }
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
         public static SceneState ChangeProbePositionByReducer(
             SceneState state,
             IAction<(string Name, Vector3 APMLDV, float Depth, Vector3 ForwardT)> action
@@ -343,6 +488,106 @@ namespace Models.Scene
             {
                 Probes = probesCopy,
             };
+        }
+
+        #endregion
+
+        #region Manipulator Reducers
+
+        public static SceneState SetManipulatorAnglesReducer(
+            SceneState state,
+            IAction<(string Id, Vector3 Angles)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                Angles = action.payload.Angles,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorHandednessReducer(
+            SceneState state,
+            IAction<(string Id, ManipulatorHandedness Handedness)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                Handedness = action.payload.Handedness,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorReferenceCoordinateOffsetReducer(
+            SceneState state,
+            IAction<(string Id, Vector4 ReferenceCoordinateOffset)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                ReferenceCoordinateOffset = action.payload.ReferenceCoordinateOffset,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorDuraOffsetReducer(
+            SceneState state,
+            IAction<(string Id, float DuraOffset)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                DuraOffset = action.payload.DuraOffset,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState ChangeManipulatorDuraOffsetByReducer(
+            SceneState state,
+            IAction<(string Id, float DuraOffsetDelta)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                DuraOffset = manipulatorsCopy[index].DuraOffset + action.payload.DuraOffsetDelta,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorManualControlEnabledReducer(
+            SceneState state,
+            IAction<(string Id, bool ManualControlEnabled)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                ManualControlEnabled = action.payload.ManualControlEnabled,
+            };
+            return state with { Manipulators = manipulatorsCopy };
         }
 
         #endregion
@@ -617,6 +862,25 @@ namespace Models.Scene
 
         #endregion
 
+        #region Platform Info
+
+        public static SceneState SetPlatformInfoReducer(
+            SceneState state,
+            IAction<(int ManipulatorAxesCount, Vector4 ManipulatorDimensions)> action
+        )
+        {
+            return state with
+            {
+                NumberOfAxesOnManipulator = action.payload.ManipulatorAxesCount,
+                ManipulatorDimensions = action.payload.ManipulatorDimensions,
+                ManipulatorCoordinateSpace = new ManipulatorSpace(
+                    action.payload.ManipulatorDimensions
+                ),
+            };
+        }
+
+        #endregion
+
         #region Brain Area
 
         public static SceneState RotateAreaVisibilityReducer(SceneState state, IAction<int> action)
@@ -656,21 +920,37 @@ namespace Models.Scene
         public static readonly ActionCreator<ProbeType> ADD_PROBE =
             $"{SliceNames.SCENE_SLICE}/AddProbe";
 
+        public static readonly ActionCreator<(
+            string ManipulatorId,
+            string ProbeName,
+            ProbeType ProbeType
+        )> ADD_VISUALIZATION_PROBE = $"{SliceNames.SCENE_SLICE}/AddVisualizationProbe";
+
         public static readonly ActionCreator<string> DUPLICATE_PROBE =
             $"{SliceNames.SCENE_SLICE}/DuplicateProbe";
 
         public static readonly ActionCreator<string> REMOVE_PROBE =
             $"{SliceNames.SCENE_SLICE}/RemoveProbe";
 
-        public static readonly ActionCreator REMOVE_ALL_PROBES =
-            $"{SliceNames.SCENE_SLICE}/RemoveAllProbes";
+        public static readonly ActionCreator REMOVE_ALL_VISUALIZATION_PROBES =
+            $"{SliceNames.SCENE_SLICE}/RemoveAllVisualizationProbes";
 
         #endregion
 
-        #region Active Probe Actions
+        #region Manipulator List Actions
+
+        public static readonly ActionCreator<List<ManipulatorState>> SET_MANIPULATORS =
+            $"{SliceNames.SCENE_SLICE}/SetManipulators";
+
+        #endregion
+
+        #region Active Item Actions
 
         public static readonly ActionCreator<string> SET_ACTIVE_PROBE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbe";
+
+        public static readonly ActionCreator<string> SET_ACTIVE_MANIPULATOR =
+            $"{SliceNames.SCENE_SLICE}/SetActiveManipulator";
 
         #endregion
 
@@ -678,6 +958,7 @@ namespace Models.Scene
 
         public static readonly ActionCreator<(string Name, Vector3 APMLDV)> SET_PROBE_POSITION =
             $"{SliceNames.SCENE_SLICE}/SetProbePosition";
+
         public static readonly ActionCreator<(
             string Name,
             Vector3 SurfaceAPMLDV,
@@ -701,6 +982,18 @@ namespace Models.Scene
         )> SET_PROBE_POSITION_AND_ANGLES_BY =
             $"{SliceNames.SCENE_SLICE}/SetProbePositionAndAnglesBy";
 
+        public static readonly ActionCreator<
+            List<(
+                string Name,
+                Vector3 SurfaceAPMLDV,
+                float Depth,
+                Vector3 ForwardT,
+                Vector3 Angles,
+                Vector2 PitchRange
+            )>
+        > BULK_SET_PROBE_POSITION_AND_ANGLES_BY =
+            $"{SliceNames.SCENE_SLICE}/BulkSetProbePositionAndAnglesBy";
+
         public static readonly ActionCreator<(
             string Name,
             Vector3 APMLDV,
@@ -719,6 +1012,41 @@ namespace Models.Scene
 
         public static readonly ActionCreator<(string, bool)> SET_PROBE_LOCKED =
             $"{SliceNames.SCENE_SLICE}/SetProbeLocked";
+
+        #endregion
+
+        #region Manipulator Actions
+
+        public static readonly ActionCreator<(string Id, Vector3 Angles)> SET_MANIPULATOR_ANGLES =
+            $"{SliceNames.SCENE_SLICE}/SetManipulatorAngles";
+
+        public static readonly ActionCreator<(
+            string Id,
+            ManipulatorHandedness Handedness
+        )> SET_MANIPULATOR_HANDEDNESS = $"{SliceNames.SCENE_SLICE}/SetManipulatorHandedness";
+
+        public static readonly ActionCreator<(
+            string Id,
+            Vector4 ReferenceCoordinateOffset
+        )> SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET =
+            $"{SliceNames.SCENE_SLICE}/SetManipulatorReferenceCoordinateOffset";
+
+        public static readonly ActionCreator<(
+            string Id,
+            float DuraOffset
+        )> SET_MANIPULATOR_DURA_OFFSET = $"{SliceNames.SCENE_SLICE}/SetManipulatorDuraOffset";
+
+        public static readonly ActionCreator<(
+            string Id,
+            float DuraOffsetDelta
+        )> CHANGE_MANIPULATOR_DURA_OFFSET_BY =
+            $"{SliceNames.SCENE_SLICE}/ChangeManipulatorDuraOffsetBy";
+
+        public static readonly ActionCreator<(
+            string Id,
+            bool ManualControlEnabled
+        )> SET_MANIPULATOR_MANUAL_CONTROL_ENABLED =
+            $"{SliceNames.SCENE_SLICE}/SetManipulatorManualControlEnabled";
 
         #endregion
 
@@ -753,6 +1081,15 @@ namespace Models.Scene
 
         public static readonly ActionCreator<int> SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeDrivePastDistance";
+
+        #endregion
+
+        #region Platform Info Actions
+
+        public static readonly ActionCreator<(
+            int ManipulatorAxesCount,
+            Vector4 ManipulatorDimensions
+        )> SET_PLATFORM_INFO = $"{SliceNames.SCENE_SLICE}/SetPlatformInfo";
 
         #endregion
 

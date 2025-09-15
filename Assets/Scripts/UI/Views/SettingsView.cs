@@ -1,13 +1,18 @@
 using UI.ViewModels;
+using Unity.AppUI.MVVM;
 using UnityEngine.UIElements;
 
 namespace UI.Views
 {
     public class SettingsView
     {
-        public SettingsView(TemplateContainer root, SettingsViewModel settingsViewModel)
+        public SettingsView(SettingsViewModel settingsViewModel)
         {
-            root.dataSource = settingsViewModel;
+            PinpointApp.RootVisualElement.Q<TemplateContainer>("settings-view").dataSource =
+                settingsViewModel;
+
+            // Initialize subviews.
+            _ = PinpointApp.Services.GetRequiredService<EphysLinkView>();
         }
     }
 }

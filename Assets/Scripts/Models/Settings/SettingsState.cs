@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Utils.Types;
 
 namespace Models.Settings
 {
@@ -13,7 +14,7 @@ namespace Models.Settings
 
         public bool DetectCollisions = true;
 
-        public bool ConvertAPML2Probe = false;
+        public bool ConvertAPML2Probe;
 
         public string AngleConvention = "Pinpoint";
 
@@ -21,7 +22,7 @@ namespace Models.Settings
 
         public int ProbeSpeed = 1;
 
-        public bool ProbePrevNextEnabled = false;
+        public bool ProbePrevNextEnabled;
 
         #endregion
 
@@ -43,7 +44,7 @@ namespace Models.Settings
 
         public bool GhostInactiveProbes = true;
 
-        public bool GhostInactiveAreas = false;
+        public bool GhostInactiveAreas;
 
         public bool DisplayUM = true;
 
@@ -57,9 +58,9 @@ namespace Models.Settings
 
         public string AtlasName = "allen_mouse_25um";
 
-        public int Slice3DDropdownOption = 0;
+        public int Slice3DDropdownOption;
 
-        public Vector3 ReferenceCoord = new Vector3(float.NaN, float.NaN, float.NaN);
+        public Vector3 ReferenceCoord = new(float.NaN, float.NaN, float.NaN);
 
         public string AtlasTransformName = "Default";
 
@@ -67,19 +68,18 @@ namespace Models.Settings
 
         #endregion
 
-        #region Ephys Link Settings
+        #region Ephys Link
 
-        public int EphysLinkManipulatorType = 0;
+        public EphysLinkPlatformType SelectedEphysLinkPlatformType;
 
-        public int EphysLinkPathfinderPort = 8080;
+        public int NewScalePathfinderMpmPort = 8080;
 
-        public string EphysLinkServerIp = "";
+        public string CustomServerIpAddress = "localhost";
 
-        public int EphysLinkServerPort = 8081;
+        public int CustomServerPort = 3000;
 
-        public string EphysLinkProxyAddress = "";
-
-        public string EphysLinkRightHandedManipulators = "";
+        [NonSerialized]
+        public EphysLinkConnectionState EphysLinkConnectionState;
 
         #endregion
 
@@ -91,11 +91,11 @@ namespace Models.Settings
 
         #region API Settings
 
-        public bool OpenEphysToggle = false;
+        public bool OpenEphysToggle;
 
         public string OpenEphysTarget = "http://localhost:37497";
 
-        public bool SpikeGLXToggle = false;
+        public bool SpikeGLXToggle;
 
         public string SpikeGLXTarget = "127.0.0.1:4142";
 

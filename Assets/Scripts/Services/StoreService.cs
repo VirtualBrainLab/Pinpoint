@@ -1,5 +1,4 @@
 using Models;
-using Models.Automation;
 using Models.Scene;
 using Models.Settings;
 using Unity.AppUI.Redux;
@@ -41,10 +40,6 @@ namespace Services
                 SliceNames.SETTINGS_SLICE,
                 new SettingsState()
             );
-            var initialEphysLinkState = _localStorageService.GetValue(
-                SliceNames.EPHYS_LINK_SLICE,
-                new EphysLinkState()
-            );
 
             // Initialize the Redux store.
             var mainSlice = StoreFactory.CreateSlice(
@@ -53,10 +48,6 @@ namespace Services
                 builder =>
                 {
                     builder
-                        .AddCase(
-                            MainActions.SET_IS_AUTOMATION_MODE_ACTIVE,
-                            MainReducers.SetIsAutomationModeActiveReducer
-                        )
                         .AddCase(
                             MainActions.SET_MAIN_SPLIT_VIEW_STATE,
                             MainReducers.SetMainSplitViewStateReducer
@@ -67,33 +58,6 @@ namespace Services
                         );
                 }
             );
-            var ephysLinkSlice = StoreFactory.CreateSlice(
-                SliceNames.EPHYS_LINK_SLICE,
-                initialEphysLinkState,
-                builder =>
-                {
-                    builder.AddCase(
-                        EphysLinkActions.SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE,
-                        EphysLinkReducers.SetSelectedEphysLinkPlatformTypeReducer
-                    );
-                    builder.AddCase(
-                        EphysLinkActions.SET_NEW_SCALE_PATHFINDER_MPM_PORT,
-                        EphysLinkReducers.SetNewScalePathfinderMpmPortReducer
-                    );
-                    builder.AddCase(
-                        EphysLinkActions.SET_CUSTOM_SERVER_IP_ADDRESS,
-                        EphysLinkReducers.SetCustomServerIpAddressReducer
-                    );
-                    builder.AddCase(
-                        EphysLinkActions.SET_CUSTOM_SERVER_PORT,
-                        EphysLinkReducers.SetCustomServerPortReducer
-                    );
-                    builder.AddCase(
-                        EphysLinkActions.SET_CONNECTION_STATE,
-                        EphysLinkReducers.SetConnectionStateReducer
-                    );
-                }
-            );
             var sceneSlice = StoreFactory.CreateSlice(
                 SliceNames.SCENE_SLICE,
                 initialSceneState,
@@ -102,14 +66,27 @@ namespace Services
                     builder
                         // Probe list.
                         .AddCase(SceneActions.ADD_PROBE, SceneReducers.AddProbeReducer)
+                        .AddCase(
+                            SceneActions.ADD_VISUALIZATION_PROBE,
+                            SceneReducers.AddVisualizationProbeReducer
+                        )
                         .AddCase(SceneActions.DUPLICATE_PROBE, SceneReducers.DuplicateProbeReducer)
                         .AddCase(SceneActions.REMOVE_PROBE, SceneReducers.RemoveProbeReducer)
                         .AddCase(
-                            SceneActions.REMOVE_ALL_PROBES,
-                            SceneReducers.RemoveAllProbesReducer
+                            SceneActions.REMOVE_ALL_VISUALIZATION_PROBES,
+                            SceneReducers.RemoveAllVisualizationProbesReducer
                         )
-                        // Active Probe.
+                        // Manipulator list.
+                        .AddCase(
+                            SceneActions.SET_MANIPULATORS,
+                            SceneReducers.SetManipulatorsReducer
+                        )
+                        // Active Item.
                         .AddCase(SceneActions.SET_ACTIVE_PROBE, SceneReducers.SetActiveProbeReducer)
+                        .AddCase(
+                            SceneActions.SET_ACTIVE_MANIPULATOR,
+                            SceneReducers.SetActiveManipulatorReducer
+                        )
                         // Probe.
                         .AddCase(
                             SceneActions.SET_PROBE_POSITION,
@@ -125,6 +102,10 @@ namespace Services
                             SceneReducers.SetProbePositionAndAnglesByReducer
                         )
                         .AddCase(
+                            SceneActions.BULK_SET_PROBE_POSITION_AND_ANGLES_BY,
+                            SceneReducers.BulkSetProbePositionAndAnglesByReducer
+                        )
+                        .AddCase(
                             SceneActions.CHANGE_PROBE_POSITION_BY,
                             SceneReducers.ChangeProbePositionByReducer
                         )
@@ -134,6 +115,31 @@ namespace Services
                         )
                         .AddCase(SceneActions.SET_PROBE_COLOR, SceneReducers.SetProbeColorReducer)
                         .AddCase(SceneActions.SET_PROBE_LOCKED, SceneReducers.SetProbeLockedReducer)
+                        // Manipulator.
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_ANGLES,
+                            SceneReducers.SetManipulatorAnglesReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_HANDEDNESS,
+                            SceneReducers.SetManipulatorHandednessReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET,
+                            SceneReducers.SetManipulatorReferenceCoordinateOffsetReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_DURA_OFFSET,
+                            SceneReducers.SetManipulatorDuraOffsetReducer
+                        )
+                        .AddCase(
+                            SceneActions.CHANGE_MANIPULATOR_DURA_OFFSET_BY,
+                            SceneReducers.ChangeManipulatorDuraOffsetByReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_MANUAL_CONTROL_ENABLED,
+                            SceneReducers.SetManipulatorManualControlEnabledReducer
+                        )
                         // Automation.
                         .AddCase(
                             SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,
@@ -178,6 +184,11 @@ namespace Services
                         .AddCase(
                             SceneActions.ROTATE_AREA_VISIBILITY,
                             SceneReducers.RotateAreaVisibilityReducer
+                        )
+                        // Platform Info.
+                        .AddCase(
+                            SceneActions.SET_PLATFORM_INFO,
+                            SceneReducers.SetPlatformInfoReducer
                         );
                 }
             );
@@ -186,20 +197,33 @@ namespace Services
                 initialSettingsState,
                 builder =>
                 {
-                    builder.AddCase(
-                        SettingsActions.SET_TAB_INDEX,
-                        SettingsReducers.SetTabIndexReducer
-                    );
+                    builder
+                        .AddCase(SettingsActions.SET_TAB_INDEX, SettingsReducers.SetTabIndexReducer)
+                        // Ephys Link.
+                        .AddCase(
+                            SettingsActions.SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE,
+                            SettingsReducers.SetSelectedEphysLinkPlatformTypeReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_NEW_SCALE_PATHFINDER_MPM_PORT,
+                            SettingsReducers.SetNewScalePathfinderMpmPortReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_CUSTOM_SERVER_IP_ADDRESS,
+                            SettingsReducers.SetCustomServerIpAddressReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_CUSTOM_SERVER_PORT,
+                            SettingsReducers.SetCustomServerPortReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
+                            SettingsReducers.SetEphysLinkConnectionStateReducer
+                        );
                 }
             );
             Store = StoreFactory.CreateStore(
-                new ISlice<PartitionedState>[]
-                {
-                    mainSlice,
-                    ephysLinkSlice,
-                    sceneSlice,
-                    settingsSlice
-                }
+                new ISlice<PartitionedState>[] { mainSlice, sceneSlice, settingsSlice }
             );
         }
 
@@ -220,10 +244,10 @@ namespace Services
                 Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
             );
 
-            // Ephys link state.
+            // Settings state.
             _localStorageService.SetValue(
-                SliceNames.EPHYS_LINK_SLICE,
-                Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE)
+                SliceNames.SETTINGS_SLICE,
+                Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE)
             );
         }
     }

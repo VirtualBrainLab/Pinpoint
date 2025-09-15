@@ -1,9 +1,12 @@
 using System.ComponentModel;
 using Models;
+using Models.Scene;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using Unity.AppUI.UI;
+using UnityEngine;
+using Utils.Types;
 
 namespace UI.ViewModels
 {
@@ -14,6 +17,7 @@ namespace UI.ViewModels
 
         private readonly StoreService _storeService;
         private readonly IDisposableSubscription _mainStateSubscription;
+        private readonly IDisposableSubscription _sceneStateSubscription;
 
         #endregion
 
@@ -27,6 +31,9 @@ namespace UI.ViewModels
 
         [ObservableProperty]
         private int _leftSidePanelTabIndex;
+
+        [ObservableProperty]
+        private InspectorDisplayType _inspectorDisplayType;
 
         #endregion
 
@@ -47,15 +54,32 @@ namespace UI.ViewModels
                 OnMainStateChanged,
                 new SubscribeOptions<MainState> { fireImmediately = true }
             );
+            _sceneStateSubscription = storeService.Store.Subscribe(
+                state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
+                OnSceneStateChanged,
+                new SubscribeOptions<SceneState> { fireImmediately = true }
+            );
             PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
         }
 
-        private void OnMainStateChanged(MainState state)
+        private void OnMainStateChanged(MainState mainState)
         {
-            IsAutomationModeActive = state.IsAutomationModeActive;
-            MainSplitViewState = state.MainSplitViewState;
-            LeftSidePanelTabIndex = state.LeftSidePanelTabIndex;
+            MainSplitViewState = mainState.MainSplitViewState;
+            LeftSidePanelTabIndex = mainState.LeftSidePanelTabIndex;
+        }
+
+        private void OnSceneStateChanged(SceneState state)
+        {
+            if (!string.IsNullOrEmpty(state.ActiveProbeName))
+                InspectorDisplayType = InspectorDisplayType.Probe;
+            else if (!string.IsNullOrEmpty(state.ActiveManipulatorId))
+                // Use automation inspector if automation mode is active.
+                InspectorDisplayType = IsAutomationModeActive
+                    ? InspectorDisplayType.Automation
+                    : InspectorDisplayType.Manipulator;
+            else
+                InspectorDisplayType = InspectorDisplayType.Nothing;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -63,9 +87,10 @@ namespace UI.ViewModels
             switch (e.PropertyName)
             {
                 case nameof(IsAutomationModeActive):
-                    _storeService.Store.Dispatch(
-                        MainActions.SET_IS_AUTOMATION_MODE_ACTIVE,
-                        IsAutomationModeActive
+                    Debug.Log("Automation mode changed: " + IsAutomationModeActive);
+                    // Re-evaluate inspector display type when automation mode changes.
+                    OnSceneStateChanged(
+                        _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
                     );
                     break;
             }
@@ -75,6 +100,7 @@ namespace UI.ViewModels
         {
             _storeService.Save();
             _mainStateSubscription.Dispose();
+            _sceneStateSubscription.Dispose();
             App.shuttingDown -= OnShuttingDown;
         }
 

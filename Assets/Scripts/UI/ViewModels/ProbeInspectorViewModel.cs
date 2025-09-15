@@ -1,7 +1,4 @@
-using System.ComponentModel;
 using System.Linq;
-using System.Xml;
-using BrainAtlas;
 using Models;
 using Models.Scene;
 using Services;
@@ -17,9 +14,11 @@ namespace UI.ViewModels
     {
         #region Constants
 
-        private readonly Vector2 _pitchRange = new Vector2(0, 90);
+        // FIXME: This should go into some common constants file (along with copy in probe inspector view model).
+        private readonly Vector2 _pitchRange = new(0, 90);
 
         #endregion
+
         #region Services
 
         private readonly StoreService _storeService;
@@ -31,9 +30,6 @@ namespace UI.ViewModels
         #endregion
 
         #region Properties
-
-        [ObservableProperty]
-        private bool _enabled;
 
         // Can be either the tip or surface, depending on settings.
         [ObservableProperty]
@@ -48,6 +44,9 @@ namespace UI.ViewModels
         [ObservableProperty]
         private ProbeColor _probeColor;
 
+        [ObservableProperty]
+        private string _visualizingManipulatorId;
+
         #endregion
 
         public ProbeInspectorViewModel(StoreService storeService)
@@ -61,7 +60,6 @@ namespace UI.ViewModels
                 OnSceneStateChanged,
                 new SubscribeOptions<SceneState> { fireImmediately = true }
             );
-            PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
         }
 
@@ -69,28 +67,23 @@ namespace UI.ViewModels
         {
             // Early exit if no active probe.
             if (string.IsNullOrEmpty(sceneState.ActiveProbeName))
-            {
-                Enabled = false;
                 return;
-            }
-
-            Enabled = true;
 
             Position = sceneState.ActiveProbeState.APMLDV;
-
             Angles = sceneState.ActiveProbeState.Angles;
-
             Locked = sceneState.ActiveProbeState.Locked;
-
             ProbeColor = sceneState.ActiveProbeState.Color;
+            VisualizingManipulatorId =
+                sceneState
+                    .Manipulators.FirstOrDefault(state =>
+                        state.VisualizationProbeName == sceneState.ActiveProbeName
+                    )
+                    ?.Id ?? string.Empty;
         }
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) { }
 
         private void OnShuttingDown()
         {
             _sceneStateSubscription.Dispose();
-            PropertyChanged -= OnPropertyChanged;
             App.shuttingDown -= OnShuttingDown;
         }
 
@@ -138,7 +131,18 @@ namespace UI.ViewModels
         [ICommand]
         private void MoveProbeToDura()
         {
-            ProbeManager.Instances.First(manager => manager.name == ActiveProbeName).DropProbeToBrainSurface();
+            ProbeManager
+                .Instances.First(manager => manager.name == ActiveProbeName)
+                .DropProbeToBrainSurface();
+        }
+        
+        [ICommand]
+        private void InspectVisualizingManipulator()
+        {
+            _storeService.Store.Dispatch(
+                SceneActions.SET_ACTIVE_MANIPULATOR,
+                VisualizingManipulatorId
+            );
         }
 
         [ICommand]

@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
+using BrainAtlas.CoordinateSystems;
+using Pinpoint.CoordinateSystems;
 using UnityEngine;
 using Utils.Types;
 
@@ -11,6 +12,7 @@ namespace Models.Scene
     public record SceneState
     {
         public List<ProbeState> Probes = new();
+        public List<ManipulatorState> Manipulators = new();
 
         #region Active Probe
 
@@ -25,6 +27,29 @@ namespace Models.Scene
         public int ActiveProbeIndex => Probes.IndexOf(ActiveProbeState);
 
         #endregion
+
+        #region Active Manipulator
+
+        [NonSerialized]
+        public string ActiveManipulatorId;
+
+        // Helper to get the active probe state based on the ActiveProbeName.
+        public ManipulatorState ActiveManipulatorState =>
+            Manipulators.FirstOrDefault(state => state.Id == ActiveManipulatorId);
+
+        // Helper to get the active probe index.
+        public int ActiveManipulatorIndex => Manipulators.IndexOf(ActiveManipulatorState);
+
+        #endregion
+
+        #region Manipulator Platform Info
+
+        public int NumberOfAxesOnManipulator;
+        public Vector4 ManipulatorDimensions;
+        public CoordinateSpace ManipulatorCoordinateSpace;
+
+        #endregion
+
         [NonSerialized]
         public int TotalProbeCount = 0;
 

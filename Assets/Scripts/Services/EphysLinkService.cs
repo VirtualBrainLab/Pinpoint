@@ -1,14 +1,22 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using BestHTTP.SocketIO3;
+using BrainAtlas;
+using BrainAtlas.CoordinateSystems;
 using KS.Diagnostics;
 using Models;
-using Models.Automation;
+using Models.Scene;
+using Models.Settings;
+using Pinpoint.CoordinateSystems;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
+using Unity.AppUI.UI;
 using UnityEngine;
+using Utils;
 using Utils.Types;
 using Action = System.Action;
 
@@ -20,12 +28,15 @@ namespace Services
 
         private const string UNKNOWN_EVENT_RESPONSE = "{\"error\": \"Unknown event.\"}";
 
+        // FIXME: This should go into some common constants file (along with copy in probe inspector view model).
+        private readonly Vector2 _pitchRange = new(0, 90);
+
         #endregion
 
         #region Services
 
-        [Service]
-        private StoreService _storeService;
+        private readonly StoreService _storeService;
+        private readonly IDisposableSubscription _sceneStateSubscription;
 
         #endregion
 
@@ -35,10 +46,41 @@ namespace Services
         private Socket _socket;
         private Process _ephysLinkProcess;
 
+        public string SocketId => _socket.Id;
+
         #endregion
 
-        #region Connection Handling
+        public EphysLinkService(StoreService storeService)
+        {
+            // Register services.
+            _storeService = storeService;
 
+            // Subscribe to scene state changes and initialize properties.
+            _sceneStateSubscription = _storeService.Store.Subscribe(
+                state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
+                OnSceneStateChanged,
+                new SubscribeOptions<SceneState> { fireImmediately = true }
+            );
+            App.shuttingDown += OnShuttingDown;
+        }
+
+        private async void OnSceneStateChanged(SceneState sceneState)
+        {
+            // Apply small delay to prevent overrunning updates (delay for roughly 60 FPS).
+            await Task.Delay(10);
+
+            // WARNING: this will create an infinite loop of state updates on purpose.
+            // Update the position of visualization probes.
+            await UpdateVisualizationProbePosition(sceneState);
+        }
+
+        private void OnShuttingDown()
+        {
+            _sceneStateSubscription.Dispose();
+            App.shuttingDown -= OnShuttingDown;
+        }
+
+        #region Connection Handling
 
         /// <summary>
         ///     Create a connection to the server.
@@ -76,9 +118,14 @@ namespace Services
                         // Check version compatibility.
                         if (await IsVersionCompatible())
                         {
+                            var platformInfoResponse = await GetPlatformInfo();
                             _storeService.Store.Dispatch(
-                                EphysLinkActions.SET_CONNECTION_STATE,
-                                EphysLinkConnectionState.Connected
+                                SceneActions.SET_PLATFORM_INFO,
+                                (platformInfoResponse.AxesCount, platformInfoResponse.Dimensions)
+                            );
+                            _storeService.Store.Dispatch(
+                                SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
+                                (EphysLinkConnectionState.Connected, _socket.Id)
                             );
                             onConnected?.Invoke();
                         }
@@ -102,12 +149,20 @@ namespace Services
 
             return;
 
-            string GetErrorConnectingToServerMessage() =>
-                $"Error connecting to server at {ip}:{port}. Check server for details.";
-            string GetConnectionTimeoutMessage() =>
-                $"Connection to server at {ip}:{port} timed out.";
-            string GetOutdatedVersionErrorMessage() =>
-                $"Ephys Link is outdated. Please update to {_storeService.Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE).EphysLinkMinVersionString} or later.";
+            string GetErrorConnectingToServerMessage()
+            {
+                return $"Error connecting to server at {ip}:{port}. Check server for details.";
+            }
+
+            string GetConnectionTimeoutMessage()
+            {
+                return $"Connection to server at {ip}:{port} timed out.";
+            }
+
+            string GetOutdatedVersionErrorMessage()
+            {
+                return $"Ephys Link is outdated. Please update to ≥{EphysLinkConstants.EphysLinkMinVersion} or later.";
+            }
 
             void HandleError(string message)
             {
@@ -117,7 +172,7 @@ namespace Services
         }
 
         /// <summary>
-        /// Disconnect from the server and clean up resources.
+        ///     Disconnect from the server and clean up resources.
         /// </summary>
         /// <param name="onDisconnected">Post disconnection behavior.</param>
         public void Disconnect(Action onDisconnected = null)
@@ -134,8 +189,8 @@ namespace Services
 
             // Update the store state to disconnected.
             _storeService.Store.Dispatch(
-                EphysLinkActions.SET_CONNECTION_STATE,
-                EphysLinkConnectionState.Disconnected
+                SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
+                (EphysLinkConnectionState.Disconnected, "")
             );
             onDisconnected?.Invoke();
         }
@@ -153,35 +208,30 @@ namespace Services
                 .Select(nonEmpty => int.Parse(new string(nonEmpty)))
                 .ToArray();
 
-            // Read the minimum version from the store.
-            var ephysLinkMinVersion = _storeService
-                .Store.GetState<EphysLinkState>(SliceNames.EPHYS_LINK_SLICE)
-                .EphysLinkMinVersion;
-
             // Check semantic version compatibility.
-            return versionNumbers[0] == ephysLinkMinVersion[0]
-                && versionNumbers[1] >= ephysLinkMinVersion[1]
+            return versionNumbers[0] == EphysLinkConstants.EPHYS_LINK_MIN_VERSION_MAJOR
+                && versionNumbers[1] >= EphysLinkConstants.EPHYS_LINK_MIN_VERSION_MINOR
                 && (
-                    versionNumbers[1] > ephysLinkMinVersion[1]
-                    || versionNumbers[2] >= ephysLinkMinVersion[2]
+                    versionNumbers[1] > EphysLinkConstants.EPHYS_LINK_MIN_VERSION_MINOR
+                    || versionNumbers[2] >= EphysLinkConstants.EPHYS_LINK_MIN_VERSION_PATCH
                 );
         }
 
         public void Launch()
         {
-            var ephysLinkState = _storeService.Store.GetState<EphysLinkState>(
-                SliceNames.EPHYS_LINK_SLICE
+            var settingsState = _storeService.Store.GetState<SettingsState>(
+                SliceNames.SETTINGS_SLICE
             );
 
             // Create launch arguments.
             var args = "-i -t ";
-            switch (ephysLinkState.SelectedEphysLinkPlatformType)
+            switch (settingsState.SelectedEphysLinkPlatformType)
             {
                 case EphysLinkPlatformType.SensapexUmp:
                     args += "ump";
                     break;
                 case EphysLinkPlatformType.NewScalePathfinderMpm:
-                    args += $"pathfinder-mpm --mpm-port {ephysLinkState.NewScalePathfinderMpmPort}";
+                    args += $"pathfinder-mpm --mpm-port {settingsState.NewScalePathfinderMpmPort}";
                     break;
                 case EphysLinkPlatformType.Custom:
                 default:
@@ -193,7 +243,7 @@ namespace Services
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = ephysLinkState.EphysLinkExePath,
+                    FileName = EphysLinkConstants.EphysLinkExePath,
                     Arguments = args,
                     UseShellExecute = false,
                     RedirectStandardOutput = false,
@@ -333,7 +383,6 @@ namespace Services
 
         #endregion
 
-
         #region Helper Functions
 
         /// <summary>
@@ -451,6 +500,140 @@ namespace Services
         private static string ToJson<T>(T data)
         {
             return JsonUtility.ToJson(data);
+        }
+
+        #endregion
+
+        #region Visualization control
+
+        private async Task UpdateVisualizationProbePosition(SceneState sceneState)
+        {
+            List<(
+                string Name,
+                Vector3 SurfaceAPMLDV,
+                float Depth,
+                Vector3 ForwardT,
+                Vector3 Angles,
+                Vector2 PitchRange
+            )> requests = new();
+
+            foreach (
+                var manipulatorState in sceneState.Manipulators.Where(state =>
+                    !string.IsNullOrEmpty(state.VisualizationProbeName)
+                )
+            )
+            {
+                // Skip if the probe or manager couldn't be found.
+                var visualizationProbeManager = ProbeManager.Instances.FirstOrDefault(manager =>
+                    manager.name == manipulatorState.VisualizationProbeName
+                );
+                if (
+                    sceneState.Probes.FirstOrDefault(state =>
+                        state.Name == manipulatorState.VisualizationProbeName
+                    ) == null
+                    || visualizationProbeManager == null
+                )
+                    return;
+
+                // Get the current position of the manipulator.
+                var positionResponse = await GetPosition(manipulatorState.Id);
+                if (HasError(positionResponse.Error))
+                    return;
+
+                // Apply reference coordinate offset.
+                var referenceCoordinateAdjustedManipulatorPosition =
+                    positionResponse.Position - manipulatorState.ReferenceCoordinateOffset;
+
+                // Create the appropriate manipulator transform.
+                CoordinateTransform transform = sceneState.NumberOfAxesOnManipulator switch
+                {
+                    3 => new ThreeAxisLeftHandedTransform(
+                        manipulatorState.Angles.x,
+                        manipulatorState.Angles.y
+                    ),
+                    4 => manipulatorState.Handedness switch
+                    {
+                        ManipulatorHandedness.Left => new FourAxisLeftHandedManipulatorTransform(
+                            manipulatorState.Angles.x
+                        ),
+                        ManipulatorHandedness.Right => new FourAxisRightHandedManipulatorTransform(
+                            manipulatorState.Angles.x
+                        ),
+                        _ => throw new ArgumentOutOfRangeException(),
+                    },
+                    _ => throw new ArgumentOutOfRangeException(),
+                };
+
+                // Convert to coordinate space.
+                var manipulatorSpacePosition = transform.T2U(
+                    referenceCoordinateAdjustedManipulatorPosition
+                );
+
+                // Dura offset adjustment.
+                var duraOffsetAdjustment = float.IsNaN(manipulatorState.DuraOffset)
+                    ? 0
+                    : manipulatorState.DuraOffset;
+
+                // Apply depth adjustment to manipulator position for non-3 axis manipulators.
+                if (sceneState.NumberOfAxesOnManipulator == 4)
+                    referenceCoordinateAdjustedManipulatorPosition.w += duraOffsetAdjustment;
+
+                // Convert to world space.
+                var referenceCoordinateAdjustedWorldPosition =
+                    sceneState.ManipulatorCoordinateSpace.Space2World(manipulatorSpacePosition);
+
+                // Change axes to match probe.
+                var transformedAPMLDV = BrainAtlasManager.World2T_Vector(
+                    referenceCoordinateAdjustedWorldPosition
+                );
+
+                // Get the current forward vector of the probe.
+                var forwardT = BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
+                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
+                        visualizationProbeManager.transform.forward
+                    )
+                );
+
+                switch (sceneState.NumberOfAxesOnManipulator)
+                {
+                    // Set the probe position in the store.
+                    case 3:
+                        requests.Add(
+                            (
+                                manipulatorState.VisualizationProbeName,
+                                transformedAPMLDV,
+                                duraOffsetAdjustment,
+                                forwardT,
+                                manipulatorState.Angles,
+                                _pitchRange
+                            )
+                        );
+                        break;
+                    case 4:
+                        requests.Add(
+                            (
+                                manipulatorState.VisualizationProbeName,
+                                transformedAPMLDV,
+                                referenceCoordinateAdjustedManipulatorPosition.w,
+                                forwardT,
+                                manipulatorState.Angles,
+                                _pitchRange
+                            )
+                        );
+                        break;
+                    default:
+                        throw new ValueOutOfRangeException(
+                            "Number of axes on manipulator is invalid."
+                        );
+                }
+            }
+
+            // Dispatch all position updates in one go (if any).
+            if (requests.Any())
+                _storeService.Store.Dispatch(
+                    SceneActions.BULK_SET_PROBE_POSITION_AND_ANGLES_BY,
+                    requests
+                );
         }
 
         #endregion

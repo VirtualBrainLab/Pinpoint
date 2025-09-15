@@ -8,16 +8,18 @@ using Utils.Types;
 using Button = Unity.AppUI.UI.Button;
 using FloatField = Unity.AppUI.UI.FloatField;
 using Vector3Field = Unity.AppUI.UI.Vector3Field;
+#if !UNITY_EDITOR
+using UnityEngine;
+#endif
 
 namespace UI.Views
 {
     public class ProbeInspectorView
     {
-        public ProbeInspectorView(
-            TemplateContainer root,
-            ProbeInspectorViewModel probeInspectorViewModel
-        )
+        public ProbeInspectorView(ProbeInspectorViewModel probeInspectorViewModel)
         {
+            var root = PinpointApp.RootVisualElement.Q<TemplateContainer>("probe-inspector-view");
+
             // Register view model and property changes.
             root.dataSource = probeInspectorViewModel;
 
@@ -31,6 +33,9 @@ namespace UI.Views
                 "probe-inspector__move-to-reference-coordinate-button"
             );
             var moveToDuraButton = root.Q<ActionButton>("probe-inspector__move-to-dura-button");
+            var inspectManipulatorButton = root.Q<Button>(
+                "probe-inspector__inspect-manipulator-button"
+            );
 
             var probeColorButtons = root.Q<VisualElement>("probe-inspector__probe-color-buttons");
 
@@ -52,6 +57,9 @@ namespace UI.Views
                 .Execute;
             moveToDuraButton.clickable.clicked += probeInspectorViewModel
                 .MoveProbeToDuraCommand
+                .Execute;
+            inspectManipulatorButton.clickable.clicked += probeInspectorViewModel
+                .InspectVisualizingManipulatorCommand
                 .Execute;
             for (var i = 0; i < probeColorButtons.childCount; i++)
             {
@@ -87,8 +95,34 @@ namespace UI.Views
             }
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "LockStateToEnabled",
+                "LockedToEnabled",
                 (ref bool locked) => !locked
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "VisualizingManipulatorIdToPositionOrientationEnabled",
+                (ref string visualizingManipulatorId) =>
+                    string.IsNullOrEmpty(visualizingManipulatorId)
+            );
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                string,
+                StyleEnum<DisplayStyle>
+            >(
+                "VisualizingManipulatorIdToProbeControlsVisibility",
+                (ref string visualizingManipulatorId) =>
+                    string.IsNullOrEmpty(visualizingManipulatorId)
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None
+            );
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                string,
+                StyleEnum<DisplayStyle>
+            >(
+                "VisualizingManipulatorIdToInspectManipulatorButtonVisibility",
+                (ref string visualizingManipulatorId) =>
+                    string.IsNullOrEmpty(visualizingManipulatorId)
+                        ? DisplayStyle.None
+                        : DisplayStyle.Flex
             );
         }
     }
