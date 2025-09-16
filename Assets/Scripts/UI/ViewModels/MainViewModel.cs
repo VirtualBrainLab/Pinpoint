@@ -109,6 +109,7 @@ namespace UI.ViewModels
         [ICommand]
         private void SetAutomationModeActive(bool isActive)
         {
+            _storeService.Store.Dispatch(MainActions.SET_IS_AUTOMATION_ENABLED, isActive);
             _storeService.Store.Dispatch(SceneActions.SET_ALL_PROBES_TO_LINE, isActive);
         }
 
