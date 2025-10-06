@@ -34,7 +34,6 @@ public class ProbeManager : MonoBehaviour
     #region State
 
     private IDisposableSubscription _probeStateSubscription;
-    private ProbeState _probeState;
 
     #endregion
 
@@ -309,12 +308,7 @@ public class ProbeManager : MonoBehaviour
                 state
                     .Get<SceneState>(SliceNames.SCENE_SLICE)
                     .Probes.FirstOrDefault(probeState => probeState.Name == name),
-            state =>
-            {
-                if (state == _probeState) return;
-                _probeState = state;
-                OnProbeStateChanged(state);
-            },
+            OnProbeStateChanged,
             new SubscribeOptions<ProbeState> { fireImmediately = true }
         );
 #endif

@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
 using BrainAtlas;
 using BrainAtlas.CoordinateSystems;
 using CoordinateTransforms;
-using Models;
-using Models.Scene;
+using System;
+using System.Collections.Generic;
 using TMPro;
-using UI;
-using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.AppUI.Redux;
 using Utils.Types;
 
 public class PinpointAtlasManager : MonoBehaviour
@@ -20,9 +17,6 @@ public class PinpointAtlasManager : MonoBehaviour
     [SerializeField] List<bool> _allowedOnWebGL;
 
     [SerializeField] private TMP_Dropdown _transformDropdown;
-
-    private IDisposableSubscription _sceneStateSubscription;
-    private SceneState _sceneState;
 
     private Dictionary<string, string> _atlasNameMapping;
     private Dictionary<string, bool> _allowedOnWebGLMapping;
@@ -45,15 +39,13 @@ public class PinpointAtlasManager : MonoBehaviour
             _allowedOnWebGLMapping.Add(_atlasNames[i], _allowedOnWebGL[i]);
         }
 
-        _sceneStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
-            state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
+        UI.PinpointApp.StoreServiceStore.Subscribe(
+            state => state.Get<Models.Scene.SceneState>(Models.SliceNames.SCENE_SLICE),
             sceneState =>
             {
-                if (sceneState == _sceneState) return;
-                _sceneState = sceneState;
                 UpdateBrainAreaVisibility(sceneState.BrainAreaVisibility);
             },
-            new SubscribeOptions<SceneState> { fireImmediately = true }
+            new SubscribeOptions<Models.Scene.SceneState> { fireImmediately = true }
         );
 
         Settings.AtlasTransformChangedEvent += SetNewTransform;
@@ -138,11 +130,6 @@ public class PinpointAtlasManager : MonoBehaviour
 
         PopulateAtlasDropdown();
         PopulateTransformDropdown();
-    }
-
-    private void OnDestroy()
-    {
-        _sceneStateSubscription.Dispose();
     }
 
     #region Atlas

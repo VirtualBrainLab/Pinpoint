@@ -13,7 +13,6 @@ public class CartesianProbeController : ProbeController
     #region State
 
     private IDisposableSubscription _probeStateSubscription;
-    private ProbeState _probeState;
 
     #endregion
 
@@ -266,17 +265,8 @@ public class CartesianProbeController : ProbeController
         // Subscribe to probe state changes.
         _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
             state => state.Get<SceneState>(SliceNames.SCENE_SLICE).Probes
-                .FirstOrDefault(probeState => probeState.Name == name), state =>
-            {
-                _probeState ??= state;
-                if (state == _probeState)
-                {
-                    return;
-                }
-                _probeState = state;
-                OnProbeStateChanged(state);
-            }
-            , new SubscribeOptions<ProbeState> { fireImmediately = true });
+                .FirstOrDefault(probeState => probeState.Name == name),
+            OnProbeStateChanged, new SubscribeOptions<ProbeState> { fireImmediately = true });
 #endif
     }
 
@@ -644,7 +634,8 @@ public class CartesianProbeController : ProbeController
         // Cancel movement if being controlled by EphysLink
 #if APP_UI
         // Get the starting state of this probe.
-        var startingProbeState = _probeState;
+        var startingProbeState = PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE).Probes
+            .FirstOrDefault(state => state.Name == name);
 
         if (EventSystem.current.IsPointerOverGameObject() || startingProbeState == null ||
             startingProbeState.IsEphysLinkControlled ||
@@ -704,7 +695,8 @@ public class CartesianProbeController : ProbeController
         // Cancel movement if being controlled by EphysLink
 #if APP_UI
         // Get the current state of this probe.
-        var currentProbeState = _probeState;
+        var currentProbeState = PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE).Probes
+            .FirstOrDefault(state => state.Name == name);
 
         // Exit if there is no state.
         if (currentProbeState == null || currentProbeState.IsEphysLinkControlled || currentProbeState.Locked) return;
