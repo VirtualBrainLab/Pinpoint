@@ -48,6 +48,7 @@ namespace TrajectoryPlanner
         #region State
 
         private IDisposableSubscription _sceneStateSubscription;
+        private SceneState _sceneState;
 
         #endregion
 
@@ -245,7 +246,12 @@ namespace TrajectoryPlanner
 
 #if APP_UI
             _sceneStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
-                state => state.Get<SceneState>(SliceNames.SCENE_SLICE), OnSceneStateChanged,
+                state => state.Get<SceneState>(SliceNames.SCENE_SLICE), state =>
+                {
+                    if (state == _sceneState) return;
+                    _sceneState = state;
+                    OnSceneStateChanged(state);
+                },
                 new SubscribeOptions<SceneState> { fireImmediately = true });
 #else
             // After annotation loads, check if the user wants to load previously used probes
