@@ -4,7 +4,7 @@ using UnityEngine;
 namespace CoordinateTransforms
 {
     /// <summary>
-    /// Rotates the axes to be in the intuitive "left-handed" directions (AP forward, ML right, DV up)
+    /// Rotates the axes to be in the intuitive "right-handed" directions (AP forward, ML right, DV down)
     /// </summary>
     public class IntuitiveTransform : AffineTransform
     {
@@ -16,7 +16,7 @@ namespace CoordinateTransforms
         /// <summary>
         /// Angles are (yaw, pitch, spin)
         /// </summary>
-        public IntuitiveTransform() : base(new Vector3(-1f, 1f, -1f), new Vector3(0f, 0f, 0f))
+        public IntuitiveTransform() : base(new Vector3(-1f, 1f, 1f), new Vector3(0f, 0f, 0f))
         {
 
         }
