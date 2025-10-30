@@ -60,10 +60,6 @@ public class PinpointAtlasManager : MonoBehaviour
         if (brainAreaVisibility == null)
             return;
 
-#if UNITY_EDITOR
-        Debug.Log($"(PAM) BrainAreaVisibility changed. Count: {brainAreaVisibility.Count}");
-#endif
-
         foreach (var kVP in brainAreaVisibility) {
             var areaID = kVP.Key;
             var displayType = kVP.Value;
