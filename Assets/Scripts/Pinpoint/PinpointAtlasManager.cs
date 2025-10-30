@@ -107,6 +107,36 @@ public class PinpointAtlasManager : MonoBehaviour
                 BrainAtlasManager.AtlasTransforms.Add(new Dorr2008Transform());
                 BrainAtlasManager.AtlasTransforms.Add(new Dorr2008IBLTransform());
                 break;
+            case "allen_mouse_50um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                BrainAtlasManager.AtlasTransforms.Add(new Qiu2018Transform());
+                BrainAtlasManager.AtlasTransforms.Add(new Dorr2008Transform());
+                BrainAtlasManager.AtlasTransforms.Add(new Dorr2008IBLTransform());
+                break;
+            case "allen_mouse_100um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                BrainAtlasManager.AtlasTransforms.Add(new Qiu2018Transform());
+                BrainAtlasManager.AtlasTransforms.Add(new Dorr2008Transform());
+                BrainAtlasManager.AtlasTransforms.Add(new Dorr2008IBLTransform());
+                break;
+            case "princeton_mouse_20um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
+            case "allen_mouse_bluebrain_barrels_25um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
+            case "allen_human_500um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
+            case "azba_zfish_8um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
+            case "sju_cavefish_2um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
+            case "prarie_vole_25um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
 
             // we don't have transforms (yet) for waxholm rat
             case "whs_sd_rat_39um":
@@ -118,8 +148,10 @@ public class PinpointAtlasManager : MonoBehaviour
                 break;
         }
 
+# if UNITY_EDITOR
         foreach (var transform in BrainAtlasManager.AtlasTransforms)
             Debug.Log(transform.Name);
+#endif
 
         PopulateAtlasDropdown();
         PopulateTransformDropdown();
