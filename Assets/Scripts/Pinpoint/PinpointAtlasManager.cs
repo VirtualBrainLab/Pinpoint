@@ -73,30 +73,27 @@ public class PinpointAtlasManager : MonoBehaviour
 
             var node = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID);
             if (!BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).FullLoaded.IsCompleted)
-            {
-                await node.LoadMesh(OntologyNode.OntologyNodeSide.All);
-                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
-                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.Left);
-                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.Right);
-            }
+                await node.LoadMesh(OntologyNode.OntologyNodeSide.Full);
 
             switch (displayType)
             {
                 case AreaDisplayType.Opaque:
                     // Set brain area at index i to opaque
                     Debug.Log($"(PAM) Setting area {areaID} to Opaque");
-                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetMaterial(opaqueMaterial, OntologyNode.OntologyNodeSide.All);
-                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.All);
+                    node.SetMaterial(opaqueMaterial, OntologyNode.OntologyNodeSide.Full);
+                    node.ResetColor(OntologyNode.OntologyNodeSide.Full);
+                    node.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
                     break;
                 case AreaDisplayType.Transparent:
                     // Set brain area at index i to transparent
-                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.All);
-                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetMaterial(transparentMaterial, OntologyNode.OntologyNodeSide.All);
+                    node.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
+                    node.SetMaterial(transparentMaterial, OntologyNode.OntologyNodeSide.Full);
+                    node.ResetColor(OntologyNode.OntologyNodeSide.Full);
                     Debug.Log($"(PAM) Setting area {areaID} to Transparent");
                     break;
                 case AreaDisplayType.Hidden:
                     // Hide brain area at index i
-                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(false, OntologyNode.OntologyNodeSide.All);
+                    node.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
                     Debug.Log($"(PAM) Setting area {areaID} to Hidden");
                     break;
             }
