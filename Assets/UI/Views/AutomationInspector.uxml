@@ -14,13 +14,24 @@
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Choose a Target Insertion" size="S" />
             <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
-                <Unity.AppUI.UI.Dropdown name="automation-inspector__target-dropdown" style="flex-grow: 1;" />
+                <Unity.AppUI.UI.Dropdown name="automation-inspector__target-selection--dropdown" emphasized="false" style="flex-grow: 1;" />
                 <Unity.AppUI.UI.Spacer />
-                <Unity.AppUI.UI.IconButton icon="x" name="automation-inspector__target--reset-button" />
+                <Unity.AppUI.UI.IconButton icon="x" name="automation-inspector__target-selection--reset-button" />
+                <Bindings>
+                    <engine:DataBinding property="enabledSelf" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToTargetSelectionEnabled" />
+                </Bindings>
             </engine:VisualElement>
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Button title="Drive to Target Entry Coordinate" variant="Default" name="automation-inspector__target-entry--drive-button" />
-            <Unity.AppUI.UI.Button title="Stop" variant="Destructive" size="L" name="automation-inspector__target-entry--stop-button" />
+            <Unity.AppUI.UI.Button title="Drive to Target Entry Coordinate" variant="Default" name="automation-inspector__target-entry--drive-button">
+                <Bindings>
+                    <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToDriveToTargetEntryCoordinateButtonVisibility" />
+                </Bindings>
+            </Unity.AppUI.UI.Button>
+            <Unity.AppUI.UI.Button title="Stop" variant="Destructive" size="L" name="automation-inspector__target-entry--stop-button">
+                <Bindings>
+                    <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToStopDriveToTargetEntryCoordinateButtonVisibility" />
+                </Bindings>
+            </Unity.AppUI.UI.Button>
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Calibrate Dura Offset" size="S" />
@@ -34,30 +45,60 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Drive to Target Insertion" size="S" />
-            <Unity.AppUI.UI.Dropdown default-message="Select insertion speed..." tooltip="Insertion speed (µm/s)" name="automation-inspector__target-insertion--speed-dropdown" />
-            <Unity.AppUI.UI.Spacer />
             <engine:VisualElement style="flex-grow: 1;">
-                <Unity.AppUI.UI.IntField unit="Custom speed (µm/s)" value="20" name="automation-inspector__target-insertion--custom-speed-field">
+                <Unity.AppUI.UI.Dropdown default-message="Select insertion speed..." tooltip="Insertion speed (µm/s)" name="automation-inspector__target-insertion--speed-dropdown" />
+                <Unity.AppUI.UI.Spacer />
+                <engine:VisualElement style="flex-grow: 1;">
+                    <Unity.AppUI.UI.IntField unit="Custom speed (µm/s)" value="20" name="automation-inspector__target-insertion--custom-speed-field">
+                        <Bindings>
+                            <engine:DataBinding property="value" data-source-path="CustomInsertionSpeed" binding-mode="TwoWay" />
+                        </Bindings>
+                    </Unity.AppUI.UI.IntField>
+                    <Unity.AppUI.UI.Spacer />
                     <Bindings>
-                        <engine:DataBinding property="value" data-source-path="CustomInsertionSpeed" binding-mode="TwoWay" />
+                        <engine:DataBinding property="style.display" data-source-path="SelectedInsertionSpeedIndex" binding-mode="ToTarget" source-to-ui-converters="SelectedInsertionSpeedIndexToCustomSpeedVisibility" />
+                    </Bindings>
+                </engine:VisualElement>
+                <Unity.AppUI.UI.IntField unit="Drive Past by (µm)" value="50" name="automation-inspector__target-insertion--drive-past-distance-field">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="DrivePastDistance" binding-mode="TwoWay" />
                     </Bindings>
                 </Unity.AppUI.UI.IntField>
-                <Unity.AppUI.UI.Spacer />
-            </engine:VisualElement>
-            <Unity.AppUI.UI.IntField unit="Drive Past by (µm)" value="50" name="automation-inspector__target-insertion--drive-past-distance-field">
                 <Bindings>
-                    <engine:DataBinding property="value" data-source-path="DrivePastDistance" binding-mode="TwoWay" />
+                    <engine:DataBinding property="enabledSelf" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToTargetInsertionEnabled" />
                 </Bindings>
-            </Unity.AppUI.UI.IntField>
+            </engine:VisualElement>
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Text text="ETA: 00:00" name="automation-inspector__target-insertion--eta-text" />
+            <Unity.AppUI.UI.Text text="ETA: 00:00" name="automation-inspector__target-insertion--eta-text">
+                <Bindings>
+                    <engine:DataBinding property="text" data-source-path="Eta" binding-mode="ToTarget" source-to-ui-converters="ETASecondsToETAText" />
+                    <engine:DataBinding property="style.display" data-source-path="Eta" binding-mode="ToTarget" source-to-ui-converters="ETASecondsToETAVisibility" />
+                </Bindings>
+            </Unity.AppUI.UI.Text>
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.LinearProgress variant="Determinate" value="0" tooltip="ETA" name="automation-inspector__target-insertion--progress-bar" />
+            <Unity.AppUI.UI.LinearProgress variant="Determinate" value="0" tooltip="ETA" name="automation-inspector__target-insertion--progress-bar">
+                <Bindings>
+                    <engine:DataBinding property="value" data-source-path="DriveProgressPercentage" binding-mode="ToTarget" />
+                    <engine:DataBinding property="style.display" data-source-path="Eta" binding-mode="ToTarget" source-to-ui-converters="ETASecondsToETAVisibility" />
+                </Bindings>
+            </Unity.AppUI.UI.LinearProgress>
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Button title="Drive" variant="Accent" name="automation-inspector__target-insertion--drive-button" />
+            <Unity.AppUI.UI.Button title="Drive" variant="Accent" name="automation-inspector__target-insertion--drive-button">
+                <Bindings>
+                    <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToInsertionDriveButtonVisibility" />
+                </Bindings>
+            </Unity.AppUI.UI.Button>
             <Unity.AppUI.UI.Spacer />
-            <Unity.AppUI.UI.Button name="automation-inspector__target-insertion__exit-button" title="Exit" />
-            <Unity.AppUI.UI.Button name="automation-inspector__target-insertion__stop-button" title="Stop" size="L" variant="Destructive" />
+            <Unity.AppUI.UI.Button name="automation-inspector__target-insertion__exit-button" title="Exit">
+                <Bindings>
+                    <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToInsertionExitButtonVisibility" />
+                </Bindings>
+            </Unity.AppUI.UI.Button>
+            <Unity.AppUI.UI.Button name="automation-inspector__target-insertion__stop-button" title="Stop" size="L" variant="Destructive">
+                <Bindings>
+                    <engine:DataBinding property="style.display" data-source-path="AutomationProgressState" binding-mode="ToTarget" source-to-ui-converters="AutomationProgressStateToInsertionStopButtonVisibility" />
+                </Bindings>
+            </Unity.AppUI.UI.Button>
         </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

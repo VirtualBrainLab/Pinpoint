@@ -6,6 +6,7 @@ using UI.ViewModels;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.UI;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 using Utils;
 using Utils.Types;
@@ -49,8 +50,10 @@ namespace UI.Views
                 "automation-inspector__set-reference-coordinate-offset-button"
             );
 
-            _targetDropdown = root.Q<Dropdown>("automation-view__target-dropdown");
-            var targetResetButton = root.Q<Button>("automation-inspector__target--reset-button");
+            _targetDropdown = root.Q<Dropdown>("automation-inspector__target-selection--dropdown");
+            var targetResetButton = root.Q<IconButton>(
+                "automation-inspector__target-selection--reset-button"
+            );
             var targetEntryDriveButton = root.Q<Button>(
                 "automation-inspector__target-entry--drive-button"
             );
@@ -99,7 +102,7 @@ namespace UI.Views
                 .UseCurrentPositionForReferenceCoordinateOffsetCommand
                 .Execute;
 
-            _targetDropdown.RegisterValueChangedCallback(evt =>
+            _targetDropdown.RegisterValueChangedCallback(_ =>
             {
                 _automationInspectorViewModel.SelectTargetInsertionProbeCommand.Execute(
                     _targetDropdown.selectedIndex
@@ -205,13 +208,11 @@ namespace UI.Views
         public static void RegisterAutomationViewConverters()
         {
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
-                "TargetableProbeStatesToTargetInsertionOptions",
-                (ref IEnumerable<ProbeState> targetableProbeStates) =>
-                    targetableProbeStates
-                        .Select(probeState => $"{probeState.Name[..8]}: {probeState.APMLDV}")
-                        .Prepend("None")
+                "AutomationProgressStateToTargetSelectionEnabled",
+                (ref AutomationProgressState automationProgressState) =>
+                    automationProgressState
+                    != AutomationProgressState.DrivingToTargetEntryCoordinate
             );
-
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
                 AutomationProgressState,
                 StyleEnum<DisplayStyle>
@@ -237,6 +238,23 @@ namespace UI.Views
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "AutomationProgressStateToTargetInsertionEnabled",
+                (ref AutomationProgressState automationProgressState) =>
+                    automationProgressState
+                        is not (
+                            AutomationProgressState.DrivingToNearTarget
+                            or AutomationProgressState.DrivingToPastTarget
+                            or AutomationProgressState.ReturningToTarget
+                        )
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<int, StyleEnum<DisplayStyle>>(
+                "SelectedInsertionSpeedIndexToCustomSpeedVisibility",
+                (ref int selectedTargetInsertionSpeedIndex) =>
+                    selectedTargetInsertionSpeedIndex == 7 ? DisplayStyle.Flex : DisplayStyle.None
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
                 "ETASecondsToETAText",
                 (ref int etaSeconds) => $"ETA: {etaSeconds / 60}:{etaSeconds % 60:D2}"
             );
@@ -244,12 +262,6 @@ namespace UI.Views
             DataTypeConverters.RegisterUnidirectionalConverterGroup<int, StyleEnum<DisplayStyle>>(
                 "ETASecondsToETAVisibility",
                 (ref int etaSeconds) => etaSeconds > 0 ? DisplayStyle.Flex : DisplayStyle.None
-            );
-
-            DataTypeConverters.RegisterUnidirectionalConverterGroup<int, StyleEnum<DisplayStyle>>(
-                "SelectedInsertionSpeedIndexToCustomSpeedVisibility",
-                (ref int selectedTargetInsertionSpeedIndex) =>
-                    selectedTargetInsertionSpeedIndex == 4 ? DisplayStyle.Flex : DisplayStyle.None
             );
 
             DataTypeConverters.RegisterUnidirectionalConverterGroup<
@@ -262,7 +274,6 @@ namespace UI.Views
                         is AutomationProgressState.AtDuraInsert
                             or AutomationProgressState.AtNearTargetInsert
                             or AutomationProgressState.AtPastTarget
-                            or AutomationProgressState.AtTarget
                         ? DisplayStyle.Flex
                         : DisplayStyle.None
             );

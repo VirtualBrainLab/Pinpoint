@@ -44,6 +44,8 @@ namespace Models.Scene
         #endregion
 
         #region Automation
+        
+        public AutomationProgressState AutomationProgressState;
 
         public string TargetInsertionProbeName;
 

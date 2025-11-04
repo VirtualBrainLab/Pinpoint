@@ -50,7 +50,7 @@ namespace UI.ViewModels
         private float _duraOffset;
 
         [ObservableProperty]
-        private int _selectedInsertionBaseSpeedIndex;
+        private int _selectedInsertionSpeedIndex;
 
         /// <summary>
         ///     Custom base insertion drive speed (µm/s).
@@ -63,12 +63,24 @@ namespace UI.ViewModels
         /// </summary>
         [ObservableProperty]
         private int _drivePastDistance;
+        
+        /// <summary>
+        ///     Starting ETA of a drive to compute progress (seconds).
+        /// </summary>
+        private int _originalETA;
 
         /// <summary>
         ///     ETA to reach the target or to exit (seconds).
         /// </summary>
         [ObservableProperty]
         private int _eta;
+
+        /// <summary>
+        ///     Drive progress percentage (0 to 1).
+        /// </summary>
+        /// <remarks>To be computed from `_eta / _originalETA`.</remarks>
+        [ObservableProperty]
+        private float _driveProgressPercentage;
 
         #endregion
 
@@ -160,7 +172,7 @@ namespace UI.ViewModels
             DuraOffset = state.ActiveProbeState.DuraDepth;
 
             // Update insertion base speed index.
-            SelectedInsertionBaseSpeedIndex = state.ActiveProbeState.InsertionBaseSpeed switch
+            SelectedInsertionSpeedIndex = state.ActiveProbeState.InsertionBaseSpeed switch
             {
                 2 => 0,
                 5 => 1,
@@ -226,8 +238,8 @@ namespace UI.ViewModels
                         DuraOffset
                     );
                     break;
-                case nameof(SelectedInsertionBaseSpeedIndex) or nameof(CustomInsertionSpeed):
-                    var pickedInsertionBaseSpeed = SelectedInsertionBaseSpeedIndex switch
+                case nameof(SelectedInsertionSpeedIndex) or nameof(CustomInsertionSpeed):
+                    var pickedInsertionBaseSpeed = SelectedInsertionSpeedIndex switch
                     {
                         0 => 2,
                         1 => 5,
