@@ -36,8 +36,13 @@ namespace UI.ViewModels
             Color = itemData.color;
             Name = itemData.name;
             Acronym = itemData.acronym;
-            
-            switch (itemData.type)
+
+            UpdateDisplayType(itemData.type);
+        }
+
+        public void UpdateDisplayType(AreaDisplayType type)
+        {
+            switch (type)
             {
                 case AreaDisplayType.Opaque:
                     Icon = "eye";
@@ -49,7 +54,7 @@ namespace UI.ViewModels
                     break;
                 case AreaDisplayType.Hidden:
                     Icon = "eye-slash";
-                    Transparency = 1f;
+                    Transparency = 0.5f;
                     break;
             }
         }

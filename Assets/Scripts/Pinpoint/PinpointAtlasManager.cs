@@ -84,6 +84,7 @@ public class PinpointAtlasManager : MonoBehaviour
                     // Set brain area at index i to transparent
                     node.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
                     node.SetMaterial(transparentMaterial, OntologyNode.OntologyNodeSide.Full);
+                    node.SetShaderProperty("_Alpha", 0.25f, OntologyNode.OntologyNodeSide.Full);
                     node.ResetColor(OntologyNode.OntologyNodeSide.Full);
                     Debug.Log($"(PAM) Setting area {areaID} to Transparent");
                     break;
