@@ -883,6 +883,18 @@ namespace Models.Scene
 
         #region Brain Area
 
+        public static SceneState InitializeAreaVisibilityReducer(
+            SceneState state,
+            IAction<Dictionary<int, AreaDisplayType>> action
+        )
+        {
+            // Directly set the brain area visibility dictionary
+            return state with
+            {
+                BrainAreaVisibility = new Dictionary<int, AreaDisplayType>(action.payload),
+            };
+        }
+
         public static SceneState RotateAreaVisibilityReducer(SceneState state, IAction<int> action)
         {
             var newBrainAreaVisibility = new Dictionary<int, AreaDisplayType>(
@@ -1095,8 +1107,11 @@ namespace Models.Scene
 
         #region Brain Atlas
 
+        public static readonly ActionCreator<Dictionary<int, AreaDisplayType>> INITIALIZE_AREA_VISIBILITY =
+            $"{SliceNames.SCENE_SLICE}/InitializeAreaVisibility";
+
         public static readonly ActionCreator<int> ROTATE_AREA_VISIBILITY =
-            $"{SliceNames.SCENE_SLICE}/RotateAreaVisibility";
+      $"{SliceNames.SCENE_SLICE}/RotateAreaVisibility";
 
         #endregion
     }

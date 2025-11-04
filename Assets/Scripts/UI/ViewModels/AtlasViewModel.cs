@@ -82,47 +82,16 @@ namespace UI.ViewModels
 
             AtlasTreeData = RecursiveParse(rootId);
 
-            // Initialize the brain area visibility state
+            // Initialize brain area visibility - only set default nodes to Opaque, everything else stays Hidden by default
             var initialVisibility = new Dictionary<int, AreaDisplayType>();
 
-            void CollectNodeIds(List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> items)
+            foreach (var nodeId in defaultNodeIds)
             {
-                if (items == null) return;
-
-                foreach (var item in items)
-                {
-                    // Only set initial visibility for nodes that are NOT already in the state
-                    // This ensures we respect any existing visibility settings
-                    var currentState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-                    if (currentState.BrainAreaVisibility == null || !currentState.BrainAreaVisibility.ContainsKey(item.id))
-                    {
-                        // Set to Opaque if in default nodes, Hidden otherwise
-                        initialVisibility[item.id] = defaultNodeIds.Contains(item.id)
-                            ? AreaDisplayType.Opaque
-                            : AreaDisplayType.Hidden;
-                    }
-
-                    CollectNodeIds(item.children.ToList());
-                }
+                initialVisibility[nodeId] = AreaDisplayType.Opaque;
             }
 
-            CollectNodeIds(AtlasTreeData);
-
-            // Update the state with initial visibility
-            foreach (var kvp in initialVisibility)
-            {
-                _storeService.Store.Dispatch(SceneActions.ROTATE_AREA_VISIBILITY, kvp.Key);
-                if (kvp.Value == AreaDisplayType.Opaque)
-                {
-                    // Already set to opaque by the first dispatch
-                }
-                else if (kvp.Value == AreaDisplayType.Hidden)
-                {
-                    // Need to rotate twice more to get to Hidden (Opaque -> Transparent -> Hidden)
-                    _storeService.Store.Dispatch(SceneActions.ROTATE_AREA_VISIBILITY, kvp.Key);
-                    _storeService.Store.Dispatch(SceneActions.ROTATE_AREA_VISIBILITY, kvp.Key);
-                }
-            }
+            // Dispatch single action to initialize all visibilities at once
+            _storeService.Store.Dispatch(SceneActions.INITIALIZE_AREA_VISIBILITY, initialVisibility);
 
             return;
 
