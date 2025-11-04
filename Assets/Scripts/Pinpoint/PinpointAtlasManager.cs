@@ -60,10 +60,6 @@ public class PinpointAtlasManager : MonoBehaviour
         if (brainAreaVisibility == null)
             return;
 
-#if UNITY_EDITOR && !APP_UI
-        Debug.Log($"(PAM) BrainAreaVisibility changed. Count: {brainAreaVisibility.Count}");
-#endif
-
         foreach (var kVP in brainAreaVisibility) {
             var areaID = kVP.Key;
             var displayType = kVP.Value;
@@ -73,30 +69,27 @@ public class PinpointAtlasManager : MonoBehaviour
 
             var node = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID);
             if (!BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).FullLoaded.IsCompleted)
-            {
-                await node.LoadMesh(OntologyNode.OntologyNodeSide.All);
-                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
-                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.Left);
-                BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.Right);
-            }
+                await node.LoadMesh(OntologyNode.OntologyNodeSide.Full);
 
             switch (displayType)
             {
                 case AreaDisplayType.Opaque:
                     // Set brain area at index i to opaque
                     Debug.Log($"(PAM) Setting area {areaID} to Opaque");
-                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetMaterial(opaqueMaterial, OntologyNode.OntologyNodeSide.All);
-                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.All);
+                    node.SetMaterial(opaqueMaterial, OntologyNode.OntologyNodeSide.Full);
+                    node.ResetColor(OntologyNode.OntologyNodeSide.Full);
+                    node.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
                     break;
                 case AreaDisplayType.Transparent:
                     // Set brain area at index i to transparent
-                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(true, OntologyNode.OntologyNodeSide.All);
-                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetMaterial(transparentMaterial, OntologyNode.OntologyNodeSide.All);
+                    node.SetVisibility(true, OntologyNode.OntologyNodeSide.Full);
+                    node.SetMaterial(transparentMaterial, OntologyNode.OntologyNodeSide.Full);
+                    node.ResetColor(OntologyNode.OntologyNodeSide.Full);
                     Debug.Log($"(PAM) Setting area {areaID} to Transparent");
                     break;
                 case AreaDisplayType.Hidden:
                     // Hide brain area at index i
-                    BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).SetVisibility(false, OntologyNode.OntologyNodeSide.All);
+                    node.SetVisibility(false, OntologyNode.OntologyNodeSide.Full);
                     Debug.Log($"(PAM) Setting area {areaID} to Hidden");
                     break;
             }
@@ -114,6 +107,36 @@ public class PinpointAtlasManager : MonoBehaviour
                 BrainAtlasManager.AtlasTransforms.Add(new Dorr2008Transform());
                 BrainAtlasManager.AtlasTransforms.Add(new Dorr2008IBLTransform());
                 break;
+            case "allen_mouse_50um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                BrainAtlasManager.AtlasTransforms.Add(new Qiu2018Transform());
+                BrainAtlasManager.AtlasTransforms.Add(new Dorr2008Transform());
+                BrainAtlasManager.AtlasTransforms.Add(new Dorr2008IBLTransform());
+                break;
+            case "allen_mouse_100um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                BrainAtlasManager.AtlasTransforms.Add(new Qiu2018Transform());
+                BrainAtlasManager.AtlasTransforms.Add(new Dorr2008Transform());
+                BrainAtlasManager.AtlasTransforms.Add(new Dorr2008IBLTransform());
+                break;
+            case "princeton_mouse_20um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
+            case "allen_mouse_bluebrain_barrels_25um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
+            case "allen_human_500um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
+            case "azba_zfish_8um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
+            case "sju_cavefish_2um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
+            case "prarie_vole_25um":
+                BrainAtlasManager.AtlasTransforms.Add(new IntuitiveTransform());
+                break;
 
             // we don't have transforms (yet) for waxholm rat
             case "whs_sd_rat_39um":
@@ -125,8 +148,10 @@ public class PinpointAtlasManager : MonoBehaviour
                 break;
         }
 
+# if UNITY_EDITOR
         foreach (var transform in BrainAtlasManager.AtlasTransforms)
             Debug.Log(transform.Name);
+#endif
 
         PopulateAtlasDropdown();
         PopulateTransformDropdown();

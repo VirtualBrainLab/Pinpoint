@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
@@ -101,7 +102,7 @@ public class ChannelMap
     {
         Data = data;
 
-        int maxTextureSize = Mathf.Min(SystemInfo.maxTextureSize, 10000);
+        int maxTextureSize = Mathf.Min(SystemInfo.maxTextureSize, 8192);
         Texture = new Texture2D(60, maxTextureSize, TextureFormat.Alpha8, false)
         {
             wrapMode = TextureWrapMode.Clamp,
@@ -133,8 +134,7 @@ public class ChannelMap
         Color opaque = new Color(0f, 0f, 0f, 1f);
 
         Color[] pixels = new Color[Texture.width * Texture.height];
-        for (int i = 0; i < pixels.Length; i++)
-            pixels[i] = transparent;
+        Array.Fill(pixels, transparent);
         Texture.SetPixels(pixels);
 
         int layerIdx = Data.SelectionLayerNames.FindIndex(x => x.Equals(selectionLayerName));
