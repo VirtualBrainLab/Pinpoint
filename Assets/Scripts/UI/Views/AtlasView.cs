@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Models;
 using Models.Scene;
 using Services;
@@ -18,9 +19,13 @@ namespace UI.Views
         private readonly AtlasViewModel _atlasViewModel;
         private readonly StoreService _storeService;
         private readonly IDisposableSubscription _sceneStateSubscription;
+        private readonly Unity.AppUI.UI.SearchBar _searchBar;
 
         // Cache view models by area ID
         private readonly Dictionary<int, AtlasTreeItemViewModel> _viewModelCache = new();
+
+        // Store the full unfiltered tree data
+        private List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> _fullTreeData;
 
         public AtlasView(AtlasViewModel atlasViewModel, StoreService storeService)
         {
@@ -30,11 +35,24 @@ namespace UI.Views
             _storeService = storeService;
 
             _atlasTree = root.Q<TreeView>("atlas-tree");
+            _searchBar = root.Q<Unity.AppUI.UI.SearchBar>();
 
-            _atlasTree.SetRootItems(atlasViewModel.AtlasTreeData);
+            // Initialize full tree data before setting root items
+            _fullTreeData = atlasViewModel.AtlasTreeData;
+
+            _atlasTree.SetRootItems(_fullTreeData);
             _atlasTree.bindItem = BindItem;
             _atlasTree.selectionType = SelectionType.Multiple;
             _atlasTree.Rebuild();
+
+            // Bind search bar to trigger filtering as user types
+            if (_searchBar != null)
+            {
+                _searchBar.RegisterValueChangedCallback(evt =>
+                {
+                    FilterTreeView(evt.newValue);
+                });
+            }
 
             _atlasViewModel.PropertyChanged += OnPropertyChanged;
 
@@ -68,12 +86,67 @@ namespace UI.Views
             }
         }
 
+        private void FilterTreeView(string searchText)
+        {
+            if (string.IsNullOrEmpty(searchText))
+            {
+                // Show full tree when search is empty
+                _atlasTree.SetRootItems(_fullTreeData ?? _atlasViewModel.AtlasTreeData);
+                _atlasTree.Rebuild();
+                // Collapse all items when search is cleared
+                _atlasTree.CollapseAll();
+                return;
+            }
+
+            var searchLower = searchText.ToLowerInvariant();
+            var filteredData = FilterTreeData(_fullTreeData ?? _atlasViewModel.AtlasTreeData, searchLower);
+
+            _atlasTree.SetRootItems(filteredData ?? new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>());
+            _atlasTree.Rebuild();
+            
+            // Expand all items to show search results
+            _atlasTree.ExpandAll();
+        }
+
+        private List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> FilterTreeData(
+            List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> items,
+            string searchLower)
+        {
+            if (items == null)
+                return null;
+
+            var filtered = new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>();
+
+            foreach (var item in items)
+            {
+                var (acronym, name, color, displayType) = item.data;
+                var matchesCurrent = acronym.ToLowerInvariant().Contains(searchLower) ||
+                                     name.ToLowerInvariant().Contains(searchLower);
+
+                var filteredChildren = FilterTreeData(item.children?.ToList(), searchLower);
+                var hasMatchingChildren = filteredChildren != null && filteredChildren.Count > 0;
+
+                // Include this item if it matches or has matching descendants
+                if (matchesCurrent || hasMatchingChildren)
+                {
+                    filtered.Add(new TreeViewItemData<(string, string, Color, AreaDisplayType)>(
+                        item.id,
+                        item.data,
+                        filteredChildren
+                    ));
+                }
+            }
+
+            return filtered.Count > 0 ? filtered : null;
+        }
+
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
                 case nameof(_atlasViewModel.AtlasTreeData):
                     _viewModelCache.Clear();
+                    _fullTreeData = _atlasViewModel.AtlasTreeData;
                     _atlasTree.SetRootItems(_atlasViewModel.AtlasTreeData);
                     _atlasTree.Rebuild();
                     break;

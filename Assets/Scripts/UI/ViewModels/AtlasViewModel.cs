@@ -26,6 +26,9 @@ namespace UI.ViewModels
         [ObservableProperty]
         private List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> _atlasTreeData;
 
+        [ObservableProperty]
+        private string _searchText = string.Empty;
+
         #endregion
 
         public AtlasViewModel(StoreService storeService)
@@ -87,7 +90,7 @@ namespace UI.ViewModels
 
             foreach (var nodeId in defaultNodeIds)
             {
-                initialVisibility[nodeId] = AreaDisplayType.Opaque;
+                initialVisibility[nodeId] = AreaDisplayType.Transparent;
             }
 
             // Dispatch single action to initialize all visibilities at once
