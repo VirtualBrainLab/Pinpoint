@@ -190,6 +190,10 @@ namespace Services
                             SceneReducers.SetActiveProbeDrivePastDistanceReducer
                         )
                         .AddCase(
+                            SceneActions.INITIALIZE_AREA_VISIBILITY,
+                            SceneReducers.InitializeAreaVisibilityReducer
+                        )
+                        .AddCase(
                             SceneActions.ROTATE_AREA_VISIBILITY,
                             SceneReducers.RotateAreaVisibilityReducer
                         )

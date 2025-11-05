@@ -26,6 +26,9 @@ namespace UI.ViewModels
         [ObservableProperty]
         private List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> _atlasTreeData;
 
+        [ObservableProperty]
+        private string _searchText = string.Empty;
+
         #endregion
 
         public AtlasViewModel(StoreService storeService)
@@ -68,7 +71,31 @@ namespace UI.ViewModels
         {
             var rootId = BrainAtlasManager.ActiveReferenceAtlas.Ontology.Acronym2ID("root");
 
+            // Get the PinpointAtlasManager to check which nodes are loaded
+            var pinpointAtlasManager = GameObject.Find("main").GetComponent<PinpointAtlasManager>();
+            var defaultNodeIds = new HashSet<int>();
+
+            if (pinpointAtlasManager != null && pinpointAtlasManager.DefaultNodes != null)
+            {
+                foreach (var node in pinpointAtlasManager.DefaultNodes)
+                {
+                    defaultNodeIds.Add(node.ID);
+                }
+            }
+
             AtlasTreeData = RecursiveParse(rootId);
+
+            // Initialize brain area visibility - only set default nodes to Opaque, everything else stays Hidden by default
+            var initialVisibility = new Dictionary<int, AreaDisplayType>();
+
+            foreach (var nodeId in defaultNodeIds)
+            {
+                initialVisibility[nodeId] = AreaDisplayType.Transparent;
+            }
+
+            // Dispatch single action to initialize all visibilities at once
+            _storeService.Store.Dispatch(SceneActions.INITIALIZE_AREA_VISIBILITY, initialVisibility);
+
             return;
 
             List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> RecursiveParse(int nodeId)
@@ -88,9 +115,10 @@ namespace UI.ViewModels
                         let childAcronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(
                             childId
                         )
+                        let displayType = defaultNodeIds.Contains(childId) ? AreaDisplayType.Opaque : AreaDisplayType.Hidden
                         select new TreeViewItemData<(string, string, Color, AreaDisplayType)>(
                             childId,
-                            (childAcronym, childName, BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(childId), AreaDisplayType.Opaque),
+                            (childAcronym, childName, BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(childId), displayType),
                             childData
                         )
                     ).ToList();

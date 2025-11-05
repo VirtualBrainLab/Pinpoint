@@ -8,7 +8,7 @@ using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Sagittal : ProbeController
+public class SagittalCoronalProbeController : ProbeController
 {
     #region State
 
@@ -889,6 +889,7 @@ public class Sagittal : ProbeController
 
         // Manually adjust the coordinates and rotation
         transform.position = Insertion.PositionWorldT();
+        // In Sagittal / Coronal angles 
         transform.RotateAround(_probeTipT.position, transform.up, Insertion.Yaw);
         transform.RotateAround(_probeTipT.position, transform.right, Insertion.Pitch);
         // Subtract roll to go clockwise
