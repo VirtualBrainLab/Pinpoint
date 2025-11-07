@@ -1,9 +1,10 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:Template name="EphysLink" src="project://database/Assets/UI/Views/EphysLink.uxml?fileID=9197481963319205126&amp;guid=fb2d0eca83ae2094db77eeadefe18873&amp;type=3#EphysLink" />
+    <ui:Template name="EphysLink" src="project://database/Assets/UI/Views/SettingsViews/EphysLink.uxml?fileID=9197481963319205126&amp;guid=fb2d0eca83ae2094db77eeadefe18873&amp;type=3#EphysLink" />
+    <ui:Template name="Probe" src="project://database/Assets/UI/Views/SettingsViews/Probe.uxml?fileID=9197481963319205126&amp;guid=ca1198258a6f26f48b3252389e09f550&amp;type=3#Probe" />
     <ui:VisualElement data-source-type="UI.ViewModels.SettingsViewModel, Assembly-CSharp" style="flex-grow: 1;">
         <Unity.AppUI.UI.Tabs value="0">
             <Unity.AppUI.UI.TabItem label="Ephys Link" icon="plugs-connected" />
-            <Unity.AppUI.UI.TabItem label="Example" icon="info" />
+            <Unity.AppUI.UI.TabItem label="Settings" icon="info" />
             <Bindings>
                 <ui:DataBinding property="value" data-source-path="TabIndex" binding-mode="TwoWay" />
             </Bindings>
@@ -13,7 +14,7 @@
                 <ui:Instance template="EphysLink" name="ephys-link-view" style="flex-grow: 1; flex-direction: column; width: 100%;" />
             </Unity.AppUI.UI.SwipeViewItem>
             <Unity.AppUI.UI.SwipeViewItem>
-                <Unity.AppUI.UI.Heading text="This is a test settings menu" style="width: 100%;" />
+                <ui:Instance template="Probe" name="probe-view" style="flex-grow: 1;" />
             </Unity.AppUI.UI.SwipeViewItem>
             <Bindings>
                 <ui:DataBinding property="value" data-source-path="TabIndex" binding-mode="ToTarget" />
