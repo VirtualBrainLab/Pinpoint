@@ -161,8 +161,11 @@ public class ProbeManager : MonoBehaviour
         get { return _probeDisplayType; }
         set
         {
-            _probeDisplayType = value;
-            SetMaterials();
+            if (_probeDisplayType != value)
+            {
+                _probeDisplayType = value;
+                SetMaterials();
+            }
         }
     }
 
@@ -371,20 +374,7 @@ public class ProbeManager : MonoBehaviour
         // Probe Configuration.
         _probeRenderer.material.color = state.ColorValue;
 
-        switch (state.ProbeDisplayType)
-        {
-            case ProbeDisplayType.Opaque:
-                SetMaterialsDefault();
-                break;
-            case ProbeDisplayType.Transparent:
-                SetMaterialsTransparent();
-                break;
-            case ProbeDisplayType.Line:
-                SetMaterialsLine();
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        ProbeDisplay = state.ProbeDisplayType;
 
         // Channel Maps.
         await _channelMapLoadedSource.Task;
