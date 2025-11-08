@@ -31,6 +31,7 @@ public class ColliderManager : MonoBehaviour
 
     private IDisposableSubscription _settingsStateSubscription;
 
+
     private void Awake()
     {
         CollisionPanelGO = _collisionPanelGO;
@@ -41,10 +42,10 @@ public class ColliderManager : MonoBehaviour
         // Subscribe to settings state changes to monitor DetectCollisions
         var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
         _settingsStateSubscription = storeService.Store.Subscribe(
-          state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE),
+            state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE),
             OnSettingsStateChanged,
- new SubscribeOptions<SettingsState> { fireImmediately = true }
-      );
+            new SubscribeOptions<SettingsState> { fireImmediately = true }
+        );
     }
 
     private void OnDestroy()
@@ -120,6 +121,7 @@ public class ColliderManager : MonoBehaviour
         if (detectCollisions)
         {
             bool collided = CheckCollisionsHelper();
+            Debug.Log($"Collision check result: {collided}");
 
             if (collided)
                 SetCollisionPanelVisibility(true);
