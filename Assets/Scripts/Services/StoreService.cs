@@ -203,6 +203,11 @@ namespace Services
                 {
                     builder
                         .AddCase(SettingsActions.SET_TAB_INDEX, SettingsReducers.SetTabIndexReducer)
+                        // Probe Settings.
+                        .AddCase(
+                            SettingsActions.SET_DETECT_COLLISIONS,
+                            SettingsReducers.SetDetectCollisionsReducer
+                        )
                         // Ephys Link.
                         .AddCase(
                             SettingsActions.SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE,

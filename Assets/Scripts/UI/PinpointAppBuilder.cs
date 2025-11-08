@@ -39,6 +39,7 @@ namespace UI
             builder.services.AddSingleton<AtlasViewModel>();
 
             builder.services.AddSingleton<SettingsViewModel>();
+            builder.services.AddSingleton<ProbeViewModel>();
             builder.services.AddSingleton<EphysLinkViewModel>();
 
             builder.services.AddSingleton<ProbeInspectorViewModel>();
@@ -51,6 +52,7 @@ namespace UI
             builder.services.AddSingleton<AtlasView>();
 
             builder.services.AddSingleton<SettingsView>();
+            builder.services.AddSingleton<ProbeView>();
             builder.services.AddSingleton<EphysLinkView>();
 
             builder.services.AddSingleton<ProbeInspectorView>();

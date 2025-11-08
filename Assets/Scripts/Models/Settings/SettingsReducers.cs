@@ -13,6 +13,18 @@ namespace Models.Settings
             return state with { TabIndex = action.payload };
         }
 
+        #region Probe Settings
+
+        public static SettingsState SetDetectCollisionsReducer(
+            SettingsState state,
+            IAction<bool> action
+        )
+        {
+            return state with { DetectCollisions = action.payload };
+        }
+
+        #endregion
+
         #region Ephys Link
 
         public static SettingsState SetSelectedEphysLinkPlatformTypeReducer(
@@ -62,6 +74,13 @@ namespace Models.Settings
     {
         public static readonly ActionCreator<int> SET_TAB_INDEX =
             $"{SliceNames.SETTINGS_SLICE}/SetTabIndex";
+
+        #region Probe Settings
+
+        public static readonly ActionCreator<bool> SET_DETECT_COLLISIONS =
+            $"{SliceNames.SETTINGS_SLICE}/SetDetectCollisions";
+
+        #endregion
 
         #region Ephys Link
 

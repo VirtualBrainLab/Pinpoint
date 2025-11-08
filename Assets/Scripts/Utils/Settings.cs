@@ -32,24 +32,6 @@ public class Settings : MonoBehaviour
     #endregion
 
     #region Probe settings
-    // Collision detection
-    private const bool COLLISIONS_DEFAULT = true;
-    [SerializeField] private Toggle _collisionsToggle;
-    public UnityEvent DetectCollisionsChangedEvent;
-
-    public static bool DetectCollisions
-    {
-        get { return data.DetectCollisions; }
-        set
-        {
-            Debug.Log($"Detect collisions set to: {value}");
-            data.DetectCollisions = value;
-            Save();
-            Instance._collisionsToggle.SetIsOnWithoutNotify(data.DetectCollisions);
-            Instance.DetectCollisionsChangedEvent.Invoke();
-        }
-    }
-
     // Convert APML rotation to the probe's axis rotation
     private const bool APML2PROBE_DEFAULT = false;
     [FormerlySerializedAs("probeAxisToggle")][SerializeField] private Toggle _probeAxisToggle;
@@ -686,7 +668,6 @@ public class Settings : MonoBehaviour
             data = new InternalData();
 
             // probe
-            data.DetectCollisions = COLLISIONS_DEFAULT;
             data.RotateAPML2ProbeAxis = APML2PROBE_DEFAULT;
             data.AngleConvention = ANGLECONVENTION_DEFAULT;
             data.AxisControl = AXISCONTROL_DEFAULT;
@@ -753,7 +734,6 @@ public class Settings : MonoBehaviour
     private void Apply()
     {
         // Load preferences from memory and set UI elements
-        DetectCollisions = data.DetectCollisions;
 
         _probeAxisToggle.SetIsOnWithoutNotify(ConvertAPML2Probe);
 
@@ -899,7 +879,6 @@ public class Settings : MonoBehaviour
         // Probes
         public bool ShowAllProbePanels;
         public float ProbePanelHeight;
-        public bool DetectCollisions;
         public bool RotateAPML2ProbeAxis;
         public int ProbeSpeed;
 
