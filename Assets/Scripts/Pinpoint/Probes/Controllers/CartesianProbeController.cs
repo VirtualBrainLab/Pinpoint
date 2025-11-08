@@ -50,27 +50,27 @@ public class Sagittal : ProbeController
 
     private Vector4 ForwardVecWorld
     {
-     get
+        get
         {
 #if APP_UI
-          var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
-  var settingsState = storeService.Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE);
-         return settingsState.ConvertAPML2Probe ? ProbeTipT.up : Vector3.forward;
+            var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+            var settingsState = storeService.Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE);
+            return settingsState.ConvertAPML2Probe ? ProbeTipT.up : Vector3.forward;
 #else
    // For non-APP_UI builds, use default behavior
             return Vector3.forward;
 #endif
         }
- }
+    }
 
     private Vector4 RightVecWorld
     {
-      get
-  {
+        get
+        {
 #if APP_UI
-         var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
-      var settingsState = storeService.Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE);
- return settingsState.ConvertAPML2Probe ? ProbeTipT.right : Vector3.right;
+            var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+            var settingsState = storeService.Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE);
+            return settingsState.ConvertAPML2Probe ? ProbeTipT.right : Vector3.right;
 #else
          // For non-APP_UI builds, use default behavior
 return Vector3.right;
@@ -79,10 +79,11 @@ return Vector3.right;
     }
 
     private Vector4 UpVecWorld { get => Vector3.up; }
-  private Vector4 DepthVecWorld { get => _depthDir; }
+    private Vector4 DepthVecWorld { get => _depthDir; }
 
     private Vector4 _unlockedDir;
-    public override Vector4 UnlockedDir {
+    public override Vector4 UnlockedDir
+    {
         get => _unlockedDir;
         set
         {
@@ -362,16 +363,16 @@ return Vector3.right;
         transform.RotateAround(_probeTipT.position, transform.up, state.Angles.x);
         transform.RotateAround(_probeTipT.position, transform.right, state.Angles.y);
         transform.RotateAround(_probeTipT.position, transform.forward, -state.Angles.z);
-        
+
         // Update tip coords.
         SetTipWorldU();
-        
+
         // Update recording region info.
         ProbeManager.ProbeMoved();
-        
+
         // Update surface coordinates.
         ProbeManager.UpdateSurfacePosition();
-        
+
         // Update lock state.
         SetControllerLock(state.Locked);
     }
@@ -399,7 +400,7 @@ return Vector3.right;
     public override void SetControllerLock(bool locked)
     {
         _fullLock = locked;
-        
+
         if (_fullLock)
         {
             UnlockedDir = Vector4.zero;
@@ -410,7 +411,7 @@ return Vector3.right;
             UnlockedDir = Vector4.one;
             UnlockedRot = Vector3.one;
         }
-        
+
     }
 
     /// <summary>
@@ -571,19 +572,19 @@ return Vector3.right;
     private async void MoveProbe_XYZD(Vector4 direction, float speed)
     {
         // Get the positional delta.
-        var posDelta = Vector4.Scale(direction * speed,UnlockedDir);
+        var posDelta = Vector4.Scale(direction * speed, UnlockedDir);
 
         if (ManipulatorManualControl)
         {
             // Cancel if a movement is in progress.
             if (ManipulatorKeyboardMoveInProgress) return;
-            
+
             // Disable/ignore more input until movement is done.
             ManipulatorKeyboardMoveInProgress = true;
 
             // Call movement (does nothing if movement is invalid).
             await ProbeManager.ManipulatorBehaviorController.MoveByWorldSpaceDelta(posDelta);
-            
+
             // Re-enable input.
             ManipulatorKeyboardMoveInProgress = false;
         }
@@ -908,7 +909,7 @@ return Vector3.right;
     #endregion
 
     #region Set Probe pos/angles
-    
+
     /// <summary>
     /// Set the probe position to the current apml/depth/angles values
     /// </summary>
@@ -975,7 +976,7 @@ return Vector3.right;
     private Vector3 _tipForwardWorldU;
 
     private void SetTipWorldU()
-    {        
+    {
         // Note: we need to use the reference coordinates here so that the world positions resolve to (0,0,0) at Bregma,
         // otherwise any rotations that get applied will be incorrect
         _tipCoordWorldU = BrainAtlasManager.WorldT2WorldU(_probeTipT.position, true);
