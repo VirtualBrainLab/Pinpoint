@@ -20,6 +20,7 @@ public class PinpointAtlasManager : MonoBehaviour
 
     private Dictionary<string, string> _atlasNameMapping;
     private Dictionary<string, bool> _allowedOnWebGLMapping;
+    private Dictionary<int, AreaDisplayType> _cachedAreaState;
     private List<string> _allowedNames;
 
     public HashSet<OntologyNode> DefaultNodes;
@@ -27,6 +28,7 @@ public class PinpointAtlasManager : MonoBehaviour
     private void Awake()
     {
         DefaultNodes = new();
+        _cachedAreaState = new();
 
         if (_atlasNames.Count != _atlasMappings.Count)
             throw new Exception("Atlas names and mapped names should be the same length");
@@ -60,12 +62,20 @@ public class PinpointAtlasManager : MonoBehaviour
         if (brainAreaVisibility == null)
             return;
 
+        var opaqueMaterial = BrainAtlasManager.BrainRegionMaterials["opaque-lit"];
+        var transparentMaterial = BrainAtlasManager.BrainRegionMaterials["transparent-unlit"];
+
         foreach (var kVP in brainAreaVisibility) {
             var areaID = kVP.Key;
             var displayType = kVP.Value;
 
-            var opaqueMaterial = BrainAtlasManager.BrainRegionMaterials["opaque-lit"];
-            var transparentMaterial = BrainAtlasManager.BrainRegionMaterials["transparent-unlit"];
+            // Check if the display type has changed for this area
+            if (_cachedAreaState.TryGetValue(areaID, out var cachedDisplayType) && cachedDisplayType == displayType)
+            {
+                continue;
+            }
+
+            _cachedAreaState[areaID] = displayType;
 
             var node = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID);
             if (!BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID).FullLoaded.IsCompleted)
