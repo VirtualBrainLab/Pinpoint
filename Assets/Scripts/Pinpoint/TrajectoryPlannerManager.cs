@@ -503,7 +503,7 @@ namespace TrajectoryPlanner
             newProbeManager.ProbeController.MovedThisFrameEvent.AddListener(SetMovedThisFrame);
 
             // Add listener for SetActiveProbe
-            newProbeManager.ActivateProbeEvent.AddListener(delegate { SetActiveProbe(newProbeManager); });
+            //newProbeManager.ActivateProbeEvent.AddListener(delegate { SetActiveProbe(newProbeManager); });
 
             // Invoke the movement event
             _probeAddedOrRemovedEvent.Invoke();

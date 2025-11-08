@@ -50,6 +50,7 @@ public class ProbeManager : MonoBehaviour
     #region Events
 
     public UnityEvent UIUpdateEvent;
+    [Obsolete("Use Redux state dispatch instead")]
     public UnityEvent ActivateProbeEvent;
     public UnityEvent EphysLinkControlChangeEvent;
 
@@ -300,7 +301,7 @@ public class ProbeManager : MonoBehaviour
             _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
-        
+
         // Add this instance to the static list of Probe objects.
         Instances.Add(this);
 
@@ -353,7 +354,7 @@ public class ProbeManager : MonoBehaviour
             Instances.Clear();
         else
             Instances.Remove(this);
-        
+
         // Unsubscribe from state.
         _probeStateSubscription?.Dispose();
     }
@@ -404,7 +405,13 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void MouseDown()
     {
+#if APP_UI
+        // Dispatch to Redux state to set this probe as active
+        PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE, name);
+#else
+        // Fallback to old event system if not using APP_UI
         ActivateProbeEvent.Invoke();
+#endif
     }
 
     public async Task<ChannelMap> GetChannelMap()
