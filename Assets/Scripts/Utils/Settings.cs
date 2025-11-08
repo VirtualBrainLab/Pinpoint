@@ -32,24 +32,6 @@ public class Settings : MonoBehaviour
     #endregion
 
     #region Probe settings
-    // Convert APML rotation to the probe's axis rotation
-    private const bool APML2PROBE_DEFAULT = false;
-    [FormerlySerializedAs("probeAxisToggle")][SerializeField] private Toggle _probeAxisToggle;
-    public UnityEvent ConvertAPML2ProbeChangedEvent;
-
-    public static bool ConvertAPML2Probe
-    {
-        get { return data.RotateAPML2ProbeAxis; }
-        set
-        {
-            data.RotateAPML2ProbeAxis = value;
-            Save();
-            Instance.ConvertAPML2ProbeChangedEvent.Invoke();
-
-            // because this can be set through code, the UI has to maintain state relative to it
-            Instance._probeAxisToggle.SetIsOnWithoutNotify(value);
-        }
-    }
 
     private const string ANGLECONVENTION_DEFAULT = "Pinpoint";
     [SerializeField] private TMP_Dropdown _angleConventionDropdown;
@@ -378,7 +360,7 @@ public class Settings : MonoBehaviour
     #region Ephys Link
 
     public UnityEvent EphysLinkServerInfoLoaded;
-    
+
     public UnityEvent<int> EphysLinkManipulatorTypeChangedEvent;
 
     public static int EphysLinkManipulatorType
@@ -391,7 +373,7 @@ public class Settings : MonoBehaviour
             Instance.EphysLinkManipulatorTypeChangedEvent.Invoke(value);
         }
     }
-    
+
     public UnityEvent<int> EphysLinkPathfinderPortChangedEvent;
     public static int EphysLinkPathfinderPort
     {
@@ -415,7 +397,7 @@ public class Settings : MonoBehaviour
             Instance.EphysLinkServerIpChangedEvent.Invoke(value);
         }
     }
-    
+
     public UnityEvent<int> EphysLinkServerPortChangedEvent;
     public static int EphysLinkServerPort
     {
@@ -427,7 +409,7 @@ public class Settings : MonoBehaviour
             Instance.EphysLinkServerPortChangedEvent.Invoke(value);
         }
     }
-    
+
     public UnityEvent<string> EphysLinkProxyAddressChangedEvent;
     public static string EphysLinkProxyAddress
     {
@@ -668,7 +650,6 @@ public class Settings : MonoBehaviour
             data = new InternalData();
 
             // probe
-            data.RotateAPML2ProbeAxis = APML2PROBE_DEFAULT;
             data.AngleConvention = ANGLECONVENTION_DEFAULT;
             data.AxisControl = AXISCONTROL_DEFAULT;
             data.ProbeSpeed = PROBE_SPEED_DEFAULT;
@@ -735,8 +716,6 @@ public class Settings : MonoBehaviour
     {
         // Load preferences from memory and set UI elements
 
-        _probeAxisToggle.SetIsOnWithoutNotify(ConvertAPML2Probe);
-
         SetAngleConvention(data.AngleConvention);
 
         _acronymToggle.SetIsOnWithoutNotify(UseAcronyms);
@@ -778,7 +757,7 @@ public class Settings : MonoBehaviour
         ReferenceCoord = data.RelativeCoord;
         BregmaLambdaRatio = data.BregmaLambdaRatio;
 
-            // Accounts
+        // Accounts
         _stayLoggedInToggle.SetIsOnWithoutNotify(StayLoggedIn);
 
         // API
@@ -879,7 +858,7 @@ public class Settings : MonoBehaviour
         // Probes
         public bool ShowAllProbePanels;
         public float ProbePanelHeight;
-        public bool RotateAPML2ProbeAxis;
+        // RotateAPML2ProbeAxis migrated to Redux state
         public int ProbeSpeed;
 
         public int ShowAtlas3DSlices;

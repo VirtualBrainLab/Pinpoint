@@ -73,8 +73,7 @@ namespace UI.ViewModels
                     _storeService.Store.Dispatch(SettingsActions.SET_DETECT_COLLISIONS, DetectCollisions);
                     break;
                 case nameof(ConvertAPML2Probe):
-                    // TODO: Dispatch action to update state
-                    // _storeService.Store.Dispatch(SettingsActions.SET_CONVERT_APML2PROBE, ConvertAPML2Probe);
+                    _storeService.Store.Dispatch(SettingsActions.SET_CONVERT_APML2PROBE, ConvertAPML2Probe);
                     break;
                 case nameof(AngleConvention):
                     // TODO: Dispatch action to update state

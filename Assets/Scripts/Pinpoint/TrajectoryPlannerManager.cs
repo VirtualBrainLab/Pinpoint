@@ -63,7 +63,7 @@ namespace TrajectoryPlanner
         /// Fired whenever any probe moves
         /// </summary>
         [SerializeField] private UnityEvent _probesChangedEvent;
-        
+
         /// <summary>
         /// Fired whenever a probe is added or removed
         /// </summary>
@@ -82,36 +82,35 @@ namespace TrajectoryPlanner
         [SerializeField] private PinpointAtlasManager _pinpointAtlasManager;
 
         // Settings
-        [FormerlySerializedAs("probePrefabs")] [SerializeField] private List<GameObject> _probePrefabs;
-        [FormerlySerializedAs("ccfCollider")] [SerializeField] private Collider _ccfCollider;
-        [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
+        [FormerlySerializedAs("probePrefabs")][SerializeField] private List<GameObject> _probePrefabs;
+        [FormerlySerializedAs("ccfCollider")][SerializeField] private Collider _ccfCollider;
+        [FormerlySerializedAs("inPlaneSlice")][SerializeField] private TP_InPlaneSlice _inPlaneSlice;
 
-        [FormerlySerializedAs("probeQuickSettings")] [SerializeField] private TP_ProbeQuickSettings _probeQuickSettings;
         [SerializeField] private RelativeCoordinatePanel _relCoordPanel;
 
-        [FormerlySerializedAs("sliceRenderer")] [SerializeField] private TP_SliceRenderer _sliceRenderer;
-        [FormerlySerializedAs("searchControl")] [SerializeField] private TP_Search _searchControl;
+        [FormerlySerializedAs("sliceRenderer")][SerializeField] private TP_SliceRenderer _sliceRenderer;
+        [FormerlySerializedAs("searchControl")][SerializeField] private TP_Search _searchControl;
 
-        [FormerlySerializedAs("settingsPanel")] [SerializeField] private TP_SettingsMenu _settingsPanel;
+        [FormerlySerializedAs("settingsPanel")][SerializeField] private TP_SettingsMenu _settingsPanel;
 
-        [FormerlySerializedAs("CollisionPanelGO")] [SerializeField] private GameObject _collisionPanelGo;
-        [FormerlySerializedAs("collisionMaterial")] [SerializeField] private Material _collisionMaterial;
+        [FormerlySerializedAs("CollisionPanelGO")][SerializeField] private GameObject _collisionPanelGo;
+        [FormerlySerializedAs("collisionMaterial")][SerializeField] private Material _collisionMaterial;
 
-        [FormerlySerializedAs("ProbePanelParentGO")] [SerializeField] private GameObject _probePanelParentGo;
-        [FormerlySerializedAs("CraniotomyToolsGO")] [SerializeField] private GameObject _craniotomyToolsGo;
-        [FormerlySerializedAs("brainCamController")] [SerializeField] private BrainCameraController _brainCamController;
+        [FormerlySerializedAs("ProbePanelParentGO")][SerializeField] private GameObject _probePanelParentGo;
+        [FormerlySerializedAs("CraniotomyToolsGO")][SerializeField] private GameObject _craniotomyToolsGo;
+        [FormerlySerializedAs("brainCamController")][SerializeField] private BrainCameraController _brainCamController;
 
-        [FormerlySerializedAs("CanvasParent")] [SerializeField] private GameObject _canvasParent;
+        [FormerlySerializedAs("CanvasParent")][SerializeField] private GameObject _canvasParent;
 
         // UI 
-        [FormerlySerializedAs("qDialogue")] [SerializeField] QuestionDialogue _qDialogue;
+        [FormerlySerializedAs("qDialogue")][SerializeField] QuestionDialogue _qDialogue;
         [SerializeField] GameObject _logPanelGO;
 
         // Bregma-labmda distance
         [SerializeField] BregmaLambdaBehavior _blDistance;
 
         // Debug graphics
-        [FormerlySerializedAs("surfaceDebugGO")] [SerializeField] private GameObject _surfaceDebugGo;
+        [FormerlySerializedAs("surfaceDebugGO")][SerializeField] private GameObject _surfaceDebugGo;
 
         // Craniotomy
         [SerializeField] private CraniotomyPanel _craniotomyPanel;
@@ -157,7 +156,14 @@ namespace TrajectoryPlanner
             inputActions.ProbeMetaControl.Enable();
             inputActions.ProbeMetaControl.NextProbe.performed += NextProbe;
             inputActions.ProbeMetaControl.PrevProbe.performed += PrevProbe;
-            inputActions.ProbeMetaControl.SwitchAxisMode.performed += x => Settings.ConvertAPML2Probe = !Settings.ConvertAPML2Probe;
+            inputActions.ProbeMetaControl.SwitchAxisMode.performed += x =>
+            {
+#if APP_UI
+                var storeService = PinpointApp.Services.GetRequiredService<Services.StoreService>();
+                var settingsState = storeService.Store.GetState<Models.Settings.SettingsState>(Models.SliceNames.SETTINGS_SLICE);
+                storeService.Store.Dispatch(Models.Settings.SettingsActions.SET_CONVERT_APML2PROBE, !settingsState.ConvertAPML2Probe);
+#endif
+            };
 
             // _accountsManager.UpdateCallbackEvent = AccountsProbeStatusUpdatedCallback;
         }
@@ -215,7 +221,7 @@ namespace TrajectoryPlanner
             referenceAtlas.LoadAnnotations();
             referenceAtlas.LoadAnnotationTexture();
 
-            await Task.WhenAll(new Task[] { referenceAtlas.AnnotationsTask, referenceAtlas.AnnotationTextureTask});
+            await Task.WhenAll(new Task[] { referenceAtlas.AnnotationsTask, referenceAtlas.AnnotationTextureTask });
 
             // Now that the areas are loaded we can also set the BLDistance values
             SetBLUI();
@@ -230,8 +236,6 @@ namespace TrajectoryPlanner
             StartupEvent_SceneLoaded.Invoke();
 
             // Link any events that need to be linked
-            ProbeManager.ActiveProbeUIUpdateEvent.AddListener(
-                () => _probeQuickSettings.GetComponentInChildren<QuickSettingsLockBehavior>().UpdateSprite(ProbeManager.ActiveProbeManager.ProbeController.Locked));
             ProbeManager.ActiveProbeUIUpdateEvent.AddListener(() => SetSurfaceDebugColor(ProbeManager.ActiveProbeManager.Color));
 
             if (_firstTime || _atlasReset)
@@ -309,9 +313,6 @@ namespace TrajectoryPlanner
                     }
                 }
 
-                if (!_probeQuickSettings.IsFocused())
-                    UpdateQuickSettings();
-
                 _sliceRenderer.UpdateSlicePosition();
 
                 // _accountsManager.UpdateProbeData();
@@ -378,7 +379,7 @@ namespace TrajectoryPlanner
         public void DestroyProbe(ProbeManager probeManager)
         {
             var isActiveProbe = ProbeManager.ActiveProbeManager == probeManager;
-            
+
             _prevProbeData = JsonUtility.ToJson(ProbeManagerData.ProbeManager2ProbeData(probeManager));
 
             // Cannot restore a ghost probe, so we set restored to true
@@ -392,7 +393,7 @@ namespace TrajectoryPlanner
             Destroy(probeManager.gameObject);
 
             PostDestroyHandler(isActiveProbe, remainingProbes);
-            
+
             _probeAddedOrRemovedEvent.Invoke();
 
             _movedThisFrame = true;
@@ -425,8 +426,6 @@ namespace TrajectoryPlanner
                     _activeProbeChangedEvent.Invoke();
                 }
                 SetSurfaceDebugActive(false);
-                UpdateQuickSettings();
-                UpdateQuickSettingsProbeIdText();
             }
         }
 
@@ -464,7 +463,7 @@ namespace TrajectoryPlanner
             _restoredProbe = true;
         }
 
-#region Add Probe Functions
+        #region Add Probe Functions
 
         /// <summary>
         /// Used in the editor when the add probe buttons are clicked in the scene
@@ -496,14 +495,7 @@ namespace TrajectoryPlanner
 
             spawnedThisFrame = true;
 
-            UpdateQuickSettingsProbeIdText();
-
-            // This listener seems to be redundant with LateUpdate call
-            //newProbeManager.UIUpdateEvent.AddListener(() => UpdateQuickSettings(newProbeManager));
             newProbeManager.ProbeController.MovedThisFrameEvent.AddListener(SetMovedThisFrame);
-
-            // Add listener for SetActiveProbe
-            //newProbeManager.ActivateProbeEvent.AddListener(delegate { SetActiveProbe(newProbeManager); });
 
             // Invoke the movement event
             _probeAddedOrRemovedEvent.Invoke();
@@ -553,7 +545,7 @@ namespace TrajectoryPlanner
             AddNewProbe(ProbeManager.ActiveProbeManager.ProbeType, ProbeManager.ActiveProbeManager.ProbeController.Insertion);
         }
 
-#endregion
+        #endregion
 
         #region Active probe controls
         public void SetActiveProbe(string UUID)
@@ -593,7 +585,7 @@ namespace TrajectoryPlanner
             ProbeManager.ActiveProbeManager = newActiveProbeManager;
             PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE, newActiveProbeManager.UUID);
             ProbeManager.ActiveProbeManager.SetActive(true);
-            
+
             // Change the UI manager visibility and set transparency of probes
             foreach (ProbeManager probeManager in ProbeManager.Instances)
             {
@@ -614,7 +606,7 @@ namespace TrajectoryPlanner
 
             // Change the height of the probe panels, if needed
             _probePanelManager.RecalculateProbePanels();
-            
+
             _activeProbeChangedEvent.Invoke();
         }
 
@@ -654,21 +646,7 @@ namespace TrajectoryPlanner
         {
             foreach (ProbeManager probeManager in ProbeManager.Instances)
                 if (probeManager.UUID.Equals(UUID))
-                    probeManager.OverrideName =newName;
-        }
-
-        public void UpdateQuickSettings(ProbeManager sourceProbeManager=null)
-        {
-            // Ignore this call to update quick settings if the source probe manager is not the active probe manager
-            if (sourceProbeManager && sourceProbeManager != ProbeManager.ActiveProbeManager)
-                return;
-
-            _probeQuickSettings.UpdateCoordinates();
-        }
-
-        public void UpdateQuickSettingsProbeIdText()
-        {
-            _probeQuickSettings.UpdateQuickUI();
+                    probeManager.OverrideName = newName;
         }
 
         public void ResetActiveProbe()
@@ -694,7 +672,7 @@ namespace TrajectoryPlanner
         /// 
 
 
-#region Settings
+        #region Settings
 
         public void SetGhostAreaVisibility()
         {
@@ -730,7 +708,7 @@ namespace TrajectoryPlanner
                     probeManager.ProbeDisplay = ProbeDisplayType.Opaque;
             }
         }
-        
+
         public void SetShowAllProbePanels()
         {
             if (Settings.ShowAllProbePanels)
@@ -743,9 +721,9 @@ namespace TrajectoryPlanner
             _probePanelManager.RecalculateProbePanels();
         }
 
-#endregion
+        #endregion
 
-#region Setting Helper Functions
+        #region Setting Helper Functions
 
 
         public void SetSurfaceDebugActive(bool active)
@@ -756,7 +734,7 @@ namespace TrajectoryPlanner
                 _surfaceDebugGo.SetActive(false);
         }
 
-#endregion
+        #endregion
 
 
 
@@ -775,7 +753,7 @@ namespace TrajectoryPlanner
             _surfaceDebugGo.GetComponent<Renderer>().material.color = color;
         }
 
-#region Save and load probes on quit
+        #region Save and load probes on quit
 
         private void OnApplicationQuit()
         {
@@ -851,10 +829,10 @@ namespace TrajectoryPlanner
 
 #if UNITY_EDITOR
             // In editor, check for probe string field
-            if (!(ProbeString==""))
+            if (!(ProbeString == ""))
             {
                 LoadSavedProbesFromEncodedString(ProbeString);
-                if (!(SettingsString==""))
+                if (!(SettingsString == ""))
                     LoadSettingsFromEncodedString(SettingsString);
                 _checkForSavedProbesTaskSource.SetResult(true);
             }
@@ -992,13 +970,11 @@ namespace TrajectoryPlanner
                     newProbeManager.APITarget = probeData.APITarget;
                 }
             }
-
-            UpdateQuickSettings();
         }
 
-#endregion
+        #endregion
 
-#region Mesh centers
+        #region Mesh centers
 
         private int prevTipID;
         private bool prevTipSideLeft;
@@ -1012,7 +988,7 @@ namespace TrajectoryPlanner
 
             // coordinates are really broken right now, the right coordinate is the left, and the left is just missing
             leftCoordU = rightCoordU;
-            rightCoordU.y = dims.y/ 2f + dims.y/2f - rightCoordU.y;
+            rightCoordU.y = dims.y / 2f + dims.y / 2f - rightCoordU.y;
 
             // switch to right side if needed
             if (atlasID == prevTipID)
@@ -1039,7 +1015,7 @@ namespace TrajectoryPlanner
             ProbeManager.ActiveProbeManager.Probe2Text();
         }
 
-#endregion
+        #endregion
 
         #region Accounts
 
@@ -1130,7 +1106,7 @@ namespace TrajectoryPlanner
 #endif
 
             if (BrainAtlasManager.ActiveAtlasTransform.Name != "Custom") { }
-                _originalTransform = BrainAtlasManager.ActiveAtlasTransform;
+            _originalTransform = BrainAtlasManager.ActiveAtlasTransform;
 
             // There's no easy way to implement this without a refactor of the CoordinateTransform code, because you can't pull out the transform matrix.
 
@@ -1183,6 +1159,6 @@ namespace TrajectoryPlanner
             Application.OpenURL("https://virtualbrainlab.org");
         }
 
-#endregion
+        #endregion
     }
 }

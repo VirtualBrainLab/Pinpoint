@@ -5,8 +5,11 @@ using System.Threading.Tasks;
 using BrainAtlas;
 using Models;
 using Models.Scene;
+using Models.Settings;
 using Pinpoint.Probes.ManipulatorBehaviorController;
+using Services;
 using UI;
+using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.Events;
@@ -34,6 +37,7 @@ public class ProbeManager : MonoBehaviour
     #region State
 
     private IDisposableSubscription _probeStateSubscription;
+    private IDisposableSubscription _settingsStateSubscription;
 
     #endregion
 
@@ -800,8 +804,18 @@ public class ProbeManager : MonoBehaviour
 
         ProbeInsertion insertion = _probeController.Insertion;
 
+        // Get ConvertAPML2Probe from Redux state
+        bool convertAPML2Probe = false;
+#if APP_UI
+        var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+        var settingsState = storeService.Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE);
+        convertAPML2Probe = settingsState.ConvertAPML2Probe;
+#else
+    convertAPML2Probe = Settings.ConvertAPML2Probe;
+#endif
+
         // If we are using the
-        if (Settings.ConvertAPML2Probe)
+        if (convertAPML2Probe)
         {
             Debug.LogWarning("Not working");
             apStr = "Forward";
@@ -817,7 +831,7 @@ public class ProbeManager : MonoBehaviour
 
         Vector3 tipAtlasU =
             insertion.PositionSpaceU()
-            + BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
+  + BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
         Vector3 tipAtlasT = insertion.APMLDV;
 
         Vector3 angles = insertion.Angles;
@@ -825,10 +839,10 @@ public class ProbeManager : MonoBehaviour
         (Vector3 entryAtlasT, float depthTransformed) = GetSurfaceCoordinateT();
 
         Vector3 entryAtlasU =
-            BrainAtlasManager.ActiveAtlasTransform.T2U(entryAtlasT)
-            + BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
+      BrainAtlasManager.ActiveAtlasTransform.T2U(entryAtlasT)
+        + BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord;
 
-        if (Settings.ConvertAPML2Probe)
+        if (convertAPML2Probe)
         {
             float cos = Mathf.Cos(-angles.x * Mathf.Deg2Rad);
             float sin = Mathf.Sin(-angles.x * Mathf.Deg2Rad);
@@ -849,18 +863,18 @@ public class ProbeManager : MonoBehaviour
         string dataStr = string.Format(
             $"{name}: ReferenceAtlas {BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name}, "
                 + $"AtlasTransform {BrainAtlasManager.ActiveAtlasTransform.Name}, "
-                + $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), "
-                + $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), "
-                + $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), "
-                + $"Angles ({round2(UrchinUtilsUtils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(UrchinUtilsUtils.CircDeg(angles.z, minRoll, maxRoll))}), "
-                + $"Depth {round0(depthTransformed * mult)}, "
-                + $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), "
-                + $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), "
+    + $"Entry and Tip are ({apStr}, {mlStr}, {dvStr}), "
+           + $"Entry ({round0(entryAtlasT.x * mult)}, {round0(entryAtlasT.y * mult)}, {round0(entryAtlasT.z * mult)}), "
+     + $"Tip ({round0(tipAtlasT.x * mult)}, {round0(tipAtlasT.y * mult)}, {round0(tipAtlasT.z * mult)}), "
+       + $"Angles ({round2(UrchinUtilsUtils.CircDeg(angles.x, minYaw, maxYaw))}, {round2(angles.y)}, {round2(UrchinUtilsUtils.CircDeg(angles.z, minRoll, maxRoll))}), "
+           + $"Depth {round0(depthTransformed * mult)}, "
+     + $"CCF Entry ({round0(entryAtlasU.x * mult)}, {round0(entryAtlasU.y * mult)}, {round0(entryAtlasU.z * mult)}), "
+         + $"CCF Tip ({round0(tipAtlasU.x * mult)}, {round0(tipAtlasU.y * mult)}, {round0(tipAtlasU.z * mult)}), "
                 + $"CCF Depth {round0(Vector3.Distance(entryAtlasU, tipAtlasU))}"
         );
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-        Copy2Clipboard(dataStr);
+   Copy2Clipboard(dataStr);
 #else
         GUIUtility.systemCopyBuffer = dataStr;
 #endif

@@ -208,6 +208,10 @@ namespace Services
                             SettingsActions.SET_DETECT_COLLISIONS,
                             SettingsReducers.SetDetectCollisionsReducer
                         )
+                        .AddCase(
+                            SettingsActions.SET_CONVERT_APML2PROBE,
+                            SettingsReducers.SetConvertAPML2ProbeReducer
+                        )
                         // Ephys Link.
                         .AddCase(
                             SettingsActions.SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE,
