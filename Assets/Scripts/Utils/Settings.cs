@@ -557,35 +557,6 @@ public class Settings : MonoBehaviour
 
     #endregion
 
-    #region Camera
-
-    private const float CZOOM_DEFAULT = 5;
-    public UnityEvent<float> CameraZoomChangedEvent;
-
-    public static float CameraZoom
-    {
-        get { return data.CameraZoom; }
-        set
-        {
-            data.CameraZoom = value;
-            Save();
-        }
-    }
-
-    private readonly Vector3 CROTATION_DEFAULT = Vector3.zero;
-    public UnityEvent<Vector3> CameraRotationChangedEvent;
-
-    public static Vector3 CameraRotation
-    {
-        get { return data.CameraRotation; }
-        set
-        {
-            data.CameraRotation = value;
-            Save();
-        }
-    }
-    #endregion
-
     #region Unity
 
     private void Awake()
