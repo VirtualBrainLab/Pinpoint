@@ -59,6 +59,9 @@ public class UIManager : MonoBehaviour
     /// <summary>
     /// Return whether any inputs are currently focused or if any of the gameobjects are currently active
     /// </summary>
+#if APP_UI
+    public static bool InputsFocused = false;
+#else
     public static bool InputsFocused =>
         PinpointApp.RootVisualElement.focusController.focusedElement
             is TextField
@@ -67,6 +70,7 @@ public class UIManager : MonoBehaviour
                 or Vector3Field
                 or Vector4Field
         || FocusableGOs.Any(x => x != null && x.activeSelf);
+#endif
 
     public void EnableEphysCopilotPanel(bool enable = true)
     {
