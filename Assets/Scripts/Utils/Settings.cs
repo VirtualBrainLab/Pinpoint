@@ -663,10 +663,6 @@ public class Settings : MonoBehaviour
             // Accounts
             data.AccountsLoginToggle = LOGGEDIN_DEFAULT;
 
-            // Camera
-            data.CameraZoom = CZOOM_DEFAULT;
-            data.CameraRotation = CROTATION_DEFAULT;
-
             // Do an initial save so the default values are stored
             Save();
         }
@@ -746,11 +742,6 @@ public class Settings : MonoBehaviour
         _ephysLinkServerPortInput.text = data.EphysLinkServerPort.ToString();
         _ephysLinkProxyAddressInput.text = data.EphysLinkProxyAddress;
         EphysLinkServerInfoLoaded.Invoke();
-
-        // Camera
-        CameraZoomChangedEvent.Invoke(CameraZoom);
-        CameraRotationChangedEvent.Invoke(CameraRotation);
-
     }
 
     #endregion
@@ -860,10 +851,6 @@ public class Settings : MonoBehaviour
         public bool AxisControl;
         public bool UseAcronyms;
         public bool UseBeryl;
-
-        // Camera
-        public float CameraZoom;
-        public Vector3 CameraRotation;
 
         public string AtlasName;
     }
