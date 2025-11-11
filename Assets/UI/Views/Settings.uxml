@@ -1,20 +1,35 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="EphysLink" src="project://database/Assets/UI/Views/SettingsViews/EphysLink.uxml?fileID=9197481963319205126&amp;guid=fb2d0eca83ae2094db77eeadefe18873&amp;type=3#EphysLink" />
     <ui:Template name="Probe" src="project://database/Assets/UI/Views/SettingsViews/Probe.uxml?fileID=9197481963319205126&amp;guid=ca1198258a6f26f48b3252389e09f550&amp;type=3#Probe" />
+    <ui:Template name="Rig" src="project://database/Assets/UI/Views/SettingsViews/RigSettings.uxml?fileID=9197481963319205126&amp;guid=7efefb35ffec6a44c9349a1fc88365d4&amp;type=3#RigSettings" />
+    <ui:Template name="Atlas" src="project://database/Assets/UI/Views/SettingsViews/AtlasSettings.uxml?fileID=9197481963319205126&amp;guid=cb01c83e0a49c814188867f4e9413837&amp;type=3#AtlasSettings" />
+    <ui:Template name="Graphics" src="project://database/Assets/UI/Views/SettingsViews/GraphicsSettings.uxml?fileID=9197481963319205126&amp;guid=3632a330ad5a87c4ab0f14ee46f7e6de&amp;type=3#GraphicsSettings" />
     <ui:VisualElement data-source-type="UI.ViewModels.SettingsViewModel, Assembly-CSharp" style="flex-grow: 1;">
         <Unity.AppUI.UI.Tabs value="0">
+            <Unity.AppUI.UI.TabItem label="Probe" icon="info" />
+            <Unity.AppUI.UI.TabItem label="Rig" icon="AlphabeticalSorting" />
+            <Unity.AppUI.UI.TabItem label="Atlas" icon="info" />
+            <Unity.AppUI.UI.TabItem label="Graphics" icon="info" />
             <Unity.AppUI.UI.TabItem label="Ephys Link" icon="plugs-connected" />
-            <Unity.AppUI.UI.TabItem label="Settings" icon="info" />
             <Bindings>
                 <ui:DataBinding property="value" data-source-path="TabIndex" binding-mode="TwoWay" />
             </Bindings>
         </Unity.AppUI.UI.Tabs>
         <Unity.AppUI.UI.SwipeView swipeable="false" snap-animation-speed="0.2" style="flex-grow: 1;">
             <Unity.AppUI.UI.SwipeViewItem>
-                <ui:Instance template="EphysLink" name="ephys-link-view" style="flex-grow: 1; flex-direction: column; width: 100%;" />
+                <ui:Instance template="Probe" name="probe-view" style="flex-grow: 1;" />
             </Unity.AppUI.UI.SwipeViewItem>
             <Unity.AppUI.UI.SwipeViewItem>
-                <ui:Instance template="Probe" name="probe-view" style="flex-grow: 1;" />
+                <ui:Instance template="Rig" name="rig-settings-view" style="flex-grow: 1;" />
+            </Unity.AppUI.UI.SwipeViewItem>
+            <Unity.AppUI.UI.SwipeViewItem>
+                <ui:Instance template="Atlas" name="atlas-settings-view" style="flex-grow: 1;" />
+            </Unity.AppUI.UI.SwipeViewItem>
+            <Unity.AppUI.UI.SwipeViewItem>
+                <ui:Instance template="Graphics" name="graphics-settings-view" style="flex-grow: 1;" />
+            </Unity.AppUI.UI.SwipeViewItem>
+            <Unity.AppUI.UI.SwipeViewItem>
+                <ui:Instance template="EphysLink" name="ephys-link-view" style="flex-grow: 1; flex-direction: column; width: 100%;" />
             </Unity.AppUI.UI.SwipeViewItem>
             <Bindings>
                 <ui:DataBinding property="value" data-source-path="TabIndex" binding-mode="ToTarget" />
