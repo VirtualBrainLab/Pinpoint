@@ -57,12 +57,6 @@ public class UIManager : MonoBehaviour
         FocusableGOs.UnionWith(_editorFocusableGOs);
     }
 
-    private void Update()
-    {
-        Debug.Log(PinpointApp.RootVisualElement.focusController.focusedElement);
-        Debug.Log($"InputsFocused: {InputsFocused}");
-    }
-
     /// <summary>
     /// Return whether any inputs are currently focused or if any of the gameobjects are currently active
     /// </summary>
