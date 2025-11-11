@@ -1,0 +1,15 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1;">
+        <Unity.AppUI.UI.Toggle label="Detect collisions" name="detect-collisions" enabled="true" value="false" binding-path="DetectCollisions">
+            <Bindings>
+                <ui:DataBinding property="value" data-source-path="DetectCollisions" data-source-type="UI.ViewModels.ProbeViewModel, Assembly-CSharp" binding-mode="TwoWay" />
+            </Bindings>
+        </Unity.AppUI.UI.Toggle>
+        <Unity.AppUI.UI.Spacer />
+        <Unity.AppUI.UI.Toggle label="Use probe local axis" name="probe-local-axis" binding-path="ConvertAPML2Probe" />
+        <Unity.AppUI.UI.Spacer />
+        <Unity.AppUI.UI.Toggle label="Show craniotomy controls" name="show-craniotomy-controls" binding-path="AxisControl" />
+        <Unity.AppUI.UI.Spacer />
+        <Unity.AppUI.UI.Dropdown name="angle-convention" default-message="Select angle convention" binding-path="AngleConvention" />
+    </ui:VisualElement>
+</ui:UXML>

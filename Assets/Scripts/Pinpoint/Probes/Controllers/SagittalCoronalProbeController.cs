@@ -3,7 +3,10 @@ using System.Linq;
 using BrainAtlas;
 using Models;
 using Models.Scene;
+using Models.Settings;
+using Services;
 using UI;
+using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -45,10 +48,38 @@ public class SagittalCoronalProbeController : ProbeController
     private readonly Vector3 _rollDir = new(0f, 0f, 1f);
 
 
-    private Vector4 ForwardVecWorld { get => Settings.ConvertAPML2Probe ? ProbeTipT.up : Vector3.forward; }
-    private Vector4 RightVecWorld { get => Settings.ConvertAPML2Probe ? ProbeTipT.right : Vector3.right; }
-    private Vector4 UpVecWorld { get => Vector3.up; }
-    private Vector4 DepthVecWorld { get => _depthDir; }
+    private Vector4 ForwardVecWorld
+    {
+      get
+     {
+#if APP_UI
+      var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+     var settingsState = storeService.Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE);
+        return settingsState.ConvertAPML2Probe ? ProbeTipT.up : Vector3.forward;
+#else
+         // For non-APP_UI builds, use default behavior
+            return Vector3.forward;
+#endif
+        }
+    }
+
+    private Vector4 RightVecWorld
+    {
+        get
+        {
+#if APP_UI
+  var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+        var settingsState = storeService.Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE);
+            return settingsState.ConvertAPML2Probe ? ProbeTipT.right : Vector3.right;
+#else
+      // For non-APP_UI builds, use default behavior
+            return Vector3.right;
+#endif
+        }
+    }
+
+  private Vector4 UpVecWorld { get => Vector3.up; }
+ private Vector4 DepthVecWorld { get => _depthDir; }
 
     private Vector4 _unlockedDir;
     public override Vector4 UnlockedDir {

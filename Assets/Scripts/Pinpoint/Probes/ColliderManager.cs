@@ -1,4 +1,10 @@
 using System.Collections.Generic;
+using Models;
+using Models.Settings;
+using Services;
+using UI;
+using Unity.AppUI.MVVM;
+using Unity.AppUI.Redux;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -23,12 +29,34 @@ public class ColliderManager : MonoBehaviour
     [SerializeField] private GameObject _collisionPanelGO;
     [SerializeField] private Material _collisionMaterial;
 
+    private IDisposableSubscription _settingsStateSubscription;
+
+
     private void Awake()
     {
         CollisionPanelGO = _collisionPanelGO;
         CollisionMaterial = _collisionMaterial;
 
         CollisionPanelGO.SetActive(false);
+
+        // Subscribe to settings state changes to monitor DetectCollisions
+        var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+        _settingsStateSubscription = storeService.Store.Subscribe(
+            state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE),
+            OnSettingsStateChanged,
+            new SubscribeOptions<SettingsState> { fireImmediately = true }
+        );
+    }
+
+    private void OnDestroy()
+    {
+        _settingsStateSubscription?.Dispose();
+    }
+
+    private void OnSettingsStateChanged(SettingsState state)
+    {
+        // Check for collisions whenever the state changes
+        CheckForCollisions(state.DetectCollisions);
     }
 
     public static void SetCollisionPanelVisibility(bool visible)
@@ -82,9 +110,18 @@ public class ColliderManager : MonoBehaviour
 
     public static void CheckForCollisions()
     {
-        if (Settings.DetectCollisions)
+        // Get the current state from the store
+        var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+        var settingsState = storeService.Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE);
+        CheckForCollisions(settingsState.DetectCollisions);
+    }
+
+    private static void CheckForCollisions(bool detectCollisions)
+    {
+        if (detectCollisions)
         {
             bool collided = CheckCollisionsHelper();
+            Debug.Log($"Collision check result: {collided}");
 
             if (collided)
                 SetCollisionPanelVisibility(true);

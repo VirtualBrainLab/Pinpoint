@@ -71,7 +71,6 @@ namespace UI.ViewModels
         {
             var rootId = BrainAtlasManager.ActiveReferenceAtlas.Ontology.Acronym2ID("root");
 
-            // Get the PinpointAtlasManager to check which nodes are loaded
             var pinpointAtlasManager = GameObject.Find("main").GetComponent<PinpointAtlasManager>();
             var defaultNodeIds = new HashSet<int>();
 
@@ -85,7 +84,6 @@ namespace UI.ViewModels
 
             AtlasTreeData = RecursiveParse(rootId);
 
-            // Initialize brain area visibility - only set default nodes to Opaque, everything else stays Hidden by default
             var initialVisibility = new Dictionary<int, AreaDisplayType>();
 
             foreach (var nodeId in defaultNodeIds)
@@ -93,7 +91,6 @@ namespace UI.ViewModels
                 initialVisibility[nodeId] = AreaDisplayType.Transparent;
             }
 
-            // Dispatch single action to initialize all visibilities at once
             _storeService.Store.Dispatch(SceneActions.INITIALIZE_AREA_VISIBILITY, initialVisibility);
 
             return;

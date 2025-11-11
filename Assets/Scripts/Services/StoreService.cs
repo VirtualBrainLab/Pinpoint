@@ -40,6 +40,10 @@ namespace Services
                 SliceNames.SETTINGS_SLICE,
                 new SettingsState()
             );
+            var initialRigState = _localStorageService.GetValue(
+                SliceNames.RIG_SLICE,
+                new RigState()
+            );
 
             // Initialize the Redux store.
             var mainSlice = StoreFactory.CreateSlice(
@@ -211,6 +215,15 @@ namespace Services
                 {
                     builder
                         .AddCase(SettingsActions.SET_TAB_INDEX, SettingsReducers.SetTabIndexReducer)
+                        // Probe Settings.
+                        .AddCase(
+                            SettingsActions.SET_DETECT_COLLISIONS,
+                            SettingsReducers.SetDetectCollisionsReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_CONVERT_APML2PROBE,
+                            SettingsReducers.SetConvertAPML2ProbeReducer
+                        )
                         // Ephys Link.
                         .AddCase(
                             SettingsActions.SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE,
@@ -234,8 +247,24 @@ namespace Services
                         );
                 }
             );
+            var rigSlice = StoreFactory.CreateSlice(
+                SliceNames.RIG_SLICE,
+                initialRigState,
+                builder =>
+                {
+                    builder
+                        .AddCase(RigActions.TOGGLE_WELL, RigReducers.ToggleWellReducer)
+                        .AddCase(RigActions.TOGGLE_RIG_WIDEFIELD, RigReducers.ToggleRigWidefieldReducer)
+                        .AddCase(RigActions.TOGGLE_MOUSE_SKULL, RigReducers.ToggleMouseSkullReducer)
+                        .AddCase(RigActions.TOGGLE_RAT_SKULL, RigReducers.ToggleRatSkullReducer)
+                        .AddCase(RigActions.TOGGLE_IBL_CENTER, RigReducers.ToggleIblCenterReducer)
+                        .AddCase(RigActions.TOGGLE_IBL_FRONT, RigReducers.ToggleIblFrontReducer)
+                        .AddCase(RigActions.TOGGLE_IBL_BACK, RigReducers.ToggleIblBackReducer)
+                        .AddCase(RigActions.TOGGLE_UCLA, RigReducers.ToggleUclaReducer);
+                }
+            );
             Store = StoreFactory.CreateStore(
-                new ISlice<PartitionedState>[] { mainSlice, sceneSlice, settingsSlice }
+                new ISlice<PartitionedState>[] { mainSlice, sceneSlice, settingsSlice, rigSlice }
             );
         }
 
@@ -260,6 +289,12 @@ namespace Services
             _localStorageService.SetValue(
                 SliceNames.SETTINGS_SLICE,
                 Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE)
+            );
+
+            // Rig state.
+            _localStorageService.SetValue(
+                SliceNames.RIG_SLICE,
+                Store.GetState<RigState>(SliceNames.RIG_SLICE)
             );
         }
     }

@@ -32,42 +32,6 @@ public class Settings : MonoBehaviour
     #endregion
 
     #region Probe settings
-    // Collision detection
-    private const bool COLLISIONS_DEFAULT = true;
-    [SerializeField] private Toggle _collisionsToggle;
-    public UnityEvent DetectCollisionsChangedEvent;
-
-    public static bool DetectCollisions
-    {
-        get { return data.DetectCollisions; }
-        set
-        {
-            Debug.Log($"Detect collisions set to: {value}");
-            data.DetectCollisions = value;
-            Save();
-            Instance._collisionsToggle.SetIsOnWithoutNotify(data.DetectCollisions);
-            Instance.DetectCollisionsChangedEvent.Invoke();
-        }
-    }
-
-    // Convert APML rotation to the probe's axis rotation
-    private const bool APML2PROBE_DEFAULT = false;
-    [FormerlySerializedAs("probeAxisToggle")][SerializeField] private Toggle _probeAxisToggle;
-    public UnityEvent ConvertAPML2ProbeChangedEvent;
-
-    public static bool ConvertAPML2Probe
-    {
-        get { return data.RotateAPML2ProbeAxis; }
-        set
-        {
-            data.RotateAPML2ProbeAxis = value;
-            Save();
-            Instance.ConvertAPML2ProbeChangedEvent.Invoke();
-
-            // because this can be set through code, the UI has to maintain state relative to it
-            Instance._probeAxisToggle.SetIsOnWithoutNotify(value);
-        }
-    }
 
     private const string ANGLECONVENTION_DEFAULT = "Pinpoint";
     [SerializeField] private TMP_Dropdown _angleConventionDropdown;
@@ -396,7 +360,7 @@ public class Settings : MonoBehaviour
     #region Ephys Link
 
     public UnityEvent EphysLinkServerInfoLoaded;
-    
+
     public UnityEvent<int> EphysLinkManipulatorTypeChangedEvent;
 
     public static int EphysLinkManipulatorType
@@ -409,7 +373,7 @@ public class Settings : MonoBehaviour
             Instance.EphysLinkManipulatorTypeChangedEvent.Invoke(value);
         }
     }
-    
+
     public UnityEvent<int> EphysLinkPathfinderPortChangedEvent;
     public static int EphysLinkPathfinderPort
     {
@@ -433,7 +397,7 @@ public class Settings : MonoBehaviour
             Instance.EphysLinkServerIpChangedEvent.Invoke(value);
         }
     }
-    
+
     public UnityEvent<int> EphysLinkServerPortChangedEvent;
     public static int EphysLinkServerPort
     {
@@ -445,7 +409,7 @@ public class Settings : MonoBehaviour
             Instance.EphysLinkServerPortChangedEvent.Invoke(value);
         }
     }
-    
+
     public UnityEvent<string> EphysLinkProxyAddressChangedEvent;
     public static string EphysLinkProxyAddress
     {
@@ -593,35 +557,6 @@ public class Settings : MonoBehaviour
 
     #endregion
 
-    #region Camera
-
-    private const float CZOOM_DEFAULT = 5;
-    public UnityEvent<float> CameraZoomChangedEvent;
-
-    public static float CameraZoom
-    {
-        get { return data.CameraZoom; }
-        set
-        {
-            data.CameraZoom = value;
-            Save();
-        }
-    }
-
-    private readonly Vector3 CROTATION_DEFAULT = Vector3.zero;
-    public UnityEvent<Vector3> CameraRotationChangedEvent;
-
-    public static Vector3 CameraRotation
-    {
-        get { return data.CameraRotation; }
-        set
-        {
-            data.CameraRotation = value;
-            Save();
-        }
-    }
-    #endregion
-
     #region Unity
 
     private void Awake()
@@ -686,8 +621,6 @@ public class Settings : MonoBehaviour
             data = new InternalData();
 
             // probe
-            data.DetectCollisions = COLLISIONS_DEFAULT;
-            data.RotateAPML2ProbeAxis = APML2PROBE_DEFAULT;
             data.AngleConvention = ANGLECONVENTION_DEFAULT;
             data.AxisControl = AXISCONTROL_DEFAULT;
             data.ProbeSpeed = PROBE_SPEED_DEFAULT;
@@ -730,10 +663,6 @@ public class Settings : MonoBehaviour
             // Accounts
             data.AccountsLoginToggle = LOGGEDIN_DEFAULT;
 
-            // Camera
-            data.CameraZoom = CZOOM_DEFAULT;
-            data.CameraRotation = CROTATION_DEFAULT;
-
             // Do an initial save so the default values are stored
             Save();
         }
@@ -753,9 +682,6 @@ public class Settings : MonoBehaviour
     private void Apply()
     {
         // Load preferences from memory and set UI elements
-        DetectCollisions = data.DetectCollisions;
-
-        _probeAxisToggle.SetIsOnWithoutNotify(ConvertAPML2Probe);
 
         SetAngleConvention(data.AngleConvention);
 
@@ -798,7 +724,7 @@ public class Settings : MonoBehaviour
         ReferenceCoord = data.RelativeCoord;
         BregmaLambdaRatio = data.BregmaLambdaRatio;
 
-            // Accounts
+        // Accounts
         _stayLoggedInToggle.SetIsOnWithoutNotify(StayLoggedIn);
 
         // API
@@ -816,11 +742,6 @@ public class Settings : MonoBehaviour
         _ephysLinkServerPortInput.text = data.EphysLinkServerPort.ToString();
         _ephysLinkProxyAddressInput.text = data.EphysLinkProxyAddress;
         EphysLinkServerInfoLoaded.Invoke();
-
-        // Camera
-        CameraZoomChangedEvent.Invoke(CameraZoom);
-        CameraRotationChangedEvent.Invoke(CameraRotation);
-
     }
 
     #endregion
@@ -899,8 +820,7 @@ public class Settings : MonoBehaviour
         // Probes
         public bool ShowAllProbePanels;
         public float ProbePanelHeight;
-        public bool DetectCollisions;
-        public bool RotateAPML2ProbeAxis;
+        // RotateAPML2ProbeAxis migrated to Redux state
         public int ProbeSpeed;
 
         public int ShowAtlas3DSlices;
@@ -931,10 +851,6 @@ public class Settings : MonoBehaviour
         public bool AxisControl;
         public bool UseAcronyms;
         public bool UseBeryl;
-
-        // Camera
-        public float CameraZoom;
-        public Vector3 CameraRotation;
 
         public string AtlasName;
     }

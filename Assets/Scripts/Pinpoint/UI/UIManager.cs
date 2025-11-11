@@ -7,6 +7,7 @@ using UI;
 using UI.Views;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
+using Unity.AppUI.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -59,14 +60,16 @@ public class UIManager : MonoBehaviour
     /// <summary>
     /// Return whether any inputs are currently focused or if any of the gameobjects are currently active
     /// </summary>
+ #if APP_UI
     public static bool InputsFocused =>
         PinpointApp.RootVisualElement.focusController.focusedElement
-            is TextField
-                or FloatField
-                or IntegerField
-                or Vector3Field
-                or Vector4Field
-        || FocusableGOs.Any(x => x != null && x.activeSelf);
+            is Unity.AppUI.UI.TextField
+                or Unity.AppUI.UI.FloatField
+                or Unity.AppUI.UI.Vector3Field
+                or Unity.AppUI.UI.Vector4Field;
+#else
+    public static bool InputsFocused => FocusableGOs.Any(x => x != null && x.activeSelf);
+#endif
 
     public void EnableEphysCopilotPanel(bool enable = true)
     {

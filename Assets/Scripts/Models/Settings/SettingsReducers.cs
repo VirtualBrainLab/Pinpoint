@@ -13,6 +13,26 @@ namespace Models.Settings
             return state with { TabIndex = action.payload };
         }
 
+        #region Probe Settings
+
+        public static SettingsState SetDetectCollisionsReducer(
+            SettingsState state,
+            IAction<bool> action
+        )
+        {
+            return state with { DetectCollisions = action.payload };
+        }
+
+        public static SettingsState SetConvertAPML2ProbeReducer(
+            SettingsState state,
+            IAction<bool> action
+        )
+        {
+            return state with { ConvertAPML2Probe = action.payload };
+        }
+
+        #endregion
+
         #region Ephys Link
 
         public static SettingsState SetSelectedEphysLinkPlatformTypeReducer(
@@ -62,6 +82,16 @@ namespace Models.Settings
     {
         public static readonly ActionCreator<int> SET_TAB_INDEX =
             $"{SliceNames.SETTINGS_SLICE}/SetTabIndex";
+
+        #region Probe Settings
+
+        public static readonly ActionCreator<bool> SET_DETECT_COLLISIONS =
+            $"{SliceNames.SETTINGS_SLICE}/SetDetectCollisions";
+
+        public static readonly ActionCreator<bool> SET_CONVERT_APML2PROBE =
+            $"{SliceNames.SETTINGS_SLICE}/SetConvertAPML2Probe";
+
+        #endregion
 
         #region Ephys Link
 
