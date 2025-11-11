@@ -16,15 +16,20 @@ namespace UI.Views
 {
     public class ProbeInspectorView
     {
+        private Vector3Field _positionField;
+        private ProbeInspectorViewModel _probeInspectorViewModel;
+
         public ProbeInspectorView(ProbeInspectorViewModel probeInspectorViewModel)
         {
+            _probeInspectorViewModel = probeInspectorViewModel;
+
             var root = PinpointApp.RootVisualElement.Q<TemplateContainer>("probe-inspector-view");
 
             // Register view model and property changes.
             root.dataSource = probeInspectorViewModel;
 
             // Register component references.
-            var positionField = root.Q<Vector3Field>("probe-inspector__position-field");
+            _positionField = root.Q<Vector3Field>("probe-inspector__position-field");
             var anglesField = root.Q<Vector3Field>("probe-inspector__angles-field");
 
             var lockButton = root.Q<ActionButton>("probe-inspector__lock-button");
@@ -40,7 +45,7 @@ namespace UI.Views
             var probeColorButtons = root.Q<VisualElement>("probe-inspector__probe-color-buttons");
 
             // Register event handlers.
-            positionField.RegisterValueChangedCallback(evt =>
+            _positionField.RegisterValueChangedCallback(evt =>
             {
                 probeInspectorViewModel.SetPositionCommand.Execute(evt.newValue);
             });
@@ -69,13 +74,35 @@ namespace UI.Views
             }
 
             // Apply view customizations.
-            positionField.Q<FloatField>("appui-vector3field__x-field").unit = "AP";
-            positionField.Q<FloatField>("appui-vector3field__y-field").unit = "ML";
-            positionField.Q<FloatField>("appui-vector3field__z-field").unit = "DV";
-
             anglesField.Q<FloatField>("appui-vector3field__x-field").unit = "Yaw";
             anglesField.Q<FloatField>("appui-vector3field__y-field").unit = "Pitch";
             anglesField.Q<FloatField>("appui-vector3field__z-field").unit = "Roll";
+
+            UpdatePositionFieldUnits(probeInspectorViewModel.ConvertAPML2Probe);
+
+            probeInspectorViewModel.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(ProbeInspectorViewModel.ConvertAPML2Probe))
+                {
+                    UpdatePositionFieldUnits(probeInspectorViewModel.ConvertAPML2Probe);
+                }
+            };
+        }
+
+        private void UpdatePositionFieldUnits(bool convertAPML2Probe)
+        {
+            if (convertAPML2Probe)
+            {
+                _positionField.Q<FloatField>("appui-vector3field__x-field").unit = "Forward";
+                _positionField.Q<FloatField>("appui-vector3field__y-field").unit = "Right";
+                _positionField.Q<FloatField>("appui-vector3field__z-field").unit = "DV";
+            }
+            else
+            {
+                _positionField.Q<FloatField>("appui-vector3field__x-field").unit = "AP";
+                _positionField.Q<FloatField>("appui-vector3field__y-field").unit = "ML";
+                _positionField.Q<FloatField>("appui-vector3field__z-field").unit = "DV";
+            }
         }
 
 #if UNITY_EDITOR

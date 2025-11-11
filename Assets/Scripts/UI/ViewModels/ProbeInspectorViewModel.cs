@@ -1,6 +1,7 @@
 using System.Linq;
 using Models;
 using Models.Scene;
+using Models.Settings;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
@@ -14,7 +15,6 @@ namespace UI.ViewModels
     {
         #region Constants
 
-        // FIXME: This should go into some common constants file (along with copy in probe inspector view model).
         private readonly Vector2 _pitchRange = new(0, 90);
 
         #endregion
@@ -23,15 +23,15 @@ namespace UI.ViewModels
 
         private readonly StoreService _storeService;
         private readonly IDisposableSubscription _sceneStateSubscription;
+        private readonly IDisposableSubscription _settingsStateSubscription;
 
         private string ActiveProbeName =>
-            _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE).ActiveProbeName;
+   _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE).ActiveProbeName;
 
         #endregion
 
         #region Properties
 
-        // Can be either the tip or surface, depending on settings.
         [ObservableProperty]
         private Vector3 _position;
 
@@ -47,43 +47,71 @@ namespace UI.ViewModels
         [ObservableProperty]
         private string _visualizingManipulatorId;
 
+        [ObservableProperty]
+        private bool _convertAPML2Probe;
+
         #endregion
 
         public ProbeInspectorViewModel(StoreService storeService)
         {
-            // Register services.
             _storeService = storeService;
 
-            // Subscribe to scene state changes and initialize properties.
             _sceneStateSubscription = _storeService.Store.Subscribe(
-                state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
-                OnSceneStateChanged,
-                new SubscribeOptions<SceneState> { fireImmediately = true }
-            );
+                           state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
+                  OnSceneStateChanged,
+                  new SubscribeOptions<SceneState> { fireImmediately = true }
+                     );
+            _settingsStateSubscription = _storeService.Store.Subscribe(
+      state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE),
+   OnSettingsStateChanged,
+      new SubscribeOptions<SettingsState> { fireImmediately = true }
+        );
             App.shuttingDown += OnShuttingDown;
         }
 
         private void OnSceneStateChanged(SceneState sceneState)
         {
-            // Early exit if no active probe.
             if (string.IsNullOrEmpty(sceneState.ActiveProbeName))
                 return;
 
-            Position = sceneState.ActiveProbeState.APMLDV;
-            Angles = sceneState.ActiveProbeState.Angles;
+            Vector3 apmldv = sceneState.ActiveProbeState.APMLDV;
+            Vector3 angles = sceneState.ActiveProbeState.Angles;
+
+            if (_convertAPML2Probe)
+            {
+                float cos = Mathf.Cos(-angles.x * Mathf.Deg2Rad);
+                float sin = Mathf.Sin(-angles.x * Mathf.Deg2Rad);
+
+                float xRot = apmldv.x * cos - apmldv.y * sin;
+                float yRot = apmldv.x * sin + apmldv.y * cos;
+
+                Position = new Vector3(xRot, yRot, apmldv.z);
+            }
+            else
+            {
+                Position = apmldv;
+            }
+
+            Angles = angles;
             Locked = sceneState.ActiveProbeState.Locked;
             ProbeColor = sceneState.ActiveProbeState.Color;
             VisualizingManipulatorId =
-                sceneState
-                    .Manipulators.FirstOrDefault(state =>
-                        state.VisualizationProbeName == sceneState.ActiveProbeName
-                    )
-                    ?.Id ?? string.Empty;
+               sceneState
+             .Manipulators.FirstOrDefault(state =>
+          state.VisualizationProbeName == sceneState.ActiveProbeName
+            )
+    ?.Id ?? string.Empty;
+        }
+
+        private void OnSettingsStateChanged(SettingsState settingsState)
+        {
+            ConvertAPML2Probe = settingsState.ConvertAPML2Probe;
         }
 
         private void OnShuttingDown()
         {
             _sceneStateSubscription.Dispose();
+            _settingsStateSubscription.Dispose();
             App.shuttingDown -= OnShuttingDown;
         }
 
@@ -92,10 +120,26 @@ namespace UI.ViewModels
         [ICommand]
         private void SetPosition(Vector3 position)
         {
+            Vector3 apmldv = position;
+
+            if (_convertAPML2Probe)
+            {
+                var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+                Vector3 angles = sceneState.ActiveProbeState.Angles;
+
+                float cos = Mathf.Cos(-angles.x * Mathf.Deg2Rad);
+                float sin = Mathf.Sin(-angles.x * Mathf.Deg2Rad);
+
+                float xRot = position.x * cos + position.y * sin;
+                float yRot = -position.x * sin + position.y * cos;
+
+                apmldv = new Vector3(xRot, yRot, position.z);
+            }
+
             _storeService.Store.Dispatch(
-                SceneActions.SET_PROBE_POSITION,
-                (ActiveProbeName, position)
-            );
+   SceneActions.SET_PROBE_POSITION,
+      (ActiveProbeName, apmldv)
+         );
         }
 
         [ICommand]
@@ -103,8 +147,8 @@ namespace UI.ViewModels
         {
             _storeService.Store.Dispatch(
                 SceneActions.SET_PROBE_ANGLES,
-                (ActiveProbeName, angles, _pitchRange)
-            );
+ (ActiveProbeName, angles, _pitchRange)
+    );
         }
 
         [ICommand]
@@ -123,8 +167,8 @@ namespace UI.ViewModels
         private void MoveProbeToReferenceCoordinate()
         {
             _storeService.Store.Dispatch(
-                SceneActions.SET_PROBE_POSITION,
-                (ActiveProbeName, Vector3.zero)
+   SceneActions.SET_PROBE_POSITION,
+            (ActiveProbeName, Vector3.zero)
             );
         }
 
@@ -132,16 +176,16 @@ namespace UI.ViewModels
         private void MoveProbeToDura()
         {
             ProbeManager
-                .Instances.First(manager => manager.name == ActiveProbeName)
+              .Instances.First(manager => manager.name == ActiveProbeName)
                 .DropProbeToBrainSurface();
         }
-        
+
         [ICommand]
         private void InspectVisualizingManipulator()
         {
             _storeService.Store.Dispatch(
-                SceneActions.SET_ACTIVE_MANIPULATOR,
-                VisualizingManipulatorId
+     SceneActions.SET_ACTIVE_MANIPULATOR,
+    VisualizingManipulatorId
             );
         }
 
