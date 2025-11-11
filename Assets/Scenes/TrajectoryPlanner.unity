@@ -8528,8 +8528,48 @@ PrefabInstance:
       value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: _rigNames.Array.size
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: 'rigGOs.Array.data[7]'
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: '_rigNames.Array.data[0]'
+      value: well
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: '_rigNames.Array.data[1]'
+      value: rig-widefield
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: '_rigNames.Array.data[2]'
+      value: mouse-skull
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: '_rigNames.Array.data[3]'
+      value: ibl-front
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: '_rigNames.Array.data[4]'
+      value: ibl-back
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: '_rigNames.Array.data[5]'
+      value: ibl-center
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: '_rigNames.Array.data[6]'
+      value: ucla
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: '_rigNames.Array.data[7]'
+      value: russell
+      objectReference: {fileID: 0}
+    - target: {fileID: 1302158968669684560, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
+      propertyPath: '_rigNames.Array.data[8]'
+      value: rat-skull
       objectReference: {fileID: 0}
     - target: {fileID: 1302158968669684561, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: m_LocalRotation.w
