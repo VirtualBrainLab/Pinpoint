@@ -4,6 +4,7 @@ using System.Linq;
 using Models;
 using Models.Scene;
 using Services;
+using TrajectoryPlanner;
 using UI.ViewModels;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
@@ -21,10 +22,8 @@ namespace UI.Views
         private readonly IDisposableSubscription _sceneStateSubscription;
         private readonly Unity.AppUI.UI.SearchBar _searchBar;
 
-        // Cache view models by area ID
         private readonly Dictionary<int, AtlasTreeItemViewModel> _viewModelCache = new();
 
-        // Store the full unfiltered tree data
         private List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> _fullTreeData;
 
         public AtlasView(AtlasViewModel atlasViewModel, StoreService storeService)
@@ -37,7 +36,6 @@ namespace UI.Views
             _atlasTree = root.Q<TreeView>("atlas-tree");
             _searchBar = root.Q<Unity.AppUI.UI.SearchBar>();
 
-            // Initialize full tree data before setting root items
             _fullTreeData = atlasViewModel.AtlasTreeData;
 
             _atlasTree.SetRootItems(_fullTreeData);
@@ -45,7 +43,6 @@ namespace UI.Views
             _atlasTree.selectionType = SelectionType.Multiple;
             _atlasTree.Rebuild();
 
-            // Bind search bar to trigger filtering as user types
             if (_searchBar != null)
             {
                 _searchBar.RegisterValueChangedCallback(evt =>
@@ -56,24 +53,32 @@ namespace UI.Views
 
             _atlasViewModel.PropertyChanged += OnPropertyChanged;
 
-            // Subscribe to scene state changes to update view models
             _sceneStateSubscription = storeService.Store.Subscribe(
                 state => state.Get<SceneState>(SliceNames.SCENE_SLICE),
                 OnSceneStateChanged,
                 new SubscribeOptions<SceneState>()
             );
 
-            // Callback invoked when the user double-clicks an item
             _atlasTree.itemsChosen += OnItemsChosen;
 
-            // Callback invoked when the user changes the selection inside the TreeView
             _atlasTree.selectedIndicesChanged += OnSelectedIndicesChanged;
+
+            var trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+            if (trajectoryPlannerManager != null)
+            {
+                trajectoryPlannerManager.StartupEvent_Complete.AddListener(OnStartupComplete);
+            }
+
             App.shuttingDown += OnShuttingDown;
+        }
+
+        private void OnStartupComplete()
+        {
+            ExpandToInitialNodes();
         }
 
         private void OnSceneStateChanged(SceneState state)
         {
-            // Update cached view models when visibility changes
             if (state.BrainAreaVisibility != null)
             {
                 foreach (var kvp in state.BrainAreaVisibility)
@@ -90,10 +95,8 @@ namespace UI.Views
         {
             if (string.IsNullOrEmpty(searchText))
             {
-                // Show full tree when search is empty
                 _atlasTree.SetRootItems(_fullTreeData ?? _atlasViewModel.AtlasTreeData);
                 _atlasTree.Rebuild();
-                // Collapse all items when search is cleared
                 _atlasTree.CollapseAll();
                 return;
             }
@@ -103,8 +106,7 @@ namespace UI.Views
 
             _atlasTree.SetRootItems(filteredData ?? new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>());
             _atlasTree.Rebuild();
-            
-            // Expand all items to show search results
+
             _atlasTree.ExpandAll();
         }
 
@@ -126,7 +128,6 @@ namespace UI.Views
                 var filteredChildren = FilterTreeData(item.children?.ToList(), searchLower);
                 var hasMatchingChildren = filteredChildren != null && filteredChildren.Count > 0;
 
-                // Include this item if it matches or has matching descendants
                 if (matchesCurrent || hasMatchingChildren)
                 {
                     filtered.Add(new TreeViewItemData<(string, string, Color, AreaDisplayType)>(
@@ -157,38 +158,29 @@ namespace UI.Views
         {
             _atlasViewModel.PropertyChanged -= OnPropertyChanged;
             _sceneStateSubscription.Dispose();
+
+            var trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+            if (trajectoryPlannerManager != null)
+            {
+                trajectoryPlannerManager.StartupEvent_Complete.RemoveListener(OnStartupComplete);
+            }
+
             App.shuttingDown -= OnShuttingDown;
         }
 
         private void OnItemsChosen(IEnumerable<object> selectedItems)
         {
-            Debug.Log("Items chosen: " + string.Join(", ", selectedItems));
-
-            // Get the selected indices to correlate with IDs and data
             var selectedIndices = _atlasTree.selectedIndices;
 
             foreach (var index in selectedIndices)
             {
                 var id = _atlasTree.GetIdForIndex(index);
-                var data = _atlasTree.GetItemDataForIndex<(string, string, Color, AreaDisplayType)>(
-                    index
-                );
-
-                Debug.Log($"Chosen item - ID: {id}, Data: ({data.Item1}, {data.Item2})");
-
-                // Use the ID for your command execution
                 _atlasViewModel.SelectAreaCommand.Execute(id);
             }
         }
 
         private void OnSelectedIndicesChanged(IEnumerable<int> selectedIndices)
         {
-            var log = "IDs selected: ";
-            foreach (var index in selectedIndices)
-            {
-                log += $"{_atlasTree.GetIdForIndex(index)}, ";
-            }
-            Debug.Log(log.TrimEnd(',', ' '));
         }
 
         private void BindItem(VisualElement e, int i)
@@ -196,15 +188,107 @@ namespace UI.Views
             var id = _atlasTree.GetIdForIndex(i);
             var itemData = _atlasTree.GetItemDataForIndex<(string, string, Color, AreaDisplayType)>(i);
 
-            // Check if we already have a view model for this area ID
             if (!_viewModelCache.TryGetValue(id, out var viewModel))
             {
-                // Create new view model and cache it
                 viewModel = new AtlasTreeItemViewModel(itemData);
                 _viewModelCache[id] = viewModel;
             }
 
             e.dataSource = viewModel;
+        }
+
+        private void ExpandToInitialNodes()
+        {
+            var state = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+
+            if (state.BrainAreaVisibility != null && _fullTreeData != null)
+            {
+                var loadedNodeIds = state.BrainAreaVisibility
+                    .Where(kvp => kvp.Value != AreaDisplayType.Hidden)
+                    .Select(kvp => kvp.Key)
+                    .ToList();
+                if (loadedNodeIds.Count > 0)
+                {
+                    _atlasTree.Rebuild();
+                    ExpandToNodes(loadedNodeIds);
+                }
+            }
+        }
+
+        private void ExpandToNodes(List<int> nodeIds)
+        {
+            var ancestorIds = new HashSet<int>();
+
+            foreach (var nodeId in nodeIds)
+            {
+                CollectAncestors(_fullTreeData, nodeId, ancestorIds);
+            }
+
+            var ancestorList = ancestorIds.ToList();
+            ancestorList.Sort((a, b) =>
+            {
+                var depthA = GetNodeDepth(_fullTreeData, a);
+                var depthB = GetNodeDepth(_fullTreeData, b);
+                return depthA.CompareTo(depthB);
+            });
+
+            foreach (var ancestorId in ancestorList)
+            {
+                var index = _atlasTree.viewController.GetIndexForId(ancestorId);
+                if (index >= 0)
+                {
+                    _atlasTree.ExpandItem(ancestorId);
+                }
+            }
+        }
+
+        private int GetNodeDepth(List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> items, int targetId, int currentDepth = 0)
+        {
+            if (items == null)
+                return -1;
+
+            foreach (var item in items)
+            {
+                if (item.id == targetId)
+                    return currentDepth;
+
+                if (item.children != null)
+                {
+                    var depth = GetNodeDepth(item.children.ToList(), targetId, currentDepth + 1);
+                    if (depth >= 0)
+                        return depth;
+                }
+            }
+
+            return -1;
+        }
+
+        private bool CollectAncestors(
+            List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> items,
+            int targetId,
+            HashSet<int> ancestors)
+        {
+            if (items == null)
+                return false;
+
+            foreach (var item in items)
+            {
+                if (item.id == targetId)
+                {
+                    return true;
+                }
+
+                if (item.children != null)
+                {
+                    if (CollectAncestors(item.children.ToList(), targetId, ancestors))
+                    {
+                        ancestors.Add(item.id);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
