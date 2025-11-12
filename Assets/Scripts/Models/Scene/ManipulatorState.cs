@@ -44,10 +44,20 @@ namespace Models.Scene
         #endregion
 
         #region Automation
-        
+
         public AutomationProgressState AutomationProgressState;
 
         public string TargetInsertionProbeName;
+
+        /// <summary>
+        /// Base insertion speed (µm/s).
+        /// </summary>
+        public int InsertionSpeed;
+        
+        /// <summary>
+        /// Drive past target distance (µm).
+        /// </summary>
+        public int DrivePastDistance;
 
         #endregion
     }

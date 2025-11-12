@@ -102,8 +102,9 @@ namespace UI.Views
                 .UseCurrentPositionForReferenceCoordinateOffsetCommand
                 .Execute;
 
-            _targetDropdown.RegisterValueChangedCallback(_ =>
+            _targetDropdown.RegisterValueChangedCallback(evt =>
             {
+                Debug.Log($"Target: {evt.newValue.First()}");
                 _automationInspectorViewModel.SelectTargetInsertionProbeCommand.Execute(
                     _targetDropdown.selectedIndex
                 );

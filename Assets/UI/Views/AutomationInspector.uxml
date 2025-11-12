@@ -14,7 +14,7 @@
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Choose a Target Insertion" size="S" />
             <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
-                <Unity.AppUI.UI.Dropdown name="automation-inspector__target-selection--dropdown" emphasized="false" style="flex-grow: 1;" />
+                <Unity.AppUI.UI.Dropdown name="automation-inspector__target-selection--dropdown" style="flex-grow: 1;" />
                 <Unity.AppUI.UI.Spacer />
                 <Unity.AppUI.UI.IconButton icon="x" name="automation-inspector__target-selection--reset-button" />
                 <Bindings>

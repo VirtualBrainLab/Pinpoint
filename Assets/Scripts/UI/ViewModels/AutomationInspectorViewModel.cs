@@ -63,7 +63,7 @@ namespace UI.ViewModels
         /// </summary>
         [ObservableProperty]
         private int _drivePastDistance;
-        
+
         /// <summary>
         ///     Starting ETA of a drive to compute progress (seconds).
         /// </summary>
@@ -105,16 +105,15 @@ namespace UI.ViewModels
 
         private void OnSceneStateChanged(SceneState state)
         {
-            return;
             // Exit if not enabled.
             if (string.IsNullOrEmpty(state.ActiveManipulatorId))
                 return;
 
             // Set the automation progress state from the active probe state.
-            AutomationProgressState = state.ActiveProbeState.AutomationProgressState;
+            AutomationProgressState = state.ActiveManipulatorState.AutomationProgressState;
 
             // Get the active manipulator's reference coordinate.
-            ReferenceCoordinate = state.ActiveProbeState.ReferenceCoordinateOffset;
+            ReferenceCoordinate = state.ActiveManipulatorState.ReferenceCoordinateOffset;
 
             // Get the list of targetable insertion probes for the active manipulator probe.
             TargetInsertionProbeStates = state
@@ -135,7 +134,7 @@ namespace UI.ViewModels
                 .Where(probeState =>
                 {
                     var probeManager = ProbeManager.Instances.FirstOrDefault(manager =>
-                        manager.name != probeState.Name
+                        manager.name == probeState.Name
                     );
                     return probeManager != null
                         && probeManager.CalculateEntryCoordinate().probeInBrain;
@@ -151,12 +150,10 @@ namespace UI.ViewModels
                 )
                 .ToList();
 
+
             // Get the index of the selected target insertion probe.
-            var selectedTargetInsertionProbeUUID = state
-                .ActiveProbeState
-                .SelectedTargetInsertionProbeName;
             var selectedTargetInsertionProbeState = state.Probes.FirstOrDefault(probeState =>
-                probeState.Name == selectedTargetInsertionProbeUUID
+                probeState.Name == state.ActiveManipulatorState.TargetInsertionProbeName
             );
             if (
                 selectedTargetInsertionProbeState == null
@@ -164,27 +161,28 @@ namespace UI.ViewModels
             )
                 SelectedTargetInsertionProbeIndex = 0;
             else
-                SelectedTargetInsertionProbeIndex = TargetInsertionProbeStates
-                    .ToList()
-                    .IndexOf(selectedTargetInsertionProbeState);
+                SelectedTargetInsertionProbeIndex = TargetInsertionProbeStates.IndexOf(
+                    selectedTargetInsertionProbeState
+                );
 
             // Update dura offset.
-            DuraOffset = state.ActiveProbeState.DuraDepth;
+            DuraOffset = state.ActiveManipulatorState.DuraOffset;
 
             // Update insertion base speed index.
-            SelectedInsertionSpeedIndex = state.ActiveProbeState.InsertionBaseSpeed switch
+            SelectedInsertionSpeedIndex = state.ActiveManipulatorState.InsertionSpeed switch
             {
-                2 => 0,
-                5 => 1,
-                10 => 2,
-                500 => 3,
-                _ => 4, // Custom speed
+                1 => 0,
+                2 => 1,
+                5 => 2,
+                10 => 3,
+                20 => 4,
+                50 => 5,
+                500 => 6,
+                _ => 7, // Custom speed
             };
 
             // Update custom insertion speed or use default if not set.
-            CustomInsertionSpeed = state.ActiveProbeState.InsertionBaseSpeed is 2 or 5 or 10 or 500
-                ? 20
-                : state.ActiveProbeState.InsertionBaseSpeed;
+            CustomInsertionSpeed = state.ActiveManipulatorState.InsertionSpeed;
 
             return;
 
