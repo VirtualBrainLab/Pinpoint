@@ -37,7 +37,7 @@ namespace UI.ViewModels
         ///     Selected target insertion probe manager dropdown index (including the none option).
         /// </summary>
         [ObservableProperty]
-        private int _selectedTargetInsertionProbeIndex;
+        private int _targetInsertionProbeIndex;
 
         /// <summary>
         ///     Filtered list of targetable insertion probes for the active manipulator probe.
@@ -165,9 +165,9 @@ namespace UI.ViewModels
                 selectedTargetInsertionProbeState == null
                 || !TargetInsertionProbeStates.Contains(selectedTargetInsertionProbeState)
             )
-                SelectedTargetInsertionProbeIndex = 0;
+                TargetInsertionProbeIndex = -1;
             else
-                SelectedTargetInsertionProbeIndex = TargetInsertionProbeStates.IndexOf(
+                TargetInsertionProbeIndex = TargetInsertionProbeStates.IndexOf(
                     selectedTargetInsertionProbeState
                 );
 
@@ -207,38 +207,14 @@ namespace UI.ViewModels
                 case nameof(ReferenceCoordinate):
                     // BUG: This won't update the probe's game object position.
                     _storeService.Store.Dispatch(
-                        SceneActions.SET_ACTIVE_PROBE_REFERENCE_COORDINATE,
+                        SceneActions.SET_ACTIVE_MANIPULATOR_REFERENCE_COORDINATE,
                         ReferenceCoordinate
                     );
-                    break;
-                case nameof(SelectedTargetInsertionProbeIndex):
-                    // Reset the selected target insertion probe if the index is 0 (None).
-                    if (SelectedTargetInsertionProbeIndex == 0)
-                    {
-                        _storeService.Store.Dispatch(
-                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,
-                            string.Empty
-                        );
-                    }
-                    // Otherwise, subtract the None option and set the selected target insertion probe UUID.
-                    else
-                    {
-                        var selectedTargetInsertionProbeState =
-                            TargetInsertionProbeStates.ElementAt(
-                                SelectedTargetInsertionProbeIndex - 1
-                            );
-                        _storeService.Store.Dispatch(
-                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,
-                            selectedTargetInsertionProbeState.Name
-                        );
-                        // TODO: Call ComputeEntryCoordinateTrajectory once it has been converted.
-                    }
-
                     break;
                 case nameof(DuraOffset):
                     // BUG: This won't update the probe's game object position.
                     _storeService.Store.Dispatch(
-                        SceneActions.SET_ACTIVE_PROBE_DURA_OFFSET,
+                        SceneActions.SET_ACTIVE_MANIPULATOR_DURA_OFFSET,
                         DuraOffset
                     );
                     break;
@@ -297,13 +273,33 @@ namespace UI.ViewModels
         [ICommand]
         private void SelectTargetInsertionProbe(int index)
         {
-            Debug.Log($"Index: {index}");
+            // Mark the selected index.
+            TargetInsertionProbeIndex = index;
+            
+            // Set the selected target insertion probe name in the store.
+            var selectedTargetInsertionProbeState =
+                TargetInsertionProbeStates.ElementAt(
+                    TargetInsertionProbeIndex
+                );
+            _storeService.Store.Dispatch(
+                SceneActions.SET_TARGET_INSERTION_PROBE_NAME,
+                selectedTargetInsertionProbeState.Name
+            );
+            
+            // TODO: Call ComputeEntryCoordinateTrajectory once it has been converted.
         }
 
         [ICommand]
         private void ResetTargetInsertionProbeSelection()
         {
-            SelectedTargetInsertionProbeIndex = -1;
+            // Unset the selected target index.
+            TargetInsertionProbeIndex = -1;
+            
+            // Clear the selected target insertion probe name in the store.
+            _storeService.Store.Dispatch(
+                SceneActions.SET_TARGET_INSERTION_PROBE_NAME,
+                string.Empty
+            );
         }
 
         [ICommand]

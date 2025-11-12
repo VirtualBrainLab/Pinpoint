@@ -85,16 +85,6 @@ namespace Models.Scene
 
         public AutomationProgressState AutomationProgressState;
 
-        public Vector4 ReferenceCoordinateOffset;
-
-        public string SelectedTargetInsertionProbeName;
-
-        public float DuraDepth;
-
-        public Vector3 DuraCoordinate;
-
-        public bool Drop2SurfaceWithDepth;
-
         /// <summary>
         /// Base insertion speed (µm/s).
         /// </summary>

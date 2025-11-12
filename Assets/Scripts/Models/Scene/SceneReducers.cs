@@ -690,33 +690,36 @@ namespace Models.Scene
         #region Automation Reducers
 
         /// <summary>
-        ///     Set the selected target insertion probe for the active probe.
+        ///     Set the selected target insertion probe for the active manipulator.
         /// </summary>
         /// <param name="state">Current state.</param>
         /// <param name="action">Chosen probe name in the payload.</param>
         /// <returns>State with chosen target updated on the active probe.</returns>
-        public static SceneState SetSelectedTargetInsertionProbeNameReducer(
+        public static SceneState SetTargetInsertionProbeNameReducer(
             SceneState state,
             IAction<string> action
         )
         {
             try
             {
-                // Verify selected target exists and is targetable.
-                var selectedTarget = state.Probes.First(probeState =>
-                    probeState.Name == action.payload
-                );
-                if (selectedTarget.IsEphysLinkControlled)
-                    throw new ArgumentException("Selected target is not targetable.");
+                // Verify selected target exists and is targetable if it's not empty.
+                if (!string.IsNullOrEmpty(action.payload))
+                {
+                    var selectedTarget = state.Probes.First(probeState =>
+                        probeState.Name == action.payload
+                    );
+                    if (selectedTarget.IsEphysLinkControlled)
+                        throw new ArgumentException("Selected target is not targetable.");
+                }
 
-                // Update the selected target insertion probe for the active probe.
-                var probesCopy = state.Probes.ToList();
-                probesCopy[state.ActiveProbeIndex].SelectedTargetInsertionProbeName =
-                    action.payload;
+                // Update the selected target insertion probe for the active manipulator.
+                var manipulatorsCopy = state.Manipulators.ToList();
+                manipulatorsCopy[state.ActiveManipulatorIndex].TargetInsertionProbeName =
+                    action.payload ?? string.Empty;
 
                 return state with
                 {
-                    Probes = probesCopy,
+                    Manipulators = manipulatorsCopy,
                 };
             }
             catch (Exception)
@@ -879,41 +882,42 @@ namespace Models.Scene
             };
         }
 
-        public static SceneState SetActiveProbeReferenceCoordinateReducer(
+        public static SceneState SetActiveManipulatorReferenceCoordinateReducer(
             SceneState state,
             IAction<Vector4> action
         )
         {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
+            // If no active manipulator, return the state unchanged.
+            if (state.ActiveManipulatorState == null)
                 return state;
 
-            // Set the active probe's reference coordinate.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].ReferenceCoordinateOffset = action.payload;
+            // Set the active manipulator's reference coordinate.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[state.ActiveManipulatorIndex].ReferenceCoordinateOffset =
+                action.payload;
 
             return state with
             {
-                Probes = probesCopy,
+                Manipulators = manipulatorsCopy,
             };
         }
 
-        public static SceneState SetActiveProbeDuraOffsetReducer(
+        public static SceneState SetActiveManipulatorDuraOffsetReducer(
             SceneState state,
             IAction<float> action
         )
         {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
+            // If no active manipulator, return the state unchanged.
+            if (state.ActiveManipulatorState == null)
                 return state;
 
-            // Set the active probe's Dura offset.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].DuraDepth = action.payload;
+            // Update the active manipulator's dura offset.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[state.ActiveManipulatorIndex].DuraOffset = action.payload;
 
             return state with
             {
-                Probes = probesCopy,
+                Manipulators = manipulatorsCopy,
             };
         }
 
@@ -1162,8 +1166,8 @@ namespace Models.Scene
 
         #region Automation Actions
 
-        public static readonly ActionCreator<string> SET_SELECTED_TARGET_INSERTION_PROBE_NAME =
-            $"{SliceNames.SCENE_SLICE}/SetSelectedTargetInsertionProbeName";
+        public static readonly ActionCreator<string> SET_TARGET_INSERTION_PROBE_NAME =
+            $"{SliceNames.SCENE_SLICE}/SetTargetInsertionProbeName";
 
         public static readonly ActionCreator<AutomationProgressState> SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationProgressState";
@@ -1180,11 +1184,11 @@ namespace Models.Scene
         public static readonly ActionCreator CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS =
             $"{SliceNames.SCENE_SLICE}/CancelActiveProbeAutomationIntermediateProgress";
 
-        public static readonly ActionCreator<Vector4> SET_ACTIVE_PROBE_REFERENCE_COORDINATE =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeReferenceCoordinate";
+        public static readonly ActionCreator<Vector4> SET_ACTIVE_MANIPULATOR_REFERENCE_COORDINATE =
+            $"{SliceNames.SCENE_SLICE}/SetActiveReferenceCoordinate";
 
-        public static readonly ActionCreator<float> SET_ACTIVE_PROBE_DURA_OFFSET =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeDuraOffset";
+        public static readonly ActionCreator<float> SET_ACTIVE_MANIPULATOR_DURA_OFFSET =
+            $"{SliceNames.SCENE_SLICE}/SetActiveManipulatorDuraOffset";
 
         public static readonly ActionCreator<int> SET_ACTIVE_PROBE_INSERTION_BASE_SPEED =
             $"{SliceNames.SCENE_SLICE}/SetActiveProbeInsertionBaseSpeed";
@@ -1205,11 +1209,12 @@ namespace Models.Scene
 
         #region Brain Atlas
 
-        public static readonly ActionCreator<Dictionary<int, AreaDisplayType>> INITIALIZE_AREA_VISIBILITY =
-            $"{SliceNames.SCENE_SLICE}/InitializeAreaVisibility";
+        public static readonly ActionCreator<
+            Dictionary<int, AreaDisplayType>
+        > INITIALIZE_AREA_VISIBILITY = $"{SliceNames.SCENE_SLICE}/InitializeAreaVisibility";
 
         public static readonly ActionCreator<int> ROTATE_AREA_VISIBILITY =
-      $"{SliceNames.SCENE_SLICE}/RotateAreaVisibility";
+            $"{SliceNames.SCENE_SLICE}/RotateAreaVisibility";
 
         #endregion
     }

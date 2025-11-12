@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -104,7 +105,6 @@ namespace UI.Views
 
             _targetDropdown.RegisterValueChangedCallback(evt =>
             {
-                Debug.Log($"Target: {evt.newValue.First()}");
                 _automationInspectorViewModel.SelectTargetInsertionProbeCommand.Execute(
                     _targetDropdown.selectedIndex
                 );
@@ -188,9 +188,16 @@ namespace UI.Views
                         _automationInspectorViewModel.TargetInsertionProbeStates;
                     _targetDropdown.Refresh();
                     break;
-                case nameof(_automationInspectorViewModel.SelectedTargetInsertionProbeIndex):
-                    _targetDropdown.selectedIndex =
-                        _automationInspectorViewModel.SelectedTargetInsertionProbeIndex;
+                case nameof(_automationInspectorViewModel.TargetInsertionProbeIndex):
+                    if (_automationInspectorViewModel.TargetInsertionProbeIndex == -1)
+                    {
+                        _targetDropdown.SetValueWithoutNotify(Array.Empty<int>());
+                    }
+                    else
+                    {
+                        _targetDropdown.selectedIndex =
+                            _automationInspectorViewModel.TargetInsertionProbeIndex;
+                    }
                     break;
             }
         }

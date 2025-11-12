@@ -154,8 +154,8 @@ namespace Services
                         )
                         // Automation.
                         .AddCase(
-                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,
-                            SceneReducers.SetSelectedTargetInsertionProbeNameReducer
+                            SceneActions.SET_TARGET_INSERTION_PROBE_NAME,
+                            SceneReducers.SetTargetInsertionProbeNameReducer
                         )
                         .AddCase(
                             SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
@@ -178,12 +178,12 @@ namespace Services
                             SceneReducers.CancelActiveProbeAutomationIntermediateProgressReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_REFERENCE_COORDINATE,
-                            SceneReducers.SetActiveProbeReferenceCoordinateReducer
+                            SceneActions.SET_ACTIVE_MANIPULATOR_REFERENCE_COORDINATE,
+                            SceneReducers.SetActiveManipulatorReferenceCoordinateReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_DURA_OFFSET,
-                            SceneReducers.SetActiveProbeDuraOffsetReducer
+                            SceneActions.SET_ACTIVE_MANIPULATOR_DURA_OFFSET,
+                            SceneReducers.SetActiveManipulatorDuraOffsetReducer
                         )
                         .AddCase(
                             SceneActions.SET_ACTIVE_PROBE_INSERTION_BASE_SPEED,

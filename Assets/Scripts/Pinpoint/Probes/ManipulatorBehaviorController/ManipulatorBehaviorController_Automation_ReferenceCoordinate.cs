@@ -77,7 +77,7 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             // Complete reset.
             ReferenceCoordinateOffset = positionalResponse.Position;
             PinpointApp.StoreServiceStore.Dispatch(
-                SceneActions.SET_ACTIVE_PROBE_REFERENCE_COORDINATE,
+                SceneActions.SET_ACTIVE_MANIPULATOR_REFERENCE_COORDINATE,
                 positionalResponse.Position
             );
             BrainSurfaceOffset = 0;
