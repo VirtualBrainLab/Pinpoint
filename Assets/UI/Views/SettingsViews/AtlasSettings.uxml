@@ -1,9 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ui:UXML
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ui="UnityEngine.UIElements"
-    xmlns:uie="UnityEditor.UIElements"
-    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
->
-    
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1;">
+        <Unity.AppUI.UI.Heading name="Heading" text="Active atlas" />
+        <Unity.AppUI.UI.Dropdown default-message="Select atlas" name="atlas-dropdown" />
+        <Unity.AppUI.UI.Dropdown default-message="Select transform" name="transform-dropdown" />
+        <Unity.AppUI.UI.Spacer />
+        <Unity.AppUI.UI.Heading name="Heading" text="Reference coordinate" />
+        <Unity.AppUI.UI.Vector3Field name="reference-coordinate" />
+        <Unity.AppUI.UI.Spacer />
+        <ui:VisualElement style="flex-grow: 0; align-items: flex-start; align-self: auto; flex-direction: row; justify-content: center;">
+            <Unity.AppUI.UI.ActionButton label="Set to Bregma" name="set-bregma-button" />
+            <Unity.AppUI.UI.Spacer />
+            <Unity.AppUI.UI.ActionButton label="Set to Lambda" name="set-lambda-button" />
+        </ui:VisualElement>
+        <Unity.AppUI.UI.Heading name="Heading" text="Slices" />
+        <Unity.AppUI.UI.Toggle label="Enable sagittal and coronal slices" name="show-3d-slices-toggle" />
+    </ui:VisualElement>
 </ui:UXML>

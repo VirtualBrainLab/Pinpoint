@@ -182,8 +182,13 @@ namespace TrajectoryPlanner
             StartupEvent_MetaLoaded.Invoke();
 
             // Load Atlas
-            // Settings.AtlasName returns CCF if PlayerPrefs is cleared, otherwise returns the previous atlas setting
-            string atlasName = Settings.AtlasName;
+#if APP_UI
+            var storeService = PinpointApp.Services.GetService<Services.StoreService>();
+            var atlasSettingsState = storeService.Store.GetState<Models.Settings.AtlasSettingsState>(Models.SliceNames.ATLAS_SETTINGS_SLICE);
+            string atlasName = atlasSettingsState.AtlasName;
+#else
+         string atlasName = Settings.AtlasName;
+#endif
             if (!BrainAtlasManager.AtlasNames.Contains(atlasName))
                 atlasName = "allen_mouse_25um";
 
@@ -194,14 +199,27 @@ namespace TrajectoryPlanner
             // if this is the first time, load bregma
             if (_firstTime || _atlasReset)
             {
-                if (UrchinUtilsUtils.BregmaDefaults.ContainsKey(Settings.AtlasName))
-                    referenceAtlas.AtlasSpace.ReferenceCoord = UrchinUtilsUtils.BregmaDefaults[Settings.AtlasName];
+#if APP_UI
+                if (UrchinUtilsUtils.BregmaDefaults.ContainsKey(atlasName))
+                {
+                    referenceAtlas.AtlasSpace.ReferenceCoord = UrchinUtilsUtils.BregmaDefaults[atlasName];
+                    storeService.Store.Dispatch(Models.Settings.AtlasSettingsActions.SET_REFERENCE_COORD, referenceAtlas.AtlasSpace.ReferenceCoord);
+                }
+#else
+     if (UrchinUtilsUtils.BregmaDefaults.ContainsKey(Settings.AtlasName))
+    referenceAtlas.AtlasSpace.ReferenceCoord = UrchinUtilsUtils.BregmaDefaults[Settings.AtlasName];
+    Settings.ReferenceCoord = referenceAtlas.AtlasSpace.ReferenceCoord;
+#endif
             }
             else
             {
-                referenceAtlas.AtlasSpace.ReferenceCoord = Settings.ReferenceCoord;
+#if APP_UI
+                referenceAtlas.AtlasSpace.ReferenceCoord = atlasSettingsState.ReferenceCoord;
+#else
+      referenceAtlas.AtlasSpace.ReferenceCoord = Settings.ReferenceCoord;
+  Settings.ReferenceCoord = referenceAtlas.AtlasSpace.ReferenceCoord;
+#endif
             }
-            Settings.ReferenceCoord = referenceAtlas.AtlasSpace.ReferenceCoord;
 
             var nodeTask = _atlasManager.LoadDefaultAreas();
 
@@ -238,10 +256,6 @@ namespace TrajectoryPlanner
             // Link any events that need to be linked
             ProbeManager.ActiveProbeUIUpdateEvent.AddListener(() => SetSurfaceDebugColor(ProbeManager.ActiveProbeManager.Color));
 
-            if (_firstTime || _atlasReset)
-            {
-                Settings.BregmaLambdaRatio = 1f;
-            }
 
             // Complete
             PlayerPrefs.SetInt("scene-atlas-reset", 0);
@@ -249,15 +263,15 @@ namespace TrajectoryPlanner
 
 #if APP_UI
             _sceneStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
-                state => state.Get<SceneState>(SliceNames.SCENE_SLICE), OnSceneStateChanged,
+    state => state.Get<SceneState>(SliceNames.SCENE_SLICE), OnSceneStateChanged,
                 new SubscribeOptions<SceneState> { fireImmediately = true });
 #else
-            // After annotation loads, check if the user wants to load previously used probes
+     // After annotation loads, check if the user wants to load previously used probes
             CheckForSavedProbes();
-            await _checkForSavedProbesTaskSource.Task;
-            // Finally, load accounts if we didn't load a query string or a saved set of probes
-            // if (!_checkForSavedProbesTaskSource.Task.Result)
-            //     _accountsManager.DelayedStart();
+       await _checkForSavedProbesTaskSource.Task;
+     // Finally, load accounts if we didn't load a query string or a saved set of probes
+       // if (!_checkForSavedProbesTaskSource.Task.Result)
+    //     _accountsManager.DelayedStart();
 #endif
         }
 
@@ -1082,77 +1096,69 @@ namespace TrajectoryPlanner
             _blDistance.SetBLRange(min, max, defaultBLDistance);
         }
 
-        private CoordinateTransform _originalTransform;
+        //private CoordinateTransform _originalTransform;
 
-        /// <summary>
-        /// Change the bregma-lamba distance. By default this is 4.15f, so if it isn't that value, then we need to add an isometric scaling to the current transform
-        /// </summary>
-        /// <param name="blRatio"></param>
-        public void ChangeBLRatio(float blRatio)
-        {
-            if (BrainAtlasManager.ActiveReferenceAtlas == null)
-                return;
+        //        /// <summary>
+        //        /// Change the bregma-lamba distance. By default this is 4.15f, so if it isn't that value, then we need to add an isometric scaling to the current transform
+        //        /// </summary>
+        //        /// <param name="blRatio"></param>
+        //        public void ChangeBLRatio(float blRatio)
+        //        {
+        //            if (BrainAtlasManager.ActiveReferenceAtlas == null)
+        //                return;
 
-            if (blRatio == 1f)
-            {
-                if (BrainAtlasManager.ActiveReferenceAtlas.Name == "Custom" && _originalTransform != null)
-                    _pinpointAtlasManager.SetNewTransform((AtlasTransform)_originalTransform);
-                _originalTransform = null;
-                return;
-            }
+        //            if (blRatio == 1f)
+        //            {
+        //                if (BrainAtlasManager.ActiveReferenceAtlas.Name == "Custom" && _originalTransform != null)
+        //                    _pinpointAtlasManager.SetNewTransform((AtlasTransform)_originalTransform);
+        //                _originalTransform = null;
+        //                return;
+        //            }
 
-#if UNITY_EDITOR
-            Debug.Log($"(BL Distance) Re-scaling to {blRatio}");
-#endif
+        //#if UNITY_EDITOR
+        //            Debug.Log($"(BL Distance) Re-scaling to {blRatio}");
+        //#endif
 
-            if (BrainAtlasManager.ActiveAtlasTransform.Name != "Custom") { }
-            _originalTransform = BrainAtlasManager.ActiveAtlasTransform;
+        //            if (BrainAtlasManager.ActiveAtlasTransform.Name != "Custom") { }
+        //            _originalTransform = BrainAtlasManager.ActiveAtlasTransform;
 
-            // There's no easy way to implement this without a refactor of the CoordinateTransform code, because you can't pull out the transform matrix.
+        //            // There's no easy way to implement this without a refactor of the CoordinateTransform code, because you can't pull out the transform matrix.
 
-            // For now what we'll do is switch through the current transform, and replace it with a new version that's been scaled
+        //            // For now what we'll do is switch through the current transform, and replace it with a new version that's been scaled
 
-            AtlasTransform newTransform;
+        //            AtlasTransform newTransform;
 
-            switch (_originalTransform.Prefix)
-            {
-                case "":
-                    // the null transform is the unity transform, so just build a new affine transform that scales
-                    newTransform = new CustomAffineTransform(blRatio * Vector3.one, Vector3.zero);
-                    break;
+        //            switch (_originalTransform.Prefix)
+        //            {
+        //                case "":
+        //                    // the null transform is the unity transform, so just build a new affine transform that scales
+        //                    newTransform = new CustomAffineTransform(blRatio * Vector3.one, Vector3.zero);
+        //                    break;
 
-                case "q18":
-                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.031f, 0.952f, -0.885f), new Vector3(0f, -5f, 0f));
-                    break;
+        //                case "q18":
+        //                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.031f, 0.952f, -0.885f), new Vector3(0f, -5f, 0f));
+        //                    break;
 
-                case "d08":
-                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, -5f, 0f));
-                    break;
+        //                case "d08":
+        //                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, -5f, 0f));
+        //                    break;
 
-                case "i-d08":
-                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, 0f, 0f));
-                    break;
+        //                case "i-d08":
+        //                    newTransform = new CustomAffineTransform(blRatio * new Vector3(-1.087f, 1f, -0.952f), new Vector3(0f, 0f, 0f));
+        //                    break;
 
-                default:
-                    Debug.LogError("Previous transform is not scalable");
-                    return;
-            }
+        //                default:
+        //                    Debug.LogError("Previous transform is not scalable");
+        //                    return;
+        //            }
 
-            // Apply the new transform
-            _pinpointAtlasManager.SetNewTransform(newTransform);
-        }
+        //            // Apply the new transform
+        //            _pinpointAtlasManager.SetNewTransform(newTransform);
+        //        }
 
         #endregion
 
         #region Misc
-
-        public void ResetReferenceCoordinate()
-        {
-            if (float.IsNaN(Settings.ReferenceCoord.x))
-            {
-                Settings.ReferenceCoord = UrchinUtilsUtils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
-            }
-        }
 
         public void LinkToVBLSite()
         {

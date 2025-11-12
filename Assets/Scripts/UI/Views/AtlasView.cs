@@ -159,12 +159,6 @@ namespace UI.Views
             _atlasViewModel.PropertyChanged -= OnPropertyChanged;
             _sceneStateSubscription.Dispose();
 
-            var trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
-            if (trajectoryPlannerManager != null)
-            {
-                trajectoryPlannerManager.StartupEvent_Complete.RemoveListener(OnStartupComplete);
-            }
-
             App.shuttingDown -= OnShuttingDown;
         }
 

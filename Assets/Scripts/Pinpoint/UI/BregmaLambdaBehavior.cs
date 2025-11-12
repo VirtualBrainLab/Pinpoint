@@ -12,7 +12,7 @@ public class BregmaLambdaBehavior : MonoBehaviour
 
     private void Awake()
     {
-        _blSlider.onValueChanged.AddListener(SetSetting);
+        //_blSlider.onValueChanged.AddListener(SetSetting);
     }
 
     public void ResetBLDistance()
@@ -41,9 +41,9 @@ public class BregmaLambdaBehavior : MonoBehaviour
         _sliderText.text = $"{Mathf.RoundToInt(ratio * _blDistance * 100f) / 100f}";
     }
 
-    private void SetSetting(float value)
-    {
-        // Convert to ratio then set
-        Settings.BregmaLambdaRatio = value / _blDistance;
-    }
+    //private void SetSetting(float value)
+    //{
+    //    // Convert to ratio then set
+    //    Settings.BregmaLambdaRatio = value / _blDistance;
+    //}
 }

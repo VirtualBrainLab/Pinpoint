@@ -15,6 +15,7 @@ namespace UI.Views
             _ = PinpointApp.Services.GetRequiredService<ProbeView>();
             _ = PinpointApp.Services.GetRequiredService<EphysLinkView>();
             _ = PinpointApp.Services.GetRequiredService<RigView>();
+            _ = PinpointApp.Services.GetRequiredService<AtlasSettingsView>();
         }
     }
 }
