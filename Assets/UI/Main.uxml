@@ -2,12 +2,12 @@
     <ui:Template name="Settings" src="project://database/Assets/UI/Views/Settings.uxml?fileID=9197481963319205126&amp;guid=f54ae45c39b925246b2d8d6f574b23bf&amp;type=3#Settings" />
     <ui:Template name="Scene" src="project://database/Assets/UI/Views/Scene.uxml?fileID=9197481963319205126&amp;guid=335b879c4b992f24bbb0951447e39262&amp;type=3#Scene" />
     <ui:Template name="Atlas" src="project://database/Assets/UI/Views/Atlas.uxml?fileID=9197481963319205126&amp;guid=9c87ec2a39db64e41ac639d9d458023a&amp;type=3#Atlas" />
-    <ui:Template name="ChannelsAndSlice" src="project://database/Assets/UI/Views/ChannelsAndSlice.uxml?fileID=9197481963319205126&amp;guid=eacbf3863aa53e247902b99462b2943f&amp;type=3#ChannelsAndSlice" />
+    <ui:Template name="ChannelsAndSlice" src="project://database/Assets/UI/Views/ChannelMaps.uxml?fileID=9197481963319205126&amp;guid=eacbf3863aa53e247902b99462b2943f&amp;type=3#ChannelMaps" />
     <ui:Template name="Inspector" src="project://database/Assets/UI/Views/ProbeInspector.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#ProbeInspector" />
     <ui:Template name="ManipulatorInspector" src="project://database/Assets/UI/Views/ManipulatorInspector.uxml?fileID=9197481963319205126&amp;guid=548563d6332996b48876c7469ab9a17c&amp;type=3#ManipulatorInspector" />
     <ui:Template name="Automation" src="project://database/Assets/UI/Views/AutomationInspector.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#AutomationInspector" />
-    <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3#MainStyles" />
-    <Unity.AppUI.UI.Panel picking-mode="Ignore" data-source-type="UI.ViewModels.MainViewModel, Assembly-CSharp" style="background-color: rgba(29, 29, 29, 0);">
+    <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3" />
+    <Unity.AppUI.UI.Panel data-source-type="UI.ViewModels.MainViewModel, Assembly-CSharp" picking-mode="Ignore" style="background-color: rgba(29, 29, 29, 0);">
         <Unity.AppUI.UI.SplitView show-expand-buttons="true" name="main-split-view" style="flex-grow: 1;">
             <Unity.AppUI.UI.Pane class="side-panel" style="width: 27%;">
                 <ui:VisualElement style="flex-direction: row;">

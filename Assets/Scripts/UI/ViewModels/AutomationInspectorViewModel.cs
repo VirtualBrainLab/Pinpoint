@@ -116,7 +116,7 @@ namespace UI.ViewModels
             ReferenceCoordinate = state.ActiveManipulatorState.ReferenceCoordinateOffset;
 
             // Get the list of targetable insertion probes for the active manipulator probe.
-            TargetInsertionProbeStates = state
+            var targetableInsertionProbeStates = state
                 .Probes
                 // 1. Not manipulator controlled.
                 .Where(probeState =>
@@ -149,7 +149,13 @@ namespace UI.ViewModels
                         .Contains(probeState.Name)
                 )
                 .ToList();
-
+            if (
+                TargetInsertionProbeStates == null
+                || !TargetInsertionProbeStates.SequenceEqual(targetableInsertionProbeStates)
+            )
+            {
+                TargetInsertionProbeStates = targetableInsertionProbeStates;
+            }
 
             // Get the index of the selected target insertion probe.
             var selectedTargetInsertionProbeState = state.Probes.FirstOrDefault(probeState =>
