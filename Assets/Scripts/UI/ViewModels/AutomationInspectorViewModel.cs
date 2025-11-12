@@ -315,7 +315,8 @@ namespace UI.ViewModels
 
                     // Complete the drive state if successful.
                     _storeService.Store.Dispatch(
-                        SceneActions.COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS
+                        SceneActions.COMPLETE_AUTOMATION_INTERMEDIATE_PROGRESS,
+                        ActiveManipulatorId
                     );
                 });
         }
@@ -333,8 +334,8 @@ namespace UI.ViewModels
 
                     // Reset back to calibrated state.
                     _storeService.Store.Dispatch(
-                        SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
-                        AutomationProgressState.IsCalibrated
+                        SceneActions.SET_AUTOMATION_PROGRESS_STATE,
+                        (ActiveManipulatorId, AutomationProgressState.IsCalibrated)
                     );
                 });
         }
@@ -352,8 +353,8 @@ namespace UI.ViewModels
 
                     // If the reset was successful, set calibrated to the Dura.
                     _storeService.Store.Dispatch(
-                        SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
-                        AutomationProgressState.AtDuraInsert
+                        SceneActions.SET_AUTOMATION_PROGRESS_STATE,
+                        (ActiveManipulatorId, AutomationProgressState.AtDuraInsert)
                     );
                 });
         }
@@ -386,7 +387,8 @@ namespace UI.ViewModels
 
                     // If the stop was successful, cancel the intermediate progress state.
                     _storeService.Store.Dispatch(
-                        SceneActions.CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS
+                        SceneActions.CANCEL_AUTOMATION_INTERMEDIATE_PROGRESS,
+                        ActiveManipulatorId
                     );
                 });
         }

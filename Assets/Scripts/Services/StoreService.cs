@@ -158,24 +158,24 @@ namespace Services
                             SceneReducers.SetTargetInsertionProbeNameReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
-                            SceneReducers.SetActiveProbeAutomationProgressStateReducer
+                            SceneActions.SET_AUTOMATION_PROGRESS_STATE,
+                            SceneReducers.SetAutomationProgressStateReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING,
-                            SceneReducers.SetActiveProbeAutomationProgressStateToNextDrivingReducer
+                            SceneActions.SET_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING,
+                            SceneReducers.SetAutomationProgressStateToNextDrivingReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_EXITING,
-                            SceneReducers.SetActiveProbeAutomationProgressStateToNextExitingReducer
+                            SceneActions.SET_AUTOMATION_PROGRESS_STATE_TO_NEXT_EXITING,
+                            SceneReducers.SetAutomationProgressStateToNextExitingReducer
                         )
                         .AddCase(
-                            SceneActions.COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS,
-                            SceneReducers.CompleteActiveProbeAutomationIntermediateProgressReducer
+                            SceneActions.COMPLETE_AUTOMATION_INTERMEDIATE_PROGRESS,
+                            SceneReducers.CompleteAutomationIntermediateProgressReducer
                         )
                         .AddCase(
-                            SceneActions.CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS,
-                            SceneReducers.CancelActiveProbeAutomationIntermediateProgressReducer
+                            SceneActions.CANCEL_AUTOMATION_INTERMEDIATE_PROGRESS,
+                            SceneReducers.CancelAutomationIntermediateProgressReducer
                         )
                         .AddCase(
                             SceneActions.SET_ACTIVE_MANIPULATOR_REFERENCE_COORDINATE,

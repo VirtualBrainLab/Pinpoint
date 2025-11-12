@@ -83,7 +83,6 @@ namespace Models.Scene
 
         #region Automation
 
-        public AutomationProgressState AutomationProgressState;
 
         /// <summary>
         /// Base insertion speed (µm/s).
