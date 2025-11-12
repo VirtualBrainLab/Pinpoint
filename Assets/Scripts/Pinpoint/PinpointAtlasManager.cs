@@ -198,35 +198,6 @@ public class PinpointAtlasManager : MonoBehaviour
 
     #region Atlas
 
-    private void ResetScene(int option)
-    {
-#if UNITY_EDITOR
-        Debug.Log($"(PAM) Resetting atlas to option {option}");
-#endif
-        PlayerPrefs.SetInt("scene-atlas-reset", 1);
-
-#if APP_UI
-        _storeService.Store.Dispatch(Models.Settings.AtlasSettingsActions.SET_ATLAS_NAME, _allowedNames[option]);
-#if UNITY_EDITOR
-        Debug.Log($"(PAM) Resetting atlas to {_allowedNames[option]}");
-#endif
-#else
-        Settings.AtlasName = _allowedNames[option];
-#if UNITY_EDITOR
-        Debug.Log($"(PAM) Resetting atlas to {Settings.AtlasName}");
-#endif
-#endif
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    private TMP_Dropdown.OptionData ConvertAtlas2Userfriendly(string atlasName)
-    {
-        if (_atlasNameMapping.ContainsKey(atlasName))
-            return new TMP_Dropdown.OptionData(_atlasNameMapping[atlasName]);
-
-        return new TMP_Dropdown.OptionData(atlasName);
-    }
-
     #endregion
 
     #region Transforms

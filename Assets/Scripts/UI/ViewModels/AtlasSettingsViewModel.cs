@@ -8,6 +8,7 @@ using UI;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace UI.ViewModels
 {
@@ -16,6 +17,7 @@ namespace UI.ViewModels
         private readonly StoreService _storeService;
         private readonly IDisposableSubscription _atlasSettingsStateSubscription;
         private PinpointAtlasManager _pinpointAtlasManager;
+        private string _previousAtlasName;
 
         public AtlasSettingsViewModel(StoreService storeService)
         {
@@ -37,6 +39,18 @@ namespace UI.ViewModels
 
             if (_pinpointAtlasManager == null)
                 return;
+
+            if (string.IsNullOrEmpty(_previousAtlasName))
+            {
+                _previousAtlasName = state.AtlasName;
+            }
+            else if (!string.IsNullOrEmpty(state.AtlasName) && _previousAtlasName != state.AtlasName)
+            {
+                Debug.Log($"(AtlasSettingsViewModel) Atlas name changed from {_previousAtlasName} to {state.AtlasName}, reloading scene");
+                PlayerPrefs.SetInt("scene-atlas-reset", 1);
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                return;
+            }
 
             ApplyAtlasTransform(state.AtlasTransformName);
             ApplyShow3DSlices(state.Show3DSlices);

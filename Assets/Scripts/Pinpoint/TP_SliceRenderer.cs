@@ -130,13 +130,15 @@ public class TP_SliceRenderer : MonoBehaviour
     public void UpdateCameraPosition()
     {
 #if APP_UI
+        if (_storeService == null)
+            return;
         var atlasSettingsState = _storeService.Store.GetState<Models.Settings.AtlasSettingsState>(Models.SliceNames.ATLAS_SETTINGS_SLICE);
         bool show3DSlices = atlasSettingsState.Show3DSlices;
 #else
         bool show3DSlices = Settings.Slice3DDropdownOption > 0;
 #endif
 
-        if (!show3DSlices || !_started)
+        if (!show3DSlices || !_started || Camera.main == null)
             return;
 
         Vector3 camPosition = Camera.main.transform.position;
