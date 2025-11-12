@@ -12,12 +12,9 @@ using Unity.AppUI.MVVM;
 
 public class PinpointAtlasManager : MonoBehaviour
 {
-    [SerializeField] private TMP_Dropdown _atlasDropdown;
     [SerializeField] List<string> _atlasNames;
     [SerializeField] List<string> _atlasMappings;
     [SerializeField] List<bool> _allowedOnWebGL;
-
-    [SerializeField] private TMP_Dropdown _transformDropdown;
 
     private Dictionary<string, string> _atlasNameMapping;
     private Dictionary<string, bool> _allowedOnWebGLMapping;
@@ -197,41 +194,9 @@ public class PinpointAtlasManager : MonoBehaviour
             Debug.Log(transform.Name);
 #endif
 
-        PopulateAtlasDropdown();
-        PopulateTransformDropdown();
     }
 
     #region Atlas
-
-    public void PopulateAtlasDropdown()
-    {
-        var atlasNames = BrainAtlasManager.AtlasNames;
-
-#if UNITY_WEBGL
-        _allowedNames = new();
-        for (int i = 0; i < atlasNames.Count; i++)
-            if (_allowedOnWebGLMapping[atlasNames[i]])
-                _allowedNames.Add(atlasNames[i]);
-#else
-        _allowedNames = atlasNames;
-#endif
-
-        _atlasDropdown.options = _allowedNames.ConvertAll(x => ConvertAtlas2Userfriendly(x));
-    }
-
-    public void ResetAtlasDropdownIndex()
-    {
-        string activeAtlas = BrainAtlasManager.ActiveReferenceAtlas.Name;
-        _atlasDropdown.SetValueWithoutNotify(_atlasDropdown.options.FindIndex(x => x.text.Equals(_atlasNameMapping[activeAtlas])));
-    }
-
-    public void SetAtlas(int option)
-    {
-        // force the scene to reset
-        QuestionDialogue.Instance.YesCallback = delegate { ResetScene(option); };
-        QuestionDialogue.Instance.NoCallback = delegate { ResetAtlasDropdownIndex(); };
-        QuestionDialogue.Instance.NewQuestion("Changing the Atlas will reset the scene.\nAre you sure you want to proceed?");
-    }
 
     private void ResetScene(int option)
     {
@@ -266,25 +231,6 @@ public class PinpointAtlasManager : MonoBehaviour
 
     #region Transforms
 
-    public void PopulateTransformDropdown()
-    {
-        _transformDropdown.options = BrainAtlasManager.AtlasTransforms.ConvertAll(x => new TMP_Dropdown.OptionData(ConverTransform2UserFriendly(x.Name)));
-    }
-
-    public void ResetTransformDropdownIndex()
-    {
-        string activeTransformName = BrainAtlasManager.ActiveAtlasTransform.Name;
-        if (activeTransformName == "Custom")
-            _transformDropdown.SetValueWithoutNotify(-1);
-        else
-            _transformDropdown.SetValueWithoutNotify(BrainAtlasManager.AtlasTransforms.FindIndex(x => x.Name.Equals(activeTransformName)));
-    }
-
-    //public void SetTransform(int idx)
-    //{
-    //    Settings.AtlasTransformName = BrainAtlasManager.AtlasTransforms[idx].Name;
-    //}
-
     public void SetNewTransform(string transformName)
     {
 #if UNITY_EDITOR
@@ -306,17 +252,14 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void SetNewTransform(AtlasTransform newTransform)
     {
+#if UNITY_EDITOR
+        Debug.Log($"(PAM) Updating individual probes to new atlas transform: {newTransform.Name}");
+#endif
         BrainAtlasManager.ActiveAtlasTransform = newTransform;
-        ResetTransformDropdownIndex();
 
         // Check all probes for mis-matches
         foreach (ProbeManager probeManager in ProbeManager.Instances)
             probeManager.Update2ActiveTransform();
-    }
-
-    private string ConverTransform2UserFriendly(string transformName)
-    {
-        return $"Atlas transform: {transformName}";
     }
 
     #endregion
