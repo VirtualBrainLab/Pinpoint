@@ -1,6 +1,5 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
-    <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3#ProbeColors" />
     <engine:VisualElement data-source-type="UI.ViewModels.AutomationInspectorViewModel, Assembly-CSharp" style="flex-grow: 1;">
         <engine:VisualElement class="inspector-panel">
             <Unity.AppUI.UI.Heading text="Calibrate Reference Coordinate Offset (mm)" size="S" />

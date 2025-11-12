@@ -7,6 +7,7 @@
     <ui:Template name="ManipulatorInspector" src="project://database/Assets/UI/Views/ManipulatorInspector.uxml?fileID=9197481963319205126&amp;guid=548563d6332996b48876c7469ab9a17c&amp;type=3#ManipulatorInspector" />
     <ui:Template name="Automation" src="project://database/Assets/UI/Views/AutomationInspector.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#AutomationInspector" />
     <Style src="project://database/Assets/UI/Styles/MainStyles.uss?fileID=7433441132597879392&amp;guid=952e482a7ce9439785fff3fbcda74456&amp;type=3" />
+    <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3#ProbeColors" />
     <Unity.AppUI.UI.Panel data-source-type="UI.ViewModels.MainViewModel, Assembly-CSharp" picking-mode="Ignore" style="background-color: rgba(29, 29, 29, 0);">
         <Unity.AppUI.UI.SplitView show-expand-buttons="true" name="main-split-view" style="flex-grow: 1;">
             <Unity.AppUI.UI.Pane class="side-panel" style="width: 27%;">
