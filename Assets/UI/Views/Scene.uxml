@@ -32,6 +32,9 @@
             <Unity.AppUI.UI.Divider />
             <Unity.AppUI.UI.Heading text="Manipulators" size="S" />
             <ui:ListView name="scene__manipulators-list" virtualization-method="DynamicHeight" style="flex-grow: 1;" />
+            <Bindings>
+                <ui:DataBinding property="style.display" data-source-path="EphysLinkConnectionState" binding-mode="ToTarget" source-to-ui-converters="EphysLinkConnectionStateToManipulatorsGroupVisibility" />
+            </Bindings>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

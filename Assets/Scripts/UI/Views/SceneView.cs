@@ -135,7 +135,7 @@ namespace UI.Views
                 EphysLinkConnectionState,
                 StyleEnum<DisplayStyle>
             >(
-                "EphysLinkConnectionStateToManipulatorsAccordionVisibility",
+                "EphysLinkConnectionStateToManipulatorsGroupVisibility",
                 (ref EphysLinkConnectionState connectionState) =>
                     connectionState == EphysLinkConnectionState.Connected
                         ? DisplayStyle.Flex
