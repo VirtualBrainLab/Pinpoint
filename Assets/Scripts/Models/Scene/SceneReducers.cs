@@ -673,7 +673,7 @@ namespace Models.Scene
             var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
             if (index == -1)
                 return state;
-            
+
             // Update the manipulator's states.
             var manipulatorsCopy = state.Manipulators.ToList();
             manipulatorsCopy[index] = manipulatorsCopy[index] with
@@ -930,7 +930,10 @@ namespace Models.Scene
 
             // Set the active manipulator's target insertion speed.
             var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index].InsertionSpeed = action.payload.speed;
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                InsertionSpeed = action.payload.speed,
+            };
 
             return state with
             {

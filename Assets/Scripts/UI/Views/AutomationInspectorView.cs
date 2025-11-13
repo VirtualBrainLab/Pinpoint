@@ -159,9 +159,17 @@ namespace UI.Views
                     _ => "pen",
                 };
             };
+            targetInsertionSpeedDropdown.RegisterValueChangedCallback(evt =>
+                _automationInspectorViewModel.SetInsertionSpeedIndexCommand.Execute(
+                    evt.newValue.First()
+                )
+            );
 
             var targetInsertionCustomSpeedField = root.Q<FloatField>(
                 "automation-inspector__target-insertion--custom-speed-field"
+            );
+            targetInsertionCustomSpeedField.RegisterValueChangedCallback(evt =>
+                _automationInspectorViewModel.SetCustomInsertionSpeedCommand.Execute(evt.newValue)
             );
             var targetInsertionDrivePastDistanceField = root.Q<FloatField>(
                 "automation-inspector__target-insertion--drive-past-distance-field"
@@ -206,6 +214,10 @@ namespace UI.Views
                         _targetDropdown.selectedIndex =
                             _automationInspectorViewModel.TargetInsertionProbeIndex;
                     }
+                    break;
+                case nameof(_automationInspectorViewModel.SelectedInsertionSpeedIndex):
+                    _targetDropdown.selectedIndex =
+                        _automationInspectorViewModel.SelectedInsertionSpeedIndex;
                     break;
             }
         }

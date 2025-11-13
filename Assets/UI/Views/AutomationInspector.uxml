@@ -52,9 +52,10 @@
                 <Unity.AppUI.UI.Dropdown default-message="Select insertion speed..." tooltip="Insertion speed (µm/s)" name="automation-inspector__target-insertion--speed-dropdown" />
                 <Unity.AppUI.UI.Spacer />
                 <engine:VisualElement style="flex-grow: 1;">
-                    <Unity.AppUI.UI.IntField unit="Custom speed (µm/s)" value="20" name="automation-inspector__target-insertion--custom-speed-field">
+                    <Unity.AppUI.UI.IntField unit="Custom speed (µm/s)" value="0" name="automation-inspector__target-insertion--custom-speed-field">
                         <Bindings>
                             <engine:DataBinding property="value" data-source-path="CustomInsertionSpeed" binding-mode="TwoWay" />
+                            <engine:DataBinding property="style.display" data-source-path="SelectedInsertionSpeedIndex" binding-mode="ToTarget" source-to-ui-converters="SelectedInsertionSpeedIndexToCustomSpeedVisibility" />
                         </Bindings>
                     </Unity.AppUI.UI.IntField>
                     <Unity.AppUI.UI.Spacer />

@@ -190,6 +190,9 @@ namespace UI.ViewModels
             // Update custom insertion speed or use default if not set.
             CustomInsertionSpeed = state.ActiveManipulatorState.InsertionSpeed;
 
+            // Update drive past distance.
+            DrivePastDistance = state.ActiveManipulatorState.DrivePastDistance;
+
             return;
 
             bool IsCoterminal(Vector3 first, Vector3 second)
@@ -228,12 +231,16 @@ namespace UI.ViewModels
         [ICommand]
         private void SelectTargetInsertionProbe(int index)
         {
-            // Mark the selected index.
-            TargetInsertionProbeIndex = index;
-
+            // If index is -1, reset the selection.
+            if (index == -1)
+            {
+                ResetTargetInsertionProbeSelection();
+                return;
+            }
+            
             // Set the selected target insertion probe name in the store.
             var selectedTargetInsertionProbeState = TargetInsertionProbeStates.ElementAt(
-                TargetInsertionProbeIndex
+                index
             );
             _storeService.Store.Dispatch(
                 SceneActions.SET_TARGET_INSERTION_PROBE_NAME,
@@ -246,9 +253,6 @@ namespace UI.ViewModels
         [ICommand]
         private void ResetTargetInsertionProbeSelection()
         {
-            // Unset the selected target index.
-            TargetInsertionProbeIndex = -1;
-
             // Clear the selected target insertion probe name in the store.
             _storeService.Store.Dispatch(
                 SceneActions.SET_TARGET_INSERTION_PROBE_NAME,
@@ -304,6 +308,38 @@ namespace UI.ViewModels
         private async void RecalculateDuraOffset()
         {
             await _ephysLinkService.SetManipulatorDuraOffsetToCurrentDepth(ActiveManipulatorId);
+        }
+
+        [ICommand]
+        private void SetInsertionSpeedIndex(int index)
+        {
+            // Map the index to the insertion speed value.
+            var insertionSpeed = index switch
+            {
+                0 => 1,
+                1 => 2,
+                2 => 5,
+                3 => 10,
+                4 => 20,
+                5 => 50,
+                6 => 500,
+                _ => CustomInsertionSpeed,
+            };
+
+            // Dispatch the insertion speed to the store.
+            _storeService.Store.Dispatch(
+                SceneActions.SET_INSERTION_SPEED,
+                (ActiveManipulatorId, insertionSpeed)
+            );
+        }
+
+        [ICommand]
+        private void SetCustomInsertionSpeed(int customSpeed)
+        {
+            _storeService.Store.Dispatch(
+                SceneActions.SET_INSERTION_SPEED,
+                (ActiveManipulatorId, customSpeed)
+            );
         }
 
         [ICommand]
