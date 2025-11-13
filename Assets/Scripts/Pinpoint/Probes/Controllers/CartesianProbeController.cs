@@ -836,9 +836,9 @@ return Vector3.right;
 
         if (moved)
         {
-            Insertion.APMLDV = origAPMLDV + Insertion.World2T_Vector(newXYZ);
+            Insertion.APMLDV = origAPMLDV + BrainAtlasManager.World2T_Vector(newXYZ);
 #if APP_UI
-            targetPosition = origAPMLDV + Insertion.World2T_Vector(newXYZ);
+            targetPosition = origAPMLDV + BrainAtlasManager.World2T_Vector(newXYZ);
 #endif
         }
 
@@ -930,7 +930,7 @@ return Vector3.right;
         if (_depth != 0f)
         {
             transform.position += transform.forward * _depth;
-            Vector3 depthAdjustment = Insertion.World2T_Vector(transform.forward) * _depth;
+            Vector3 depthAdjustment = BrainAtlasManager.World2T_Vector(transform.forward) * _depth;
 
             Insertion.APMLDV += depthAdjustment;
             _depth = 0f;

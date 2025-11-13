@@ -87,6 +87,7 @@ namespace TrajectoryPlanner
         [FormerlySerializedAs("inPlaneSlice")][SerializeField] private TP_InPlaneSlice _inPlaneSlice;
 
         [SerializeField] private RelativeCoordinatePanel _relCoordPanel;
+        [SerializeField] private ReferenceCoordBehavior _referenceCoordBehavior;
 
         [FormerlySerializedAs("sliceRenderer")][SerializeField] private TP_SliceRenderer _sliceRenderer;
         [FormerlySerializedAs("searchControl")][SerializeField] private TP_Search _searchControl;
@@ -280,11 +281,11 @@ namespace TrajectoryPlanner
                 return;
             }
 
-            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.C)) && Input.GetKeyDown(KeyCode.Backspace))
-            {
-                RecoverActiveProbeController();
-                return;
-            }
+            //if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.C)) && Input.GetKeyDown(KeyCode.Backspace))
+            //{
+            //    RecoverActiveProbeController();
+            //    return;
+            //}
 
             if (Input.GetKeyDown(KeyCode.Escape))
                 _settingsPanel.ToggleSettingsMenu();
@@ -292,15 +293,15 @@ namespace TrajectoryPlanner
             if (Input.GetKeyDown(KeyCode.L) && !UIManager.InputsFocused)
                 _logPanelGO.SetActive(!_logPanelGO.activeSelf);
 
-            if (Input.anyKey && ProbeManager.ActiveProbeManager != null && !UIManager.InputsFocused)
-            {
-                if (Input.GetKeyDown(KeyCode.Backspace) && !_canvasParent.GetComponentsInChildren<TMP_InputField>()
-                        .Any(inputField => inputField.isFocused))
-                {
-                    DestroyActiveProbeManager();
-                    return;
-                }
-            }
+            //if (Input.anyKey && ProbeManager.ActiveProbeManager != null && !UIManager.InputsFocused)
+            //{
+            //    if (Input.GetKeyDown(KeyCode.Backspace) && !_canvasParent.GetComponentsInChildren<TMP_InputField>()
+            //            .Any(inputField => inputField.isFocused))
+            //    {
+            //        DestroyActiveProbeManager();
+            //        return;
+            //    }
+            //}
         }
 
         private void LateUpdate()
@@ -350,9 +351,9 @@ namespace TrajectoryPlanner
         private void OnSceneStateChanged(SceneState state)
         {
             // Remove probes that don't exist in the state anymore.
-            foreach (var removedProbeManagers in ProbeManager.Instances.Where(manager =>
-                         !state.Probes.Select(probeState => probeState.Name).Contains(manager.name)))
-                DestroyProbe(removedProbeManagers);
+            //foreach (var removedProbeManagers in ProbeManager.Instances.Where(manager =>
+            //             !state.Probes.Select(probeState => probeState.Name).Contains(manager.name)))
+            //    DestroyProbe(removedProbeManagers);
 
             // Add new probes that don't exist in the scene yet and give them the state name.
             foreach (var newProbe in state.Probes.Where(probeState =>
@@ -382,97 +383,97 @@ namespace TrajectoryPlanner
 
         // DESTROY AND REPLACE PROBES
 
-        //[TODO] Replace this with some system that handles recovering probes by tracking their coordinate system or something?
-        // Or maybe the probe coordinates should be an object that can be serialized?
-        private bool _restoredProbe = true; // Can't restore anything at start
-        private string _prevProbeData;
+        ////[TODO] Replace this with some system that handles recovering probes by tracking their coordinate system or something?
+        //// Or maybe the probe coordinates should be an object that can be serialized?
+        //private bool _restoredProbe = true; // Can't restore anything at start
+        //private string _prevProbeData;
 
-        public void DestroyProbe(ProbeManager probeManager)
-        {
-            var isActiveProbe = ProbeManager.ActiveProbeManager == probeManager;
+        //public void DestroyProbe(ProbeManager probeManager)
+        //{
+        //    var isActiveProbe = ProbeManager.ActiveProbeManager == probeManager;
 
-            _prevProbeData = JsonUtility.ToJson(ProbeManagerData.ProbeManager2ProbeData(probeManager));
+        //    _prevProbeData = JsonUtility.ToJson(ProbeManagerData.ProbeManager2ProbeData(probeManager));
 
-            // Cannot restore a ghost probe, so we set restored to true
-            _restoredProbe = false;
+        //    // Cannot restore a ghost probe, so we set restored to true
+        //    _restoredProbe = false;
 
-            var remainingProbes =
-                ProbeManager.Instances.Where(x => x.ProbeType != ProbeType.Placeholder && x != probeManager);
+        //    var remainingProbes =
+        //        ProbeManager.Instances.Where(x => x.ProbeType != ProbeType.Placeholder && x != probeManager);
 
-            // Destroy probe
-            probeManager.Cleanup();
-            Destroy(probeManager.gameObject);
+        //    // Destroy probe
+        //    probeManager.Cleanup();
+        //    Destroy(probeManager.gameObject);
 
-            PostDestroyHandler(isActiveProbe, remainingProbes);
+        //    PostDestroyHandler(isActiveProbe, remainingProbes);
 
-            _probeAddedOrRemovedEvent.Invoke();
+        //    _probeAddedOrRemovedEvent.Invoke();
 
-            _movedThisFrame = true;
-        }
+        //    _movedThisFrame = true;
+        //}
 
-        /// <summary>
-        /// Handle TPManager cleanup after a probe was destroyed
-        /// </summary>
-        private void PostDestroyHandler(bool wasActiveProbe, IEnumerable<ProbeManager> remainingProbes)
-        {
+        ///// <summary>
+        ///// Handle TPManager cleanup after a probe was destroyed
+        ///// </summary>
+        //private void PostDestroyHandler(bool wasActiveProbe, IEnumerable<ProbeManager> remainingProbes)
+        //{
 
-            if (remainingProbes.Count() > 0)
-            {
-                if (wasActiveProbe)
-                {
-                    SetActiveProbe(remainingProbes.Last());
+        //    if (remainingProbes.Count() > 0)
+        //    {
+        //        if (wasActiveProbe)
+        //        {
+        //            SetActiveProbe(remainingProbes.Last());
 
-                    StartCoroutine(_probePanelManager.RecalculateProbePanels_Delayed());
-                }
-            }
-            else
-            {
-                // Cleanup UI if this was last probe in scene
-                // Invalidate ProbeManager.ActiveProbeManager
-                if (wasActiveProbe)
-                {
-                    // TODO: Remove old probe manager behavior.
-                    ProbeManager.ActiveProbeManager = null;
-                    PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE, string.Empty);
-                    _activeProbeChangedEvent.Invoke();
-                }
-                SetSurfaceDebugActive(false);
-            }
-        }
+        //            StartCoroutine(_probePanelManager.RecalculateProbePanels_Delayed());
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // Cleanup UI if this was last probe in scene
+        //        // Invalidate ProbeManager.ActiveProbeManager
+        //        if (wasActiveProbe)
+        //        {
+        //            // TODO: Remove old probe manager behavior.
+        //            ProbeManager.ActiveProbeManager = null;
+        //            PinpointApp.StoreServiceStore.Dispatch(SceneActions.SET_ACTIVE_PROBE, string.Empty);
+        //            _activeProbeChangedEvent.Invoke();
+        //        }
+        //        SetSurfaceDebugActive(false);
+        //    }
+        //}
 
-        private void DestroyActiveProbeManager()
-        {
-            // Remove the probe's insertion from the list of insertions (does nothing if not found)
-            // ProbeManager.ActiveProbeManager.ProbeController.Insertion.Targetable = false;
+        //private void DestroyActiveProbeManager()
+        //{
+        //    // Remove the probe's insertion from the list of insertions (does nothing if not found)
+        //    // ProbeManager.ActiveProbeManager.ProbeController.Insertion.Targetable = false;
 
-            // Remove Probe
-            DestroyProbe(ProbeManager.ActiveProbeManager);
-        }
+        //    // Remove Probe
+        //    DestroyProbe(ProbeManager.ActiveProbeManager);
+        //}
 
-        private void RecoverActiveProbeController()
-        {
-            if (_restoredProbe) return;
+        //private void RecoverActiveProbeController()
+        //{
+        //    if (_restoredProbe) return;
 
-            ProbeManagerData probeData = JsonUtility.FromJson<ProbeManagerData>(_prevProbeData);
+        //    ProbeManagerData probeData = JsonUtility.FromJson<ProbeManagerData>(_prevProbeData);
 
-            // Don't duplicate probes by accident
-            if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
-            {
-                var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
-                    BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name);
+        //    // Don't duplicate probes by accident
+        //    if (!ProbeManager.Instances.Any(x => x.UUID.Equals(probeData.UUID)))
+        //    {
+        //        var probeInsertion = new ProbeInsertion(probeData.APMLDV, probeData.Angles,
+        //            BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.Name, BrainAtlasManager.ActiveAtlasTransform.Name);
 
-                ProbeManager newProbeManager = AddNewProbe((ProbeType)probeData.Type, probeInsertion,
-                    probeData.NumAxes, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
-                    probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
+        //        ProbeManager newProbeManager = AddNewProbe((ProbeType)probeData.Type, probeInsertion,
+        //            probeData.NumAxes, probeData.ManipulatorID, probeData.ZeroCoordOffset, probeData.BrainSurfaceOffset,
+        //            probeData.Drop2SurfaceWithDepth, probeData.IsRightHanded, probeData.UUID);
 
-                newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
-                newProbeManager.OverrideName = probeData.Name;
-                newProbeManager.Color = probeData.Color;
-                newProbeManager.APITarget = probeData.APITarget;
-            }
+        //        newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
+        //        newProbeManager.OverrideName = probeData.Name;
+        //        newProbeManager.Color = probeData.Color;
+        //        newProbeManager.APITarget = probeData.APITarget;
+        //    }
 
-            _restoredProbe = true;
-        }
+        //    _restoredProbe = true;
+        //}
 
         #region Add Probe Functions
 
@@ -676,6 +677,11 @@ namespace TrajectoryPlanner
         {
             foreach (ProbeManager probeManager in ProbeManager.Instances)
                 probeManager.ProbeController.SetProbePosition();
+        }
+
+        public void UpdateReferenceCoord()
+        {
+            _referenceCoordBehavior.UpdateReferenceCoordinate();
         }
 
         ///

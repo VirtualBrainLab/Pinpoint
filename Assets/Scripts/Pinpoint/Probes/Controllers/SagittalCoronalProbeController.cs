@@ -835,9 +835,9 @@ public class SagittalCoronalProbeController : ProbeController
 
         if (moved)
         {
-            Insertion.APMLDV = origAPMLDV + Insertion.World2T_Vector(newXYZ);
+            Insertion.APMLDV = origAPMLDV + BrainAtlasManager.World2T_Vector(newXYZ);
 #if APP_UI
-            targetPosition = origAPMLDV + Insertion.World2T_Vector(newXYZ);
+            targetPosition = origAPMLDV + BrainAtlasManager.World2T_Vector(newXYZ);
 #endif
         }
 

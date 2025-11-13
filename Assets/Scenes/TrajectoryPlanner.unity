@@ -10842,6 +10842,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _referenceCoordBehavior
+      value: 
+      objectReference: {fileID: 1452920056}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: probePrefabs.Array.size
       value: 4
       objectReference: {fileID: 0}
