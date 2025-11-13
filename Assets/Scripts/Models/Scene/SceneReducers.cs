@@ -887,57 +887,19 @@ namespace Models.Scene
             };
         }
 
-        public static SceneState SetActiveManipulatorReferenceCoordinateReducer(
+        public static SceneState SetInsertionSpeedReducer(
             SceneState state,
-            IAction<Vector4> action
+            IAction<(string Id, int speed)> action
         )
         {
-            // If no active manipulator, return the state unchanged.
-            if (state.ActiveManipulatorState == null)
-                return state;
-
-            // Set the active manipulator's reference coordinate.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[state.ActiveManipulatorIndex].ReferenceCoordinateOffset =
-                action.payload;
-
-            return state with
-            {
-                Manipulators = manipulatorsCopy,
-            };
-        }
-
-        public static SceneState SetActiveManipulatorDuraOffsetReducer(
-            SceneState state,
-            IAction<float> action
-        )
-        {
-            // If no active manipulator, return the state unchanged.
-            if (state.ActiveManipulatorState == null)
-                return state;
-
-            // Update the active manipulator's dura offset.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[state.ActiveManipulatorIndex].DuraOffset = action.payload;
-
-            return state with
-            {
-                Manipulators = manipulatorsCopy,
-            };
-        }
-
-        public static SceneState SetActiveProbeTargetInsertionBaseSpeedReducer(
-            SceneState state,
-            IAction<int> action
-        )
-        {
-            // If no active manipulator, return the state unchanged.
-            if (state.ActiveManipulatorState == null)
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
                 return state;
 
             // Set the active manipulator's target insertion speed.
             var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[state.ActiveManipulatorIndex].InsertionSpeed = action.payload;
+            manipulatorsCopy[index].InsertionSpeed = action.payload.speed;
 
             return state with
             {
@@ -945,18 +907,19 @@ namespace Models.Scene
             };
         }
 
-        public static SceneState SetActiveProbeDrivePastDistanceReducer(
+        public static SceneState SetDrivePastDistanceReducer(
             SceneState state,
-            IAction<int> action
+            IAction<(string Id, int distance)> action
         )
         {
-            // If no active manipulator, return the state unchanged.
-            if (state.ActiveManipulatorState == null)
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
                 return state;
 
             // Set the active manipulator's drive past distance.
             var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[state.ActiveManipulatorIndex].DrivePastDistance = action.payload;
+            manipulatorsCopy[index].DrivePastDistance = action.payload.distance;
 
             return state with
             {
@@ -1189,17 +1152,11 @@ namespace Models.Scene
         public static readonly ActionCreator<string> CANCEL_AUTOMATION_INTERMEDIATE_PROGRESS =
             $"{SliceNames.SCENE_SLICE}/CancelAutomationIntermediateProgress";
 
-        public static readonly ActionCreator<Vector4> SET_ACTIVE_MANIPULATOR_REFERENCE_COORDINATE =
-            $"{SliceNames.SCENE_SLICE}/SetActiveReferenceCoordinate";
+        public static readonly ActionCreator<(string Id, int speed)> SET_INSERTION_SPEED =
+            $"{SliceNames.SCENE_SLICE}/SetInsertionSpeed";
 
-        public static readonly ActionCreator<float> SET_ACTIVE_MANIPULATOR_DURA_OFFSET =
-            $"{SliceNames.SCENE_SLICE}/SetActiveManipulatorDuraOffset";
-
-        public static readonly ActionCreator<int> SET_ACTIVE_PROBE_INSERTION_BASE_SPEED =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeInsertionBaseSpeed";
-
-        public static readonly ActionCreator<int> SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeDrivePastDistance";
+        public static readonly ActionCreator<(string Id, int distance)> SET_DRIVE_PAST_DISTANCE =
+            $"{SliceNames.SCENE_SLICE}/SetDrivePastDistance";
 
         #endregion
 

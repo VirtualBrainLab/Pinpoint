@@ -178,20 +178,12 @@ namespace Services
                             SceneReducers.CancelAutomationIntermediateProgressReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_MANIPULATOR_REFERENCE_COORDINATE,
-                            SceneReducers.SetActiveManipulatorReferenceCoordinateReducer
+                            SceneActions.SET_INSERTION_SPEED,
+                            SceneReducers.SetInsertionSpeedReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_MANIPULATOR_DURA_OFFSET,
-                            SceneReducers.SetActiveManipulatorDuraOffsetReducer
-                        )
-                        .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_INSERTION_BASE_SPEED,
-                            SceneReducers.SetActiveProbeTargetInsertionBaseSpeedReducer
-                        )
-                        .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE,
-                            SceneReducers.SetActiveProbeDrivePastDistanceReducer
+                            SceneActions.SET_DRIVE_PAST_DISTANCE,
+                            SceneReducers.SetDrivePastDistanceReducer
                         )
                         .AddCase(
                             SceneActions.INITIALIZE_AREA_VISIBILITY,
