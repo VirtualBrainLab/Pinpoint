@@ -50,6 +50,16 @@ namespace Models.Scene
         public string TargetInsertionProbeName;
 
         /// <summary>
+        /// Manipulator depth when at the surface coordinate (mm).
+        /// </summary>
+        public float DuraDepth;
+
+        /// <summary>
+        /// Atlas coordinate of the surface coordinate at the point of calibration (entry).
+        /// </summary>
+        public Vector4 DuraCoordinate;
+
+        /// <summary>
         /// Base insertion speed (µm/s).
         /// </summary>
         public int InsertionSpeed;

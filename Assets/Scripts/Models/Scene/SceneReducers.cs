@@ -637,36 +637,56 @@ namespace Models.Scene
             return state with { Manipulators = manipulatorsCopy };
         }
 
-        public static SceneState SetManipulatorDuraOffsetReducer(
+        public static SceneState SetDuraOffsetReducer(
             SceneState state,
-            IAction<(string Id, float DuraOffset)> action
+            IAction<(
+                string Id,
+                float DuraDepth,
+                Vector3 DuraCoordinate,
+                float DuraOffsetDelta
+            )> action
         )
         {
+            // Get manipulator index.
             var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
-            {
-                DuraOffset = action.payload.DuraOffset,
-            };
-            return state with { Manipulators = manipulatorsCopy };
-        }
 
-        public static SceneState ChangeManipulatorDuraOffsetByReducer(
-            SceneState state,
-            IAction<(string Id, float DuraOffsetDelta)> action
-        )
-        {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
-            if (index == -1)
-                return state;
+            // Update the manipulator's states.
             var manipulatorsCopy = state.Manipulators.ToList();
             manipulatorsCopy[index] = manipulatorsCopy[index] with
             {
+                DuraDepth = action.payload.DuraDepth,
+                DuraCoordinate = action.payload.DuraCoordinate,
                 DuraOffset = manipulatorsCopy[index].DuraOffset + action.payload.DuraOffsetDelta,
             };
-            return state with { Manipulators = manipulatorsCopy };
+
+            return state with
+            {
+                Manipulators = manipulatorsCopy,
+            };
+        }
+
+        public static SceneState ResetDuraOffsetReducer(SceneState state, IAction<string> action)
+        {
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            if (index == -1)
+                return state;
+            
+            // Update the manipulator's states.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                DuraDepth = 0,
+                DuraCoordinate = Vector4.zero,
+                DuraOffset = 0,
+            };
+
+            return state with
+            {
+                Manipulators = manipulatorsCopy,
+            };
         }
 
         public static SceneState SetManipulatorManualControlEnabledReducer(
@@ -723,8 +743,10 @@ namespace Models.Scene
 
                 // Update the selected target insertion probe for the active manipulator.
                 var manipulatorsCopy = state.Manipulators.ToList();
-                manipulatorsCopy[index].TargetInsertionProbeName =
-                    action.payload.targetName ?? string.Empty;
+                manipulatorsCopy[index] = manipulatorsCopy[index] with
+                {
+                    TargetInsertionProbeName = action.payload.targetName ?? string.Empty,
+                };
 
                 return state with
                 {
@@ -1124,14 +1146,13 @@ namespace Models.Scene
 
         public static readonly ActionCreator<(
             string Id,
-            float DuraOffset
-        )> SET_MANIPULATOR_DURA_OFFSET = $"{SliceNames.SCENE_SLICE}/SetManipulatorDuraOffset";
-
-        public static readonly ActionCreator<(
-            string Id,
+            float DuraDepth,
+            Vector3 DuraCoordinate,
             float DuraOffsetDelta
-        )> CHANGE_MANIPULATOR_DURA_OFFSET_BY =
-            $"{SliceNames.SCENE_SLICE}/ChangeManipulatorDuraOffsetBy";
+        )> SET_DURA_OFFSET = $"{SliceNames.SCENE_SLICE}/SetDuraOffset";
+
+        public static readonly ActionCreator<string> RESET_DURA_OFFSET =
+            $"{SliceNames.SCENE_SLICE}/ResetDuraOffset";
 
         public static readonly ActionCreator<(
             string Id,

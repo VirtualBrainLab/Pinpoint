@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using BrainAtlas;
 using Models;
 using Models.Scene;
 using Services;
@@ -219,12 +220,8 @@ namespace UI.ViewModels
         [ICommand]
         private async void UseCurrentPositionForReferenceCoordinateOffset()
         {
-            var currentPositionResponse = await _ephysLinkService.GetPosition(ActiveManipulatorId);
-            if (!string.IsNullOrEmpty(currentPositionResponse.Error))
-                return;
-            _storeService.Store.Dispatch(
-                SceneActions.SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET,
-                (ActiveManipulatorId, currentPositionResponse.Position)
+            await _ephysLinkService.SetManipulatorReferenceCoordinateToCurrentPosition(
+                ActiveManipulatorId
             );
         }
 
@@ -300,20 +297,13 @@ namespace UI.ViewModels
         [ICommand]
         private void ResetDuraOffset()
         {
-            ProbeService
-                .ResetActiveProbeDuraOffset()
-                .ContinueWith(task =>
-                {
-                    // Do not proceed if the reset failed.
-                    if (!task.Result)
-                        return;
+            _storeService.Store.Dispatch(SceneActions.RESET_DURA_OFFSET, ActiveManipulatorId);
+        }
 
-                    // If the reset was successful, set calibrated to the Dura.
-                    _storeService.Store.Dispatch(
-                        SceneActions.SET_AUTOMATION_PROGRESS_STATE,
-                        (ActiveManipulatorId, AutomationProgressState.AtDuraInsert)
-                    );
-                });
+        [ICommand]
+        private async void RecalculateDuraOffset()
+        {
+            await _ephysLinkService.SetManipulatorDuraOffsetToCurrentDepth(ActiveManipulatorId);
         }
 
         [ICommand]

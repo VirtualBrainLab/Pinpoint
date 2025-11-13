@@ -73,7 +73,9 @@ namespace UI.Views
             var setReferenceCoordinateOffsetButton = root.Q<Button>(
                 "manipulator-inspector__set-reference-coordinate-offset-button"
             );
-            var duraOffsetField = root.Q<FloatField>("manipulator-inspector__dura-offset-field");
+            var resetDuraOffsetButton = root.Q<IconButton>(
+                "manipulator-inspector__dura-offset--reset-button"
+            );
             var recalculateDuraOffsetButton = root.Q<Button>(
                 "manipulator-inspector__recalculate-dura-offset-button"
             );
@@ -150,10 +152,9 @@ namespace UI.Views
             setReferenceCoordinateOffsetButton.clickable.clicked += manipulatorInspectorViewModel
                 .UseCurrentPositionForReferenceCoordinateOffsetCommand
                 .Execute;
-            duraOffsetField.RegisterValueChangedCallback(evt =>
-            {
-                manipulatorInspectorViewModel.SetDuraOffsetCommand.Execute(evt.newValue);
-            });
+            resetDuraOffsetButton.clickable.clicked += manipulatorInspectorViewModel
+                .ResetDuraOffsetCommand
+                .Execute;
             recalculateDuraOffsetButton.clickable.clicked += manipulatorInspectorViewModel
                 .RecalculateDuraOffsetCommand
                 .Execute;

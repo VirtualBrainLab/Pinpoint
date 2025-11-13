@@ -140,13 +140,10 @@ namespace Services
                             SceneActions.SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET,
                             SceneReducers.SetManipulatorReferenceCoordinateOffsetReducer
                         )
+                        .AddCase(SceneActions.SET_DURA_OFFSET, SceneReducers.SetDuraOffsetReducer)
                         .AddCase(
-                            SceneActions.SET_MANIPULATOR_DURA_OFFSET,
-                            SceneReducers.SetManipulatorDuraOffsetReducer
-                        )
-                        .AddCase(
-                            SceneActions.CHANGE_MANIPULATOR_DURA_OFFSET_BY,
-                            SceneReducers.ChangeManipulatorDuraOffsetByReducer
+                            SceneActions.RESET_DURA_OFFSET,
+                            SceneReducers.ResetDuraOffsetReducer
                         )
                         .AddCase(
                             SceneActions.SET_MANIPULATOR_MANUAL_CONTROL_ENABLED,
@@ -246,7 +243,10 @@ namespace Services
                 {
                     builder
                         .AddCase(RigActions.TOGGLE_WELL, RigReducers.ToggleWellReducer)
-                        .AddCase(RigActions.TOGGLE_RIG_WIDEFIELD, RigReducers.ToggleRigWidefieldReducer)
+                        .AddCase(
+                            RigActions.TOGGLE_RIG_WIDEFIELD,
+                            RigReducers.ToggleRigWidefieldReducer
+                        )
                         .AddCase(RigActions.TOGGLE_MOUSE_SKULL, RigReducers.ToggleMouseSkullReducer)
                         .AddCase(RigActions.TOGGLE_RAT_SKULL, RigReducers.ToggleRatSkullReducer)
                         .AddCase(RigActions.TOGGLE_IBL_CENTER, RigReducers.ToggleIblCenterReducer)

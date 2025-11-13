@@ -54,17 +54,17 @@ namespace UI.Views
                     evt.newValue
                 );
             });
-            
+
             var setReferenceCoordinateOffsetButton = root.Q<Button>(
                 "automation-inspector__set-reference-coordinate-offset-button"
             );
             setReferenceCoordinateOffsetButton.clickable.clicked += _automationInspectorViewModel
                 .UseCurrentPositionForReferenceCoordinateOffsetCommand
                 .Execute;
-            
+
             // Target selection controls.
             _targetDropdown = root.Q<Dropdown>("automation-inspector__target-selection--dropdown");
-            _targetDropdown.RegisterValueChangedCallback(evt =>
+            _targetDropdown.RegisterValueChangedCallback(_ =>
             {
                 _automationInspectorViewModel.SelectTargetInsertionProbeCommand.Execute(
                     _targetDropdown.selectedIndex
@@ -104,27 +104,35 @@ namespace UI.Views
                 };
                 item.Query<Icon>().AtIndex(1).AddToClassList(colorClass);
             };
-            
+
             var targetResetButton = root.Q<IconButton>(
                 "automation-inspector__target-selection--reset-button"
             );
             targetResetButton.clickable.clicked += _automationInspectorViewModel
                 .ResetTargetInsertionProbeSelectionCommand
                 .Execute;
-            
+
             var targetEntryDriveButton = root.Q<Button>(
                 "automation-inspector__target-entry--drive-button"
             );
             var targetEntryStopButton = root.Q<Button>(
                 "automation-inspector__target-entry--stop-button"
             );
-            
+
             // Dura offset controls.
-            var duraOffsetField = root.Q<FloatField>("automation-inspector__dura-offset-field");
+            var duraOffsetResetButton = root.Q<IconButton>(
+                "automation-inspector__dura-offset--reset-button"
+            );
+            duraOffsetResetButton.clickable.clicked += _automationInspectorViewModel
+                .ResetDuraOffsetCommand
+                .Execute;
             var recalculateDuraOffsetButton = root.Q<Button>(
                 "automation-inspector__recalculate-dura-offset-button"
             );
-            
+            recalculateDuraOffsetButton.clickable.clicked += _automationInspectorViewModel
+                .RecalculateDuraOffsetCommand
+                .Execute;
+
             // Drive to target insertion controls.
             var targetInsertionSpeedDropdown = root.Q<Dropdown>(
                 "automation-inspector__target-insertion--speed-dropdown"
@@ -151,7 +159,7 @@ namespace UI.Views
                     _ => "pen",
                 };
             };
-            
+
             var targetInsertionCustomSpeedField = root.Q<FloatField>(
                 "automation-inspector__target-insertion--custom-speed-field"
             );

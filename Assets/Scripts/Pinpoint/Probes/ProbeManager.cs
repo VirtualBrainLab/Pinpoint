@@ -917,7 +917,11 @@ public class ProbeManager : MonoBehaviour
     {
         return (
             _brainSurfaceCoordT,
+#if APP_UI
+            Vector3.Distance(_probeStateCache.APMLDV, _brainSurfaceCoordT)
+#else
             Vector3.Distance(_probeController.Insertion.APMLDV, _brainSurfaceCoordT)
+#endif
         );
     }
 

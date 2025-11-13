@@ -34,11 +34,15 @@
         </engine:VisualElement>
         <engine:VisualElement class="inspectorBox inspector-panel">
             <Unity.AppUI.UI.Heading text="Calibrate Dura Offset" size="S" />
-            <Unity.AppUI.UI.FloatField tooltip="The difference between the atlas&apos;s dura and the real dura" name="automation-inspector__dura-offset-field" format-string="0.###" unit="mm">
-                <Bindings>
-                    <engine:DataBinding property="value" data-source-path="DuraOffset" binding-mode="ToTarget" />
-                </Bindings>
-            </Unity.AppUI.UI.FloatField>
+            <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <Unity.AppUI.UI.FloatField tooltip="The difference between the atlas&apos;s dura and the real dura" format-string="0.###" unit="mm" focusable="false" style="flex-grow: 1;">
+                    <Bindings>
+                        <engine:DataBinding property="value" data-source-path="DuraOffset" binding-mode="ToTarget" />
+                    </Bindings>
+                </Unity.AppUI.UI.FloatField>
+                <Unity.AppUI.UI.Spacer />
+                <Unity.AppUI.UI.IconButton icon="x" name="automation-inspector__dura-offset--reset-button" />
+            </engine:VisualElement>
             <Unity.AppUI.UI.Spacer />
             <Unity.AppUI.UI.Button title="Recalculate" leading-icon="align-bottom-simple" name="automation-inspector__recalculate-dura-offset-button" />
         </engine:VisualElement>
