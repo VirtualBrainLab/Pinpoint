@@ -488,17 +488,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54cf7c9e3abd4c54e876992ba07441ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &545169175 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5215620980862444629, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-  m_PrefabInstance: {fileID: 341190943874437988}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b743370ac3e4ec2a1668f5455a8ef8a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &602476454 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 341190944405478594, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -2653,7 +2642,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 990ff6cc38b3800439f6261677cb81ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _atlasDropdown: {fileID: 545169175}
   _atlasNames:
   - allen_mouse_25um
   - allen_mouse_50um
@@ -2679,7 +2667,6 @@ MonoBehaviour:
   - Cavefish (2um)
   - Prairie Vole (25um)
   _allowedOnWebGL: 0101010101000101010101
-  _transformDropdown: {fileID: 611159662}
 --- !u!114 &2108153969 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7425579377242974598, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
@@ -10960,7 +10947,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_Complete.m_PersistentCalls.m_Calls.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_MetaLoaded.m_PersistentCalls.m_Calls.Array.size
@@ -10972,7 +10959,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _probesChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -11033,7 +11020,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_Complete.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 2108153968}
+      objectReference: {fileID: 1452920056}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_Complete.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
@@ -11153,11 +11140,11 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 672548778}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 672548778}
+      objectReference: {fileID: 1997179506}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
@@ -11176,7 +11163,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_Complete.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ResetAtlasDropdownIndex
+      value: DelayedStart
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_Complete.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
@@ -11280,11 +11267,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetActiveProbeManager
+      value: ResetZoom
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: ResetZoom
+      value: UpdateSelectionDropdown
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
@@ -11372,7 +11359,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_Complete.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: PinpointAtlasManager, trajectoryplanner.core
+      value: ReferenceCoordBehavior, pinpoint.brain
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_Complete.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
@@ -11428,11 +11415,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: TrajectoryPlanner.TP_ProbeQuickSettings, trajectoryplanner.core
+      value: TP_InPlaneSlice, trajectoryplanner.core
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: TP_InPlaneSlice, trajectoryplanner.core
+      value: ChannelMapManager, trajectoryplanner.probe
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
