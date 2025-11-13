@@ -16,6 +16,7 @@ public class Sagittal : ProbeController
     #region State
 
     private IDisposableSubscription _probeStateSubscription;
+    private ProbeState _probeStateCache;
 
     #endregion
 
@@ -298,7 +299,12 @@ return Vector3.right;
         _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
             state => state.Get<SceneState>(SliceNames.SCENE_SLICE).Probes
                 .FirstOrDefault(probeState => probeState.Name == name),
-            OnProbeStateChanged, new SubscribeOptions<ProbeState> { fireImmediately = true });
+            state =>
+            {
+                if (state == _probeStateCache) return;
+                _probeStateCache = state;
+                OnProbeStateChanged(state);
+            }, new SubscribeOptions<ProbeState> { fireImmediately = true });
 #endif
     }
 

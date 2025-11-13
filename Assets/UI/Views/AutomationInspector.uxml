@@ -5,7 +5,7 @@
             <Unity.AppUI.UI.Heading text="Calibrate Reference Coordinate Offset (mm)" size="S" />
             <Unity.AppUI.UI.Vector4Field tooltip="Manipulator&apos;s coordinates when its probe is at the reference coordinate" format-string="0.###" name="automation-inspector__reference-coordinate-offset-field">
                 <Bindings>
-                    <engine:DataBinding property="value" data-source-path="ReferenceCoordinateOffset" binding-mode="ToTarget" />
+                    <engine:DataBinding property="value" data-source-path="ReferenceCoordinate" binding-mode="ToTarget" />
                 </Bindings>
             </Unity.AppUI.UI.Vector4Field>
             <Unity.AppUI.UI.Button title="Use Current Position" leading-icon="waypoint-home" name="automation-inspector__set-reference-coordinate-offset-button" />

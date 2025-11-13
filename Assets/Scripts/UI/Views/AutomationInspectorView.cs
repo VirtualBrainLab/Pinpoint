@@ -43,81 +43,33 @@ namespace UI.Views
             _automationInspectorViewModel = automationInspectorViewModel;
             root.dataSource = _automationInspectorViewModel;
 
-            // Register component references.
+            // Reference coordinate offset controls.
             var referenceCoordinateOffsetField = root.Q<Vector4Field>(
                 "automation-inspector__reference-coordinate-offset-field"
             );
-            var setReferenceCoordinateOffsetButton = root.Q<Button>(
-                "automation-inspector__set-reference-coordinate-offset-button"
-            );
-
-            _targetDropdown = root.Q<Dropdown>("automation-inspector__target-selection--dropdown");
-            var targetResetButton = root.Q<IconButton>(
-                "automation-inspector__target-selection--reset-button"
-            );
-            var targetEntryDriveButton = root.Q<Button>(
-                "automation-inspector__target-entry--drive-button"
-            );
-            var targetEntryStopButton = root.Q<Button>(
-                "automation-inspector__target-entry--stop-button"
-            );
-
-            var duraOffsetField = root.Q<FloatField>("automation-inspector__dura-offset-field");
-            var recalculateDuraOffsetButton = root.Q<Button>(
-                "automation-inspector__recalculate-dura-offset-button"
-            );
-
-            var targetInsertionSpeedDropdown = root.Q<Dropdown>(
-                "automation-inspector__target-insertion--speed-dropdown"
-            );
-            var targetInsertionCustomSpeedField = root.Q<FloatField>(
-                "automation-inspector__target-insertion--custom-speed-field"
-            );
-            var targetInsertionDrivePastDistanceField = root.Q<FloatField>(
-                "automation-inspector__target-insertion--drive-past-distance-field"
-            );
-            var targetInsertionETAText = root.Q<Label>(
-                "automation-inspector__target-insertion--eta-text"
-            );
-            var targetInsertionProgressBar = root.Q<ProgressBar>(
-                "automation-inspector__target-insertion--progress-bar"
-            );
-            var targetInsertionDriveButton = root.Q<Button>(
-                "automation-inspector__target-insertion--drive-button"
-            );
-            var targetInsertionExitButton = root.Q<Button>(
-                "automation-inspector__target-insertion--exit-button"
-            );
-            var targetInsertionStopButton = root.Q<Button>(
-                "automation-inspector__target-insertion--stop-button"
-            );
-
-            // Register event handlers.
+            referenceCoordinateOffsetField.Q<FloatField>().unit = "D";
             referenceCoordinateOffsetField.RegisterValueChangedCallback(evt =>
             {
                 _automationInspectorViewModel.SetReferenceCoordinateOffsetCommand.Execute(
                     evt.newValue
                 );
             });
+            
+            var setReferenceCoordinateOffsetButton = root.Q<Button>(
+                "automation-inspector__set-reference-coordinate-offset-button"
+            );
             setReferenceCoordinateOffsetButton.clickable.clicked += _automationInspectorViewModel
                 .UseCurrentPositionForReferenceCoordinateOffsetCommand
                 .Execute;
-
+            
+            // Target selection controls.
+            _targetDropdown = root.Q<Dropdown>("automation-inspector__target-selection--dropdown");
             _targetDropdown.RegisterValueChangedCallback(evt =>
             {
                 _automationInspectorViewModel.SelectTargetInsertionProbeCommand.Execute(
                     _targetDropdown.selectedIndex
                 );
             });
-            targetResetButton.clickable.clicked += _automationInspectorViewModel
-                .ResetTargetInsertionProbeSelectionCommand
-                .Execute;
-
-            // Register property change handlers.
-            _automationInspectorViewModel.PropertyChanged += OnPropertyChanged;
-            App.shuttingDown += OnShuttingDown;
-
-            // Initialize dropdowns.
             _targetDropdown.sourceItems = _automationInspectorViewModel.TargetInsertionProbeStates;
             _targetDropdown.bindItem = (item, index) =>
             {
@@ -152,6 +104,31 @@ namespace UI.Views
                 };
                 item.Query<Icon>().AtIndex(1).AddToClassList(colorClass);
             };
+            
+            var targetResetButton = root.Q<IconButton>(
+                "automation-inspector__target-selection--reset-button"
+            );
+            targetResetButton.clickable.clicked += _automationInspectorViewModel
+                .ResetTargetInsertionProbeSelectionCommand
+                .Execute;
+            
+            var targetEntryDriveButton = root.Q<Button>(
+                "automation-inspector__target-entry--drive-button"
+            );
+            var targetEntryStopButton = root.Q<Button>(
+                "automation-inspector__target-entry--stop-button"
+            );
+            
+            // Dura offset controls.
+            var duraOffsetField = root.Q<FloatField>("automation-inspector__dura-offset-field");
+            var recalculateDuraOffsetButton = root.Q<Button>(
+                "automation-inspector__recalculate-dura-offset-button"
+            );
+            
+            // Drive to target insertion controls.
+            var targetInsertionSpeedDropdown = root.Q<Dropdown>(
+                "automation-inspector__target-insertion--speed-dropdown"
+            );
             targetInsertionSpeedDropdown.sourceItems = new[]
             {
                 "1 μm/s",
@@ -174,9 +151,32 @@ namespace UI.Views
                     _ => "pen",
                 };
             };
+            
+            var targetInsertionCustomSpeedField = root.Q<FloatField>(
+                "automation-inspector__target-insertion--custom-speed-field"
+            );
+            var targetInsertionDrivePastDistanceField = root.Q<FloatField>(
+                "automation-inspector__target-insertion--drive-past-distance-field"
+            );
+            var targetInsertionETAText = root.Q<Label>(
+                "automation-inspector__target-insertion--eta-text"
+            );
+            var targetInsertionProgressBar = root.Q<ProgressBar>(
+                "automation-inspector__target-insertion--progress-bar"
+            );
+            var targetInsertionDriveButton = root.Q<Button>(
+                "automation-inspector__target-insertion--drive-button"
+            );
+            var targetInsertionExitButton = root.Q<Button>(
+                "automation-inspector__target-insertion--exit-button"
+            );
+            var targetInsertionStopButton = root.Q<Button>(
+                "automation-inspector__target-insertion--stop-button"
+            );
 
-            // Customize field units.
-            referenceCoordinateOffsetField.Q<FloatField>().unit = "D";
+            // Register property change handlers.
+            _automationInspectorViewModel.PropertyChanged += OnPropertyChanged;
+            App.shuttingDown += OnShuttingDown;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)

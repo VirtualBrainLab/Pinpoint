@@ -99,7 +99,6 @@ namespace UI.ViewModels
                 OnSceneStateChanged,
                 new SubscribeOptions<SceneState> { fireImmediately = true }
             );
-            PropertyChanged += OnPropertyChanged;
             App.shuttingDown += OnShuttingDown;
         }
 
@@ -197,47 +196,6 @@ namespace UI.ViewModels
                 return Mathf.Abs(first.x - second.x) % 360 < 0.01f
                     && Mathf.Abs(first.y - second.y) % 360 < 0.01f
                     && Mathf.Abs(first.z - second.z) % 360 < 0.01f;
-            }
-        }
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(ReferenceCoordinate):
-                    // BUG: This won't update the probe's game object position.
-                    _storeService.Store.Dispatch(
-                        SceneActions.SET_ACTIVE_MANIPULATOR_REFERENCE_COORDINATE,
-                        ReferenceCoordinate
-                    );
-                    break;
-                case nameof(DuraOffset):
-                    // BUG: This won't update the probe's game object position.
-                    _storeService.Store.Dispatch(
-                        SceneActions.SET_ACTIVE_MANIPULATOR_DURA_OFFSET,
-                        DuraOffset
-                    );
-                    break;
-                case nameof(SelectedInsertionSpeedIndex) or nameof(CustomInsertionSpeed):
-                    var pickedInsertionBaseSpeed = SelectedInsertionSpeedIndex switch
-                    {
-                        0 => 2,
-                        1 => 5,
-                        2 => 10,
-                        3 => 500,
-                        _ => CustomInsertionSpeed,
-                    };
-                    _storeService.Store.Dispatch(
-                        SceneActions.SET_ACTIVE_PROBE_INSERTION_BASE_SPEED,
-                        pickedInsertionBaseSpeed
-                    );
-                    break;
-                case nameof(DrivePastDistance):
-                    _storeService.Store.Dispatch(
-                        SceneActions.SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE,
-                        DrivePastDistance
-                    );
-                    break;
             }
         }
 
