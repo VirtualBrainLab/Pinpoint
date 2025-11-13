@@ -233,17 +233,16 @@ namespace UI.ViewModels
         {
             // Mark the selected index.
             TargetInsertionProbeIndex = index;
-            
+
             // Set the selected target insertion probe name in the store.
-            var selectedTargetInsertionProbeState =
-                TargetInsertionProbeStates.ElementAt(
-                    TargetInsertionProbeIndex
-                );
+            var selectedTargetInsertionProbeState = TargetInsertionProbeStates.ElementAt(
+                TargetInsertionProbeIndex
+            );
             _storeService.Store.Dispatch(
                 SceneActions.SET_TARGET_INSERTION_PROBE_NAME,
-                selectedTargetInsertionProbeState.Name
+                (ActiveManipulatorId, selectedTargetInsertionProbeState.Name)
             );
-            
+
             // TODO: Call ComputeEntryCoordinateTrajectory once it has been converted.
         }
 
@@ -252,11 +251,11 @@ namespace UI.ViewModels
         {
             // Unset the selected target index.
             TargetInsertionProbeIndex = -1;
-            
+
             // Clear the selected target insertion probe name in the store.
             _storeService.Store.Dispatch(
                 SceneActions.SET_TARGET_INSERTION_PROBE_NAME,
-                string.Empty
+                (ActiveManipulatorId, string.Empty)
             );
         }
 

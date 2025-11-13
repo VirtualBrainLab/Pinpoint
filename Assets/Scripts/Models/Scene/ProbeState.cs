@@ -66,34 +66,5 @@ namespace Models.Scene
         public bool UIVisible = true;
 
         #endregion
-
-        #region Ephys Link Control
-
-        public bool IsEphysLinkControlled;
-
-        public int NumAxes;
-
-        public string ManipulatorID;
-
-        public Vector3 Dimensions;
-
-        public bool IsRightHanded;
-
-        #endregion
-
-        #region Automation
-
-
-        /// <summary>
-        /// Base insertion speed (µm/s).
-        /// </summary>
-        public int InsertionBaseSpeed;
-
-        /// <summary>
-        /// Drive past target distance (µm).
-        /// </summary>
-        public int DrivePastDistance;
-
-        #endregion
     }
 }

@@ -697,25 +697,34 @@ namespace Models.Scene
         /// <returns>State with chosen target updated on the active probe.</returns>
         public static SceneState SetTargetInsertionProbeNameReducer(
             SceneState state,
-            IAction<string> action
+            IAction<(string Id, string targetName)> action
         )
         {
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+
             try
             {
-                // Verify selected target exists and is targetable if it's not empty.
-                if (!string.IsNullOrEmpty(action.payload))
+                // Verify selected target exists and is targetable.
+                if (
+                    !string.IsNullOrEmpty(action.payload.targetName)
+                    || !state.Probes.Exists(probeState =>
+                        probeState.Name == action.payload.targetName
+                    )
+                    || !state.Manipulators.Exists(manipulatorState =>
+                        manipulatorState.VisualizationProbeName == action.payload.targetName
+                    )
+                )
                 {
-                    var selectedTarget = state.Probes.First(probeState =>
-                        probeState.Name == action.payload
-                    );
-                    if (selectedTarget.IsEphysLinkControlled)
-                        throw new ArgumentException("Selected target is not targetable.");
+                    throw new ArgumentException("Selected target is not targetable.");
                 }
 
                 // Update the selected target insertion probe for the active manipulator.
                 var manipulatorsCopy = state.Manipulators.ToList();
-                manipulatorsCopy[state.ActiveManipulatorIndex].TargetInsertionProbeName =
-                    action.payload ?? string.Empty;
+                manipulatorsCopy[index].TargetInsertionProbeName =
+                    action.payload.targetName ?? string.Empty;
 
                 return state with
                 {
@@ -1134,11 +1143,16 @@ namespace Models.Scene
 
         #region Automation Actions
 
-        public static readonly ActionCreator<string> SET_TARGET_INSERTION_PROBE_NAME =
+        public static readonly ActionCreator<(
+            string Id,
+            string targetName
+        )> SET_TARGET_INSERTION_PROBE_NAME =
             $"{SliceNames.SCENE_SLICE}/SetTargetInsertionProbeName";
 
-        public static readonly ActionCreator<(string Id, AutomationProgressState state)> SET_AUTOMATION_PROGRESS_STATE =
-            $"{SliceNames.SCENE_SLICE}/SetAutomationProgressState";
+        public static readonly ActionCreator<(
+            string Id,
+            AutomationProgressState state
+        )> SET_AUTOMATION_PROGRESS_STATE = $"{SliceNames.SCENE_SLICE}/SetAutomationProgressState";
 
         public static readonly ActionCreator<string> SET_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING =
             $"{SliceNames.SCENE_SLICE}/SetAutomationProgressStateToNextDriving";
