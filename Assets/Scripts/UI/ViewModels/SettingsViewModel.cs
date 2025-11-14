@@ -22,6 +22,9 @@ namespace UI.ViewModels
         [ObservableProperty]
         private int _tabIndex;
 
+        [ObservableProperty]
+        private int _inPlaneZoom;
+
         #endregion
 
         public SettingsViewModel(StoreService storeService)
@@ -42,6 +45,7 @@ namespace UI.ViewModels
         private void OnSettingsStateChanged(SettingsState state)
         {
             TabIndex = state.TabIndex;
+            InPlaneZoom = state.inPlaneZoom;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -50,6 +54,9 @@ namespace UI.ViewModels
             {
                 case nameof(TabIndex):
                     _storeService.Store.Dispatch(SettingsActions.SET_TAB_INDEX, TabIndex);
+                    break;
+                case nameof(InPlaneZoom):
+                    _storeService.Store.Dispatch(SettingsActions.SET_IN_PLANE_ZOOM, InPlaneZoom);
                     break;
             }
         }
@@ -60,5 +67,21 @@ namespace UI.ViewModels
             PropertyChanged -= OnPropertyChanged;
             App.shuttingDown -= OnShuttingDown;
         }
+
+        #region Commands
+
+        [ICommand]
+        private void ZoomIn()
+        {
+            InPlaneZoom++;
+        }
+
+        [ICommand]
+        private void ZoomOut()
+        {
+            InPlaneZoom--;
+        }
+
+        #endregion
     }
 }

@@ -1,9 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using TrajectoryPlanner;
 using BrainAtlas;
 using Utils.Types;
+using Models;
+using Models.Scene;
+using Models.Settings;
+using Services;
+using UI;
+using Unity.AppUI.MVVM;
+using Unity.AppUI.Redux;
 
 public class TP_InPlaneSlice : MonoBehaviour
 {
@@ -16,6 +24,8 @@ public class TP_InPlaneSlice : MonoBehaviour
     [SerializeField] private TMP_Text _textY;
 
     [SerializeField] private Renderer _gpuSliceRenderer;
+    [SerializeField] private RenderTexture _inPlaneRenderTexture;
+    [SerializeField] private Material _inPlaneSliceMaterial;
 
     private float probeWidth = 70; // probes are 70um wide
     private int zoomLevel = 0;
@@ -31,29 +41,88 @@ public class TP_InPlaneSlice : MonoBehaviour
 
     public Texture3D texture;
 
+#if APP_UI
+    private StoreService _storeService;
+    private IDisposableSubscription _probeWorldStateSubscription;
+    private ProbeWorldState _cachedProbeWorldState;
+    private IDisposableSubscription _activeProbeStateSubscription;
+    private ProbeState _cachedActiveProbeState;
+    private IDisposableSubscription _settingsStateSubscription;
+#endif
+
     private void Awake()
     {
         _rect = GetComponent<RectTransform>();
 
         ResetRendererParameters();
-    }
 
+#if APP_UI
+        _storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+#endif
+    }
     public void Startup(Texture3D annotationTexture)
     {
-        _gpuSliceRenderer.sharedMaterial.SetTexture("_Volume", annotationTexture);
+        _inPlaneSliceMaterial.SetTexture("_Volume", annotationTexture);
         Vector4 shape = new Vector4(annotationTexture.width, annotationTexture.height, annotationTexture.depth, 0f);
-        _gpuSliceRenderer.sharedMaterial.SetVector("_VolumeSize", shape);
+        _inPlaneSliceMaterial.SetVector("_VolumeSize", shape);
     }
+
+#if APP_UI
+    private void Start()
+    {
+        _probeWorldStateSubscription = _storeService.Store.Subscribe(
+     state =>
+            {
+     var sceneState = state.Get<SceneState>(SliceNames.SCENE_SLICE);
+  var probeWorldSlice = state.Get<ProbeWorldStateSlice>(SliceNames.PROBE_WORLD_SLICE);
+     return probeWorldSlice.GetProbeWorldState(sceneState.ActiveProbeName);
+            },
+probeWorldState =>
+  {
+             _cachedProbeWorldState = probeWorldState;
+    UpdateInPlaneSlice();
+     },
+            new SubscribeOptions<ProbeWorldState> { fireImmediately = true }
+    );
+
+     _activeProbeStateSubscription = _storeService.Store.Subscribe(
+         state =>
+   {
+   var sceneState = state.Get<SceneState>(SliceNames.SCENE_SLICE);
+         return sceneState.Probes.Find(p => p.Name == sceneState.ActiveProbeName);
+     },
+     probeState =>
+        {
+ _cachedActiveProbeState = probeState;
+            UpdateInPlaneSlice();
+        },
+         new SubscribeOptions<ProbeState> { fireImmediately = true }
+    );
+
+        _settingsStateSubscription = _storeService.Store.Subscribe(
+      state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE).inPlaneZoom,
+    UpdateZoom,
+  new SubscribeOptions<int> { fireImmediately = true }
+    );
+    }
+
+    private void OnDestroy()
+    {
+      _probeWorldStateSubscription?.Dispose();
+        _activeProbeStateSubscription?.Dispose();
+   _settingsStateSubscription?.Dispose();
+    }
+#endif
 
     private void ResetRendererParameters()
     {
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", 0f);
-        _gpuSliceRenderer.sharedMaterial.SetVector("_TipPosition", Vector4.zero);
-        _gpuSliceRenderer.sharedMaterial.SetVector("_ForwardDirection", Vector4.zero);
-        _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", Vector4.zero);
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", 0f);
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_Scale", 1f);
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankWidth", probeWidth);
+        _inPlaneSliceMaterial.SetFloat("_FourShankProbe", 0f);
+        _inPlaneSliceMaterial.SetVector("_TipPosition", Vector4.zero);
+        _inPlaneSliceMaterial.SetVector("_ForwardDirection", Vector4.zero);
+        _inPlaneSliceMaterial.SetVector("_UpDirection", Vector4.zero);
+        _inPlaneSliceMaterial.SetFloat("_RecordingRegionSize", 0f);
+        _inPlaneSliceMaterial.SetFloat("_Scale", 1f);
+        _inPlaneSliceMaterial.SetFloat("_ShankWidth", probeWidth);
     }
 
     // *** INPLANE SLICE CODE *** //
@@ -66,21 +135,36 @@ public class TP_InPlaneSlice : MonoBehaviour
     {
         if (!Settings.ShowInPlaneSlice) return;
 
-        if (ProbeManager.ActiveProbeManager == null)
+#if APP_UI
+        if (_cachedProbeWorldState == null || string.IsNullOrEmpty(_cachedProbeWorldState.Name) || _cachedActiveProbeState == null)
         {
             ResetRendererParameters();
             return;
         }
 
-        ProbeInsertion insertion = ProbeManager.ActiveProbeManager.ProbeController.Insertion;
+        Vector3 startCoordWorldU = _cachedProbeWorldState.RecRegionBaseCoordWorldU;
+        Vector3 endCoordWorldU = _cachedProbeWorldState.RecRegionTopCoordWorldU;
 
-        // Get the start/end coordinates of the probe recording region and convert them into *un-transformed* coordinates
-        (Vector3 startCoordWorldU, Vector3 endCoordWorldU) = ProbeManager.ActiveProbeManager.RecRegionCoordWorldU;
+        rightWorldU = _cachedProbeWorldState.TipRightWorldU;
+        upWorldU = _cachedProbeWorldState.TipUpWorldU;
+        forwardWorldU = _cachedProbeWorldState.TipForwardWorldU;
+
+        ProbeType activeProbeType = _cachedActiveProbeState.ProbeType;
+#else
+        if (ProbeManager.ActiveProbeManager == null)
+        {
+            ResetRendererParameters();
+    return;
+        }
+
+      (Vector3 startCoordWorldU, Vector3 endCoordWorldU) = ProbeManager.ActiveProbeManager.RecRegionCoordWorldU;
 
         (_, rightWorldU, upWorldU, forwardWorldU) = ProbeManager.ActiveProbeManager.ProbeController.GetTipWorldU();
 
+        ProbeType activeProbeType = ProbeManager.ActiveProbeManager.ProbeType;
+#endif
+
 #if UNITY_EDITOR
-        // debug statements
         Debug.DrawRay(startCoordWorldU, upWorldU, Color.green);
         Debug.DrawRay(endCoordWorldU, rightWorldU, Color.red);
 #endif
@@ -88,15 +172,13 @@ public class TP_InPlaneSlice : MonoBehaviour
         // Calculate the size
         float recordingSizemmU = Vector3.Distance(startCoordWorldU, endCoordWorldU);
 
-        // This could be improved by moving this check into a property attached to the probe type in some way
         bool fourShank = false;
         bool twoShank = false;
 
-        // This needs to be improved by making it possible to attach shanks to the shader in some way, instead of relying on this per-shank check to render them properly
         float shankSpacing = 0f;
         float centerOffset = 0f;
 
-        switch (ProbeManager.ActiveProbeManager.ProbeType)
+        switch (activeProbeType)
         {
             case ProbeType.Neuropixels24:
                 shankSpacing = -0.25f;
@@ -122,38 +204,44 @@ public class TP_InPlaneSlice : MonoBehaviour
                 twoShank = true;
                 break;
         }
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_ShankSpacing", shankSpacing);
+        _inPlaneSliceMaterial.SetFloat("_ShankSpacing", shankSpacing);
 
         // the slice's "up" direction is the probe's "backward"
         recRegionCenterIdx = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(startCoordWorldU +
             -forwardWorldU * recordingSizemmU / 2 +
             rightWorldU * shankSpacing * centerOffset);
 
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);
+        _inPlaneSliceMaterial.SetFloat("_FourShankProbe", fourShank ? 1f : 0f);
+        _inPlaneSliceMaterial.SetFloat("_TwoShankProbe", twoShank ? 1f : 0f);
 
         Vector3 resolution = BrainAtlasManager.ActiveReferenceAtlas.Resolution;
 
         inPlaneScale = recordingSizemmU * 1.5f * 1000f / resolution.x * zoomFactor;
 
-
-        _gpuSliceRenderer.sharedMaterial.SetVector("_RecordingRegionCenterPosition", recRegionCenterIdx);
-        _gpuSliceRenderer.sharedMaterial.SetVector("_RightDirection", rightWorldU);
+        _inPlaneSliceMaterial.SetVector("_RecordingRegionCenterPosition", recRegionCenterIdx);
+        _inPlaneSliceMaterial.SetVector("_RightDirection", rightWorldU);
         // the slice's "up" direction is the probe's "backward"
-        _gpuSliceRenderer.sharedMaterial.SetVector("_UpDirection", -forwardWorldU);
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_RecordingRegionSize", recordingSizemmU * 1000f / resolution.x);
-        _gpuSliceRenderer.sharedMaterial.SetFloat("_Scale", inPlaneScale);
+        _inPlaneSliceMaterial.SetVector("_UpDirection", -forwardWorldU);
+        _inPlaneSliceMaterial.SetFloat("_RecordingRegionSize", recordingSizemmU * 1000f / resolution.x);
+        _inPlaneSliceMaterial.SetFloat("_Scale", inPlaneScale);
         float roundedMmRecSize = Mathf.Round(recordingSizemmU * 1.5f * zoomFactor * 100) / 100;
 
         string formatted = $"< {roundedMmRecSize} mm >";
         _textX.text = formatted;
         _textY.text = formatted;
+
+        Graphics.Blit(null, _inPlaneRenderTexture, _inPlaneSliceMaterial);
     }
 
     public void InPlaneSliceHover(Vector2 pointerData)
     {
-        if (ProbeManager.ActiveProbeManager == null)
+#if APP_UI
+        if (_cachedProbeWorldState == null || string.IsNullOrEmpty(_cachedProbeWorldState.Name))
             return;
+#else
+        if (ProbeManager.ActiveProbeManager == null)
+   return;
+#endif
 
         Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
@@ -179,8 +267,8 @@ public class TP_InPlaneSlice : MonoBehaviour
 
         // We get the center index, then add the x position * the left vector, then add the y position * the up vector
         // remember that for the probe, up = backward, and left = left
-        Vector3 inPlanePosition = recRegionCenterIdx + 
-            (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-rightWorldU) * inPlanePosNorm.x + 
+        Vector3 inPlanePosition = recRegionCenterIdx +
+            (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-rightWorldU) * inPlanePosNorm.x +
             BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-forwardWorldU) * inPlanePosNorm.y);
         return inPlanePosition;
     }
@@ -197,16 +285,9 @@ public class TP_InPlaneSlice : MonoBehaviour
         return inPlanePosNorm;
     }
 
-    public void ZoomIn()
+    public void UpdateZoom(int zoomLevel)
     {
-        zoomLevel += 1;
-        zoomFactor = Mathf.Pow(0.75f, zoomLevel);
-        UpdateInPlaneSlice();
-    }
-
-    public void ZoomOut()
-    {
-        zoomLevel -= 1;
+        this.zoomLevel = zoomLevel;
         zoomFactor = Mathf.Pow(0.75f, zoomLevel);
         UpdateInPlaneSlice();
     }

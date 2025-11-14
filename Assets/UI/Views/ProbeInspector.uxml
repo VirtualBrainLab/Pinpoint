@@ -1,8 +1,21 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3#GeneralStyles" />
-    <Style src="project://database/Assets/UI/Styles/ProbeInspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3#ProbeInspectorStyle" />
-    <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3#ProbeColors" />
+    <Style src="project://database/Assets/UI/Styles/GeneralStyles.uss?fileID=7433441132597879392&amp;guid=a584e5b7cc579974fb178eba0841b4cb&amp;type=3" />
+    <Style src="project://database/Assets/UI/Styles/ProbeInspectorStyle.uss?fileID=7433441132597879392&amp;guid=a2355dc3cb713b34c80b9934307f1c56&amp;type=3" />
+    <Style src="project://database/Assets/UI/Styles/ProbeColors.uss?fileID=7433441132597879392&amp;guid=9abd22c2e53247999e8fd0a05c609d97&amp;type=3" />
     <engine:VisualElement data-source-type="UI.ViewModels.ProbeInspectorViewModel, Assembly-CSharp">
+        <engine:VisualElement class="inspectorBox inspector-panel" style="width: 100%; height: 410px;">
+            <engine:VisualElement style="flex-grow: 1; align-items: flex-start; flex-direction: row;">
+                <Unity.AppUI.UI.Heading text="In-plane Slice" size="S" />
+                <Unity.AppUI.UI.Spacer style="flex-grow: 1;" />
+                <Unity.AppUI.UI.IconButton icon="plus" name="zoom-in-button" />
+                <Unity.AppUI.UI.Spacer style="flex-grow: 0;" />
+                <Unity.AppUI.UI.IconButton icon="minus" name="zoom-out-button" />
+            </engine:VisualElement>
+            <engine:VisualElement name="in-plane-slice" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/UI/RenderTextures/InplaneSliceRenderTexture.renderTexture?fileID=8400000&amp;guid=9beef1ab54490be479f2c8ee9a66ddca&amp;type=2#InplaneSliceRenderTexture&quot;); background-size: contain; width: 100%; height: 400px;" />
+            <Bindings>
+                <engine:DataBinding property="enabledSelf" data-source-path="Locked" binding-mode="ToTarget" source-to-ui-converters="LockedToEnabled" />
+            </Bindings>
+        </engine:VisualElement>
         <engine:VisualElement style="flex-grow: 1;">
             <engine:VisualElement class="inspectorBox inspector-panel">
                 <Unity.AppUI.UI.Heading text="Position &amp; Orientation" size="S" />

@@ -223,6 +223,7 @@ namespace Services
                 {
                     builder
                         .AddCase(SettingsActions.SET_TAB_INDEX, SettingsReducers.SetTabIndexReducer)
+                        .AddCase(SettingsActions.SET_IN_PLANE_ZOOM, SettingsReducers.SetInPlaneZoomReducer)
                         // Probe Settings.
                         .AddCase(
                             SettingsActions.SET_DETECT_COLLISIONS,

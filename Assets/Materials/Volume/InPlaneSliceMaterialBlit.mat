@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: InPlaneSliceMaterial
-  m_Shader: {fileID: -6465566751694194690, guid: d9469439dbe0fdb4bb0f98b20b23fd29, type: 3}
+  m_Name: InPlaneSliceMaterialBlit
+  m_Shader: {fileID: -6465566751694194690, guid: 5f46e1fe0244d454eb819a99fc585c50, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []

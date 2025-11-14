@@ -13,6 +13,11 @@ namespace Models.Settings
             return state with { TabIndex = action.payload };
         }
 
+        public static SettingsState SetInPlaneZoomReducer(SettingsState state, IAction<int> action)
+        {
+            return state with { inPlaneZoom = action.payload };
+        }
+
         #region Probe Settings
 
         public static SettingsState SetDetectCollisionsReducer(
@@ -82,6 +87,9 @@ namespace Models.Settings
     {
         public static readonly ActionCreator<int> SET_TAB_INDEX =
             $"{SliceNames.SETTINGS_SLICE}/SetTabIndex";
+
+        public static readonly ActionCreator<int> SET_IN_PLANE_ZOOM =
+            $"{SliceNames.SETTINGS_SLICE}/SetInPlaneZoom";
 
         #region Probe Settings
 

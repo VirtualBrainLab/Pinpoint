@@ -64,7 +64,7 @@ namespace Models.Settings
 
         public string AtlasTransformName = "Default";
 
-        public float BregmaLambdaRatio = 1f;
+        public int inPlaneZoom = 0;
 
         #endregion
 
