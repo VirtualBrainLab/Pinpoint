@@ -161,15 +161,10 @@ namespace UI.ViewModels
             var selectedTargetInsertionProbeState = state.Probes.FirstOrDefault(probeState =>
                 probeState.Name == state.ActiveManipulatorState.TargetInsertionProbeName
             );
-            if (
-                selectedTargetInsertionProbeState == null
-                || !TargetInsertionProbeStates.Contains(selectedTargetInsertionProbeState)
-            )
-                TargetInsertionProbeIndex = -1;
-            else
-                TargetInsertionProbeIndex = TargetInsertionProbeStates.IndexOf(
-                    selectedTargetInsertionProbeState
-                );
+            TargetInsertionProbeIndex = (selectedTargetInsertionProbeState == null
+                || !TargetInsertionProbeStates.Contains(selectedTargetInsertionProbeState))
+                ? -1
+                : TargetInsertionProbeStates.IndexOf(selectedTargetInsertionProbeState);
 
             // Update dura offset.
             DuraOffset = state.ActiveManipulatorState.DuraOffset;
