@@ -177,7 +177,7 @@ namespace UI.Views
             var targetInsertionETAText = root.Q<Text>(
                 "automation-inspector__target-insertion--eta-text"
             );
-            var targetInsertionProgressBar = root.Q<ProgressBar>(
+            var targetInsertionProgressBar = root.Q<LinearProgress>(
                 "automation-inspector__target-insertion--progress-bar"
             );
             var targetInsertionDriveButton = root.Q<Button>(
