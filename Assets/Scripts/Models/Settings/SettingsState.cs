@@ -50,7 +50,7 @@ namespace Models.Settings
 
         public bool ShowAllProbePanels = true;
 
-        public float ProbePanelHeight = 1440f;
+        public float ProbePanelHeight = 1600f;
 
         #endregion
 

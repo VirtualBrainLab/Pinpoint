@@ -259,7 +259,7 @@ public class Settings : MonoBehaviour
     }
 
 
-    private const float PROBE_PANEL_HEIGHT_DEFAULT = 1440f;
+    private const float PROBE_PANEL_HEIGHT_DEFAULT = 1600f;
     public UnityEvent<float> ProbePanelHeightChangedEvent;
 
     public static float ProbePanelHeight
