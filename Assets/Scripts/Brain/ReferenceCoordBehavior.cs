@@ -34,6 +34,9 @@ public class ReferenceCoordBehavior : MonoBehaviour
 
     public void UpdateReferenceCoordinate()
     {
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+            return;
+
         CoordinateSpace atlasSpace = BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace;
         SetReferenceCoordinate(atlasSpace.Space2World(Vector3.zero));
         UpdateAxisDirections();
