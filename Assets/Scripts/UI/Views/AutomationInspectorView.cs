@@ -166,7 +166,7 @@ namespace UI.Views
                 )
             );
 
-            var targetInsertionCustomSpeedField = root.Q<FloatField>(
+            var targetInsertionCustomSpeedField = root.Q<IntField>(
                 "automation-inspector__target-insertion--custom-speed-field"
             );
             targetInsertionCustomSpeedField.RegisterValueChangedCallback(evt =>

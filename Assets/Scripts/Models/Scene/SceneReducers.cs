@@ -729,7 +729,7 @@ namespace Models.Scene
             {
                 // Verify selected target exists and is targetable.
                 if (
-                    !string.IsNullOrEmpty(action.payload.targetName)
+                    string.IsNullOrEmpty(action.payload.targetName)
                     || !state.Probes.Exists(probeState =>
                         probeState.Name == action.payload.targetName
                     )

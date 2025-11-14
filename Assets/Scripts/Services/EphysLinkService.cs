@@ -696,10 +696,7 @@ namespace Services
                 
                 // Exit if not in brain.
                 if (float.IsNaN(brainSurfaceCoordinateIdx.x))
-                {
-                    Debug.Log("Can't find surface");
                     return;
-                }
 
                 duraCoordinate = BrainAtlasManager.ActiveAtlasTransform.U2T(
                     BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(
