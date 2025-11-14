@@ -50,6 +50,12 @@ namespace Services
 
         #endregion
 
+        #region Demo Loop
+
+        private readonly Dictionary<string, bool> _runningDemoLoops = new();
+        private const float DEMO_SPEED = 100f; // µm/s
+        #endregion
+
         public EphysLinkService(StoreService storeService)
         {
             // Register services.
@@ -68,6 +74,27 @@ namespace Services
         {
             // Apply small delay to prevent overrunning updates (delay for roughly 60 FPS).
             await Task.Delay(10);
+
+            // Handle demo loop state changes.
+            foreach (var manipulatorState in sceneState.Manipulators)
+            {
+                var isRunning =
+                    _runningDemoLoops.ContainsKey(manipulatorState.Id)
+                    && _runningDemoLoops[manipulatorState.Id];
+
+                switch (manipulatorState.IsDemoRunning)
+                {
+                    // Start demo loop if requested and not already running.
+                    case true when !isRunning:
+                        _runningDemoLoops[manipulatorState.Id] = true;
+                        _ = RunDemoLoop(manipulatorState.Id);
+                        break;
+                    // Stop demo loop if requested and currently running.
+                    case false when isRunning:
+                        await Stop(manipulatorState.Id);
+                        break;
+                }
+            }
 
             // WARNING: this will create an infinite loop of state updates on purpose.
             // Update the position of visualization probes.
@@ -736,6 +763,155 @@ namespace Services
                 SceneActions.SET_MANIPULATOR_DEMO_TARGET_COORDINATE,
                 (manipulatorId, currentPositionResponse.Position)
             );
+        }
+
+        /// <summary>
+        ///     Run the demo loop for a manipulator.
+        ///     Sequence: Home -> Target (X,Z only) -> Target (Y,W only) -> Back to Target (X,Z only) -> repeat indefinitely
+        ///     until IsDemoRunning is set to false or an error occurs.
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to run demo loop for.</param>
+        private async Task RunDemoLoop(string manipulatorId)
+        {
+            while (true)
+            {
+                // Get current manipulator state.
+                var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+                var manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
+                    m.Id == manipulatorId
+                );
+
+                // Exit if manipulator not found.
+                if (manipulatorState == null)
+                {
+                    _runningDemoLoops[manipulatorId] = false;
+                    return;
+                }
+
+                // Exit if demo is no longer running.
+                if (!manipulatorState.IsDemoRunning)
+                {
+                    _runningDemoLoops[manipulatorId] = false;
+                    return;
+                }
+
+                // Step 1: Move to home position.
+                var homeRequest = new SetPositionRequest(
+                    manipulatorId,
+                    manipulatorState.DemoHomeCoordinate,
+                    DEMO_SPEED
+                );
+                var homeResponse = await SetPosition(homeRequest);
+
+                // Exit on error (including stop request).
+                if (HasError(homeResponse.Error))
+                {
+                    _runningDemoLoops[manipulatorId] = false;
+                    return;
+                }
+
+                // Refresh state and check if demo is still running.
+                sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+                manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
+                    m.Id == manipulatorId
+                );
+                if (manipulatorState is not { IsDemoRunning: true })
+                {
+                    _runningDemoLoops[manipulatorId] = false;
+                    return;
+                }
+
+                // Step 2: Move to target position on X and Z axes only (keep Y and W from home).
+                var intermediatePosition = new Vector4(
+                    manipulatorState.DemoTargetCoordinate.x,
+                    manipulatorState.DemoHomeCoordinate.y,
+                    manipulatorState.DemoTargetCoordinate.z,
+                    manipulatorState.DemoHomeCoordinate.w
+                );
+                var intermediateRequest = new SetPositionRequest(
+                    manipulatorId,
+                    intermediatePosition,
+                    DEMO_SPEED
+                );
+                var intermediateResponse = await SetPosition(intermediateRequest);
+
+                // Exit on error (including stop request).
+                if (HasError(intermediateResponse.Error))
+                {
+                    _runningDemoLoops[manipulatorId] = false;
+                    return;
+                }
+
+                // Refresh state and check if demo is still running.
+                sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+                manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
+                    m.Id == manipulatorId
+                );
+                if (manipulatorState is not { IsDemoRunning: true })
+                {
+                    _runningDemoLoops[manipulatorId] = false;
+                    return;
+                }
+
+                // Step 3: Move to target position on Y and W axes only (complete movement to target).
+                var targetRequest = new SetPositionRequest(
+                    manipulatorId,
+                    manipulatorState.DemoTargetCoordinate,
+                    DEMO_SPEED
+                );
+                var targetResponse = await SetPosition(targetRequest);
+
+                // Exit on error (including stop request).
+                if (HasError(targetResponse.Error))
+                {
+                    _runningDemoLoops[manipulatorId] = false;
+                    return;
+                }
+
+                // Refresh state and check if demo is still running.
+                sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+                manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
+                    m.Id == manipulatorId
+                );
+                if (manipulatorState is not { IsDemoRunning: true })
+                {
+                    _runningDemoLoops[manipulatorId] = false;
+                    return;
+                }
+
+                // Step 4: Move back to intermediate position (X,Z only, keeping Y,W from home).
+                var returnToIntermediatePosition = new Vector4(
+                    manipulatorState.DemoTargetCoordinate.x,
+                    manipulatorState.DemoHomeCoordinate.y,
+                    manipulatorState.DemoTargetCoordinate.z,
+                    manipulatorState.DemoHomeCoordinate.w
+                );
+                var returnToIntermediateRequest = new SetPositionRequest(
+                    manipulatorId,
+                    returnToIntermediatePosition,
+                    DEMO_SPEED
+                );
+                var returnToIntermediateResponse = await SetPosition(returnToIntermediateRequest);
+
+                // Exit on error (including stop request).
+                if (HasError(returnToIntermediateResponse.Error))
+                {
+                    _runningDemoLoops[manipulatorId] = false;
+                    return;
+                }
+
+                // Refresh state and check if demo is still running before next iteration.
+                sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+                manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
+                    m.Id == manipulatorId
+                );
+                if (manipulatorState is { IsDemoRunning: true })
+                    continue;
+                _runningDemoLoops[manipulatorId] = false;
+                return;
+
+                // Loop continues to next iteration (back to home).
+            }
         }
 
         #endregion
