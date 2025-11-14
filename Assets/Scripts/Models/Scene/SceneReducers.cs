@@ -516,17 +516,15 @@ namespace Models.Scene
                     continue;
 
                 // If setting to line...
-                if (action.payload)
-                    probesCopy[i] = probeState with { ProbeDisplayType = ProbeDisplayType.Line };
-                // Set to opaque for active probes and transparent otherwise.
-                else
-                    probesCopy[i] = probeState with
-                    {
-                        ProbeDisplayType =
-                            state.ActiveProbeName == probeState.Name
-                                ? ProbeDisplayType.Opaque
-                                : ProbeDisplayType.Transparent,
-                    };
+                // Set ProbeDisplayType based on action.payload and active probe.
+                probesCopy[i] = probeState with
+                {
+                    ProbeDisplayType = action.payload
+                        ? ProbeDisplayType.Line
+                        : (state.ActiveProbeName == probeState.Name
+                            ? ProbeDisplayType.Opaque
+                            : ProbeDisplayType.Transparent),
+                };
             }
 
             return state with
