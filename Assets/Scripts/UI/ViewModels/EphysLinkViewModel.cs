@@ -40,6 +40,9 @@ namespace UI.ViewModels
         [ObservableProperty]
         private EphysLinkConnectionState _ephysLinkConnectionState;
 
+        [ObservableProperty]
+        private string _connectionErrorMessage;
+
         #endregion
 
         public EphysLinkViewModel(StoreService storeService)
@@ -63,7 +66,15 @@ namespace UI.ViewModels
             NewScalePathfinderMpmPort = settingsState.NewScalePathfinderMpmPort;
             CustomServerIpAddress = settingsState.CustomServerIpAddress;
             CustomServerPort = settingsState.CustomServerPort;
+            
+            // Update connection state and clear error message when connected.
+            var previousConnectionState = EphysLinkConnectionState;
             EphysLinkConnectionState = settingsState.EphysLinkConnectionState;
+            if (previousConnectionState != EphysLinkConnectionState.Connected 
+                && EphysLinkConnectionState == EphysLinkConnectionState.Connected)
+            {
+                ConnectionErrorMessage = string.Empty;
+            }
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -118,6 +129,9 @@ namespace UI.ViewModels
         [ICommand]
         private void Connect()
         {
+            // Clear any previous error message.
+            ConnectionErrorMessage = string.Empty;
+
             // Move to connecting state.
             _storeService.Store.Dispatch(
                 SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
@@ -146,18 +160,8 @@ namespace UI.ViewModels
                         {
                             // Connection failed.
                             // State is already set to Disconnected by the service's Disconnect() call.
-                            var alertDialog = new AlertDialog
-                            {
-                                title = "Failed to Connect to Custom Server",
-                                description = errorMessage,
-                                variant = AlertSemantic.Error,
-                            };
-                            alertDialog.SetCancelAction(0, "OK");
-                            var presentationModal = Modal.Build(
-                                PinpointApp.RootVisualElement,
-                                alertDialog
-                            );
-                            presentationModal.Show();
+                            // Display error message inline instead of showing a modal.
+                            ConnectionErrorMessage = errorMessage;
                         }
                     );
                     break;
@@ -179,18 +183,8 @@ namespace UI.ViewModels
                         {
                             // Connection failed after all retry attempts.
                             // State is already set to Disconnected by the service's Disconnect() call.
-                            var alertDialog = new AlertDialog
-                            {
-                                title = "Failed to Connect to Launched Server",
-                                description = errorMessage,
-                                variant = AlertSemantic.Error,
-                            };
-                            alertDialog.SetCancelAction(0, "OK");
-                            var presentationModal = Modal.Build(
-                                PinpointApp.RootVisualElement,
-                                alertDialog
-                            );
-                            presentationModal.Show();
+                            // Display error message inline instead of showing a modal.
+                            ConnectionErrorMessage = errorMessage;
                         }
                         else
                         {

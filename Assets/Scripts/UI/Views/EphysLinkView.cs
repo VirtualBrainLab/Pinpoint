@@ -131,6 +131,15 @@ namespace UI.Views
                 (ref EphysLinkConnectionState connectionState) =>
                     connectionState == EphysLinkConnectionState.Disconnected
             );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<
+                string,
+                StyleEnum<DisplayStyle>
+            >(
+                "StringToDisplayStyleConverter",
+                (ref string value) =>
+                    !string.IsNullOrEmpty(value) ? DisplayStyle.Flex : DisplayStyle.None
+            );
         }
     }
 }
