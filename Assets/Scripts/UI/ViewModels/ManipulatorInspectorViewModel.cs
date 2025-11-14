@@ -136,80 +136,21 @@ namespace UI.ViewModels
         [ICommand]
         private async void UseCurrentPositionForReferenceCoordinateOffset()
         {
-            var currentPositionResponse = await _ephysLinkService.GetPosition(ActiveManipulatorId);
-            if (!string.IsNullOrEmpty(currentPositionResponse.Error))
-                return;
-            _storeService.Store.Dispatch(
-                SceneActions.SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET,
-                (ActiveManipulatorId, currentPositionResponse.Position)
+            await _ephysLinkService.SetManipulatorReferenceCoordinateToCurrentPosition(
+                ActiveManipulatorId
             );
         }
 
         [ICommand]
-        private void SetDuraOffset(float duraOffset)
+        private void ResetDuraOffset()
         {
-            _storeService.Store.Dispatch(
-                SceneActions.SET_MANIPULATOR_DURA_OFFSET,
-                (ActiveManipulatorId, duraOffset)
-            );
+            _storeService.Store.Dispatch(SceneActions.RESET_DURA_OFFSET, ActiveManipulatorId);
         }
 
         [ICommand]
-        private void RecalculateDuraOffset()
+        private async void RecalculateDuraOffset()
         {
-            // Find visualization probe manager.
-            var visualizationProbeManager = ProbeManager.Instances.First(manager =>
-                manager.name == VisualizationProbeName
-            );
-
-            // Get probe state.
-            var visualizationProbeState = _storeService
-                .Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
-                .Probes.First(state => state.Name == VisualizationProbeName);
-
-            // Use distance from tip to the surface of the brain when inside the brain.
-            if (visualizationProbeManager.IsProbeInBrain())
-            {
-                _storeService.Store.Dispatch(
-                    SceneActions.CHANGE_MANIPULATOR_DURA_OFFSET_BY,
-                    (
-                        ActiveManipulatorId,
-                        -Vector3.Distance(
-                            visualizationProbeState.APMLDV,
-                            visualizationProbeManager.GetSurfaceCoordinateT().surfaceCoordinateT
-                        )
-                    )
-                );
-            }
-            // If outside, find the surface first and then compute the distance.
-            else
-            {
-                // Find the surface coordinate.
-                var (brainSurfaceCoordinateIndex, _) =
-                    visualizationProbeManager.CalculateEntryCoordinate();
-
-                // Exit if there's no surface.
-                if (float.IsNaN(brainSurfaceCoordinateIndex.x))
-                {
-                    return;
-                }
-
-                var brainSurfaceToTransformed = BrainAtlasManager.ActiveAtlasTransform.U2T(
-                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(
-                        BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(
-                            brainSurfaceCoordinateIndex
-                        )
-                    )
-                );
-
-                _storeService.Store.Dispatch(
-                    SceneActions.CHANGE_MANIPULATOR_DURA_OFFSET_BY,
-                    (
-                        ActiveManipulatorId,
-                        Vector3.Distance(brainSurfaceToTransformed, visualizationProbeState.APMLDV)
-                    )
-                );
-            }
+            await _ephysLinkService.SetManipulatorDuraOffsetToCurrentDepth(ActiveManipulatorId);
         }
 
         [ICommand]

@@ -94,15 +94,11 @@ namespace Models.Scene
             // Erase the visualization probe reference in manipulators if it points to the removed probe.
             var newManipulatorsList = state.Manipulators.ToList();
             for (var i = 0; i < newManipulatorsList.Count; i++)
-            {
                 if (newManipulatorsList[i].VisualizationProbeName == action.payload)
-                {
                     newManipulatorsList[i] = newManipulatorsList[i] with
                     {
                         VisualizationProbeName = string.Empty,
                     };
-                }
-            }
 
             // Update the state with the new probes list, and update the active probe name if it was removed.
             return state with
@@ -120,21 +116,17 @@ namespace Models.Scene
         {
             var newProbesList = state.Probes.ToList();
             var nonVisualizationProbeList = newProbesList.Where(probeState =>
-                !state
-                    .Manipulators.Select(manipulatorState =>
-                        manipulatorState.VisualizationProbeName
-                    )
-                    .Contains(probeState.Name)
+                !state.Manipulators.Exists(manipulatorState =>
+                    manipulatorState.VisualizationProbeName == probeState.Name
+                )
             );
 
             var newManipulatorsList = state.Manipulators.ToList();
             for (var i = 0; i < newManipulatorsList.Count; i++)
-            {
                 newManipulatorsList[i] = newManipulatorsList[i] with
                 {
                     VisualizationProbeName = string.Empty,
                 };
-            }
 
             return state with
             {
@@ -165,9 +157,29 @@ namespace Models.Scene
             if (!state.Probes.Exists(probe => probe.Name == action.payload))
                 return state;
 
+            // Set opaque/transparent display for probes based on active probe.
+            var probesCopy = state.Probes.ToList();
+            for (var i = 0; i < state.Probes.Count; i++)
+            {
+                var probeState = state.Probes[i];
+
+                // Make visualization probe transparent.
+                var isVisualizationProbe = state.Manipulators.Exists(manipulatorState =>
+                    manipulatorState.VisualizationProbeName == probeState.Name
+                );
+                probesCopy[i] = probeState with
+                {
+                    ProbeDisplayType =
+                        isVisualizationProbe ? ProbeDisplayType.Transparent
+                        : probeState.Name == action.payload ? ProbeDisplayType.Opaque
+                        : ProbeDisplayType.Transparent,
+                };
+            }
+
             // Update the active probe UUID.
             return state with
             {
+                Probes = probesCopy,
                 ActiveProbeName = action.payload,
                 ActiveManipulatorId = "",
             };
@@ -182,9 +194,32 @@ namespace Models.Scene
             if (!state.Manipulators.Exists(manipulator => manipulator.Id == action.payload))
                 return state;
 
+            // Precompute the active manipulator's visualization probe name for efficiency.
+            var activeVisualizationProbeName = state.Manipulators.First(m => m.Id == action.payload)
+                .VisualizationProbeName;
+
+            // Set opaque/transparent display for probes based on active manipulator.
+            var probesCopy = state.Probes.ToList();
+            for (var i = 0; i < state.Probes.Count; i++)
+            {
+                var probeState = state.Probes[i];
+
+                // Use Exists to check whether this probe is a visualization probe and set display type with a single ternary.
+                probesCopy[i] = probeState with
+                {
+                    ProbeDisplayType = state.Manipulators.Exists(manipulatorState =>
+                            manipulatorState.VisualizationProbeName == probeState.Name)
+                        ? (activeVisualizationProbeName == probeState.Name
+                            ? ProbeDisplayType.Opaque
+                            : ProbeDisplayType.Transparent)
+                        : ProbeDisplayType.Transparent,
+                };
+            }
+
             // Update the active manipulator ID.
             return state with
             {
+                Probes = probesCopy,
                 ActiveProbeName = "",
                 ActiveManipulatorId = action.payload,
             };
@@ -463,6 +498,41 @@ namespace Models.Scene
             };
         }
 
+        public static SceneState SetAllProbesToLineReducer(SceneState state, IAction<bool> action)
+        {
+            var probesCopy = state.Probes.ToList();
+
+            // Loop through every probe...
+            for (var i = 0; i < state.Probes.Count; i++)
+            {
+                var probeState = state.Probes[i];
+
+                // Ignore visualization probes.
+                if (
+                    state.Manipulators.Exists(manipulatorState =>
+                        manipulatorState.VisualizationProbeName == probeState.Name
+                    )
+                )
+                    continue;
+
+                // If setting to line...
+                // Set ProbeDisplayType based on action.payload and active probe.
+                probesCopy[i] = probeState with
+                {
+                    ProbeDisplayType = action.payload
+                        ? ProbeDisplayType.Line
+                        : (state.ActiveProbeName == probeState.Name
+                            ? ProbeDisplayType.Opaque
+                            : ProbeDisplayType.Transparent),
+                };
+            }
+
+            return state with
+            {
+                Probes = probesCopy,
+            };
+        }
+
         public static SceneState SetProbeLockedReducer(
             SceneState state,
             IAction<(string Name, bool Locked)> action
@@ -542,36 +612,56 @@ namespace Models.Scene
             return state with { Manipulators = manipulatorsCopy };
         }
 
-        public static SceneState SetManipulatorDuraOffsetReducer(
+        public static SceneState SetDuraOffsetReducer(
             SceneState state,
-            IAction<(string Id, float DuraOffset)> action
+            IAction<(
+                string Id,
+                float DuraDepth,
+                Vector3 DuraCoordinate,
+                float DuraOffsetDelta
+            )> action
         )
         {
+            // Get manipulator index.
             var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
-            {
-                DuraOffset = action.payload.DuraOffset,
-            };
-            return state with { Manipulators = manipulatorsCopy };
-        }
 
-        public static SceneState ChangeManipulatorDuraOffsetByReducer(
-            SceneState state,
-            IAction<(string Id, float DuraOffsetDelta)> action
-        )
-        {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
-            if (index == -1)
-                return state;
+            // Update the manipulator's states.
             var manipulatorsCopy = state.Manipulators.ToList();
             manipulatorsCopy[index] = manipulatorsCopy[index] with
             {
+                DuraDepth = action.payload.DuraDepth,
+                DuraCoordinate = action.payload.DuraCoordinate,
                 DuraOffset = manipulatorsCopy[index].DuraOffset + action.payload.DuraOffsetDelta,
             };
-            return state with { Manipulators = manipulatorsCopy };
+
+            return state with
+            {
+                Manipulators = manipulatorsCopy,
+            };
+        }
+
+        public static SceneState ResetDuraOffsetReducer(SceneState state, IAction<string> action)
+        {
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            if (index == -1)
+                return state;
+
+            // Update the manipulator's states.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                DuraDepth = 0,
+                DuraCoordinate = Vector4.zero,
+                DuraOffset = 0,
+            };
+
+            return state with
+            {
+                Manipulators = manipulatorsCopy,
+            };
         }
 
         public static SceneState SetManipulatorManualControlEnabledReducer(
@@ -595,33 +685,47 @@ namespace Models.Scene
         #region Automation Reducers
 
         /// <summary>
-        ///     Set the selected target insertion probe for the active probe.
+        ///     Set the selected target insertion probe for the active manipulator.
         /// </summary>
         /// <param name="state">Current state.</param>
         /// <param name="action">Chosen probe name in the payload.</param>
         /// <returns>State with chosen target updated on the active probe.</returns>
-        public static SceneState SetSelectedTargetInsertionProbeNameReducer(
+        public static SceneState SetTargetInsertionProbeNameReducer(
             SceneState state,
-            IAction<string> action
+            IAction<(string Id, string targetName)> action
         )
         {
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+
             try
             {
                 // Verify selected target exists and is targetable.
-                var selectedTarget = state.Probes.First(probeState =>
-                    probeState.Name == action.payload
-                );
-                if (selectedTarget.IsEphysLinkControlled)
+                if (
+                    string.IsNullOrEmpty(action.payload.targetName)
+                    || !state.Probes.Exists(probeState =>
+                        probeState.Name == action.payload.targetName
+                    )
+                    || !state.Manipulators.Exists(manipulatorState =>
+                        manipulatorState.VisualizationProbeName == action.payload.targetName
+                    )
+                )
+                {
                     throw new ArgumentException("Selected target is not targetable.");
+                }
 
-                // Update the selected target insertion probe for the active probe.
-                var probesCopy = state.Probes.ToList();
-                probesCopy[state.ActiveProbeIndex].SelectedTargetInsertionProbeName =
-                    action.payload;
+                // Update the selected target insertion probe for the active manipulator.
+                var manipulatorsCopy = state.Manipulators.ToList();
+                manipulatorsCopy[index] = manipulatorsCopy[index] with
+                {
+                    TargetInsertionProbeName = action.payload.targetName ?? string.Empty,
+                };
 
                 return state with
                 {
-                    Probes = probesCopy,
+                    Manipulators = manipulatorsCopy,
                 };
             }
             catch (Exception)
@@ -631,36 +735,38 @@ namespace Models.Scene
             }
         }
 
-        public static SceneState SetActiveProbeAutomationProgressStateReducer(
+        public static SceneState SetAutomationProgressStateReducer(
             SceneState state,
-            IAction<AutomationProgressState> action
+            IAction<(string Id, AutomationProgressState state)> action
         )
         {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
                 return state;
 
-            // Set the active probe's automation progress state.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].AutomationProgressState = action.payload;
+            // Set the automation progress state.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index].AutomationProgressState = action.payload.state;
 
             return state with
             {
-                Probes = probesCopy,
+                Manipulators = manipulatorsCopy,
             };
         }
 
-        public static SceneState SetActiveProbeAutomationProgressStateToNextDrivingReducer(
+        public static SceneState SetAutomationProgressStateToNextDrivingReducer(
             SceneState state,
-            IAction action
+            IAction<string> action
         )
         {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            if (index == -1)
                 return state;
 
             // Move to next driving state if possible. If not, return the state unchanged.
-            var newProgressState = state.ActiveProbeState.AutomationProgressState switch
+            var newProgressState = state.Manipulators[index].AutomationProgressState switch
             {
                 AutomationProgressState.IsCalibrated =>
                     AutomationProgressState.DrivingToTargetEntryCoordinate,
@@ -669,30 +775,31 @@ namespace Models.Scene
                     AutomationProgressState.DrivingToPastTarget,
                 AutomationProgressState.AtPastTarget => AutomationProgressState.ReturningToTarget,
                 AutomationProgressState.AtTarget => AutomationProgressState.DrivingToNearTarget,
-                _ => state.ActiveProbeState.AutomationProgressState,
+                _ => state.Manipulators[index].AutomationProgressState,
             };
 
-            // Set the active probe's automation progress state to driving to target entry coordinate.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].AutomationProgressState = newProgressState;
+            // Set the manipulator's automation progress state to driving to target entry coordinate.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index].AutomationProgressState = newProgressState;
 
             return state with
             {
-                Probes = probesCopy,
+                Manipulators = manipulatorsCopy,
             };
         }
 
-        public static SceneState SetActiveProbeAutomationProgressStateToNextExitingReducer(
+        public static SceneState SetAutomationProgressStateToNextExitingReducer(
             SceneState state,
-            IAction action
+            IAction<string> action
         )
         {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            if (index == -1)
                 return state;
 
             // Move to next exiting state if possible. If not, return the state unchanged.
-            var newProgressState = state.ActiveProbeState.AutomationProgressState switch
+            var newProgressState = state.Manipulators[index].AutomationProgressState switch
             {
                 AutomationProgressState.AtDuraInsert
                 or AutomationProgressState.AtNearTargetInsert
@@ -701,30 +808,31 @@ namespace Models.Scene
                 AutomationProgressState.AtDuraExit => AutomationProgressState.ExitingToMargin,
                 AutomationProgressState.AtExitMargin =>
                     AutomationProgressState.ExitingToTargetEntryCoordinate,
-                _ => state.ActiveProbeState.AutomationProgressState,
+                _ => state.Manipulators[index].AutomationProgressState,
             };
 
-            // Set the active probe's automation progress state to next exiting state.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].AutomationProgressState = newProgressState;
+            // Set the manipulator's automation progress state to next exiting state.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index].AutomationProgressState = newProgressState;
 
             return state with
             {
-                Probes = probesCopy,
+                Manipulators = manipulatorsCopy,
             };
         }
 
-        public static SceneState CompleteActiveProbeAutomationIntermediateProgressReducer(
+        public static SceneState CompleteAutomationIntermediateProgressReducer(
             SceneState state,
-            IAction action
+            IAction<string> action
         )
         {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            if (index == -1)
                 return state;
 
             // Move to next landmark progress state if possible. If not, return the state unchanged.
-            var newProgressState = state.ActiveProbeState.AutomationProgressState switch
+            var newProgressState = state.Manipulators[index].AutomationProgressState switch
             {
                 AutomationProgressState.DrivingToTargetEntryCoordinate =>
                     AutomationProgressState.AtTargetEntryCoordinate,
@@ -736,30 +844,31 @@ namespace Models.Scene
                 AutomationProgressState.ExitingToMargin => AutomationProgressState.AtExitMargin,
                 AutomationProgressState.ExitingToTargetEntryCoordinate =>
                     AutomationProgressState.AtTargetEntryCoordinate,
-                _ => state.ActiveProbeState.AutomationProgressState,
+                _ => state.Manipulators[index].AutomationProgressState,
             };
 
-            // Complete the intermediate progress for the active probe.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].AutomationProgressState = newProgressState;
+            // Complete the intermediate progress for the manipulator.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index].AutomationProgressState = newProgressState;
 
             return state with
             {
-                Probes = probesCopy,
+                Manipulators = manipulatorsCopy,
             };
         }
 
-        public static SceneState CancelActiveProbeAutomationIntermediateProgressReducer(
+        public static SceneState CancelAutomationIntermediateProgressReducer(
             SceneState state,
-            IAction action
+            IAction<string> action
         )
         {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            if (index == -1)
                 return state;
 
             // Revert to the previous landmark progress state if possible. If not, return the state unchanged.
-            var newProgressState = state.ActiveProbeState.AutomationProgressState switch
+            var newProgressState = state.Manipulators[index].AutomationProgressState switch
             {
                 AutomationProgressState.DrivingToTargetEntryCoordinate =>
                     AutomationProgressState.IsCalibrated,
@@ -771,92 +880,59 @@ namespace Models.Scene
                 AutomationProgressState.ExitingToMargin => AutomationProgressState.AtDuraExit,
                 AutomationProgressState.ExitingToTargetEntryCoordinate =>
                     AutomationProgressState.AtExitMargin,
-                _ => state.ActiveProbeState.AutomationProgressState,
+                _ => state.Manipulators[index].AutomationProgressState,
             };
 
-            // Cancel the intermediate progress for the active probe.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].AutomationProgressState = newProgressState;
+            // Cancel the intermediate progress for the manipulator.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index].AutomationProgressState = newProgressState;
 
             return state with
             {
-                Probes = probesCopy,
-            };
-        }
-
-        public static SceneState SetActiveProbeReferenceCoordinateReducer(
-            SceneState state,
-            IAction<Vector4> action
-        )
-        {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
-                return state;
-
-            // Set the active probe's reference coordinate.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].ReferenceCoordinateOffset = action.payload;
-
-            return state with
-            {
-                Probes = probesCopy,
+                Manipulators = manipulatorsCopy,
             };
         }
 
-        public static SceneState SetActiveProbeDuraOffsetReducer(
+        public static SceneState SetInsertionSpeedReducer(
             SceneState state,
-            IAction<float> action
+            IAction<(string Id, int speed)> action
         )
         {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
                 return state;
 
-            // Set the active probe's Dura offset.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].DuraDepth = action.payload;
+            // Set the active manipulator's target insertion speed.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                InsertionSpeed = action.payload.speed,
+            };
 
             return state with
             {
-                Probes = probesCopy,
+                Manipulators = manipulatorsCopy,
             };
         }
 
-        public static SceneState SetActiveProbeTargetInsertionBaseSpeedReducer(
+        public static SceneState SetDrivePastDistanceReducer(
             SceneState state,
-            IAction<int> action
+            IAction<(string Id, int distance)> action
         )
         {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
+            // Get manipulator index.
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
                 return state;
 
-            // Set the active probe's target insertion speed.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].InsertionBaseSpeed = action.payload;
+            // Set the active manipulator's drive past distance.
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index].DrivePastDistance = action.payload.distance;
 
             return state with
             {
-                Probes = probesCopy,
-            };
-        }
-
-        public static SceneState SetActiveProbeDrivePastDistanceReducer(
-            SceneState state,
-            IAction<int> action
-        )
-        {
-            // If no active probe, return the state unchanged.
-            if (state.ActiveProbeState == null)
-                return state;
-
-            // Set the active probe's drive past distance.
-            var probesCopy = state.Probes.ToList();
-            probesCopy[state.ActiveProbeIndex].DrivePastDistance = action.payload;
-
-            return state with
-            {
-                Probes = probesCopy,
+                Manipulators = manipulatorsCopy,
             };
         }
 
@@ -1022,6 +1098,9 @@ namespace Models.Scene
         public static readonly ActionCreator<(string, ProbeColor)> SET_PROBE_COLOR =
             $"{SliceNames.SCENE_SLICE}/SetProbeColor";
 
+        public static readonly ActionCreator<bool> SET_ALL_PROBES_TO_LINE =
+            $"{SliceNames.SCENE_SLICE}/SetAllProbesToLine";
+
         public static readonly ActionCreator<(string, bool)> SET_PROBE_LOCKED =
             $"{SliceNames.SCENE_SLICE}/SetProbeLocked";
 
@@ -1045,14 +1124,13 @@ namespace Models.Scene
 
         public static readonly ActionCreator<(
             string Id,
-            float DuraOffset
-        )> SET_MANIPULATOR_DURA_OFFSET = $"{SliceNames.SCENE_SLICE}/SetManipulatorDuraOffset";
-
-        public static readonly ActionCreator<(
-            string Id,
+            float DuraDepth,
+            Vector3 DuraCoordinate,
             float DuraOffsetDelta
-        )> CHANGE_MANIPULATOR_DURA_OFFSET_BY =
-            $"{SliceNames.SCENE_SLICE}/ChangeManipulatorDuraOffsetBy";
+        )> SET_DURA_OFFSET = $"{SliceNames.SCENE_SLICE}/SetDuraOffset";
+
+        public static readonly ActionCreator<string> RESET_DURA_OFFSET =
+            $"{SliceNames.SCENE_SLICE}/ResetDuraOffset";
 
         public static readonly ActionCreator<(
             string Id,
@@ -1064,35 +1142,34 @@ namespace Models.Scene
 
         #region Automation Actions
 
-        public static readonly ActionCreator<string> SET_SELECTED_TARGET_INSERTION_PROBE_NAME =
-            $"{SliceNames.SCENE_SLICE}/SetSelectedTargetInsertionProbeName";
+        public static readonly ActionCreator<(
+            string Id,
+            string targetName
+        )> SET_TARGET_INSERTION_PROBE_NAME =
+            $"{SliceNames.SCENE_SLICE}/SetTargetInsertionProbeName";
 
-        public static readonly ActionCreator<AutomationProgressState> SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationProgressState";
+        public static readonly ActionCreator<(
+            string Id,
+            AutomationProgressState state
+        )> SET_AUTOMATION_PROGRESS_STATE = $"{SliceNames.SCENE_SLICE}/SetAutomationProgressState";
 
-        public static readonly ActionCreator SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationProgressStateToNextDriving";
+        public static readonly ActionCreator<string> SET_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING =
+            $"{SliceNames.SCENE_SLICE}/SetAutomationProgressStateToNextDriving";
 
-        public static readonly ActionCreator SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_EXITING =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeAutomationProgressStateToNextExiting";
+        public static readonly ActionCreator<string> SET_AUTOMATION_PROGRESS_STATE_TO_NEXT_EXITING =
+            $"{SliceNames.SCENE_SLICE}/SetAutomationProgressStateToNextExiting";
 
-        public static readonly ActionCreator COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS =
-            $"{SliceNames.SCENE_SLICE}/CompleteActiveProbeAutomationIntermediateProgress";
+        public static readonly ActionCreator<string> COMPLETE_AUTOMATION_INTERMEDIATE_PROGRESS =
+            $"{SliceNames.SCENE_SLICE}/CompleteAutomationIntermediateProgress";
 
-        public static readonly ActionCreator CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS =
-            $"{SliceNames.SCENE_SLICE}/CancelActiveProbeAutomationIntermediateProgress";
+        public static readonly ActionCreator<string> CANCEL_AUTOMATION_INTERMEDIATE_PROGRESS =
+            $"{SliceNames.SCENE_SLICE}/CancelAutomationIntermediateProgress";
 
-        public static readonly ActionCreator<Vector4> SET_ACTIVE_PROBE_REFERENCE_COORDINATE =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeReferenceCoordinate";
+        public static readonly ActionCreator<(string Id, int speed)> SET_INSERTION_SPEED =
+            $"{SliceNames.SCENE_SLICE}/SetInsertionSpeed";
 
-        public static readonly ActionCreator<float> SET_ACTIVE_PROBE_DURA_OFFSET =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeDuraOffset";
-
-        public static readonly ActionCreator<int> SET_ACTIVE_PROBE_INSERTION_BASE_SPEED =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeInsertionBaseSpeed";
-
-        public static readonly ActionCreator<int> SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE =
-            $"{SliceNames.SCENE_SLICE}/SetActiveProbeDrivePastDistance";
+        public static readonly ActionCreator<(string Id, int distance)> SET_DRIVE_PAST_DISTANCE =
+            $"{SliceNames.SCENE_SLICE}/SetDrivePastDistance";
 
         #endregion
 
@@ -1107,11 +1184,12 @@ namespace Models.Scene
 
         #region Brain Atlas
 
-        public static readonly ActionCreator<Dictionary<int, AreaDisplayType>> INITIALIZE_AREA_VISIBILITY =
-            $"{SliceNames.SCENE_SLICE}/InitializeAreaVisibility";
+        public static readonly ActionCreator<
+            Dictionary<int, AreaDisplayType>
+        > INITIALIZE_AREA_VISIBILITY = $"{SliceNames.SCENE_SLICE}/InitializeAreaVisibility";
 
         public static readonly ActionCreator<int> ROTATE_AREA_VISIBILITY =
-      $"{SliceNames.SCENE_SLICE}/RotateAreaVisibility";
+            $"{SliceNames.SCENE_SLICE}/RotateAreaVisibility";
 
         #endregion
     }

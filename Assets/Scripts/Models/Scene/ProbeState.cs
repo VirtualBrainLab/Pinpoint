@@ -21,7 +21,7 @@ namespace Models.Scene
         public ProbeColor Color = ProbeColor.DarkBlue;
         public Color ColorValue => ProbeProperties.ProbeColors[(int)Color];
 
-        public ProbeDisplayType ProbeDisplayType = ProbeDisplayType.Opaque;
+        public ProbeDisplayType ProbeDisplayType = ProbeDisplayType.Transparent;
 
         public bool Locked;
 
@@ -64,46 +64,6 @@ namespace Models.Scene
         public bool IsActive = false;
 
         public bool UIVisible = true;
-
-        #endregion
-
-        #region Ephys Link Control
-
-        public bool IsEphysLinkControlled;
-
-        public int NumAxes;
-
-        public string ManipulatorID;
-
-        public Vector3 Dimensions;
-
-        public bool IsRightHanded;
-
-        #endregion
-
-        #region Automation
-
-        public AutomationProgressState AutomationProgressState;
-
-        public Vector4 ReferenceCoordinateOffset;
-
-        public string SelectedTargetInsertionProbeName;
-
-        public float DuraDepth;
-
-        public Vector3 DuraCoordinate;
-
-        public bool Drop2SurfaceWithDepth;
-
-        /// <summary>
-        /// Base insertion speed (µm/s).
-        /// </summary>
-        public int InsertionBaseSpeed;
-
-        /// <summary>
-        /// Drive past target distance (µm).
-        /// </summary>
-        public int DrivePastDistance;
 
         #endregion
     }

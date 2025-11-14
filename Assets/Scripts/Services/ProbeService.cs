@@ -12,6 +12,7 @@ using UnityEngine;
 
 namespace Services
 {
+    // FIXME: DEPRECATED: manipulator is separated from probe services.
     public class ProbeService
     {
         [Service]
@@ -87,11 +88,11 @@ namespace Services
             }
 
             // TODO: Update to not use ProbeManager directly.
-            _ = activeProbeManager.ManipulatorBehaviorController.Drive(
-                new ProbeManager(),
-                activeProbeState.InsertionBaseSpeed,
-                activeProbeState.DrivePastDistance
-            );
+            // _ = activeProbeManager.ManipulatorBehaviorController.Drive(
+            //     new ProbeManager(),
+            //     activeProbeState.InsertionBaseSpeed,
+            //     activeProbeState.DrivePastDistance
+            // );
         }
 
         public async Task<bool> InsertionExitActiveProbe()
@@ -114,7 +115,7 @@ namespace Services
             // TODO: Update to not use ProbeManager data directly.
             return await activeProbeManager.ManipulatorBehaviorController.Exit(
                 new ProbeManager(),
-                activeProbeState.InsertionBaseSpeed
+                0//activeProbeState.InsertionBaseSpeed
             );
         }
 

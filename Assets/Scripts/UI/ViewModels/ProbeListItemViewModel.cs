@@ -38,8 +38,7 @@ namespace UI.ViewModels
 
             IsVisualizationProbe = storeService
                 .Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
-                .Manipulators.Select(state => state.VisualizationProbeName)
-                .Contains(_probeState.Name);
+                .Manipulators.Exists(state => state.VisualizationProbeName == probeState.Name);
             Color = _probeState.Color;
             Name = _probeState.Name;
             Hidden = _probeState.ProbeDisplayType == ProbeDisplayType.Line;

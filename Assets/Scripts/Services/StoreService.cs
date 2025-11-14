@@ -57,6 +57,10 @@ namespace Services
                 {
                     builder
                         .AddCase(
+                            MainActions.SET_IS_AUTOMATION_ENABLED,
+                            MainReducers.SetIsAutomationEnabledReducer
+                        )
+                        .AddCase(
                             MainActions.SET_MAIN_SPLIT_VIEW_STATE,
                             MainReducers.SetMainSplitViewStateReducer
                         )
@@ -122,6 +126,10 @@ namespace Services
                             SceneReducers.ChangeProbeAnglesByReducer
                         )
                         .AddCase(SceneActions.SET_PROBE_COLOR, SceneReducers.SetProbeColorReducer)
+                        .AddCase(
+                            SceneActions.SET_ALL_PROBES_TO_LINE,
+                            SceneReducers.SetAllProbesToLineReducer
+                        )
                         .AddCase(SceneActions.SET_PROBE_LOCKED, SceneReducers.SetProbeLockedReducer)
                         // Manipulator.
                         .AddCase(
@@ -136,13 +144,10 @@ namespace Services
                             SceneActions.SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET,
                             SceneReducers.SetManipulatorReferenceCoordinateOffsetReducer
                         )
+                        .AddCase(SceneActions.SET_DURA_OFFSET, SceneReducers.SetDuraOffsetReducer)
                         .AddCase(
-                            SceneActions.SET_MANIPULATOR_DURA_OFFSET,
-                            SceneReducers.SetManipulatorDuraOffsetReducer
-                        )
-                        .AddCase(
-                            SceneActions.CHANGE_MANIPULATOR_DURA_OFFSET_BY,
-                            SceneReducers.ChangeManipulatorDuraOffsetByReducer
+                            SceneActions.RESET_DURA_OFFSET,
+                            SceneReducers.ResetDuraOffsetReducer
                         )
                         .AddCase(
                             SceneActions.SET_MANIPULATOR_MANUAL_CONTROL_ENABLED,
@@ -150,44 +155,36 @@ namespace Services
                         )
                         // Automation.
                         .AddCase(
-                            SceneActions.SET_SELECTED_TARGET_INSERTION_PROBE_NAME,
-                            SceneReducers.SetSelectedTargetInsertionProbeNameReducer
+                            SceneActions.SET_TARGET_INSERTION_PROBE_NAME,
+                            SceneReducers.SetTargetInsertionProbeNameReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE,
-                            SceneReducers.SetActiveProbeAutomationProgressStateReducer
+                            SceneActions.SET_AUTOMATION_PROGRESS_STATE,
+                            SceneReducers.SetAutomationProgressStateReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING,
-                            SceneReducers.SetActiveProbeAutomationProgressStateToNextDrivingReducer
+                            SceneActions.SET_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING,
+                            SceneReducers.SetAutomationProgressStateToNextDrivingReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_AUTOMATION_PROGRESS_STATE_TO_NEXT_EXITING,
-                            SceneReducers.SetActiveProbeAutomationProgressStateToNextExitingReducer
+                            SceneActions.SET_AUTOMATION_PROGRESS_STATE_TO_NEXT_EXITING,
+                            SceneReducers.SetAutomationProgressStateToNextExitingReducer
                         )
                         .AddCase(
-                            SceneActions.COMPLETE_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS,
-                            SceneReducers.CompleteActiveProbeAutomationIntermediateProgressReducer
+                            SceneActions.COMPLETE_AUTOMATION_INTERMEDIATE_PROGRESS,
+                            SceneReducers.CompleteAutomationIntermediateProgressReducer
                         )
                         .AddCase(
-                            SceneActions.CANCEL_ACTIVE_PROBE_AUTOMATION_INTERMEDIATE_PROGRESS,
-                            SceneReducers.CancelActiveProbeAutomationIntermediateProgressReducer
+                            SceneActions.CANCEL_AUTOMATION_INTERMEDIATE_PROGRESS,
+                            SceneReducers.CancelAutomationIntermediateProgressReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_REFERENCE_COORDINATE,
-                            SceneReducers.SetActiveProbeReferenceCoordinateReducer
+                            SceneActions.SET_INSERTION_SPEED,
+                            SceneReducers.SetInsertionSpeedReducer
                         )
                         .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_DURA_OFFSET,
-                            SceneReducers.SetActiveProbeDuraOffsetReducer
-                        )
-                        .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_INSERTION_BASE_SPEED,
-                            SceneReducers.SetActiveProbeTargetInsertionBaseSpeedReducer
-                        )
-                        .AddCase(
-                            SceneActions.SET_ACTIVE_PROBE_DRIVE_PAST_DISTANCE,
-                            SceneReducers.SetActiveProbeDrivePastDistanceReducer
+                            SceneActions.SET_DRIVE_PAST_DISTANCE,
+                            SceneReducers.SetDrivePastDistanceReducer
                         )
                         .AddCase(
                             SceneActions.INITIALIZE_AREA_VISIBILITY,
@@ -250,7 +247,10 @@ namespace Services
                 {
                     builder
                         .AddCase(RigActions.TOGGLE_WELL, RigReducers.ToggleWellReducer)
-                        .AddCase(RigActions.TOGGLE_RIG_WIDEFIELD, RigReducers.ToggleRigWidefieldReducer)
+                        .AddCase(
+                            RigActions.TOGGLE_RIG_WIDEFIELD,
+                            RigReducers.ToggleRigWidefieldReducer
+                        )
                         .AddCase(RigActions.TOGGLE_MOUSE_SKULL, RigReducers.ToggleMouseSkullReducer)
                         .AddCase(RigActions.TOGGLE_RAT_SKULL, RigReducers.ToggleRatSkullReducer)
                         .AddCase(RigActions.TOGGLE_IBL_CENTER, RigReducers.ToggleIblCenterReducer)

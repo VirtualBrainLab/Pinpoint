@@ -16,6 +16,7 @@ public class Sagittal : ProbeController
     #region State
 
     private IDisposableSubscription _probeStateSubscription;
+    private ProbeState _probeStateCache;
 
     #endregion
 
@@ -298,7 +299,12 @@ return Vector3.right;
         _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
             state => state.Get<SceneState>(SliceNames.SCENE_SLICE).Probes
                 .FirstOrDefault(probeState => probeState.Name == name),
-            OnProbeStateChanged, new SubscribeOptions<ProbeState> { fireImmediately = true });
+            state =>
+            {
+                if (state == _probeStateCache) return;
+                _probeStateCache = state;
+                OnProbeStateChanged(state);
+            }, new SubscribeOptions<ProbeState> { fireImmediately = true });
 #endif
     }
 
@@ -662,15 +668,15 @@ return Vector3.right;
     /// </summary>
     public void DragMovementClick()
     {
-        // ignore mouse clicks if we're over a UI element
-        // Cancel movement if being controlled by EphysLink
+        // Ignore mouse clicks if we're over a UI element.
+        // Cancel movement if probe is a visualization probe or locked.
 #if APP_UI
         // Get the starting state of this probe.
-        var startingProbeState = PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE).Probes
-            .FirstOrDefault(state => state.Name == name);
+        var startingSceneState = PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE);
+        var startingProbeState = startingSceneState.Probes.FirstOrDefault(state => state.Name == name);
 
         if (EventSystem.current.IsPointerOverGameObject() || startingProbeState == null ||
-            startingProbeState.IsEphysLinkControlled ||
+            startingSceneState.Manipulators.Exists(state => state.VisualizationProbeName == name) ||
             startingProbeState.Locked) return;
 #else
         if (EventSystem.current.IsPointerOverGameObject() || ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)
@@ -724,14 +730,16 @@ return Vector3.right;
     /// </summary>
     public void DragMovementDrag()
     {
-        // Cancel movement if being controlled by EphysLink
+        // Cancel movement if this is a visualization probe or locked.
 #if APP_UI
         // Get the current state of this probe.
-        var currentProbeState = PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE).Probes
-            .FirstOrDefault(state => state.Name == name);
+        var currentSceneState = PinpointApp.StoreServiceStore.GetState<SceneState>(SliceNames.SCENE_SLICE);
+        var currentProbeState = currentSceneState.Probes.FirstOrDefault(state => state.Name == name);
 
         // Exit if there is no state.
-        if (currentProbeState == null || currentProbeState.IsEphysLinkControlled || currentProbeState.Locked) return;
+        if (currentProbeState == null ||
+            currentSceneState.Manipulators.Exists(state => state.VisualizationProbeName == name) ||
+            currentProbeState.Locked) return;
 #else
         if (ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)
             return;

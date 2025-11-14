@@ -37,6 +37,7 @@ public class ProbeManager : MonoBehaviour
     #region State
 
     private IDisposableSubscription _probeStateSubscription;
+    private ProbeState _probeStateCache;
     private IDisposableSubscription _settingsStateSubscription;
 
     #endregion
@@ -316,7 +317,12 @@ public class ProbeManager : MonoBehaviour
                 state
                     .Get<SceneState>(SliceNames.SCENE_SLICE)
                     .Probes.FirstOrDefault(probeState => probeState.Name == name),
-            OnProbeStateChanged,
+            state =>
+            {
+                if (state == _probeStateCache) return;
+                _probeStateCache = state;
+                OnProbeStateChanged(state);
+            },
             new SubscribeOptions<ProbeState> { fireImmediately = true }
         );
 #endif
@@ -911,7 +917,11 @@ public class ProbeManager : MonoBehaviour
     {
         return (
             _brainSurfaceCoordT,
+#if APP_UI
+            Vector3.Distance(_probeStateCache.APMLDV, _brainSurfaceCoordT)
+#else
             Vector3.Distance(_probeController.Insertion.APMLDV, _brainSurfaceCoordT)
+#endif
         );
     }
 
@@ -1216,7 +1226,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     private void SetMaterialsTransparent()
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !APP_UI
         Debug.Log($"Setting materials for {name} to transparent");
 #endif
         if (_lineRenderer != null)
@@ -1238,7 +1248,7 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     private void SetMaterialsDefault()
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !APP_UI
         Debug.Log($"Setting materials for {name} to default");
 #endif
         if (_lineRenderer != null)
@@ -1255,7 +1265,7 @@ public class ProbeManager : MonoBehaviour
 
     private void SetMaterialsLine()
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !APP_UI
         Debug.Log($"Setting materials for {name} to line");
 #endif
         foreach (var childRenderer in _activeRenderers)
