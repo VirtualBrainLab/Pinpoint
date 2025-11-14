@@ -70,5 +70,15 @@ namespace Models.Scene
         public int DrivePastDistance;
 
         #endregion
+
+        #region Demo
+
+        public Vector4 DemoHomeCoordinate;
+        
+        public Vector4 DemoTargetCoordinate;
+
+        public bool IsDemoRunning;
+
+        #endregion
     }
 }

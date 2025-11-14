@@ -156,6 +156,18 @@ namespace Services
                             SceneActions.SET_MANIPULATOR_MANUAL_CONTROL_ENABLED,
                             SceneReducers.SetManipulatorManualControlEnabledReducer
                         )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_DEMO_HOME_COORDINATE,
+                            SceneReducers.SetManipulatorDemoHomeCoordinateReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_DEMO_TARGET_COORDINATE,
+                            SceneReducers.SetManipulatorDemoTargetCoordinateReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_DEMO_RUNNING,
+                            SceneReducers.SetManipulatorDemoRunningReducer
+                        )
                         // Automation.
                         .AddCase(
                             SceneActions.SET_TARGET_INSERTION_PROBE_NAME,
@@ -268,12 +280,18 @@ namespace Services
                 builder =>
                 {
                     builder
-                        .AddCase(AtlasSettingsActions.SET_ATLAS_NAME, AtlasSettingsReducers.SetAtlasNameReducer)
+                        .AddCase(
+                            AtlasSettingsActions.SET_ATLAS_NAME,
+                            AtlasSettingsReducers.SetAtlasNameReducer
+                        )
                         .AddCase(
                             AtlasSettingsActions.SET_ATLAS_TRANSFORM_NAME,
                             AtlasSettingsReducers.SetAtlasTransformNameReducer
                         )
-                        .AddCase(AtlasSettingsActions.SET_REFERENCE_COORD, AtlasSettingsReducers.SetReferenceCoordReducer)
+                        .AddCase(
+                            AtlasSettingsActions.SET_REFERENCE_COORD,
+                            AtlasSettingsReducers.SetReferenceCoordReducer
+                        )
                         .AddCase(
                             AtlasSettingsActions.TOGGLE_SHOW_3D_SLICES,
                             AtlasSettingsReducers.ToggleShow3DSlicesReducer

@@ -83,6 +83,19 @@ namespace UI.Views
                 "manipulator-inspector__manual-control-toggle"
             );
 
+            var demoHomeCoordinateField = root.Q<Vector4Field>(
+                "manipulator-inspector__demo--home-field"
+            );
+            var demoSetHomeButton = root.Q<Button>("manipulator-inspector__demo--set-home-button");
+            var demoTargetCoordinateField = root.Q<Vector4Field>(
+                "manipulator-inspector__demo--target-field"
+            );
+            var demoSetTargetButton = root.Q<Button>(
+                "manipulator-inspector__demo--set-target-button"
+            );
+            var runDemoButton = root.Q<Button>("manipulator-inspector__demo--run-button");
+            var stopDemoButton = root.Q<Button>("manipulator-inspector__demo--stop-button");
+
             // Register event handlers.
             addNeuropixels10.clickable.clicked += () =>
                 manipulatorInspectorViewModel.AddVisualizationProbeCommand.Execute(
@@ -162,6 +175,24 @@ namespace UI.Views
             {
                 manipulatorInspectorViewModel.SetManualControlEnabledCommand.Execute(evt.newValue);
             });
+            demoHomeCoordinateField.RegisterValueChangedCallback(evt =>
+            {
+                manipulatorInspectorViewModel.SetDemoHomeCoordinateCommand.Execute(evt.newValue);
+            });
+            demoSetHomeButton.clickable.clicked += manipulatorInspectorViewModel
+                .SetDemoHomeToCurrentPositionCommand
+                .Execute;
+            demoTargetCoordinateField.RegisterValueChangedCallback(evt =>
+            {
+                manipulatorInspectorViewModel.SetDemoTargetCoordinateCommand.Execute(evt.newValue);
+            });
+            demoSetTargetButton.clickable.clicked += manipulatorInspectorViewModel
+                .SetDemoTargetToCurrentPositionCommand
+                .Execute;
+            runDemoButton.clickable.clicked += () =>
+                manipulatorInspectorViewModel.SetIsDemoRunningCommand.Execute(true);
+            stopDemoButton.clickable.clicked += () =>
+                manipulatorInspectorViewModel.SetIsDemoRunningCommand.Execute(false);
 
             // Customize field units.
             anglesField.Q<FloatField>("appui-vector3field__x-field").unit = "Yaw";
@@ -218,6 +249,15 @@ namespace UI.Views
             DataTypeConverters.RegisterUnidirectionalConverterGroup(
                 "ManipulatorHandednessToRightButtonSelected",
                 (ref ManipulatorHandedness handedness) => handedness == ManipulatorHandedness.Right
+            );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup<bool, StyleEnum<DisplayStyle>>(
+                "DemoIsRunningToRunButtonVisibility",
+                (ref bool isDemoRunning) => isDemoRunning ? DisplayStyle.None : DisplayStyle.Flex
+            );
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "DemoIsRunningToInputsEnabled",
+                (ref bool isDemoRunning) => !isDemoRunning
             );
         }
     }
