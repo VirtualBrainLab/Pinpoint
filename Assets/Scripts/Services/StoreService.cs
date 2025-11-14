@@ -44,6 +44,10 @@ namespace Services
                 SliceNames.RIG_SLICE,
                 new RigState()
             );
+            var initialAtlasSettingsState = _localStorageService.GetValue(
+                SliceNames.ATLAS_SETTINGS_SLICE,
+                new AtlasSettingsState()
+            );
 
             // Initialize the Redux store.
             var mainSlice = StoreFactory.CreateSlice(
@@ -255,8 +259,26 @@ namespace Services
                         .AddCase(RigActions.TOGGLE_UCLA, RigReducers.ToggleUclaReducer);
                 }
             );
+            var atlasSettingsSlice = StoreFactory.CreateSlice(
+                SliceNames.ATLAS_SETTINGS_SLICE,
+                initialAtlasSettingsState,
+                builder =>
+                {
+                    builder
+                        .AddCase(AtlasSettingsActions.SET_ATLAS_NAME, AtlasSettingsReducers.SetAtlasNameReducer)
+                        .AddCase(
+                            AtlasSettingsActions.SET_ATLAS_TRANSFORM_NAME,
+                            AtlasSettingsReducers.SetAtlasTransformNameReducer
+                        )
+                        .AddCase(AtlasSettingsActions.SET_REFERENCE_COORD, AtlasSettingsReducers.SetReferenceCoordReducer)
+                        .AddCase(
+                            AtlasSettingsActions.TOGGLE_SHOW_3D_SLICES,
+                            AtlasSettingsReducers.ToggleShow3DSlicesReducer
+                        );
+                }
+            );
             Store = StoreFactory.CreateStore(
-                new ISlice<PartitionedState>[] { mainSlice, sceneSlice, settingsSlice, rigSlice }
+                new ISlice<PartitionedState>[] { mainSlice, sceneSlice, settingsSlice, rigSlice, atlasSettingsSlice }
             );
         }
 
@@ -287,6 +309,12 @@ namespace Services
             _localStorageService.SetValue(
                 SliceNames.RIG_SLICE,
                 Store.GetState<RigState>(SliceNames.RIG_SLICE)
+            );
+
+            // Atlas settings state.
+            _localStorageService.SetValue(
+                SliceNames.ATLAS_SETTINGS_SLICE,
+                Store.GetState<AtlasSettingsState>(SliceNames.ATLAS_SETTINGS_SLICE)
             );
         }
     }

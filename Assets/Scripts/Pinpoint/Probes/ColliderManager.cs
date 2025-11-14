@@ -121,7 +121,6 @@ public class ColliderManager : MonoBehaviour
         if (detectCollisions)
         {
             bool collided = CheckCollisionsHelper();
-            Debug.Log($"Collision check result: {collided}");
 
             if (collided)
                 SetCollisionPanelVisibility(true);

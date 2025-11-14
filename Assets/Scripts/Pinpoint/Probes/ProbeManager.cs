@@ -1065,7 +1065,9 @@ public class ProbeManager : MonoBehaviour
 
             if (!done)
             {
+#if UNITY_EDITOR
                 Debug.LogWarning("Impossible to find brain surface from here");
+#endif
                 return (new Vector3(float.NaN, float.NaN, float.NaN), false);
             }
         }

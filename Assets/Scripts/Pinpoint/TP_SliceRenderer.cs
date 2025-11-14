@@ -2,16 +2,18 @@ using BrainAtlas;
 using System;
 using TMPro;
 using TrajectoryPlanner;
+using Unity.AppUI.MVVM;
+using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 public class TP_SliceRenderer : MonoBehaviour
 {
-    [FormerlySerializedAs("sagittalSliceGO")] [SerializeField] private GameObject _sagittalSliceGo;
-    [FormerlySerializedAs("coronalSliceGO")] [SerializeField] private GameObject _coronalSliceGo;
-    [FormerlySerializedAs("tpmanager")] [SerializeField] private TrajectoryPlannerManager _tpmanager;
-    [FormerlySerializedAs("inPlaneSlice")] [SerializeField] private TP_InPlaneSlice _inPlaneSlice;
-    [FormerlySerializedAs("dropdownMenu")] [SerializeField] private TMP_Dropdown _dropdownMenu;
+    [FormerlySerializedAs("sagittalSliceGO")][SerializeField] private GameObject _sagittalSliceGo;
+    [FormerlySerializedAs("coronalSliceGO")][SerializeField] private GameObject _coronalSliceGo;
+    [FormerlySerializedAs("tpmanager")][SerializeField] private TrajectoryPlannerManager _tpmanager;
+    [FormerlySerializedAs("inPlaneSlice")][SerializeField] private TP_InPlaneSlice _inPlaneSlice;
+    [FormerlySerializedAs("dropdownMenu")][SerializeField] private TMP_Dropdown _dropdownMenu;
     [SerializeField] PinpointAtlasManager _pinpointAtlasManager;
 
     private bool camXLeft;
@@ -25,11 +27,19 @@ public class TP_SliceRenderer : MonoBehaviour
     private Vector3[] _coronalOrigWorldU;
     private Vector3[] _sagittalOrigWorldU;
 
+#if APP_UI
+    private Services.StoreService _storeService;
+#endif
+
     private void Awake()
     {
         saggitalSliceMaterial = _sagittalSliceGo.GetComponent<Renderer>().material;
         coronalSliceMaterial = _coronalSliceGo.GetComponent<Renderer>().material;
         _started = false;
+
+#if APP_UI
+        _storeService = UI.PinpointApp.Services.GetService<Services.StoreService>();
+#endif
     }
 
     public void Startup(Texture3D annotationTexture)
@@ -49,32 +59,39 @@ public class TP_SliceRenderer : MonoBehaviour
 
         // -x+y, +x+y, +x-y, -x-y
         _coronalOrigWorldU = new Vector3[] {
-                new Vector3(-dims.y, -dims.z, 0f),
-                new Vector3(dims.y, -dims.z, 0f),
-                new Vector3(-dims.y, dims.z, 0f),
-                new Vector3(dims.y, dims.z, 0f)
-            };
+ new Vector3(-dims.y, -dims.z, 0f),
+  new Vector3(dims.y, -dims.z, 0f),
+          new Vector3(-dims.y, dims.z, 0f),
+            new Vector3(dims.y, dims.z, 0f)
+  };
 
         // -z+y, +z+y, +z-y, -z-y
         _sagittalOrigWorldU = new Vector3[] {
-                new Vector3(0f, -dims.z, -dims.x),
-                new Vector3(0f, -dims.z, dims.x),
-                new Vector3(0f, dims.z, -dims.x),
-                new Vector3(0f, dims.z, dims.x)
-            };
+           new Vector3(0f, -dims.z, -dims.x),
+  new Vector3(0f, -dims.z, dims.x),
+        new Vector3(0f, dims.z, -dims.x),
+        new Vector3(0f, dims.z, dims.x)
+    };
 
         _started = true;
     }
 
     private float apWorldmm;
     private float mlWorldmm;
-    
+
     /// <summary>
     /// Shift the position of the sagittal and coronal slices to match the tip of the active probe
     /// </summary>
     public void UpdateSlicePosition()
     {
-        if (Settings.Slice3DDropdownOption > 0 && _started)
+#if APP_UI
+        var atlasSettingsState = _storeService.Store.GetState<Models.Settings.AtlasSettingsState>(Models.SliceNames.ATLAS_SETTINGS_SLICE);
+        bool show3DSlices = atlasSettingsState.Show3DSlices;
+#else
+        bool show3DSlices = Settings.Slice3DDropdownOption > 0;
+#endif
+
+        if (show3DSlices && _started)
         {
             // Use the un-transformed CCF coordinates to obtain the position in the CCF volume
             Vector3 tipCoordWorldU = Vector3.zero;
@@ -112,7 +129,16 @@ public class TP_SliceRenderer : MonoBehaviour
 
     public void UpdateCameraPosition()
     {
-        if (Settings.Slice3DDropdownOption == 0 || !_started)
+#if APP_UI
+        if (_storeService == null)
+            return;
+        var atlasSettingsState = _storeService.Store.GetState<Models.Settings.AtlasSettingsState>(Models.SliceNames.ATLAS_SETTINGS_SLICE);
+        bool show3DSlices = atlasSettingsState.Show3DSlices;
+#else
+        bool show3DSlices = Settings.Slice3DDropdownOption > 0;
+#endif
+
+        if (!show3DSlices || !_started || Camera.main == null)
             return;
 
         Vector3 camPosition = Camera.main.transform.position;
@@ -142,7 +168,7 @@ public class TP_SliceRenderer : MonoBehaviour
     }
 
     private void UpdateNodeModelSlicing()
-    {   
+    {
         Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
 
         Vector3 tipCoordWorld = Vector3.zero;
@@ -154,20 +180,21 @@ public class TP_SliceRenderer : MonoBehaviour
             // camYBack means the camera is looking from the back
             if (camYBack)
                 // if we're looking from the back, we want to show the brain in the front
-                node.SetShaderProperty("_APClip", new Vector2(-dims.x/2f, tipCoordWorld.z));
+                node.SetShaderProperty("_APClip", new Vector2(-dims.x / 2f, tipCoordWorld.z));
             else
-                node.SetShaderProperty("_APClip", new Vector2(tipCoordWorld.z, dims.x/2f));
+                node.SetShaderProperty("_APClip", new Vector2(tipCoordWorld.z, dims.x / 2f));
 
             if (!camXLeft)
                 // clip from mlPosition forward
-                node.SetShaderProperty("_MLClip", new Vector2(tipCoordWorld.x, dims.y/2f));
+                node.SetShaderProperty("_MLClip", new Vector2(tipCoordWorld.x, dims.y / 2f));
             else
-                node.SetShaderProperty("_MLClip", new Vector2(-dims.y/2f, tipCoordWorld.x));
+                node.SetShaderProperty("_MLClip", new Vector2(-dims.y / 2f, tipCoordWorld.x));
         }
     }
 
     private void ClearNodeModelSlicing()
     {
+
         // Update the renderers on the node objects
         foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
         {
@@ -180,7 +207,7 @@ public class TP_SliceRenderer : MonoBehaviour
     {
         _dropdownMenu.SetValueWithoutNotify(sliceType);
 
-        if (sliceType==0)
+        if (sliceType == 0)
         {
             // make slices invisible
             _sagittalSliceGo.SetActive(false);

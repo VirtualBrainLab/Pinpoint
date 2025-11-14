@@ -275,87 +275,6 @@ public class Settings : MonoBehaviour
 
     #endregion
 
-    #region Atlas
-    private const string ATLAS_DEFAULT = "allen_mouse_25um";
-    public static Action<string> AtlasChanged;
-
-    public static string AtlasName
-    {
-        get { return data.AtlasName; }
-        set
-        {
-            data.AtlasName = value;
-            Save();
-            AtlasChanged?.Invoke(data.AtlasName);
-        }
-    }
-
-
-    // Display the 3D area slice
-    private const int SHOW3DSLICE_DEFAULT = 0;
-    public UnityEvent<int> Slice3DChangedEvent;
-
-    public static int Slice3DDropdownOption
-    {
-        get { return data.ShowAtlas3DSlices; }
-        set
-        {
-            data.ShowAtlas3DSlices = value;
-            Save();
-            Instance.Slice3DChangedEvent.Invoke(data.ShowAtlas3DSlices);
-        }
-    }
-
-    private readonly Vector3 RELCOORD_DEFAULT = new Vector3(float.NaN, float.NaN, float.NaN);
-    public UnityEvent<Vector3> RelativeCoordinateChangedEvent;
-
-    public static Vector3 ReferenceCoord
-    {
-        get { return data.RelativeCoord; }
-        set
-        {
-            data.RelativeCoord = value;
-            Save();
-            Instance.RelativeCoordinateChangedEvent.Invoke(data.RelativeCoord);
-        }
-    }
-
-
-    private const string INVIVO_DEFAULT = "Default";
-    public static Action<string> AtlasTransformChangedEvent;
-
-    public static string AtlasTransformName
-    {
-        get
-        {
-            return data.AtlasTransformName;
-        }
-        set
-        {
-            data.AtlasTransformName = value;
-            Save();
-            AtlasTransformChangedEvent.Invoke(data.AtlasTransformName);
-        }
-    }
-
-    private const float BREGMALAMBDA_DEFAULT = 1f;
-    public UnityEvent<float> BregmaLambdaChangedEvent;
-
-    public static float BregmaLambdaRatio
-    {
-        get
-        {
-            return data.BregmaLambdaRatio;
-        }
-        set
-        {
-            data.BregmaLambdaRatio = value;
-            Save();
-            Instance.BregmaLambdaChangedEvent.Invoke(data.BregmaLambdaRatio);
-        }
-    }
-
-    #endregion
 
     #region Ephys Link
 
@@ -634,18 +553,10 @@ public class Settings : MonoBehaviour
             data.ShowBregmaAxis = SHOWBREGMAAXIS_DEFAULT;
             data.GhostInactiveAreas = GHOSTINACTIVEAREAS_DEFAULT;
             data.GhostInactiveProbes = GHOSTINACTIVEPROBES_DEFAULT;
-            data.ShowAtlas3DSlices = SHOW3DSLICE_DEFAULT;
             data.ShowInPlaneSlice = SHOWINPLANE_DEFAULT;
             data.ProbePanelHeight = PROBE_PANEL_HEIGHT_DEFAULT;
             data.UnitsInUM = DISPLAYUM_DEFAULT;
             data.ShowAllProbePanels = SHOWALLPROBEPANELS_DEFAULT;
-
-            // atlas
-            data.AtlasName = ATLAS_DEFAULT;
-            data.ShowAtlas3DSlices = SHOW3DSLICE_DEFAULT;
-            data.RelativeCoord = RELCOORD_DEFAULT;
-            data.AtlasTransformName = INVIVO_DEFAULT;
-            data.BregmaLambdaRatio = BREGMALAMBDA_DEFAULT;
 
             // ephys link
             data.EphysLinkServerIP = "";
@@ -687,8 +598,6 @@ public class Settings : MonoBehaviour
 
         _acronymToggle.SetIsOnWithoutNotify(UseAcronyms);
 
-        Slice3DChangedEvent.Invoke(data.ShowAtlas3DSlices);
-
         _surfaceToggle.SetIsOnWithoutNotify(ShowSurfaceCoordinate);
         ShowBregmaAxis = data.ShowBregmaAxis;
 
@@ -710,19 +619,6 @@ public class Settings : MonoBehaviour
         _axisControlToggle.SetIsOnWithoutNotify(AxisControl);
 
         _showAllProbePanelsToggle.SetIsOnWithoutNotify(ShowAllProbePanels);
-
-        // Atlas
-        AtlasName = data.AtlasName;
-        // if the scene was not reset, use the active atlas
-        if (PlayerPrefs.HasKey("scene-atlas-reset") && PlayerPrefs.GetInt("scene-atlas-reset") == 0)
-            AtlasTransformName = data.AtlasTransformName;
-        // if the scene was reset or this is the first time loading, go back to the default null transform
-        else
-            AtlasTransformName = INVIVO_DEFAULT;
-
-        // the relative coordinate needs to be set, since it gets propagated downstream
-        ReferenceCoord = data.RelativeCoord;
-        BregmaLambdaRatio = data.BregmaLambdaRatio;
 
         // Accounts
         _stayLoggedInToggle.SetIsOnWithoutNotify(StayLoggedIn);

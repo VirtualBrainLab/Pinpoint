@@ -8,26 +8,28 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.AppUI.Redux;
 using Utils.Types;
+using Unity.AppUI.MVVM;
 
 public class PinpointAtlasManager : MonoBehaviour
 {
-    [SerializeField] private TMP_Dropdown _atlasDropdown;
     [SerializeField] List<string> _atlasNames;
     [SerializeField] List<string> _atlasMappings;
     [SerializeField] List<bool> _allowedOnWebGL;
-
-    [SerializeField] private TMP_Dropdown _transformDropdown;
 
     private Dictionary<string, string> _atlasNameMapping;
     private Dictionary<string, bool> _allowedOnWebGLMapping;
     private Dictionary<int, AreaDisplayType> _cachedAreaState;
     private List<string> _allowedNames;
 
-    public HashSet<OntologyNode> DefaultNodes;
+    public HashSet<OntologyNode> DefaultNodes = new();
+
+#if APP_UI
+    private Services.StoreService _storeService;
+    private IDisposableSubscription _atlasSettingsSubscription;
+#endif
 
     private void Awake()
     {
-        DefaultNodes = new();
         _cachedAreaState = new();
 
         if (_atlasNames.Count != _atlasMappings.Count)
@@ -42,16 +44,43 @@ public class PinpointAtlasManager : MonoBehaviour
         }
 
         UI.PinpointApp.StoreServiceStore.Subscribe(
-            state => state.Get<Models.Scene.SceneState>(Models.SliceNames.SCENE_SLICE),
-            sceneState =>
-            {
-                UpdateBrainAreaVisibility(sceneState.BrainAreaVisibility);
-            },
-            new SubscribeOptions<Models.Scene.SceneState> { fireImmediately = true }
-        );
+              state => state.Get<Models.Scene.SceneState>(Models.SliceNames.SCENE_SLICE),
+             sceneState =>
+                   {
+                       UpdateBrainAreaVisibility(sceneState.BrainAreaVisibility);
+                   },
+         new SubscribeOptions<Models.Scene.SceneState> { fireImmediately = true }
+               );
 
-        Settings.AtlasTransformChangedEvent += SetNewTransform;
+#if APP_UI
+        _storeService = UI.PinpointApp.Services.GetService<Services.StoreService>();
+
+        _atlasSettingsSubscription = _storeService.Store.Subscribe(
+       state => state.Get<Models.Settings.AtlasSettingsState>(Models.SliceNames.ATLAS_SETTINGS_SLICE),
+        OnAtlasSettingsStateChanged,
+           new SubscribeOptions<Models.Settings.AtlasSettingsState> { fireImmediately = true }
+            );
+#else
+  Settings.AtlasTransformChangedEvent += SetNewTransform;
+#endif
     }
+
+#if APP_UI
+    private void OnAtlasSettingsStateChanged(Models.Settings.AtlasSettingsState state)
+    {
+        if (!float.IsNaN(state.ReferenceCoord.x))
+        {
+            if (BrainAtlasManager.ActiveReferenceAtlas == null)
+                return;
+            BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace.ReferenceCoord = state.ReferenceCoord;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        _atlasSettingsSubscription?.Dispose();
+    }
+#endif
 
     /// <summary>
     /// Updates brain area visibility based on the state of AreaDisplayType enums
@@ -65,7 +94,8 @@ public class PinpointAtlasManager : MonoBehaviour
         var opaqueMaterial = BrainAtlasManager.BrainRegionMaterials["opaque-lit"];
         var transparentMaterial = BrainAtlasManager.BrainRegionMaterials["transparent-unlit"];
 
-        foreach (var kVP in brainAreaVisibility) {
+        foreach (var kVP in brainAreaVisibility)
+        {
             var areaID = kVP.Key;
             var displayType = kVP.Value;
 
@@ -164,85 +194,13 @@ public class PinpointAtlasManager : MonoBehaviour
             Debug.Log(transform.Name);
 #endif
 
-        PopulateAtlasDropdown();
-        PopulateTransformDropdown();
     }
 
     #region Atlas
 
-    public void PopulateAtlasDropdown()
-    {
-        var atlasNames = BrainAtlasManager.AtlasNames;
+    #endregion
 
-#if UNITY_WEBGL
-        _allowedNames = new();
-        for (int i = 0; i < atlasNames.Count; i++)
-            if (_allowedOnWebGLMapping[atlasNames[i]])
-                _allowedNames.Add(atlasNames[i]);
-#else
-        _allowedNames = atlasNames;
-#endif
-
-        _atlasDropdown.options = _allowedNames.ConvertAll(x => ConvertAtlas2Userfriendly(x));
-    }
-
-    public void ResetAtlasDropdownIndex()
-    {
-        string activeAtlas = BrainAtlasManager.ActiveReferenceAtlas.Name;
-        _atlasDropdown.SetValueWithoutNotify(_atlasDropdown.options.FindIndex(x => x.text.Equals(_atlasNameMapping[activeAtlas])));
-    }
-
-    public void SetAtlas(int option)
-    {
-        // force the scene to reset
-        QuestionDialogue.Instance.YesCallback = delegate { ResetScene(option); };
-        QuestionDialogue.Instance.NoCallback = delegate { ResetAtlasDropdownIndex(); };
-        QuestionDialogue.Instance.NewQuestion("Changing the Atlas will reset the scene.\nAre you sure you want to proceed?");
-    }
-
-    private void ResetScene(int option)
-    {
-#if UNITY_EDITOR
-        Debug.Log($"(PAM) Resetting atlas to option {option}");
-#endif
-        PlayerPrefs.SetInt("scene-atlas-reset", 1);
-        Settings.AtlasName = _allowedNames[option];
-#if UNITY_EDITOR
-        Debug.Log($"(PAM) Resetting atlas to {Settings.AtlasName}");
-#endif
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    private TMP_Dropdown.OptionData ConvertAtlas2Userfriendly(string atlasName)
-    {
-        if (_atlasNameMapping.ContainsKey(atlasName))
-            return new TMP_Dropdown.OptionData(_atlasNameMapping[atlasName]);
-
-        return new TMP_Dropdown.OptionData(atlasName);
-    }
-
-#endregion
-
-#region Transforms
-
-    public void PopulateTransformDropdown()
-    {
-        _transformDropdown.options = BrainAtlasManager.AtlasTransforms.ConvertAll(x => new TMP_Dropdown.OptionData(ConverTransform2UserFriendly(x.Name)));
-    }
-
-    public void ResetTransformDropdownIndex()
-    {
-        string activeTransformName = BrainAtlasManager.ActiveAtlasTransform.Name;
-        if (activeTransformName == "Custom")
-            _transformDropdown.SetValueWithoutNotify(-1);
-        else
-            _transformDropdown.SetValueWithoutNotify(BrainAtlasManager.AtlasTransforms.FindIndex(x => x.Name.Equals(activeTransformName)));
-    }
-
-    public void SetTransform(int idx)
-    {
-        Settings.AtlasTransformName = BrainAtlasManager.AtlasTransforms[idx].Name;
-    }
+    #region Transforms
 
     public void SetNewTransform(string transformName)
     {
@@ -265,17 +223,14 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void SetNewTransform(AtlasTransform newTransform)
     {
+#if UNITY_EDITOR
+        Debug.Log($"(PAM) Updating individual probes to new atlas transform: {newTransform.Name}");
+#endif
         BrainAtlasManager.ActiveAtlasTransform = newTransform;
-        ResetTransformDropdownIndex();
 
         // Check all probes for mis-matches
         foreach (ProbeManager probeManager in ProbeManager.Instances)
             probeManager.Update2ActiveTransform();
-    }
-
-    private string ConverTransform2UserFriendly(string transformName)
-    {
-        return $"Atlas transform: {transformName}";
     }
 
     #endregion
@@ -328,5 +283,5 @@ public class PinpointAtlasManager : MonoBehaviour
     }
 
 
-#endregion
+    #endregion
 }
