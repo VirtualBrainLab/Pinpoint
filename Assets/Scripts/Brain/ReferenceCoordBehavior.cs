@@ -49,6 +49,8 @@ public class ReferenceCoordBehavior : MonoBehaviour
 
     public void UpdateAxisDirections()
     {
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+            return;
         Vector3 apDir = BrainAtlasManager.T2World_Vector(Vector3.right);
         Vector3 mlDir = BrainAtlasManager.T2World_Vector(Vector3.up);
         Vector3 dvDir = BrainAtlasManager.T2World_Vector(Vector3.forward);
