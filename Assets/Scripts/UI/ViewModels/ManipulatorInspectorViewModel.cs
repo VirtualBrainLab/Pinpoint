@@ -48,6 +48,15 @@ namespace UI.ViewModels
         [ObservableProperty]
         private bool _isManualControlEnabled;
 
+        [ObservableProperty]
+        private Vector4 _demoHomeCoordinate;
+
+        [ObservableProperty]
+        private Vector4 _demoTargetCoordinate;
+
+        [ObservableProperty]
+        private bool _isDemoRunning;
+
         #endregion
 
         public ManipulatorInspectorViewModel(
@@ -81,6 +90,9 @@ namespace UI.ViewModels
             ReferenceCoordinateOffset = sceneState.ActiveManipulatorState.ReferenceCoordinateOffset;
             DuraOffset = sceneState.ActiveManipulatorState.DuraOffset;
             IsManualControlEnabled = sceneState.ActiveManipulatorState.ManualControlEnabled;
+            DemoHomeCoordinate = sceneState.ActiveManipulatorState.DemoHomeCoordinate;
+            DemoTargetCoordinate = sceneState.ActiveManipulatorState.DemoTargetCoordinate;
+            IsDemoRunning = sceneState.ActiveManipulatorState.IsDemoRunning;
         }
 
         private void OnShuttingDown()
@@ -159,6 +171,49 @@ namespace UI.ViewModels
             _storeService.Store.Dispatch(
                 SceneActions.SET_MANIPULATOR_MANUAL_CONTROL_ENABLED,
                 (ActiveManipulatorId, isEnabled)
+            );
+        }
+
+        [ICommand]
+        private void SetDemoHomeCoordinate(Vector4 coordinate)
+        {
+            _storeService.Store.Dispatch(
+                SceneActions.SET_MANIPULATOR_DEMO_HOME_COORDINATE,
+                (ActiveManipulatorId, coordinate)
+            );
+        }
+
+        [ICommand]
+        private async void SetDemoHomeToCurrentPosition()
+        {
+            await _ephysLinkService.SetManipulatorDemoHomeCoordinateToCurrentPosition(
+                ActiveManipulatorId
+            );
+        }
+
+        [ICommand]
+        private void SetDemoTargetCoordinate(Vector4 coordinate)
+        {
+            _storeService.Store.Dispatch(
+                SceneActions.SET_MANIPULATOR_DEMO_TARGET_COORDINATE,
+                (ActiveManipulatorId, coordinate)
+            );
+        }
+
+        [ICommand]
+        private async void SetDemoTargetToCurrentPosition()
+        {
+            await _ephysLinkService.SetManipulatorDemoTargetCoordinateToCurrentPosition(
+                ActiveManipulatorId
+            );
+        }
+
+        [ICommand]
+        private void SetIsDemoRunning(bool isRunning)
+        {
+            _storeService.Store.Dispatch(
+                SceneActions.SET_MANIPULATOR_DEMO_RUNNING,
+                (ActiveManipulatorId, isRunning)
             );
         }
 

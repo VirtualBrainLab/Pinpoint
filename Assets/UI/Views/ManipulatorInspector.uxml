@@ -101,5 +101,38 @@
                 </Bindings>
             </Unity.AppUI.UI.Toggle>
         </ui:VisualElement>
+        <ui:VisualElement class="inspector-panel" style="flex-grow: 1;">
+            <Unity.AppUI.UI.Heading text="Demo" size="S" />
+            <ui:VisualElement>
+                <Unity.AppUI.UI.Heading text="Home" size="XS" />
+                <Unity.AppUI.UI.Vector4Field name="manipulator-inspector__demo--home-field">
+                    <Bindings>
+                        <ui:DataBinding property="value" data-source-path="DemoHomeCoordinate" binding-mode="ToTarget" />
+                    </Bindings>
+                </Unity.AppUI.UI.Vector4Field>
+                <Unity.AppUI.UI.Button title="Use Current Position" name="manipulator-inspector__demo--set-home-button" />
+                <Unity.AppUI.UI.Heading text="Target" size="XS" />
+                <Unity.AppUI.UI.Vector4Field name="manipulator-inspector__demo--target-field">
+                    <Bindings>
+                        <ui:DataBinding property="value" data-source-path="DemoTargetCoordinate" binding-mode="ToTarget" />
+                    </Bindings>
+                </Unity.AppUI.UI.Vector4Field>
+                <Unity.AppUI.UI.Button title="Use Current Position" name="manipulator-inspector__demo--set-target-button" />
+                <Bindings>
+                    <ui:DataBinding property="enabledSelf" data-source-path="IsDemoRunning" binding-mode="ToTarget" source-to-ui-converters="DemoIsRunningToInputsEnabled" />
+                </Bindings>
+            </ui:VisualElement>
+            <Unity.AppUI.UI.Spacer />
+            <Unity.AppUI.UI.Button title="Run" variant="Accent" name="manipulator-inspector__demo--run-button">
+                <Bindings>
+                    <ui:DataBinding property="style.display" data-source-path="IsDemoRunning" binding-mode="ToTarget" source-to-ui-converters="DemoIsRunningToRunButtonVisibility" />
+                </Bindings>
+            </Unity.AppUI.UI.Button>
+            <Unity.AppUI.UI.Button title="Stop" variant="Destructive" name="manipulator-inspector__demo--stop-button">
+                <Bindings>
+                    <ui:DataBinding property="style.display" data-source-path="IsDemoRunning" binding-mode="ToTarget" />
+                </Bindings>
+            </Unity.AppUI.UI.Button>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
