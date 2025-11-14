@@ -52,6 +52,11 @@ namespace UI.Views
             _probeListView = root.Q<ListView>("scene__probe-list-view");
             _manipulatorListView = root.Q<ListView>("scene__manipulators-list");
 
+            // Disable WASD and arrow key navigation on ListViews to prevent conflicts with probe 3D controls.
+            // Tab key is still allowed for accessibility.
+            DisableListViewKeyboardNavigation(_probeListView);
+            DisableListViewKeyboardNavigation(_manipulatorListView);
+
             // Add event listeners.
             addNeuropixels10.clickable.clicked += () =>
                 _sceneViewModel.AddProbeCommand.Execute(ProbeType.Neuropixels1);
@@ -122,6 +127,28 @@ namespace UI.Views
                     _manipulatorListView.Rebuild();
                     break;
             }
+        }
+
+        /// <summary>
+        /// Disables WASD and arrow key navigation on a ListView to prevent conflicts with probe 3D controls.
+        /// Tab key is still allowed for accessibility.
+        /// </summary>
+        private void DisableListViewKeyboardNavigation(ListView listView)
+        {
+            listView.RegisterCallback<KeyDownEvent>(evt =>
+            {
+                // Block WASD keys
+                if (evt.keyCode == KeyCode.W || evt.keyCode == KeyCode.A || 
+                    evt.keyCode == KeyCode.S || evt.keyCode == KeyCode.D ||
+                    // Block arrow keys
+                    evt.keyCode == KeyCode.UpArrow || evt.keyCode == KeyCode.DownArrow ||
+                    evt.keyCode == KeyCode.LeftArrow || evt.keyCode == KeyCode.RightArrow)
+                {
+                    evt.StopPropagation();
+                    evt.PreventDefault();
+                }
+                // Allow Tab key to pass through for accessibility
+            }, TrickleDown.TrickleDown);
         }
 
 #if UNITY_EDITOR
