@@ -24,7 +24,7 @@ public class ProbePanelManager : MonoBehaviour
     #region Unity
     private void Awake()
     {
-        _probePanelHeight = 1440f;
+        _probePanelHeight = 1600f;
     }
 
     #endregion
