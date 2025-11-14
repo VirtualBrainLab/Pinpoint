@@ -78,9 +78,7 @@ namespace Services
             // Handle demo loop state changes.
             foreach (var manipulatorState in sceneState.Manipulators)
             {
-                var isRunning =
-                    _runningDemoLoops.ContainsKey(manipulatorState.Id)
-                    && _runningDemoLoops[manipulatorState.Id];
+                _runningDemoLoops.TryGetValue(manipulatorState.Id, out var isRunning);
 
                 switch (manipulatorState.IsDemoRunning)
                 {
