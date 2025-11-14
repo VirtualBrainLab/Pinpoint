@@ -31,6 +31,7 @@ namespace UI.Views
         #region Component References
 
         private readonly Dropdown _targetDropdown;
+        private readonly Dropdown _targetInsertionSpeedDropdown;
 
         #endregion
 
@@ -134,10 +135,10 @@ namespace UI.Views
                 .Execute;
 
             // Drive to target insertion controls.
-            var targetInsertionSpeedDropdown = root.Q<Dropdown>(
+            _targetInsertionSpeedDropdown = root.Q<Dropdown>(
                 "automation-inspector__target-insertion--speed-dropdown"
             );
-            targetInsertionSpeedDropdown.sourceItems = new[]
+            _targetInsertionSpeedDropdown.sourceItems = new[]
             {
                 "1 μm/s",
                 "2 μm/s",
@@ -148,9 +149,9 @@ namespace UI.Views
                 "Test (500 μm/s)",
                 "Custom",
             };
-            targetInsertionSpeedDropdown.bindItem = (item, i) =>
+            _targetInsertionSpeedDropdown.bindItem = (item, i) =>
             {
-                item.label = (string)targetInsertionSpeedDropdown.sourceItems[i];
+                item.label = (string)_targetInsertionSpeedDropdown.sourceItems[i];
                 item.icon = i switch
                 {
                     <= 2 => "tortoise",
@@ -159,7 +160,7 @@ namespace UI.Views
                     _ => "pen",
                 };
             };
-            targetInsertionSpeedDropdown.RegisterValueChangedCallback(evt =>
+            _targetInsertionSpeedDropdown.RegisterValueChangedCallback(evt =>
                 _automationInspectorViewModel.SetInsertionSpeedIndexCommand.Execute(
                     evt.newValue.First()
                 )
@@ -171,7 +172,7 @@ namespace UI.Views
             targetInsertionCustomSpeedField.RegisterValueChangedCallback(evt =>
                 _automationInspectorViewModel.SetCustomInsertionSpeedCommand.Execute(evt.newValue)
             );
-            var targetInsertionDrivePastDistanceField = root.Q<FloatField>(
+            var targetInsertionDrivePastDistanceField = root.Q<IntField>(
                 "automation-inspector__target-insertion--drive-past-distance-field"
             );
             var targetInsertionETAText = root.Q<Text>(
@@ -216,7 +217,7 @@ namespace UI.Views
                     }
                     break;
                 case nameof(_automationInspectorViewModel.SelectedInsertionSpeedIndex):
-                    _targetDropdown.selectedIndex =
+                    _targetInsertionSpeedDropdown.selectedIndex =
                         _automationInspectorViewModel.SelectedInsertionSpeedIndex;
                     break;
             }
