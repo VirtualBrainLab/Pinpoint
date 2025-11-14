@@ -1337,7 +1337,7 @@ public class ProbeManager : MonoBehaviour
 
             var channelData = GetChannelRangemm();
             _lineRenderer.SetPositions(
-                new Vector3[] { Vector3.zero, Vector3.up * channelData.fullHeight }
+                new Vector3[] { Vector3.zero, -Vector3.forward * channelData.fullHeight }
             );
         }
     }
