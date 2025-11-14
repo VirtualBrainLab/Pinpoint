@@ -174,7 +174,7 @@ namespace UI.Views
             var targetInsertionDrivePastDistanceField = root.Q<FloatField>(
                 "automation-inspector__target-insertion--drive-past-distance-field"
             );
-            var targetInsertionETAText = root.Q<Label>(
+            var targetInsertionETAText = root.Q<Text>(
                 "automation-inspector__target-insertion--eta-text"
             );
             var targetInsertionProgressBar = root.Q<ProgressBar>(
