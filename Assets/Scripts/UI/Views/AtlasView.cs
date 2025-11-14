@@ -43,6 +43,9 @@ namespace UI.Views
             _atlasTree.selectionType = SelectionType.Multiple;
             _atlasTree.Rebuild();
 
+            // Disable WASD and arrow key navigation to prevent conflicts with probe 3D controls.
+            DisableTreeViewKeyboardNavigation(_atlasTree);
+
             if (_searchBar != null)
             {
                 _searchBar.RegisterValueChangedCallback(evt =>
@@ -283,6 +286,28 @@ namespace UI.Views
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Disables WASD and arrow key navigation on a TreeView to prevent conflicts with probe 3D controls.
+        /// Tab key is still allowed for accessibility.
+        /// </summary>
+        private void DisableTreeViewKeyboardNavigation(TreeView treeView)
+        {
+            treeView.RegisterCallback<KeyDownEvent>(evt =>
+            {
+                // Block WASD keys
+                if (evt.keyCode == KeyCode.W || evt.keyCode == KeyCode.A || 
+                    evt.keyCode == KeyCode.S || evt.keyCode == KeyCode.D ||
+                    // Block arrow keys
+                    evt.keyCode == KeyCode.UpArrow || evt.keyCode == KeyCode.DownArrow ||
+                    evt.keyCode == KeyCode.LeftArrow || evt.keyCode == KeyCode.RightArrow)
+                {
+                    evt.StopPropagation();
+                    evt.PreventDefault();
+                }
+                // Allow Tab key to pass through for accessibility
+            }, TrickleDown.TrickleDown);
         }
     }
 }
