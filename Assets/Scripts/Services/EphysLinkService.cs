@@ -906,12 +906,12 @@ namespace Services
                     m.Id == manipulatorId
                 );
                 if (manipulatorState is { IsDemoRunning: true })
+                {
+                    // Loop continues to next iteration (back to home).
                     continue;
+                }
                 _runningDemoLoops[manipulatorId] = false;
                 return;
-
-                // Loop continues to next iteration (back to home).
-            }
         }
 
         #endregion
