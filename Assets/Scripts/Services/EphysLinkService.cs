@@ -636,6 +636,86 @@ namespace Services
                 );
         }
 
+        public async Task SetManipulatorReferenceCoordinateToCurrentPosition(string manipulatorId)
+        {
+            var currentPositionResponse = await GetPosition(manipulatorId);
+            if (HasError(currentPositionResponse.Error))
+                return;
+            _storeService.Store.Dispatch(
+                SceneActions.SET_MANIPULATOR_REFERENCE_COORDINATE_OFFSET,
+                (manipulatorId, currentPositionResponse.Position)
+            );
+        }
+
+        public async Task SetManipulatorDuraOffsetToCurrentDepth(string manipulatorId)
+        {
+            var currentPositionResponse = await GetPosition(manipulatorId);
+            if (HasError(currentPositionResponse.Error))
+                return;
+            // TODO: Add check to ensure there is enough space for exit margin.
+
+            // Get manipulator depth, atlas coordinate, and offset delta at dura.
+            var duraDepth = currentPositionResponse.Position.w;
+            Vector3 duraCoordinate;
+            float duraOffsetDelta;
+
+            // Get the visualization probe manager.
+            var currentSceneState = _storeService.Store.GetState<SceneState>(
+                SliceNames.SCENE_SLICE
+            );
+            var visualizationProbeManager = ProbeManager.Instances.FirstOrDefault(manager =>
+                manager.name == currentSceneState.ActiveManipulatorState.VisualizationProbeName
+            );
+            var visualizationProbeState = currentSceneState.Probes.FirstOrDefault(state =>
+                state.Name == currentSceneState.ActiveManipulatorState.VisualizationProbeName
+            );
+            
+            Debug.Log("Collecting info");
+            
+            // Exit if we cannot find the visualization probe manager or state.
+            if (visualizationProbeManager == null || visualizationProbeState == null)
+                return;
+            
+            Debug.Log("Found viz states and manager");
+
+            if (visualizationProbeManager.IsProbeInBrain())
+            {
+                Debug.Log("Recalculate to the surface");
+                // Just calculate the distance from the probe tip position to the brain surface
+                duraCoordinate = visualizationProbeManager
+                    .GetSurfaceCoordinateT()
+                    .surfaceCoordinateT;
+                duraOffsetDelta = -visualizationProbeManager.GetSurfaceCoordinateT().depthT;
+            }
+            else
+            {
+                Debug.Log("Ourselves");
+                // We need to calculate the surface coordinate ourselves
+                var (brainSurfaceCoordinateIdx, _) =
+                    visualizationProbeManager.CalculateEntryCoordinate();
+                
+                // Exit if not in brain.
+                if (float.IsNaN(brainSurfaceCoordinateIdx.x))
+                    return;
+
+                duraCoordinate = BrainAtlasManager.ActiveAtlasTransform.U2T(
+                    BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(
+                        BrainAtlasManager.ActiveReferenceAtlas.AtlasIdx2World(
+                            brainSurfaceCoordinateIdx
+                        )
+                    )
+                );
+
+                duraOffsetDelta = Vector3.Distance(duraCoordinate, visualizationProbeState.APMLDV);
+            }
+
+            // Log the dura offset recalculation.
+            _storeService.Store.Dispatch(
+                SceneActions.SET_DURA_OFFSET,
+                (manipulatorId, duraDepth, duraCoordinate, duraOffsetDelta)
+            );
+        }
+
         #endregion
     }
 }

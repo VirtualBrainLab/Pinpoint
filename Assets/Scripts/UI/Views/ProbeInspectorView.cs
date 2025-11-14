@@ -151,6 +151,14 @@ namespace UI.Views
                         ? DisplayStyle.None
                         : DisplayStyle.Flex
             );
+
+            DataTypeConverters.RegisterUnidirectionalConverterGroup(
+                "VisualizingManipulatorIdToInspectManipulatorButtonTitle",
+                (ref string visualizingManipulatorId) =>
+                    string.IsNullOrEmpty(visualizingManipulatorId)
+                        ? ""
+                        : $"Inspect {visualizingManipulatorId}"
+            );
         }
     }
 }

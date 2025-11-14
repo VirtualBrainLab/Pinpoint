@@ -42,5 +42,33 @@ namespace Models.Scene
         public bool ManualControlEnabled;
 
         #endregion
+
+        #region Automation
+
+        public AutomationProgressState AutomationProgressState;
+
+        public string TargetInsertionProbeName;
+
+        /// <summary>
+        /// Manipulator depth when at the surface coordinate (mm).
+        /// </summary>
+        public float DuraDepth;
+
+        /// <summary>
+        /// Atlas coordinate of the surface coordinate at the point of calibration (entry).
+        /// </summary>
+        public Vector4 DuraCoordinate;
+
+        /// <summary>
+        /// Base insertion speed (µm/s).
+        /// </summary>
+        public int InsertionSpeed;
+        
+        /// <summary>
+        /// Drive past target distance (µm).
+        /// </summary>
+        public int DrivePastDistance;
+
+        #endregion
     }
 }
