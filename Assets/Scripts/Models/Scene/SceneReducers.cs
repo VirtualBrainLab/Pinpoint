@@ -116,11 +116,9 @@ namespace Models.Scene
         {
             var newProbesList = state.Probes.ToList();
             var nonVisualizationProbeList = newProbesList.Where(probeState =>
-                !state
-                    .Manipulators.Select(manipulatorState =>
-                        manipulatorState.VisualizationProbeName
-                    )
-                    .Contains(probeState.Name)
+                !state.Manipulators.Exists(manipulatorState =>
+                    manipulatorState.VisualizationProbeName == probeState.Name
+                )
             );
 
             var newManipulatorsList = state.Manipulators.ToList();
@@ -166,26 +164,16 @@ namespace Models.Scene
                 var probeState = state.Probes[i];
 
                 // Make visualization probe transparent.
-                if (
-                    state
-                        .Manipulators.Select(manipulatorState =>
-                            manipulatorState.VisualizationProbeName
-                        )
-                        .Contains(probeState.Name)
-                )
-                    probesCopy[i] = probeState with
-                    {
-                        ProbeDisplayType = ProbeDisplayType.Transparent,
-                    };
-                // Set active probe to opaque.
-                else
-                    probesCopy[i] = probeState with
-                    {
-                        ProbeDisplayType =
-                            probeState.Name == action.payload
-                                ? ProbeDisplayType.Opaque
-                                : ProbeDisplayType.Transparent,
-                    };
+                var isVisualizationProbe = state.Manipulators.Exists(manipulatorState =>
+                    manipulatorState.VisualizationProbeName == probeState.Name
+                );
+                probesCopy[i] = probeState with
+                {
+                    ProbeDisplayType =
+                        isVisualizationProbe ? ProbeDisplayType.Transparent
+                        : probeState.Name == action.payload ? ProbeDisplayType.Opaque
+                        : ProbeDisplayType.Transparent,
+                };
             }
 
             // Update the active probe UUID.
@@ -206,35 +194,26 @@ namespace Models.Scene
             if (!state.Manipulators.Exists(manipulator => manipulator.Id == action.payload))
                 return state;
 
+            // Precompute the active manipulator's visualization probe name for efficiency.
+            var activeVisualizationProbeName = state.Manipulators.First(m => m.Id == action.payload)
+                .VisualizationProbeName;
+
             // Set opaque/transparent display for probes based on active manipulator.
             var probesCopy = state.Probes.ToList();
             for (var i = 0; i < state.Probes.Count; i++)
             {
                 var probeState = state.Probes[i];
 
-                // Make non-visualization probes transparent.
-                if (
-                    !state
-                        .Manipulators.Select(manipulatorState =>
-                            manipulatorState.VisualizationProbeName
-                        )
-                        .Contains(probeState.Name)
-                )
-                    probesCopy[i] = probeState with
-                    {
-                        ProbeDisplayType = ProbeDisplayType.Transparent,
-                    };
-                // Make visualization probe of the active manipulator opaque, others transparent.
-                else
-                    probesCopy[i] = probeState with
-                    {
-                        ProbeDisplayType =
-                            state
-                                .Manipulators.First(manipulator => manipulator.Id == action.payload)
-                                .VisualizationProbeName == probeState.Name
-                                ? ProbeDisplayType.Opaque
-                                : ProbeDisplayType.Transparent,
-                    };
+                // Use Exists to check whether this probe is a visualization probe and set display type with a single ternary.
+                probesCopy[i] = probeState with
+                {
+                    ProbeDisplayType = state.Manipulators.Exists(manipulatorState =>
+                            manipulatorState.VisualizationProbeName == probeState.Name)
+                        ? (activeVisualizationProbeName == probeState.Name
+                            ? ProbeDisplayType.Opaque
+                            : ProbeDisplayType.Transparent)
+                        : ProbeDisplayType.Transparent,
+                };
             }
 
             // Update the active manipulator ID.
@@ -530,11 +509,9 @@ namespace Models.Scene
 
                 // Ignore visualization probes.
                 if (
-                    state
-                        .Manipulators.Select(manipulatorState =>
-                            manipulatorState.VisualizationProbeName
-                        )
-                        .Contains(probeState.Name)
+                    state.Manipulators.Exists(manipulatorState =>
+                        manipulatorState.VisualizationProbeName == probeState.Name
+                    )
                 )
                     continue;
 
