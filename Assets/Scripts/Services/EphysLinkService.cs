@@ -40,6 +40,13 @@ namespace Services
 
         #endregion
 
+        #region Caching
+
+        // Cache for last dispatched probe positions to prevent redundant updates
+        private readonly Dictionary<string, (Vector3 position, float depth, Vector3 angles)> _lastDispatchedPositions = new();
+
+        #endregion
+
         #region Components
 
         private SocketManager _socketManager;
@@ -69,8 +76,8 @@ namespace Services
             // Apply small delay to prevent overrunning updates (delay for roughly 60 FPS).
             await Task.Delay(10);
 
-            // WARNING: this will create an infinite loop of state updates on purpose.
             // Update the position of visualization probes.
+            // Note: Only dispatches when positions actually change to prevent infinite loops.
             await UpdateVisualizationProbePosition(sceneState);
         }
 
@@ -594,37 +601,41 @@ namespace Services
                     )
                 );
 
-                switch (sceneState.NumberOfAxesOnManipulator)
+                // Determine the position and depth values based on number of axes
+                var depth = sceneState.NumberOfAxesOnManipulator switch
                 {
-                    // Set the probe position in the store.
-                    case 3:
-                        requests.Add(
-                            (
-                                manipulatorState.VisualizationProbeName,
-                                transformedAPMLDV,
-                                duraOffsetAdjustment,
-                                forwardT,
-                                manipulatorState.Angles,
-                                _pitchRange
-                            )
-                        );
-                        break;
-                    case 4:
-                        requests.Add(
-                            (
-                                manipulatorState.VisualizationProbeName,
-                                transformedAPMLDV,
-                                referenceCoordinateAdjustedManipulatorPosition.w,
-                                forwardT,
-                                manipulatorState.Angles,
-                                _pitchRange
-                            )
-                        );
-                        break;
-                    default:
-                        throw new ValueOutOfRangeException(
-                            "Number of axes on manipulator is invalid."
-                        );
+                    3 => duraOffsetAdjustment,
+                    4 => referenceCoordinateAdjustedManipulatorPosition.w,
+                    _ => throw new ValueOutOfRangeException("Number of axes on manipulator is invalid.")
+                };
+
+                // Check if this position has changed from last dispatch
+                var hasChanged = true;
+                if (_lastDispatchedPositions.TryGetValue(manipulatorState.VisualizationProbeName, out var lastPos))
+                {
+                    // Compare with a small tolerance to account for floating point precision
+                    const float tolerance = 0.0001f;
+                    hasChanged = Vector3.Distance(lastPos.position, transformedAPMLDV) > tolerance
+                        || Mathf.Abs(lastPos.depth - depth) > tolerance
+                        || Vector3.Distance(lastPos.angles, manipulatorState.Angles) > tolerance;
+                }
+
+                // Only add to requests if the position has changed
+                if (hasChanged)
+                {
+                    _lastDispatchedPositions[manipulatorState.VisualizationProbeName] = 
+                        (transformedAPMLDV, depth, manipulatorState.Angles);
+
+                    requests.Add(
+                        (
+                            manipulatorState.VisualizationProbeName,
+                            transformedAPMLDV,
+                            depth,
+                            forwardT,
+                            manipulatorState.Angles,
+                            _pitchRange
+                        )
+                    );
                 }
             }
 

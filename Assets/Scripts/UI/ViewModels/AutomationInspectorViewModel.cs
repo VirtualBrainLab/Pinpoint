@@ -26,6 +26,16 @@ namespace UI.ViewModels
 
         #endregion
 
+        #region Caching
+
+        // Cache to prevent recalculating targetable probes on every state change
+        private List<ProbeState> _cachedTargetableProbes;
+        private string _cachedActiveManipulatorId;
+        private Vector3 _cachedActiveManipulatorAngles;
+        private int _cachedProbeCount;
+
+        #endregion
+
         #region Properties
 
         [ObservableProperty]
@@ -115,46 +125,62 @@ namespace UI.ViewModels
             // Get the active manipulator's reference coordinate.
             ReferenceCoordinate = state.ActiveManipulatorState.ReferenceCoordinateOffset;
 
-            // Get the list of targetable insertion probes for the active manipulator probe.
-            var targetableInsertionProbeStates = state
-                .Probes
-                // 1. Not manipulator controlled.
-                .Where(probeState =>
-                    !state
-                        .Manipulators.Select(manipulatorState =>
-                            manipulatorState.VisualizationProbeName
-                        )
-                        .Contains(probeState.Name)
-                )
-                // 2. Co-terminal with the active probe angles.
-                .Where(probeState =>
-                    IsCoterminal(probeState.Angles, state.ActiveManipulatorState.Angles)
-                )
-                // 3. Is in the brain.
-                .Where(probeState =>
-                {
-                    var probeManager = ProbeManager.Instances.FirstOrDefault(manager =>
-                        manager.name == probeState.Name
-                    );
-                    return probeManager != null
-                        && probeManager.CalculateEntryCoordinate().probeInBrain;
-                })
-                // 4. Is not already selected by other manipulator probes (unless it was selected by this active probe).
-                .Where(probeState =>
-                    !state
-                        .Manipulators.Where(searchManipulatorState =>
-                            searchManipulatorState.Id != state.ActiveManipulatorId
-                        )
-                        .Select(otherManipulator => otherManipulator.TargetInsertionProbeName)
-                        .Contains(probeState.Name)
-                )
-                .ToList();
-            if (
-                TargetInsertionProbeStates == null
-                || !TargetInsertionProbeStates.SequenceEqual(targetableInsertionProbeStates)
-            )
+            // Only recalculate targetable probes if relevant state has changed
+            var needsRecalculation = _cachedActiveManipulatorId != state.ActiveManipulatorId
+                || !_cachedActiveManipulatorAngles.Equals(state.ActiveManipulatorState.Angles)
+                || _cachedProbeCount != state.Probes.Count;
+
+            if (needsRecalculation)
             {
-                TargetInsertionProbeStates = targetableInsertionProbeStates;
+                // Cache current state for comparison
+                _cachedActiveManipulatorId = state.ActiveManipulatorId;
+                _cachedActiveManipulatorAngles = state.ActiveManipulatorState.Angles;
+                _cachedProbeCount = state.Probes.Count;
+
+                // Get the list of targetable insertion probes for the active manipulator probe.
+                var targetableInsertionProbeStates = state
+                    .Probes
+                    // 1. Not manipulator controlled.
+                    .Where(probeState =>
+                        !state
+                            .Manipulators.Select(manipulatorState =>
+                                manipulatorState.VisualizationProbeName
+                            )
+                            .Contains(probeState.Name)
+                    )
+                    // 2. Co-terminal with the active probe angles.
+                    .Where(probeState =>
+                        IsCoterminal(probeState.Angles, state.ActiveManipulatorState.Angles)
+                    )
+                    // 3. Is in the brain.
+                    .Where(probeState =>
+                    {
+                        var probeManager = ProbeManager.Instances.FirstOrDefault(manager =>
+                            manager.name == probeState.Name
+                        );
+                        return probeManager != null
+                            && probeManager.CalculateEntryCoordinate().probeInBrain;
+                    })
+                    // 4. Is not already selected by other manipulator probes (unless it was selected by this active probe).
+                    .Where(probeState =>
+                        !state
+                            .Manipulators.Where(searchManipulatorState =>
+                                searchManipulatorState.Id != state.ActiveManipulatorId
+                            )
+                            .Select(otherManipulator => otherManipulator.TargetInsertionProbeName)
+                            .Contains(probeState.Name)
+                    )
+                    .ToList();
+
+                // Only update if the list actually changed
+                if (
+                    TargetInsertionProbeStates == null
+                    || !TargetInsertionProbeStates.SequenceEqual(targetableInsertionProbeStates)
+                )
+                {
+                    TargetInsertionProbeStates = targetableInsertionProbeStates;
+                    _cachedTargetableProbes = targetableInsertionProbeStates;
+                }
             }
 
             // Get the index of the selected target insertion probe.
