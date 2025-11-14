@@ -13,11 +13,6 @@ namespace Models
             return state with { IsAutomationEnabled = action.payload };
         }
 
-        public static MainState SetIsDemoEnabledReducer(MainState state, IAction<bool> action)
-        {
-            return state with { IsDemoEnabled = action.payload };
-        }
-
         public static MainState SetMainSplitViewStateReducer(
             MainState state,
             IAction<SplitView.State> action
@@ -39,9 +34,6 @@ namespace Models
     {
         public static readonly ActionCreator<bool> SET_IS_AUTOMATION_ENABLED =
             $"{SliceNames.MAIN_SLICE}/SetIsAutomationEnabled";
-
-        public static readonly ActionCreator<bool> SET_IS_DEMO_ENABLED =
-            $"{SliceNames.MAIN_SLICE}/SetIsDemoEnabled";
 
         public static readonly ActionCreator<SplitView.State> SET_MAIN_SPLIT_VIEW_STATE =
             $"{SliceNames.MAIN_SLICE}/SetMainSplitViewState";

@@ -680,6 +680,54 @@ namespace Models.Scene
             return state with { Manipulators = manipulatorsCopy };
         }
 
+        public static SceneState SetManipulatorDemoHomeCoordinateReducer(
+            SceneState state,
+            IAction<(string Id, Vector4 DemoHomeCoordinate)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                DemoHomeCoordinate = action.payload.DemoHomeCoordinate,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorDemoTargetCoordinateReducer(
+            SceneState state,
+            IAction<(string Id, Vector4 DemoTargetCoordinate)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                DemoTargetCoordinate = action.payload.DemoTargetCoordinate,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
+        public static SceneState SetManipulatorDemoRunningReducer(
+            SceneState state,
+            IAction<(string Id, bool IsDemoRunning)> action
+        )
+        {
+            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            if (index == -1)
+                return state;
+            var manipulatorsCopy = state.Manipulators.ToList();
+            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            {
+                IsDemoRunning = action.payload.IsDemoRunning,
+            };
+            return state with { Manipulators = manipulatorsCopy };
+        }
+
         #endregion
 
         #region Automation Reducers
@@ -1137,6 +1185,24 @@ namespace Models.Scene
             bool ManualControlEnabled
         )> SET_MANIPULATOR_MANUAL_CONTROL_ENABLED =
             $"{SliceNames.SCENE_SLICE}/SetManipulatorManualControlEnabled";
+
+        public static readonly ActionCreator<(
+            string Id,
+            Vector4 DemoHomeCoordinate
+        )> SET_MANIPULATOR_DEMO_HOME_COORDINATE =
+            $"{SliceNames.SCENE_SLICE}/SetManipulatorDemoHomeCoordinate";
+
+        public static readonly ActionCreator<(
+            string Id,
+            Vector4 DemoTargetCoordinate
+        )> SET_MANIPULATOR_DEMO_TARGET_COORDINATE =
+            $"{SliceNames.SCENE_SLICE}/SetManipulatorDemoTargetCoordinate";
+
+        public static readonly ActionCreator<(
+            string Id,
+            bool IsDemoRunning
+        )> SET_MANIPULATOR_DEMO_RUNNING =
+            $"{SliceNames.SCENE_SLICE}/SetManipulatorDemoRunning";
 
         #endregion
 

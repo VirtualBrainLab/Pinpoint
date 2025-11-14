@@ -669,13 +669,13 @@ namespace Services
             var visualizationProbeState = currentSceneState.Probes.FirstOrDefault(state =>
                 state.Name == currentSceneState.ActiveManipulatorState.VisualizationProbeName
             );
-            
+
             Debug.Log("Collecting info");
-            
+
             // Exit if we cannot find the visualization probe manager or state.
             if (visualizationProbeManager == null || visualizationProbeState == null)
                 return;
-            
+
             Debug.Log("Found viz states and manager");
 
             if (visualizationProbeManager.IsProbeInBrain())
@@ -693,7 +693,7 @@ namespace Services
                 // We need to calculate the surface coordinate ourselves
                 var (brainSurfaceCoordinateIdx, _) =
                     visualizationProbeManager.CalculateEntryCoordinate();
-                
+
                 // Exit if not in brain.
                 if (float.IsNaN(brainSurfaceCoordinateIdx.x))
                     return;
@@ -713,6 +713,28 @@ namespace Services
             _storeService.Store.Dispatch(
                 SceneActions.SET_DURA_OFFSET,
                 (manipulatorId, duraDepth, duraCoordinate, duraOffsetDelta)
+            );
+        }
+
+        public async Task SetManipulatorDemoHomeCoordinateToCurrentPosition(string manipulatorId)
+        {
+            var currentPositionResponse = await GetPosition(manipulatorId);
+            if (HasError(currentPositionResponse.Error))
+                return;
+            _storeService.Store.Dispatch(
+                SceneActions.SET_MANIPULATOR_DEMO_HOME_COORDINATE,
+                (manipulatorId, currentPositionResponse.Position)
+            );
+        }
+
+        public async Task SetManipulatorDemoTargetCoordinateToCurrentPosition(string manipulatorId)
+        {
+            var currentPositionResponse = await GetPosition(manipulatorId);
+            if (HasError(currentPositionResponse.Error))
+                return;
+            _storeService.Store.Dispatch(
+                SceneActions.SET_MANIPULATOR_DEMO_TARGET_COORDINATE,
+                (manipulatorId, currentPositionResponse.Position)
             );
         }
 

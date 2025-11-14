@@ -61,10 +61,6 @@ namespace Services
                             MainReducers.SetIsAutomationEnabledReducer
                         )
                         .AddCase(
-                            MainActions.SET_IS_DEMO_ENABLED,
-                            MainReducers.SetIsDemoEnabledReducer
-                        )
-                        .AddCase(
                             MainActions.SET_MAIN_SPLIT_VIEW_STATE,
                             MainReducers.SetMainSplitViewStateReducer
                         )
@@ -156,6 +152,18 @@ namespace Services
                         .AddCase(
                             SceneActions.SET_MANIPULATOR_MANUAL_CONTROL_ENABLED,
                             SceneReducers.SetManipulatorManualControlEnabledReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_DEMO_HOME_COORDINATE,
+                            SceneReducers.SetManipulatorDemoHomeCoordinateReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_DEMO_TARGET_COORDINATE,
+                            SceneReducers.SetManipulatorDemoTargetCoordinateReducer
+                        )
+                        .AddCase(
+                            SceneActions.SET_MANIPULATOR_DEMO_RUNNING,
+                            SceneReducers.SetManipulatorDemoRunningReducer
                         )
                         // Automation.
                         .AddCase(
