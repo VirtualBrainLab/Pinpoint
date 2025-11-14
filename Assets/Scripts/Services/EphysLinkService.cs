@@ -908,8 +908,10 @@ namespace Services
                     // Loop continues to next iteration (back to home).
                     continue;
                 }
+
                 _runningDemoLoops[manipulatorId] = false;
                 return;
+            }
         }
 
         #endregion
