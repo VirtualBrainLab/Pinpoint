@@ -61,6 +61,10 @@ namespace Services
                             MainReducers.SetIsAutomationEnabledReducer
                         )
                         .AddCase(
+                            MainActions.SET_IS_DEMO_ENABLED,
+                            MainReducers.SetIsDemoEnabledReducer
+                        )
+                        .AddCase(
                             MainActions.SET_MAIN_SPLIT_VIEW_STATE,
                             MainReducers.SetMainSplitViewStateReducer
                         )
@@ -265,12 +269,18 @@ namespace Services
                 builder =>
                 {
                     builder
-                        .AddCase(AtlasSettingsActions.SET_ATLAS_NAME, AtlasSettingsReducers.SetAtlasNameReducer)
+                        .AddCase(
+                            AtlasSettingsActions.SET_ATLAS_NAME,
+                            AtlasSettingsReducers.SetAtlasNameReducer
+                        )
                         .AddCase(
                             AtlasSettingsActions.SET_ATLAS_TRANSFORM_NAME,
                             AtlasSettingsReducers.SetAtlasTransformNameReducer
                         )
-                        .AddCase(AtlasSettingsActions.SET_REFERENCE_COORD, AtlasSettingsReducers.SetReferenceCoordReducer)
+                        .AddCase(
+                            AtlasSettingsActions.SET_REFERENCE_COORD,
+                            AtlasSettingsReducers.SetReferenceCoordReducer
+                        )
                         .AddCase(
                             AtlasSettingsActions.TOGGLE_SHOW_3D_SLICES,
                             AtlasSettingsReducers.ToggleShow3DSlicesReducer
@@ -278,7 +288,14 @@ namespace Services
                 }
             );
             Store = StoreFactory.CreateStore(
-                new ISlice<PartitionedState>[] { mainSlice, sceneSlice, settingsSlice, rigSlice, atlasSettingsSlice }
+                new ISlice<PartitionedState>[]
+                {
+                    mainSlice,
+                    sceneSlice,
+                    settingsSlice,
+                    rigSlice,
+                    atlasSettingsSlice,
+                }
             );
         }
 

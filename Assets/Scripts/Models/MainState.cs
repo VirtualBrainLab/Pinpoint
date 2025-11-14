@@ -8,6 +8,8 @@ namespace Models
     {
         public bool IsAutomationEnabled;
         
+        public bool IsDemoEnabled;
+        
         public SplitView.State MainSplitViewState;
 
         public int LeftSidePanelTabIndex;

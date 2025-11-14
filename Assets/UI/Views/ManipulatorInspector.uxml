@@ -101,5 +101,16 @@
                 </Bindings>
             </Unity.AppUI.UI.Toggle>
         </ui:VisualElement>
+        <ui:VisualElement class="inspector-panel" style="flex-grow: 1;">
+            <Unity.AppUI.UI.Heading text="Demo" size="S" />
+            <Unity.AppUI.UI.Heading text="Home" size="XS" />
+            <Unity.AppUI.UI.Vector4Field />
+            <Unity.AppUI.UI.Button title="Use Current Position" />
+            <Unity.AppUI.UI.Heading text="Target" size="XS" />
+            <Unity.AppUI.UI.Vector4Field />
+            <Unity.AppUI.UI.Button title="Use Current Position" />
+            <Unity.AppUI.UI.Spacer />
+            <Unity.AppUI.UI.Button title="Open Demo Mode" variant="Accent" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
