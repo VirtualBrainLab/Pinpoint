@@ -367,6 +367,11 @@ public class ProbeManager : MonoBehaviour
 
         // Unsubscribe from state.
         _probeStateSubscription?.Dispose();
+
+#if APP_UI
+        // Remove the probe world state when the probe is destroyed
+        PinpointApp.StoreServiceStore.Dispatch(ProbeWorldActions.REMOVE_PROBE_WORLD_STATE, name);
+#endif
     }
 
     #endregion
@@ -490,6 +495,42 @@ public class ProbeManager : MonoBehaviour
         _recRegionBaseCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT, true);
         _recRegionTopCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT, true);
     }
+
+#if APP_UI
+    /// <summary>
+    /// Dispatches the computed world-space probe state to the Redux store.
+    /// This is called after probe position/orientation updates are complete.
+    /// </summary>
+    private void DispatchProbeWorldState()
+    {
+        // Get tip world coordinates
+        var (tipCoordWorldU, tipRightWorldU, tipUpWorldU, tipForwardWorldU) = 
+            _probeController.GetTipWorldU();
+
+        // Get tip position in WorldT
+        Vector3 tipCoordWorldT = _probeController.ProbeTipT.position;
+
+        // Create the world state object
+        var worldState = new ProbeWorldState
+        {
+            Name = name,
+            TipPositionWorldU = tipCoordWorldU,
+            TipPositionWorldT = tipCoordWorldT,
+            TipRightWorldU = tipRightWorldU,
+            TipUpWorldU = tipUpWorldU,
+            TipForwardWorldU = tipForwardWorldU,
+            SurfaceCoordinateWorldT = _brainSurfaceWorldT,
+            SurfaceCoordinateWorldU = _brainSurfaceWorldU,
+            SurfaceCoordinateT = _brainSurfaceCoordT,
+            IsProbeInBrain = _probeInBrain,
+            RecRegionBaseCoordWorldU = _recRegionBaseCoordWorldU,
+            RecRegionTopCoordWorldU = _recRegionTopCoordWorldU
+        };
+
+        // Dispatch to Redux store
+        PinpointApp.StoreServiceStore.Dispatch(ProbeWorldActions.UPDATE_PROBE_WORLD_STATE, worldState);
+    }
+#endif
 
     #region Channel map
     public (
@@ -1002,6 +1043,11 @@ public class ProbeManager : MonoBehaviour
                 BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(_brainSurfaceWorldU, true)
             );
         }
+
+#if APP_UI
+        // Dispatch world state update after surface position is calculated
+        DispatchProbeWorldState();
+#endif
     }
 
     // TODO: Remove useDV and always use depth.

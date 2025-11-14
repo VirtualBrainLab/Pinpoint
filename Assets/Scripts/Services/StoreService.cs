@@ -49,6 +49,9 @@ namespace Services
                 new AtlasSettingsState()
             );
 
+            // Initialize the probe world state (unsaved, transient state for computed values)
+            var initialProbeWorldState = new ProbeWorldStateSlice();
+
             // Initialize the Redux store.
             var mainSlice = StoreFactory.CreateSlice(
                 SliceNames.MAIN_SLICE,
@@ -295,15 +298,28 @@ namespace Services
                         );
                 }
             );
-            Store = StoreFactory.CreateStore(
-                new ISlice<PartitionedState>[]
+            var probeWorldSlice = StoreFactory.CreateSlice(
+                SliceNames.PROBE_WORLD_SLICE,
+                initialProbeWorldState,
+                builder =>
                 {
-                    mainSlice,
-                    sceneSlice,
-                    settingsSlice,
-                    rigSlice,
-                    atlasSettingsSlice,
+                    builder
+                        .AddCase(
+                            ProbeWorldActions.UPDATE_PROBE_WORLD_STATE,
+                            ProbeWorldReducers.UpdateProbeWorldStateReducer
+                        )
+                        .AddCase(
+                            ProbeWorldActions.REMOVE_PROBE_WORLD_STATE,
+                            ProbeWorldReducers.RemoveProbeWorldStateReducer
+                        )
+                        .AddCase(
+                            ProbeWorldActions.CLEAR_ALL_PROBE_WORLD_STATES,
+                            ProbeWorldReducers.ClearAllProbeWorldStatesReducer
+                        );
                 }
+            );
+            Store = StoreFactory.CreateStore(
+                new ISlice<PartitionedState>[] { mainSlice, sceneSlice, settingsSlice, rigSlice, atlasSettingsSlice, probeWorldSlice }
             );
         }
 
