@@ -144,6 +144,8 @@ namespace UI.ViewModels
                         null,
                         errorMessage =>
                         {
+                            // Connection failed.
+                            // State is already set to Disconnected by the service's Disconnect() call.
                             var alertDialog = new AlertDialog
                             {
                                 title = "Failed to Connect to Custom Server",
@@ -175,6 +177,8 @@ namespace UI.ViewModels
                     {
                         if (attempts > 10)
                         {
+                            // Connection failed after all retry attempts.
+                            // State is already set to Disconnected by the service's Disconnect() call.
                             var alertDialog = new AlertDialog
                             {
                                 title = "Failed to Connect to Launched Server",
@@ -190,7 +194,8 @@ namespace UI.ViewModels
                         }
                         else
                         {
-                            // Move back to connecting state.
+                            // State is already Disconnected from the service's error handler.
+                            // Set it back to Connecting to indicate we're retrying.
                             _storeService.Store.Dispatch(
                                 SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
                                 (EphysLinkConnectionState.Connecting, "")

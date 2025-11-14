@@ -187,6 +187,12 @@ namespace Services
             _ephysLinkProcess?.Dispose();
             _ephysLinkProcess = null;
 
+            // Clear manipulators from the scene state to prevent showing stale data.
+            _storeService.Store.Dispatch(
+                SceneActions.SET_MANIPULATORS,
+                new List<ManipulatorState>()
+            );
+
             // Update the store state to disconnected.
             _storeService.Store.Dispatch(
                 SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
