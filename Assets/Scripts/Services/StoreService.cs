@@ -399,9 +399,8 @@ namespace Services
             _localStorageService.SetValue(SliceNames.RIG_SLICE, savedState.RigState);
             _localStorageService.SetValue(SliceNames.ATLAS_SETTINGS_SLICE, savedState.AtlasSettingsState);
 
-            // TODO: Update the store with the loaded state
-            // This will require dispatching actions to update each slice
-            // For now, we've updated local storage and will need to reload the app
+            // Note: The scene will be reloaded after this method returns to apply the loaded state.
+            // The store will be re-initialized from the updated local storage on scene reload.
 
             return true;
         }

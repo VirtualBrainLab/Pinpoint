@@ -6,6 +6,7 @@ using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using Unity.AppUI.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Utils.Types;
 
 namespace UI.ViewModels
@@ -176,7 +177,10 @@ namespace UI.ViewModels
                 if (_storeService.LoadFromFile(filePath))
                 {
                     Debug.Log($"Scene state loaded successfully from: {filePath}");
-                    Debug.Log("Please reload the application to see the loaded state");
+                    Debug.Log("Reloading scene to apply loaded state...");
+                    
+                    // Reload the scene to apply the loaded state from local storage
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 }
                 else
                 {
