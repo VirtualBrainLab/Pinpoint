@@ -1349,18 +1349,6 @@ public class ProbeManager : MonoBehaviour
     }
 
     #endregion
-
-    #region Static conversion functions
-    //public static ProbeData ProbeManager2ProbeData(ProbeManager probeManager)
-    //{
-    //    ProbeData data = new ProbeData();
-
-    //    data.Insertion = probeManager.ProbeController.Insertion.Data;
-
-    //    data.SelectionLayerName = probeManager.SelectionLayerName;
-    //    // [TODO]
-    //}
-    #endregion
 }
 
 [Serializable, Obsolete("Replaced by ProbeData")]
