@@ -1,10 +1,8 @@
 <linker>
-  <assembly fullname="pinpoint.scriptableobjects, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+  <assembly fullname="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
     <type fullname="ChannelMapData" preserve="all" />
-    <type fullname=".ChannelMapData/BoolArray" preserve="nothing" serialized="true" />
-  </assembly>
-  <assembly fullname="trajectoryplanner.craniotomy, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
     <type fullname="CraniotomySkull" preserve="all" />
+    <type fullname="ChannelMapData/BoolArray" preserve="nothing" serialized="true" />
   </assembly>
   <assembly fullname="Unity.Addressables, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" preserve="all">
     <type fullname="UnityEngine.AddressableAssets.Addressables" preserve="all" />

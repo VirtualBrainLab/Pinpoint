@@ -897,24 +897,24 @@ node.SetVisibility(true);
             {
                 Debug.Log("Found query string");
 
-                var queryDict = Utils.ParseQueryString();
+                //var queryDict = Utils.ParseQueryString();
 
-                foreach (var queryKVP in queryDict)
-                {
-                    if (queryKVP.Key.Equals("Probes"))
-                    {
-                        string encodedStr = queryKVP.Value;
+                //foreach (var queryKVP in queryDict)
+                //{
+                //    if (queryKVP.Key.Equals("Probes"))
+                //    {
+                //        string encodedStr = queryKVP.Value;
 
-                        LoadSavedProbesFromEncodedString(encodedStr);
-                        queryStr = true;
-                    }
-                    if (queryKVP.Key.Equals("Settings"))
-                    {
-                        string settingsQuery = queryKVP.Value;
+                //        LoadSavedProbesFromEncodedString(encodedStr);
+                //        queryStr = true;
+                //    }
+                //    if (queryKVP.Key.Equals("Settings"))
+                //    {
+                //        string settingsQuery = queryKVP.Value;
                         
-                        LoadSettingsFromEncodedString(settingsQuery);
-                    }
-                }
+                //        LoadSettingsFromEncodedString(settingsQuery);
+                //    }
+                //}
             }
 
             return queryStr;

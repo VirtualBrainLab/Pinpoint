@@ -70,6 +70,7 @@ PlayerSettings:
   androidStartInFullscreen: 1
   androidRenderOutsideSafeArea: 1
   androidUseSwappy: 1
+  androidDisplayOptions: 1
   androidBlitType: 0
   androidResizeableActivity: 0
   androidDefaultWindowWidth: 1920
@@ -86,6 +87,7 @@ PlayerSettings:
   muteOtherAudioSources: 0
   Prepare IOS For Recording: 0
   Force IOS Speakers When Recording: 0
+  audioSpatialExperience: 0
   deferSystemGesturesMode: 0
   hideHomeButton: 0
   submitAnalytics: 1
@@ -141,9 +143,10 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 2.0.1b0
+  bundleVersion: 3.0.0
   preloadedAssets:
   - {fileID: 11400000, guid: 6057f25234ce83a4bbb3ae618a501907, type: 2}
+  - {fileID: 11400000, guid: 443c5fe28b836da4a9bb833b1f961ad8, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -710,7 +713,7 @@ PlayerSettings:
     QNX: 
     Server: 
     Standalone: ENABLE_HYBRID_RENDERER_V2;APP_UI
-    WebGL: UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP
+    WebGL: UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP;APP_UI
     Windows Store Apps: 
     XboxOne: 
     iPhone: 
@@ -852,3 +855,4 @@ PlayerSettings:
   androidVulkanDenyFilterList: []
   androidVulkanAllowFilterList: []
   androidVulkanDeviceFilterListAsset: {fileID: 0}
+  d3d12DeviceFilterListAsset: {fileID: 0}
