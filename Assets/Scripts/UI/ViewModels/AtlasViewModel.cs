@@ -69,6 +69,9 @@ namespace UI.ViewModels
         [ICommand]
         private void LoadAtlasData()
         {
+            if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+                return;
+
             var rootId = BrainAtlasManager.ActiveReferenceAtlas.Ontology.Acronym2ID("root");
 
             var pinpointAtlasManager = GameObject.Find("main").GetComponent<PinpointAtlasManager>();

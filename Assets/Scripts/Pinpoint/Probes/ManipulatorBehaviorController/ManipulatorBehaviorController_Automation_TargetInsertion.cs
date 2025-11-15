@@ -224,6 +224,9 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
             ProbeManager targetInsertionProbeManager
         )
         {
+            if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+                return;
+
             // Compute entry coordinate in world space.
             var entryCoordinateWorld =
                 targetInsertionProbeManager.GetSurfaceCoordinateWorldT()
@@ -313,7 +316,10 @@ namespace Pinpoint.Probes.ManipulatorBehaviorController
         /// </summary>
         private void UpdateTrajectoryLines()
         {
-            _trajectoryLineLineRenderers.dv.SetPosition(0, _probeController.ProbeTipT.position);
+  if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+ return;
+     
+   _trajectoryLineLineRenderers.dv.SetPosition(0, _probeController.ProbeTipT.position);
             _trajectoryLineLineRenderers.dv.SetPosition(
                 1,
                 BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(

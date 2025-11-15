@@ -136,11 +136,17 @@ probeWorldState =>
         if (!Settings.ShowInPlaneSlice) return;
 
 #if APP_UI
-        if (_cachedProbeWorldState == null || string.IsNullOrEmpty(_cachedProbeWorldState.Name) || _cachedActiveProbeState == null)
-        {
-            ResetRendererParameters();
-            return;
+  if (_cachedProbeWorldState == null || string.IsNullOrEmpty(_cachedProbeWorldState.Name) || _cachedActiveProbeState == null)
+      {
+ ResetRendererParameters();
+          return;
         }
+
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+    {
+   ResetRendererParameters();
+     return;
+       }
 
         Vector3 startCoordWorldU = _cachedProbeWorldState.RecRegionBaseCoordWorldU;
         Vector3 endCoordWorldU = _cachedProbeWorldState.RecRegionTopCoordWorldU;
@@ -151,10 +157,16 @@ probeWorldState =>
 
         ProbeType activeProbeType = _cachedActiveProbeState.ProbeType;
 #else
-        if (ProbeManager.ActiveProbeManager == null)
+      if (ProbeManager.ActiveProbeManager == null)
         {
-            ResetRendererParameters();
+   ResetRendererParameters();
     return;
+        }
+
+    if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+ {
+            ResetRendererParameters();
+       return;
         }
 
       (Vector3 startCoordWorldU, Vector3 endCoordWorldU) = ProbeManager.ActiveProbeManager.RecRegionCoordWorldU;
@@ -239,14 +251,17 @@ probeWorldState =>
         if (_cachedProbeWorldState == null || string.IsNullOrEmpty(_cachedProbeWorldState.Name))
             return;
 #else
-        if (ProbeManager.ActiveProbeManager == null)
+ if (ProbeManager.ActiveProbeManager == null)
    return;
 #endif
+
+  if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+   return;
 
         Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
         int annotation = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(inPlanePosition);
-        annotation = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(annotation);
+      annotation = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(annotation);
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -262,14 +277,17 @@ probeWorldState =>
 
     private Vector3 CalculateInPlanePosition(Vector2 pointerData)
     {
-        Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
-        // Take the tip transform and go out according to the in plane percentage 
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+  return Vector3.zero;
+     
+   Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
+   // Take the tip transform and go out according to the in plane percentage 
 
         // We get the center index, then add the x position * the left vector, then add the y position * the up vector
-        // remember that for the probe, up = backward, and left = left
+     // remember that for the probe, up = backward, and left = left
         Vector3 inPlanePosition = recRegionCenterIdx +
-            (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-rightWorldU) * inPlanePosNorm.x +
-            BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-forwardWorldU) * inPlanePosNorm.y);
+ (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-rightWorldU) * inPlanePosNorm.x +
+          BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-forwardWorldU) * inPlanePosNorm.y);
         return inPlanePosition;
     }
 

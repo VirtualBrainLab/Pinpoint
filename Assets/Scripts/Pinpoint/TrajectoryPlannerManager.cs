@@ -351,9 +351,12 @@ namespace TrajectoryPlanner
         private void OnSceneStateChanged(SceneState state)
         {
             // Remove probes that don't exist in the state anymore.
-            //foreach (var removedProbeManagers in ProbeManager.Instances.Where(manager =>
-            //             !state.Probes.Select(probeState => probeState.Name).Contains(manager.name)))
-            //    DestroyProbe(removedProbeManagers);
+            foreach (var removedProbeManagers in ProbeManager.Instances.Where(manager =>
+                         !state.Probes.Select(probeState => probeState.Name).Contains(manager.name)))
+            {
+                removedProbeManagers.Cleanup();
+                Destroy(removedProbeManagers.gameObject);
+            }
 
             // Add new probes that don't exist in the scene yet and give them the state name.
             foreach (var newProbe in state.Probes.Where(probeState =>
@@ -693,21 +696,24 @@ namespace TrajectoryPlanner
 
         public void SetGhostAreaVisibility()
         {
+      if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+      return;
+   
             if (Settings.GhostInactiveAreas)
-            {
-                List<int> activeAreas = TP_Search.VisibleSearchedAreas;
-                List<OntologyNode> activeNodes = activeAreas.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(x));
+     {
+        List<int> activeAreas = TP_Search.VisibleSearchedAreas;
+   List<OntologyNode> activeNodes = activeAreas.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(x));
 
-                foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
-                    if (!activeNodes.Contains(node))
-                        node.SetVisibility(false);
-            }
-            else
-            {
-                foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
-                    node.SetVisibility(true);
-            }
+ foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
+    if (!activeNodes.Contains(node))
+     node.SetVisibility(false);
         }
+            else
+      {
+    foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
+node.SetVisibility(true);
+ }
+  }
 
         public void SetGhostProbeVisibility()
         {
@@ -998,10 +1004,14 @@ namespace TrajectoryPlanner
 
         public void SetProbeTipPosition2AreaID(int atlasID)
         {
-            if (ProbeManager.ActiveProbeManager == null) return;
-            (Vector3 leftCoordU, Vector3 rightCoordU) = BrainAtlasManager.ActiveReferenceAtlas.MeshCenters[atlasID];
+      if (ProbeManager.ActiveProbeManager == null) return;
+ 
+   if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+  return;
+      
+     (Vector3 leftCoordU, Vector3 rightCoordU) = BrainAtlasManager.ActiveReferenceAtlas.MeshCenters[atlasID];
 
-            Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
+    Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
 
             // coordinates are really broken right now, the right coordinate is the left, and the left is just missing
             leftCoordU = rightCoordU;

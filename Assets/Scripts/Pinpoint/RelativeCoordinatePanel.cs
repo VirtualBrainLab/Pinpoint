@@ -58,6 +58,9 @@ public class RelativeCoordinatePanel : MonoBehaviour
 
     public void Set2Bregma()
     {
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+            return;
+        
         Vector3 bregmaCoord = Vector3.zero;
         if (UrchinUtilsUtils.BregmaDefaults.ContainsKey(BrainAtlasManager.ActiveReferenceAtlas.Name))
             bregmaCoord = UrchinUtilsUtils.BregmaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
@@ -71,12 +74,15 @@ public class RelativeCoordinatePanel : MonoBehaviour
 
     public void Set2Lambda()
     {
-        Vector3 lambdaCoord = Vector3.zero;
-        if (UrchinUtilsUtils.LambdaDefaults.ContainsKey(BrainAtlasManager.ActiveReferenceAtlas.Name))
-            lambdaCoord = UrchinUtilsUtils.LambdaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+        return;
+        
+     Vector3 lambdaCoord = Vector3.zero;
+     if (UrchinUtilsUtils.LambdaDefaults.ContainsKey(BrainAtlasManager.ActiveReferenceAtlas.Name))
+ lambdaCoord = UrchinUtilsUtils.LambdaDefaults[BrainAtlasManager.ActiveReferenceAtlas.Name];
 
 #if APP_UI
-        _storeService.Store.Dispatch(Models.Settings.AtlasSettingsActions.SET_REFERENCE_COORD, lambdaCoord);
+_storeService.Store.Dispatch(Models.Settings.AtlasSettingsActions.SET_REFERENCE_COORD, lambdaCoord);
 #else
      Settings.ReferenceCoord = lambdaCoord;
 #endif

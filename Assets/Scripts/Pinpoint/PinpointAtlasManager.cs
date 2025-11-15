@@ -91,6 +91,9 @@ public class PinpointAtlasManager : MonoBehaviour
         if (brainAreaVisibility == null)
             return;
 
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+   return;
+
         var opaqueMaterial = BrainAtlasManager.BrainRegionMaterials["opaque-lit"];
         var transparentMaterial = BrainAtlasManager.BrainRegionMaterials["transparent-unlit"];
 
@@ -244,7 +247,10 @@ public class PinpointAtlasManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log("(PAM) Warp brain called");
 #endif
-        Vector3 newWarp = WorldU2WorldT_Wrapper(Vector3.one);
+   if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+     return;
+ 
+     Vector3 newWarp = WorldU2WorldT_Wrapper(Vector3.one);
 
         // Check if the brain actually needs to be warped
         if (newWarp == _activeWarp)
@@ -271,9 +277,12 @@ public class PinpointAtlasManager : MonoBehaviour
 
     public void UnwarpBrain()
     {
+      if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+        return;
+   
         foreach (OntologyNode node in DefaultNodes)
-        {
-            node.ResetAtlasTransform();
+     {
+   node.ResetAtlasTransform();
         }
     }
 

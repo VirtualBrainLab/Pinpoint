@@ -85,7 +85,7 @@ public class TP_SliceRenderer : MonoBehaviour
     public void UpdateSlicePosition()
     {
 #if APP_UI
-        var atlasSettingsState = _storeService.Store.GetState<Models.Settings.AtlasSettingsState>(Models.SliceNames.ATLAS_SETTINGS_SLICE);
+      var atlasSettingsState = _storeService.Store.GetState<Models.Settings.AtlasSettingsState>(Models.SliceNames.ATLAS_SETTINGS_SLICE);
         bool show3DSlices = atlasSettingsState.Show3DSlices;
 #else
         bool show3DSlices = Settings.Slice3DDropdownOption > 0;
@@ -93,6 +93,9 @@ public class TP_SliceRenderer : MonoBehaviour
 
         if (show3DSlices && _started)
         {
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+          return;
+   
             // Use the un-transformed CCF coordinates to obtain the position in the CCF volume
             Vector3 tipCoordWorldU = Vector3.zero;
             if (ProbeManager.ActiveProbeManager != null)
@@ -131,15 +134,18 @@ public class TP_SliceRenderer : MonoBehaviour
     {
 #if APP_UI
         if (_storeService == null)
-            return;
+  return;
         var atlasSettingsState = _storeService.Store.GetState<Models.Settings.AtlasSettingsState>(Models.SliceNames.ATLAS_SETTINGS_SLICE);
         bool show3DSlices = atlasSettingsState.Show3DSlices;
 #else
         bool show3DSlices = Settings.Slice3DDropdownOption > 0;
 #endif
 
-        if (!show3DSlices || !_started || Camera.main == null)
-            return;
+   if (!show3DSlices || !_started || Camera.main == null)
+      return;
+
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+       return;
 
         Vector3 camPosition = Camera.main.transform.position;
         bool changed = false;
@@ -169,6 +175,9 @@ public class TP_SliceRenderer : MonoBehaviour
 
     private void UpdateNodeModelSlicing()
     {
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+     return;
+            
         Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
 
         Vector3 tipCoordWorld = Vector3.zero;
@@ -194,6 +203,8 @@ public class TP_SliceRenderer : MonoBehaviour
 
     private void ClearNodeModelSlicing()
     {
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+            return;
 
         // Update the renderers on the node objects
         foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)

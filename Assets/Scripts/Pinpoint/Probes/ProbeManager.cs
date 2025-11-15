@@ -1060,7 +1060,10 @@ public class ProbeManager : MonoBehaviour
         bool useDV = false
     )
     {
-        // note: the backward axis on the probe is the probe's "up" axis
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+ return (new Vector3(float.NaN, float.NaN, float.NaN), false);
+        
+     // note: the backward axis on the probe is the probe's "up" axis
         (Vector3 tipCoordWorldU, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
 
         Vector3 tipAtlasIdxU = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
@@ -1136,10 +1139,13 @@ public class ProbeManager : MonoBehaviour
     /// <returns></returns>
     public Vector3 FindEntryIdxCoordinate(Vector3 bottomIdxCoordU, Vector3 downVector)
     {
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+     return new Vector3(float.NaN, float.NaN, float.NaN);
+   
         float searchDistance =
-            BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z
-            * 1000f
-            / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
+       BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z
+* 1000f
+  / BrainAtlasManager.ActiveReferenceAtlas.Resolution.z;
         Vector3 topSearchIdxCoordU = bottomIdxCoordU - downVector * searchDistance;
 
         // If by chance we are inside the brain, go farther
