@@ -125,6 +125,66 @@ namespace UI.ViewModels
             _storeService.Store.Dispatch(MainActions.SET_LEFT_SIDE_PANEL_TAB_INDEX, index);
         }
 
+        [ICommand]
+        private void SaveStateToFile()
+        {
+#if UNITY_EDITOR
+            var filePath = UnityEditor.EditorUtility.SaveFilePanel(
+                "Save Scene State",
+                UnityEngine.Application.persistentDataPath,
+                "scene_state.json",
+                "json"
+            );
+#else
+            var filePath = System.IO.Path.Combine(
+                UnityEngine.Application.persistentDataPath,
+                "scene_state.json"
+            );
+#endif
+            
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                if (_storeService.SaveToFile(filePath))
+                {
+                    Debug.Log($"Scene state saved successfully to: {filePath}");
+                }
+                else
+                {
+                    Debug.LogError("Failed to save scene state");
+                }
+            }
+        }
+
+        [ICommand]
+        private void LoadStateFromFile()
+        {
+#if UNITY_EDITOR
+            var filePath = UnityEditor.EditorUtility.OpenFilePanel(
+                "Load Scene State",
+                UnityEngine.Application.persistentDataPath,
+                "json"
+            );
+#else
+            var filePath = System.IO.Path.Combine(
+                UnityEngine.Application.persistentDataPath,
+                "scene_state.json"
+            );
+#endif
+            
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                if (_storeService.LoadFromFile(filePath))
+                {
+                    Debug.Log($"Scene state loaded successfully from: {filePath}");
+                    Debug.Log("Please reload the application to see the loaded state");
+                }
+                else
+                {
+                    Debug.LogError("Failed to load scene state");
+                }
+            }
+        }
+
         #endregion
     }
 }

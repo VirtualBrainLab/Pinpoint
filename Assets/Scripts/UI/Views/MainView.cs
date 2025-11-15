@@ -45,6 +45,8 @@ namespace UI.Views
             var leftSidePanelCollapseButton = root.Q<Button>("left-side-panel__collapse-button");
             var rightSidePanelCollapseButton = root.Q<Button>("right-side-panel__collapse-button");
             var leftSidePanelTabs = root.Q<Tabs>("left-side-panel__tabs");
+            var saveMenuItem = root.Q<Unity.AppUI.UI.MenuItem>("file-menu__save");
+            var loadMenuItem = root.Q<Unity.AppUI.UI.MenuItem>("file-menu__load");
 
             // Initialize subviews.
             _ = PinpointApp.Services.GetRequiredService<SceneView>();
@@ -80,6 +82,10 @@ namespace UI.Views
             leftSidePanelTabs.RegisterValueChangedCallback(evt =>
                 mainViewModel.SetLeftSidePanelTabIndexCommand.Execute(evt.newValue)
             );
+            saveMenuItem.clickable.clicked += () =>
+                mainViewModel.SaveStateToFileCommand.Execute(null);
+            loadMenuItem.clickable.clicked += () =>
+                mainViewModel.LoadStateFromFileCommand.Execute(null);
 
             // Initialize view from view model state.
             mainSplitView.RestoreState(mainViewModel.MainSplitViewState);

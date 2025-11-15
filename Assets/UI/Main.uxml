@@ -15,8 +15,8 @@
                     <Unity.AppUI.UI.MenuTrigger>
                         <Unity.AppUI.UI.ActionButton label="File" icon="file" />
                         <Unity.AppUI.UI.Menu>
-                            <Unity.AppUI.UI.MenuItem label="Save" />
-                            <Unity.AppUI.UI.MenuItem label="Load" />
+                            <Unity.AppUI.UI.MenuItem label="Save" name="file-menu__save" />
+                            <Unity.AppUI.UI.MenuItem label="Load" name="file-menu__load" />
                         </Unity.AppUI.UI.Menu>
                     </Unity.AppUI.UI.MenuTrigger>
                     <Unity.AppUI.UI.Spacer />

@@ -29,6 +29,7 @@ namespace UI
 
             // Services.
             builder.services.AddSingleton<LocalStorageService>();
+            builder.services.AddSingleton<FileStorageService>();
             builder.services.AddSingleton<StoreService>();
             builder.services.AddSingleton<ProbeService>();
             builder.services.AddSingleton<EphysLinkService>();
