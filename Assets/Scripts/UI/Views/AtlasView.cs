@@ -115,7 +115,7 @@ namespace UI.Views
             string searchLower)
         {
             if (items == null)
-                return null;
+                return new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>();
 
             var filtered = new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>();
 
@@ -125,7 +125,14 @@ namespace UI.Views
                 var matchesCurrent = acronym.ToLowerInvariant().Contains(searchLower) ||
                                      name.ToLowerInvariant().Contains(searchLower);
 
-                var filteredChildren = FilterTreeData(item.children?.ToList(), searchLower);
+                List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> childrenList = null;
+                if (item.children != null)
+                {
+                    var childrenArray = new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>(item.children);
+                    childrenList = childrenArray;
+                }
+
+                var filteredChildren = FilterTreeData(childrenList, searchLower);
                 var hasMatchingChildren = filteredChildren != null && filteredChildren.Count > 0;
 
                 if (matchesCurrent || hasMatchingChildren)
@@ -133,12 +140,12 @@ namespace UI.Views
                     filtered.Add(new TreeViewItemData<(string, string, Color, AreaDisplayType)>(
                         item.id,
                         item.data,
-                        filteredChildren
+                        hasMatchingChildren ? filteredChildren : null
                     ));
                 }
             }
 
-            return filtered.Count > 0 ? filtered : null;
+            return filtered.Count > 0 ? filtered : new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>();
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -248,7 +255,8 @@ namespace UI.Views
 
                 if (item.children != null)
                 {
-                    var depth = GetNodeDepth(item.children.ToList(), targetId, currentDepth + 1);
+                    var childrenList = new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>(item.children);
+                    var depth = GetNodeDepth(childrenList, targetId, currentDepth + 1);
                     if (depth >= 0)
                         return depth;
                 }
@@ -274,7 +282,8 @@ namespace UI.Views
 
                 if (item.children != null)
                 {
-                    if (CollectAncestors(item.children.ToList(), targetId, ancestors))
+                    var childrenList = new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>(item.children);
+                    if (CollectAncestors(childrenList, targetId, ancestors))
                     {
                         ancestors.Add(item.id);
                         return true;

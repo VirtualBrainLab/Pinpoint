@@ -86,6 +86,9 @@ namespace UI.ViewModels
             }
 
             var visitedNodes = new HashSet<int>();
+            var recursionDepth = 0;
+            const int MAX_RECURSION_DEPTH = 1000;
+
             AtlasTreeData = RecursiveParse(rootId);
 
             var initialVisibility = new Dictionary<int, AreaDisplayType>();
@@ -101,36 +104,48 @@ namespace UI.ViewModels
 
             List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> RecursiveParse(int nodeId)
             {
+                recursionDepth++;
+                if (recursionDepth > MAX_RECURSION_DEPTH)
+                {
+                    Debug.LogError($"Exceeded maximum recursion depth at node {nodeId}");
+                    recursionDepth--;
+                    return new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>();
+                }
+
                 if (!visitedNodes.Add(nodeId))
                 {
                     Debug.LogWarning($"Circular reference detected in atlas ontology at node ID {nodeId}");
-                    return null;
+                    recursionDepth--;
+                    return new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>();
                 }
 
-                var childrenIds = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Children(
-                    nodeId
-                );
+                var childrenIds = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Children(nodeId);
 
-                var result = childrenIds.Count == 0
-                    ? null
-                    : (
-                        from childId in childrenIds
-                        let childData = RecursiveParse(childId)
-                        let childName = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(
-                            childId
-                        )
-                        let childAcronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(
-                            childId
-                        )
-                        let displayType = defaultNodeIds.Contains(childId) ? AreaDisplayType.Opaque : AreaDisplayType.Hidden
-                        select new TreeViewItemData<(string, string, Color, AreaDisplayType)>(
-                            childId,
-                            (childAcronym, childName, BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(childId), displayType),
-                            childData
-                        )
-                    ).ToList();
+                if (childrenIds.Count == 0)
+                {
+                    visitedNodes.Remove(nodeId);
+                    recursionDepth--;
+                    return new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>();
+                }
+
+                var result = new List<TreeViewItemData<(string, string, Color, AreaDisplayType)>>(childrenIds.Count);
+
+                foreach (var childId in childrenIds)
+                {
+                    var childData = RecursiveParse(childId);
+                    var childName = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(childId);
+                    var childAcronym = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(childId);
+                    var displayType = defaultNodeIds.Contains(childId) ? AreaDisplayType.Opaque : AreaDisplayType.Hidden;
+
+                    result.Add(new TreeViewItemData<(string, string, Color, AreaDisplayType)>(
+                        childId,
+                        (childAcronym, childName, BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Color(childId), displayType),
+                        childData.Count > 0 ? childData : null
+                    ));
+                }
 
                 visitedNodes.Remove(nodeId);
+                recursionDepth--;
                 return result;
             }
         }
