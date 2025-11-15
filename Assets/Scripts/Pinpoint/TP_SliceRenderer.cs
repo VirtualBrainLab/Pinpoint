@@ -36,7 +36,10 @@ public class TP_SliceRenderer : MonoBehaviour
         saggitalSliceMaterial = _sagittalSliceGo.GetComponent<Renderer>().material;
         coronalSliceMaterial = _coronalSliceGo.GetComponent<Renderer>().material;
         _started = false;
+    }
 
+    private void Start()
+    {
 #if APP_UI
         _storeService = UI.PinpointApp.Services.GetService<Services.StoreService>();
 #endif

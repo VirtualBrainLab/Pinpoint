@@ -42,13 +42,17 @@ public class PinpointAtlasManager : MonoBehaviour
             _atlasNameMapping.Add(_atlasNames[i], _atlasMappings[i]);
             _allowedOnWebGLMapping.Add(_atlasNames[i], _allowedOnWebGL[i]);
         }
+    }
+
+    private void Start()
+    {
 
         UI.PinpointApp.StoreServiceStore.Subscribe(
               state => state.Get<Models.Scene.SceneState>(Models.SliceNames.SCENE_SLICE),
              sceneState =>
-                   {
-                       UpdateBrainAreaVisibility(sceneState.BrainAreaVisibility);
-                   },
+             {
+                 UpdateBrainAreaVisibility(sceneState.BrainAreaVisibility);
+             },
          new SubscribeOptions<Models.Scene.SceneState> { fireImmediately = true }
                );
 

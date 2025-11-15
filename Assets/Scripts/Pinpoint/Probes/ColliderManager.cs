@@ -38,7 +38,10 @@ public class ColliderManager : MonoBehaviour
         CollisionMaterial = _collisionMaterial;
 
         CollisionPanelGO.SetActive(false);
+    }
 
+    private void Start()
+    {
         // Subscribe to settings state changes to monitor DetectCollisions
         var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
         _settingsStateSubscription = storeService.Store.Subscribe(

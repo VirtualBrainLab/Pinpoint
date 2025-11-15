@@ -126,8 +126,8 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _RecordingRegionSize: 152.8
-    - _Scale: 229.20001
+    - _RecordingRegionSize: 0
+    - _Scale: 1
     - _ShankSpacing: 0
     - _ShankWidth: 70
     - _Smoothness: 0.5
@@ -148,12 +148,12 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _ForwardDirection: {r: 0, g: 0, b: 0, a: 0}
     - _LeftDirection: {r: 1, g: 0, b: 0, a: 0}
-    - _RecordingRegionCenterPosition: {r: 208.00003, g: 228, b: 208.1195, a: 0}
+    - _RecordingRegionCenterPosition: {r: 52.480907, g: 228, b: 145.78673, a: 0}
     - _RightDirection: {r: 1, g: 0, b: 0, a: 0}
     - _Scale: {r: 200, g: 200, b: 4.5, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _TipPosition: {r: 0, g: 0, b: 0, a: 0}
-    - _UpDirection: {r: -0, g: 1, b: -0, a: 0}
+    - _UpDirection: {r: 0, g: 0, b: 0, a: 0}
     - _VolumeSize: {r: 528, g: 456, b: 320, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

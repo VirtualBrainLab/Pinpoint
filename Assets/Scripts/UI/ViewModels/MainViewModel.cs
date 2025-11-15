@@ -98,6 +98,7 @@ namespace UI.ViewModels
 
         private void OnShuttingDown()
         {
+            _storeService.Store.Dispatch(ProbeWorldActions.CLEAR_ALL_PROBE_WORLD_STATES);
             _storeService.Save();
             _mainStateSubscription.Dispose();
             _sceneStateSubscription.Dispose();

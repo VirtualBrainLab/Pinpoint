@@ -367,11 +367,6 @@ public class ProbeManager : MonoBehaviour
 
         // Unsubscribe from state.
         _probeStateSubscription?.Dispose();
-
-#if APP_UI
-        // Remove the probe world state when the probe is destroyed
-        PinpointApp.StoreServiceStore.Dispatch(ProbeWorldActions.REMOVE_PROBE_WORLD_STATE, name);
-#endif
     }
 
     #endregion

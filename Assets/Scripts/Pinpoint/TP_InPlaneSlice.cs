@@ -55,11 +55,8 @@ public class TP_InPlaneSlice : MonoBehaviour
         _rect = GetComponent<RectTransform>();
 
         ResetRendererParameters();
-
-#if APP_UI
-        _storeService = PinpointApp.Services.GetRequiredService<StoreService>();
-#endif
     }
+
     public void Startup(Texture3D annotationTexture)
     {
         _inPlaneSliceMaterial.SetTexture("_Volume", annotationTexture);
@@ -70,6 +67,10 @@ public class TP_InPlaneSlice : MonoBehaviour
 #if APP_UI
     private void Start()
     {
+#if APP_UI
+        _storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+#endif
+
         _probeWorldStateSubscription = _storeService.Store.Subscribe(
      state =>
             {
