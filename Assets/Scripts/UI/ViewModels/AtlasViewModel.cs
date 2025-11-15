@@ -85,6 +85,7 @@ namespace UI.ViewModels
                 }
             }
 
+            var visitedNodes = new HashSet<int>();
             AtlasTreeData = RecursiveParse(rootId);
 
             var initialVisibility = new Dictionary<int, AreaDisplayType>();
@@ -100,11 +101,17 @@ namespace UI.ViewModels
 
             List<TreeViewItemData<(string, string, Color, AreaDisplayType)>> RecursiveParse(int nodeId)
             {
+                if (!visitedNodes.Add(nodeId))
+                {
+                    Debug.LogWarning($"Circular reference detected in atlas ontology at node ID {nodeId}");
+                    return null;
+                }
+
                 var childrenIds = BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Children(
                     nodeId
                 );
 
-                return childrenIds.Count == 0
+                var result = childrenIds.Count == 0
                     ? null
                     : (
                         from childId in childrenIds
@@ -122,6 +129,9 @@ namespace UI.ViewModels
                             childData
                         )
                     ).ToList();
+
+                visitedNodes.Remove(nodeId);
+                return result;
             }
         }
 
