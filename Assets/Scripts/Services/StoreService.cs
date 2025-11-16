@@ -372,9 +372,7 @@ namespace Services
         {
             var savedState = new SavedState
             {
-                MainState = Store.GetState<MainState>(SliceNames.MAIN_SLICE),
                 SceneState = Store.GetState<SceneState>(SliceNames.SCENE_SLICE),
-                SettingsState = Store.GetState<SettingsState>(SliceNames.SETTINGS_SLICE),
                 RigState = Store.GetState<RigState>(SliceNames.RIG_SLICE),
                 AtlasSettingsState = Store.GetState<AtlasSettingsState>(SliceNames.ATLAS_SETTINGS_SLICE)
             };
@@ -393,9 +391,7 @@ namespace Services
                 return false;
 
             // Update local storage with the loaded state.
-            _localStorageService.SetValue(SliceNames.MAIN_SLICE, savedState.MainState);
             _localStorageService.SetValue(SliceNames.SCENE_SLICE, savedState.SceneState);
-            _localStorageService.SetValue(SliceNames.SETTINGS_SLICE, savedState.SettingsState);
             _localStorageService.SetValue(SliceNames.RIG_SLICE, savedState.RigState);
             _localStorageService.SetValue(SliceNames.ATLAS_SETTINGS_SLICE, savedState.AtlasSettingsState);
 

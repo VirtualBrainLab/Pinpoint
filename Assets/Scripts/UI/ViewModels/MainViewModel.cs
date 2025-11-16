@@ -2,6 +2,7 @@ using System.ComponentModel;
 using Models;
 using Models.Scene;
 using Services;
+using SimpleFileBrowser;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
 using Unity.AppUI.UI;
@@ -129,64 +130,63 @@ namespace UI.ViewModels
         [ICommand]
         private void SaveStateToFile()
         {
-#if UNITY_EDITOR
-            var filePath = UnityEditor.EditorUtility.SaveFilePanel(
-                "Save Scene State",
-                UnityEngine.Application.persistentDataPath,
-                "scene_state.json",
-                "json"
-            );
-#else
-            var filePath = System.IO.Path.Combine(
-                UnityEngine.Application.persistentDataPath,
-                "scene_state.json"
-            );
-#endif
-            
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                if (_storeService.SaveToFile(filePath))
+            FileBrowser.ShowSaveDialog(
+                onSuccess: (paths) =>
                 {
-                    Debug.Log($"Scene state saved successfully to: {filePath}");
-                }
-                else
-                {
-                    Debug.LogError("Failed to save scene state");
-                }
-            }
+                    if (paths.Length > 0)
+                    {
+                        var filePath = paths[0];
+                        if (_storeService.SaveToFile(filePath))
+                        {
+                            Debug.Log($"Scene state saved successfully to: {filePath}");
+                        }
+                        else
+                        {
+                            Debug.LogError("Failed to save scene state");
+                        }
+                    }
+                },
+                onCancel: () => { },
+                pickMode: FileBrowser.PickMode.Files,
+                allowMultiSelection: false,
+                initialPath: null,
+                initialFilename: "scene_state.json",
+                title: "Save Scene State",
+                saveButtonText: "Save"
+            );
         }
 
         [ICommand]
         private void LoadStateFromFile()
         {
-#if UNITY_EDITOR
-            var filePath = UnityEditor.EditorUtility.OpenFilePanel(
-                "Load Scene State",
-                UnityEngine.Application.persistentDataPath,
-                "json"
-            );
-#else
-            var filePath = System.IO.Path.Combine(
-                UnityEngine.Application.persistentDataPath,
-                "scene_state.json"
-            );
-#endif
-            
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                if (_storeService.LoadFromFile(filePath))
+            FileBrowser.ShowLoadDialog(
+                onSuccess: (paths) =>
                 {
-                    Debug.Log($"Scene state loaded successfully from: {filePath}");
-                    Debug.Log("Reloading scene to apply loaded state...");
-                    
-                    // Reload the scene to apply the loaded state from local storage
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-                }
-                else
-                {
-                    Debug.LogError("Failed to load scene state");
-                }
-            }
+                    if (paths.Length > 0)
+                    {
+                        var filePath = paths[0];
+                        if (_storeService.LoadFromFile(filePath))
+                        {
+                            Debug.Log($"Scene state loaded successfully from: {filePath}");
+                            Debug.Log("Reloading scene to apply loaded state...");
+                            
+                            // Reload the scene to apply the loaded state from local storage
+                            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                        }
+                        else
+                        {
+                            Debug.LogError("Failed to load scene state");
+                        }
+                    }
+                },
+                onCancel: () => { },
+                pickMode: FileBrowser.PickMode.Files,
+                allowMultiSelection: false,
+                initialPath: null,
+                initialFilename: null,
+                title: "Load Scene State",
+                loadButtonText: "Load"
+            );
         }
 
         #endregion
