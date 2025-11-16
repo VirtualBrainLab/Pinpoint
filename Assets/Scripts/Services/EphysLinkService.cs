@@ -576,7 +576,11 @@ namespace Services
             if (_visualizationLoopCts != null)
             {
                 try { _visualizationLoopCts.Cancel(); }
-                catch { /* ignore */ }
+                catch (ObjectDisposedException) { /* ignore disposed */ }
+                catch (Exception ex)
+                {
+                    Debug.Log($"Ignored exception during visualization loop cancellation: {ex}");
+                }
                 _visualizationLoopCts.Dispose();
                 _visualizationLoopCts = null;
             }
