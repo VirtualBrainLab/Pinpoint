@@ -61,9 +61,6 @@ namespace Services
 
         private readonly HashSet<string> _runningDemoLoops = new();
         private const float DEMO_SPEED = 0.5f; // mm/s
-        #endregion
-
-        #region Visualization Update Resources
 
         // Reusable list to avoid allocations in UpdateVisualizationProbePosition
         private readonly List<(
@@ -641,17 +638,16 @@ namespace Services
             _visualizationUpdateRequests.Clear();
 
             // Iterate through manipulators directly to avoid LINQ allocations
-            for (int i = 0; i < sceneState.Manipulators.Count; i++)
+            foreach (var manipulatorState in sceneState.Manipulators)
             {
-                var manipulatorState = sceneState.Manipulators[i];
-                
                 // Skip if no visualization probe name
                 if (string.IsNullOrEmpty(manipulatorState.VisualizationProbeName))
                     continue;
 
                 // Skip if the probe or manager couldn't be found.
+                var state = manipulatorState;
                 var visualizationProbeManager = ProbeManager.Instances.FirstOrDefault(manager =>
-                    manager.name == manipulatorState.VisualizationProbeName
+                    manager.name == state.VisualizationProbeName
                 );
                 if (
                     sceneState.Probes.FirstOrDefault(state =>
