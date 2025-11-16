@@ -150,37 +150,6 @@ public class Settings : MonoBehaviour
 
     #region Graphics settings
 
-    // Show the surface coordinate sphere
-    private const bool SHOWSURFACECOORD_DEFAULT = true;
-    [FormerlySerializedAs("surfaceToggle")][SerializeField] private Toggle _surfaceToggle;
-    public UnityEvent SurfaceCoordChangedEvent;
-
-    public static bool ShowSurfaceCoordinate
-    {
-        get { return data.ShowSurfaceCoord; }
-        set
-        {
-            data.ShowSurfaceCoord = value;
-            Save();
-            Instance.SurfaceCoordChangedEvent.Invoke();
-        }
-    }
-
-    private const bool SHOWBREGMAAXIS_DEFAULT = true;
-    public UnityEvent<bool> ShowBregmaAxisChangedEvent;
-
-    public static bool ShowBregmaAxis
-    {
-        get { return data.ShowBregmaAxis; }
-        set
-        {
-            data.ShowBregmaAxis = value;
-            Save();
-            Instance.ShowBregmaAxisChangedEvent.Invoke(data.ShowBregmaAxis);
-        }
-    }
-
-
     // Display the in-plane slice
     private const bool SHOWINPLANE_DEFAULT = true;
     [FormerlySerializedAs("inplaneToggle")][SerializeField] private Toggle _inplaneToggle;
@@ -196,22 +165,6 @@ public class Settings : MonoBehaviour
             Instance.ShowInPlaneChangedEvent.Invoke();
         }
     }
-
-    private const bool GHOSTINACTIVEPROBES_DEFAULT = true;
-    [FormerlySerializedAs("ghostInactiveProbesToggle")][SerializeField] private Toggle _ghostInactiveProbesToggle;
-    public UnityEvent GhostInactiveProbesChangedEvent;
-
-    public static bool GhostInactiveProbes
-    {
-        get { return data.GhostInactiveProbes; }
-        set
-        {
-            data.GhostInactiveProbes = value;
-            Save();
-            Instance.GhostInactiveProbesChangedEvent.Invoke();
-        }
-    }
-
 
     private const bool GHOSTINACTIVEAREAS_DEFAULT = false;
     [FormerlySerializedAs("ghostInactiveAreasToggle")][SerializeField] private Toggle _ghostInactiveAreasToggle;
@@ -549,11 +502,8 @@ public class Settings : MonoBehaviour
             data.UseBeryl = USEBERYL_DEFAULT;
 
             // graphics
-            data.ShowSurfaceCoord = SHOWSURFACECOORD_DEFAULT;
-            data.ShowBregmaAxis = SHOWBREGMAAXIS_DEFAULT;
-            data.GhostInactiveAreas = GHOSTINACTIVEAREAS_DEFAULT;
-            data.GhostInactiveProbes = GHOSTINACTIVEPROBES_DEFAULT;
             data.ShowInPlaneSlice = SHOWINPLANE_DEFAULT;
+            data.GhostInactiveAreas = GHOSTINACTIVEAREAS_DEFAULT;
             data.ProbePanelHeight = PROBE_PANEL_HEIGHT_DEFAULT;
             data.UnitsInUM = DISPLAYUM_DEFAULT;
             data.ShowAllProbePanels = SHOWALLPROBEPANELS_DEFAULT;
@@ -598,14 +548,9 @@ public class Settings : MonoBehaviour
 
         _acronymToggle.SetIsOnWithoutNotify(UseAcronyms);
 
-        _surfaceToggle.SetIsOnWithoutNotify(ShowSurfaceCoordinate);
-        ShowBregmaAxis = data.ShowBregmaAxis;
-
         _inplaneToggle.SetIsOnWithoutNotify(ShowInPlaneSlice);
 
         _useBerylToggle.SetIsOnWithoutNotify(UseBeryl);
-
-        _ghostInactiveProbesToggle.SetIsOnWithoutNotify(GhostInactiveProbes);
 
         _ghostInactiveAreasToggle.SetIsOnWithoutNotify(GhostInactiveAreas);
 
@@ -702,35 +647,32 @@ public class Settings : MonoBehaviour
     private struct InternalData
     {
 
-        // Graphics and UI
-        public bool ShowSurfaceCoord;
-        public bool ShowBregmaAxis;
+     // Graphics and UI
         public bool ShowInPlaneSlice;
 
         // Transparency
-        public bool GhostInactiveProbes;
-        public bool GhostInactiveAreas;
+      public bool GhostInactiveAreas;
 
         public bool UnitsInUM;
 
-        // Probes
+    // Probes
         public bool ShowAllProbePanels;
         public float ProbePanelHeight;
-        // RotateAPML2ProbeAxis migrated to Redux state
-        public int ProbeSpeed;
+   // RotateAPML2ProbeAxis migrated to Redux state
+  public int ProbeSpeed;
 
         public int ShowAtlas3DSlices;
         public Vector3 RelativeCoord;
-        public string AtlasTransformName;
+  public string AtlasTransformName;
         public float BregmaLambdaRatio;
 
         // Ephys link
-        public int EphysLinkManipulatorType;
+ public int EphysLinkManipulatorType;
         public int EphysLinkPathfinderPort;
         public string EphysLinkServerIP;
-        public int EphysLinkServerPort;
+  public int EphysLinkServerPort;
         public string EphysLinkProxyAddress;
-        public string EphysLinkRightHandedManipulators;
+public string EphysLinkRightHandedManipulators;
 
         // Accounts
         public bool AccountsLoginToggle;
@@ -738,17 +680,17 @@ public class Settings : MonoBehaviour
         // API
         public bool OpenEphysAPIToggle;
         public string OpenEphysAPITarget;
-        public bool SpikeGLXAPIToggle;
+      public bool SpikeGLXAPIToggle;
         public string SpikeGLXAPITarget;
         public string SpikeGLXHelloPath;
-        public float APIUpdateRate;
+      public float APIUpdateRate;
 
         public string AngleConvention;
         public bool AxisControl;
         public bool UseAcronyms;
         public bool UseBeryl;
 
-        public string AtlasName;
+   public string AtlasName;
     }
     #endregion
 }

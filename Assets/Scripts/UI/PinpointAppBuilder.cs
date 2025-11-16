@@ -58,6 +58,7 @@ namespace UI
             builder.services.AddSingleton<EphysLinkView>();
             builder.services.AddSingleton<RigView>();
             builder.services.AddSingleton<AtlasSettingsView>();
+            builder.services.AddSingleton<GraphicsSettingsView>();
 
             builder.services.AddSingleton<ProbeInspectorView>();
             builder.services.AddSingleton<ManipulatorInspectorView>();

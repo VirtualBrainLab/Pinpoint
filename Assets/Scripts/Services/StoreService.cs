@@ -233,6 +233,23 @@ namespace Services
                             SettingsActions.SET_CONVERT_APML2PROBE,
                             SettingsReducers.SetConvertAPML2ProbeReducer
                         )
+                        // Graphics Settings.
+                        .AddCase(
+                            SettingsActions.SET_BACKGROUND,
+                            SettingsReducers.SetBackgroundReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_SHOW_SURFACE_COORDINATE,
+                            SettingsReducers.SetShowSurfaceCoordinateReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_SHOW_BREGMA_AXIS,
+                            SettingsReducers.SetShowBregmaAxisReducer
+                        )
+                        .AddCase(
+                            SettingsActions.SET_GHOST_INACTIVE_PROBES,
+                            SettingsReducers.SetGhostInactiveProbesReducer
+                        )
                         // Ephys Link.
                         .AddCase(
                             SettingsActions.SET_SELECTED_EPHYS_LINK_PLATFORM_TYPE,

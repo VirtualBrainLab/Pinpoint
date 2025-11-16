@@ -111,7 +111,7 @@ namespace TrajectoryPlanner
         [SerializeField] BregmaLambdaBehavior _blDistance;
 
         // Debug graphics
-        [FormerlySerializedAs("surfaceDebugGO")][SerializeField] private GameObject _surfaceDebugGo;
+        [SerializeField] private GameObject _referenceCoordBehaviorGO;
 
         // Craniotomy
         [SerializeField] private CraniotomyPanel _craniotomyPanel;
@@ -251,25 +251,25 @@ namespace TrajectoryPlanner
 
             StartupEvent_SceneLoaded.Invoke();
 
-            // Link any events that need to be linked
-            ProbeManager.ActiveProbeUIUpdateEvent.AddListener(() => SetSurfaceDebugColor(ProbeManager.ActiveProbeManager.Color));
-
-
             // Complete
             PlayerPrefs.SetInt("scene-atlas-reset", 0);
             StartupEvent_Complete.Invoke();
 
 #if APP_UI
+            // Initialize UIManager to subscribe to state changes
+            if (UIManager.Instance != null)
+                UIManager.Instance.Initialize();
+
             _sceneStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
-    state => state.Get<SceneState>(SliceNames.SCENE_SLICE), OnSceneStateChanged,
-                new SubscribeOptions<SceneState> { fireImmediately = true });
+      state => state.Get<SceneState>(SliceNames.SCENE_SLICE), OnSceneStateChanged,
+                    new SubscribeOptions<SceneState> { fireImmediately = true });
 #else
      // After annotation loads, check if the user wants to load previously used probes
-            CheckForSavedProbes();
+ CheckForSavedProbes();
        await _checkForSavedProbesTaskSource.Task;
      // Finally, load accounts if we didn't load a query string or a saved set of probes
        // if (!_checkForSavedProbesTaskSource.Task.Result)
-    //     _accountsManager.DelayedStart();
+//     _accountsManager.DelayedStart();
 #endif
         }
 
@@ -313,17 +313,6 @@ namespace TrajectoryPlanner
                 ColliderManager.CheckForCollisions();
 
                 _inPlaneSlice.UpdateInPlaneSlice();
-
-                if (Settings.ShowSurfaceCoordinate)
-                {
-                    bool inBrain = ProbeManager.ActiveProbeManager.IsProbeInBrain();
-                    SetSurfaceDebugActive(inBrain);
-                    if (inBrain)
-                    {
-                        SetSurfaceDebugPosition(ProbeManager.ActiveProbeManager.GetSurfaceCoordinateWorldT());
-                        SetSurfaceDebugColor(ProbeManager.ActiveProbeManager.Color);
-                    }
-                }
 
                 _sliceRenderer.UpdateSlicePosition();
 
@@ -612,8 +601,16 @@ namespace TrajectoryPlanner
                 foreach (ProbeUIManager puimanager in probeManager.GetProbeUIManagers())
                     puimanager.ProbeSelected(isActiveProbe);
 
+#if APP_UI
+                var storeService = PinpointApp.Services.GetRequiredService<Services.StoreService>();
+                var settingsState = storeService.Store.GetState<Models.Settings.SettingsState>(Models.SliceNames.SETTINGS_SLICE);
+                bool ghostInactiveProbes = settingsState.GhostInactiveProbes;
+#else
+  bool ghostInactiveProbes = Settings.GhostInactiveProbes;
+#endif
+
                 // Update transparency for probe (if not ghost)
-                if (!isActiveProbe && Settings.GhostInactiveProbes)
+                if (!isActiveProbe && ghostInactiveProbes)
                     probeManager.ProbeDisplay = ProbeDisplayType.Transparent;
                 else
                     probeManager.ProbeDisplay = ProbeDisplayType.Opaque;
@@ -696,27 +693,35 @@ namespace TrajectoryPlanner
 
         public void SetGhostAreaVisibility()
         {
-      if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
-      return;
-   
-            if (Settings.GhostInactiveAreas)
-     {
-        List<int> activeAreas = TP_Search.VisibleSearchedAreas;
-   List<OntologyNode> activeNodes = activeAreas.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(x));
+            if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+                return;
 
- foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
-    if (!activeNodes.Contains(node))
-     node.SetVisibility(false);
-        }
+            if (Settings.GhostInactiveAreas)
+            {
+                List<int> activeAreas = TP_Search.VisibleSearchedAreas;
+                List<OntologyNode> activeNodes = activeAreas.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(x));
+
+                foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
+                    if (!activeNodes.Contains(node))
+                        node.SetVisibility(false);
+            }
             else
-      {
-    foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
-node.SetVisibility(true);
- }
-  }
+            {
+                foreach (OntologyNode node in _pinpointAtlasManager.DefaultNodes)
+                    node.SetVisibility(true);
+            }
+        }
 
         public void SetGhostProbeVisibility()
         {
+#if APP_UI
+            var storeService = PinpointApp.Services.GetRequiredService<Services.StoreService>();
+            var settingsState = storeService.Store.GetState<Models.Settings.SettingsState>(Models.SliceNames.SETTINGS_SLICE);
+            bool ghostInactiveProbes = settingsState.GhostInactiveProbes;
+#else
+         bool ghostInactiveProbes = Settings.GhostInactiveProbes;
+#endif
+
             foreach (ProbeManager probeManager in ProbeManager.Instances)
             {
                 if (probeManager == ProbeManager.ActiveProbeManager)
@@ -725,7 +730,7 @@ node.SetVisibility(true);
                     continue;
                 }
 
-                if (Settings.GhostInactiveProbes)
+                if (ghostInactiveProbes)
                     probeManager.ProbeDisplay = ProbeDisplayType.Transparent;
                 else
                     probeManager.ProbeDisplay = ProbeDisplayType.Opaque;
@@ -749,12 +754,9 @@ node.SetVisibility(true);
         #region Setting Helper Functions
 
 
-        public void SetSurfaceDebugActive(bool active)
+        public void SetReferenceCoordActive(bool active)
         {
-            if (active && Settings.ShowSurfaceCoordinate && ProbeManager.ActiveProbeManager != null)
-                _surfaceDebugGo.SetActive(true);
-            else
-                _surfaceDebugGo.SetActive(false);
+            _referenceCoordBehaviorGO.SetActive(active);
         }
 
         #endregion
@@ -764,16 +766,6 @@ node.SetVisibility(true);
         public void SetIBLTools(bool state)
         {
             _craniotomyToolsGo.SetActive(state);
-        }
-
-        public void SetSurfaceDebugPosition(Vector3 worldPosition)
-        {
-            _surfaceDebugGo.transform.position = worldPosition;
-        }
-
-        public void SetSurfaceDebugColor(Color color)
-        {
-            _surfaceDebugGo.GetComponent<Renderer>().material.color = color;
         }
 
         #region Save and load probes on quit
@@ -1004,14 +996,14 @@ node.SetVisibility(true);
 
         public void SetProbeTipPosition2AreaID(int atlasID)
         {
-      if (ProbeManager.ActiveProbeManager == null) return;
- 
-   if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
-  return;
-      
-     (Vector3 leftCoordU, Vector3 rightCoordU) = BrainAtlasManager.ActiveReferenceAtlas.MeshCenters[atlasID];
+            if (ProbeManager.ActiveProbeManager == null) return;
 
-    Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
+            if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+                return;
+
+            (Vector3 leftCoordU, Vector3 rightCoordU) = BrainAtlasManager.ActiveReferenceAtlas.MeshCenters[atlasID];
+
+            Vector3 dims = BrainAtlasManager.ActiveReferenceAtlas.Dimensions;
 
             // coordinates are really broken right now, the right coordinate is the left, and the left is just missing
             leftCoordU = rightCoordU;
