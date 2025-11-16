@@ -19,6 +19,7 @@ using UnityEngine;
 using Utils;
 using Utils.Types;
 using Action = System.Action;
+using System.Threading; // Added for CancellationTokenSource
 
 namespace Services
 {
@@ -30,6 +31,9 @@ namespace Services
 
         // FIXME: This should go into some common constants file (along with copy in probe inspector view model).
         private readonly Vector2 _pitchRange = new(0, 90);
+
+        // Visualization loop interval (ms)
+        private const int VISUALIZATION_UPDATE_INTERVAL_MS = 250;
 
         #endregion
 
@@ -47,6 +51,9 @@ namespace Services
         private Process _ephysLinkProcess;
 
         public string SocketId => _socket.Id;
+
+        // Cancellation for the visualization update loop
+        private CancellationTokenSource _visualizationLoopCts;
 
         #endregion
 
@@ -96,6 +103,7 @@ namespace Services
         private void OnShuttingDown()
         {
             _sceneStateSubscription.Dispose();
+            StopVisualizationLoop();
             App.shuttingDown -= OnShuttingDown;
         }
 
@@ -119,6 +127,9 @@ namespace Services
             if (_socketManager != null && _socketManager.Socket.IsOpen)
                 _socketManager.Close();
 
+            // Ensure any previous loop is stopped.
+            StopVisualizationLoop();
+
             // Create new connection.
             var options = new SocketOptions { Timeout = new TimeSpan(0, 0, 2) };
 
@@ -129,10 +140,10 @@ namespace Services
                 _socketManager = new SocketManager(new Uri($"http://{ip}:{port}"), options);
                 _socket = _socketManager.Socket;
 
-                // On successful connection.
-                _socket.Once(
-                    "connect",
-                    async () =>
+                // Local async handler to run after successful connection.
+                async Task OnConnectedAsync()
+                {
+                    try
                     {
                         // Check version compatibility.
                         if (await IsVersionCompatible())
@@ -147,12 +158,38 @@ namespace Services
                                 (EphysLinkConnectionState.Connected, _socket.Id)
                             );
                             onConnected?.Invoke();
+
+                            // Start visualization update loop until disconnect.
+                            StartVisualizationLoop();
                         }
                         else
                         {
                             HandleError(GetOutdatedVersionErrorMessage());
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        HandleError($"{GetErrorConnectingToServerMessage()} Caused exception: {ex.Message}");
+                    }
+                }
+
+                // When the server disconnects, stop the visualization loop and update state.
+                _socket.On(
+                    "disconnect",
+                    () =>
+                    {
+                        StopVisualizationLoop();
+                        _storeService.Store.Dispatch(
+                            SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
+                            (EphysLinkConnectionState.Disconnected, "")
+                        );
+                    }
+                );
+
+                // On successful connection, delegate to async task handler.
+                _socket.Once(
+                    "connect",
+                    () => { _ = OnConnectedAsync(); }
                 );
 
                 // On error.
@@ -196,6 +233,9 @@ namespace Services
         /// <param name="onDisconnected">Post disconnection behavior.</param>
         public void Disconnect(Action onDisconnected = null)
         {
+            // Stop the visualization loop if running.
+            StopVisualizationLoop();
+
             // Close socket connection.
             _socketManager?.Close();
             _socketManager = null;
@@ -519,6 +559,57 @@ namespace Services
         private static string ToJson<T>(T data)
         {
             return JsonUtility.ToJson(data);
+        }
+
+        // Starts the continuous visualization update loop until the socket disconnects or service disconnects.
+        private void StartVisualizationLoop()
+        {
+            StopVisualizationLoop(); // ensure only one loop runs
+            _visualizationLoopCts = new CancellationTokenSource();
+            var token = _visualizationLoopCts.Token;
+            _ = VisualizationUpdateLoop(token);
+        }
+
+        // Cancels and disposes the visualization update loop.
+        private void StopVisualizationLoop()
+        {
+            if (_visualizationLoopCts != null)
+            {
+                try { _visualizationLoopCts.Cancel(); }
+                catch { /* ignore */ }
+                _visualizationLoopCts.Dispose();
+                _visualizationLoopCts = null;
+            }
+        }
+
+        // The loop body calling UpdateVisualizationProbePosition at a fixed interval.
+        private async Task VisualizationUpdateLoop(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+                    await UpdateVisualizationProbePosition(sceneState);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Visualization update loop error: {ex.Message}");
+                }
+
+                try
+                {
+                    await Task.Delay(VISUALIZATION_UPDATE_INTERVAL_MS, token);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+            }
         }
 
         #endregion
