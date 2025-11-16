@@ -698,7 +698,8 @@ namespace Services
                 );
                 
                 // Cancel update if the manipulator's position did not change by a lot.
-                if (Vector3.SqrMagnitude(transformedAPMLDV - sceneState.Probes.FirstOrDefault(state => state.Name == manipulatorState.VisualizationProbeName)!.APMLDV) < 0.0001f)
+                var probeState = sceneState.Probes.FirstOrDefault(state => state.Name == manipulatorState.VisualizationProbeName);
+                if (probeState == null || Vector3.SqrMagnitude(transformedAPMLDV - probeState.APMLDV) < 0.0001f)
                 {
                     continue;
                 }
