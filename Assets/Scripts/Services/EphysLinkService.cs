@@ -60,7 +60,7 @@ namespace Services
         #region Demo Loop
 
         private readonly HashSet<string> _runningDemoLoops = new();
-        private const float DEMO_SPEED = 0.1f; // mm/s
+        private const float DEMO_SPEED = 0.5f; // mm/s
         #endregion
 
         #region Visualization Update Resources
