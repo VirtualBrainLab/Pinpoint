@@ -72,9 +72,6 @@ namespace Services
 
         private async void OnSceneStateChanged(SceneState sceneState)
         {
-            // Apply small delay to prevent overrunning updates (delay for roughly 60 FPS).
-            await Task.Delay(10);
-
             // Handle demo loop state changes.
             foreach (var manipulatorState in sceneState.Manipulators)
             {
@@ -94,10 +91,6 @@ namespace Services
                         break;
                 }
             }
-
-            // WARNING: this will create an infinite loop of state updates on purpose.
-            // Update the position of visualization probes.
-            await UpdateVisualizationProbePosition(sceneState);
         }
 
         private void OnShuttingDown()
@@ -612,6 +605,12 @@ namespace Services
                 var transformedAPMLDV = BrainAtlasManager.World2T_Vector(
                     referenceCoordinateAdjustedWorldPosition
                 );
+                
+                // Cancel update if the manipulator's position did not change.
+                if (transformedAPMLDV == sceneState.Probes.FirstOrDefault(state => state.Name == manipulatorState.VisualizationProbeName)!.APMLDV)
+                {
+                    continue;
+                }
 
                 // Get the current forward vector of the probe.
                 var forwardT = BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
