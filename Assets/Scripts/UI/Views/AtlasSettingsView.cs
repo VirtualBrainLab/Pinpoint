@@ -28,9 +28,21 @@ namespace UI.Views
 
         #endregion
 
+        #region Event Handlers
+
+        private EventCallback<ChangeEvent<IEnumerable<int>>> _atlasDropdownChangedHandler;
+        private EventCallback<ChangeEvent<IEnumerable<int>>> _transformDropdownChangedHandler;
+        private EventCallback<ChangeEvent<Vector3>> _refCoordFieldChangedHandler;
+        private EventCallback<ChangeEvent<bool>> _show3DSlicesToggleChangedHandler;
+        private System.Action _setBregmaButtonClickHandler;
+        private System.Action _setLambdaButtonClickHandler;
+
+        #endregion
+
         private readonly AtlasSettingsViewModel _atlasSettingsViewModel;
         private readonly IDisposableSubscription _atlasSettingsStateSubscription;
         private readonly StoreService _storeService;
+        private readonly TrajectoryPlannerManager _trajectoryPlannerManager;
 
         private bool _isUpdatingFromState = false;
 
@@ -49,8 +61,8 @@ namespace UI.Views
 
             RegisterEventHandlers();
 
-            var trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
-            trajectoryPlannerManager.StartupEvent_RefAtlasLoaded.AddListener(OnStartupComplete);
+            _trajectoryPlannerManager = GameObject.Find("main").GetComponent<TrajectoryPlannerManager>();
+            _trajectoryPlannerManager.StartupEvent_RefAtlasLoaded.AddListener(OnStartupComplete);
 
             _atlasSettingsStateSubscription = _storeService.Store.Subscribe(
                    state => state.Get<AtlasSettingsState>(SliceNames.ATLAS_SETTINGS_SLICE),
@@ -98,7 +110,7 @@ namespace UI.Views
 
         private void RegisterEventHandlers()
         {
-            _atlasDropdown.RegisterValueChangedCallback(evt =>
+            _atlasDropdownChangedHandler = evt =>
             {
                 if (_isUpdatingFromState) return;
                 var selectedIndex = evt.newValue?.FirstOrDefault() ?? 0;
@@ -107,9 +119,10 @@ namespace UI.Views
                     var selectedAtlas = BrainAtlasManager.AtlasNames[selectedIndex];
                     _storeService.Store.Dispatch(AtlasSettingsActions.SET_ATLAS_NAME, selectedAtlas);
                 }
-            });
+            };
+            _atlasDropdown.RegisterValueChangedCallback(_atlasDropdownChangedHandler);
 
-            _transformDropdown.RegisterValueChangedCallback(evt =>
+            _transformDropdownChangedHandler = evt =>
             {
                 if (_isUpdatingFromState) return;
                 var selectedIndex = evt.newValue?.FirstOrDefault() ?? 0;
@@ -118,15 +131,17 @@ namespace UI.Views
                     var selectedTransform = BrainAtlasManager.AtlasTransforms[selectedIndex].Name;
                     _storeService.Store.Dispatch(AtlasSettingsActions.SET_ATLAS_TRANSFORM_NAME, selectedTransform);
                 }
-            });
+            };
+            _transformDropdown.RegisterValueChangedCallback(_transformDropdownChangedHandler);
 
-            _refCoordField.RegisterValueChangedCallback(evt =>
+            _refCoordFieldChangedHandler = evt =>
             {
                 if (_isUpdatingFromState) return;
                 UpdateReferenceCoordinate();
-            });
+            };
+            _refCoordField.RegisterValueChangedCallback(_refCoordFieldChangedHandler);
 
-            _setBregmaButton.clicked += () =>
+            _setBregmaButtonClickHandler = () =>
             {
                 var activeAtlas = BrainAtlasManager.ActiveReferenceAtlas;
                 if (activeAtlas != null && UrchinUtilsUtils.BregmaDefaults.ContainsKey(activeAtlas.Name))
@@ -134,8 +149,9 @@ namespace UI.Views
                 else
                     _storeService.Store.Dispatch(AtlasSettingsActions.SET_REFERENCE_COORD, Vector3.zero);
             };
+            _setBregmaButton.clicked += _setBregmaButtonClickHandler;
 
-            _setLambdaButton.clicked += () =>
+            _setLambdaButtonClickHandler = () =>
             {
                 var activeAtlas = BrainAtlasManager.ActiveReferenceAtlas;
                 if (activeAtlas != null && UrchinUtilsUtils.LambdaDefaults.ContainsKey(activeAtlas.Name))
@@ -143,12 +159,28 @@ namespace UI.Views
                 else
                     _storeService.Store.Dispatch(AtlasSettingsActions.SET_REFERENCE_COORD, Vector3.zero);
             };
+            _setLambdaButton.clicked += _setLambdaButtonClickHandler;
 
-            _show3DSlicesToggle.RegisterValueChangedCallback(evt =>
+            _show3DSlicesToggleChangedHandler = evt =>
             {
                 if (_isUpdatingFromState) return;
                 _storeService.Store.Dispatch(AtlasSettingsActions.TOGGLE_SHOW_3D_SLICES, evt.newValue);
-            });
+            };
+            _show3DSlicesToggle.RegisterValueChangedCallback(_show3DSlicesToggleChangedHandler);
+        }
+
+        private void UnregisterEventHandlers()
+        {
+            _atlasDropdown?.UnregisterValueChangedCallback(_atlasDropdownChangedHandler);
+            _transformDropdown?.UnregisterValueChangedCallback(_transformDropdownChangedHandler);
+            _refCoordField?.UnregisterValueChangedCallback(_refCoordFieldChangedHandler);
+            _show3DSlicesToggle?.UnregisterValueChangedCallback(_show3DSlicesToggleChangedHandler);
+
+            if (_setBregmaButton != null && _setBregmaButtonClickHandler != null)
+                _setBregmaButton.clicked -= _setBregmaButtonClickHandler;
+
+            if (_setLambdaButton != null && _setLambdaButtonClickHandler != null)
+                _setLambdaButton.clicked -= _setLambdaButtonClickHandler;
         }
 
         private void UpdateReferenceCoordinate()
@@ -202,6 +234,11 @@ namespace UI.Views
 
         private void OnShuttingDown()
         {
+            UnregisterEventHandlers();
+
+            if (_trajectoryPlannerManager != null)
+                _trajectoryPlannerManager.StartupEvent_RefAtlasLoaded.RemoveListener(OnStartupComplete);
+
             _atlasSettingsStateSubscription?.Dispose();
             App.shuttingDown -= OnShuttingDown;
         }

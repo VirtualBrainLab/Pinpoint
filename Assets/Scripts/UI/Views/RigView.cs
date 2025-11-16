@@ -25,6 +25,19 @@ namespace UI.Views
 
         #endregion
 
+        #region Event Handlers
+
+        private EventCallback<ClickEvent> _wellClickHandler;
+        private EventCallback<ClickEvent> _rigWidefieldClickHandler;
+        private EventCallback<ClickEvent> _mouseSkullClickHandler;
+        private EventCallback<ClickEvent> _ratSkullClickHandler;
+        private EventCallback<ClickEvent> _iblCenterClickHandler;
+        private EventCallback<ClickEvent> _iblFrontClickHandler;
+        private EventCallback<ClickEvent> _iblBackClickHandler;
+        private EventCallback<ClickEvent> _uclaClickHandler;
+
+        #endregion
+
         private readonly RigViewModel _rigViewModel;
         private readonly IDisposableSubscription _rigStateSubscription;
         private readonly StoreService _storeService;
@@ -58,14 +71,41 @@ namespace UI.Views
 
         private void RegisterClickHandlers()
         {
-            _wellElement.RegisterCallback<ClickEvent>(_ => _storeService.Store.Dispatch(RigActions.TOGGLE_WELL, true));
-            _rigWidefieldElement.RegisterCallback<ClickEvent>(_ => _storeService.Store.Dispatch(RigActions.TOGGLE_RIG_WIDEFIELD, true));
-            _mouseSkullElement.RegisterCallback<ClickEvent>(_ => _storeService.Store.Dispatch(RigActions.TOGGLE_MOUSE_SKULL, true));
-            _ratSkullElement.RegisterCallback<ClickEvent>(_ => _storeService.Store.Dispatch(RigActions.TOGGLE_RAT_SKULL, true));
-            _iblCenterElement.RegisterCallback<ClickEvent>(_ => _storeService.Store.Dispatch(RigActions.TOGGLE_IBL_CENTER, true));
-            _iblFrontElement.RegisterCallback<ClickEvent>(_ => _storeService.Store.Dispatch(RigActions.TOGGLE_IBL_FRONT, true));
-            _iblBackElement.RegisterCallback<ClickEvent>(_ => _storeService.Store.Dispatch(RigActions.TOGGLE_IBL_BACK, true));
-            _uclaElement.RegisterCallback<ClickEvent>(_ => _storeService.Store.Dispatch(RigActions.TOGGLE_UCLA, true));
+            _wellClickHandler = _ => _storeService.Store.Dispatch(RigActions.TOGGLE_WELL, true);
+            _wellElement.RegisterCallback(_wellClickHandler);
+
+            _rigWidefieldClickHandler = _ => _storeService.Store.Dispatch(RigActions.TOGGLE_RIG_WIDEFIELD, true);
+            _rigWidefieldElement.RegisterCallback(_rigWidefieldClickHandler);
+
+            _mouseSkullClickHandler = _ => _storeService.Store.Dispatch(RigActions.TOGGLE_MOUSE_SKULL, true);
+            _mouseSkullElement.RegisterCallback(_mouseSkullClickHandler);
+
+            _ratSkullClickHandler = _ => _storeService.Store.Dispatch(RigActions.TOGGLE_RAT_SKULL, true);
+            _ratSkullElement.RegisterCallback(_ratSkullClickHandler);
+
+            _iblCenterClickHandler = _ => _storeService.Store.Dispatch(RigActions.TOGGLE_IBL_CENTER, true);
+            _iblCenterElement.RegisterCallback(_iblCenterClickHandler);
+
+            _iblFrontClickHandler = _ => _storeService.Store.Dispatch(RigActions.TOGGLE_IBL_FRONT, true);
+            _iblFrontElement.RegisterCallback(_iblFrontClickHandler);
+
+            _iblBackClickHandler = _ => _storeService.Store.Dispatch(RigActions.TOGGLE_IBL_BACK, true);
+            _iblBackElement.RegisterCallback(_iblBackClickHandler);
+
+            _uclaClickHandler = _ => _storeService.Store.Dispatch(RigActions.TOGGLE_UCLA, true);
+            _uclaElement.RegisterCallback(_uclaClickHandler);
+        }
+
+        private void UnregisterClickHandlers()
+        {
+            _wellElement?.UnregisterCallback(_wellClickHandler);
+            _rigWidefieldElement?.UnregisterCallback(_rigWidefieldClickHandler);
+            _mouseSkullElement?.UnregisterCallback(_mouseSkullClickHandler);
+            _ratSkullElement?.UnregisterCallback(_ratSkullClickHandler);
+            _iblCenterElement?.UnregisterCallback(_iblCenterClickHandler);
+            _iblFrontElement?.UnregisterCallback(_iblFrontClickHandler);
+            _iblBackElement?.UnregisterCallback(_iblBackClickHandler);
+            _uclaElement?.UnregisterCallback(_uclaClickHandler);
         }
 
         private void OnRigStateChanged(RigState state)
@@ -108,6 +148,7 @@ namespace UI.Views
 
         private void OnShuttingDown()
         {
+            UnregisterClickHandlers();
             _rigStateSubscription?.Dispose();
             App.shuttingDown -= OnShuttingDown;
         }
