@@ -33,7 +33,7 @@ namespace Services
         private readonly Vector2 _pitchRange = new(0, 90);
 
         // Visualization loop interval (ms)
-        private const int VISUALIZATION_UPDATE_INTERVAL_MS = 10; // about 60 Hz
+        private const int VISUALIZATION_UPDATE_INTERVAL_MS = 100; // about 60 Hz
 
         #endregion
 
