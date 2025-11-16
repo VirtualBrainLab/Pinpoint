@@ -1335,7 +1335,7 @@ Debug.Log($"Setting materials for {name} to line");
 
             var channelData = GetChannelRangemm();
             _lineRenderer.SetPositions(
-            new Vector3[] { Vector3.zero, Vector3.up * channelData.fullHeight }
+            new Vector3[] { Vector3.zero, Vector3.back * channelData.fullHeight }
           );
         }
     }
