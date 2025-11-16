@@ -52,8 +52,8 @@ namespace Services
 
         #region Demo Loop
 
-        private readonly Dictionary<string, bool> _runningDemoLoops = new();
-        private const float DEMO_SPEED = 100f; // µm/s
+        private readonly HashSet<string> _runningDemoLoops = new();
+        private const float DEMO_SPEED = 0.1f; // mm/s
         #endregion
 
         public EphysLinkService(StoreService storeService)
@@ -78,18 +78,19 @@ namespace Services
             // Handle demo loop state changes.
             foreach (var manipulatorState in sceneState.Manipulators)
             {
-                _runningDemoLoops.TryGetValue(manipulatorState.Id, out var isRunning);
+                var isRunning = _runningDemoLoops.Contains(manipulatorState.Id);
 
                 switch (manipulatorState.IsDemoRunning)
                 {
                     // Start demo loop if requested and not already running.
                     case true when !isRunning:
-                        _runningDemoLoops[manipulatorState.Id] = true;
+                        _runningDemoLoops.Add(manipulatorState.Id);
                         _ = RunDemoLoop(manipulatorState.Id);
                         break;
                     // Stop demo loop if requested and currently running.
                     case false when isRunning:
                         await Stop(manipulatorState.Id);
+                        _runningDemoLoops.Remove(manipulatorState.Id);
                         break;
                 }
             }
@@ -782,14 +783,14 @@ namespace Services
                 // Exit if manipulator not found.
                 if (manipulatorState == null)
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
                 // Exit if demo is no longer running.
                 if (!manipulatorState.IsDemoRunning)
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -804,7 +805,7 @@ namespace Services
                 // Exit on error (including stop request).
                 if (HasError(homeResponse.Error))
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -815,7 +816,7 @@ namespace Services
                 );
                 if (manipulatorState is not { IsDemoRunning: true })
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -836,7 +837,7 @@ namespace Services
                 // Exit on error (including stop request).
                 if (HasError(intermediateResponse.Error))
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -847,7 +848,7 @@ namespace Services
                 );
                 if (manipulatorState is not { IsDemoRunning: true })
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -862,7 +863,7 @@ namespace Services
                 // Exit on error (including stop request).
                 if (HasError(targetResponse.Error))
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -873,7 +874,7 @@ namespace Services
                 );
                 if (manipulatorState is not { IsDemoRunning: true })
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -894,7 +895,7 @@ namespace Services
                 // Exit on error (including stop request).
                 if (HasError(returnToIntermediateResponse.Error))
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -909,7 +910,7 @@ namespace Services
                     continue;
                 }
 
-                _runningDemoLoops[manipulatorId] = false;
+                _runningDemoLoops.Remove(manipulatorId);
                 return;
             }
         }
