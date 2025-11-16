@@ -94,8 +94,9 @@ namespace Services
         private async void OnSceneStateChanged(SceneState sceneState)
         {
             // Handle demo loop state changes.
-            foreach (var manipulatorState in sceneState.Manipulators)
+            for (int i = 0; i < sceneState.Manipulators.Count; i++)
             {
+                var manipulatorState = sceneState.Manipulators[i];
                 var isRunning = _runningDemoLoops.Contains(manipulatorState.Id);
 
                 switch (manipulatorState.IsDemoRunning)
