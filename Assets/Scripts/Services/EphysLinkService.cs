@@ -697,8 +697,8 @@ namespace Services
                     referenceCoordinateAdjustedWorldPosition
                 );
                 
-                // Cancel update if the manipulator's position did not change.
-                if (transformedAPMLDV == sceneState.Probes.FirstOrDefault(state => state.Name == manipulatorState.VisualizationProbeName)!.APMLDV)
+                // Cancel update if the manipulator's position did not change by a lot.
+                if (Vector3.SqrMagnitude(transformedAPMLDV - sceneState.Probes.FirstOrDefault(state => state.Name == manipulatorState.VisualizationProbeName)!.APMLDV) < 0.0001f)
                 {
                     continue;
                 }
