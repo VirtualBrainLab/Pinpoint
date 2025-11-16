@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Models;
+using Models.Settings;
 using Services;
 using TMPro;
 using UI;
@@ -48,6 +49,9 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
+#if APP_UI
+    private IDisposableSubscription _settingsStateSubscription;
+#endif
 
     private void Awake()
     {
@@ -57,26 +61,48 @@ public class UIManager : MonoBehaviour
         FocusableGOs.UnionWith(_editorFocusableGOs);
     }
 
-    /// <summary>
+#if APP_UI
+    public void Initialize()
+    {
+ var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+        _settingsStateSubscription = storeService.Store.Subscribe(
+ state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE),
+   OnSettingsStateChanged,
+   new SubscribeOptions<SettingsState> { fireImmediately = true }
+    );
+    }
+
+ private void OnDestroy()
+    {
+      _settingsStateSubscription?.Dispose();
+    }
+
+    private void OnSettingsStateChanged(SettingsState state)
+    {
+        SetBackgroundWhite(state.Background == Color.white);
+    }
+#endif
+
+  /// <summary>
     /// Return whether any inputs are currently focused or if any of the gameobjects are currently active
     /// </summary>
  #if APP_UI
     public static bool InputsFocused =>
         PinpointApp.RootVisualElement.focusController.focusedElement
-            is Unity.AppUI.UI.TextField
-                or Unity.AppUI.UI.FloatField
-                or Unity.AppUI.UI.Vector3Field
-                or Unity.AppUI.UI.Vector4Field;
+      is Unity.AppUI.UI.TextField
+          or Unity.AppUI.UI.FloatField
+         or Unity.AppUI.UI.Vector3Field
+     or Unity.AppUI.UI.Vector4Field;
 #else
     public static bool InputsFocused => FocusableGOs.Any(x => x != null && x.activeSelf);
 #endif
 
     public void EnableEphysCopilotPanel(bool enable = true)
     {
-        // Always set the panel to active once started using, but set the scale to zero if we're disabling it
+    // Always set the panel to active once started using, but set the scale to zero if we're disabling it
         _ephysCopilotPanelGameObject.SetActive(true);
 
-        // Set the scale to zero if we're disabling it
+// Set the scale to zero if we're disabling it
         _ephysCopilotPanelGameObject.transform.localScale = enable ? Vector3.one : Vector3.zero;
     }
 
@@ -87,17 +113,17 @@ public class UIManager : MonoBehaviour
 
     public void SetBackgroundWhite(bool state)
     {
-        if (state)
+     if (state)
         {
-            foreach (TMP_Text textC in _whiteUIText)
-                textC.color = Color.black;
-            Camera.main.backgroundColor = Color.white;
+      foreach (TMP_Text textC in _whiteUIText)
+        textC.color = Color.black;
+        Camera.main.backgroundColor = Color.white;
         }
         else
         {
-            foreach (TMP_Text textC in _whiteUIText)
-                textC.color = Color.white;
+  foreach (TMP_Text textC in _whiteUIText)
+     textC.color = Color.white;
             Camera.main.backgroundColor = Color.black;
-        }
+  }
     }
 }

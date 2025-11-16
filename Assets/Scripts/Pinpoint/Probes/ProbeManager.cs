@@ -48,7 +48,7 @@ public class ProbeManager : MonoBehaviour
 
     // Static events
     public static readonly UnityEvent<HashSet<ProbeManager>> EphysLinkControlledProbesChangedEvent =
-        new();
+      new();
     public static readonly UnityEvent ActiveProbeUIUpdateEvent = new();
     #endregion
 
@@ -145,7 +145,7 @@ public class ProbeManager : MonoBehaviour
     private Vector3 _recRegionTopCoordWorldU;
 
     public (Vector3 tipCoordU, Vector3 endCoordU) RecRegionCoordWorldU =>
-        (_recRegionBaseCoordWorldU, _recRegionTopCoordWorldU);
+   (_recRegionBaseCoordWorldU, _recRegionTopCoordWorldU);
 
     // Text
     private const float minYaw = -180;
@@ -187,7 +187,7 @@ public class ProbeManager : MonoBehaviour
     }
 
     public ManipulatorBehaviorController ManipulatorBehaviorController =>
-        gameObject.GetComponent<ManipulatorBehaviorController>();
+      gameObject.GetComponent<ManipulatorBehaviorController>();
 
     public bool IsEphysLinkControlled
     {
@@ -198,31 +198,28 @@ public class ProbeManager : MonoBehaviour
             EphysLinkControlChangeEvent.Invoke();
             EphysLinkControlledProbesChangedEvent.Invoke(
                 Instances.Where(manager => manager.IsEphysLinkControlled).ToHashSet()
-            );
+   );
         }
     }
 
     public string APITarget { get; set; }
 
-    private Color _color;
+    /// <summary>
+    /// Get the probe color from Redux state. This property is read-only and should not be used to set color.
+    /// To set color, dispatch SceneActions.SET_PROBE_COLOR to Redux.
+    /// </summary>
     public Color Color
     {
-        get => _color;
-        set
+        get
         {
-            // try to return the current color
-            ProbeProperties.ReturnColor(_color);
-
-            _color = value;
-            _probeRenderer.material.color = _color;
-
-            foreach (ProbeUIManager puiManager in _probeUIManagers)
-                puiManager.UpdateColors();
-
-            UIUpdateEvent.Invoke();
-            if (ActiveProbeManager == this)
-                ActiveProbeUIUpdateEvent.Invoke();
-            Debug.Log(_color);
+#if APP_UI
+            if (_probeStateCache != null)
+            {
+                return _probeStateCache.ColorValue;
+            }
+#endif
+            // Fallback to renderer color if state not available
+            return _probeRenderer != null ? _probeRenderer.material.color : Color.white;
         }
     }
 
@@ -258,10 +255,6 @@ public class ProbeManager : MonoBehaviour
 
         UUID = Guid.NewGuid().ToString();
         UpdateName();
-
-        // Set color
-        if (_probeRenderer != null)
-            _color = ProbeProperties.NextColor;
 
         // Record default materials
         _defaultMaterials = new Dictionary<GameObject, Material>();
@@ -299,11 +292,6 @@ public class ProbeManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log($"(ProbeManager) New probe created with UUID: {UUID}");
 #endif
-        // Force update color
-        foreach (ProbeUIManager puiManager in _probeUIManagers)
-            puiManager.UpdateColors();
-        if (_probeRenderer)
-            _probeRenderer.material.color = _color;
 
         UIUpdateEvent.Invoke();
 
@@ -313,18 +301,18 @@ public class ProbeManager : MonoBehaviour
 #if APP_UI
         // Subscribe to state and initialize properties.
         _probeStateSubscription = PinpointApp.StoreServiceStore.Subscribe(
-            state =>
+                  state =>
                 state
-                    .Get<SceneState>(SliceNames.SCENE_SLICE)
-                    .Probes.FirstOrDefault(probeState => probeState.Name == name),
-            state =>
-            {
-                if (state == _probeStateCache) return;
-                _probeStateCache = state;
-                OnProbeStateChanged(state);
-            },
-            new SubscribeOptions<ProbeState> { fireImmediately = true }
-        );
+                  .Get<SceneState>(SliceNames.SCENE_SLICE)
+                .Probes.FirstOrDefault(probeState => probeState.Name == name),
+           state =>
+                  {
+                      if (state == _probeStateCache) return;
+                      _probeStateCache = state;
+                      OnProbeStateChanged(state);
+                  },
+      new SubscribeOptions<ProbeState> { fireImmediately = true }
+              );
 #endif
     }
 
@@ -335,8 +323,6 @@ public class ProbeManager : MonoBehaviour
     /// </summary>
     public void Cleanup()
     {
-        ProbeProperties.ReturnColor(Color);
-
         ColliderManager.RemoveProbeColliderInstances(_probeColliders);
 
         // Force disable Ephys Link
@@ -382,10 +368,21 @@ public class ProbeManager : MonoBehaviour
         // Core Identity.
         name = state.Name;
 
-        // Probe Configuration.
-        _probeRenderer.material.color = state.ColorValue;
+        // Probe Configuration - Update renderer color from state.
+        if (_probeRenderer != null)
+        {
+            _probeRenderer.material.color = state.ColorValue;
+        }
 
         ProbeDisplay = state.ProbeDisplayType;
+
+        // Notify UI managers to update their colors from state.
+        foreach (ProbeUIManager puiManager in _probeUIManagers)
+            puiManager.UpdateColors();
+
+        UIUpdateEvent.Invoke();
+        if (ActiveProbeManager == this)
+            ActiveProbeUIUpdateEvent.Invoke();
 
         // Channel Maps.
         await _channelMapLoadedSource.Task;
@@ -433,8 +430,8 @@ public class ProbeManager : MonoBehaviour
     public void Update2ActiveTransform()
     {
         _probeController.SetSpaceTransform(
-            BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace,
-            BrainAtlasManager.ActiveAtlasTransform
+      BrainAtlasManager.ActiveReferenceAtlas.AtlasSpace,
+ BrainAtlasManager.ActiveAtlasTransform
         );
     }
 
@@ -459,13 +456,13 @@ public class ProbeManager : MonoBehaviour
 #if !APP_UI
         if (OverrideName != null)
         {
-            name = OverrideName;
-        }
+ name = OverrideName;
+     }
         else
         {
 
             // Check if this probe is in the brain
-            name = _probeInBrain ? $"{_probeUIManagers[0].MaxArea}-{UUID[..8]}" : UUID[..8];
+      name = _probeInBrain ? $"{_probeUIManagers[0].MaxArea}-{UUID[..8]}" : UUID[..8];
 
         }
 #endif
@@ -482,11 +479,11 @@ public class ProbeManager : MonoBehaviour
 
         // Update the world coordinates for the tip position
         Vector3 startCoordWorldT =
-            _probeController.ProbeTipT.position
-            + -_probeController.ProbeTipT.forward * channelCoords.startPosmm;
+    _probeController.ProbeTipT.position
+        + -_probeController.ProbeTipT.forward * channelCoords.startPosmm;
         Vector3 endCoordWorldT =
-            _probeController.ProbeTipT.position
-            + -_probeController.ProbeTipT.forward * channelCoords.endPosmm;
+        _probeController.ProbeTipT.position
+      + -_probeController.ProbeTipT.forward * channelCoords.endPosmm;
         _recRegionBaseCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT, true);
         _recRegionTopCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT, true);
     }
@@ -499,7 +496,7 @@ public class ProbeManager : MonoBehaviour
     private void DispatchProbeWorldState()
     {
         // Get tip world coordinates
-        var (tipCoordWorldU, tipRightWorldU, tipUpWorldU, tipForwardWorldU) = 
+        var (tipCoordWorldU, tipRightWorldU, tipUpWorldU, tipForwardWorldU) =
             _probeController.GetTipWorldU();
 
         // Get tip position in WorldT
@@ -558,7 +555,7 @@ public class ProbeManager : MonoBehaviour
     /// <summary>
     /// Update the channel map data according to the selected channels
     /// Defaults to the first 384 channels
-    ///
+    /// 
     /// Sets channelMinY/channelMaxY in mm
     /// </summary>
     public void UpdateChannelMap()
@@ -1056,9 +1053,9 @@ public class ProbeManager : MonoBehaviour
     )
     {
         if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
- return (new Vector3(float.NaN, float.NaN, float.NaN), false);
-        
-     // note: the backward axis on the probe is the probe's "up" axis
+            return (new Vector3(float.NaN, float.NaN, float.NaN), false);
+
+        // note: the backward axis on the probe is the probe's "up" axis
         (Vector3 tipCoordWorldU, _, _, Vector3 tipForwardWorldU) = _probeController.GetTipWorldU();
 
         Vector3 tipAtlasIdxU = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(
@@ -1135,8 +1132,8 @@ public class ProbeManager : MonoBehaviour
     public Vector3 FindEntryIdxCoordinate(Vector3 bottomIdxCoordU, Vector3 downVector)
     {
         if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
-     return new Vector3(float.NaN, float.NaN, float.NaN);
-   
+            return new Vector3(float.NaN, float.NaN, float.NaN);
+
         float searchDistance =
        BrainAtlasManager.ActiveReferenceAtlas.Dimensions.z
 * 1000f
@@ -1313,7 +1310,7 @@ public class ProbeManager : MonoBehaviour
     private void SetMaterialsLine()
     {
 #if UNITY_EDITOR && !APP_UI
-        Debug.Log($"Setting materials for {name} to line");
+Debug.Log($"Setting materials for {name} to line");
 #endif
         foreach (var childRenderer in _activeRenderers)
             childRenderer.enabled = false;
@@ -1338,8 +1335,8 @@ public class ProbeManager : MonoBehaviour
 
             var channelData = GetChannelRangemm();
             _lineRenderer.SetPositions(
-                new Vector3[] { Vector3.zero, Vector3.up * channelData.fullHeight }
-            );
+            new Vector3[] { Vector3.zero, Vector3.back * channelData.fullHeight }
+          );
         }
     }
 

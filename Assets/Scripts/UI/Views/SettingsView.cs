@@ -16,6 +16,7 @@ namespace UI.Views
           _ = PinpointApp.Services.GetRequiredService<EphysLinkView>();
          _ = PinpointApp.Services.GetRequiredService<RigView>();
          _ = PinpointApp.Services.GetRequiredService<AtlasSettingsView>();
+         _ = PinpointApp.Services.GetRequiredService<GraphicsSettingsView>();
 
          var probeInspectorRoot = PinpointApp.RootVisualElement.Q<TemplateContainer>("probe-inspector-view");
     var zoomInButton = probeInspectorRoot?.Q<IconButton>("zoom-in-button");

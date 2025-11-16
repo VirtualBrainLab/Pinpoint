@@ -36,6 +36,8 @@ namespace Models.Settings
 
         #region Graphics Settings
 
+        public Color Background = Color.black;
+
         public bool ShowSurfaceCoordinate = true;
 
         public bool ShowBregmaAxis = true;

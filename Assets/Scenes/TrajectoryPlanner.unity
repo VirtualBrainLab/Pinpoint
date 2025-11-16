@@ -2480,6 +2480,18 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6193778552061300709, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
   m_PrefabInstance: {fileID: 6193778551148742955}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1537967827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537967822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4e262c39dcb70445923b9f3d697fa72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SurfaceCoordinate
 --- !u!114 &1550119012 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 341190944882926336, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -9496,6 +9508,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Debug
       objectReference: {fileID: 0}
+    - target: {fileID: 6193778552061300709, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6193778552061300731, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6193778552155365640, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.2
@@ -9519,7 +9539,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6193778552061300709, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1537967827}
   m_SourcePrefab: {fileID: 100100000, guid: b578609b502e9c74286332dd7db2cfc8, type: 3}
 --- !u!1001 &8016510559444948309
 PrefabInstance:
@@ -11229,6 +11252,10 @@ PrefabInstance:
       propertyPath: _probePrefabs.Array.size
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
+      propertyPath: _referenceCoordBehaviorGO
+      value: 
+      objectReference: {fileID: 2018799750}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: probePrefabIDs.Array.size
       value: 4

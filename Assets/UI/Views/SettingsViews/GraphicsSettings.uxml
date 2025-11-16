@@ -1,9 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ui:UXML
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ui="UnityEngine.UIElements"
-    xmlns:uie="UnityEditor.UIElements"
-    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
->
-    
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; width: 100%;">
+        <Unity.AppUI.UI.Heading text="Background" />
+        <Unity.AppUI.UI.Toggle name="toggle-white-background" label="White background" />
+        <Unity.AppUI.UI.Heading text="Coordinates" />
+        <Unity.AppUI.UI.Toggle name="toggle-surface-coord" label="Display surface coordinate" />
+        <Unity.AppUI.UI.Spacer />
+        <Unity.AppUI.UI.Toggle name="toggle-ref-coord" label="Display reference coordinate" />
+        <Unity.AppUI.UI.Heading text="Probes" />
+        <Unity.AppUI.UI.Toggle name="toggle-inactive-transparent" label="Show inactive probes as transparent" />
+    </ui:VisualElement>
 </ui:UXML>
