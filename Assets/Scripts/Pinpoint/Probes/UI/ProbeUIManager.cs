@@ -1,23 +1,28 @@
 using BrainAtlas;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Models;
+using Models.Scene;
+using Services;
+using UI;
+using Unity.AppUI.MVVM;
+using Unity.AppUI.Redux;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ProbeUIManager : MonoBehaviour
 {
-    [FormerlySerializedAs("probePanelPrefab")] [SerializeField] private GameObject _probePanelPrefab;
+    [FormerlySerializedAs("probePanelPrefab")][SerializeField] private GameObject _probePanelPrefab;
     private GameObject probePanelGO;
     private TP_ProbePanel probePanel;
 
-    [FormerlySerializedAs("probeManager")] [SerializeField] private ProbeManager _probeManager;
+    [FormerlySerializedAs("probeManager")][SerializeField] private ProbeManager _probeManager;
 
-    [FormerlySerializedAs("electrodeBase")] [SerializeField] private GameObject _electrodeBase;
-    [FormerlySerializedAs("order")] [SerializeField] private int _order;
+    [FormerlySerializedAs("electrodeBase")][SerializeField] private GameObject _electrodeBase;
+    [FormerlySerializedAs("order")][SerializeField] private int _order;
 
-    private Color defaultColor;
-    private Color selectedColor;
     private bool _selected;
 
     private bool probeMovedDirty = false;
@@ -76,14 +81,12 @@ public class ProbeUIManager : MonoBehaviour
         return _electrodeBase.transform;
     }
 
+    /// <summary>
+    /// Update colors by pulling directly from Redux state.
+    /// This method retrieves the color from state and applies it to the UI.
+    /// </summary>
     public void UpdateColors()
     {
-        defaultColor = _probeManager.Color;
-        defaultColor.a = 0.5f;
-
-        selectedColor = defaultColor;
-        selectedColor.a = 0.75f;
-
         UpdateUIManagerColor();
     }
 
@@ -202,7 +205,7 @@ public class ProbeUIManager : MonoBehaviour
     /// <param name="tipIdxWorldT"></param>
     /// <param name="topIdxWorldT"></param>
     /// <returns></returns>
-    private (List<int>, List<int>, List<string>)  InterpolateAnnotationIDs(Vector3 tipIdxWorldT, Vector3 topIdxWorldT)
+    private (List<int>, List<int>, List<string>) InterpolateAnnotationIDs(Vector3 tipIdxWorldT, Vector3 topIdxWorldT)
     {
         // pixel height at which changes happen
         List<int> areaPositionPixels = new();
@@ -293,12 +296,48 @@ public class ProbeUIManager : MonoBehaviour
         UpdateUIManagerColor();
     }
 
+    /// <summary>
+    /// Update the UI manager color by pulling the probe color from Redux state.
+    /// Computes default and selected colors with appropriate alpha values on demand.
+    /// </summary>
     private void UpdateUIManagerColor()
     {
-        if (_selected)
-            probePanelGO.GetComponent<Image>().color = selectedColor;
-        else
-            probePanelGO.GetComponent<Image>().color = defaultColor;
+#if APP_UI
+        // Get color from Redux state
+        var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+        var sceneState = storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+        var probeState = sceneState.Probes.FirstOrDefault(p => p.Name == _probeManager.name);
+
+        if (probeState != null)
+        {
+            // Compute colors from state with appropriate alpha values
+            Color defaultColor = probeState.ColorValue;
+            defaultColor.a = 0.5f;
+
+            Color selectedColor = probeState.ColorValue;
+            selectedColor.a = 0.75f;
+
+            // Apply the appropriate color
+            var imageComponent = probePanelGO.GetComponent<Image>();
+            if (imageComponent != null)
+            {
+                imageComponent.color = _selected ? selectedColor : defaultColor;
+            }
+        }
+#else
+    // Fallback for non-APP_UI builds - get color from ProbeManager
+    Color defaultColor = _probeManager.Color;
+        defaultColor.a = 0.5f;
+
+        Color selectedColor = _probeManager.Color;
+  selectedColor.a = 0.75f;
+
+        var imageComponent = probePanelGO.GetComponent<Image>();
+        if (imageComponent != null)
+   {
+     imageComponent.color = _selected ? selectedColor : defaultColor;
+        }
+#endif
     }
 
     public void ResizeProbePanel(int newPxHeight)

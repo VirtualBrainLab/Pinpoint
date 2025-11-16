@@ -989,7 +989,7 @@ node.SetVisibility(true);
 
                     newProbeManager.UpdateSelectionLayer(probeData.SelectionLayerName);
                     newProbeManager.OverrideName = probeData.Name;
-                    newProbeManager.Color = probeData.Color;
+                    //newProbeManager.Color = probeData.Color;
                     newProbeManager.APITarget = probeData.APITarget;
                 }
             }
