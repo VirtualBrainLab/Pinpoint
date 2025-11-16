@@ -63,6 +63,20 @@ namespace Services
         private const float DEMO_SPEED = 0.1f; // mm/s
         #endregion
 
+        #region Visualization Update Resources
+
+        // Reusable list to avoid allocations in UpdateVisualizationProbePosition
+        private readonly List<(
+            string Name,
+            Vector3 SurfaceAPMLDV,
+            float Depth,
+            Vector3 ForwardT,
+            Vector3 Angles,
+            Vector2 PitchRange
+        )> _visualizationUpdateRequests = new();
+
+        #endregion
+
         public EphysLinkService(StoreService storeService)
         {
             // Register services.
@@ -622,21 +636,18 @@ namespace Services
 
         private async Task UpdateVisualizationProbePosition(SceneState sceneState)
         {
-            List<(
-                string Name,
-                Vector3 SurfaceAPMLDV,
-                float Depth,
-                Vector3 ForwardT,
-                Vector3 Angles,
-                Vector2 PitchRange
-            )> requests = new();
+            // Clear and reuse the list to avoid allocations
+            _visualizationUpdateRequests.Clear();
 
-            foreach (
-                var manipulatorState in sceneState.Manipulators.Where(state =>
-                    !string.IsNullOrEmpty(state.VisualizationProbeName)
-                )
-            )
+            // Iterate through manipulators directly to avoid LINQ allocations
+            for (int i = 0; i < sceneState.Manipulators.Count; i++)
             {
+                var manipulatorState = sceneState.Manipulators[i];
+                
+                // Skip if no visualization probe name
+                if (string.IsNullOrEmpty(manipulatorState.VisualizationProbeName))
+                    continue;
+
                 // Skip if the probe or manager couldn't be found.
                 var visualizationProbeManager = ProbeManager.Instances.FirstOrDefault(manager =>
                     manager.name == manipulatorState.VisualizationProbeName
@@ -647,7 +658,7 @@ namespace Services
                     ) == null
                     || visualizationProbeManager == null
                 )
-                    return;
+                    continue;
 
                 // Get the current position of the manipulator.
                 var positionResponse = await GetPosition(manipulatorState.Id);
@@ -719,7 +730,7 @@ namespace Services
                 {
                     // Set the probe position in the store.
                     case 3:
-                        requests.Add(
+                        _visualizationUpdateRequests.Add(
                             (
                                 manipulatorState.VisualizationProbeName,
                                 transformedAPMLDV,
@@ -731,7 +742,7 @@ namespace Services
                         );
                         break;
                     case 4:
-                        requests.Add(
+                        _visualizationUpdateRequests.Add(
                             (
                                 manipulatorState.VisualizationProbeName,
                                 transformedAPMLDV,
@@ -750,10 +761,10 @@ namespace Services
             }
 
             // Dispatch all position updates in one go (if any).
-            if (requests.Any())
+            if (_visualizationUpdateRequests.Count > 0)
                 _storeService.Store.Dispatch(
                     SceneActions.BULK_SET_PROBE_POSITION_AND_ANGLES_BY,
-                    requests
+                    _visualizationUpdateRequests
                 );
         }
 
@@ -869,7 +880,7 @@ namespace Services
         {
             while (true)
             {
-                // Get current manipulator state.
+                // Get current manipulator state once at the start of each iteration.
                 var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
                 var manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
                     m.Id == manipulatorId
@@ -889,10 +900,14 @@ namespace Services
                     return;
                 }
 
+                // Cache coordinates to avoid repeated state retrievals
+                var homeCoordinate = manipulatorState.DemoHomeCoordinate;
+                var targetCoordinate = manipulatorState.DemoTargetCoordinate;
+
                 // Step 1: Move to home position.
                 var homeRequest = new SetPositionRequest(
                     manipulatorId,
-                    manipulatorState.DemoHomeCoordinate,
+                    homeCoordinate,
                     DEMO_SPEED
                 );
                 var homeResponse = await SetPosition(homeRequest);
@@ -904,12 +919,8 @@ namespace Services
                     return;
                 }
 
-                // Refresh state and check if demo is still running.
-                sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-                manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
-                    m.Id == manipulatorId
-                );
-                if (manipulatorState is not { IsDemoRunning: true })
+                // Check if demo is still running after movement.
+                if (!CheckDemoStillRunning(manipulatorId))
                 {
                     _runningDemoLoops.Remove(manipulatorId);
                     return;
@@ -917,10 +928,10 @@ namespace Services
 
                 // Step 2: Move to target position on X and Z axes only (keep Y and W from home).
                 var intermediatePosition = new Vector4(
-                    manipulatorState.DemoTargetCoordinate.x,
-                    manipulatorState.DemoHomeCoordinate.y,
-                    manipulatorState.DemoTargetCoordinate.z,
-                    manipulatorState.DemoHomeCoordinate.w
+                    targetCoordinate.x,
+                    homeCoordinate.y,
+                    targetCoordinate.z,
+                    homeCoordinate.w
                 );
                 var intermediateRequest = new SetPositionRequest(
                     manipulatorId,
@@ -936,12 +947,8 @@ namespace Services
                     return;
                 }
 
-                // Refresh state and check if demo is still running.
-                sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-                manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
-                    m.Id == manipulatorId
-                );
-                if (manipulatorState is not { IsDemoRunning: true })
+                // Check if demo is still running after movement.
+                if (!CheckDemoStillRunning(manipulatorId))
                 {
                     _runningDemoLoops.Remove(manipulatorId);
                     return;
@@ -950,7 +957,7 @@ namespace Services
                 // Step 3: Move to target position on Y and W axes only (complete movement to target).
                 var targetRequest = new SetPositionRequest(
                     manipulatorId,
-                    manipulatorState.DemoTargetCoordinate,
+                    targetCoordinate,
                     DEMO_SPEED
                 );
                 var targetResponse = await SetPosition(targetRequest);
@@ -962,12 +969,8 @@ namespace Services
                     return;
                 }
 
-                // Refresh state and check if demo is still running.
-                sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-                manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
-                    m.Id == manipulatorId
-                );
-                if (manipulatorState is not { IsDemoRunning: true })
+                // Check if demo is still running after movement.
+                if (!CheckDemoStillRunning(manipulatorId))
                 {
                     _runningDemoLoops.Remove(manipulatorId);
                     return;
@@ -975,10 +978,10 @@ namespace Services
 
                 // Step 4: Move back to intermediate position (X,Z only, keeping Y,W from home).
                 var returnToIntermediatePosition = new Vector4(
-                    manipulatorState.DemoTargetCoordinate.x,
-                    manipulatorState.DemoHomeCoordinate.y,
-                    manipulatorState.DemoTargetCoordinate.z,
-                    manipulatorState.DemoHomeCoordinate.w
+                    targetCoordinate.x,
+                    homeCoordinate.y,
+                    targetCoordinate.z,
+                    homeCoordinate.w
                 );
                 var returnToIntermediateRequest = new SetPositionRequest(
                     manipulatorId,
@@ -994,20 +997,28 @@ namespace Services
                     return;
                 }
 
-                // Refresh state and check if demo is still running before next iteration.
-                sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-                manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
-                    m.Id == manipulatorId
-                );
-                if (manipulatorState is { IsDemoRunning: true })
+                // Check if demo is still running before next iteration.
+                if (!CheckDemoStillRunning(manipulatorId))
                 {
-                    // Loop continues to next iteration (back to home).
-                    continue;
+                    _runningDemoLoops.Remove(manipulatorId);
+                    return;
                 }
-
-                _runningDemoLoops.Remove(manipulatorId);
-                return;
             }
+        }
+
+        /// <summary>
+        ///     Helper method to check if demo is still running for a manipulator.
+        ///     Reduces code duplication and state retrieval overhead.
+        /// </summary>
+        /// <param name="manipulatorId">ID of the manipulator to check.</param>
+        /// <returns>True if demo is still running, false otherwise.</returns>
+        private bool CheckDemoStillRunning(string manipulatorId)
+        {
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var manipulatorState = sceneState.Manipulators.FirstOrDefault(m =>
+                m.Id == manipulatorId
+            );
+            return manipulatorState is { IsDemoRunning: true };
         }
 
         #endregion
