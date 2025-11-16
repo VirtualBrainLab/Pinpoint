@@ -19,6 +19,7 @@ using UnityEngine;
 using Utils;
 using Utils.Types;
 using Action = System.Action;
+using System.Threading;
 
 namespace Services
 {
@@ -30,6 +31,9 @@ namespace Services
 
         // FIXME: This should go into some common constants file (along with copy in probe inspector view model).
         private readonly Vector2 _pitchRange = new(0, 90);
+
+        // Visualization loop interval (ms)
+        private const int VISUALIZATION_UPDATE_INTERVAL_MS = 10; // about 60 Hz
 
         #endregion
 
@@ -48,12 +52,15 @@ namespace Services
 
         public string SocketId => _socket.Id;
 
+        // Cancellation for the visualization update loop
+        private CancellationTokenSource _visualizationLoopCts;
+
         #endregion
 
         #region Demo Loop
 
-        private readonly Dictionary<string, bool> _runningDemoLoops = new();
-        private const float DEMO_SPEED = 100f; // µm/s
+        private readonly HashSet<string> _runningDemoLoops = new();
+        private const float DEMO_SPEED = 0.1f; // mm/s
         #endregion
 
         public EphysLinkService(StoreService storeService)
@@ -72,36 +79,31 @@ namespace Services
 
         private async void OnSceneStateChanged(SceneState sceneState)
         {
-            // Apply small delay to prevent overrunning updates (delay for roughly 60 FPS).
-            await Task.Delay(10);
-
             // Handle demo loop state changes.
             foreach (var manipulatorState in sceneState.Manipulators)
             {
-                _runningDemoLoops.TryGetValue(manipulatorState.Id, out var isRunning);
+                var isRunning = _runningDemoLoops.Contains(manipulatorState.Id);
 
                 switch (manipulatorState.IsDemoRunning)
                 {
                     // Start demo loop if requested and not already running.
                     case true when !isRunning:
-                        _runningDemoLoops[manipulatorState.Id] = true;
+                        _runningDemoLoops.Add(manipulatorState.Id);
                         _ = RunDemoLoop(manipulatorState.Id);
                         break;
                     // Stop demo loop if requested and currently running.
                     case false when isRunning:
                         await Stop(manipulatorState.Id);
+                        _runningDemoLoops.Remove(manipulatorState.Id);
                         break;
                 }
             }
-
-            // WARNING: this will create an infinite loop of state updates on purpose.
-            // Update the position of visualization probes.
-            await UpdateVisualizationProbePosition(sceneState);
         }
 
         private void OnShuttingDown()
         {
             _sceneStateSubscription.Dispose();
+            StopVisualizationLoop();
             App.shuttingDown -= OnShuttingDown;
         }
 
@@ -125,6 +127,9 @@ namespace Services
             if (_socketManager != null && _socketManager.Socket.IsOpen)
                 _socketManager.Close();
 
+            // Ensure any previous loop is stopped.
+            StopVisualizationLoop();
+
             // Create new connection.
             var options = new SocketOptions { Timeout = new TimeSpan(0, 0, 2) };
 
@@ -135,10 +140,10 @@ namespace Services
                 _socketManager = new SocketManager(new Uri($"http://{ip}:{port}"), options);
                 _socket = _socketManager.Socket;
 
-                // On successful connection.
-                _socket.Once(
-                    "connect",
-                    async () =>
+                // Local async handler to run after successful connection.
+                async Task OnConnectedAsync()
+                {
+                    try
                     {
                         // Check version compatibility.
                         if (await IsVersionCompatible())
@@ -153,12 +158,38 @@ namespace Services
                                 (EphysLinkConnectionState.Connected, _socket.Id)
                             );
                             onConnected?.Invoke();
+
+                            // Start visualization update loop until disconnect.
+                            StartVisualizationLoop();
                         }
                         else
                         {
                             HandleError(GetOutdatedVersionErrorMessage());
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        HandleError($"{GetErrorConnectingToServerMessage()} Caused exception: {ex.Message}");
+                    }
+                }
+
+                // When the server disconnects, stop the visualization loop and update state.
+                _socket.On(
+                    "disconnect",
+                    () =>
+                    {
+                        StopVisualizationLoop();
+                        _storeService.Store.Dispatch(
+                            SettingsActions.SET_EPHYS_LINK_CONNECTION_STATE,
+                            (EphysLinkConnectionState.Disconnected, "")
+                        );
+                    }
+                );
+
+                // On successful connection, delegate to async task handler.
+                _socket.Once(
+                    "connect",
+                    () => { _ = OnConnectedAsync(); }
                 );
 
                 // On error.
@@ -202,6 +233,9 @@ namespace Services
         /// <param name="onDisconnected">Post disconnection behavior.</param>
         public void Disconnect(Action onDisconnected = null)
         {
+            // Stop the visualization loop if running.
+            StopVisualizationLoop();
+
             // Close socket connection.
             _socketManager?.Close();
             _socketManager = null;
@@ -527,6 +561,61 @@ namespace Services
             return JsonUtility.ToJson(data);
         }
 
+        // Starts the continuous visualization update loop until the socket disconnects or service disconnects.
+        private void StartVisualizationLoop()
+        {
+            StopVisualizationLoop(); // ensure only one loop runs
+            _visualizationLoopCts = new CancellationTokenSource();
+            var token = _visualizationLoopCts.Token;
+            _ = VisualizationUpdateLoop(token);
+        }
+
+        // Cancels and disposes the visualization update loop.
+        private void StopVisualizationLoop()
+        {
+            if (_visualizationLoopCts != null)
+            {
+                try { _visualizationLoopCts.Cancel(); }
+                catch (ObjectDisposedException) { /* ignore disposed */ }
+                catch (Exception ex)
+                {
+                    Debug.Log($"Ignored exception during visualization loop cancellation: {ex}");
+                }
+                _visualizationLoopCts.Dispose();
+                _visualizationLoopCts = null;
+            }
+        }
+
+        // The loop body calling UpdateVisualizationProbePosition at a fixed interval.
+        private async Task VisualizationUpdateLoop(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+                    await UpdateVisualizationProbePosition(sceneState);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Visualization update loop error: {ex.Message}");
+                }
+
+                try
+                {
+                    await Task.Delay(VISUALIZATION_UPDATE_INTERVAL_MS, token);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+            }
+        }
+
         #endregion
 
         #region Visualization control
@@ -611,6 +700,13 @@ namespace Services
                 var transformedAPMLDV = BrainAtlasManager.World2T_Vector(
                     referenceCoordinateAdjustedWorldPosition
                 );
+                
+                // Cancel update if the manipulator's position did not change by a lot.
+                var probeState = sceneState.Probes.FirstOrDefault(state => state.Name == manipulatorState.VisualizationProbeName);
+                if (probeState == null || Vector3.SqrMagnitude(transformedAPMLDV - probeState.APMLDV) < 0.0001f)
+                {
+                    continue;
+                }
 
                 // Get the current forward vector of the probe.
                 var forwardT = BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
@@ -782,14 +878,14 @@ namespace Services
                 // Exit if manipulator not found.
                 if (manipulatorState == null)
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
                 // Exit if demo is no longer running.
                 if (!manipulatorState.IsDemoRunning)
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -804,7 +900,7 @@ namespace Services
                 // Exit on error (including stop request).
                 if (HasError(homeResponse.Error))
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -815,7 +911,7 @@ namespace Services
                 );
                 if (manipulatorState is not { IsDemoRunning: true })
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -836,7 +932,7 @@ namespace Services
                 // Exit on error (including stop request).
                 if (HasError(intermediateResponse.Error))
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -847,7 +943,7 @@ namespace Services
                 );
                 if (manipulatorState is not { IsDemoRunning: true })
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -862,7 +958,7 @@ namespace Services
                 // Exit on error (including stop request).
                 if (HasError(targetResponse.Error))
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -873,7 +969,7 @@ namespace Services
                 );
                 if (manipulatorState is not { IsDemoRunning: true })
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -894,7 +990,7 @@ namespace Services
                 // Exit on error (including stop request).
                 if (HasError(returnToIntermediateResponse.Error))
                 {
-                    _runningDemoLoops[manipulatorId] = false;
+                    _runningDemoLoops.Remove(manipulatorId);
                     return;
                 }
 
@@ -909,7 +1005,7 @@ namespace Services
                     continue;
                 }
 
-                _runningDemoLoops[manipulatorId] = false;
+                _runningDemoLoops.Remove(manipulatorId);
                 return;
             }
         }
