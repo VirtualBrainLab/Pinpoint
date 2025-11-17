@@ -310,7 +310,7 @@ return Vector3.right;
 
     private void Update()
     {
-        // Update visualization probe position if this is a visualization probe
+        // Update visualization probe position if this is a visualization probe.
         UpdateVisualizationProbePosition();
 
         // If the user is holding one or more click keys and we are past the hold delay, increment the position
@@ -921,6 +921,40 @@ return Vector3.right;
 
     #region Set Probe pos/angles
 
+    /// <summary>
+    /// Apply visualization probe updates if available.
+    /// This should be called from the Update() method of concrete ProbeController implementations.
+    /// </summary>
+    private void UpdateVisualizationProbePosition()
+    {
+        if (!HasVisualizationUpdate)
+            return;
+
+        HasVisualizationUpdate = false;
+        
+        // Update position.
+        transform.position =
+            BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(VisualizationLocalAPMLDV)
+            );
+
+
+        // Update orientation.
+        transform.rotation = _initialRotation;
+        transform.RotateAround(_probeTipT.position, transform.up, VisualizationLocalAngles.x);
+        transform.RotateAround(_probeTipT.position, transform.right, VisualizationLocalAngles.y);
+        transform.RotateAround(_probeTipT.position, transform.forward, -VisualizationLocalAngles.z);
+
+        // Update tip coords.
+        SetTipWorldU();
+
+        // Update recording region info.
+        ProbeManager.ProbeMoved();
+
+        // Update surface coordinates.
+        ProbeManager.UpdateSurfacePosition();
+    }
+    
     /// <summary>
     /// Set the probe position to the current apml/depth/angles values
     /// </summary>

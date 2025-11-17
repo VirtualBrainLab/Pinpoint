@@ -98,21 +98,6 @@ public abstract class ProbeController : MonoBehaviour
         SetProbePosition();
     }
 
-    /// <summary>
-    /// Apply visualization probe updates if available.
-    /// This should be called from the Update() method of concrete ProbeController implementations.
-    /// </summary>
-    protected void UpdateVisualizationProbePosition()
-    {
-        if (!HasVisualizationUpdate)
-            return;
-
-        HasVisualizationUpdate = false;
-
-        // Update the probe position and angles based on local visualization fields
-        SetProbePosition(VisualizationLocalAPMLDV);
-        SetProbeAngles(VisualizationLocalAngles);
-    }
 
 
 }

@@ -52,15 +52,16 @@ namespace Services
 
         public string SocketId => _socket.Id;
 
-        // Cancellation for the visualization update loop
-        private CancellationTokenSource _visualizationLoopCts;
-
         #endregion
 
         #region Demo Loop
 
         private readonly HashSet<string> _runningDemoLoops = new();
         private const float DEMO_SPEED = 0.5f; // mm/s
+        
+        // Cancellation for the visualization update loop
+        private CancellationTokenSource _visualizationLoopCts;
+
         #endregion
 
         public EphysLinkService(StoreService storeService)
@@ -637,12 +638,12 @@ namespace Services
                     ) == null
                     || visualizationProbeManager == null
                 )
-                    return;
+                    continue;
 
                 // Get the current position of the manipulator.
                 var positionResponse = await GetPosition(manipulatorState.Id);
                 if (HasError(positionResponse.Error))
-                    return;
+                    continue;
 
                 // Apply reference coordinate offset.
                 var referenceCoordinateAdjustedManipulatorPosition =
@@ -710,20 +711,12 @@ namespace Services
                 if (probeController == null)
                     continue;
 
-                float depth;
-                switch (sceneState.NumberOfAxesOnManipulator)
+                var depth = sceneState.NumberOfAxesOnManipulator switch
                 {
-                    case 3:
-                        depth = duraOffsetAdjustment;
-                        break;
-                    case 4:
-                        depth = referenceCoordinateAdjustedManipulatorPosition.w;
-                        break;
-                    default:
-                        throw new ValueOutOfRangeException(
-                            "Number of axes on manipulator is invalid."
-                        );
-                }
+                    3 => duraOffsetAdjustment,
+                    4 => referenceCoordinateAdjustedManipulatorPosition.w,
+                    _ => throw new ValueOutOfRangeException("Number of axes on manipulator is invalid.")
+                };
 
                 // Write position data directly to ProbeController's local fields
                 probeController.VisualizationLocalAPMLDV = transformedAPMLDV;
