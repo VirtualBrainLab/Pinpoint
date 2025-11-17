@@ -621,15 +621,6 @@ namespace Services
 
         private async Task UpdateVisualizationProbePosition(SceneState sceneState)
         {
-            List<(
-                string Name,
-                Vector3 SurfaceAPMLDV,
-                float Depth,
-                Vector3 ForwardT,
-                Vector3 Angles,
-                Vector2 PitchRange
-            )> requests = new();
-
             foreach (
                 var manipulatorState in sceneState.Manipulators.Where(state =>
                     !string.IsNullOrEmpty(state.VisualizationProbeName)
@@ -714,46 +705,33 @@ namespace Services
                     )
                 );
 
+                // Get the ProbeController for this visualization probe
+                var probeController = visualizationProbeManager.ProbeController;
+                if (probeController == null)
+                    continue;
+
+                float depth;
                 switch (sceneState.NumberOfAxesOnManipulator)
                 {
-                    // Set the probe position in the store.
                     case 3:
-                        requests.Add(
-                            (
-                                manipulatorState.VisualizationProbeName,
-                                transformedAPMLDV,
-                                duraOffsetAdjustment,
-                                forwardT,
-                                manipulatorState.Angles,
-                                _pitchRange
-                            )
-                        );
+                        depth = duraOffsetAdjustment;
                         break;
                     case 4:
-                        requests.Add(
-                            (
-                                manipulatorState.VisualizationProbeName,
-                                transformedAPMLDV,
-                                referenceCoordinateAdjustedManipulatorPosition.w,
-                                forwardT,
-                                manipulatorState.Angles,
-                                _pitchRange
-                            )
-                        );
+                        depth = referenceCoordinateAdjustedManipulatorPosition.w;
                         break;
                     default:
                         throw new ValueOutOfRangeException(
                             "Number of axes on manipulator is invalid."
                         );
                 }
-            }
 
-            // Dispatch all position updates in one go (if any).
-            if (requests.Any())
-                _storeService.Store.Dispatch(
-                    SceneActions.BULK_SET_PROBE_POSITION_AND_ANGLES_BY,
-                    requests
-                );
+                // Write position data directly to ProbeController's local fields
+                probeController.VisualizationLocalAPMLDV = transformedAPMLDV;
+                probeController.VisualizationLocalDepth = depth;
+                probeController.VisualizationLocalAngles = manipulatorState.Angles;
+                probeController.VisualizationLocalForwardT = forwardT;
+                probeController.HasVisualizationUpdate = true;
+            }
         }
 
         public async Task SetManipulatorReferenceCoordinateToCurrentPosition(string manipulatorId)

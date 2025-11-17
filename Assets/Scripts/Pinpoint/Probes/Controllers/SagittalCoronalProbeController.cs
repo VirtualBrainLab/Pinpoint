@@ -303,6 +303,9 @@ public class SagittalCoronalProbeController : ProbeController
 
     private void Update()
     {
+        // Update visualization probe position if this is a visualization probe
+        UpdateVisualizationProbePosition();
+
         // If the user is holding one or more click keys and we are past the hold delay, increment the position
         if (clickKeyHeld > 0 && (Time.realtimeSinceStartup - clickKeyPressTime) > keyHoldDelay)
             // Set speed to Tap instead of Hold for manipulator keyboard control

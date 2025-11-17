@@ -28,6 +28,36 @@ public abstract class ProbeController : MonoBehaviour
     public bool ManipulatorManualControl;
     public bool ManipulatorKeyboardMoveInProgress;
 
+    #region Visualization Probe Local Position
+    
+    /// <summary>
+    /// Local field for visualization probe position updates from EphysLink.
+    /// Used to avoid excessive Redux state updates during rapid polling.
+    /// </summary>
+    public Vector3 VisualizationLocalAPMLDV { get; set; }
+    
+    /// <summary>
+    /// Local field for visualization probe depth.
+    /// </summary>
+    public float VisualizationLocalDepth { get; set; }
+    
+    /// <summary>
+    /// Local field for visualization probe angles.
+    /// </summary>
+    public Vector3 VisualizationLocalAngles { get; set; }
+    
+    /// <summary>
+    /// Local field for visualization probe forward vector.
+    /// </summary>
+    public Vector3 VisualizationLocalForwardT { get; set; }
+    
+    /// <summary>
+    /// Indicates if new visualization data is available and needs to be applied.
+    /// </summary>
+    public bool HasVisualizationUpdate { get; set; }
+    
+    #endregion
+
     public abstract Transform ProbeTipT { get; }
 
     public abstract (Vector3 tipCoordWorldU, Vector3 tipRightWorldU, Vector3 tipUpWorldU, Vector3 tipForwardWorldU) GetTipWorldU();
@@ -66,6 +96,22 @@ public abstract class ProbeController : MonoBehaviour
         Insertion.TransformName = transform.Name;
         // Set the probe position
         SetProbePosition();
+    }
+
+    /// <summary>
+    /// Apply visualization probe updates if available.
+    /// This should be called from the Update() method of concrete ProbeController implementations.
+    /// </summary>
+    protected void UpdateVisualizationProbePosition()
+    {
+        if (!HasVisualizationUpdate)
+            return;
+
+        HasVisualizationUpdate = false;
+
+        // Update the probe position and angles based on local visualization fields
+        SetProbePosition(VisualizationLocalAPMLDV);
+        SetProbeAngles(VisualizationLocalAngles);
     }
 
 
