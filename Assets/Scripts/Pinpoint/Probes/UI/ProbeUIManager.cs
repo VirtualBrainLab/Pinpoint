@@ -44,7 +44,7 @@ public class ProbeUIManager : MonoBehaviour
         MaxArea = "";
 
         // Add the probePanel
-        Transform probePanelParentT = GameObject.Find("ProbePanelParent").transform;
+        Transform probePanelParentT = GameObject.Find("ProbePanelGO").transform;
         probePanelGO = Instantiate(_probePanelPrefab, probePanelParentT);
         probePanel = probePanelGO.GetComponent<TP_ProbePanel>();
         probePanel.name = $"{_probeManager.name}_panel_{GetOrder()}";

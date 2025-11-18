@@ -617,7 +617,7 @@ namespace TrajectoryPlanner
             }
 
             // Change the height of the probe panels, if needed
-            _probePanelManager.RecalculateProbePanels();
+            //_probePanelManager.RecalculateProbePanels();
 
             _activeProbeChangedEvent.Invoke();
         }

@@ -65,42 +65,42 @@ public class ProbePanelManager : MonoBehaviour
     /// </summary>
     public void RecalculateProbePanels()
     {
-        CountProbePanels();
+        //CountProbePanels();
 
-        // Set number of columns based on whether we need 8 probes or more
-        GetComponent<GridLayoutGroup>().constraintCount = (VisibleProbePanels > 8) ? 8 : 4;
+        //// Set number of columns based on whether we need 8 probes or more
+        //GetComponent<GridLayoutGroup>().constraintCount = (VisibleProbePanels > 8) ? 8 : 4;
 
-        if (VisibleProbePanels > 4)
-        {
-            // Increase the layout to have two rows, by shrinking all the ProbePanel objects to be 500 pixels tall
-            GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
-            Vector2 cellSize = probePanelParent.cellSize;
-            cellSize.y = _probePanelHeight/2;
-            probePanelParent.cellSize = cellSize;
+        //if (VisibleProbePanels > 4)
+        //{
+        //    // Increase the layout to have two rows, by shrinking all the ProbePanel objects to be 500 pixels tall
+        //    GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
+        //    Vector2 cellSize = probePanelParent.cellSize;
+        //    cellSize.y = _probePanelHeight/2;
+        //    probePanelParent.cellSize = cellSize;
 
-            // now resize all existing probeUIs to be 720 tall
-            foreach (ProbeManager probeManager in ProbeManager.Instances)
-            {
-                probeManager.ResizeProbePanel(Mathf.RoundToInt(_probePanelHeight/2));
-            }
-        }
-        else if (VisibleProbePanels <= 4)
-        {
-            Debug.Log($"Resizing panels to be {_probePanelHeight}");
-            // now resize all existing probeUIs to be 1400 tall
-            GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
-            Vector2 cellSize = probePanelParent.cellSize;
-            cellSize.y = _probePanelHeight;
-            probePanelParent.cellSize = cellSize;
+        //    // now resize all existing probeUIs to be 720 tall
+        //    foreach (ProbeManager probeManager in ProbeManager.Instances)
+        //    {
+        //        probeManager.ResizeProbePanel(Mathf.RoundToInt(_probePanelHeight/2));
+        //    }
+        //}
+        //else if (VisibleProbePanels <= 4)
+        //{
+        //    Debug.Log($"Resizing panels to be {_probePanelHeight}");
+        //    // now resize all existing probeUIs to be 1400 tall
+        //    GridLayoutGroup probePanelParent = GameObject.Find("ProbePanelParent").GetComponent<GridLayoutGroup>();
+        //    Vector2 cellSize = probePanelParent.cellSize;
+        //    cellSize.y = _probePanelHeight;
+        //    probePanelParent.cellSize = cellSize;
 
-            foreach (ProbeManager probeManager in ProbeManager.Instances)
-            {
-                probeManager.ResizeProbePanel(Mathf.RoundToInt(_probePanelHeight));
-            }
-        }
+        //    foreach (ProbeManager probeManager in ProbeManager.Instances)
+        //    {
+        //        probeManager.ResizeProbePanel(Mathf.RoundToInt(_probePanelHeight));
+        //    }
+        //}
 
-        // Finally, re-order panels if needed to put 2.4 probes first followed by 1.0 / 2.0
-        ReOrderProbePanels();
+        //// Finally, re-order panels if needed to put 2.4 probes first followed by 1.0 / 2.0
+        //ReOrderProbePanels();
     }
 
     public IEnumerator RecalculateProbePanels_Delayed()

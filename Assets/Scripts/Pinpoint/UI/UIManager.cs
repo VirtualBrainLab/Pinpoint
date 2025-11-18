@@ -64,7 +64,7 @@ public class UIManager : MonoBehaviour
 #if APP_UI
     public void Initialize()
     {
- var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+        var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
         _settingsStateSubscription = storeService.Store.Subscribe(
  state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE),
    OnSettingsStateChanged,
@@ -72,9 +72,9 @@ public class UIManager : MonoBehaviour
     );
     }
 
- private void OnDestroy()
+    private void OnDestroy()
     {
-      _settingsStateSubscription?.Dispose();
+        _settingsStateSubscription?.Dispose();
     }
 
     private void OnSettingsStateChanged(SettingsState state)
@@ -83,10 +83,10 @@ public class UIManager : MonoBehaviour
     }
 #endif
 
-  /// <summary>
+    /// <summary>
     /// Return whether any inputs are currently focused or if any of the gameobjects are currently active
     /// </summary>
- #if APP_UI
+#if APP_UI
     public static bool InputsFocused =>
         PinpointApp.RootVisualElement.focusController.focusedElement
       is Unity.AppUI.UI.TextField
@@ -99,10 +99,10 @@ public class UIManager : MonoBehaviour
 
     public void EnableEphysCopilotPanel(bool enable = true)
     {
-    // Always set the panel to active once started using, but set the scale to zero if we're disabling it
+        // Always set the panel to active once started using, but set the scale to zero if we're disabling it
         _ephysCopilotPanelGameObject.SetActive(true);
 
-// Set the scale to zero if we're disabling it
+        // Set the scale to zero if we're disabling it
         _ephysCopilotPanelGameObject.transform.localScale = enable ? Vector3.one : Vector3.zero;
     }
 
@@ -113,17 +113,16 @@ public class UIManager : MonoBehaviour
 
     public void SetBackgroundWhite(bool state)
     {
-     if (state)
+        if (Camera.main)
         {
-      foreach (TMP_Text textC in _whiteUIText)
-        textC.color = Color.black;
-        Camera.main.backgroundColor = Color.white;
+            if (state)
+            {
+                Camera.main.backgroundColor = Color.white;
+            }
+            else
+            {
+                Camera.main.backgroundColor = Color.black;
+            }
         }
-        else
-        {
-  foreach (TMP_Text textC in _whiteUIText)
-     textC.color = Color.white;
-            Camera.main.backgroundColor = Color.black;
-  }
     }
 }
