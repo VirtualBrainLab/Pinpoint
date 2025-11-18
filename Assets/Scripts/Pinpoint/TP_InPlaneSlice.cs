@@ -74,31 +74,31 @@ public class TP_InPlaneSlice : MonoBehaviour
         _probeWorldStateSubscription = _storeService.Store.Subscribe(
      state =>
             {
-     var sceneState = state.Get<SceneState>(SliceNames.SCENE_SLICE);
-  var probeWorldSlice = state.Get<ProbeWorldStateSlice>(SliceNames.PROBE_WORLD_SLICE);
-     return probeWorldSlice.GetProbeWorldState(sceneState.ActiveProbeName);
+                var sceneState = state.Get<SceneState>(SliceNames.SCENE_SLICE);
+                var probeWorldSlice = state.Get<ProbeWorldStateSlice>(SliceNames.PROBE_WORLD_SLICE);
+                return probeWorldSlice.GetProbeWorldState(sceneState.ActiveProbeName);
             },
 probeWorldState =>
   {
-             _cachedProbeWorldState = probeWorldState;
-    UpdateInPlaneSlice();
-     },
+      _cachedProbeWorldState = probeWorldState;
+      UpdateInPlaneSlice();
+  },
             new SubscribeOptions<ProbeWorldState> { fireImmediately = true }
     );
 
-     _activeProbeStateSubscription = _storeService.Store.Subscribe(
-         state =>
-   {
-   var sceneState = state.Get<SceneState>(SliceNames.SCENE_SLICE);
-         return sceneState.Probes.Find(p => p.Name == sceneState.ActiveProbeName);
-     },
-     probeState =>
-        {
- _cachedActiveProbeState = probeState;
-            UpdateInPlaneSlice();
-        },
-         new SubscribeOptions<ProbeState> { fireImmediately = true }
-    );
+        _activeProbeStateSubscription = _storeService.Store.Subscribe(
+            state =>
+      {
+          var sceneState = state.Get<SceneState>(SliceNames.SCENE_SLICE);
+          return sceneState.Probes.Find(p => p.Name == sceneState.ActiveProbeName);
+      },
+        probeState =>
+           {
+               _cachedActiveProbeState = probeState;
+               UpdateInPlaneSlice();
+           },
+            new SubscribeOptions<ProbeState> { fireImmediately = true }
+       );
 
         _settingsStateSubscription = _storeService.Store.Subscribe(
       state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE).inPlaneZoom,
@@ -109,9 +109,9 @@ probeWorldState =>
 
     private void OnDestroy()
     {
-      _probeWorldStateSubscription?.Dispose();
+        _probeWorldStateSubscription?.Dispose();
         _activeProbeStateSubscription?.Dispose();
-   _settingsStateSubscription?.Dispose();
+        _settingsStateSubscription?.Dispose();
     }
 #endif
 
@@ -134,20 +134,19 @@ probeWorldState =>
 
     public void UpdateInPlaneSlice()
     {
-        if (!Settings.ShowInPlaneSlice) return;
-
+        Debug.Log("here");
 #if APP_UI
-  if (_cachedProbeWorldState == null || string.IsNullOrEmpty(_cachedProbeWorldState.Name) || _cachedActiveProbeState == null)
-      {
- ResetRendererParameters();
-          return;
+        if (_cachedProbeWorldState == null || string.IsNullOrEmpty(_cachedProbeWorldState.Name) || _cachedActiveProbeState == null)
+        {
+            ResetRendererParameters();
+            return;
         }
 
         if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
-    {
-   ResetRendererParameters();
-     return;
-       }
+        {
+            ResetRendererParameters();
+            return;
+        }
 
         Vector3 startCoordWorldU = _cachedProbeWorldState.RecRegionBaseCoordWorldU;
         Vector3 endCoordWorldU = _cachedProbeWorldState.RecRegionTopCoordWorldU;
@@ -257,13 +256,13 @@ probeWorldState =>
    return;
 #endif
 
-  if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
-   return;
+        if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
+            return;
 
         Vector3 inPlanePosition = CalculateInPlanePosition(pointerData);
 
         int annotation = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(inPlanePosition);
-      annotation = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(annotation);
+        annotation = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(annotation);
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -280,13 +279,13 @@ probeWorldState =>
     private Vector3 CalculateInPlanePosition(Vector2 pointerData)
     {
         if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
-  return Vector3.zero;
-     
-   Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
-   // Take the tip transform and go out according to the in plane percentage 
+            return Vector3.zero;
+
+        Vector2 inPlanePosNorm = GetLocalRectPosNormalized(pointerData) * inPlaneScale / 2;
+        // Take the tip transform and go out according to the in plane percentage 
 
         // We get the center index, then add the x position * the left vector, then add the y position * the up vector
-     // remember that for the probe, up = backward, and left = left
+        // remember that for the probe, up = backward, and left = left
         Vector3 inPlanePosition = recRegionCenterIdx +
  (BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-rightWorldU) * inPlanePosNorm.x +
           BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(-forwardWorldU) * inPlanePosNorm.y);
