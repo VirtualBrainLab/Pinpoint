@@ -354,8 +354,8 @@ return Vector3.right;
 
     private void OnProbeStateChanged(ProbeState state)
     {
-        // Skip if no state.
-        if (state == null)
+        // Skip if is visualization probe (updates from local state) no state.
+        if (IsVisualizationProbe || state == null)
         {
             return;
         }
@@ -927,11 +927,9 @@ return Vector3.right;
     /// </summary>
     private void UpdateVisualizationProbePosition()
     {
-        if (!HasVisualizationUpdate)
+        if (!IsVisualizationProbe)
             return;
 
-        HasVisualizationUpdate = false;
-        
         // Update position.
         transform.position =
             BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(

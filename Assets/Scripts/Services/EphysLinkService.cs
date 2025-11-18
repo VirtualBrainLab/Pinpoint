@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BestHTTP.SocketIO3;
 using BrainAtlas;
@@ -19,7 +20,6 @@ using UnityEngine;
 using Utils;
 using Utils.Types;
 using Action = System.Action;
-using System.Threading;
 
 namespace Services
 {
@@ -34,7 +34,6 @@ namespace Services
 
         // Visualization loop interval (ms)
         private const int VISUALIZATION_UPDATE_INTERVAL_MS = 10; // about 60 Hz
-
         #endregion
 
         #region Services
@@ -58,7 +57,7 @@ namespace Services
 
         private readonly HashSet<string> _runningDemoLoops = new();
         private const float DEMO_SPEED = 0.5f; // mm/s
-        
+
         // Cancellation for the visualization update loop
         private CancellationTokenSource _visualizationLoopCts;
 
@@ -170,7 +169,9 @@ namespace Services
                     }
                     catch (Exception ex)
                     {
-                        HandleError($"{GetErrorConnectingToServerMessage()} Caused exception: {ex.Message}");
+                        HandleError(
+                            $"{GetErrorConnectingToServerMessage()} Caused exception: {ex.Message}"
+                        );
                     }
                 }
 
@@ -190,7 +191,10 @@ namespace Services
                 // On successful connection, delegate to async task handler.
                 _socket.Once(
                     "connect",
-                    () => { _ = OnConnectedAsync(); }
+                    () =>
+                    {
+                        _ = OnConnectedAsync();
+                    }
                 );
 
                 // On error.
@@ -562,6 +566,10 @@ namespace Services
             return JsonUtility.ToJson(data);
         }
 
+        #endregion
+
+        #region Visualization control
+
         // Starts the continuous visualization update loop until the socket disconnects or service disconnects.
         private void StartVisualizationLoop()
         {
@@ -574,9 +582,15 @@ namespace Services
         // Cancels and disposes the visualization update loop.
         private void StopVisualizationLoop()
         {
-            if (_visualizationLoopCts == null) return;
-            try { _visualizationLoopCts.Cancel(); }
-            catch (ObjectDisposedException) { /* ignore disposed */ }
+            if (_visualizationLoopCts == null)
+                return;
+            try
+            {
+                _visualizationLoopCts.Cancel();
+            }
+            catch (ObjectDisposedException)
+            { /* ignore disposed */
+            }
             catch (Exception ex)
             {
                 Debug.Log($"Ignored exception during visualization loop cancellation: {ex}");
@@ -592,7 +606,9 @@ namespace Services
             {
                 try
                 {
-                    var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+                    var sceneState = _storeService.Store.GetState<SceneState>(
+                        SliceNames.SCENE_SLICE
+                    );
                     await UpdateVisualizationProbePosition(sceneState);
                 }
                 catch (OperationCanceledException)
@@ -615,10 +631,6 @@ namespace Services
                 }
             }
         }
-
-        #endregion
-
-        #region Visualization control
 
         private async Task UpdateVisualizationProbePosition(SceneState sceneState)
         {
@@ -691,13 +703,16 @@ namespace Services
                 var transformedAPMLDV = BrainAtlasManager.World2T_Vector(
                     referenceCoordinateAdjustedWorldPosition
                 );
-                
+
                 // Cancel update if the manipulator's position did not change by a lot.
-                var probeState = sceneState.Probes.FirstOrDefault(state => state.Name == manipulatorState.VisualizationProbeName);
-                if (probeState == null || Vector3.SqrMagnitude(transformedAPMLDV - probeState.APMLDV) < 0.0001f)
-                {
+                var probeState = sceneState.Probes.FirstOrDefault(state =>
+                    state.Name == manipulatorState.VisualizationProbeName
+                );
+                if (
+                    probeState == null
+                    || Vector3.SqrMagnitude(transformedAPMLDV - probeState.APMLDV) < 0.0001f
+                )
                     continue;
-                }
 
                 // Get the current forward vector of the probe.
                 var forwardT = BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
@@ -715,7 +730,9 @@ namespace Services
                 {
                     3 => duraOffsetAdjustment,
                     4 => referenceCoordinateAdjustedManipulatorPosition.w,
-                    _ => throw new ValueOutOfRangeException("Number of axes on manipulator is invalid.")
+                    _ => throw new ValueOutOfRangeException(
+                        "Number of axes on manipulator is invalid."
+                    ),
                 };
 
                 // Write position data directly to ProbeController's local fields
@@ -723,7 +740,9 @@ namespace Services
                 probeController.VisualizationLocalDepth = depth;
                 probeController.VisualizationLocalAngles = manipulatorState.Angles;
                 probeController.VisualizationLocalForwardT = forwardT;
-                probeController.HasVisualizationUpdate = true;
+
+                // Mark probe as visualization probe to apply new data in Update().
+                probeController.IsVisualizationProbe = true;
             }
         }
 

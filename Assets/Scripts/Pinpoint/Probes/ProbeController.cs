@@ -54,7 +54,7 @@ public abstract class ProbeController : MonoBehaviour
     /// <summary>
     /// Indicates if new visualization data is available and needs to be applied.
     /// </summary>
-    public bool HasVisualizationUpdate { get; set; }
+    public bool IsVisualizationProbe { get; set; }
     
     #endregion
 
