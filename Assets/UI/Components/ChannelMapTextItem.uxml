@@ -1,0 +1,12 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; bottom: 0%;">
+        <Unity.AppUI.UI.Text text="area-label" data-source-type="UI.ViewModels.ChannelMapTextItemViewModel, Assembly-CSharp" style="flex-shrink: 0;">
+            <Bindings>
+                <ui:DataBinding property="text" data-source-path="Name" binding-mode="ToTarget" />
+            </Bindings>
+        </Unity.AppUI.UI.Text>
+        <Bindings>
+            <ui:DataBinding property="style.bottom" data-source-path="PositionPerc" data-source-type="UI.ViewModels.ChannelMapTextItemViewModel, Assembly-CSharp" binding-mode="ToTarget" />
+        </Bindings>
+    </ui:VisualElement>
+</ui:UXML>

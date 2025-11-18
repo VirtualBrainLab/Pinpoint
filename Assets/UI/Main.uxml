@@ -2,7 +2,7 @@
     <ui:Template name="Settings" src="project://database/Assets/UI/Views/Settings.uxml?fileID=9197481963319205126&amp;guid=f54ae45c39b925246b2d8d6f574b23bf&amp;type=3#Settings" />
     <ui:Template name="Scene" src="project://database/Assets/UI/Views/Scene.uxml?fileID=9197481963319205126&amp;guid=335b879c4b992f24bbb0951447e39262&amp;type=3#Scene" />
     <ui:Template name="Atlas" src="project://database/Assets/UI/Views/Atlas.uxml?fileID=9197481963319205126&amp;guid=9c87ec2a39db64e41ac639d9d458023a&amp;type=3#Atlas" />
-    <ui:Template name="ChannelsAndSlice" src="project://database/Assets/UI/Views/ChannelMaps.uxml?fileID=9197481963319205126&amp;guid=eacbf3863aa53e247902b99462b2943f&amp;type=3#ChannelMaps" />
+    <ui:Template name="ChannelMap" src="project://database/Assets/UI/Views/ChannelMap.uxml?fileID=9197481963319205126&amp;guid=eacbf3863aa53e247902b99462b2943f&amp;type=3#ChannelMap" />
     <ui:Template name="Inspector" src="project://database/Assets/UI/Views/ProbeInspector.uxml?fileID=9197481963319205126&amp;guid=e0575549e4e36cd40ac9d038669e3e54&amp;type=3#ProbeInspector" />
     <ui:Template name="ManipulatorInspector" src="project://database/Assets/UI/Views/ManipulatorInspector.uxml?fileID=9197481963319205126&amp;guid=548563d6332996b48876c7469ab9a17c&amp;type=3#ManipulatorInspector" />
     <ui:Template name="Automation" src="project://database/Assets/UI/Views/AutomationInspector.uxml?fileID=9197481963319205126&amp;guid=21db5dd8d01541a489f4ebd6415cd66a&amp;type=3#AutomationInspector" />
@@ -38,7 +38,7 @@
                 <Unity.AppUI.UI.Tabs name="left-side-panel__tabs" value="0">
                     <Unity.AppUI.UI.TabItem label="Scene" />
                     <Unity.AppUI.UI.TabItem label="Atlas" />
-                    <Unity.AppUI.UI.TabItem label="Channel Maps &amp; Slices" />
+                    <Unity.AppUI.UI.TabItem label="Channels" />
                     <Bindings>
                         <ui:DataBinding property="value" data-source-path="LeftSidePanelTabIndex" binding-mode="TwoWay" />
                     </Bindings>
@@ -51,8 +51,8 @@
                         <ui:Instance template="Atlas" name="atlas-view" style="flex-grow: 1; width: 100%;" />
                     </Unity.AppUI.UI.SwipeViewItem>
                     <Unity.AppUI.UI.SwipeViewItem>
-                        <ui:Instance template="ChannelsAndSlice" name="TemplateContainer" style="width: 100%; flex-grow: 1;" />
-                    </Unity.AppUI.UI.SwipeViewItem>
+                      <ui:Instance template="ChannelMap" name="channel-map-view" style="flex-grow: 1; width: 100%;" />
+                     </Unity.AppUI.UI.SwipeViewItem>
                     <Bindings>
                         <ui:DataBinding property="value" data-source-path="LeftSidePanelTabIndex" binding-mode="ToTarget" />
                     </Bindings>

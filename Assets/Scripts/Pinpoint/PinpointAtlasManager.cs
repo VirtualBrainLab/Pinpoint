@@ -251,6 +251,8 @@ public class PinpointAtlasManager : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log("(PAM) Warp brain called");
 #endif
+        // [TODO: Replace this with pulling from the scene state and updating warp anytime either the transform changes or the active areas change]
+        // Keep track of which areas are warped
    if (BrainAtlasManager.Instance == null || BrainAtlasManager.ActiveReferenceAtlas == null)
      return;
  
@@ -270,8 +272,8 @@ public class PinpointAtlasManager : MonoBehaviour
         foreach (OntologyNode node in DefaultNodes)
             WarpNode(node, WorldU2WorldT_Wrapper);
 
-        foreach (int areaID in TP_Search.VisibleSearchedAreas)
-            WarpNode(BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID), WorldU2WorldT_Wrapper);
+        //foreach (int areaID in TP_Search.VisibleSearchedAreas)
+        //    WarpNode(BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Node(areaID), WorldU2WorldT_Wrapper);
     }
 
     public static void WarpNode(OntologyNode node, Func<Vector3, Vector3> warpFunction)

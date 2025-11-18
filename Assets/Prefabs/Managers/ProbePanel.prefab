@@ -207,6 +207,10 @@ MonoBehaviour:
   - {fileID: 3888114500935262886}
   - {fileID: 2639413016807361704}
   _probePanelPxHeight: 1600
+  _channelMaterial: {fileID: 2100000, guid: 2abd6f8a2ae87ec499dee4d02862d716, type: 2}
+  _channelTexture: {fileID: 8400000, guid: f0d2995aeda2c4c4ca9dd22643740896, type: 2}
+  _sliceMaterial: {fileID: 2100000, guid: b9a6ca4f8a0ba0e458947d773fdd3de0, type: 2}
+  _sliceTexture: {fileID: 8400000, guid: 9fb637ec95016ac4da5853a8aed61438, type: 2}
 --- !u!1 &3714078250117719610
 GameObject:
   m_ObjectHideFlags: 0

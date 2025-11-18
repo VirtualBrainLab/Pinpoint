@@ -1,3 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement name="ChannelMap" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/UI/RenderTextures/SlicerenderTexture.renderTexture?fileID=8400000&amp;guid=f0d2995aeda2c4c4ca9dd22643740896&amp;type=2#SlicerenderTexture&quot;); flex-shrink: 1; aspect-ratio: 0.5; flex-direction: row; justify-content: flex-start;" />
+    <ui:Template name="ChannelMap" src="project://database/Assets/UI/Views/ChannelMap.uxml?fileID=9197481963319205126&amp;guid=4a343927d6449be46a28a16bdd9e6375&amp;type=3#ChannelMap" />
+    <ui:ScrollView horizontal-scroller-visibility="Hidden" vertical-scroller-visibility="AlwaysVisible" style="flex-grow: 1;">
+        <ui:Instance template="ChannelMap" name="channel-map" style="flex-grow: 1; width: 100%; height: 1600px;" />
+    </ui:ScrollView>
 </ui:UXML>

@@ -1,0 +1,16 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="ChannelMapTextItem" src="project://database/Assets/UI/Components/ChannelMapTextItem.uxml?fileID=9197481963319205126&amp;guid=0a6798f61a6f88248b66ddbd496096f7&amp;type=3#ChannelMapTextItem" />
+    <ui:VisualElement style="flex-grow: 1; align-items: auto; align-self: flex-start; min-width: 400px; flex-direction: row;" data-source-type="UI.ViewModels.ChannelMapViewModel, Assembly-CSharp">
+        <ui:VisualElement name="channel-texture" style="flex-grow: 1; width: 30%; height: 100%; background-image: url(&quot;project://database/Assets/UI/RenderTextures/ChannelMapChannelTexture.renderTexture?fileID=8400000&amp;guid=f0d2995aeda2c4c4ca9dd22643740896&amp;type=2#ChannelMapChannelTexture&quot;);" />
+        <ui:VisualElement name="slice-texture" style="flex-grow: 1; width: 10%; height: 100%; background-image: url(&quot;project://database/Assets/UI/RenderTextures/ChannelMapSliceTexture.renderTexture?fileID=8400000&amp;guid=9fb637ec95016ac4da5853a8aed61438&amp;type=2#ChannelMapSliceTexture&quot;);" />
+        <ui:VisualElement name="text-parent" style="flex-grow: 1; background-color: rgb(5, 5, 5); width: 60%; height: 100%;">
+            <ui:VisualElement style="flex-grow: 1; justify-content: flex-start; flex-direction: column-reverse;">
+                <ui:ListView name="text-items-list" virtualization-method="DynamicHeight" show-border="false" selection-type="None" show-alternating-row-backgrounds="None" style="flex-grow: 1; height: 100%;">
+                    <Bindings>
+                        <ui:DataBinding property="itemsSource" data-source-path="TextItems" binding-mode="ToTarget" />
+                    </Bindings>
+                </ui:ListView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

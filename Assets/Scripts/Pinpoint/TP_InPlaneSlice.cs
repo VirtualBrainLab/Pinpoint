@@ -243,6 +243,7 @@ probeWorldState =>
         _textX.text = formatted;
         _textY.text = formatted;
 
+        Debug.Log("Blit");
         Graphics.Blit(null, _inPlaneRenderTexture, _inPlaneSliceMaterial);
     }
 

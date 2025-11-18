@@ -1,16 +1,23 @@
 using BrainAtlas;
+using Pinpoint.CoordinateSystems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Models;
-using Models.Scene;
-using Services;
-using UI;
-using Unity.AppUI.MVVM;
-using Unity.AppUI.Redux;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Utils.Types;
+#if APP_UI
+using Models;
+using Models.Scene;
+using Models.Settings;
+using Services;
+using UI;
+using UI.ViewModels;
+using Unity.AppUI.MVVM;
+using Unity.AppUI.Redux;
+#endif
 
 public class ProbeUIManager : MonoBehaviour
 {
@@ -31,16 +38,12 @@ public class ProbeUIManager : MonoBehaviour
 
     private const int MINIMUM_AREA_PIXEL_HEIGHT = 7;
 
-    /// <summary>
-    /// Area that this probe goes through covering the most pixels
-    /// </summary>
     public string MaxArea { get; private set; }
 
     private void Awake()
     {
         Debug.Log("Adding puimanager: " + _order);
 
-        // initialize vars
         MaxArea = "";
 
         // Add the probePanel
@@ -54,10 +57,19 @@ public class ProbeUIManager : MonoBehaviour
 
         GameObject main = GameObject.Find("main");
 
-        // Set probe to be un-selected
         ProbeSelected(false);
 
         _probeManager.UIUpdateEvent.AddListener(UpdateUI);
+
+#if APP_UI
+        var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
+        var channelMapViewModel = PinpointApp.Services.GetRequiredService<ChannelMapViewModel>();
+
+        probePanel.OnTextDataChanged = (names, percentages) =>
+  {
+      channelMapViewModel.UpdateTextItems(names, percentages);
+  };
+#endif
     }
 
     private async void Start()
@@ -81,10 +93,6 @@ public class ProbeUIManager : MonoBehaviour
         return _electrodeBase.transform;
     }
 
-    /// <summary>
-    /// Update colors by pulling directly from Redux state.
-    /// This method retrieves the color from state and applies it to the UI.
-    /// </summary>
     public void UpdateColors()
     {
         UpdateUIManagerColor();
@@ -122,101 +130,39 @@ public class ProbeUIManager : MonoBehaviour
 
     private async void ProbedMovedHelper()
     {
-        // Make sure the annotations have been loaded
         await BrainAtlasManager.ActiveReferenceAtlas.AnnotationsTask;
         await _probeManager.ChannelMapTask;
 
-        // Get the height of the recording region, either we'll show it next to the regions, or we'll use it to restrict the display
         var channelCoords = _probeManager.GetChannelRangemm();
-        //ProbeInsertion insertion = _probeManager.ProbeController.Insertion;
 
-        // note: electrodeBase backward access is the probe's "up" axis
         Vector3 startCoordWorldT = _electrodeBase.transform.position + -_electrodeBase.transform.forward * channelCoords.startPosmm;
         Vector3 endCoordWorldT = _electrodeBase.transform.position + -_electrodeBase.transform.forward * channelCoords.endPosmm;
 
         Vector3 startCoordWorldU = BrainAtlasManager.WorldT2WorldU(startCoordWorldT, true);
         Vector3 endCoordWorldU = BrainAtlasManager.WorldT2WorldU(endCoordWorldT, true);
 
-        // TODO: add back in in the future
-
-        //List<int> mmTickPositions = new List<int>();
-        //List<int> tickIdxs = new List<int>();
-        //List<int> tickHeights = new List<int>(); // this will be calculated in the second step
-
-        // If we are only showing regions from the recording region, we need to offset the tip and end to be just the recording region
-        // we also want to save the mm tick positions
-
-        //List<int> mmPos = new List<int>();
-        //for (int i = Mathf.Max(1, Mathf.CeilToInt(channelCoords.startPosmm)); i <= Mathf.Min(9, Mathf.FloorToInt(channelCoords.endPosmm)); i++)
-        //    mmPos.Add(i); // this is the list of values we are going to have to assign a position to
-
-        //int idx = 0;
-        //for (int y = 0; y < probePanelPxHeight; y++)
-        //{
-        //    if (idx >= mmPos.Count)
-        //        break;
-
-        //    float um = channelCoords.startPosmm + (y / probePanelPxHeight) * channelCoords.recordingSizemm;
-        //    if (um >= mmPos[idx])
-        //    {
-        //        mmTickPositions.Add(y);
-        //        // We also need to keep track of *what* tick we are at with this position
-        //        // index 0 = 1000, 1 = 2000, ... 8 = 9000
-        //        tickIdxs.Add(9 - mmPos[idx]);
-
-        //        idx++;
-        //    }
-        //}
-
         Vector3 startAPMLDV = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(startCoordWorldU);
         Vector3 endAPMLDV = BrainAtlasManager.ActiveReferenceAtlas.World2AtlasIdx(endCoordWorldU);
 
-        // Interpolate from the tip to the top, putting this data into the probe panel texture
-        (List<int> boundaryHeights, List<int> centerHeights, List<string> names) = InterpolateAnnotationIDs(startAPMLDV, endAPMLDV);
+        (List<int> boundaryHeights, List<float> centerPercentages, List<string> names) = InterpolateAnnotationIDs(startAPMLDV, endAPMLDV);
 
-        // Get the percentage height along the probe
+        probePanel.SetTipData(startAPMLDV, endAPMLDV, 0, 1, channelCoords.recordingSizemm);
 
-        // Update probePanel data
-        probePanel.SetTipData(startAPMLDV, endAPMLDV, channelCoords.startPosmm / channelCoords.fullHeight, channelCoords.endPosmm / channelCoords.fullHeight, channelCoords.recordingSizemm);
-
-        //for (int y = 0; y < probePanelPxHeight; y++)
-        //{
-        //    // If the mm tick position matches with the position we're at, then add a depth line
-        //    //bool depthLine = mmTickPositions.Contains(y);
-
-        //    // We also want to check if we're at at height line, in which case we'll add a little tick on the right side
-        //    bool heightLine = boundaryHeights.Contains(y);
-
-        //    //if (depthLine)
-        //    //{
-        //    //    tickHeights.Add(y);
-        //    //}
-        //}
-
-        //probePanel.UpdateTicks(tickHeights, tickIdxs);
-        probePanel.UpdateText(centerHeights, names, Settings.UseAcronyms ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
+#if APP_UI
+        probePanel.UpdateText(new List<int>(), names, Settings.UseAcronyms ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
+#else
+        List<int> centerHeights = centerPercentages.Select(perc => Mathf.RoundToInt(perc * probePanelPxHeight)).ToList();
+     probePanel.UpdateText(centerHeights, names, Settings.UseAcronyms ? ProbeProperties.FONT_SIZE_ACRONYM : ProbeProperties.FONT_SIZE_AREA);
+#endif
     }
 
-    /// <summary>
-    /// Compute the annotation acronyms/names along a vector from tipPosition to topPosition, saving the pixel positions and center points of each area
-    /// 
-    /// This function ignores areas where the area height is less than X pixels (defined above)
-    /// </summary>
-    /// <param name="tipIdxWorldT"></param>
-    /// <param name="topIdxWorldT"></param>
-    /// <returns></returns>
-    private (List<int>, List<int>, List<string>) InterpolateAnnotationIDs(Vector3 tipIdxWorldT, Vector3 topIdxWorldT)
+    private (List<int>, List<float>, List<string>) InterpolateAnnotationIDs(Vector3 tipIdxWorldT, Vector3 topIdxWorldT)
     {
-        // pixel height at which changes happen
         List<int> areaPositionPixels = new();
-        // pixel count for each area
         List<int> areaHeightPixels = new();
-        // area IDs
         List<int> areaIDs = new();
-        // string name
         List<string> areaNames = new();
-        // center position of each area
-        List<int> centerHeightsPixels = new();
+        List<float> centerPercentages = new();
 
         int prevID = int.MinValue;
         for (int i = 0; i < probePanelPxHeight; i++)
@@ -224,23 +170,22 @@ public class ProbeUIManager : MonoBehaviour
             float perc = i / (probePanelPxHeight - 1);
             Vector3 interpolatedIdxWorldT = Vector3.Lerp(tipIdxWorldT, topIdxWorldT, perc);
             int ID = BrainAtlasManager.ActiveReferenceAtlas.GetAnnotationIdx(interpolatedIdxWorldT);
-            // convert to Beryl ID (if modelControl is set to do that)
             ID = BrainAtlasManager.ActiveReferenceAtlas.Ontology.RemapID_NoLayers(ID);
 
             if (ID != prevID)
             {
-                // We have arrived at a new area, get the name and height
                 areaPositionPixels.Add(i);
                 areaIDs.Add(ID);
                 if (Settings.UseAcronyms)
                     areaNames.Add(BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(ID));
                 else
                     areaNames.Add(BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(ID));
-                // Now compute the center height for the *previous* area, and the pixel height
+
                 int curIdx = areaPositionPixels.Count - 1;
                 if (curIdx >= 1)
                 {
-                    centerHeightsPixels.Add(Mathf.RoundToInt((areaPositionPixels[curIdx - 1] + areaPositionPixels[curIdx]) / 2f));
+                    int centerPixel = Mathf.RoundToInt((areaPositionPixels[curIdx - 1] + areaPositionPixels[curIdx]) / 2f);
+                    centerPercentages.Add(centerPixel / (float)probePanelPxHeight);
                     areaHeightPixels.Add(areaPositionPixels[curIdx] - areaPositionPixels[curIdx - 1]);
                 }
 
@@ -248,34 +193,28 @@ public class ProbeUIManager : MonoBehaviour
             }
         }
 
-        // The top region (last) will be missing it's center height and area height, so compute those now
         if (areaPositionPixels.Count > 0)
         {
-            centerHeightsPixels.Add(Mathf.RoundToInt((areaPositionPixels[areaPositionPixels.Count - 1] + probePanelPxHeight) / 2f));
+            int lastCenterPixel = Mathf.RoundToInt((areaPositionPixels[areaPositionPixels.Count - 1] + probePanelPxHeight) / 2f);
+            centerPercentages.Add(lastCenterPixel / (float)probePanelPxHeight);
             areaHeightPixels.Add(Mathf.RoundToInt(probePanelPxHeight - areaPositionPixels[areaPositionPixels.Count - 1]));
         }
 
-        // If there is only one value in the heights array, pixelHeight will be empty
-        // Also find the area with the maximum pixel height
         int maxAreaID = 0;
         int maxPixelHeight = 0;
         if (areaHeightPixels.Count > 0)
         {
-            // Remove any areas where heights < MINIMUM_AREA_PIXEL_HEIGHT
             for (int i = areaPositionPixels.Count - 1; i >= 0; i--)
             {
-                // Get the max area, ignoring "-"
-                // This is safe to do even though we remove areas afterward, because we are going backwards through the list
                 if (areaHeightPixels[i] > maxPixelHeight && areaIDs[i] > 0)
                 {
                     maxPixelHeight = areaHeightPixels[i];
                     maxAreaID = areaIDs[i];
                 }
-                // Remove areas that are too small
                 if (areaHeightPixels[i] < MINIMUM_AREA_PIXEL_HEIGHT)
                 {
                     areaPositionPixels.RemoveAt(i);
-                    centerHeightsPixels.RemoveAt(i);
+                    centerPercentages.RemoveAt(i);
                     areaIDs.RemoveAt(i);
                 }
             }
@@ -285,9 +224,9 @@ public class ProbeUIManager : MonoBehaviour
 
         areaNames = Settings.UseAcronyms ?
             areaIDs.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Acronym(x)) :
-            areaIDs.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(x));
+              areaIDs.ConvertAll(x => BrainAtlasManager.ActiveReferenceAtlas.Ontology.ID2Name(x));
 
-        return (areaPositionPixels, centerHeightsPixels, areaNames);
+        return (areaPositionPixels, centerPercentages, areaNames);
     }
 
     public void ProbeSelected(bool selected)
@@ -296,28 +235,21 @@ public class ProbeUIManager : MonoBehaviour
         UpdateUIManagerColor();
     }
 
-    /// <summary>
-    /// Update the UI manager color by pulling the probe color from Redux state.
-    /// Computes default and selected colors with appropriate alpha values on demand.
-    /// </summary>
     private void UpdateUIManagerColor()
     {
 #if APP_UI
-        // Get color from Redux state
         var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
         var sceneState = storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
         var probeState = sceneState.Probes.FirstOrDefault(p => p.Name == _probeManager.name);
 
         if (probeState != null)
         {
-            // Compute colors from state with appropriate alpha values
             Color defaultColor = probeState.ColorValue;
             defaultColor.a = 0.5f;
 
             Color selectedColor = probeState.ColorValue;
             selectedColor.a = 0.75f;
 
-            // Apply the appropriate color
             var imageComponent = probePanelGO.GetComponent<Image>();
             if (imageComponent != null)
             {
@@ -325,17 +257,16 @@ public class ProbeUIManager : MonoBehaviour
             }
         }
 #else
-    // Fallback for non-APP_UI builds - get color from ProbeManager
-    Color defaultColor = _probeManager.Color;
+        Color defaultColor = _probeManager.Color;
         defaultColor.a = 0.5f;
 
-        Color selectedColor = _probeManager.Color;
-  selectedColor.a = 0.75f;
+   Color selectedColor = _probeManager.Color;
+        selectedColor.a = 0.75f;
 
         var imageComponent = probePanelGO.GetComponent<Image>();
         if (imageComponent != null)
-   {
-     imageComponent.color = _selected ? selectedColor : defaultColor;
+        {
+            imageComponent.color = _selected ? selectedColor : defaultColor;
         }
 #endif
     }

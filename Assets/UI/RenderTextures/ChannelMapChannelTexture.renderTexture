@@ -6,14 +6,14 @@ RenderTexture:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: InplaneSliceRenderTexture
+  m_Name: ChannelMapChannelTexture
   m_ImageContentsHash:
     serializedVersion: 2
     Hash: 00000000000000000000000000000000
   m_IsAlphaChannelOptional: 0
   serializedVersion: 6
-  m_Width: 1024
-  m_Height: 1024
+  m_Width: 30
+  m_Height: 1600
   m_AntiAliasing: 1
   m_MipCount: -1
   m_DepthStencilFormat: 0

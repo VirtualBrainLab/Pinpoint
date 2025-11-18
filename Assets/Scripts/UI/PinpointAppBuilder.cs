@@ -37,6 +37,9 @@ namespace UI
             builder.services.AddSingleton<MainViewModel>();
             builder.services.AddSingleton<SceneViewModel>();
             builder.services.AddSingleton<AtlasViewModel>();
+#if APP_UI
+            builder.services.AddSingleton<ChannelMapViewModel>();
+#endif
 
             builder.services.AddSingleton<SettingsViewModel>();
             builder.services.AddSingleton<ProbeViewModel>();
@@ -52,6 +55,9 @@ namespace UI
             builder.services.AddSingleton<MainView>();
             builder.services.AddSingleton<SceneView>();
             builder.services.AddSingleton<AtlasView>();
+#if APP_UI
+            builder.services.AddSingleton<ChannelMapView>();
+#endif
 
             builder.services.AddSingleton<SettingsView>();
             builder.services.AddSingleton<ProbeView>();

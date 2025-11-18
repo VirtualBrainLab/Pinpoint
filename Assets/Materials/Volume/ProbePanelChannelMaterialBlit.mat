@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-3048593683369358098
+--- !u!114 &-6100422827257855546
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: InPlaneSliceMaterialBlit
-  m_Shader: {fileID: -6465566751694194690, guid: 5f46e1fe0244d454eb819a99fc585c50, type: 3}
+  m_Name: ProbePanelChannelMaterialBlit
+  m_Shader: {fileID: -6465566751694194690, guid: 74fd3798513464b47bc1f6f854bba353, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -37,7 +37,7 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _AnnotationVolume:
+    - _AnnotationTexture:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -46,6 +46,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ChannelTexture:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -85,10 +89,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Volume:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -103,8 +103,6 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - Vector1_c0cb41ca4a6b4353b91a287d91d1bfff: 0
-    - Vector1_ca935d91430c4e03b1d039dc4662e3b4: 70
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 1
@@ -115,8 +113,8 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EndPerc: 1
     - _EnvironmentReflections: 1
-    - _FourShankProbe: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -126,34 +124,25 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _RecordingRegionSize: 0
-    - _Scale: 1
-    - _ShankSpacing: 0
-    - _ShankWidth: 70
+    - _RecordingHeight: 3.82
+    - _RecordingRegionOnly: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
-    - _TwoShankProbe: 0
+    - _TipPerc: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - Vector3_7e5419b2387542f698e13a179865077e: {r: 0, g: 0, b: 1, a: 0}
-    - Vector3_e326a2bd2702490d86bb3ae76c501984: {r: 0, g: 0.3333, b: 0, a: 0}
-    - Vector3_fc8b1fbd877440bd91d0b9562df31db3: {r: 0, g: -1, b: 0, a: 0}
+    - _AnnotationDimensions: {r: 528, g: 456, b: 320, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _CenterOffset: {r: 0, g: 0.3333, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ForwardDirection: {r: 0, g: 0, b: 0, a: 0}
-    - _LeftDirection: {r: 1, g: 0, b: 0, a: 0}
-    - _RecordingRegionCenterPosition: {r: 239.02321, g: 228, b: 144.9756, a: 0}
-    - _RightDirection: {r: 1, g: 0, b: 0, a: 0}
-    - _Scale: {r: 200, g: 200, b: 4.5, a: 0}
+    - _EndPosition: {r: 0, g: 0, b: 0, a: 0}
+    - _EndPositionIdx: {r: 248, g: 228, b: -28.071136, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _TipPosition: {r: 0, g: 0, b: 0, a: 0}
-    - _UpDirection: {r: 0, g: 0, b: 0, a: 0}
-    - _VolumeSize: {r: 528, g: 456, b: 320, a: 0}
+    - _TipPositionIdx: {r: 248.00002, g: 228, b: 124.72887, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
