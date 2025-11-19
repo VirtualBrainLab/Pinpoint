@@ -899,17 +899,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a0c57925ee59dae4ebf1f78ba70837a6, type: 3}
---- !u!114 &672548778 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 341190944544068814, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
-  m_PrefabInstance: {fileID: 341190943874437988}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfcc216c6ab3ac9488f4d3ac691046a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &698998060 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8278374878278529525, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -926,6 +915,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e18c83e22ae60f40850fe035189d72d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!23 &736498414 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 341190944529771625, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &737064805 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1305194876242168903, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -1175,6 +1169,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _slider: {fileID: 0}
+--- !u!1 &953044663
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 953044665}
+  - component: {fileID: 953044664}
+  m_Layer: 0
+  m_Name: InPlaneGO
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &953044664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953044663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfcc216c6ab3ac9488f4d3ac691046a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tpmanager: {fileID: 2108153954}
+  _inPlaneSliceUigo: {fileID: 1074412277}
+  _areaText: {fileID: 1836518113}
+  _textX: {fileID: 871760447}
+  _textY: {fileID: 267608534}
+  _gpuSliceRenderer: {fileID: 736498414}
+  _inPlaneRenderTexture: {fileID: 8400000, guid: 9beef1ab54490be479f2c8ee9a66ddca, type: 2}
+  _inPlaneSliceMaterial: {fileID: 2100000, guid: e0fa5368cd569c345ba1776cffe67690, type: 2}
+  texture: {fileID: 0}
+--- !u!4 &953044665
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953044663}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.34903, y: -1.78085, z: -1.81331}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &977101033
 GameObject:
   m_ObjectHideFlags: 0
@@ -1292,6 +1339,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1074412277 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 341190944544068802, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1109860752 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1661132737403472946, guid: ee09154d7a7870a419882ff36080d765, type: 3}
@@ -2510,6 +2562,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6303905374185656496, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
   m_PrefabInstance: {fileID: 341190943874437988}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1836518113 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 341190943836035197, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+  m_PrefabInstance: {fileID: 341190943874437988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!65 &1859818792 stripped
 BoxCollider:
   m_CorrespondingSourceObject: {fileID: 1302158968859411075, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
@@ -8424,6 +8487,7 @@ PrefabInstance:
     - {fileID: 8649147448947455835, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
     - {fileID: 1637516853093665570, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
     - {fileID: 5307452257076023902, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
+    - {fileID: 341190944544068814, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
     m_RemovedGameObjects:
     - {fileID: 341190944239140889, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
     - {fileID: 7654437319185297488, guid: 94cdeca105038d74ea47b57e6b99eb4e, type: 3}
@@ -8535,7 +8599,7 @@ PrefabInstance:
     - target: {fileID: 1302158967915866754, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: inPlaneSlice
       value: 
-      objectReference: {fileID: 672548778}
+      objectReference: {fileID: 0}
     - target: {fileID: 1302158967915866754, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: modelControl
       value: 
@@ -8547,7 +8611,7 @@ PrefabInstance:
     - target: {fileID: 1302158967915866754, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: _inPlaneSlice
       value: 
-      objectReference: {fileID: 672548778}
+      objectReference: {fileID: 0}
     - target: {fileID: 1302158967915866754, guid: 734f6254569c01842b9d2e2ff1b1d7ae, type: 3}
       propertyPath: _modelControl
       value: 
@@ -9753,11 +9817,11 @@ PrefabInstance:
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ShowInPlaneChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 672548778}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: ShowInPlaneChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 672548778}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620337, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: Slice3DChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: ToggleSliceVisibility
@@ -10797,7 +10861,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: inPlaneSlice
       value: 
-      objectReference: {fileID: 672548778}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _atlasManager
       value: 
@@ -10809,7 +10873,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _inPlaneSlice
       value: 
-      objectReference: {fileID: 672548778}
+      objectReference: {fileID: 953044664}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _modelControl
       value: 
@@ -10925,7 +10989,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _probePanelParentGo
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 873744844}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _probeQuickSettings
       value: 
@@ -11249,7 +11313,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 672548778}
+      objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: _activeProbeChangedEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -11457,7 +11521,7 @@ PrefabInstance:
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 672548778}
+      objectReference: {fileID: 953044664}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
@@ -11572,7 +11636,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: TP_InPlaneSlice, trajectoryplanner.core
+      value: TP_InPlaneSlice, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 8016510558008620343, guid: 482bfae3ba88b424e96d7fcd669f7b73, type: 3}
       propertyPath: StartupEvent_AnnotationTextureLoaded.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
@@ -12045,3 +12109,4 @@ SceneRoots:
   - {fileID: 9130107592048835190}
   - {fileID: 2439981618345730369}
   - {fileID: 873744845}
+  - {fileID: 953044665}

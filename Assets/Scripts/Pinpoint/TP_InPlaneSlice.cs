@@ -64,47 +64,44 @@ public class TP_InPlaneSlice : MonoBehaviour
         _inPlaneSliceMaterial.SetVector("_VolumeSize", shape);
     }
 
-#if APP_UI
     private void Start()
     {
-#if APP_UI
         _storeService = PinpointApp.Services.GetRequiredService<StoreService>();
-#endif
 
         _probeWorldStateSubscription = _storeService.Store.Subscribe(
-     state =>
+            state =>
             {
                 var sceneState = state.Get<SceneState>(SliceNames.SCENE_SLICE);
                 var probeWorldSlice = state.Get<ProbeWorldStateSlice>(SliceNames.PROBE_WORLD_SLICE);
                 return probeWorldSlice.GetProbeWorldState(sceneState.ActiveProbeName);
             },
-probeWorldState =>
-  {
-      _cachedProbeWorldState = probeWorldState;
-      UpdateInPlaneSlice();
-  },
+            probeWorldState =>
+            {
+                _cachedProbeWorldState = probeWorldState;
+                UpdateInPlaneSlice();
+            },
             new SubscribeOptions<ProbeWorldState> { fireImmediately = true }
-    );
+        );
 
         _activeProbeStateSubscription = _storeService.Store.Subscribe(
             state =>
-      {
-          var sceneState = state.Get<SceneState>(SliceNames.SCENE_SLICE);
-          return sceneState.Probes.Find(p => p.Name == sceneState.ActiveProbeName);
-      },
-        probeState =>
-           {
-               _cachedActiveProbeState = probeState;
-               UpdateInPlaneSlice();
-           },
+            {
+                var sceneState = state.Get<SceneState>(SliceNames.SCENE_SLICE);
+                return sceneState.Probes.Find(p => p.Name == sceneState.ActiveProbeName);
+            },
+            probeState =>
+            {
+                _cachedActiveProbeState = probeState;
+                UpdateInPlaneSlice();
+            },
             new SubscribeOptions<ProbeState> { fireImmediately = true }
-       );
+        );
 
         _settingsStateSubscription = _storeService.Store.Subscribe(
-      state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE).inPlaneZoom,
-    UpdateZoom,
-  new SubscribeOptions<int> { fireImmediately = true }
-    );
+            state => state.Get<SettingsState>(SliceNames.SETTINGS_SLICE).inPlaneZoom,
+            UpdateZoom,
+            new SubscribeOptions<int> { fireImmediately = true }
+        );
     }
 
     private void OnDestroy()
@@ -113,7 +110,6 @@ probeWorldState =>
         _activeProbeStateSubscription?.Dispose();
         _settingsStateSubscription?.Dispose();
     }
-#endif
 
     private void ResetRendererParameters()
     {
@@ -242,7 +238,6 @@ probeWorldState =>
         _textX.text = formatted;
         _textY.text = formatted;
 
-        Debug.Log("Blit");
         Graphics.Blit(null, _inPlaneRenderTexture, _inPlaneSliceMaterial);
     }
 
