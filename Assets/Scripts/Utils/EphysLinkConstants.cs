@@ -6,8 +6,8 @@ namespace Utils
     public static class EphysLinkConstants
     {
         public const int EPHYS_LINK_MIN_VERSION_MAJOR = 2;
-        public const int EPHYS_LINK_MIN_VERSION_MINOR = 1;
-        public const int EPHYS_LINK_MIN_VERSION_PATCH = 3;
+        public const int EPHYS_LINK_MIN_VERSION_MINOR = 2;
+        public const int EPHYS_LINK_MIN_VERSION_PATCH = 1;
 
         public static readonly string EphysLinkMinVersion =
             $"{EPHYS_LINK_MIN_VERSION_MAJOR}.{EPHYS_LINK_MIN_VERSION_MINOR}.{EPHYS_LINK_MIN_VERSION_PATCH}";
