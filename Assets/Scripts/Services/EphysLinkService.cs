@@ -573,17 +573,15 @@ namespace Services
         // Cancels and disposes the visualization update loop.
         private void StopVisualizationLoop()
         {
-            if (_visualizationLoopCts != null)
+            if (_visualizationLoopCts == null) return;
+            try { _visualizationLoopCts.Cancel(); }
+            catch (ObjectDisposedException) { /* ignore disposed */ }
+            catch (Exception ex)
             {
-                try { _visualizationLoopCts.Cancel(); }
-                catch (ObjectDisposedException) { /* ignore disposed */ }
-                catch (Exception ex)
-                {
-                    Debug.Log($"Ignored exception during visualization loop cancellation: {ex}");
-                }
-                _visualizationLoopCts.Dispose();
-                _visualizationLoopCts = null;
+                Debug.Log($"Ignored exception during visualization loop cancellation: {ex}");
             }
+            _visualizationLoopCts.Dispose();
+            _visualizationLoopCts = null;
         }
 
         // The loop body calling UpdateVisualizationProbePosition at a fixed interval.
@@ -605,6 +603,7 @@ namespace Services
                     Debug.LogWarning($"Visualization update loop error: {ex.Message}");
                 }
 
+                // Update delay.
                 try
                 {
                     await Task.Delay(VISUALIZATION_UPDATE_INTERVAL_MS, token);
