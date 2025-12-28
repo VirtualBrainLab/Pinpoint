@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -90,7 +91,7 @@ probeWorldState =>
          state =>
    {
    var sceneState = state.Get<SceneState>(SliceNames.SCENE_SLICE);
-         return sceneState.Probes.Find(p => p.Name == sceneState.ActiveProbeName);
+         return sceneState.Probes.FirstOrDefault(p => p.Name == sceneState.ActiveProbeName);
      },
      probeState =>
         {

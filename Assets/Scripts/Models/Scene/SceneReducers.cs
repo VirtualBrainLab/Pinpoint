@@ -14,9 +14,10 @@ namespace Models.Scene
 
         public static SceneState AddProbeReducer(SceneState state, IAction<ProbeType> action)
         {
-            var newProbesList = state.Probes.ToList();
-            newProbesList.Add(new ProbeState { ProbeType = action.payload });
-            return state with { Probes = newProbesList };
+            var newProbes = new ProbeState[state.Probes.Length + 1];
+            Array.Copy(state.Probes, newProbes, state.Probes.Length);
+            newProbes[state.Probes.Length] = new ProbeState { ProbeType = action.payload };
+            return state with { Probes = newProbes };
         }
 
         public static SceneState AddVisualizationProbeReducer(
@@ -24,28 +25,28 @@ namespace Models.Scene
             IAction<(string ManipulatorId, string ProbeName, ProbeType ProbeType)> action
         )
         {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.ManipulatorId);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.ManipulatorId);
             if (index == -1)
                 return state;
-            var newManipulatorsList = state.Manipulators.ToList();
-            newManipulatorsList[index] = newManipulatorsList[index] with
+
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 VisualizationProbeName = action.payload.ProbeName,
             };
 
-            var newProbesList = state.Probes.ToList();
-            newProbesList.Add(
-                new ProbeState
-                {
-                    Name = action.payload.ProbeName,
-                    ProbeType = action.payload.ProbeType,
-                }
-            );
+            var newProbes = new ProbeState[state.Probes.Length + 1];
+            Array.Copy(state.Probes, newProbes, state.Probes.Length);
+            newProbes[state.Probes.Length] = new ProbeState
+            {
+                Name = action.payload.ProbeName,
+                ProbeType = action.payload.ProbeType,
+            };
 
             return state with
             {
-                Probes = newProbesList,
-                Manipulators = newManipulatorsList,
+                Manipulators = newManipulators,
+                Probes = newProbes,
             };
         }
 
@@ -58,21 +59,19 @@ namespace Models.Scene
             if (probeToDuplicate == null)
                 return state; // If not found, return the state unchanged.
 
-            // Create a copy of the probes list
-            var newProbesList = state.Probes.ToList();
-
             // Create a new probe with a new UUID but same properties as the original.
             var duplicatedProbe = probeToDuplicate with
             {
                 Name = Guid.NewGuid().ToString(),
             };
 
-            // Add the duplicated probe to the list.
-            newProbesList.Add(duplicatedProbe);
+            var newProbes = new ProbeState[state.Probes.Length + 1];
+            Array.Copy(state.Probes, newProbes, state.Probes.Length);
+            newProbes[state.Probes.Length] = duplicatedProbe;
 
             return state with
             {
-                Probes = newProbesList,
+                Probes = newProbes,
             };
         }
 
@@ -85,15 +84,15 @@ namespace Models.Scene
         public static SceneState RemoveProbeReducer(SceneState state, IAction<string> action)
         {
             // Remove all probes with the specified UUID.
-            var newProbesList = state.Probes.ToList();
+            var newProbesList = state.Probes.Where(probeState => probeState.Name != action.payload).ToArray();
 
             // If no probes were removed, return the state unchanged.
-            if (newProbesList.RemoveAll(probeState => probeState.Name == action.payload) == 0)
+            if (newProbesList.Length == state.Probes.Length)
                 return state;
 
             // Erase the visualization probe reference in manipulators if it points to the removed probe.
-            var newManipulatorsList = state.Manipulators.ToList();
-            for (var i = 0; i < newManipulatorsList.Count; i++)
+            var newManipulatorsList = (ManipulatorState[])state.Manipulators.Clone();
+            for (var i = 0; i < newManipulatorsList.Length; i++)
                 if (newManipulatorsList[i].VisualizationProbeName == action.payload)
                     newManipulatorsList[i] = newManipulatorsList[i] with
                     {
@@ -104,6 +103,7 @@ namespace Models.Scene
             return state with
             {
                 Probes = newProbesList,
+                Manipulators = newManipulatorsList,
                 ActiveProbeName =
                     state.ActiveProbeName == action.payload ? string.Empty : state.ActiveProbeName,
             };
@@ -114,15 +114,10 @@ namespace Models.Scene
             IAction action
         )
         {
-            var newProbesList = state.Probes.ToList();
-            var nonVisualizationProbeList = newProbesList.Where(probeState =>
-                !state.Manipulators.Exists(manipulatorState =>
-                    manipulatorState.VisualizationProbeName == probeState.Name
-                )
-            );
+            var newProbesList = state.Probes.Where(probeState => state.Manipulators.All(manipulatorState => manipulatorState.VisualizationProbeName != probeState.Name)).ToArray();
 
-            var newManipulatorsList = state.Manipulators.ToList();
-            for (var i = 0; i < newManipulatorsList.Count; i++)
+            var newManipulatorsList = (ManipulatorState[])state.Manipulators.Clone();
+            for (var i = 0; i < newManipulatorsList.Length; i++)
                 newManipulatorsList[i] = newManipulatorsList[i] with
                 {
                     VisualizationProbeName = string.Empty,
@@ -130,7 +125,7 @@ namespace Models.Scene
 
             return state with
             {
-                Probes = nonVisualizationProbeList.ToList(),
+                Probes = newProbesList,
                 Manipulators = newManipulatorsList,
             };
         }
@@ -144,7 +139,7 @@ namespace Models.Scene
             IAction<List<ManipulatorState>> action
         )
         {
-            return state with { Manipulators = action.payload, ActiveManipulatorId = "" };
+            return state with { Manipulators = action.payload.ToArray(), ActiveManipulatorId = "" };
         }
 
         #endregion
@@ -154,19 +149,22 @@ namespace Models.Scene
         public static SceneState SetActiveProbeReducer(SceneState state, IAction<string> action)
         {
             // If not found, return the state unchanged.
-            if (!state.Probes.Exists(probe => probe.Name == action.payload))
+            if (state.Probes.All(probe => probe.Name != action.payload))
                 return state;
 
-            // Set opaque/transparent display for probes based on active probe.
-            var probesCopy = state.Probes.ToList();
-            for (var i = 0; i < state.Probes.Count; i++)
-            {
-                var probeState = state.Probes[i];
+            // Build a set of visualization probe names for O(1) lookup
+            var vizProbeNames = state.Manipulators
+                .Select(m => m.VisualizationProbeName)
+                .Where(name => !string.IsNullOrEmpty(name))
+                .ToHashSet();
 
-                // Make visualization probe transparent.
-                var isVisualizationProbe = state.Manipulators.Exists(manipulatorState =>
-                    manipulatorState.VisualizationProbeName == probeState.Name
-                );
+            // Set opaque/transparent display for probes based on active probe.
+            var probesCopy = (ProbeState[])state.Probes.Clone();
+            for (var i = 0; i < probesCopy.Length; i++)
+            {
+                var probeState = probesCopy[i];
+                var isVisualizationProbe = vizProbeNames.Contains(probeState.Name);
+
                 probesCopy[i] = probeState with
                 {
                     ProbeDisplayType =
@@ -191,24 +189,29 @@ namespace Models.Scene
         )
         {
             // If not found, return the state unchanged.
-            if (!state.Manipulators.Exists(manipulator => manipulator.Id == action.payload))
+            if (state.Manipulators.All(manipulator => manipulator.Id != action.payload))
                 return state;
 
             // Precompute the active manipulator's visualization probe name for efficiency.
             var activeVisualizationProbeName = state.Manipulators.First(m => m.Id == action.payload)
                 .VisualizationProbeName;
 
-            // Set opaque/transparent display for probes based on active manipulator.
-            var probesCopy = state.Probes.ToList();
-            for (var i = 0; i < state.Probes.Count; i++)
-            {
-                var probeState = state.Probes[i];
+            // Build a set of visualization probe names for O(1) lookup
+            var vizProbeNames = state.Manipulators
+                .Select(m => m.VisualizationProbeName)
+                .Where(name => !string.IsNullOrEmpty(name))
+                .ToHashSet();
 
-                // Use Exists to check whether this probe is a visualization probe and set display type with a single ternary.
+            // Set opaque/transparent display for probes based on active manipulator.
+            var probesCopy = (ProbeState[])state.Probes.Clone();
+            for (var i = 0; i < probesCopy.Length; i++)
+            {
+                var probeState = probesCopy[i];
+                var isVisualizationProbe = vizProbeNames.Contains(probeState.Name);
+
                 probesCopy[i] = probeState with
                 {
-                    ProbeDisplayType = state.Manipulators.Exists(manipulatorState =>
-                            manipulatorState.VisualizationProbeName == probeState.Name)
+                    ProbeDisplayType = isVisualizationProbe
                         ? (activeVisualizationProbeName == probeState.Name
                             ? ProbeDisplayType.Opaque
                             : ProbeDisplayType.Transparent)
@@ -235,24 +238,21 @@ namespace Models.Scene
         )
         {
             // Find the index of the target probe.
-            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+            var index = Array.FindIndex(state.Probes, probe => probe.Name == action.payload.Name);
 
             // Exit if the probe is not found.
             if (index == -1)
                 return state;
 
-            // Create a copy of the probes list
-            var probesCopy = state.Probes.ToList();
-
-            // Update the probe immutably using the `with` expression
-            probesCopy[index] = probesCopy[index] with
+            var newProbes = (ProbeState[])state.Probes.Clone();
+            newProbes[index] = state.Probes[index] with
             {
                 APMLDV = action.payload.APMLDV,
             };
 
             return state with
             {
-                Probes = probesCopy,
+                Probes = newProbes,
             };
         }
 
@@ -262,17 +262,14 @@ namespace Models.Scene
         )
         {
             // Find the index of the target probe.
-            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+            var index = Array.FindIndex(state.Probes, probe => probe.Name == action.payload.Name);
 
             // Exit if the probe is not found.
             if (index == -1)
                 return state;
 
-            // Create a copy of the probes list
-            var probesCopy = state.Probes.ToList();
-
-            // Update the probe immutably using the `with` expression
-            probesCopy[index] = probesCopy[index] with
+            var newProbes = (ProbeState[])state.Probes.Clone();
+            newProbes[index] = state.Probes[index] with
             {
                 APMLDV =
                     action.payload.SurfaceAPMLDV + action.payload.ForwardT * action.payload.Depth,
@@ -280,7 +277,7 @@ namespace Models.Scene
 
             return state with
             {
-                Probes = probesCopy,
+                Probes = newProbes,
             };
         }
 
@@ -290,14 +287,11 @@ namespace Models.Scene
         )
         {
             // Find the index of the target probe.
-            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+            var index = Array.FindIndex(state.Probes, probe => probe.Name == action.payload.Name);
 
             // Exit if the probe is not found.
             if (index == -1)
                 return state;
-
-            // Create a copy of the probes list
-            var probesCopy = state.Probes.ToList();
 
             var pitchClampedAngles = action.payload.Angles;
             pitchClampedAngles.y = Mathf.Clamp(
@@ -306,15 +300,15 @@ namespace Models.Scene
                 action.payload.PitchRange.y
             );
 
-            // Update the probe immutably using the `with` expression
-            probesCopy[index] = probesCopy[index] with
+            var newProbes = (ProbeState[])state.Probes.Clone();
+            newProbes[index] = state.Probes[index] with
             {
                 Angles = pitchClampedAngles,
             };
 
             return state with
             {
-                Probes = probesCopy,
+                Probes = newProbes,
             };
         }
 
@@ -331,14 +325,11 @@ namespace Models.Scene
         )
         {
             // Find the index of the target probe.
-            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+            var index = Array.FindIndex(state.Probes, probe => probe.Name == action.payload.Name);
 
             // Exit if the probe is not found.
             if (index == -1)
                 return state;
-
-            // Create a copy of the probes list
-            var probesCopy = state.Probes.ToList();
 
             var pitchClampedAngles = action.payload.Angles;
             pitchClampedAngles.y = Mathf.Clamp(
@@ -347,8 +338,8 @@ namespace Models.Scene
                 action.payload.PitchRange.y
             );
 
-            // Update the probe immutably using the `with` expression
-            probesCopy[index] = probesCopy[index] with
+            var newProbes = (ProbeState[])state.Probes.Clone();
+            newProbes[index] = state.Probes[index] with
             {
                 APMLDV =
                     action.payload.SurfaceAPMLDV + action.payload.ForwardT * action.payload.Depth,
@@ -357,7 +348,7 @@ namespace Models.Scene
 
             return state with
             {
-                Probes = probesCopy,
+                Probes = newProbes,
             };
         }
 
@@ -375,12 +366,12 @@ namespace Models.Scene
             > action
         )
         {
-            var probesCopy = state.Probes.ToList();
+            var probesCopy = (ProbeState[])state.Probes.Clone();
 
             foreach (var request in action.payload)
             {
                 // Find the index of the target probe.
-                var index = state.Probes.FindIndex(probe => probe.Name == request.Name);
+                var index = Array.FindIndex(state.Probes, probe => probe.Name == request.Name);
 
                 // Exit if the probe is not found.
                 if (index == -1)
@@ -394,7 +385,7 @@ namespace Models.Scene
                 );
 
                 // Update the probe immutably using the `with` expression
-                probesCopy[index] = probesCopy[index] with
+                probesCopy[index] = state.Probes[index] with
                 {
                     APMLDV = request.SurfaceAPMLDV + request.ForwardT * request.Depth,
                     Angles = pitchClampedAngles,
@@ -413,27 +404,24 @@ namespace Models.Scene
         )
         {
             // Find the index of the target probe.
-            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+            var index = Array.FindIndex(state.Probes, probe => probe.Name == action.payload.Name);
 
             // Exit if the probe is not found.
             if (index == -1)
                 return state;
 
-            // Create a copy of the probes list
-            var probesCopy = state.Probes.ToList();
-
-            // Update the probe immutably using the `with` expression
-            probesCopy[index] = probesCopy[index] with
+            var newProbes = (ProbeState[])state.Probes.Clone();
+            newProbes[index] = state.Probes[index] with
             {
                 APMLDV =
-                    probesCopy[index].APMLDV
+                    state.Probes[index].APMLDV
                     + action.payload.APMLDV
                     + action.payload.ForwardT * action.payload.Depth,
             };
 
             return state with
             {
-                Probes = probesCopy,
+                Probes = newProbes,
             };
         }
 
@@ -443,14 +431,11 @@ namespace Models.Scene
         )
         {
             // Find the index of the target probe.
-            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+            var index = Array.FindIndex(state.Probes, probe => probe.Name == action.payload.Name);
 
             // Exit if the probe is not found.
             if (index == -1)
                 return state;
-
-            // Create a copy of the probes list
-            var probesCopy = state.Probes.ToList();
 
             var pitchClampedAngles = action.payload.Angles;
             pitchClampedAngles.y = Mathf.Clamp(
@@ -459,15 +444,15 @@ namespace Models.Scene
                 action.payload.PitchRange.y
             );
 
-            // Update the probe immutably using the `with` expression
-            probesCopy[index] = probesCopy[index] with
+            var newProbes = (ProbeState[])state.Probes.Clone();
+            newProbes[index] = state.Probes[index] with
             {
-                Angles = probesCopy[index].Angles + pitchClampedAngles,
+                Angles = state.Probes[index].Angles + pitchClampedAngles,
             };
 
             return state with
             {
-                Probes = probesCopy,
+                Probes = newProbes,
             };
         }
 
@@ -477,42 +462,41 @@ namespace Models.Scene
         )
         {
             // Find the index of the target probe.
-            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+            var index = Array.FindIndex(state.Probes, probe => probe.Name == action.payload.Name);
 
             // Exit if the probe is not found.
             if (index == -1)
                 return state;
 
-            // Create a copy of the probes list
-            var probesCopy = state.Probes.ToList();
-
-            // Update the probe immutably using the `with` expression
-            probesCopy[index] = probesCopy[index] with
+            var newProbes = (ProbeState[])state.Probes.Clone();
+            newProbes[index] = state.Probes[index] with
             {
                 Color = action.payload.Color,
             };
 
             return state with
             {
-                Probes = probesCopy,
+                Probes = newProbes,
             };
         }
 
         public static SceneState SetAllProbesToLineReducer(SceneState state, IAction<bool> action)
         {
-            var probesCopy = state.Probes.ToList();
+            // Build a set of visualization probe names for O(1) lookup
+            var vizProbeNames = state.Manipulators
+                .Select(m => m.VisualizationProbeName)
+                .Where(name => !string.IsNullOrEmpty(name))
+                .ToHashSet();
+
+            var probesCopy = (ProbeState[])state.Probes.Clone();
 
             // Loop through every probe...
-            for (var i = 0; i < state.Probes.Count; i++)
+            for (var i = 0; i < probesCopy.Length; i++)
             {
-                var probeState = state.Probes[i];
+                var probeState = probesCopy[i];
 
                 // Ignore visualization probes.
-                if (
-                    state.Manipulators.Exists(manipulatorState =>
-                        manipulatorState.VisualizationProbeName == probeState.Name
-                    )
-                )
+                if (vizProbeNames.Contains(probeState.Name))
                     continue;
 
                 // If setting to line...
@@ -539,24 +523,21 @@ namespace Models.Scene
         )
         {
             // Find the index of the target probe.
-            var index = state.Probes.FindIndex(probe => probe.Name == action.payload.Name);
+            var index = Array.FindIndex(state.Probes, probe => probe.Name == action.payload.Name);
 
             // Exit if the probe is not found.
             if (index == -1)
                 return state;
 
-            // Create a copy of the probes list
-            var probesCopy = state.Probes.ToList();
-
-            // Update the probe immutably using the `with` expression
-            probesCopy[index] = probesCopy[index] with
+            var newProbes = (ProbeState[])state.Probes.Clone();
+            newProbes[index] = state.Probes[index] with
             {
                 Locked = action.payload.Locked,
             };
 
             return state with
             {
-                Probes = probesCopy,
+                Probes = newProbes,
             };
         }
 
@@ -569,15 +550,15 @@ namespace Models.Scene
             IAction<(string Id, Vector3 Angles)> action
         )
         {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 Angles = action.payload.Angles,
             };
-            return state with { Manipulators = manipulatorsCopy };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetManipulatorHandednessReducer(
@@ -585,15 +566,15 @@ namespace Models.Scene
             IAction<(string Id, ManipulatorHandedness Handedness)> action
         )
         {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 Handedness = action.payload.Handedness,
             };
-            return state with { Manipulators = manipulatorsCopy };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetManipulatorReferenceCoordinateOffsetReducer(
@@ -601,15 +582,15 @@ namespace Models.Scene
             IAction<(string Id, Vector4 ReferenceCoordinateOffset)> action
         )
         {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 ReferenceCoordinateOffset = action.payload.ReferenceCoordinateOffset,
             };
-            return state with { Manipulators = manipulatorsCopy };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetDuraOffsetReducer(
@@ -623,45 +604,36 @@ namespace Models.Scene
         )
         {
             // Get manipulator index.
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
 
-            // Update the manipulator's states.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 DuraDepth = action.payload.DuraDepth,
                 DuraCoordinate = action.payload.DuraCoordinate,
-                DuraOffset = manipulatorsCopy[index].DuraOffset + action.payload.DuraOffsetDelta,
+                DuraOffset =
+                    state.Manipulators[index].DuraOffset + action.payload.DuraOffsetDelta,
             };
-
-            return state with
-            {
-                Manipulators = manipulatorsCopy,
-            };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState ResetDuraOffsetReducer(SceneState state, IAction<string> action)
         {
             // Get manipulator index.
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload);
             if (index == -1)
                 return state;
 
-            // Update the manipulator's states.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 DuraDepth = 0,
                 DuraCoordinate = Vector4.zero,
                 DuraOffset = 0,
             };
-
-            return state with
-            {
-                Manipulators = manipulatorsCopy,
-            };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetManipulatorManualControlEnabledReducer(
@@ -669,15 +641,15 @@ namespace Models.Scene
             IAction<(string Id, bool ManualControlEnabled)> action
         )
         {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 ManualControlEnabled = action.payload.ManualControlEnabled,
             };
-            return state with { Manipulators = manipulatorsCopy };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetManipulatorDemoHomeCoordinateReducer(
@@ -685,15 +657,15 @@ namespace Models.Scene
             IAction<(string Id, Vector4 DemoHomeCoordinate)> action
         )
         {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 DemoHomeCoordinate = action.payload.DemoHomeCoordinate,
             };
-            return state with { Manipulators = manipulatorsCopy };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetManipulatorDemoTargetCoordinateReducer(
@@ -701,15 +673,15 @@ namespace Models.Scene
             IAction<(string Id, Vector4 DemoTargetCoordinate)> action
         )
         {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 DemoTargetCoordinate = action.payload.DemoTargetCoordinate,
             };
-            return state with { Manipulators = manipulatorsCopy };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetManipulatorDemoRunningReducer(
@@ -717,15 +689,15 @@ namespace Models.Scene
             IAction<(string Id, bool IsDemoRunning)> action
         )
         {
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 IsDemoRunning = action.payload.IsDemoRunning,
             };
-            return state with { Manipulators = manipulatorsCopy };
+            return state with { Manipulators = newManipulators };
         }
 
         #endregion
@@ -744,7 +716,7 @@ namespace Models.Scene
         )
         {
             // Get manipulator index.
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
 
@@ -753,27 +725,20 @@ namespace Models.Scene
                 // Verify selected target exists and is targetable.
                 if (
                     string.IsNullOrEmpty(action.payload.targetName)
-                    || !state.Probes.Exists(probeState =>
-                        probeState.Name == action.payload.targetName
-                    )
-                    || !state.Manipulators.Exists(manipulatorState =>
-                        manipulatorState.VisualizationProbeName == action.payload.targetName
-                    )
-                )
+                    || state.Probes.All(probeState => probeState.Name != action.payload.targetName) || state.Manipulators.All(manipulatorState => manipulatorState.VisualizationProbeName != action.payload.targetName))
                 {
                     throw new ArgumentException("Selected target is not targetable.");
                 }
 
-                // Update the selected target insertion probe for the active manipulator.
-                var manipulatorsCopy = state.Manipulators.ToList();
-                manipulatorsCopy[index] = manipulatorsCopy[index] with
+                var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+                newManipulators[index] = state.Manipulators[index] with
                 {
                     TargetInsertionProbeName = action.payload.targetName ?? string.Empty,
                 };
 
                 return state with
                 {
-                    Manipulators = manipulatorsCopy,
+                    Manipulators = newManipulators,
                 };
             }
             catch (Exception)
@@ -789,18 +754,16 @@ namespace Models.Scene
         )
         {
             // Get manipulator index.
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
 
-            // Set the automation progress state.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index].AutomationProgressState = action.payload.state;
-
-            return state with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
-                Manipulators = manipulatorsCopy,
+                AutomationProgressState = action.payload.state,
             };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetAutomationProgressStateToNextDrivingReducer(
@@ -809,7 +772,7 @@ namespace Models.Scene
         )
         {
             // Get manipulator index.
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload);
             if (index == -1)
                 return state;
 
@@ -826,14 +789,12 @@ namespace Models.Scene
                 _ => state.Manipulators[index].AutomationProgressState,
             };
 
-            // Set the manipulator's automation progress state to driving to target entry coordinate.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index].AutomationProgressState = newProgressState;
-
-            return state with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
-                Manipulators = manipulatorsCopy,
+                AutomationProgressState = newProgressState,
             };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetAutomationProgressStateToNextExitingReducer(
@@ -842,7 +803,7 @@ namespace Models.Scene
         )
         {
             // Get manipulator index.
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload);
             if (index == -1)
                 return state;
 
@@ -859,14 +820,12 @@ namespace Models.Scene
                 _ => state.Manipulators[index].AutomationProgressState,
             };
 
-            // Set the manipulator's automation progress state to next exiting state.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index].AutomationProgressState = newProgressState;
-
-            return state with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
-                Manipulators = manipulatorsCopy,
+                AutomationProgressState = newProgressState,
             };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState CompleteAutomationIntermediateProgressReducer(
@@ -875,7 +834,7 @@ namespace Models.Scene
         )
         {
             // Get manipulator index.
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload);
             if (index == -1)
                 return state;
 
@@ -895,14 +854,12 @@ namespace Models.Scene
                 _ => state.Manipulators[index].AutomationProgressState,
             };
 
-            // Complete the intermediate progress for the manipulator.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index].AutomationProgressState = newProgressState;
-
-            return state with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
-                Manipulators = manipulatorsCopy,
+                AutomationProgressState = newProgressState,
             };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState CancelAutomationIntermediateProgressReducer(
@@ -911,7 +868,7 @@ namespace Models.Scene
         )
         {
             // Get manipulator index.
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload);
             if (index == -1)
                 return state;
 
@@ -931,14 +888,12 @@ namespace Models.Scene
                 _ => state.Manipulators[index].AutomationProgressState,
             };
 
-            // Cancel the intermediate progress for the manipulator.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index].AutomationProgressState = newProgressState;
-
-            return state with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
-                Manipulators = manipulatorsCopy,
+                AutomationProgressState = newProgressState,
             };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetInsertionSpeedReducer(
@@ -947,21 +902,16 @@ namespace Models.Scene
         )
         {
             // Get manipulator index.
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
 
-            // Set the active manipulator's target insertion speed.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index] = manipulatorsCopy[index] with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
                 InsertionSpeed = action.payload.speed,
             };
-
-            return state with
-            {
-                Manipulators = manipulatorsCopy,
-            };
+            return state with { Manipulators = newManipulators };
         }
 
         public static SceneState SetDrivePastDistanceReducer(
@@ -970,18 +920,16 @@ namespace Models.Scene
         )
         {
             // Get manipulator index.
-            var index = state.Manipulators.FindIndex(m => m.Id == action.payload.Id);
+            var index = Array.FindIndex(state.Manipulators, m => m.Id == action.payload.Id);
             if (index == -1)
                 return state;
 
-            // Set the active manipulator's drive past distance.
-            var manipulatorsCopy = state.Manipulators.ToList();
-            manipulatorsCopy[index].DrivePastDistance = action.payload.distance;
-
-            return state with
+            var newManipulators = (ManipulatorState[])state.Manipulators.Clone();
+            newManipulators[index] = state.Manipulators[index] with
             {
-                Manipulators = manipulatorsCopy,
+                DrivePastDistance = action.payload.distance,
             };
+            return state with { Manipulators = newManipulators };
         }
 
         #endregion

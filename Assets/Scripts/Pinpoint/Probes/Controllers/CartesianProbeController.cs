@@ -676,7 +676,7 @@ return Vector3.right;
         var startingProbeState = startingSceneState.Probes.FirstOrDefault(state => state.Name == name);
 
         if (EventSystem.current.IsPointerOverGameObject() || startingProbeState == null ||
-            startingSceneState.Manipulators.Exists(state => state.VisualizationProbeName == name) ||
+            startingSceneState.Manipulators.Any(state => state.VisualizationProbeName == name) ||
             startingProbeState.Locked) return;
 #else
         if (EventSystem.current.IsPointerOverGameObject() || ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)
@@ -738,7 +738,7 @@ return Vector3.right;
 
         // Exit if there is no state.
         if (currentProbeState == null ||
-            currentSceneState.Manipulators.Exists(state => state.VisualizationProbeName == name) ||
+            currentSceneState.Manipulators.Any(state => state.VisualizationProbeName == name) ||
             currentProbeState.Locked) return;
 #else
         if (ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)
