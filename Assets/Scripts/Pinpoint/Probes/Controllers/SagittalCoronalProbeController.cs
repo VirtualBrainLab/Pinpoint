@@ -669,7 +669,7 @@ public class SagittalCoronalProbeController : ProbeController
         var startingProbeState = startingSceneState.Probes.FirstOrDefault(state => state.Name == name);
 
         if (EventSystem.current.IsPointerOverGameObject() || startingProbeState == null ||
-            startingSceneState.Manipulators.Any(state => state.VisualizationProbeName == name) ||
+            startingSceneState.Manipulators.Exists(state => state.VisualizationProbeName == name) ||
             startingProbeState.Locked) return;
 #else
         if (EventSystem.current.IsPointerOverGameObject() || ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)
@@ -731,7 +731,7 @@ public class SagittalCoronalProbeController : ProbeController
 
         // Exit if there is no state.
         if (currentProbeState == null ||
-            currentSceneState.Manipulators.Any(state => state.VisualizationProbeName == name) ||
+            currentSceneState.Manipulators.Exists(state => state.VisualizationProbeName == name) ||
             currentProbeState.Locked) return;
 #else
         if (ProbeManager.IsEphysLinkControlled || UnlockedDir != Vector4.one)

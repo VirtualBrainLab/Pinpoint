@@ -147,10 +147,10 @@ namespace UI.ViewModels
         /// <summary>
         /// Check if any probe positions or angles have changed and trigger collision detection if so
         /// </summary>
-        private void CheckForProbeMovement(ProbeState[] currentProbeStates)
+        private void CheckForProbeMovement(List<ProbeState> currentProbeStates)
         {
             // If this is the first time or probe count changed, just update the cache
-            if (_previousProbeStates.Count != currentProbeStates.Length)
+            if (_previousProbeStates.Count != currentProbeStates.Count)
             {
                 _previousProbeStates = currentProbeStates.Select(p => p).ToList();
                 ColliderManager.CheckForCollisions();
@@ -159,7 +159,7 @@ namespace UI.ViewModels
 
             // Check if any probe's position or angles have changed
             bool probesMoved = false;
-            for (int i = 0; i < currentProbeStates.Length; i++)
+            for (int i = 0; i < currentProbeStates.Count; i++)
             {
                 var current = currentProbeStates[i];
                 var previous = _previousProbeStates.FirstOrDefault(p => p.Name == current.Name);

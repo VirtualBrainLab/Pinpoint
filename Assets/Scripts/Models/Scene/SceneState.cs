@@ -11,8 +11,8 @@ namespace Models.Scene
     [Serializable]
     public record SceneState
     {
-        public ProbeState[] Probes = Array.Empty<ProbeState>();
-        public ManipulatorState[] Manipulators = Array.Empty<ManipulatorState>();
+        public List<ProbeState> Probes = new();
+        public List<ManipulatorState> Manipulators = new();
 
         #region Active Probe
 
@@ -24,7 +24,7 @@ namespace Models.Scene
             Probes.FirstOrDefault(state => state.Name == ActiveProbeName);
 
         // Helper to get the active probe index.
-        public int ActiveProbeIndex => Array.IndexOf(Probes, ActiveProbeState);
+        public int ActiveProbeIndex => Probes.IndexOf(ActiveProbeState);
 
         #endregion
 
@@ -38,7 +38,7 @@ namespace Models.Scene
             Manipulators.FirstOrDefault(state => state.Id == ActiveManipulatorId);
 
         // Helper to get the active probe index.
-        public int ActiveManipulatorIndex => Array.IndexOf(Manipulators, ActiveManipulatorState);
+        public int ActiveManipulatorIndex => Manipulators.IndexOf(ActiveManipulatorState);
 
         #endregion
 

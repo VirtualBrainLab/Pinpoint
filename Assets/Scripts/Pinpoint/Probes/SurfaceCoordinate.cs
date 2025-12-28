@@ -1,4 +1,3 @@
-using System.Linq;
 using Models;
 using Models.Scene;
 using Models.Settings;
@@ -89,7 +88,7 @@ public class SurfaceCoordinate : MonoBehaviour
             // Update color to match probe color - need to get from SceneState
             var storeService = PinpointApp.Services.GetRequiredService<StoreService>();
             var sceneState = storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-            var probeState = sceneState.Probes.FirstOrDefault(p => p.Name == _activeProbeWorldStateName);
+            var probeState = sceneState.Probes.Find(p => p.Name == _activeProbeWorldStateName);
 
             if (probeState != null)
             {
