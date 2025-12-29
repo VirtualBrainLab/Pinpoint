@@ -52,7 +52,8 @@ public abstract class ProbeController : MonoBehaviour
     public Vector3 VisualizationLocalForwardT { get; set; }
     
     /// <summary>
-    /// Indicates if new visualization data is available and needs to be applied.
+    /// Indicates whether this probe is configured as a visualization probe
+    /// that receives live position/angle updates from EphysLink.
     /// </summary>
     public bool IsVisualizationProbe { get; set; }
     
