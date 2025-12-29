@@ -923,7 +923,6 @@ return Vector3.right;
 
     /// <summary>
     /// Apply visualization probe updates if available.
-    /// This should be called from the Update() method of concrete ProbeController implementations.
     /// </summary>
     private void UpdateVisualizationProbePosition()
     {
