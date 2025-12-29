@@ -113,7 +113,6 @@ namespace UI.ViewModels
             }
 
             // Handle state transitions
-            var wasVisualization = _isCurrentProbeVisualization;
             _isCurrentProbeVisualization = isVisualizationProbe;
             _currentProbeController = probeController;
 
