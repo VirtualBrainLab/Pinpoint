@@ -4,10 +4,12 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using BrainAtlas;
+using BrainAtlas.CoordinateSystems;
 using EphysLink;
 using KS.Diagnostics;
 using Models;
 using Models.Scene;
+using Pinpoint.CoordinateSystems;
 using Pinpoint.Probes;
 using Services;
 using Unity.AppUI.MVVM;
@@ -819,20 +821,59 @@ namespace UI.ViewModels
         private Vector4? ConvertInsertionAPMLDVToManipulatorPosition(Vector3 insertionAPMLDV)
         {
             var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-            var activeProbeManager = ProbeManager.Instances.FirstOrDefault(manager =>
-                manager.name == sceneState.ActiveManipulatorState.VisualizationProbeName
-            );
+            var activeManipulatorState = sceneState.ActiveManipulatorState;
 
-            if (activeProbeManager == null || !activeProbeManager.IsEphysLinkControlled)
+            // Validate we have the necessary data
+            if (BrainAtlasManager.ActiveReferenceAtlas == null)
             {
-                Debug.LogError("Active probe manager not found or not EphysLink controlled");
+                Debug.LogError("BrainAtlasManager.ActiveReferenceAtlas is null");
                 return null;
             }
 
-            // Use the ManipulatorBehaviorController's conversion method
-            return activeProbeManager.ManipulatorBehaviorController.ConvertInsertionAPMLDVToManipulatorPosition(
-                insertionAPMLDV
+            if (sceneState.ManipulatorCoordinateSpace == null)
+            {
+                Debug.LogError("ManipulatorCoordinateSpace is null");
+                return null;
+            }
+
+            // Convert AP/ML/DV to world coordinate
+            var convertToWorld = BrainAtlasManager.ActiveReferenceAtlas.Atlas2World_Vector(
+                BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(insertionAPMLDV)
             );
+
+            // Create coordinate transform based on manipulator configuration
+            var numAxes = sceneState.NumberOfAxesOnManipulator;
+            var isRightHanded = activeManipulatorState.Handedness == ManipulatorHandedness.Right;
+            var yaw = activeManipulatorState.Angles.x;
+            var pitch = activeManipulatorState.Angles.y;
+
+            CoordinateTransform coordinateTransform = numAxes switch
+            {
+                4 => isRightHanded
+                    ? new FourAxisRightHandedManipulatorTransform(yaw)
+                    : new FourAxisLeftHandedManipulatorTransform(yaw),
+                3 => new ThreeAxisLeftHandedTransform(yaw, pitch),
+                _ => null,
+            };
+
+            if (coordinateTransform == null)
+            {
+                Debug.LogError($"Unsupported number of axes: {numAxes}");
+                return null;
+            }
+
+            // Convert to manipulator space
+            var posInManipulatorSpace = sceneState.ManipulatorCoordinateSpace.World2Space(
+                convertToWorld
+            );
+            Vector4 posInManipulatorTransform = coordinateTransform.U2T(posInManipulatorSpace);
+
+            // Apply brain surface offset (DuraOffset)
+            var duraOffset = activeManipulatorState.DuraOffset;
+            posInManipulatorTransform.w -= float.IsNaN(duraOffset) ? 0 : duraOffset;
+
+            // Apply coordinate offsets and return result
+            return posInManipulatorTransform + activeManipulatorState.ReferenceCoordinateOffset;
         }
 
         #endregion

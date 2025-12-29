@@ -116,9 +116,16 @@ namespace UI.Views
             var targetEntryDriveButton = root.Q<Button>(
                 "automation-inspector__target-entry--drive-button"
             );
+            targetEntryDriveButton.clickable.clicked += _automationInspectorViewModel
+                .DriveToTargetEntryCoordinateCommand
+                .Execute;
+
             var targetEntryStopButton = root.Q<Button>(
                 "automation-inspector__target-entry--stop-button"
             );
+            targetEntryStopButton.clickable.clicked += _automationInspectorViewModel
+                .StopDriveToTargetEntryCoordinateCommand
+                .Execute;
 
             // Dura offset controls.
             var duraOffsetResetButton = root.Q<IconButton>(
