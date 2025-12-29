@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BestHTTP.SocketIO3;
 using BrainAtlas;
@@ -19,7 +20,6 @@ using UnityEngine;
 using Utils;
 using Utils.Types;
 using Action = System.Action;
-using System.Threading;
 
 namespace Services
 {
@@ -33,8 +33,7 @@ namespace Services
         private readonly Vector2 _pitchRange = new(0, 90);
 
         // Visualization loop interval (ms)
-        private const int VISUALIZATION_UPDATE_INTERVAL_MS = 10; // about 60 Hz
-
+        private const int VISUALIZATION_UPDATE_INTERVAL_MS = 16; // about 60 Hz
         #endregion
 
         #region Services
@@ -52,15 +51,16 @@ namespace Services
 
         public string SocketId => _socket.Id;
 
-        // Cancellation for the visualization update loop
-        private CancellationTokenSource _visualizationLoopCts;
-
         #endregion
 
         #region Demo Loop
 
         private readonly HashSet<string> _runningDemoLoops = new();
         private const float DEMO_SPEED = 0.5f; // mm/s
+
+        // Cancellation for the visualization update loop
+        private CancellationTokenSource _visualizationLoopCts;
+
         #endregion
 
         public EphysLinkService(StoreService storeService)
@@ -169,7 +169,9 @@ namespace Services
                     }
                     catch (Exception ex)
                     {
-                        HandleError($"{GetErrorConnectingToServerMessage()} Caused exception: {ex.Message}");
+                        HandleError(
+                            $"{GetErrorConnectingToServerMessage()} Caused exception: {ex.Message}"
+                        );
                     }
                 }
 
@@ -189,7 +191,10 @@ namespace Services
                 // On successful connection, delegate to async task handler.
                 _socket.Once(
                     "connect",
-                    () => { _ = OnConnectedAsync(); }
+                    () =>
+                    {
+                        _ = OnConnectedAsync();
+                    }
                 );
 
                 // On error.
@@ -561,6 +566,10 @@ namespace Services
             return JsonUtility.ToJson(data);
         }
 
+        #endregion
+
+        #region Visualization control
+
         // Starts the continuous visualization update loop until the socket disconnects or service disconnects.
         private void StartVisualizationLoop()
         {
@@ -573,9 +582,15 @@ namespace Services
         // Cancels and disposes the visualization update loop.
         private void StopVisualizationLoop()
         {
-            if (_visualizationLoopCts == null) return;
-            try { _visualizationLoopCts.Cancel(); }
-            catch (ObjectDisposedException) { /* ignore disposed */ }
+            if (_visualizationLoopCts == null)
+                return;
+            try
+            {
+                _visualizationLoopCts.Cancel();
+            }
+            catch (ObjectDisposedException)
+            { /* ignore disposed */
+            }
             catch (Exception ex)
             {
                 Debug.Log($"Ignored exception during visualization loop cancellation: {ex}");
@@ -591,7 +606,9 @@ namespace Services
             {
                 try
                 {
-                    var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+                    var sceneState = _storeService.Store.GetState<SceneState>(
+                        SliceNames.SCENE_SLICE
+                    );
                     await UpdateVisualizationProbePosition(sceneState);
                 }
                 catch (OperationCanceledException)
@@ -615,21 +632,8 @@ namespace Services
             }
         }
 
-        #endregion
-
-        #region Visualization control
-
         private async Task UpdateVisualizationProbePosition(SceneState sceneState)
         {
-            List<(
-                string Name,
-                Vector3 SurfaceAPMLDV,
-                float Depth,
-                Vector3 ForwardT,
-                Vector3 Angles,
-                Vector2 PitchRange
-            )> requests = new();
-
             foreach (
                 var manipulatorState in sceneState.Manipulators.Where(state =>
                     !string.IsNullOrEmpty(state.VisualizationProbeName)
@@ -646,12 +650,12 @@ namespace Services
                     ) == null
                     || visualizationProbeManager == null
                 )
-                    return;
+                    continue;
 
                 // Get the current position of the manipulator.
                 var positionResponse = await GetPosition(manipulatorState.Id);
                 if (HasError(positionResponse.Error))
-                    return;
+                    continue;
 
                 // Apply reference coordinate offset.
                 var referenceCoordinateAdjustedManipulatorPosition =
@@ -699,13 +703,16 @@ namespace Services
                 var transformedAPMLDV = BrainAtlasManager.World2T_Vector(
                     referenceCoordinateAdjustedWorldPosition
                 );
-                
+
                 // Cancel update if the manipulator's position did not change by a lot.
-                var probeState = sceneState.Probes.FirstOrDefault(state => state.Name == manipulatorState.VisualizationProbeName);
-                if (probeState == null || Vector3.SqrMagnitude(transformedAPMLDV - probeState.APMLDV) < 0.0001f)
-                {
+                var probeState = sceneState.Probes.FirstOrDefault(state =>
+                    state.Name == manipulatorState.VisualizationProbeName
+                );
+                if (
+                    probeState == null
+                    || Vector3.SqrMagnitude(transformedAPMLDV - probeState.APMLDV) < 0.0001f
+                )
                     continue;
-                }
 
                 // Get the current forward vector of the probe.
                 var forwardT = BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
@@ -714,46 +721,29 @@ namespace Services
                     )
                 );
 
-                switch (sceneState.NumberOfAxesOnManipulator)
-                {
-                    // Set the probe position in the store.
-                    case 3:
-                        requests.Add(
-                            (
-                                manipulatorState.VisualizationProbeName,
-                                transformedAPMLDV,
-                                duraOffsetAdjustment,
-                                forwardT,
-                                manipulatorState.Angles,
-                                _pitchRange
-                            )
-                        );
-                        break;
-                    case 4:
-                        requests.Add(
-                            (
-                                manipulatorState.VisualizationProbeName,
-                                transformedAPMLDV,
-                                referenceCoordinateAdjustedManipulatorPosition.w,
-                                forwardT,
-                                manipulatorState.Angles,
-                                _pitchRange
-                            )
-                        );
-                        break;
-                    default:
-                        throw new ValueOutOfRangeException(
-                            "Number of axes on manipulator is invalid."
-                        );
-                }
-            }
+                // Get the ProbeController for this visualization probe
+                var probeController = visualizationProbeManager.ProbeController;
+                if (probeController == null)
+                    continue;
 
-            // Dispatch all position updates in one go (if any).
-            if (requests.Any())
-                _storeService.Store.Dispatch(
-                    SceneActions.BULK_SET_PROBE_POSITION_AND_ANGLES_BY,
-                    requests
-                );
+                var depth = sceneState.NumberOfAxesOnManipulator switch
+                {
+                    3 => duraOffsetAdjustment,
+                    4 => referenceCoordinateAdjustedManipulatorPosition.w,
+                    _ => throw new ValueOutOfRangeException(
+                        "Number of axes on manipulator is invalid."
+                    ),
+                };
+
+                // Write position data directly to ProbeController's local fields
+                probeController.VisualizationLocalAPMLDV = transformedAPMLDV;
+                probeController.VisualizationLocalDepth = depth;
+                probeController.VisualizationLocalAngles = manipulatorState.Angles;
+                probeController.VisualizationLocalForwardT = forwardT;
+
+                // Mark probe as visualization probe to apply new data in Update().
+                probeController.IsVisualizationProbe = true;
+            }
         }
 
         public async Task SetManipulatorReferenceCoordinateToCurrentPosition(string manipulatorId)

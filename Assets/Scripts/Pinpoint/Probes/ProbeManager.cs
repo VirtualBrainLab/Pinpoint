@@ -401,7 +401,11 @@ public class ProbeManager : MonoBehaviour
 #endif
 
         ColliderManager.AddProbeColliderInstances(_probeColliders, active);
-        GetComponent<ProbeController>().enabled = active;
+
+        // Keep controller enabled for visualization probes even when inactive
+        // so they can continue receiving position updates from EphysLink
+        bool isVisualizationProbe = _probeController.IsVisualizationProbe;
+        GetComponent<ProbeController>().enabled = active || isVisualizationProbe;
 
         UIUpdateEvent.Invoke();
         _probeController.MovedThisFrameEvent.Invoke();

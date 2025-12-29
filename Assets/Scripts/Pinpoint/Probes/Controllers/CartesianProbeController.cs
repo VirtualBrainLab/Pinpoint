@@ -310,6 +310,9 @@ return Vector3.right;
 
     private void Update()
     {
+        // Update visualization probe position if this is a visualization probe.
+        UpdateVisualizationProbePosition();
+
         // If the user is holding one or more click keys and we are past the hold delay, increment the position
         if (clickKeyHeld > 0 && (Time.realtimeSinceStartup - clickKeyPressTime) > keyHoldDelay)
             // Set speed to Tap instead of Hold for manipulator keyboard control
@@ -351,8 +354,8 @@ return Vector3.right;
 
     private void OnProbeStateChanged(ProbeState state)
     {
-        // Skip if no state.
-        if (state == null)
+        // Skip if is visualization probe (updates from local state) no state.
+        if (IsVisualizationProbe || state == null)
         {
             return;
         }
@@ -918,6 +921,37 @@ return Vector3.right;
 
     #region Set Probe pos/angles
 
+    /// <summary>
+    /// Apply visualization probe updates if available.
+    /// </summary>
+    private void UpdateVisualizationProbePosition()
+    {
+        if (!IsVisualizationProbe)
+            return;
+
+        // Update position.
+        transform.position =
+            BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(VisualizationLocalAPMLDV)
+            );
+
+
+        // Update orientation.
+        transform.rotation = _initialRotation;
+        transform.RotateAround(_probeTipT.position, transform.up, VisualizationLocalAngles.x);
+        transform.RotateAround(_probeTipT.position, transform.right, VisualizationLocalAngles.y);
+        transform.RotateAround(_probeTipT.position, transform.forward, -VisualizationLocalAngles.z);
+
+        // Update tip coords.
+        SetTipWorldU();
+
+        // Update recording region info.
+        ProbeManager.ProbeMoved();
+
+        // Update surface coordinates.
+        ProbeManager.UpdateSurfacePosition();
+    }
+    
     /// <summary>
     /// Set the probe position to the current apml/depth/angles values
     /// </summary>

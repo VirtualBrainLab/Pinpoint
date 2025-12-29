@@ -77,6 +77,11 @@ namespace Models.Scene
         
         public Vector4 DemoTargetCoordinate;
 
+        /// <summary>
+        /// Indicates if the demo mode is currently running.
+        /// </summary>
+        /// <remarks>Not saved. Will always start as off.</remarks>
+        [NonSerialized]
         public bool IsDemoRunning;
 
         #endregion
