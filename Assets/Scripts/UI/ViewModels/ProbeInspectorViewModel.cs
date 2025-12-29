@@ -119,8 +119,8 @@ namespace UI.ViewModels
 
             if (isVisualizationProbe && probeController != null)
             {
-                // Start polling if transitioning TO visualization probe
-                if (!wasVisualization)
+                // Start polling if not already running
+                if (_visualizationPollingCts == null)
                 {
                     StartVisualizationPolling();
                 }
@@ -129,8 +129,8 @@ namespace UI.ViewModels
             }
             else
             {
-                // Stop polling if transitioning FROM visualization probe
-                if (wasVisualization)
+                // Stop polling if currently running
+                if (_visualizationPollingCts != null)
                 {
                     StopVisualizationPolling();
                 }
@@ -239,21 +239,7 @@ namespace UI.ViewModels
                 {
                     if (_currentProbeController != null && _isCurrentProbeVisualization)
                     {
-                        var sceneState = _storeService.Store.GetState<SceneState>(
-                            SliceNames.SCENE_SLICE
-                        );
-                        Debug.Log($"Update for visualization probe: {sceneState.ActiveProbeName}");
-
-                        // Only update if this is still the active probe
-                        if (sceneState.ActiveProbeName == _currentProbeController.ProbeManager.name)
-                        {
-                            UpdateFromProbeControllerFields(_currentProbeController);
-                        }
-                        else
-                        {
-                            // Active probe changed, stop polling
-                            break;
-                        }
+                        UpdateFromProbeControllerFields(_currentProbeController);
                     }
                 }
                 catch (OperationCanceledException)
