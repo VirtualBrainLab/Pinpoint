@@ -67,7 +67,7 @@ namespace Models.Scene
         /// <summary>
         /// Drive past target distance (µm).
         /// </summary>
-        public int DrivePastDistance;
+        public int DrivePastDistance = 50;
 
         #endregion
 
