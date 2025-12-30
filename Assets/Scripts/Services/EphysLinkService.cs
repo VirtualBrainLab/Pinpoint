@@ -704,16 +704,6 @@ namespace Services
                     referenceCoordinateAdjustedWorldPosition
                 );
 
-                // Cancel update if the manipulator's position did not change by a lot.
-                var probeState = sceneState.Probes.FirstOrDefault(state =>
-                    state.Name == manipulatorState.VisualizationProbeName
-                );
-                if (
-                    probeState == null
-                    || Vector3.SqrMagnitude(transformedAPMLDV - probeState.APMLDV) < 0.0001f
-                )
-                    continue;
-
                 // Get the current forward vector of the probe.
                 var forwardT = BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
                     BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
