@@ -750,13 +750,16 @@ namespace Models.Scene
 
             try
             {
-                // Verify selected target exists and is targetable.
+                // Verify selected target exists and is targetable:
+                // 1. Target name must not be empty
+                // 2. Target probe must exist in the probes list
+                // 3. Target probe must NOT be a visualization probe (those are manipulator-controlled)
                 if (
                     string.IsNullOrEmpty(action.payload.targetName)
                     || !state.Probes.Exists(probeState =>
                         probeState.Name == action.payload.targetName
                     )
-                    || !state.Manipulators.Exists(manipulatorState =>
+                    || state.Manipulators.Exists(manipulatorState =>
                         manipulatorState.VisualizationProbeName == action.payload.targetName
                     )
                 )

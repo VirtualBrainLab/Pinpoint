@@ -11,7 +11,6 @@ using KS.Diagnostics;
 using Models;
 using Models.Scene;
 using Pinpoint.CoordinateSystems;
-using Pinpoint.Probes;
 using Services;
 using Unity.AppUI.MVVM;
 using Unity.AppUI.Redux;
@@ -31,6 +30,16 @@ namespace UI.ViewModels
 
         private string ActiveManipulatorId =>
             _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE).ActiveManipulatorId;
+
+        /// <summary>
+        ///     Helper to get a probe's world state from Redux.
+        /// </summary>
+        private ProbeWorldState GetProbeWorldState(string probeName)
+        {
+            return _storeService.Store
+                .GetState<ProbeWorldStateSlice>(SliceNames.PROBE_WORLD_SLICE)
+                .GetProbeWorldState(probeName);
+        }
 
         #endregion
 
@@ -214,11 +223,8 @@ namespace UI.ViewModels
                 // 3. Is in the brain.
                 .Where(probeState =>
                 {
-                    var probeManager = ProbeManager.Instances.FirstOrDefault(manager =>
-                        manager.name == probeState.Name
-                    );
-                    return probeManager != null
-                        && probeManager.CalculateEntryCoordinate().probeInBrain;
+                    var probeWorldState = GetProbeWorldState(probeState.Name);
+                    return probeWorldState != null && probeWorldState.IsProbeInBrain;
                 })
                 // 4. Is not already selected by other manipulator probes (unless it was selected by this active probe).
                 .Where(probeState =>
@@ -323,15 +329,12 @@ namespace UI.ViewModels
             // Get the selected target insertion probe
             var selectedTargetInsertionProbeState = TargetInsertionProbeStates.ElementAt(index);
 
-            // Get the probe manager for the selected target
-            var targetProbeManager = ProbeManager.Instances.FirstOrDefault(manager =>
-                manager.name == selectedTargetInsertionProbeState.Name
-            );
-
-            if (targetProbeManager == null)
+            // Validate the target probe world state exists
+            var targetProbeWorldState = GetProbeWorldState(selectedTargetInsertionProbeState.Name);
+            if (targetProbeWorldState == null)
             {
                 Debug.LogError(
-                    $"Target probe manager not found: {selectedTargetInsertionProbeState.Name}"
+                    $"Target probe world state not found: {selectedTargetInsertionProbeState.Name}"
                 );
                 return;
             }
@@ -342,8 +345,8 @@ namespace UI.ViewModels
                 (ActiveManipulatorId, selectedTargetInsertionProbeState.Name)
             );
 
-            // Compute and visualize trajectory with the target probe manager
-            var entryCoordinate = ComputeTargetEntryCoordinateTrajectory(targetProbeManager);
+            // Compute and visualize trajectory with the target probe name
+            var entryCoordinate = ComputeTargetEntryCoordinateTrajectory(selectedTargetInsertionProbeState.Name);
 
             if (float.IsNegativeInfinity(entryCoordinate.x))
             {
@@ -606,17 +609,16 @@ namespace UI.ViewModels
                 return;
             }
 
-            // Get scene state and target probe manager.
+            // Get scene state and target probe name.
             var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
             var manipulatorState = sceneState.ActiveManipulatorState;
-
-            var targetProbeManager = ProbeManager.Instances.FirstOrDefault(m =>
-                m.name == manipulatorState.TargetInsertionProbeName
-            );
-            if (targetProbeManager == null)
+            var targetProbeName = manipulatorState.TargetInsertionProbeName;
+            
+            var targetProbeWorldState = GetProbeWorldState(targetProbeName);
+            if (targetProbeWorldState == null)
             {
                 Debug.LogError(
-                    $"Target probe manager not found: {manipulatorState.TargetInsertionProbeName}"
+                    $"Target probe world state not found: {targetProbeName}"
                 );
                 return;
             }
@@ -629,7 +631,7 @@ namespace UI.ViewModels
             _insertionDriveCts = new CancellationTokenSource();
 
             // Store initial ETA for progress calculation.
-            _originalETA = ComputeEtaSeconds(targetProbeManager, baseSpeed, drivePastDistance);
+            _originalETA = ComputeEtaSeconds(targetProbeName, baseSpeed, drivePastDistance);
 
             try
             {
@@ -639,7 +641,7 @@ namespace UI.ViewModels
                     _insertionDriveCts.Token.ThrowIfCancellationRequested();
 
                     // Get target depth.
-                    var targetDepth = GetTargetDepth(targetProbeManager);
+                    var targetDepth = GetTargetDepth(targetProbeName);
 
                     // Set state to next driving state.
                     _storeService.Store.Dispatch(
@@ -651,7 +653,7 @@ namespace UI.ViewModels
                     LogDriveToTargetInsertion(targetDepth, baseSpeed, drivePastDistance);
 
                     // Update ETA.
-                    Eta = ComputeEtaSeconds(targetProbeManager, baseSpeed, drivePastDistance);
+                    Eta = ComputeEtaSeconds(targetProbeName, baseSpeed, drivePastDistance);
                     DriveProgressPercentage =
                         _originalETA > 0 ? 1f - (float)Eta / _originalETA : 0f;
 
@@ -661,7 +663,7 @@ namespace UI.ViewModels
                         case AutomationProgressState.DrivingToNearTarget:
                             // Drive to near target if not already there.
                             if (
-                                GetCurrentDistanceToTarget(targetProbeManager)
+                                GetCurrentDistanceToTarget(targetProbeName)
                                 > NEAR_TARGET_DISTANCE
                             )
                             {
@@ -759,17 +761,16 @@ namespace UI.ViewModels
                 return;
             }
 
-            // Get scene state and target probe manager.
+            // Get scene state and target probe name.
             var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
             var manipulatorState = sceneState.ActiveManipulatorState;
+            var targetProbeName = manipulatorState.TargetInsertionProbeName;
 
-            var targetProbeManager = ProbeManager.Instances.FirstOrDefault(m =>
-                m.name == manipulatorState.TargetInsertionProbeName
-            );
-            if (targetProbeManager == null)
+            var targetProbeWorldState = GetProbeWorldState(targetProbeName);
+            if (targetProbeWorldState == null)
             {
                 Debug.LogError(
-                    $"Target probe manager not found: {manipulatorState.TargetInsertionProbeName}"
+                    $"Target probe world state not found: {targetProbeName}"
                 );
                 return;
             }
@@ -782,7 +783,7 @@ namespace UI.ViewModels
             _insertionDriveCts = new CancellationTokenSource();
 
             // Store initial ETA for progress calculation.
-            _originalETA = ComputeEtaSeconds(targetProbeManager, baseSpeed, drivePastDistance);
+            _originalETA = ComputeEtaSeconds(targetProbeName, baseSpeed, drivePastDistance);
 
             try
             {
@@ -807,7 +808,7 @@ namespace UI.ViewModels
                     LogDriveToTargetInsertion(duraDepth, baseSpeed);
 
                     // Update ETA.
-                    Eta = ComputeEtaSeconds(targetProbeManager, baseSpeed, drivePastDistance);
+                    Eta = ComputeEtaSeconds(targetProbeName, baseSpeed, drivePastDistance);
                     DriveProgressPercentage =
                         _originalETA > 0 ? 1f - (float)Eta / _originalETA : 0f;
 
@@ -968,16 +969,17 @@ namespace UI.ViewModels
         /// <summary>
         ///     Compute the entry coordinate and trajectory for the target insertion. Also, create and update the trajectory visualization lines.
         /// </summary>
-        /// <param name="targetProbeManager">The probe manager of the target insertion probe.</param>
+        /// <param name="targetProbeName">The name of the target insertion probe.</param>
         /// <returns>
         ///     The computed entry coordinate in AP, ML, DV coordinates. Vector3.negativeInfinity if target is unset or computation fails.
         /// </returns>
-        private Vector3 ComputeTargetEntryCoordinateTrajectory(ProbeManager targetProbeManager)
+        private Vector3 ComputeTargetEntryCoordinateTrajectory(string targetProbeName)
         {
-            // Validate target probe manager
-            if (targetProbeManager == null)
+            // Validate target probe world state exists
+            var targetProbeWorldState = GetProbeWorldState(targetProbeName);
+            if (targetProbeWorldState == null)
             {
-                Debug.LogError("Target probe manager is null");
+                Debug.LogError($"Target probe world state is null: {targetProbeName}");
                 RemoveTrajectoryLines();
                 return Vector3.negativeInfinity;
             }
@@ -993,11 +995,9 @@ namespace UI.ViewModels
                 return Vector3.negativeInfinity;
             }
 
-            // Compute entry coordinate in world space
-            var surfaceCoordinateWorldT = targetProbeManager.GetSurfaceCoordinateWorldT();
-            var tipForwardWorldU = targetProbeManager
-                .ProbeController.GetTipWorldU()
-                .tipForwardWorldU;
+            // Compute entry coordinate in world space using Redux state
+            var surfaceCoordinateWorldT = targetProbeWorldState.SurfaceCoordinateWorldT;
+            var tipForwardWorldU = targetProbeWorldState.TipForwardWorldU;
 
             var entryCoordinateWorld =
                 surfaceCoordinateWorldT
@@ -1011,12 +1011,18 @@ namespace UI.ViewModels
                 entryCoordinateAtlasU
             );
 
-            // Get current manipulator coordinate.
+            // Get current manipulator coordinate from Redux.
             var currentState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
             var visualizationProbeName = currentState.ActiveManipulatorState.VisualizationProbeName;
-            var currentCoordinate = currentState
-                .Probes.FirstOrDefault(state => state.Name == visualizationProbeName)!
-                .APMLDV;
+            var visualizationProbeState = currentState.Probes.FirstOrDefault(state => state.Name == visualizationProbeName);
+
+            if (visualizationProbeState == null)
+            {
+                Debug.LogError($"Visualization probe state not found: {visualizationProbeName}");
+                return Vector3.negativeInfinity;
+            }
+
+            var currentCoordinate = visualizationProbeState.APMLDV;
 
             // Create 3-stage trajectory
             // Stage 1: DV movement (change depth only)
@@ -1107,19 +1113,18 @@ namespace UI.ViewModels
             )
                 return;
 
-            // Get active probe manager for current tip position
+            // Get active probe world state for current tip position from Redux
             var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-            var activeProbeManager = ProbeManager.Instances.FirstOrDefault(manager =>
-                manager.name == sceneState.ActiveManipulatorState.VisualizationProbeName
-            );
+            var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
+            var activeProbeWorldState = GetProbeWorldState(visualizationProbeName);
 
-            if (activeProbeManager == null)
+            if (activeProbeWorldState == null)
                 return;
 
             // DV line: From current probe tip to first coordinate
             _trajectoryLineRenderers.dv.SetPosition(
                 0,
-                activeProbeManager.ProbeController.ProbeTipT.position
+                activeProbeWorldState.TipPositionWorldT
             );
             _trajectoryLineRenderers.dv.SetPosition(
                 1,
@@ -1278,26 +1283,26 @@ namespace UI.ViewModels
         /// <summary>
         ///     Compute the target coordinate adjusted for the probe's actual position.
         /// </summary>
-        /// <param name="targetInsertionProbeManager">Target probe manager.</param>
+        /// <param name="targetProbeName">Target probe name.</param>
         /// <returns>APMLDV coordinates of where the probe should actually go.</returns>
-        private Vector3 GetOffsetAdjustedTargetCoordinate(ProbeManager targetInsertionProbeManager)
+        private Vector3 GetOffsetAdjustedTargetCoordinate(string targetProbeName)
         {
             var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
             var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
-            var visualizationProbeManager = ProbeManager.Instances.FirstOrDefault(m =>
-                m.name == visualizationProbeName
-            );
 
-            if (visualizationProbeManager == null)
+            // Get world states from Redux
+            var targetProbeWorldState = GetProbeWorldState(targetProbeName);
+            var visualizationProbeWorldState = GetProbeWorldState(visualizationProbeName);
+
+            if (targetProbeWorldState == null || visualizationProbeWorldState == null)
                 return Vector3.negativeInfinity;
 
-            // Extract target insertion.
-            var targetInsertion = targetInsertionProbeManager.ProbeController.Insertion;
+            // Get world positions from Redux
+            var targetWorldT = targetProbeWorldState.TipPositionWorldT;
+            var visualizationWorldT = visualizationProbeWorldState.TipPositionWorldT;
+            var probeTipTForward = visualizationProbeWorldState.TipForwardWorldU;
 
-            var targetWorldT = targetInsertion.PositionWorldT();
-            var relativePositionWorldT =
-                visualizationProbeManager.ProbeController.Insertion.PositionWorldT() - targetWorldT;
-            var probeTipTForward = visualizationProbeManager.ProbeController.ProbeTipT.forward;
+            var relativePositionWorldT = visualizationWorldT - targetWorldT;
             var offsetAdjustedRelativeTargetPositionWorldT = Vector3.ProjectOnPlane(
                 relativePositionWorldT,
                 probeTipTForward
@@ -1318,14 +1323,14 @@ namespace UI.ViewModels
         /// <summary>
         ///     Compute the absolute distance from the target insertion to the Dura.
         /// </summary>
-        /// <param name="targetInsertionProbeManager">Target to compute distance to.</param>
+        /// <param name="targetProbeName">Target probe name to compute distance to.</param>
         /// <returns>Distance in mm to the target from the Dura.</returns>
-        private float GetTargetDistanceToDura(ProbeManager targetInsertionProbeManager)
+        private float GetTargetDistanceToDura(string targetProbeName)
         {
             var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
             var duraCoordinate = sceneState.ActiveManipulatorState.DuraCoordinate;
             return Vector3.Distance(
-                GetOffsetAdjustedTargetCoordinate(targetInsertionProbeManager),
+                GetOffsetAdjustedTargetCoordinate(targetProbeName),
                 new Vector3(duraCoordinate.x, duraCoordinate.y, duraCoordinate.z)
             );
         }
@@ -1333,9 +1338,9 @@ namespace UI.ViewModels
         /// <summary>
         ///     Compute the current distance to the target insertion.
         /// </summary>
-        /// <param name="targetInsertionProbeManager">Target probe manager.</param>
+        /// <param name="targetProbeName">Target probe name.</param>
         /// <returns>Distance in mm to the target from the probe.</returns>
-        private float GetCurrentDistanceToTarget(ProbeManager targetInsertionProbeManager)
+        private float GetCurrentDistanceToTarget(string targetProbeName)
         {
             var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
             var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
@@ -1348,31 +1353,31 @@ namespace UI.ViewModels
 
             return Vector3.Distance(
                 visualizationProbeState.APMLDV,
-                GetOffsetAdjustedTargetCoordinate(targetInsertionProbeManager)
+                GetOffsetAdjustedTargetCoordinate(targetProbeName)
             );
         }
 
         /// <summary>
         ///     Compute the target depth for the probe to drive to.
         /// </summary>
-        /// <param name="targetInsertionProbeManager">Target to drive (insert) to.</param>
+        /// <param name="targetProbeName">Target probe name to drive (insert) to.</param>
         /// <returns>The depth the manipulator needs to drive to reach the target insertion.</returns>
-        private float GetTargetDepth(ProbeManager targetInsertionProbeManager)
+        private float GetTargetDepth(string targetProbeName)
         {
             var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
             var duraDepth = sceneState.ActiveManipulatorState.DuraDepth;
-            return duraDepth + GetTargetDistanceToDura(targetInsertionProbeManager);
+            return duraDepth + GetTargetDistanceToDura(targetProbeName);
         }
 
         /// <summary>
         ///     Compute the ETA in seconds for a probe to reach a target insertion (or exit).
         /// </summary>
-        /// <param name="targetInsertionProbeManager">Target to calculate ETA to.</param>
+        /// <param name="targetProbeName">Target probe name to calculate ETA to.</param>
         /// <param name="baseSpeed">Base driving speed in mm/s.</param>
         /// <param name="drivePastDistance">Distance to drive past target in mm.</param>
         /// <returns>ETA in seconds for reaching a target or exiting.</returns>
         private int ComputeEtaSeconds(
-            ProbeManager targetInsertionProbeManager,
+            string targetProbeName,
             float baseSpeed,
             float drivePastDistance
         )
@@ -1380,8 +1385,8 @@ namespace UI.ViewModels
             var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
             var manipulatorState = sceneState.ActiveManipulatorState;
 
-            var distanceToTarget = GetCurrentDistanceToTarget(targetInsertionProbeManager);
-            var targetDistanceToDura = GetTargetDistanceToDura(targetInsertionProbeManager);
+            var distanceToTarget = GetCurrentDistanceToTarget(targetProbeName);
+            var targetDistanceToDura = GetTargetDistanceToDura(targetProbeName);
             var actualExitMarginToDuraDistance = manipulatorState.DuraDepth - _entryCoordinateDepth;
 
             var secondsToDestination = AutomationProgressState switch
