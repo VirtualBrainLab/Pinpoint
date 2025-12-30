@@ -548,12 +548,18 @@ namespace UI.ViewModels
         private void ResetDuraOffset()
         {
             _storeService.Store.Dispatch(SceneActions.RESET_DURA_OFFSET, ActiveManipulatorId);
+            
+            // If offset is reset, we have no idea where we could be so we reset to IsCalibrated.
+            _storeService.Store.Dispatch(SceneActions.SET_AUTOMATION_PROGRESS_STATE, (ActiveManipulatorId, AutomationProgressState.IsCalibrated));
         }
 
         [ICommand]
         private async void RecalculateDuraOffset()
         {
             await _ephysLinkService.SetManipulatorDuraOffsetToCurrentDepth(ActiveManipulatorId);
+            
+            // After recalculating the dura offset, we are at the Dura insert state.
+            _storeService.Store.Dispatch(SceneActions.SET_AUTOMATION_PROGRESS_STATE, (ActiveManipulatorId, AutomationProgressState.AtDuraInsert));
         }
 
         [ICommand]
