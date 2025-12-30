@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using BrainAtlas;
 using BrainAtlas.CoordinateSystems;
 using EphysLink;
@@ -134,6 +135,35 @@ namespace UI.ViewModels
 
         // Movement speed
         private const float AUTOMATIC_MOVEMENT_SPEED = 0.5f; // mm/s
+        #endregion
+
+        #region Insertion Constants
+
+        /// <summary>
+        ///     Distance from target to start slowing down probe (mm).
+        /// </summary>
+        private const float NEAR_TARGET_DISTANCE = 1f;
+
+        /// <summary>
+        ///     Slowdown factor for the probe when it is near the target.
+        /// </summary>
+        private const float NEAR_TARGET_SPEED_MULTIPLIER = 2f / 3f;
+
+        /// <summary>
+        ///     Extra speed multiplier for the probe when it is exiting.
+        /// </summary>
+        private const int EXIT_DRIVE_SPEED_MULTIPLIER = 6;
+
+        /// <summary>
+        ///     Extra safety margin for the Dura to outside (mm).
+        /// </summary>
+        private const float DURA_MARGIN_DISTANCE = 0.2f;
+
+        /// <summary>
+        ///     Cancellation token source for stopping ongoing insertion/exit operations.
+        /// </summary>
+        private CancellationTokenSource _insertionDriveCts;
+
         #endregion
 
         public AutomationInspectorViewModel(
@@ -559,37 +589,370 @@ namespace UI.ViewModels
         }
 
         [ICommand]
-        private void InsertionDrive()
+        private async void InsertionDrive()
         {
-            // State is updated externally by the ProbeService.
-            // _probeService.InsertionDriveActiveProbe();
-        }
+            // Validate state is insertable.
+            if (!IsInsertable(AutomationProgressState))
+            {
+                Debug.LogError(
+                    $"Cannot drive: not in insertable state. Current state: {AutomationProgressState}"
+                );
+                return;
+            }
 
-        [ICommand]
-        private void InsertionExit()
-        {
-            // State is updated externally by the ProbeService.
-            // _ = _probeService.InsertionExitActiveProbe();
-        }
+            // Get scene state and target probe manager.
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var manipulatorState = sceneState.ActiveManipulatorState;
 
-        [ICommand]
-        private void StopInsertionDrive()
-        {
-            // State is updated externally by the ProbeService.
-            ProbeService
-                .StopInsertionDriveActiveProbe()
-                .ContinueWith(task =>
+            var targetProbeManager = ProbeManager.Instances.FirstOrDefault(m =>
+                m.name == manipulatorState.TargetInsertionProbeName
+            );
+            if (targetProbeManager == null)
+            {
+                Debug.LogError(
+                    $"Target probe manager not found: {manipulatorState.TargetInsertionProbeName}"
+                );
+                return;
+            }
+
+            // Convert speed from µm/s to mm/s.
+            var baseSpeed = CustomInsertionSpeed / 1000f;
+            var drivePastDistance = DrivePastDistance / 1000f;
+
+            // Set up cancellation token.
+            _insertionDriveCts = new CancellationTokenSource();
+
+            // Store initial ETA for progress calculation.
+            _originalETA = ComputeEtaSeconds(targetProbeManager, baseSpeed, drivePastDistance);
+
+            try
+            {
+                while (AutomationProgressState != AutomationProgressState.AtTarget)
                 {
-                    // Do not proceed if the stop failed.
-                    if (!task.Result)
-                        return;
+                    // Check for cancellation.
+                    _insertionDriveCts.Token.ThrowIfCancellationRequested();
 
-                    // If the stop was successful, cancel the intermediate progress state.
+                    // Get target depth.
+                    var targetDepth = GetTargetDepth(targetProbeManager);
+
+                    // Set state to next driving state.
                     _storeService.Store.Dispatch(
-                        SceneActions.CANCEL_AUTOMATION_INTERMEDIATE_PROGRESS,
+                        SceneActions.SET_AUTOMATION_PROGRESS_STATE_TO_NEXT_DRIVING,
                         ActiveManipulatorId
                     );
-                });
+
+                    // Log set to driving state.
+                    LogDriveToTargetInsertion(targetDepth, baseSpeed, drivePastDistance);
+
+                    // Update ETA.
+                    Eta = ComputeEtaSeconds(targetProbeManager, baseSpeed, drivePastDistance);
+                    DriveProgressPercentage =
+                        _originalETA > 0 ? 1f - (float)Eta / _originalETA : 0f;
+
+                    // Handle driving state.
+                    switch (AutomationProgressState)
+                    {
+                        case AutomationProgressState.DrivingToNearTarget:
+                            // Drive to near target if not already there.
+                            if (
+                                GetCurrentDistanceToTarget(targetProbeManager)
+                                > NEAR_TARGET_DISTANCE
+                            )
+                            {
+                                var driveToNearTargetResponse = await _ephysLinkService.SetDepth(
+                                    new SetDepthRequest(
+                                        ActiveManipulatorId,
+                                        targetDepth - NEAR_TARGET_DISTANCE,
+                                        baseSpeed
+                                    )
+                                );
+
+                                if (EphysLinkService.HasError(driveToNearTargetResponse.Error))
+                                {
+                                    Debug.LogError(
+                                        $"Failed to drive to near target: {driveToNearTargetResponse.Error}"
+                                    );
+                                    return;
+                                }
+                            }
+                            break;
+
+                        case AutomationProgressState.DrivingToPastTarget:
+                            // Drive past target at reduced speed.
+                            var driveToPastTargetResponse = await _ephysLinkService.SetDepth(
+                                new SetDepthRequest(
+                                    ActiveManipulatorId,
+                                    targetDepth + drivePastDistance,
+                                    baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
+                                )
+                            );
+
+                            if (EphysLinkService.HasError(driveToPastTargetResponse.Error))
+                            {
+                                Debug.LogError(
+                                    $"Failed to drive past target: {driveToPastTargetResponse.Error}"
+                                );
+                                return;
+                            }
+                            break;
+
+                        case AutomationProgressState.ReturningToTarget:
+                            // Return to target at reduced speed.
+                            var returnToTargetResponse = await _ephysLinkService.SetDepth(
+                                new SetDepthRequest(
+                                    ActiveManipulatorId,
+                                    targetDepth,
+                                    baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER
+                                )
+                            );
+
+                            if (EphysLinkService.HasError(returnToTargetResponse.Error))
+                            {
+                                Debug.LogError(
+                                    $"Failed to return to target: {returnToTargetResponse.Error}"
+                                );
+                                return;
+                            }
+                            break;
+                    }
+
+                    // Complete this phase.
+                    _storeService.Store.Dispatch(
+                        SceneActions.COMPLETE_AUTOMATION_INTERMEDIATE_PROGRESS,
+                        ActiveManipulatorId
+                    );
+
+                    // Log the event.
+                    LogDriveToTargetInsertion(targetDepth, baseSpeed, drivePastDistance);
+                }
+
+                // Drive complete - reset ETA and progress.
+                Eta = 0;
+                DriveProgressPercentage = 1f;
+            }
+            catch (OperationCanceledException)
+            {
+                // Stopped by user - state already handled by StopInsertionDrive.
+            }
+            finally
+            {
+                _insertionDriveCts?.Dispose();
+                _insertionDriveCts = null;
+            }
+        }
+
+        [ICommand]
+        private async void InsertionExit()
+        {
+            // Validate state is exitable.
+            if (!IsExitable(AutomationProgressState))
+            {
+                Debug.LogError(
+                    $"Cannot exit: not in exitable state. Current state: {AutomationProgressState}"
+                );
+                return;
+            }
+
+            // Get scene state and target probe manager.
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var manipulatorState = sceneState.ActiveManipulatorState;
+
+            var targetProbeManager = ProbeManager.Instances.FirstOrDefault(m =>
+                m.name == manipulatorState.TargetInsertionProbeName
+            );
+            if (targetProbeManager == null)
+            {
+                Debug.LogError(
+                    $"Target probe manager not found: {manipulatorState.TargetInsertionProbeName}"
+                );
+                return;
+            }
+
+            // Convert speed from µm/s to mm/s.
+            var baseSpeed = CustomInsertionSpeed / 1000f;
+            var drivePastDistance = DrivePastDistance / 1000f;
+
+            // Set up cancellation token.
+            _insertionDriveCts = new CancellationTokenSource();
+
+            // Store initial ETA for progress calculation.
+            _originalETA = ComputeEtaSeconds(targetProbeManager, baseSpeed, drivePastDistance);
+
+            try
+            {
+                while (AutomationProgressState != AutomationProgressState.AtTargetEntryCoordinate)
+                {
+                    // Check for cancellation.
+                    _insertionDriveCts.Token.ThrowIfCancellationRequested();
+
+                    // Get dura depth for exit calculations.
+                    var currentManipulatorState = _storeService
+                        .Store.GetState<SceneState>(SliceNames.SCENE_SLICE)
+                        .ActiveManipulatorState;
+                    var duraDepth = currentManipulatorState.DuraDepth;
+
+                    // Set state to next exiting state.
+                    _storeService.Store.Dispatch(
+                        SceneActions.SET_AUTOMATION_PROGRESS_STATE_TO_NEXT_EXITING,
+                        ActiveManipulatorId
+                    );
+
+                    // Log set to exiting state.
+                    LogDriveToTargetInsertion(duraDepth, baseSpeed);
+
+                    // Update ETA.
+                    Eta = ComputeEtaSeconds(targetProbeManager, baseSpeed, drivePastDistance);
+                    DriveProgressPercentage =
+                        _originalETA > 0 ? 1f - (float)Eta / _originalETA : 0f;
+
+                    // Handle exiting state.
+                    switch (AutomationProgressState)
+                    {
+                        case AutomationProgressState.ExitingToDura:
+                            // Exit back up to the Dura.
+                            var exitToDuraResponse = await _ephysLinkService.SetDepth(
+                                new SetDepthRequest(
+                                    ActiveManipulatorId,
+                                    duraDepth,
+                                    baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
+                                )
+                            );
+
+                            if (EphysLinkService.HasError(exitToDuraResponse.Error))
+                            {
+                                Debug.LogError(
+                                    $"Failed to exit to dura: {exitToDuraResponse.Error}"
+                                );
+                                return;
+                            }
+                            break;
+
+                        case AutomationProgressState.ExitingToMargin:
+                            // Reset dura offset.
+                            _storeService.Store.Dispatch(
+                                SceneActions.RESET_DURA_OFFSET,
+                                ActiveManipulatorId
+                            );
+
+                            // Exit to the safe margin above the Dura.
+                            var exitToMarginResponse = await _ephysLinkService.SetDepth(
+                                new SetDepthRequest(
+                                    ActiveManipulatorId,
+                                    duraDepth - DURA_MARGIN_DISTANCE,
+                                    baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER
+                                )
+                            );
+
+                            if (EphysLinkService.HasError(exitToMarginResponse.Error))
+                            {
+                                Debug.LogError(
+                                    $"Failed to exit to margin: {exitToMarginResponse.Error}"
+                                );
+                                return;
+                            }
+                            break;
+
+                        case AutomationProgressState.ExitingToTargetEntryCoordinate:
+                            // Drive to the target entry coordinate.
+                            var entryPosition = ConvertInsertionAPMLDVToManipulatorPosition(
+                                _trajectoryCoordinates.third
+                            );
+                            if (entryPosition == null)
+                            {
+                                Debug.LogError(
+                                    "Failed to convert entry coordinate to manipulator position"
+                                );
+                                return;
+                            }
+
+                            var exitToEntryCoordinateResponse = await _ephysLinkService.SetPosition(
+                                new SetPositionRequest(
+                                    ActiveManipulatorId,
+                                    entryPosition.Value,
+                                    AUTOMATIC_MOVEMENT_SPEED
+                                )
+                            );
+
+                            if (EphysLinkService.HasError(exitToEntryCoordinateResponse.Error))
+                            {
+                                Debug.LogError(
+                                    $"Failed to exit to entry coordinate: {exitToEntryCoordinateResponse.Error}"
+                                );
+                                return;
+                            }
+                            break;
+                    }
+
+                    // Complete this phase.
+                    _storeService.Store.Dispatch(
+                        SceneActions.COMPLETE_AUTOMATION_INTERMEDIATE_PROGRESS,
+                        ActiveManipulatorId
+                    );
+
+                    // Log the event.
+                    LogDriveToTargetInsertion(duraDepth, baseSpeed);
+                }
+
+                // Exit complete - reset ETA and progress.
+                Eta = 0;
+                DriveProgressPercentage = 1f;
+            }
+            catch (OperationCanceledException)
+            {
+                // Stopped by user - state already handled by StopInsertionDrive.
+            }
+            finally
+            {
+                _insertionDriveCts?.Dispose();
+                _insertionDriveCts = null;
+            }
+        }
+
+        [ICommand]
+        private async void StopInsertionDrive()
+        {
+            // Cancel ongoing drive operation.
+            _insertionDriveCts?.Cancel();
+
+            // Send stop command to manipulator.
+            var stopResponse = await _ephysLinkService.Stop(ActiveManipulatorId);
+
+            if (EphysLinkService.HasError(stopResponse))
+            {
+                Debug.LogError($"Failed to stop: {stopResponse}");
+                return;
+            }
+
+            // Log stop event.
+            OutputLog.Log(
+                new[]
+                {
+                    "Automation",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "Drive",
+                    ActiveManipulatorId,
+                    "Stop",
+                }
+            );
+
+            // Cancel intermediate progress (revert state).
+            _storeService.Store.Dispatch(
+                SceneActions.CANCEL_AUTOMATION_INTERMEDIATE_PROGRESS,
+                ActiveManipulatorId
+            );
+
+            // Reset ETA and progress.
+            Eta = 0;
+            DriveProgressPercentage = 0f;
+        }
+
+        [ICommand]
+        private void SetDrivePastDistance(int distance)
+        {
+            _storeService.Store.Dispatch(
+                SceneActions.SET_DRIVE_PAST_DISTANCE,
+                (ActiveManipulatorId, distance)
+            );
         }
 
         #endregion
@@ -874,6 +1237,203 @@ namespace UI.ViewModels
 
             // Apply coordinate offsets and return result
             return posInManipulatorTransform + activeManipulatorState.ReferenceCoordinateOffset;
+        }
+
+        #endregion
+
+        #region Insertion Helper Methods
+
+        /// <summary>
+        ///     Check if the current state allows starting or resuming insertion drive.
+        /// </summary>
+        private static bool IsInsertable(AutomationProgressState state)
+        {
+            return state
+                is AutomationProgressState.AtDuraInsert
+                    or AutomationProgressState.AtNearTargetInsert
+                    or AutomationProgressState.AtPastTarget
+                    or AutomationProgressState.AtTarget;
+        }
+
+        /// <summary>
+        ///     Check if the current state allows starting or resuming exit.
+        /// </summary>
+        private static bool IsExitable(AutomationProgressState state)
+        {
+            return state
+                is AutomationProgressState.AtDuraInsert
+                    or AutomationProgressState.AtNearTargetInsert
+                    or AutomationProgressState.AtPastTarget
+                    or AutomationProgressState.AtTarget
+                    or AutomationProgressState.AtDuraExit
+                    or AutomationProgressState.AtExitMargin;
+        }
+
+        /// <summary>
+        ///     Compute the target coordinate adjusted for the probe's actual position.
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Target probe manager.</param>
+        /// <returns>APMLDV coordinates of where the probe should actually go.</returns>
+        private Vector3 GetOffsetAdjustedTargetCoordinate(ProbeManager targetInsertionProbeManager)
+        {
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
+            var visualizationProbeManager = ProbeManager.Instances.FirstOrDefault(m =>
+                m.name == visualizationProbeName
+            );
+
+            if (visualizationProbeManager == null)
+                return Vector3.negativeInfinity;
+
+            // Extract target insertion.
+            var targetInsertion = targetInsertionProbeManager.ProbeController.Insertion;
+
+            var targetWorldT = targetInsertion.PositionWorldT();
+            var relativePositionWorldT =
+                visualizationProbeManager.ProbeController.Insertion.PositionWorldT() - targetWorldT;
+            var probeTipTForward = visualizationProbeManager.ProbeController.ProbeTipT.forward;
+            var offsetAdjustedRelativeTargetPositionWorldT = Vector3.ProjectOnPlane(
+                relativePositionWorldT,
+                probeTipTForward
+            );
+            var offsetAdjustedTargetCoordinateWorldT =
+                targetWorldT + offsetAdjustedRelativeTargetPositionWorldT;
+
+            // Convert worldT to AtlasT then switch axes to get APMLDV.
+            var offsetAdjustedTargetCoordinateAtlasT =
+                BrainAtlasManager.ActiveReferenceAtlas.World2Atlas(
+                    offsetAdjustedTargetCoordinateWorldT
+                );
+            return BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
+                offsetAdjustedTargetCoordinateAtlasT
+            );
+        }
+
+        /// <summary>
+        ///     Compute the absolute distance from the target insertion to the Dura.
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Target to compute distance to.</param>
+        /// <returns>Distance in mm to the target from the Dura.</returns>
+        private float GetTargetDistanceToDura(ProbeManager targetInsertionProbeManager)
+        {
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var duraCoordinate = sceneState.ActiveManipulatorState.DuraCoordinate;
+            return Vector3.Distance(
+                GetOffsetAdjustedTargetCoordinate(targetInsertionProbeManager),
+                new Vector3(duraCoordinate.x, duraCoordinate.y, duraCoordinate.z)
+            );
+        }
+
+        /// <summary>
+        ///     Compute the current distance to the target insertion.
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Target probe manager.</param>
+        /// <returns>Distance in mm to the target from the probe.</returns>
+        private float GetCurrentDistanceToTarget(ProbeManager targetInsertionProbeManager)
+        {
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
+            var visualizationProbeState = sceneState.Probes.FirstOrDefault(p =>
+                p.Name == visualizationProbeName
+            );
+
+            if (visualizationProbeState == null)
+                return float.NaN;
+
+            return Vector3.Distance(
+                visualizationProbeState.APMLDV,
+                GetOffsetAdjustedTargetCoordinate(targetInsertionProbeManager)
+            );
+        }
+
+        /// <summary>
+        ///     Compute the target depth for the probe to drive to.
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Target to drive (insert) to.</param>
+        /// <returns>The depth the manipulator needs to drive to reach the target insertion.</returns>
+        private float GetTargetDepth(ProbeManager targetInsertionProbeManager)
+        {
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var duraDepth = sceneState.ActiveManipulatorState.DuraDepth;
+            return duraDepth + GetTargetDistanceToDura(targetInsertionProbeManager);
+        }
+
+        /// <summary>
+        ///     Compute the ETA in seconds for a probe to reach a target insertion (or exit).
+        /// </summary>
+        /// <param name="targetInsertionProbeManager">Target to calculate ETA to.</param>
+        /// <param name="baseSpeed">Base driving speed in mm/s.</param>
+        /// <param name="drivePastDistance">Distance to drive past target in mm.</param>
+        /// <returns>ETA in seconds for reaching a target or exiting.</returns>
+        private int ComputeEtaSeconds(
+            ProbeManager targetInsertionProbeManager,
+            float baseSpeed,
+            float drivePastDistance
+        )
+        {
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var manipulatorState = sceneState.ActiveManipulatorState;
+
+            var distanceToTarget = GetCurrentDistanceToTarget(targetInsertionProbeManager);
+            var targetDistanceToDura = GetTargetDistanceToDura(targetInsertionProbeManager);
+            var actualExitMarginToDuraDistance = manipulatorState.DuraDepth - _entryCoordinateDepth;
+
+            var secondsToDestination = AutomationProgressState switch
+            {
+                AutomationProgressState.DrivingToNearTarget => Mathf.Max(
+                    0,
+                    distanceToTarget - NEAR_TARGET_DISTANCE
+                ) / baseSpeed
+                    + (NEAR_TARGET_DISTANCE + 2 * drivePastDistance)
+                        / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER),
+                AutomationProgressState.DrivingToPastTarget => (
+                    distanceToTarget + 2 * drivePastDistance
+                ) / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER),
+                AutomationProgressState.ReturningToTarget => distanceToTarget
+                    / (baseSpeed * NEAR_TARGET_SPEED_MULTIPLIER),
+                AutomationProgressState.ExitingToDura => (targetDistanceToDura - distanceToTarget)
+                    / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER)
+                    + DURA_MARGIN_DISTANCE / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER)
+                    + actualExitMarginToDuraDistance / AUTOMATIC_MOVEMENT_SPEED,
+                AutomationProgressState.ExitingToMargin => (
+                    DURA_MARGIN_DISTANCE - (distanceToTarget - targetDistanceToDura)
+                ) / (baseSpeed * EXIT_DRIVE_SPEED_MULTIPLIER)
+                    + actualExitMarginToDuraDistance / AUTOMATIC_MOVEMENT_SPEED,
+                AutomationProgressState.ExitingToTargetEntryCoordinate => (
+                    IDEAL_ENTRY_COORDINATE_TO_DURA_DISTANCE
+                    - (distanceToTarget - targetDistanceToDura)
+                ) / AUTOMATIC_MOVEMENT_SPEED,
+                _ => 0,
+            };
+
+            return (int)secondsToDestination;
+        }
+
+        /// <summary>
+        ///     Log a drive event.
+        /// </summary>
+        /// <param name="targetDepth">Target depth of drive.</param>
+        /// <param name="baseSpeed">Base speed of drive.</param>
+        /// <param name="drivePastDistance">Distance (mm) driven past the target.</param>
+        private void LogDriveToTargetInsertion(
+            float targetDepth,
+            float baseSpeed,
+            float drivePastDistance = 0
+        )
+        {
+            OutputLog.Log(
+                new[]
+                {
+                    "Automation",
+                    DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    "DriveToTargetInsertion",
+                    ActiveManipulatorId,
+                    AutomationProgressState.ToString(),
+                    (targetDepth * 1000).ToString(CultureInfo.InvariantCulture),
+                    (baseSpeed * 1000).ToString(CultureInfo.InvariantCulture),
+                    (drivePastDistance * 1000).ToString(CultureInfo.InvariantCulture),
+                }
+            );
         }
 
         #endregion

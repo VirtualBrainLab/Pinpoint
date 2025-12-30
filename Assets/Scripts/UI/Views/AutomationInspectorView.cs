@@ -182,6 +182,10 @@ namespace UI.Views
             var targetInsertionDrivePastDistanceField = root.Q<IntField>(
                 "automation-inspector__target-insertion--drive-past-distance-field"
             );
+            targetInsertionDrivePastDistanceField.RegisterValueChangedCallback(evt =>
+                _automationInspectorViewModel.SetDrivePastDistanceCommand.Execute(evt.newValue)
+            );
+
             var targetInsertionETAText = root.Q<Text>(
                 "automation-inspector__target-insertion--eta-text"
             );
@@ -191,12 +195,23 @@ namespace UI.Views
             var targetInsertionDriveButton = root.Q<Button>(
                 "automation-inspector__target-insertion--drive-button"
             );
+            targetInsertionDriveButton.clickable.clicked += _automationInspectorViewModel
+                .InsertionDriveCommand
+                .Execute;
+
             var targetInsertionExitButton = root.Q<Button>(
                 "automation-inspector__target-insertion--exit-button"
             );
+            targetInsertionExitButton.clickable.clicked += _automationInspectorViewModel
+                .InsertionExitCommand
+                .Execute;
+
             var targetInsertionStopButton = root.Q<Button>(
                 "automation-inspector__target-insertion--stop-button"
             );
+            targetInsertionStopButton.clickable.clicked += _automationInspectorViewModel
+                .StopInsertionDriveCommand
+                .Execute;
 
             // Register property change handlers.
             _automationInspectorViewModel.PropertyChanged += OnPropertyChanged;
