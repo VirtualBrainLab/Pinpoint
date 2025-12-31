@@ -1011,18 +1011,15 @@ namespace UI.ViewModels
                 entryCoordinateAtlasU
             );
 
-            // Get current manipulator coordinate from Redux.
-            var currentState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-            var visualizationProbeName = currentState.ActiveManipulatorState.VisualizationProbeName;
-            var visualizationProbeState = currentState.Probes.FirstOrDefault(state => state.Name == visualizationProbeName);
-
-            if (visualizationProbeState == null)
+            // Get current visualization probe coordinate using ProbeController local values.
+            var currentCoordinateNullable = GetVisualizationProbeAPMLDV();
+            if (currentCoordinateNullable == null)
             {
-                Debug.LogError($"Visualization probe state not found: {visualizationProbeName}");
+                Debug.LogError("Visualization probe not found");
                 return Vector3.negativeInfinity;
             }
 
-            var currentCoordinate = visualizationProbeState.APMLDV;
+            var currentCoordinate = currentCoordinateNullable.Value;
 
             // Create 3-stage trajectory
             // Stage 1: DV movement (change depth only)
@@ -1113,18 +1110,15 @@ namespace UI.ViewModels
             )
                 return;
 
-            // Get active probe world state for current tip position from Redux
-            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-            var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
-            var activeProbeWorldState = GetProbeWorldState(visualizationProbeName);
-
-            if (activeProbeWorldState == null)
+            // Get visualization probe tip position using ProbeController local values
+            var tipWorldT = GetVisualizationProbeTipWorldT();
+            if (tipWorldT == null)
                 return;
 
             // DV line: From current probe tip to first coordinate
             _trajectoryLineRenderers.dv.SetPosition(
                 0,
-                activeProbeWorldState.TipPositionWorldT
+                tipWorldT.Value
             );
             _trajectoryLineRenderers.dv.SetPosition(
                 1,
@@ -1255,6 +1249,77 @@ namespace UI.ViewModels
         #region Insertion Helper Methods
 
         /// <summary>
+        ///     Get the visualization probe's current tip position in world space.
+        ///     For visualization probes, uses ProbeController local values; otherwise uses ProbeWorldState.
+        /// </summary>
+        private Vector3? GetVisualizationProbeTipWorldT()
+        {
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
+
+            var visualizationProbeManager = ProbeManager.Instances.FirstOrDefault(m =>
+                m.name == visualizationProbeName
+            );
+            if (visualizationProbeManager == null)
+                return null;
+
+            var probeController = visualizationProbeManager.ProbeController;
+            if (probeController.IsVisualizationProbe)
+            {
+                // Convert local APMLDV to world position
+                return BrainAtlasManager.ActiveReferenceAtlas.Atlas2World(
+                    BrainAtlasManager.ActiveAtlasTransform.T2U_Vector(
+                        probeController.VisualizationLocalAPMLDV
+                    )
+                );
+            }
+
+            var probeWorldState = GetProbeWorldState(visualizationProbeName);
+            return probeWorldState?.TipPositionWorldT;
+        }
+
+        /// <summary>
+        ///     Get the visualization probe's current APMLDV coordinates.
+        ///     For visualization probes, uses ProbeController local values.
+        /// </summary>
+        private Vector3? GetVisualizationProbeAPMLDV()
+        {
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
+
+            var visualizationProbeManager = ProbeManager.Instances.FirstOrDefault(m =>
+                m.name == visualizationProbeName
+            );
+            if (visualizationProbeManager == null)
+                return null;
+
+            var probeController = visualizationProbeManager.ProbeController;
+            return probeController.IsVisualizationProbe
+                ? probeController.VisualizationLocalAPMLDV
+                : probeController.Insertion.APMLDV;
+        }
+
+        /// <summary>
+        ///     Get the visualization probe's forward direction in transformed space.
+        /// </summary>
+        private Vector3? GetVisualizationProbeForwardT()
+        {
+            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
+            var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
+
+            var visualizationProbeManager = ProbeManager.Instances.FirstOrDefault(m =>
+                m.name == visualizationProbeName
+            );
+            if (visualizationProbeManager == null)
+                return null;
+
+            var probeController = visualizationProbeManager.ProbeController;
+            return probeController.IsVisualizationProbe
+                ? probeController.VisualizationLocalForwardT
+                : probeController.ProbeTipT.forward;
+        }
+
+        /// <summary>
         ///     Check if the current state allows starting or resuming insertion drive.
         /// </summary>
         private static bool IsInsertable(AutomationProgressState state)
@@ -1287,25 +1352,24 @@ namespace UI.ViewModels
         /// <returns>APMLDV coordinates of where the probe should actually go.</returns>
         private Vector3 GetOffsetAdjustedTargetCoordinate(string targetProbeName)
         {
-            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-            var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
-
-            // Get world states from Redux
+            // Get target probe world state from Redux (target probes are NOT visualization probes)
             var targetProbeWorldState = GetProbeWorldState(targetProbeName);
-            var visualizationProbeWorldState = GetProbeWorldState(visualizationProbeName);
-
-            if (targetProbeWorldState == null || visualizationProbeWorldState == null)
+            if (targetProbeWorldState == null)
                 return Vector3.negativeInfinity;
 
-            // Get world positions from Redux
-            var targetWorldT = targetProbeWorldState.TipPositionWorldT;
-            var visualizationWorldT = visualizationProbeWorldState.TipPositionWorldT;
-            var probeTipTForward = visualizationProbeWorldState.TipForwardWorldU;
+            // Get visualization probe position and forward using ProbeController local values
+            var visualizationWorldT = GetVisualizationProbeTipWorldT();
+            var probeTipForward = GetVisualizationProbeForwardT();
 
-            var relativePositionWorldT = visualizationWorldT - targetWorldT;
+            if (visualizationWorldT == null || probeTipForward == null)
+                return Vector3.negativeInfinity;
+
+            var targetWorldT = targetProbeWorldState.TipPositionWorldT;
+
+            var relativePositionWorldT = visualizationWorldT.Value - targetWorldT;
             var offsetAdjustedRelativeTargetPositionWorldT = Vector3.ProjectOnPlane(
                 relativePositionWorldT,
-                probeTipTForward
+                probeTipForward.Value
             );
             var offsetAdjustedTargetCoordinateWorldT =
                 targetWorldT + offsetAdjustedRelativeTargetPositionWorldT;
@@ -1342,17 +1406,13 @@ namespace UI.ViewModels
         /// <returns>Distance in mm to the target from the probe.</returns>
         private float GetCurrentDistanceToTarget(string targetProbeName)
         {
-            var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
-            var visualizationProbeName = sceneState.ActiveManipulatorState.VisualizationProbeName;
-            var visualizationProbeState = sceneState.Probes.FirstOrDefault(p =>
-                p.Name == visualizationProbeName
-            );
-
-            if (visualizationProbeState == null)
+            // Get visualization probe APMLDV using ProbeController local values
+            var visualizationAPMLDV = GetVisualizationProbeAPMLDV();
+            if (visualizationAPMLDV == null)
                 return float.NaN;
 
             return Vector3.Distance(
-                visualizationProbeState.APMLDV,
+                visualizationAPMLDV.Value,
                 GetOffsetAdjustedTargetCoordinate(targetProbeName)
             );
         }
@@ -1366,6 +1426,8 @@ namespace UI.ViewModels
         {
             var sceneState = _storeService.Store.GetState<SceneState>(SliceNames.SCENE_SLICE);
             var duraDepth = sceneState.ActiveManipulatorState.DuraDepth;
+
+            // DuraOffset is for visualization only - do not apply it to manipulator depth calculations
             return duraDepth + GetTargetDistanceToDura(targetProbeName);
         }
 

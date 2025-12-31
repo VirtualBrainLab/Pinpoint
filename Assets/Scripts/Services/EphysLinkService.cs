@@ -718,7 +718,7 @@ namespace Services
 
                 var depth = sceneState.NumberOfAxesOnManipulator switch
                 {
-                    3 => duraOffsetAdjustment,
+                    3 => duraOffsetAdjustment, // Positive moves probe forward/deeper into brain
                     4 => referenceCoordinateAdjustedManipulatorPosition.w,
                     _ => throw new ValueOutOfRangeException(
                         "Number of axes on manipulator is invalid."
