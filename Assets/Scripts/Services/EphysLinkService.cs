@@ -716,7 +716,7 @@ namespace Services
                 if (probeController == null)
                     continue;
 
-                var depth = sceneState.NumberOfAxesOnManipulator switch
+                var depthToApply = sceneState.NumberOfAxesOnManipulator switch
                 {
                     3 => duraOffsetAdjustment, // Positive moves probe forward/deeper into brain
                     4 => referenceCoordinateAdjustedManipulatorPosition.w,
@@ -725,9 +725,11 @@ namespace Services
                     ),
                 };
 
+                // Bake depth into APMLDV along forward vector
+                var finalAPMLDV = transformedAPMLDV + forwardT * depthToApply;
+
                 // Write position data directly to ProbeController's local fields
-                probeController.VisualizationLocalAPMLDV = transformedAPMLDV;
-                probeController.VisualizationLocalDepth = depth;
+                probeController.VisualizationLocalAPMLDV = finalAPMLDV;
                 probeController.VisualizationLocalAngles = manipulatorState.Angles;
                 probeController.VisualizationLocalForwardT = forwardT;
 

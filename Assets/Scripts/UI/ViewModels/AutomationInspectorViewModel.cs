@@ -1296,7 +1296,7 @@ namespace UI.ViewModels
             var probeController = visualizationProbeManager.ProbeController;
             return probeController.IsVisualizationProbe
                 ? probeController.VisualizationLocalAPMLDV
-                : probeController.Insertion.APMLDV;
+                : null;
         }
 
         /// <summary>

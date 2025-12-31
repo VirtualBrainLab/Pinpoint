@@ -942,13 +942,6 @@ return Vector3.right;
         transform.RotateAround(_probeTipT.position, transform.right, VisualizationLocalAngles.y);
         transform.RotateAround(_probeTipT.position, transform.forward, -VisualizationLocalAngles.z);
 
-        // Apply brain surface depth offset (persistent offset from manipulator position).
-        // This offset is set by EphysLinkService and should not be reset.
-        if (VisualizationLocalDepth != 0f)
-        {
-            transform.position += transform.forward * VisualizationLocalDepth;
-        }
-
         // Update tip coords.
         SetTipWorldU();
 
