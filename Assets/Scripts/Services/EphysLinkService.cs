@@ -704,16 +704,6 @@ namespace Services
                     referenceCoordinateAdjustedWorldPosition
                 );
 
-                // Cancel update if the manipulator's position did not change by a lot.
-                var probeState = sceneState.Probes.FirstOrDefault(state =>
-                    state.Name == manipulatorState.VisualizationProbeName
-                );
-                if (
-                    probeState == null
-                    || Vector3.SqrMagnitude(transformedAPMLDV - probeState.APMLDV) < 0.0001f
-                )
-                    continue;
-
                 // Get the current forward vector of the probe.
                 var forwardT = BrainAtlasManager.ActiveAtlasTransform.U2T_Vector(
                     BrainAtlasManager.ActiveReferenceAtlas.World2Atlas_Vector(
@@ -726,18 +716,20 @@ namespace Services
                 if (probeController == null)
                     continue;
 
-                var depth = sceneState.NumberOfAxesOnManipulator switch
+                var depthToApply = sceneState.NumberOfAxesOnManipulator switch
                 {
-                    3 => duraOffsetAdjustment,
+                    3 => duraOffsetAdjustment, // Positive moves probe forward/deeper into brain
                     4 => referenceCoordinateAdjustedManipulatorPosition.w,
                     _ => throw new ValueOutOfRangeException(
                         "Number of axes on manipulator is invalid."
                     ),
                 };
 
+                // Bake depth into APMLDV along forward vector
+                var finalAPMLDV = transformedAPMLDV + forwardT * depthToApply;
+
                 // Write position data directly to ProbeController's local fields
-                probeController.VisualizationLocalAPMLDV = transformedAPMLDV;
-                probeController.VisualizationLocalDepth = depth;
+                probeController.VisualizationLocalAPMLDV = finalAPMLDV;
                 probeController.VisualizationLocalAngles = manipulatorState.Angles;
                 probeController.VisualizationLocalForwardT = forwardT;
 

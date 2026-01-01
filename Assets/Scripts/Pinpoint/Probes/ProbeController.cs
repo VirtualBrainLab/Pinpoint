@@ -37,11 +37,6 @@ public abstract class ProbeController : MonoBehaviour
     public Vector3 VisualizationLocalAPMLDV { get; set; }
     
     /// <summary>
-    /// Local field for visualization probe depth.
-    /// </summary>
-    public float VisualizationLocalDepth { get; set; }
-    
-    /// <summary>
     /// Local field for visualization probe angles.
     /// </summary>
     public Vector3 VisualizationLocalAngles { get; set; }
