@@ -1,7 +1,10 @@
 # Pinpoint
 
 > [!IMPORTANT]
-> A new version of Pinpoint will be released in the near future that is cloud-native and will begin receiving regular support. We'll close out the backlog of issues at that time!
+> We are launching beta testing for [Pinpoint V](https://pinpoint.allenneuraldynamics.org/) this week and ending support for Pinpoint v2. Please try out the new system. Major improvements include full support for all BrainGlobe atlases, access to all probes in the SpikeInterface probe library, and proper support for custom atlases and 3D models. The new back-end can now export the full 3D scene as well as sync to the cloud linked to your ORCiD.
+
+> [!WARNING]
+> Pinpoint v2 is no longer being maintained.
 
 Pinpoint is a tool for planning trajectories in the space of brain reference atlases, such as the mouse CCF.
 
